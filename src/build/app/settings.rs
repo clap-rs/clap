@@ -1,8 +1,8 @@
 // Std
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
-use std::str::FromStr;
 use std::ops::BitOr;
+use std::str::FromStr;
 
 bitflags! {
     struct Flags: u64 {
@@ -62,8 +62,11 @@ impl BitOr for AppFlags {
 impl Default for AppFlags {
     fn default() -> Self {
         AppFlags(
-            Flags::NEEDS_LONG_VERSION | Flags::NEEDS_LONG_HELP | Flags::NEEDS_SC_HELP
-                | Flags::UTF8_NONE | Flags::COLOR_AUTO,
+            Flags::NEEDS_LONG_VERSION
+                | Flags::NEEDS_LONG_HELP
+                | Flags::NEEDS_SC_HELP
+                | Flags::UTF8_NONE
+                | Flags::COLOR_AUTO,
         )
     }
 }
@@ -713,7 +716,10 @@ pub enum AppSettings {
     ///
     /// assert!(m.subcommand_matches("foo").is_none());
     /// ```
-    #[deprecated(since = "2.27.0", note = "No longer required to propagate values")]
+    #[deprecated(
+        since = "2.27.0",
+        note = "No longer required to propagate values"
+    )]
     PropagateGlobalValuesDown,
 
     /// Allows [`SubCommand`]s to override all requirements of the parent command.
@@ -925,23 +931,32 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     WaitOnError,
 
-    #[doc(hidden)] NeedsLongVersion,
+    #[doc(hidden)]
+    NeedsLongVersion,
 
-    #[doc(hidden)] NeedsLongHelp,
+    #[doc(hidden)]
+    NeedsLongHelp,
 
-    #[doc(hidden)] NeedsSubcommandHelp,
+    #[doc(hidden)]
+    NeedsSubcommandHelp,
 
-    #[doc(hidden)] LowIndexMultiplePositional,
+    #[doc(hidden)]
+    LowIndexMultiplePositional,
 
-    #[doc(hidden)] TrailingValues,
+    #[doc(hidden)]
+    TrailingValues,
 
-    #[doc(hidden)] ValidNegNumFound,
+    #[doc(hidden)]
+    ValidNegNumFound,
 
-    #[doc(hidden)] Propagated,
+    #[doc(hidden)]
+    Propagated,
 
-    #[doc(hidden)] ValidArgFound,
+    #[doc(hidden)]
+    ValidArgFound,
 
-    #[doc(hidden)] ContainsLast,
+    #[doc(hidden)]
+    ContainsLast,
 }
 
 impl FromStr for AppSettings {

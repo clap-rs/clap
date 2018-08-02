@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
-use std::str::FromStr;
 use std::fmt;
+use std::str::FromStr;
 
 /// Describes which shell to produce a completions file for
 #[cfg_attr(feature = "lints", allow(enum_variant_names))]
@@ -36,7 +36,9 @@ impl FromStr for Shell {
             "BASH" | _ if s.eq_ignore_ascii_case("bash") => Ok(Shell::Bash),
             "POWERSHELL" | _ if s.eq_ignore_ascii_case("powershell") => Ok(Shell::PowerShell),
             "ELVISH" | _ if s.eq_ignore_ascii_case("elvish") => Ok(Shell::Elvish),
-            _ => Err(String::from("[valid values: bash, fish, zsh, powershell, elvish]")),
+            _ => Err(String::from(
+                "[valid values: bash, fish, zsh, powershell, elvish]",
+            )),
         }
     }
 }
@@ -49,7 +51,7 @@ impl fmt::Display for Shell {
             Shell::Zsh => write!(f, "ZSH"),
             Shell::PowerShell => write!(f, "POWERSHELL"),
             Shell::Elvish => write!(f, "ELVISH"),
-            _ => panic!("Unsupported shell type for completion generation")
+            _ => panic!("Unsupported shell type for completion generation"),
         }
     }
 }

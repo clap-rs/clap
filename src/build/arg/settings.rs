@@ -86,7 +86,7 @@ pub enum ArgSettings {
     AllowEmptyValues,
     /// Sets an arg to be global (i.e. exist in all subcommands)
     /// **DEPRECATED**
-    #[deprecated(since="2.32.0", note="Use `App::global_arg` instead")]
+    #[deprecated(since = "2.32.0", note = "Use `App::global_arg` instead")]
     Global,
     /// Hides an arg from the help message
     Hidden,
@@ -119,8 +119,10 @@ pub enum ArgSettings {
     HiddenShortHelp,
     /// The argument should **not** be shown in long help text
     HiddenLongHelp,
-    #[doc(hidden)] RequiredUnlessAll,
-    #[doc(hidden)] ValueDelimiterNotSet,
+    #[doc(hidden)]
+    RequiredUnlessAll,
+    #[doc(hidden)]
+    ValueDelimiterNotSet,
 }
 
 impl FromStr for ArgSettings {

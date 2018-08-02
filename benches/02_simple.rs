@@ -8,15 +8,17 @@ use clap::{App, Arg};
 use test::Bencher;
 
 macro_rules! create_app {
-    () => ({
+    () => {{
         App::new("claptests")
-                .version("0.1")
-                .about("tests clap library")
-                .author("Kevin K. <kbknapp@gmail.com>")
-                .args_from_usage("-f --flag         'tests flags'
+            .version("0.1")
+            .about("tests clap library")
+            .author("Kevin K. <kbknapp@gmail.com>")
+            .args_from_usage(
+                "-f --flag         'tests flags'
                                   -o --option=[opt] 'tests options'
-                                  [positional]      'tests positional'")
-    })
+                                  [positional]      'tests positional'",
+            )
+    }};
 }
 
 #[bench]

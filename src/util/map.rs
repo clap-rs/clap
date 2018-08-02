@@ -6,8 +6,8 @@ pub use self::vec_map::{Values, VecMap};
 
 #[cfg(not(feature = "vec_map"))]
 mod vec_map {
-    use std::collections::BTreeMap;
     use std::collections::btree_map;
+    use std::collections::BTreeMap;
     use std::fmt::{self, Debug, Formatter};
 
     #[derive(Clone, Default, Debug)]

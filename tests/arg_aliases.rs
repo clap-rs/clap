@@ -59,22 +59,26 @@ fn multiple_aliases_of_option() {
             .help("multiple aliases")
             .aliases(&vec!["alias1", "alias2", "alias3"]),
     );
-    let long = a.clone()
+    let long = a
+        .clone()
         .get_matches_from_safe(vec!["", "--aliases", "value"]);
     assert!(long.is_ok());
     let long = long.unwrap();
 
-    let als1 = a.clone()
+    let als1 = a
+        .clone()
         .get_matches_from_safe(vec!["", "--alias1", "value"]);
     assert!(als1.is_ok());
     let als1 = als1.unwrap();
 
-    let als2 = a.clone()
+    let als2 = a
+        .clone()
         .get_matches_from_safe(vec!["", "--alias2", "value"]);
     assert!(als2.is_ok());
     let als2 = als2.unwrap();
 
-    let als3 = a.clone()
+    let als3 = a
+        .clone()
         .get_matches_from_safe(vec!["", "--alias3", "value"]);
     assert!(als3.is_ok());
     let als3 = als3.unwrap();

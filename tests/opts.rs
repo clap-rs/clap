@@ -398,10 +398,7 @@ fn issue_1047_min_zero_vals_default_val() {
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches<'static>, clap::Error> {
     App::new("opts")
-        .arg(
-            Arg::from("-o, --option [opt] 'some option'")
-                .setting(ArgSettings::AllowEmptyValues),
-        )
+        .arg(Arg::from("-o, --option [opt] 'some option'").setting(ArgSettings::AllowEmptyValues))
         .arg(Arg::from("--flag 'some flag'"))
         .try_get_matches_from(argv)
 }

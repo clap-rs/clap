@@ -8,7 +8,7 @@ use INTERNAL_ERROR_MSG;
 pub struct ElvishGen<'a, 'b, 'c>
 where
     'a: 'b,
-    'b: 'c
+    'b: 'c,
 {
     app: &'c App<'a, 'b>,
 }
@@ -20,10 +20,10 @@ impl<'a, 'b, 'c> ElvishGen<'a, 'b, 'c> {
         let bin_name = self.app.bin_name.as_ref().unwrap();
 
         let mut names = vec![];
-        let subcommands_cases =
-            generate_inner(self.app, "", &mut names);
+        let subcommands_cases = generate_inner(self.app, "", &mut names);
 
-        let result = format!(r#"
+        let result = format!(
+            r#"
 edit:completion:arg-completer[{bin_name}] = [@words]{{
     fn spaces [n]{{
         repeat $n ' ' | joins ''
@@ -54,10 +54,10 @@ edit:completion:arg-completer[{bin_name}] = [@words]{{
 // Escape string inside single quotes
 fn escape_string(string: &str) -> String { string.replace("'", "''") }
 
-fn get_tooltip<T : ToString>(help: Option<&str>, data: T) -> String {
+fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
     match help {
         Some(help) => escape_string(help),
-        _ => data.to_string()
+        _ => data.to_string(),
     }
 }
 
@@ -65,7 +65,11 @@ fn generate_inner<'a, 'b, 'c>(
     p: &'c App<'a, 'b>,
     previous_command_name: &str,
     names: &mut Vec<&'a str>,
-) -> String where 'a: 'b, 'b: 'c{
+) -> String
+where
+    'a: 'b,
+    'b: 'c,
+{
     debugln!("ElvishGen::generate_inner;");
     let command_name = if previous_command_name.is_empty() {
         p.bin_name.as_ref().expect(INTERNAL_ERROR_MSG).clone()
@@ -113,13 +117,11 @@ fn generate_inner<'a, 'b, 'c>(
         r"
         &'{}'= {{{}
         }}",
-        &command_name,
-        completions
+        &command_name, completions
     );
 
     for subcommand in &p.subcommands {
-        let subcommand_subcommands_cases =
-            generate_inner(&subcommand, &command_name, names);
+        let subcommand_subcommands_cases = generate_inner(&subcommand, &command_name, names);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }
 

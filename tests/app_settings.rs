@@ -498,8 +498,7 @@ fn leading_double_hyphen_trailingvararg() {
 
 #[test]
 fn unset_setting() {
-    let m = App::new("unset_setting")
-        .setting(AppSettings::AllArgsOverrideSelf);
+    let m = App::new("unset_setting").setting(AppSettings::AllArgsOverrideSelf);
     assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
 
     let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
@@ -660,7 +659,10 @@ fn missing_positional_no_hyphen() {
     let expected_args = vec!["arg1", "arg2", "arg3"];
 
     assert_eq!(m.value_of("BENCH"), expected_bench);
-    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+    assert_eq!(
+        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        &*expected_args
+    );
 }
 
 #[test]
@@ -678,7 +680,10 @@ fn missing_positional_hyphen() {
     let expected_args = vec!["arg1", "arg2", "arg3"];
 
     assert_eq!(m.value_of("BENCH"), expected_bench);
-    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+    assert_eq!(
+        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        &*expected_args
+    );
 }
 
 #[test]
@@ -702,7 +707,10 @@ fn missing_positional_hyphen_far_back() {
     assert_eq!(m.value_of("BENCH1"), expected_bench1);
     assert_eq!(m.value_of("BENCH2"), expected_bench2);
     assert_eq!(m.value_of("BENCH3"), expected_bench3);
-    assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &*expected_args);
+    assert_eq!(
+        m.values_of("ARGS").unwrap().collect::<Vec<_>>(),
+        &*expected_args
+    );
 }
 
 #[test]
@@ -911,7 +919,7 @@ fn aaos_opts_mult_req_delims() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(Arg::from("--opt [val]... 'some option'"))
         .get_matches_from_safe(vec![
-            "", "--opt", "first", "overides", "--opt", "some", "other", "val"
+            "", "--opt", "first", "overides", "--opt", "some", "other", "val",
         ]);
     assert!(res.is_ok());
     let m = res.unwrap();
