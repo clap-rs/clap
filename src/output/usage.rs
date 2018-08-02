@@ -53,7 +53,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             .unwrap_or_else(|| self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name));
         usage.push_str(&*name);
         let req_string = if incl_reqs {
-            self.get_required_usage_from(&[], None, true)
+            self.get_required_usage_from(&[], None, false)
                 .iter()
                 .fold(String::new(), |a, s| a + &format!(" {}", s)[..])
         } else {

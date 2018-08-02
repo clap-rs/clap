@@ -1397,7 +1397,7 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --birthday-song <song> --fake <some>:<val>
+    test [OPTIONS] --fake <some>:<val> --birthday-song <song>
 
 FLAGS:
     -h, --help       Prints help information
