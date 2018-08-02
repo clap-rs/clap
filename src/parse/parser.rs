@@ -1601,10 +1601,6 @@ where
 {
     fn contains_short(&self, s: char) -> bool { self.app.contains_short(s) }
 
-    pub(crate) fn required(&self) -> impl Iterator<Item = &str> {
-        self.required.iter().map(|s| &**s)
-    }
-
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub(crate) fn has_args(&self) -> bool { self.app.has_args() }
 

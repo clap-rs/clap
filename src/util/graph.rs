@@ -20,8 +20,6 @@ impl<T> ChildGraph<T>
 where
     T: Sized + PartialEq + Copy + Clone,
 {
-    pub fn new() -> Self { ChildGraph(Vec::new()) }
-
     pub fn with_capacity(s: usize) -> Self { ChildGraph(Vec::with_capacity(s)) }
 
     pub fn insert(&mut self, req: T) -> usize {

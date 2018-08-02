@@ -22,7 +22,7 @@ include = [
 	"Cargo.toml",
 	"README.md"
 ]
-repository = "https://github.com/kbknapp/clap-rs"
+repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
 readme = "README.md"
@@ -40,11 +40,11 @@ A simple to use, efficient, and full featured Command Line Argument Parser
 """
 
 [badges]
-travis-ci = { repository = "kbknapp/clap-rs" }
-appveyor = { repository = "kbknapp/clap-rs" }
-coveralls = { repository = "kbknapp/clap-rs", branch = "master" }
-is-it-maintained-issue-resolution = { repository = "kbknapp/clap-rs" }
-is-it-maintained-open-issues = { repository = "kbknapp/clap-rs" }
+travis-ci = { repository = "clap-rs/clap" }
+appveyor = { repository = "clap-rs/clap" }
+coveralls = { repository = "clap-rs/clap", branch = "master" }
+is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
+is-it-maintained-open-issues = { repository = "clap-rs/clap" }
 maintenance = {status = "actively-developed"}
 
 [dependencies]
