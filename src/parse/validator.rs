@@ -213,13 +213,27 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 .filter(|g| !g.multiple)
                 .find(|g| &g.name == name)
             {
-                should_err = self
+                let conf_with_self = self
                     .p
                     .app
                     .unroll_args_in_group(g.name)
                     .iter()
                     .filter(|a| matcher.contains(a))
                     .count() > 1;
+
+                let conf_with_arg = if let Some(ref c) = g.conflicts {
+                    c.iter().any(|x| matcher.contains(x))
+                } else {
+                    false
+                };
+
+                let arg_conf_with_gr = matcher
+                    .arg_names()
+                    .filter_map(|x| self.p.app.find(x))
+                    .filter_map(|x| x.blacklist.as_ref())
+                    .any(|c| c.iter().any(|c| c == &g.name));
+
+                should_err = conf_with_self || conf_with_arg || arg_conf_with_gr;
             } else if let Some(ma) = matcher.get(name) {
                 debugln!(
                     "Validator::validate_conflicts:iter:{}: matcher contains it...",
