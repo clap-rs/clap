@@ -1530,11 +1530,23 @@ where
             }
         }
 
-        let used_arg = format!("--{}", arg);
+        // let used_arg = format!("--{}", arg);
+        let used: Vec<&str> = matcher
+            .arg_names()
+            .filter(|ref n| {
+                if let Some(a) = self.app.find(**n) {
+                    !(self.required.contains(a.name) || a.is_set(ArgSettings::Hidden))
+                } else {
+                    true
+                }
+            })
+            // .chain(Some(arg).iter())
+            .map(|&n| n)
+            .collect();
         Err(ClapError::unknown_argument(
-            &*used_arg,
+            &*format!("--{}", arg),
             &*suffix.0,
-            &*Usage::new(self).create_usage_with_title(&[]),
+            &*Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
         ))
     }

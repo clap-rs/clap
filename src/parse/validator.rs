@@ -113,11 +113,22 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     p_vals.contains(&&*val_str)
                 };
                 if !ok {
+                    let used: Vec<&str> = matcher
+                        .arg_names()
+                        .filter(|ref n| {
+                            if let Some(a) = self.p.app.find(**n) {
+                                !(self.p.required.contains(a.name) || a.is_set(ArgSettings::Hidden))
+                            } else {
+                                true
+                            }
+                        })
+                        .map(|&n| n)
+                        .collect();
                     return Err(Error::invalid_value(
                         val_str,
                         p_vals,
                         arg,
-                        &*Usage::new(self.p).create_usage_with_title(&[]),
+                        &*Usage::new(self.p).create_usage_with_title(&*used),
                         self.p.app.color(),
                     ));
                 }
