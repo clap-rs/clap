@@ -29,17 +29,6 @@ fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
 const TAB: &'static str = "    ";
 
-// trait ArgWithOrder<'b, 'c>: Display + DispOrder {
-//     fn as_base(&self) -> &Arg<'b, 'c>;
-// }
-// impl<'b, 'c, T> ArgWithOrder<'b, 'c> for T
-// where
-//     T: Display + DispOrder,
-// {
-//     fn as_base(&self) -> &Arg<'b, 'c> { self }
-// }
-// fn as_arg_trait<'w, 'b, T: ArgWithOrder<'w, 'b>>(x: &T) -> &ArgWithOrder<'w, 'b> { x }
-
 macro_rules! color {
     ($_self:ident, $s:expr, $c:ident) => {
         if $_self.color {
@@ -783,7 +772,6 @@ impl<'w> Help<'w> {
         for sc in subcommands!(app).filter(|s| !s.is_set(AppSettings::Hidden)) {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
             self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
-            //self.longest = cmp::max(self.longest, sc.p.meta.name.len());
             btm.insert(sc.name.clone(), sc.clone());
         }
 

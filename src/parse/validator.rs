@@ -1,7 +1,6 @@
 // std
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
-use std::ffi::OsStr;
 
 // Internal
 use build::app::AppSettings as AS;
@@ -173,7 +172,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
     fn build_conflict_err(&self, name: &str, matcher: &ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let usg = Usage::new(self.p).create_usage_with_title(&[]);
-        if let Some(a) = self.p.app.find(name) {
+        if self.p.app.find(name).is_some() {
             for k in matcher.arg_names() {
                 if let Some(a) = self.p.app.find(k) {
                     if let Some(ref v) = a.blacklist {
@@ -351,10 +350,10 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 ma.vals
             );
             if let Some(arg) = self.p.app.find(name) {
-                self.validate_arg_num_vals(arg, ma, matcher)?;
+                self.validate_arg_num_vals(arg, ma)?;
                 self.validate_arg_values(arg, ma, matcher)?;
                 self.validate_arg_requires(arg, ma, matcher)?;
-                self.validate_arg_num_occurs(arg, ma, matcher)?;
+                self.validate_arg_num_occurs(arg, ma)?;
             } else {
                 let grp = self
                     .p
@@ -373,12 +372,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         Ok(())
     }
 
-    fn validate_arg_num_occurs(
-        &self,
-        a: &Arg,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()> {
+    fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debugln!("Validator::validate_arg_num_occurs: a={};", a.name);
         if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) {
             // Not the first time, and we don't allow multiples
@@ -391,12 +385,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         Ok(())
     }
 
-    fn validate_arg_num_vals(
-        &self,
-        a: &Arg,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher<'a>,
-    ) -> ClapResult<()> {
+    fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debugln!("Validator::validate_arg_num_vals;");
         if let Some(num) = a.num_vals {
             debugln!("Validator::validate_arg_num_vals: num_vals set...{}", num);
@@ -593,18 +582,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
                 $a.r_unless
                     .as_ref()
-                    .map(|ru| {
-                        !ru.iter().$how(|n| {
-                            $m.contains(n)
-                            // || {
-                            //     if let Some(grp) = $_self.app.groups.iter().find(|g| &g.name == n) {
-                            //         grp.args.iter().any(|arg| $m.contains(arg))
-                            //     } else {
-                            //         false
-                            //     }
-                            // }
-                        })
-                    })
+                    .map(|ru| !ru.iter().$how(|n| $m.contains(n)))
                     .unwrap_or(false)
             }};
         }
@@ -632,7 +610,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             "Validator::missing_required_error: reqs={:?}",
             self.p.required
         );
-        let mut usg = Usage::new(self.p);
+        let usg = Usage::new(self.p);
         let req_args = if let Some(x) = incl {
             usg.get_required_usage_from(&[x], Some(matcher), true)
                 .iter()

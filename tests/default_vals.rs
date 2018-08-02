@@ -220,7 +220,6 @@ fn default_if_arg_present_with_value_no_default_fail() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
-    //assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
 #[test]

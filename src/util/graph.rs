@@ -31,7 +31,7 @@ where
             self.0
                 .iter()
                 .enumerate()
-                .find(|(i, e)| e.id == req)
+                .find(|(_, e)| e.id == req)
                 .map(|(i, _)| i)
                 .unwrap()
         }

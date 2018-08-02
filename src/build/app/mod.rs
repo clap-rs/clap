@@ -10,7 +10,6 @@ use std::io::{self, BufRead, BufWriter, Write};
 use std::iter::Peekable;
 use std::path::{Path, PathBuf};
 use std::process;
-use std::slice::Iter;
 
 // Third Party
 #[cfg(feature = "yaml")]
@@ -1826,33 +1825,6 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         args
-    }
-
-    pub(crate) fn unroll_conflicts_for_group(&self, group: &'a str) -> Vec<&'a str> {
-        let mut g_vec = vec![group];
-        let mut confs = vec![];
-
-        while let Some(ref g) = g_vec.pop() {
-            if let Some(ref c_vec) = self
-                .groups
-                .iter()
-                .find(|grp| &grp.name == g)
-                .expect(INTERNAL_ERROR_MSG)
-                .conflicts
-            {
-                for c in c_vec {
-                    if !confs.contains(c) {
-                        if self.find(c).is_some() {
-                            confs.push(c)
-                        } else {
-                            g_vec.push(c);
-                        }
-                    }
-                }
-            }
-        }
-
-        confs
     }
 
     pub(crate) fn unroll_requirements_for_arg(

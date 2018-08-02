@@ -18,7 +18,6 @@ use std::mem;
     )
 )]
 use std::os::unix::ffi::OsStrExt;
-use std::slice::Iter;
 
 // Third party facade
 use util::VecMap;
@@ -26,7 +25,7 @@ use util::VecMap;
 // Internal
 use build::app::Propagation;
 use build::AppSettings as AS;
-use build::{App, Arg, ArgGroup, ArgSettings};
+use build::{App, Arg, ArgSettings};
 use output::Help;
 use output::Usage;
 use parse::errors::Error as ClapError;
@@ -88,10 +87,8 @@ fn count_arg<'a, 'b>(
         positionals.insert(i, a.name);
     } else if a.is_set(ArgSettings::TakesValue) {
         *num_opts += 1;
-    // a.unified_ord = *num_flags + *num_opts;
     } else {
         *num_flags += 1;
-        // a.unified_ord = *num_flags + *num_opts;
     }
 }
 
@@ -310,13 +307,6 @@ where
         debugln!("Parser::_build;");
 
         for a in &mut self.app.args {
-            // Add conditional requirements
-            // if let Some(ref r_ifs) = a.r_ifs {
-            //     for &(arg, val) in r_ifs {
-            //         self.r_ifs.push((arg, val, a.name));
-            //     }
-            // }
-
             // Add args with default requirements
             if a.is_set(ArgSettings::Required) {
                 debugln!("Parser::_build: adding {} to default requires", a.name);
@@ -969,34 +959,6 @@ where
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
 
-    //    fn _help(&self, mut use_long: bool) -> ClapError {
-    //        debugln!("Parser::_help: use_long={:?}", use_long && self.use_long_help());
-    //        use_long = use_long && self.use_long_help();
-    //        let mut buf = vec![];
-    //        match Help::write_parser_help(&mut buf, self, use_long) {
-    //            Err(e) => e,
-    //            _ => ClapError {
-    //                message: String::from_utf8(buf).unwrap_or_default(),
-    //                kind: ErrorKind::HelpDisplayed,
-    //                info: None,
-    //            },
-    //        }
-    //    }
-    //
-    //    fn _version(&self, use_long: bool) -> ClapError {
-    //        debugln!("Parser::_version: ");
-    //        let out = io::stdout();
-    //        let mut buf_w = BufWriter::new(out.lock());
-    //        match self.print_version(&mut buf_w, use_long) {
-    //            Err(e) => e,
-    //            _ => ClapError {
-    //                message: String::new(),
-    //                kind: ErrorKind::VersionDisplayed,
-    //                info: None,
-    //            },
-    //        }
-    //    }
-
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1530,7 +1492,6 @@ where
             }
         }
 
-        // let used_arg = format!("--{}", arg);
         let used: Vec<&str> = matcher
             .arg_names()
             .filter(|ref n| {

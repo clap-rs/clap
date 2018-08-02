@@ -110,20 +110,12 @@ impl<'a> ArgMatcher<'a> {
         self.insert(arg);
     }
 
-    pub fn inc_occurrences_of(&mut self, args: &[&'a str]) {
-        debugln!("ArgMatcher::inc_occurrences_of: args={:?}", args);
-        for arg in args {
-            self.inc_occurrence_of(arg);
-        }
-    }
-
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
         });
-        // let len = ma.vals.len() + 1;
         ma.vals.push(val.to_owned());
     }
 

@@ -482,7 +482,6 @@ fn requires_if_present_mult_pass() {
         .get_matches_from_safe(vec!["unlessone", "--config=some.cfg"]);
 
     assert!(res.is_ok());
-    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -596,7 +595,6 @@ fn required_ifs_val_present_pass() {
         .get_matches_from_safe(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
 
     assert!(res.is_ok());
-    // assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
