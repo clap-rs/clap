@@ -8,7 +8,7 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use build::Arg;
+use build::{Arg, ArgGroup};
 use output::fmt::{ColorWhen, Colorizer, ColorizerOption};
 use parse::features::suggestions;
 
@@ -405,6 +405,44 @@ impl Error {
     #[doc(hidden)]
     pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
 
+    #[doc(hidden)]
+    pub fn group_conflict<'a, 'b, O, U>(
+        group: &ArgGroup,
+        other: Option<O>,
+        usage: U,
+        color: ColorWhen,
+    ) -> Self
+    where
+        O: Into<String>,
+        U: Display,
+    {
+        let mut v = vec![group.name.to_owned()];
+        let c = Colorizer::new(ColorizerOption {
+            use_stderr: true,
+            when: color,
+        });
+        Error {
+            message: format!(
+                "{} The argument '{}' cannot be used with {}\n\n\
+                 {}\n\n\
+                 For more information try {}",
+                c.error("error:"),
+                c.warning(group.name),
+                match other {
+                    Some(name) => {
+                        let n = name.into();
+                        v.push(n.clone());
+                        c.warning(format!("'{}'", n))
+                    }
+                    None => c.none("one or more of the other specified arguments".to_owned()),
+                },
+                usage,
+                c.good("--help")
+            ),
+            kind: ErrorKind::ArgumentConflict,
+            info: Some(v),
+        }
+    }
     #[doc(hidden)]
     pub fn argument_conflict<'a, 'b, O, U>(
         arg: &Arg,

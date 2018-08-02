@@ -161,28 +161,42 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
 
     fn build_conflict_err(&self, name: &str, matcher: &ArgMatcher<'a>) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
-        let mut c_with = find_from!(self.p.app, &name, blacklist, &matcher);
-        c_with = c_with.or(self
-            .p
-            .app
-            .find(&name)
-            .map_or(None, |ref aa| aa.blacklist.as_ref())
-            .map_or(None, |ref bl| bl.iter().find(|arg| matcher.contains(arg)))
-            .map_or(None, |an| self.p.app.find(an))
-            .map_or(None, |aa| Some(format!("{}", aa))));
-        debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
         let usg = Usage::new(self.p).create_usage_with_title(&[]);
-        if let Some(f) = self.p.app.find(&name) {
-            debugln!("build_err!: It was a flag...");
-            Err(Error::argument_conflict(
-                f,
+        if let Some(a) = self.p.app.find(name) {
+            for k in matcher.arg_names() {
+                if let Some(a) = self.p.app.find(k) {
+                    if let Some(ref v) = a.blacklist {
+                        if v.contains(&name) {
+                            return Err(Error::argument_conflict(
+                                a,
+                                Some(a.to_string()),
+                                &*usg,
+                                self.p.app.color(),
+                            ));
+                        }
+                    }
+                }
+            }
+        } else if let Some(g) = self.p.app.groups.iter().find(|x| x.name == name) {
+            let args_in_group = self.p.app.unroll_args_in_group(g.name);
+            let first = matcher
+                .arg_names()
+                .find(|x| args_in_group.contains(x))
+                .expect(INTERNAL_ERROR_MSG);
+            let c_with = matcher
+                .arg_names()
+                .find(|x| x != &first && args_in_group.contains(x))
+                .map(|x| self.p.app.find(x).expect(INTERNAL_ERROR_MSG).to_string());
+            debugln!("build_err!:c_with={:?}:group", c_with);
+            return Err(Error::argument_conflict(
+                self.p.app.find(first).expect(INTERNAL_ERROR_MSG),
                 c_with,
                 &*usg,
                 self.p.app.color(),
-            ))
-        } else {
-            panic!(INTERNAL_ERROR_MSG);
+            ));
         }
+
+        panic!(INTERNAL_ERROR_MSG);
     }
 
     fn validate_conflicts(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {

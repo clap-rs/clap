@@ -303,8 +303,6 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
     }
 
     // Returns the required args in usage string form by fully unrolling all groups
-    // `used`: The args that were used
-    // `incl`: Args that should be displayed even if not required
     // `incl_last`: should we incldue args that are Arg::Last? (i.e. `prog [foo] -- [last]). We
     // can't do that for required usages being built for subcommands because it would look like:
     // `prog [foo] -- [last] <subcommand>` which is totally wrong.
@@ -394,8 +392,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             .iter()
             .filter(|n| self.p.app.groups.iter().any(|g| &&g.name == n))
         {
-            let g_string = self.p.app.unroll_args_in_group(g).join("|");
-            let elem = format!("<{}>", &g_string[..g_string.len()]);
+            let elem = self.p.app.format_group(g);
             if !g_vec.contains(&elem) {
                 g_vec.push(elem);
             }

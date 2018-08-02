@@ -22,7 +22,7 @@ USAGE:
 For more information try --help";
 
 static REQ_GROUP_CONFLICT_REV: &'static str =
-    "error: The argument '--delete' cannot be used with 'base'
+    "error: The argument '--delete' cannot be used with '<base>'
 
 USAGE:
     clap-test <base|--delete>
@@ -227,7 +227,7 @@ fn group_multiple_args_error() {
     let result = App::new("group")
         .args_from_usage(
             "-f, --flag 'some flag'
-                          -c, --color 'some other flag'",
+             -c, --color 'some other flag'",
         )
         .group(ArgGroup::with_name("req").args(&["flag", "color"]))
         .get_matches_from_safe(vec!["group", "-f", "-c"]);

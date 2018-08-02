@@ -1720,6 +1720,23 @@ impl<'a, 'b> App<'a, 'b> {
             write!(w, "{} {}", &self.name[..], ver)
         }
     }
+
+    pub(crate) fn format_group(&self, g: &str) -> String {
+        let g_string = self
+            .unroll_args_in_group(g)
+            .iter()
+            .filter_map(|x| self.find(x))
+            .map(|x| {
+                if x.index.is_some() {
+                    x.name.to_owned()
+                } else {
+                    x.to_string()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("|");
+        format!("<{}>", &*g_string)
+    }
 }
 
 // Internal Query Methods

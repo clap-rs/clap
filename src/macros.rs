@@ -1007,23 +1007,6 @@ macro_rules! groups_for_arg {
     }}
 }
 
-
-macro_rules! find_from {
-    ($app:expr, $arg_name:expr, $from:ident, $matcher:expr) => {{
-        let mut ret = None;
-        for k in $matcher.arg_names() {
-            if let Some(a) = find!($app, k) {
-                if let Some(ref v) = a.$from {
-                    if v.contains($arg_name) {
-                        ret = Some(a.to_string());
-                    }
-                }
-            }
-        }
-        ret
-    }};
-}
-
 // Finds an arg by name
 macro_rules! find {
     ($app:expr, $name:expr, $what:ident) => {
