@@ -1432,6 +1432,7 @@ impl<'a, 'b> App<'a, 'b> {
             }
             true
         });
+
         for a in self.args.values_mut() {
             // Fill in the groups
             if let Some(ref grps) = a.groups {

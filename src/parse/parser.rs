@@ -63,7 +63,6 @@ where
     //cache: Option<&'a str>,
     num_opts: usize,
     num_flags: usize,
-    //pub positionals: VecMap<&'a str>,
     seen: Vec<&'a str>,
     cur_idx: Cell<usize>,
 }
@@ -105,6 +104,13 @@ where
         // Firt we verify that the index highest supplied index, is equal to the number of
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
+
+        // #[cfg(feature = "vec_map")]
+        // fn _highest_idx(map: &VecMap<&str>) -> usize { map.keys().last().unwrap_or(0) }
+
+        // #[cfg(not(feature = "vec_map"))]
+        // fn _highest_idx(map: &VecMap<&str>) -> usize { *map.keys().last().unwrap_or(&0) }
+
         let highest_idx = *self
             .app
             .args
@@ -118,6 +124,8 @@ where
             })
             .max()
             .unwrap_or(&0);
+
+        //_highest_idx(&self.positionals);
 
         let num_p = self
             .app
@@ -452,8 +460,6 @@ where
                 }
 
                 if starts_new_arg {
-                    // ! add values to seen somewhere?
-                    //self.seen.extend(self.cache);
                     if arg_os.starts_with(b"--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                         debugln!(
@@ -711,9 +717,6 @@ where
                 ));
             }
         }
-
-        // Make sure we get the last one too
-        //self.seen.extend(self.cache);
 
         if let Some(ref pos_sc_name) = subcmd_name {
             let sc_name = {

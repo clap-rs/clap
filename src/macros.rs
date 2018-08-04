@@ -1043,7 +1043,12 @@ macro_rules! find_subcmd {
     }};
 }
 
-//TODO change into one macro (repeated structure) + Positionals
+// macro_rules! shorts {
+//     ($app:expr) => {{
+//         _shorts_longs!($app, short)
+//     }};
+// }
+
 macro_rules! longs {
     ($app:expr) => {{
         use mkeymap::KeyType;
@@ -1096,7 +1101,6 @@ macro_rules! sc_names {
     }};
 }
 
-//probably scrap it altogether, as instead of iterating and matching alias we can just find by a Long
 macro_rules! match_alias {
     ($a:expr, $to:expr, $what:expr) => {{
         $what == $to
