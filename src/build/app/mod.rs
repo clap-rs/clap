@@ -18,11 +18,11 @@ use yaml_rust::Yaml;
 // Internal
 use build::{Arg, ArgGroup, ArgSettings};
 use completions::{ComplGen, Shell};
+use mkeymap::{KeyType, MKeyMap};
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
-use mkeymap::{MKeyMap, KeyType};
 use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
@@ -1733,7 +1733,7 @@ impl<'a, 'b> App<'a, 'b> {
 #[doc(hidden)]
 impl<'a, 'b> App<'a, 'b> {
     pub(crate) fn find(&self, name: &str) -> Option<&Arg<'a, 'b>> {
-        self.args.iter().find(|a| a.name == name)
+        self.args.values().find(|a| a.name == name)
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
@@ -1780,13 +1780,9 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
 
-    pub fn has_visible_opts(&self) -> bool {
-        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
-    pub fn has_visible_flags(&self) -> bool {
-        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
+    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))

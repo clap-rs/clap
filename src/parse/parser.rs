@@ -315,12 +315,6 @@ where
                     }
                 }
             }
-            // Add conditional requirements
-            if let Some(ref r_ifs) = a.r_ifs {
-                for &(arg, val) in r_ifs {
-                    self.r_ifs.push((arg, val, a.name));
-                }
-            }
 
             // Add args with default requirements
             if a.is_set(ArgSettings::Required) {
@@ -359,10 +353,10 @@ where
                             }
                         })
                         .count())
-        }) && self.positionals.values().last().map_or(false, |p_name| {
+        }) && positionals!(self.app).last().map_or(false, |p_name| {
             !self
                 .app
-                .find(p_name)
+                .find(p_name.name)
                 .expect(INTERNAL_ERROR_MSG)
                 .is_set(ArgSettings::Last)
         }) {
@@ -541,7 +535,8 @@ where
                         .filter(|x| if let KeyType::Position(_) = x { true } else { false })
                         .count() - 1);
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && (pos_counter == (self
+                && (pos_counter
+                    == (self
                         .app
                         .args
                         .keys()
@@ -1053,9 +1048,9 @@ where
 
             if opt.is_set(ArgSettings::TakesValue) {
                 return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
-	    }
+            }
 
-            self.parse_flag(flag, matcher)?;
+            self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag);
         } else if self.is_set(AS::AllowLeadingHyphen) {
@@ -1491,21 +1486,23 @@ where
 {
     fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         // Didn't match a flag or option
-        let longs = longs!(self.app).map(|x| x.to_string_lossy().into_owned()).collect::<Vec<_>>();
-        
-        let suffix =
-            suggestions::did_you_mean_flag_suffix(arg, longs.iter().map(|ref x| &x[..] ), &*self.app.subcommands);
+        let longs = longs!(self.app)
+            .map(|x| x.to_string_lossy().into_owned())
+            .collect::<Vec<_>>();
+
+        let suffix = suggestions::did_you_mean_flag_suffix(
+            arg,
+            longs.iter().map(|ref x| &x[..]),
+            &*self.app.subcommands,
+        );
 
         // Add the arg to the matches to build a proper usage string
         if let Some(ref name) = suffix.1 {
             if let Some(opt) = self.app.args.get(KeyType::Long(OsString::from(name))) {
-                self.groups_for_arg(&*opt.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                for g in groups_for_arg!(self.app, &opt.name) {
+                    matcher.inc_occurrence_of(g);
+                }
                 matcher.insert(&*opt.name);
-            } else if let Some(flg) = self.app.args.get(KeyType::Long(&OsStr::new(name))) {
-                self.groups_for_arg(&*flg.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
-                matcher.insert(&*flg.name);
             }
         }
 
@@ -1522,7 +1519,7 @@ where
             .map(|&n| n)
             .collect();
         Err(ClapError::unknown_argument(
-            &*used_arg,
+            &*format!("--{}", arg),
             &*suffix.0,
             &*Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),

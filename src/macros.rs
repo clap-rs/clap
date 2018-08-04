@@ -1008,26 +1008,6 @@ macro_rules! subcommands_mut {
     };
 }
 
-macro_rules! groups {
-    ($app:expr, $how:ident) => {
-        $app.groups.$how()
-    };
-    ($app:expr) => {
-        groups!($app, iter)
-    };
-}
-
-macro_rules! groups_mut {
-    ($app:expr) => {
-        groups!($app, iter_mut)
-    };
-}
-
-// macro_rules! groups_mut {
-//     ($app:expr) => {
-//         groups!($app, iter_mut)
-//     }
-// }
 macro_rules! groups_for_arg {
     ($app:expr, $grp:expr) => {{
         debugln!("Parser::groups_for_arg: name={}", $grp);
@@ -1049,30 +1029,6 @@ macro_rules! find {
     };
 }
 
-// macro_rules! find_by_long {
-//     ($app:expr, $long:expr, $what:ident) => {{
-//         $what!($app)
-//             .filter(|a| a.long.is_some())
-//             .find(|a| match_alias!(a, $long, a.long.unwrap()))
-//     }};
-//     ($app:expr, $long:expr) => {{
-//         $app.args.iter()
-//             .filter(|a| a.long.is_some())
-//             .find(|a| match_alias!(a, $long, a.long.unwrap()))
-//     }};
-// }
-
-// macro_rules! find_by_short {
-//     ($app:expr, $short:expr, $what:ident) => {{
-//         $what!($app)
-//             .find(|a| a.short == Some($short))
-//     }};
-//     ($app:expr, $short:expr) => {{
-//         $app.args.iter()
-//             .find(|a| a.short == Some($short))
-//     }}
-// }
-
 macro_rules! find_subcmd_cloned {
     ($_self:expr, $sc:expr) => {{
         subcommands_cloned!($_self)
@@ -1086,29 +1042,6 @@ macro_rules! find_subcmd {
             .find(|a| match_alias!(a, $sc, &*a.name))
     }};
 }
-
-// macro_rules! shorts {
-//     ($app:expr) => {{
-//         _shorts_longs!($app, short)
-//     }};
-// }
-
-// macro_rules! longs {
-//     ($app:expr) => {{
-//         $app.args.iter()
-//             .filter(|a| a.long.is_some())
-//             .map(|a| a.long.unwrap())
-//             .chain($app.args.iter()
-//                 .filter(|a| a.aliases.is_some())
-//                 .flat_map(|a| a.aliases.as_ref().unwrap().iter().map(|als| als.0)))
-//     }};
-// }
-
-// macro_rules! _shorts_longs {
-//     ($app:expr, $what:ident) => {{
-//         $app.args.iter().filter_map(|a| a.$what)
-//     }};
-// }
 
 //TODO change into one macro (repeated structure) + Positionals
 macro_rules! longs {
