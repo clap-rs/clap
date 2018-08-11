@@ -4,7 +4,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 use std::hash::{Hash, Hasher};
-use std::mem;
 use std::slice;
 // ! rustdoc
 
@@ -97,9 +96,9 @@ where
 
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.values.is_empty() }
 
-    pub fn remove_by_name(&mut self, name: &str) -> Option<T> { unimplemented!() }
+    pub fn remove_by_name(&mut self, _name: &str) -> Option<T> { unimplemented!() }
 
-    pub fn remove(&mut self, key: KeyType) -> Option<T> { unimplemented!() }
+    pub fn remove(&mut self, _key: KeyType) -> Option<T> { unimplemented!() }
     //TODO ::remove_many([KeyA, KeyB])
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
@@ -301,7 +300,6 @@ where
 mod tests {
     use self::KeyType::*;
     use super::*;
-    use std::ffi::OsStr;
 
     #[test]
     fn get_some_value() {

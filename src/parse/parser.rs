@@ -19,9 +19,6 @@ use std::mem;
 )]
 use std::os::unix::ffi::OsStrExt;
 
-// Third party facade
-use util::VecMap;
-
 // Internal
 use build::app::Propagation;
 use build::AppSettings as AS;
@@ -60,9 +57,6 @@ where
     pub app: &'c mut App<'a, 'b>,
     pub required: ChildGraph<&'a str>,
     pub overriden: Vec<&'a str>,
-    //cache: Option<&'a str>,
-    num_opts: usize,
-    num_flags: usize,
     seen: Vec<&'a str>,
     cur_idx: Cell<usize>,
 }
@@ -88,8 +82,6 @@ where
             app: app,
             required: ChildGraph::from(reqs),
             overriden: Vec::new(),
-            num_opts: 0,
-            num_flags: 0,
             seen: Vec::new(),
             cur_idx: Cell::new(0),
         }
@@ -157,14 +149,6 @@ where
             //  * a value terminator
             //  * ArgSettings::Last
             //  * The last arg is Required
-            let mut it = self.app.args.keys().filter(|x| {
-                if let KeyType::Position(_) = x {
-                    true
-                } else {
-                    false
-                }
-            });
-            //self.positionals.values().rev();
 
             // We can't pass the closure (it.next()) to the macro directly because each call to
             // find() (iterator, not macro) gets called repeatedly.
@@ -173,8 +157,7 @@ where
                 .args
                 .get(KeyType::Position(highest_idx))
                 .expect(INTERNAL_ERROR_MSG);
-            //let second_to_last_name = it.next().expect(INTERNAL_ERROR_MSG);
-            //let last = find!(self.app, last_name).expect(INTERNAL_ERROR_MSG);
+
             let second_to_last = self
                 .app
                 .args
@@ -306,6 +289,8 @@ where
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
+
+        //I wonder whether this part is even needed if we insert all Args using make_entries
         let mut key: Vec<(KeyType, usize)> = Vec::new();
         for (i, a) in self.app.args.values().enumerate() {
             if let Some(ref index) = a.index {
@@ -530,30 +515,20 @@ where
                 }
             }
 
-            let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
-                && pos_counter
-                    == (
-                    //TODO make a macro for that
-                    self
+            let positional_count = self
                         .app
                         .args
                         .keys()
                         .filter(|x| if let KeyType::Position(_) = x { true } else { false })
-                        .count() - 1);
-            let missing_pos = self.is_set(AS::AllowMissingPositional)
+                        .count();
+            let is_second_to_last = positional_count > 1         
                 && (pos_counter
-                    == (self
-                        .app
-                        .args
-                        .keys()
-                        .filter(|x| {
-                            if let KeyType::Position(_) = x {
-                                true
-                            } else {
-                                false
-                            }
-                        })
-                        .count() - 1) && !self.is_set(AS::TrailingValues));
+                    == (positional_count - 1));
+
+            let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
+                && is_second_to_last;
+            let missing_pos = self.is_set(AS::AllowMissingPositional)
+                && is_second_to_last && !self.is_set(AS::TrailingValues);
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
                 pos_counter
@@ -825,7 +800,7 @@ where
             }
             sc
         };
-        let mut parser = Parser::new(&mut sc);
+        let parser = Parser::new(&mut sc);
         if help_help {
             let mut pb = Arg::with_name("subcommand")
                 .index(1)
@@ -1106,8 +1081,15 @@ where
             // Option: -o
             // Value: val
             if let Some(opt) = self.app.args.get(KeyType::Short(c)) {
-                debugln!("Parser::parse_short_arg:iter:{}: Found valid opt", c);
+                debugln!("Parser::parse_short_arg:iter:{}: Found valid opt or flag", c);
                 self.app.settings.set(AS::ValidArgFound);
+
+                if !opt.is_set(ArgSettings::TakesValue) {
+                    self.check_for_help_and_version_char(c)?;
+                    ret = self.parse_flag(opt, matcher)?;
+                    continue;
+                }
+
                 // Check for trailing concatenated value
                 let p: Vec<_> = arg.splitn(2, c).collect();
                 debugln!(
@@ -1133,12 +1115,6 @@ where
                 let ret = self.parse_opt(val, opt, false, matcher)?;
 
                 return Ok(ret);
-            } else if let Some(flag) = self.app.args.get(KeyType::Short(c)) {
-                debugln!("Parser::parse_short_arg:iter:{}: Found valid flag", c);
-                self.app.settings.set(AS::ValidArgFound);
-                // Only flags can be help or version
-                self.check_for_help_and_version_char(c)?;
-                ret = self.parse_flag(flag, matcher)?;
             } else {
                 let arg = format!("-{}", c);
                 return Err(ClapError::unknown_argument(

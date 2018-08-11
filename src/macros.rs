@@ -903,14 +903,14 @@ macro_rules! flags {
         use mkeymap::KeyType::*;
         $app.args
             .$how()
-            .filter(|(k, a)| !a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|(k, a)| match k {
+            .filter(|(_, a)| !a.settings.is_set(::build::ArgSettings::TakesValue))
+            .filter(|(k, _)| match k {
                 Long(_) => true,
                 Short(_) => true,
                 Position(_) => false,
             })
-            .filter(|(k, a)| !a.help_heading.is_some())
-            .map(|(k, v)| v)
+            .filter(|(_, a)| !a.help_heading.is_some())
+            .map(|(_, v)| v)
     }};
     ($app:expr) => {
         flags!($app, iter)
@@ -929,14 +929,14 @@ macro_rules! opts {
         use mkeymap::KeyType::*;
         $app.args
             .$how()
-            .filter(|(k, a)| a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|(k, a)| match k {
+            .filter(|(_, a)| a.settings.is_set(::build::ArgSettings::TakesValue))
+            .filter(|(k, _)| match k {
                 Long(_) => true,
                 Short(_) => true,
                 Position(_) => false,
             })
-            .filter(|(k, a)| !a.help_heading.is_some())
-            .map(|(k, v)| v)
+            .filter(|(_, a)| !a.help_heading.is_some())
+            .map(|(_, v)| v)
     }};
     ($app:expr) => {
         opts!($app, iter)

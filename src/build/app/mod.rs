@@ -18,7 +18,7 @@ use yaml_rust::Yaml;
 // Internal
 use build::{Arg, ArgGroup, ArgSettings};
 use completions::{ComplGen, Shell};
-use mkeymap::{KeyType, MKeyMap};
+use mkeymap::MKeyMap;
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
@@ -639,7 +639,7 @@ impl<'a, 'b> App<'a, 'b> {
             None
         };
         let arg = a.into().help_heading(help_heading);
-        self.args.push(arg);
+        self.args.make_entries(arg);
         self
     }
 
@@ -1508,7 +1508,7 @@ impl<'a, 'b> App<'a, 'b> {
             }
             {
                 for a in self.args.values().filter(|a| a.is_set(ArgSettings::Global)) {
-                    sc.args.push(a.clone());
+                    sc.args.make_entries(a.clone());
                 }
             }
             // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating

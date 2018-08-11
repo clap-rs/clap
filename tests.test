@@ -1,0 +1,3120 @@
+    Finished dev [unoptimized + debuginfo] target(s) in 0.27s
+     Running target/debug/deps/clap-32e418a1d0a3e20a
+
+running 96 tests
+test build::arg::test::flag_display ... ok
+test build::arg::settings::test::arg_settings_fromstr ... ok
+test build::app::settings::test::app_settings_fromstr ... ok
+test build::arg::test::flag_display_multiple_aliases ... ok
+test build::arg::test::flag_display_single_alias ... ok
+test build::arg::test::option_display1 ... ok
+test build::arg::test::option_display2 ... ok
+test build::arg::test::option_display3 ... ok
+test build::arg::test::option_display_multiple_aliases ... ok
+test build::arg::test::option_display_single_alias ... ok
+test build::arg::test::positiona_display_mult ... ok
+test build::arg::test::positional_display_required ... ok
+test build::arg::test::positional_display_val_names ... ok
+test build::arg::test::positional_display_val_names_req ... ok
+test build::arg_group::test::groups ... ok
+test build::arg_group::test::test_debug ... ok
+test build::arg_group::test::test_from ... ok
+test build::usage_parser::test::create_flag_usage ... ok
+test build::usage_parser::test::create_option_usage0 ... ok
+test build::usage_parser::test::create_option_usage1 ... ok
+test build::usage_parser::test::create_option_usage2 ... ok
+test build::usage_parser::test::create_option_usage3 ... ok
+test build::usage_parser::test::create_option_usage4 ... ok
+test build::usage_parser::test::create_option_usage5 ... ok
+test build::usage_parser::test::create_option_usage6 ... ok
+test build::usage_parser::test::create_option_usage7 ... ok
+test build::usage_parser::test::create_option_usage8 ... ok
+test build::usage_parser::test::create_option_usage9 ... ok
+test build::usage_parser::test::create_option_usage_both1 ... ok
+test build::usage_parser::test::create_option_usage_both2 ... ok
+test build::usage_parser::test::create_option_usage_both3 ... ok
+test build::usage_parser::test::create_option_usage_both4 ... ok
+test build::usage_parser::test::create_option_usage_both5 ... ok
+test build::usage_parser::test::create_option_usage_both6 ... ok
+test build::usage_parser::test::create_option_usage_both7 ... ok
+test build::usage_parser::test::create_option_usage_both8 ... ok
+test build::usage_parser::test::create_option_usage_both_equals1 ... ok
+test build::usage_parser::test::create_option_usage_both_equals2 ... ok
+test build::usage_parser::test::create_option_usage_both_equals3 ... ok
+test build::usage_parser::test::create_option_usage_both_equals4 ... ok
+test build::usage_parser::test::create_option_usage_both_equals5 ... ok
+test build::usage_parser::test::create_option_usage_both_equals6 ... ok
+test build::usage_parser::test::create_option_usage_both_equals7 ... ok
+test build::usage_parser::test::create_option_usage_both_equals8 ... ok
+test build::usage_parser::test::create_option_usage_long1 ... ok
+test build::usage_parser::test::create_option_usage_long10 ... ok
+test build::usage_parser::test::create_option_usage_long2 ... ok
+test build::usage_parser::test::create_option_usage_long3 ... ok
+test build::usage_parser::test::create_option_usage_long4 ... ok
+test build::usage_parser::test::create_option_usage_long5 ... ok
+test build::usage_parser::test::create_option_usage_long6 ... ok
+test build::usage_parser::test::create_option_usage_long7 ... ok
+test build::usage_parser::test::create_option_usage_long8 ... ok
+test build::usage_parser::test::create_option_usage_long9 ... ok
+test build::usage_parser::test::create_option_usage_long_equals1 ... ok
+test build::usage_parser::test::create_option_usage_long_equals10 ... ok
+test build::usage_parser::test::create_option_usage_long_equals2 ... ok
+test build::usage_parser::test::create_option_usage_long_equals3 ... ok
+test build::usage_parser::test::create_option_usage_long_equals4 ... ok
+test build::usage_parser::test::create_option_usage_long_equals5 ... ok
+test build::usage_parser::test::create_option_usage_long_equals6 ... ok
+test build::usage_parser::test::create_option_usage_long_equals7 ... ok
+test build::usage_parser::test::create_option_usage_long_equals8 ... ok
+test build::usage_parser::test::create_option_usage_long_equals9 ... ok
+test build::usage_parser::test::create_option_with_vals1 ... ok
+test build::usage_parser::test::create_option_with_vals2 ... ok
+test build::usage_parser::test::create_option_with_vals3 ... ok
+test build::usage_parser::test::create_option_with_vals4 ... ok
+test build::usage_parser::test::create_option_with_vals5 ... ok
+test build::usage_parser::test::create_positional_usage ... ok
+test build::usage_parser::test::create_positional_usage0 ... ok
+test build::usage_parser::test::nonascii ... ok
+test build::usage_parser::test::pos_help_double_lit_single_quote ... ok
+test build::usage_parser::test::pos_help_lit_single_quote ... ok
+test build::usage_parser::test::pos_help_newline ... ok
+test build::usage_parser::test::pos_help_newline_lit_sq ... ok
+test build::usage_parser::test::pos_mult ... ok
+test build::usage_parser::test::pos_mult_help ... ok
+test build::usage_parser::test::pos_req ... ok
+test build::usage_parser::test::pos_req_mult_help ... ok
+test mkeymap::tests::get_mutable ... ok
+test mkeymap::tests::get_none_value ... ok
+test mkeymap::tests::get_some_value ... ok
+test mkeymap::tests::insert_duplicate_value ... ok
+test mkeymap::tests::insert_duplicate_key ... ok
+test mkeymap::tests::insert_multiple_keys ... ok
+test mkeymap::tests::iter_keys ... ok
+test mkeymap::tests::remove_key ... ok
+test output::fmt::test::colored_output ... ok
+test output::help::test::wrap_help_last_word ... ok
+test parse::matches::arg_matches::tests::test_default_indices ... ok
+test parse::matches::arg_matches::tests::test_default_indices_with_shorter_lifetime ... ok
+test parse::matches::arg_matches::tests::test_default_osvalues ... ok
+test parse::matches::arg_matches::tests::test_default_osvalues_with_shorter_lifetime ... ok
+test parse::matches::arg_matches::tests::test_default_values ... ok
+test parse::matches::arg_matches::tests::test_default_values_with_shorter_lifetime ... ok
+
+test result: ok. 96 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/app_settings-ad0ef497b54f71ba
+
+running 59 tests
+test aaos_flags ... ok
+test aaos_flags_mult ... ok
+test aaos_option_use_delim_false ... ok
+test aaos_opts ... ok
+test aaos_opts_mult ... ok
+test aaos_opts_mult_req_delims ... ok
+thread 'aaos_opts_w_other_overrides' panicked at 'assertion failed: !m.is_present("other")', tests/app_settings.rs:843:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'aaos_opts_w_other_overrides_2' panicked at 'assertion failed: !m.is_present("other")', tests/app_settings.rs:874:5
+thread 'aaos_opts_w_other_overrides_rev' panicked at 'assertion failed: !m.is_present("opt")', test aaos_opts_w_other_overrides_2 ... FAILED
+tests/app_settings.rsthread ':test aaos_opts_w_other_overrides ... aaos_opts_w_other_overrides_rev_2' panicked at 'assertion failed: !m.is_present("opt")', tests/app_settings.rs:889:5
+858:5
+FAILED
+test aaos_opts_w_other_overrides_rev_2 ... FAILED
+test aaos_opts_w_other_overrides_rev ... FAILED
+thread 'aaos_pos_mult' panicked at 'assertion failed: res.is_ok()', tests/app_settings.rsthread 'thread 'allow_missing_positional_no_default' panicked at 'attempt to subtract with overflow', /Users/alenayuryeva/dev/Rust/Projects/clap-rs/src/parse/parser.rs:530:24
+allow_missing_positional' panicked at 'attempt to subtract with overflow', /Users/alenayuryeva/dev/Rust/Projects/clap-rs/src/parse/parser.rs:530::test allow_missing_positional_no_default ... 24thread 'allow_negative_numbers' panicked at 'Error: UnknownArgument', tests/app_settings.rs:468:5
+FAILED
+
+941:5
+test allow_negative_numbers ... FAILED
+test allow_missing_positional ... FAILED
+test aaos_pos_mult ... FAILED
+test allow_negative_numbers_fail ... ok
+thread 'args_negate_subcommands_one_level' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test args_negate_subcommands_one_level ... FAILED
+thread 'args_negate_subcommands_two_levels' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test arg_required_else_help ... ok
+test arg_required_else_help_over_reqs ... thread 'delim_values_only_pos_follows' panicked at 'assertion failed: r.is_ok()', tests/app_settings.rs:365:5
+ok
+test args_negate_subcommands_two_levels ... FAILED
+test delim_values_only_pos_follows ... FAILED
+thread 'delim_values_only_pos_follows_with_delim' panicked at 'assertion failed: r.is_ok()', tests/app_settings.rs:396:5
+error: Found argument 'test' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    positional [opt]...
+
+For more information try --help
+test delim_values_only_pos_follows_with_delim ... error: Found argument 'test' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    positional [opt]...
+
+For more information try --help
+FAILED     Running target/debug/deps/arg_aliases-db2ddfb94e9e6a55
+
+running 7 tests
+test alias_on_a_subcommand_option ... thread 'invisible_arg_aliases_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "test", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+ok
+test invisible_arg_aliases_help_output ... FAILED
+test multiple_aliases_of_flag ... ok
+test single_alias_of_flag ... ok
+test multiple_aliases_of_option ... ok
+test single_alias_of_option ... ok
+thread 'visible_arg_aliases_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "test", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+test visible_arg_aliases_help_output ... FAILED
+
+failures:
+
+failures:
+    invisible_arg_aliases_help_output
+    visible_arg_aliases_help_output
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/borrowed-87a65144a6e4289c
+
+running 1 test
+test borrowed_args ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/completions-f41f9acc242bb584
+
+running 12 tests
+
+
+
+--> left
+--> left
+--> left
+
+--> left
+
+edit:completion:arg-completer[my_app]•=•[@words]{
+••••fn•spaces•[n]{
+••••••••repeat•$n•'•'•|•joins•''
+••••}
+••••fn•cand•[text•desc]{
+••••••••edit:complex-candidate•$text•&display-suffix='•'(spaces•(-•14•(wcswidth•$text)))$desc
+••••}
+••••command•=•'my_app'
+••••for•word•$words[1:-1]•{
+••••••••if•(has-prefix•$word•'-')•{
+••••••••••••break
+••••••••}
+••••••••command•=•$command';'$word
+••••}
+••••completions•=•[
+••••••••&'my_app'=•{
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•test•'tests•things'
+••••••••••••cand•help•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+••••••••}
+••••••••&'my_app;test'=•{
+••••••••••••cand•--case•'the•case•to•test'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;help'=•{
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••]
+••••$completions[$command]
+}
+
+--> right
+
+edit:completion:arg-completer[my_app]•=•[@words]{
+••••fn•spaces•[n]{
+••••••••repeat•$n•'•'•|•joins•''
+••••}
+••••fn•cand•[text•desc]{
+••••••••edit:complex-candidate•$text•&display-suffix='•'(spaces•(-•14•(wcswidth•$text)))$desc
+••••}
+••••command•=•'my_app'
+••••for•word•$words[1:-1]•{
+••••••••if•(has-prefix•$word•'-')•{
+••••••••••••break
+••••••••}
+••••••••command•=•$command';'$word
+••••}
+••••completions•=•[
+••••••••&'my_app'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•test•'tests•things'
+••••••••••••cand•some_cmd•'tests•other•things'
+••••••••••••cand•some-cmd-with-hypens•'some-cmd-with-hypens'
+••••••••••••cand•help•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+••••••••}
+••••••••&'my_app;test'=•{
+••••••••••••cand•--case•'the•case•to•test'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••}
+••••••••&'my_app;some_cmd'=•{
+••••••••••••cand•--config•'the•other•case•to•test'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••}
+••••••••&'my_app;some-cmd-with-hypens'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;help'=•{
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••}
+••••]
+••••$completions[$command]
+}
+
+--> right
+
+edit:completion:arg-completer[my_app]•=•[@words]{
+••••fn•spaces•[n]{
+••••••••repeat•$n•'•'•|•joins•''
+••••}
+••••fn•cand•[text•desc]{
+••••••••edit:complex-candidate•$text•&display-suffix='•'(spaces•(-•14•(wcswidth•$text)))$desc
+••••}
+••••command•=•'my_app'
+••••for•word•$words[1:-1]•{
+••••••••if•(has-prefix•$word•'-')•{
+••••••••••••break
+••••••••}
+••••••••command•=•$command';'$word
+••••}
+••••completions•=•[
+••••••••&'my_app'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•test•'tests•things'
+••••••••••••cand•help•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+••••••••}
+••••••••&'my_app;test'=•{
+••••••••••••cand•--case•'the•case•to•test'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;help'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••]
+••••$completions[$command]
+}
+
+--
+_myapp()•{
+••••local•i•cur•prev•opts•cmds
+••••COMPREPLY=()
+••••cur="${COMP_WORDS[COMP_CWORD]}"
+••••prev="${COMP_WORDS[COMP_CWORD-1]}"
+••••cmd=""
+••••opts=""
+
+••••for•i•in•${COMP_WORDS[@]}
+••••do
+••••••••case•"${i}"•in
+••••••••••••myapp)
+••••••••••••••••cmd="myapp"
+••••••••••••••••;;
+••••••••••••
+••••••••••••help)
+••••••••••••••••cmd+="__help"
+••••••••••••••••;;
+••••••••••••test)
+••••••••••••••••cmd+="__test"
+••••••••••••••••;;
+••••••••••••*)
+••••••••••••••••;;
+••••••••esac
+••••done
+
+••••case•"${cmd}"•in
+••••••••myapp)
+••••••••••••opts="•-h•-V••--version•--help••<file>••test•help"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•1•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••
+••••••••myapp__help)
+••••••••••••opts="•-h•-V••--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••myapp__test)
+••••••••••••opts="•-V•-h••--case•--version•--help••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--case)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••esac
+}
+
+complete•-F•_myapp•-o•bashdefault•-o•default•myapp
+
+thread 'elvish' panicked at 'assertion failed: compare(&*string, ELVISH)', tests/completions.rs:828:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+--> right
+test elvish ... FAILED
+_my_app()•{
+••••local•i•cur•prev•opts•cmds
+••••COMPREPLY=()
+••••cur="${COMP_WORDS[COMP_CWORD]}"
+••••prev="${COMP_WORDS[COMP_CWORD-1]}"
+••••cmd=""
+••••opts=""
+
+••••for•i•in•${COMP_WORDS[@]}
+••••do
+••••••••case•"${i}"•in
+••••••••••••my_app)
+••••••••••••••••cmd="my_app"
+••••••••••••••••;;
+••••••••••••
+••••••••••••help)
+••••••••••••••••cmd+="__help"
+••••••••••••••••;;
+••••••••••••some-cmd-with-hypens)
+••••••••••••••••cmd+="__some__cmd__with__hypens"
+••••••••••••••••;;
+••••••••••••some_cmd)
+••••••••••••••••cmd+="__some_cmd"
+••••••••••••••••;;
+••••••••••••test)
+••••••••••••••••cmd+="__test"
+••••••••••••••••;;
+••••••••••••*)
+••••••••••••••••;;
+••••••••esac
+••••done
+
+••••case•"${cmd}"•in
+••••••••my_app)
+••••••••••••opts="•-h•-V••--help•--version••<file>••test•some_cmd•some-cmd-with-hypens•help"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•1•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••
+••••••••my_app__help)
+••••••••••••opts="•-h•-V••--version•--help••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__some__cmd__with__hypens)
+••••••••••••opts="•-h•-V••--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__some_cmd)
+••••••••••••opts="•-h•-V••--config•--version•--help••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--config)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__test)
+••••••••••••opts="•-h•-V••--help•--version•--case••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--case)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••esac
+}
+
+complete•-F•_my_app•-o•bashdefault•-o•default•my_app
+
+--> right
+
+edit:completion:arg-completer[my_app]•=•[@words]{
+••••fn•spaces•[n]{
+••••••••repeat•$n•'•'•|•joins•''
+••••}
+••••fn•cand•[text•desc]{
+••••••••edit:complex-candidate•$text•&display-suffix='•'(spaces•(-•14•(wcswidth•$text)))$desc
+••••}
+••••command•=•'my_app'
+••••for•word•$words[1:-1]•{
+••••••••if•(has-prefix•$word•'-')•{
+••••••••••••break
+••••••••}
+••••••••command•=•$command';'$word
+••••}
+••••completions•=•[
+••••••••&'my_app'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••••••cand•test•'tests•things'
+••••••••••••cand•some_cmd•'tests•other•things'
+••••••••••••cand•some-cmd-with-hypens•'some-cmd-with-hypens'
+••••••••••••cand•help•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+••••••••}
+••••••••&'my_app;test'=•{
+••••••••••••cand•--case•'the•case•to•test'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;some_cmd'=•{
+••••••••••••cand•--config•'the•other•case•to•test'
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;some-cmd-with-hypens'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••••••&'my_app;help'=•{
+••••••••••••cand•-h•'Prints•help•information'
+••••••••••••cand•--help•'Prints•help•information'
+••••••••••••cand•-V•'Prints•version•information'
+••••••••••••cand•--version•'Prints•version•information'
+••••••••}
+••••]
+••••$completions[$command]
+}
+
+--
+thread 'elvish_with_special_commands' panicked at 'assertion failed: compare(&*string, ELVISH_SPECIAL_CMDS)', tests/completions.rs:838:5
+test elvish_with_special_commands ... FAILED
+_myapp()•{
+••••local•i•cur•prev•opts•cmds
+••••COMPREPLY=()
+••••cur="${COMP_WORDS[COMP_CWORD]}"
+••••prev="${COMP_WORDS[COMP_CWORD-1]}"
+••••cmd=""
+••••opts=""
+
+••••for•i•in•${COMP_WORDS[@]}
+••••do
+••••••••case•"${i}"•in
+••••••••••••myapp)
+••••••••••••••••cmd="myapp"
+••••••••••••••••;;
+••••••••••••
+••••••••••••help)
+••••••••••••••••cmd+="__help"
+••••••••••••••••;;
+••••••••••••test)
+••••••••••••••••cmd+="__test"
+••••••••••••••••;;
+••••••••••••*)
+••••••••••••••••;;
+••••••••esac
+••••done
+
+••••case•"${cmd}"•in
+••••••••myapp)
+••••••••••••opts="•-h•-V••--help•--version••<file>••test•help"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•1•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••
+••••••••myapp__help)
+••••••••••••opts="•-h•-V••--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••myapp__test)
+••••••••••••opts="•-h•-V••--case•--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--case)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••esac
+}
+
+complete•-F•_myapp•-o•bashdefault•-o•default•myapp
+
+--
+thread 'bash' panicked at 'assertion failed: compare(&*string, BASH)', tests/completions.rs:788:5
+test bash ... FAILED
+
+--> left
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-f•-a•"test"•-d•'tests•things'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-f•-a•"help"•-d•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-l•case•-d•'the•case•to•test'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+
+--> right
+_my_app()•{
+••••local•i•cur•prev•opts•cmds
+••••COMPREPLY=()
+••••cur="${COMP_WORDS[COMP_CWORD]}"
+••••prev="${COMP_WORDS[COMP_CWORD-1]}"
+••••cmd=""
+••••opts=""
+
+••••for•i•in•${COMP_WORDS[@]}
+••••do
+••••••••case•"${i}"•in
+••••••••••••my_app)
+••••••••••••••••cmd="my_app"
+••••••••••••••••;;
+••••••••••••
+••••••••••••help)
+••••••••••••••••cmd+="__help"
+••••••••••••••••;;
+••••••••••••some-cmd-with-hypens)
+••••••••••••••••cmd+="__some__cmd__with__hypens"
+••••••••••••••••;;
+••••••••••••some_cmd)
+••••••••••••••••cmd+="__some_cmd"
+••••••••••••••••;;
+••••••••••••test)
+••••••••••••••••cmd+="__test"
+••••••••••••••••;;
+••••••••••••*)
+••••••••••••••••;;
+••••••••esac
+••••done
+
+••••case•"${cmd}"•in
+••••••••my_app)
+••••••••••••opts="•-h•-V••--help•--version••<file>••test•some_cmd•some-cmd-with-hypens•help"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•1•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••
+••••••••my_app__help)
+••••••••••••opts="•-h•-V••--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__some__cmd__with__hypens)
+••••••••••••opts="•-h•-V••--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__some_cmd)
+••••••••••••opts="•-h•-V••--config•--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--config)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••••••my_app__test)
+••••••••••••opts="•-h•-V••--case•--help•--version••"
+••••••••••••if•[[•${cur}•==•-*•||•${COMP_CWORD}•-eq•2•]]•;•then
+••••••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••••••return•0
+••••••••••••fi
+••••••••••••case•"${prev}"•in
+••••••••••••••••
+••••••••••••••••--case)
+••••••••••••••••••••COMPREPLY=($(compgen•-f•${cur}))
+••••••••••••••••••••return•0
+••••••••••••••••••••;;
+••••••••••••••••*)
+••••••••••••••••••••COMPREPLY=()
+••••••••••••••••••••;;
+••••••••••••esac
+••••••••••••COMPREPLY=(•$(compgen•-W•"${opts}"•--•${cur})•)
+••••••••••••return•0
+••••••••••••;;
+••••esac
+}
+
+complete•-F•_my_app•-o•bashdefault•-o•default•my_app
+
+--
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-f•-a•"test"•-d•'tests•things'
+complete•-c•myapp•-n•"__fish_use_subcommand"•-f•-a•"help"•-d•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-l•case•-d•'the•case•to•test'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•myapp•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+
+thread 'bash_with_special_commands' panicked at 'assertion failed: compare(&*string, BASH_SPECIAL_CMDS)', tests/completions.rs:858:5
+--
+
+thread 'fish' panicked at 'assertion failed: compare(&*string, FISH)--> left
+', tests/completions.rs:808:5
+test bash_with_special_commands ... FAILED
+
+--> left
+test fish ... FAILED
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•brackets•-d•'List•packages•[filter]'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•backslash•-d•'Avoid•\'\\n\''
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•single-quotes•-d•'Can•be•\'always\',•\'auto\',•or•\'never\''
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•double-quotes•-d•'Can•be•"always",•"auto",•or•"never"'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•expansions•-d•'Execute•the•shell•command•with•$SHELL'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•backticks•-d•'For•more•information•see•`echo•test`'
+
+--> right
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•single-quotes•-d•'Can•be•\'always\',•\'auto\',•or•\'never\''
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•double-quotes•-d•'Can•be•"always",•"auto",•or•"never"'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•backticks•-d•'For•more•information•see•`echo•test`'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•backslash•-d•'Avoid•\'\\n\''
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•brackets•-d•'List•packages•[filter]'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-l•expansions•-d•'Execute•the•shell•command•with•$SHELL'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"test"•-d•'tests•things'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"some_cmd"•-d•'tests•other•things'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"some-cmd-with-hypens"
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"help"•-d•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-l•case•-d•'the•case•to•test'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-l•config•-d•'the•other•case•to•test'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+
+--
+--> right
+thread 'fish_with_special_help' panicked at 'assertion failed: compare(&*string, FISH_SPECIAL_HELP)', tests/completions.rs:888:5
+test fish_with_special_help ... FAILED
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"test"•-d•'tests•things'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"some_cmd"•-d•'tests•other•things'
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"some-cmd-with-hypens"
+complete•-c•my_app•-n•"__fish_use_subcommand"•-f•-a•"help"•-d•'Prints•this•message•or•the•help•of•the•given•subcommand(s)'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-l•case•-d•'the•case•to•test'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•test"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-l•config•-d•'the•other•case•to•test'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some_cmd"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•some-cmd-with-hypens"•-s•V•-l•version•-d•'Prints•version•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•h•-l•help•-d•'Prints•help•information'
+complete•-c•my_app•-n•"__fish_seen_subcommand_from•help"•-s•V•-l•version•-d•'Prints•version•information'
+
+--
+thread 'fish_with_special_commands' panicked at 'assertion failed: compare(&*string, FISH_SPECIAL_CMDS)', tests/completions.rs:868:5
+test fish_with_special_commands ... FAILED
+
+--> left
+
+--> left
+
+--> left
+
+using•namespace•System.Management.Automation
+using•namespace•System.Management.Automation.Language
+
+Register-ArgumentCompleter•-Native•-CommandName•'my_app'•-ScriptBlock•{
+••••param($wordToComplete,•$commandAst,•$cursorPosition)
+
+••••$commandElements•=•$commandAst.CommandElements
+••••$command•=•@(
+••••••••'my_app'
+••••••••for•($i•=•1;•$i•-lt•$commandElements.Count;•$i++)•{
+••••••••••••$element•=•$commandElements[$i]
+••••••••••••if•($element•-isnot•[StringConstantExpressionAst]•-or
+••••••••••••••••$element.StringConstantType•-ne•[StringConstantType]::BareWord•-or
+••••••••••••••••$element.Value.StartsWith('-'))•{
+••••••••••••••••break
+••••••••}
+••••••••$element.Value
+••••})•-join•';'
+
+••••$completions•=•@(switch•($command)•{
+••••••••'my_app'•{
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('test',•'test',•[CompletionResultType]::ParameterValue,•'tests•things')
+••••••••••••[CompletionResult]::new('help',•'help',•[CompletionResultType]::ParameterValue,•'Prints•this•message•or•the•help•of•the•given•subcommand(s)')
+••••••••••••break
+••••••••}
+••••••••'my_app;test'•{
+••••••••••••[CompletionResult]::new('--case',•'case',•[CompletionResultType]::ParameterName,•'the•case•to•test')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;help'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••})
+
+••••$completions.Where{•$_.CompletionText•-like•"$wordToComplete*"•}•|
+••••••••Sort-Object•-Property•ListItemText
+}
+
+--> right
+#compdef•myapp
+
+autoload•-U•is-at-least
+
+_myapp()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'::file•--•some•input•file:_files'•\
+"::•:_myapp_commands"•\
+"*:::•:->myapp"•\
+&&•ret=0
+••••case•$state•in
+••••(myapp)
+••••••••words=($line[2]•"${words[@]}")
+••••••••((•CURRENT•+=•1•))
+••••••••curcontext="${curcontext%:*:*}:myapp-command-$line[2]:"
+••••••••case•$line[2]•in
+••••••••••••(test)
+_arguments•"${_arguments_options[@]}"•\
+'--case=[the•case•to•test]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+&&•ret=0
+;;
+(help)
+_arguments•"${_arguments_options[@]}"•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+&&•ret=0
+;;
+••••••••esac
+••••;;
+esac
+}
+
+((•$+functions[_myapp_commands]•))•||
+_myapp_commands()•{
+••••local•commands;•commands=(
+••••••••"test:tests•things"•\
+"help:Prints•this•message•or•the•help•of•the•given•subcommand(s)"•\
+••••)
+••••_describe•-t•commands•'myapp•commands'•commands•"$@"
+}
+((•$+functions[_myapp__help_commands]•))•||
+_myapp__help_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'myapp•help•commands'•commands•"$@"
+}
+((•$+functions[_myapp__test_commands]•))•||
+_myapp__test_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'myapp•test•commands'•commands•"$@"
+}
+
+_myapp•"$@"
+--> right
+
+using•namespace•System.Management.Automation
+using•namespace•System.Management.Automation.Language
+
+Register-ArgumentCompleter•-Native•-CommandName•'my_app'•-ScriptBlock•{
+••••param($wordToComplete,•$commandAst,•$cursorPosition)
+
+••••$commandElements•=•$commandAst.CommandElements
+••••$command•=•@(
+••••••••'my_app'
+••••••••for•($i•=•1;•$i•-lt•$commandElements.Count;•$i++)•{
+••••••••••••$element•=•$commandElements[$i]
+••••••••••••if•($element•-isnot•[StringConstantExpressionAst]•-or
+••••••••••••••••$element.StringConstantType•-ne•[StringConstantType]::BareWord•-or
+••••••••••••••••$element.Value.StartsWith('-'))•{
+••••••••••••••••break
+••••••••}
+••••••••$element.Value
+••••})•-join•';'
+
+••••$completions•=•@(switch•($command)•{
+••••••••'my_app'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('test',•'test',•[CompletionResultType]::ParameterValue,•'tests•things')
+••••••••••••[CompletionResult]::new('help',•'help',•[CompletionResultType]::ParameterValue,•'Prints•this•message•or•the•help•of•the•given•subcommand(s)')
+••••••••••••break
+••••••••}
+••••••••'my_app;test'•{
+••••••••••••[CompletionResult]::new('--case',•'case',•[CompletionResultType]::ParameterName,•'the•case•to•test')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;help'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••})
+
+••••$completions.Where{•$_.CompletionText•-like•"$wordToComplete*"•}•|
+••••••••Sort-Object•-Property•ListItemText
+}
+
+--
+thread 'powershell' panicked at 'assertion failed: compare(&*string, POWERSHELL)', tests/completions.rs:818:5
+
+--> left
+#compdef•myapp
+
+autoload•-U•is-at-least
+
+_myapp()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'::file•--•some•input•file:_files'•\
+"::•:_myapp_commands"•\
+"*:::•:->myapp"•\
+&&•ret=0
+••••case•$state•in
+••••(myapp)
+••••••••words=($line[2]•"${words[@]}")
+••••••••((•CURRENT•+=•1•))
+••••••••curcontext="${curcontext%:*:*}:myapp-command-$line[2]:"
+••••••••case•$line[2]•in
+••••••••••••(test)
+_arguments•"${_arguments_options[@]}"•\
+'--case=[the•case•to•test]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+(help)
+_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+••••••••esac
+••••;;
+esac
+}
+
+((•$+functions[_myapp_commands]•))•||
+_myapp_commands()•{
+••••local•commands;•commands=(
+••••••••"test:tests•things"•\
+"help:Prints•this•message•or•the•help•of•the•given•subcommand(s)"•\
+••••)
+••••_describe•-t•commands•'myapp•commands'•commands•"$@"
+}
+((•$+functions[_myapp__help_commands]•))•||
+_myapp__help_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'myapp•help•commands'•commands•"$@"
+}
+((•$+functions[_myapp__test_commands]•))•||
+_myapp__test_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'myapp•test•commands'•commands•"$@"
+}
+
+_myapp•"$@"
+
+using•namespace•System.Management.Automation
+using•namespace•System.Management.Automation.Language
+
+Register-ArgumentCompleter•-Native•-CommandName•'my_app'•-ScriptBlock•{
+••••param($wordToComplete,•$commandAst,•$cursorPosition)
+
+••••$commandElements•=•$commandAst.CommandElements
+••••$command•=•@(
+••••••••'my_app'
+••••••••for•($i•=•1;•$i•-lt•$commandElements.Count;•$i++)•{
+••••••••••••$element•=•$commandElements[$i]
+••••••••••••if•($element•-isnot•[StringConstantExpressionAst]•-or
+••••••••••••••••$element.StringConstantType•-ne•[StringConstantType]::BareWord•-or
+••••••••••••••••$element.Value.StartsWith('-'))•{
+••••••••••••••••break
+••••••••}
+••••••••$element.Value
+••••})•-join•';'
+
+••••$completions•=•@(switch•($command)•{
+••••••••'my_app'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('test',•'test',•[CompletionResultType]::ParameterValue,•'tests•things')
+••••••••••••[CompletionResult]::new('some_cmd',•'some_cmd',•[CompletionResultType]::ParameterValue,•'tests•other•things')
+••••••••••••[CompletionResult]::new('some-cmd-with-hypens',•'some-cmd-with-hypens',•[CompletionResultType]::ParameterValue,•'some-cmd-with-hypens')
+••••••••••••[CompletionResult]::new('help',•'help',•[CompletionResultType]::ParameterValue,•'Prints•this•message•or•the•help•of•the•given•subcommand(s)')
+••••••••••••break
+••••••••}
+••••••••'my_app;test'•{
+••••••••••••[CompletionResult]::new('--case',•'case',•[CompletionResultType]::ParameterName,•'the•case•to•test')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;some_cmd'•{
+••••••••••••[CompletionResult]::new('--config',•'config',•[CompletionResultType]::ParameterName,•'the•other•case•to•test')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;some-cmd-with-hypens'•{
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;help'•{
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••break
+••••••••}
+••••})
+
+••••$completions.Where{•$_.CompletionText•-like•"$wordToComplete*"•}•|
+••••••••Sort-Object•-Property•ListItemText
+}
+
+test powershell ... --
+--> right
+thread 'zsh' panicked at 'assertion failed: compare(&*string, ZSH)', tests/completions.rs:798:5
+FAILED
+test zsh ... FAILED
+#compdef•my_app
+
+autoload•-U•is-at-least
+
+_my_app()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'::file•--•some•input•file:_files'•\
+"::•:_my_app_commands"•\
+"*:::•:->my_app"•\
+&&•ret=0
+••••case•$state•in
+••••(my_app)
+••••••••words=($line[2]•"${words[@]}")
+••••••••((•CURRENT•+=•1•))
+••••••••curcontext="${curcontext%:*:*}:my_app-command-$line[2]:"
+••••••••case•$line[2]•in
+••••••••••••(test)
+_arguments•"${_arguments_options[@]}"•\
+'--case=[the•case•to•test]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+(some_cmd)
+_arguments•"${_arguments_options[@]}"•\
+'--config=[the•other•case•to•test]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+&&•ret=0
+;;
+(some-cmd-with-hypens)
+_arguments•"${_arguments_options[@]}"•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+&&•ret=0
+;;
+(help)
+_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+&&•ret=0
+;;
+••••••••esac
+••••;;
+esac
+}
+
+((•$+functions[_my_app_commands]•))•||
+_my_app_commands()•{
+••••local•commands;•commands=(
+••••••••"test:tests•things"•\
+"some_cmd:tests•other•things"•\
+"some-cmd-with-hypens:"•\
+"help:Prints•this•message•or•the•help•of•the•given•subcommand(s)"•\
+••••)
+••••_describe•-t•commands•'my_app•commands'•commands•"$@"
+}
+((•$+functions[_my_app__help_commands]•))•||
+_my_app__help_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•help•commands'•commands•"$@"
+}
+((•$+functions[_my_app__some-cmd-with-hypens_commands]•))•||
+_my_app__some-cmd-with-hypens_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•some-cmd-with-hypens•commands'•commands•"$@"
+}
+((•$+functions[_my_app__some_cmd_commands]•))•||
+_my_app__some_cmd_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•some_cmd•commands'•commands•"$@"
+}
+((•$+functions[_my_app__test_commands]•))•||
+_my_app__test_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•test•commands'•commands•"$@"
+}
+
+_my_app•"$@"
+--> right
+
+using•namespace•System.Management.Automation
+using•namespace•System.Management.Automation.Language
+
+Register-ArgumentCompleter•-Native•-CommandName•'my_app'•-ScriptBlock•{
+••••param($wordToComplete,•$commandAst,•$cursorPosition)
+
+••••$commandElements•=•$commandAst.CommandElements
+••••$command•=•@(
+••••••••'my_app'
+••••••••for•($i•=•1;•$i•-lt•$commandElements.Count;•$i++)•{
+••••••••••••$element•=•$commandElements[$i]
+••••••••••••if•($element•-isnot•[StringConstantExpressionAst]•-or
+••••••••••••••••$element.StringConstantType•-ne•[StringConstantType]::BareWord•-or
+••••••••••••••••$element.Value.StartsWith('-'))•{
+••••••••••••••••break
+••••••••}
+••••••••$element.Value
+••••})•-join•';'
+
+••••$completions•=•@(switch•($command)•{
+••••••••'my_app'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('test',•'test',•[CompletionResultType]::ParameterValue,•'tests•things')
+••••••••••••[CompletionResult]::new('some_cmd',•'some_cmd',•[CompletionResultType]::ParameterValue,•'tests•other•things')
+••••••••••••[CompletionResult]::new('some-cmd-with-hypens',•'some-cmd-with-hypens',•[CompletionResultType]::ParameterValue,•'some-cmd-with-hypens')
+••••••••••••[CompletionResult]::new('help',•'help',•[CompletionResultType]::ParameterValue,•'Prints•this•message•or•the•help•of•the•given•subcommand(s)')
+••••••••••••break
+••••••••}
+••••••••'my_app;test'•{
+••••••••••••[CompletionResult]::new('--case',•'case',•[CompletionResultType]::ParameterName,•'the•case•to•test')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;some_cmd'•{
+••••••••••••[CompletionResult]::new('--config',•'config',•[CompletionResultType]::ParameterName,•'the•other•case•to•test')
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;some-cmd-with-hypens'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••••••'my_app;help'•{
+••••••••••••[CompletionResult]::new('-h',•'h',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('--help',•'help',•[CompletionResultType]::ParameterName,•'Prints•help•information')
+••••••••••••[CompletionResult]::new('-V',•'V',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••[CompletionResult]::new('--version',•'version',•[CompletionResultType]::ParameterName,•'Prints•version•information')
+••••••••••••break
+••••••••}
+••••})
+
+••••$completions.Where{•$_.CompletionText•-like•"$wordToComplete*"•}•|
+••••••••Sort-Object•-Property•ListItemText
+}
+
+--
+thread 'powershell_with_special_commands' panicked at 'assertion failed: compare(&*string, POWERSHELL_SPECIAL_CMDS)', tests/completions.rs:848:5
+test powershell_with_special_commands ... FAILED
+#compdef•my_app
+
+autoload•-U•is-at-least
+
+_my_app()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'::file•--•some•input•file:_files'•\
+"::•:_my_app_commands"•\
+"*:::•:->my_app"•\
+&&•ret=0
+••••case•$state•in
+••••(my_app)
+••••••••words=($line[2]•"${words[@]}")
+••••••••((•CURRENT•+=•1•))
+••••••••curcontext="${curcontext%:*:*}:my_app-command-$line[2]:"
+••••••••case•$line[2]•in
+••••••••••••(test)
+_arguments•"${_arguments_options[@]}"•\
+'--case=[the•case•to•test]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+(some_cmd)
+_arguments•"${_arguments_options[@]}"•\
+'--config=[the•other•case•to•test]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+(some-cmd-with-hypens)
+_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+(help)
+_arguments•"${_arguments_options[@]}"•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+;;
+••••••••esac
+••••;;
+esac
+}
+
+((•$+functions[_my_app_commands]•))•||
+_my_app_commands()•{
+••••local•commands;•commands=(
+••••••••"test:tests•things"•\
+"some_cmd:tests•other•things"•\
+"some-cmd-with-hypens:"•\
+"help:Prints•this•message•or•the•help•of•the•given•subcommand(s)"•\
+••••)
+••••_describe•-t•commands•'my_app•commands'•commands•"$@"
+}
+((•$+functions[_my_app__help_commands]•))•||
+_my_app__help_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•help•commands'•commands•"$@"
+}
+((•$+functions[_my_app__some-cmd-with-hypens_commands]•))•||
+_my_app__some-cmd-with-hypens_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•some-cmd-with-hypens•commands'•commands•"$@"
+}
+((•$+functions[_my_app__some_cmd_commands]•))•||
+_my_app__some_cmd_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•some_cmd•commands'•commands•"$@"
+}
+((•$+functions[_my_app__test_commands]•))•||
+_my_app__test_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•test•commands'•commands•"$@"
+}
+
+_my_app•"$@"
+--
+thread 'zsh_with_special_commands' panicked at 'assertion failed: compare(&*string, ZSH_SPECIAL_CMDS)', tests/completions.rs:878:5
+test zsh_with_special_commands ... FAILED
+
+--> left
+#compdef•my_app
+
+autoload•-U•is-at-least
+
+_my_app()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'--backticks[For•more•information•see•`echo•test`]'•\
+'--double-quotes[Can•be•"always",•"auto",•or•"never"]'•\
+'--single-quotes[Can•be•'\''always'\'',•'\''auto'\'',•or•'\''never'\'']'•\
+'--expansions[Execute•the•shell•command•with•$SHELL]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'--backslash[Avoid•'\''\\n'\'']'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+'--brackets[List•packages•\[filter\]]'•\
+&&•ret=0
+••••
+}
+
+((•$+functions[_my_app_commands]•))•||
+_my_app_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•commands'•commands•"$@"
+}
+
+_my_app•"$@"
+--> right
+#compdef•my_app
+
+autoload•-U•is-at-least
+
+_my_app()•{
+••••typeset•-A•opt_args
+••••typeset•-a•_arguments_options
+••••local•ret=1
+
+••••if•is-at-least•5.2;•then
+••••••••_arguments_options=(-s•-S•-C)
+••••else
+••••••••_arguments_options=(-s•-C)
+••••fi
+
+••••local•context•curcontext="$curcontext"•state•line
+••••_arguments•"${_arguments_options[@]}"•\
+'--single-quotes[Can•be•'\''always'\'',•'\''auto'\'',•or•'\''never'\'']'•\
+'--double-quotes[Can•be•"always",•"auto",•or•"never"]'•\
+'--backticks[For•more•information•see•`echo•test`]'•\
+'--backslash[Avoid•'\''\\n'\'']'•\
+'--brackets[List•packages•\[filter\]]'•\
+'--expansions[Execute•the•shell•command•with•$SHELL]'•\
+'-h[Prints•help•information]'•\
+'--help[Prints•help•information]'•\
+'-V[Prints•version•information]'•\
+'--version[Prints•version•information]'•\
+&&•ret=0
+••••
+}
+
+((•$+functions[_my_app_commands]•))•||
+_my_app_commands()•{
+••••local•commands;•commands=(
+••••••••
+••••)
+••••_describe•-t•commands•'my_app•commands'•commands•"$@"
+}
+
+_my_app•"$@"
+--
+thread 'zsh_with_special_help' panicked at 'assertion failed: compare(&*string, ZSH_SPECIAL_HELP)', tests/completions.rs:898:5
+test zsh_with_special_help ... FAILED
+
+failures:
+
+failures:
+    bash
+    bash_with_special_commands
+    elvish
+    elvish_with_special_commands
+    fish
+    fish_with_special_commands
+    fish_with_special_help
+    powershell
+    powershell_with_special_commands
+    zsh
+    zsh_with_special_commands
+    zsh_with_special_help
+
+test result: FAILED. 0 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/conflicts-651b4bef61a1cb25
+
+running 7 tests
+test conflict_with_unused_default_value ... ok
+test flag_conflict ... ok
+test flag_conflict_2 ... ok
+test group_conflict ... ok
+test group_conflict_2 ... ok
+
+
+--> left
+--> left
+error: Found argument 'val1' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help
+error: Found argument 'val1' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help
+--> right
+--> right
+error: The argument '-F' cannot be used with '--flag'
+
+USAGE:
+    clap-test <positional> <positional2> --flag --long-option-2 <option2>
+
+For more information try --help
+error: The argument '--flag' cannot be used with '-F'
+
+USAGE:
+    clap-test <positional> <positional2> -F --long-option-2 <option2>
+
+For more information try --help
+--
+--
+test conflict_output ... ok
+test conflict_output_rev ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/default_vals-cb24d8f27ba14386
+
+running 29 tests
+test default_if_arg_present_no_arg_with_default ... ok
+thread 'default_if_arg_present_no_arg_with_default_user_override' panicked at 'assertion failed: r.is_ok()', test conditional_reqs_pass ... ok
+tests/default_vals.rs:194:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test conditional_reqs_fail ... ok
+thread 'default_if_arg_present_no_arg_with_value_with_default_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:311:5
+test default_if_arg_present_no_arg_with_default_user_override ... FAILED
+thread 'default_if_arg_present_no_arg_with_value_with_default_user_override_fail' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:327:5
+test default_if_arg_present_no_arg_with_value_with_default_user_override ... FAILED
+test default_if_arg_present_no_default ... ok
+test default_if_arg_present_no_arg_with_value_with_default_user_override_fail ... FAILED
+thread 'default_if_arg_present_no_default_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:130:5
+test default_if_arg_present_with_default ... ok
+test default_if_arg_present_no_default_user_override ... FAILED
+thread 'default_if_arg_present_with_default_user_override' panicked at 'test default_if_arg_present_with_value_no_arg_with_default ... ok
+assertion failed: r.is_ok()', tests/default_vals.rs:178:5
+test default_if_arg_present_with_default_user_override ... FAILED
+test default_if_arg_present_with_value_no_arg_with_default_fail ... ok
+test default_if_arg_present_with_value_no_default ... ok
+test default_if_arg_present_with_value_no_default_fail ... ok
+thread 'default_if_arg_present_with_value_no_default_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:231:5
+test default_if_arg_present_with_value_no_default_user_override ... FAILED
+thread 'default_if_arg_present_with_value_with_default_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:295:5
+test default_if_arg_present_with_value_with_default ... ok
+test default_if_arg_present_with_value_with_default_user_override ... FAILED
+test default_ifs_arg_present ... ok
+test default_ifs_arg_present_order ... ok
+test issue_1050_num_vals_and_defaults ... thread 'default_ifs_arg_present_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:363:5
+ok
+test opt_user_override ... ok
+test default_ifs_arg_present_user_override ... FAILED
+test opts ... ok
+thread 'osstr_positional_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:104:5
+test osstr_opt_user_override ... ok
+test osstr_opts ... ok
+test osstr_positional_user_override ... FAILED
+test osstr_positionals ... ok
+thread 'positional_user_override' panicked at 'assertion failed: r.is_ok()', tests/default_vals.rs:46:5
+test positionals ... ok
+test positional_user_override ... FAILED
+
+failures:
+
+failures:
+    default_if_arg_present_no_arg_with_default_user_override
+    default_if_arg_present_no_arg_with_value_with_default_user_override
+    default_if_arg_present_no_arg_with_value_with_default_user_override_fail
+    default_if_arg_present_no_default_user_override
+    default_if_arg_present_with_default_user_override
+    default_if_arg_present_with_value_no_default_user_override
+    default_if_arg_present_with_value_with_default_user_override
+    default_ifs_arg_present_user_override
+    osstr_positional_user_override
+    positional_user_override
+
+test result: FAILED. 19 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/delimiters-c5cb16e0cab9b405
+
+running 7 tests
+test opt_eq_no_delim ... ok
+test opt_s_default_no_delim ... ok
+test opt_eq_mult_def_delim ... ok
+test opt_default_no_delim ... ok
+test opt_s_eq_no_delim ... ok
+test opt_s_no_space_mult_no_delim ... ok
+test opt_s_no_space_no_delim ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/derive_order-033953c6f60b7018
+
+running 8 tests
+thread 'no_derive_order' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'derive_orderthread 'thread 'derive_order_subcommand_propagate' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "sub", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:unified_help' panicked at '945' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+:called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test no_derive_order ... 5
+FAILED
+test derive_order ... FAILED
+test unified_help ... FAILED
+test derive_order_subcommand_propagate ... FAILED
+thread 'unified_help_and_derive_order' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'unified_help_and_derive_order_subcommand_propagate' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "sub", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+thread 'unified_help_and_derive_order_subcommand_propagate_with_explicit_display_order' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "sub", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+test unified_help_and_derive_order ... thread 'unified_help_subcommand_propagate' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "sub", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:FAILED
+945:5
+test unified_help_and_derive_order_subcommand_propagate ... FAILED
+test unified_help_and_derive_order_subcommand_propagate_with_explicit_display_order ... FAILED
+test unified_help_subcommand_propagate ... FAILED
+
+failures:
+
+failures:
+    derive_order
+    derive_order_subcommand_propagate
+    no_derive_order
+    unified_help
+    unified_help_and_derive_order
+    unified_help_and_derive_order_subcommand_propagate
+    unified_help_and_derive_order_subcommand_propagate_with_explicit_display_order
+    unified_help_subcommand_propagate
+
+test result: FAILED. 0 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/env-342fd56d215cf277
+
+running 15 tests
+test env ... ok
+test env_os ... ok
+test multiple_one ... ok
+test multiple_no_delimiter ... ok
+test multiple_three ... ok
+test no_env ... ok
+test opt_user_override ... ok
+test positionals ... ok
+test possible_value ... ok
+thread 'not_possible_value' panicked at 'called `Option::unwrap()` on a `None` value', test validator ... ok
+libcore/option.rs:345:21
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test validator_invalid ... ok
+test validator_output ... ok
+test with_default ... ok
+thread 'positionals_user_override' panicked at 'assertion failed: r.is_ok()', tests/env.rs:112:5
+test positionals_user_override ... FAILED
+test not_possible_value ... FAILED
+
+failures:
+
+failures:
+    not_possible_value
+    positionals_user_override
+
+test result: FAILED. 13 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/flags-1f0ea2cea92d0318
+
+running 8 tests
+thread 'lots_o_flags_combined' panicked at 'assertion failed: `(left == right)`
+  left: `5`,
+ right: `297`', tests/flags.rs:66:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test flag_using_short ... ok
+test flag_using_long ... ok
+test flag_using_mixed ... ok
+test lots_o_flags_combined ... FAILED
+test short_flag_misspel ... ok
+test short_flag_name_missing ... okthread 'multiple_flags_in_single' panicked at 'assertion failed: m.is_present("color")', tests/flags.rs:112:5
+
+test multiple_flags_in_single ... FAILED
+test lots_o_flags_sep ... ok
+
+failures:
+
+failures:
+    lots_o_flags_combined
+    multiple_flags_in_single
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/global_args-2a409dc4ac03b5b0
+
+running 1 test
+test tests::issue_1076 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/groups-d7e179a94158cb52
+
+running 12 tests
+test group_empty ... ok
+test group_multi_value_single_arg ... ok
+test empty_group ... ok
+test group_multiple_args_error ... ok
+test group_single_flag ... ok
+thread 'non_existing_arg' panicked at 'Fatal internal error. Please consider filing a bug report at https://github.com/kbknapp/clap-rs/issues', test group_reqired_flags_empty ... ok
+libcore/option.rs:987:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test group_single_value ... ok
+test non_existing_arg ... ok
+test required_group_missing_arg ... ok
+test required_group_multiple_args ... ok
+
+
+--> left
+--> left
+error: Found argument 'base' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test <<base>|--delete>
+
+For more information try --help
+error: The following required arguments were not provided:
+    <<base>|--delete>
+
+USAGE:
+    clap-test <<base>|--delete>
+
+For more information try --help
+--> right
+--> right
+error: The argument '--delete' cannot be used with '<base>'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help
+error: The following required arguments were not provided:
+    <base|--delete>
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help
+--
+--
+thread 'req_group_usage_string' panicked at 'assertion failed: test::compare_output(app, "clap-test", REQ_GROUP_USAGE, true)', tests/groups.rs:175:5
+test req_group_usage_string ... FAILED
+
+--> left
+error: Found argument 'base' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test <<base>|--delete>
+
+For more information try --help
+--> right
+error: The argument '<base>' cannot be used with '--delete'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help
+--
+thread 'req_group_with_conflict_usage_string' panicked at 'assertion failed: test::compare_output2(app, "clap-test --delete base", REQ_GROUP_CONFLICT_REV,
+                      REQ_GROUP_CONFLICT_USAGE, true)', tests/groups.rs:196:5
+test req_group_with_conflict_usage_string ... FAILED
+
+failures:
+
+failures:
+    req_group_usage_string
+    req_group_with_conflict_usage_string
+
+test result: FAILED. 10 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/help-48deb4db27f7a4dd
+
+running 50 tests
+thread 'thread 'args_negate_scargs_with_last_usagethread '' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+after_and_before_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test args_negate_sc ... FAILED
+test args_with_last_usage ... FAILED
+thread 'complex_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test after_and_before_help_output ... FAILED
+test complex_help_output ... FAILED
+thread 'customize_version_and_help' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'final_word_wrapping' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', thread 'libcore/result.rs:945:5
+test customize_version_and_help ... custom_headers_headers' panicked at 'assertion failed: `(left == right)`
+  left: `false`,
+ right: `true`: Should Use STDERR failed. Should be false but is true', tests/../clap-test.rsFAILED:
+39:9
+test final_word_wrapping ... FAILED
+test custom_headers_headers ... FAILED
+thread 'help_long' panicked at 'assertion failed: m.is_err()', tests/help.rs:554:5
+test help_no_subcommand ... ok
+thread 'complex_subcommand_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "subcmd", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+test help_long ... FAILED
+thread 'hidden_args' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test complex_subcommand_help_output ... FAILED
+test help_short ... ok
+test hidden_args ... FAILED
+thread 'hidden_default_val' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }, "argument": MatchedArg { occurs: 0, indices: [2], vals: ["default-argument"] }}, subcommand: None }', libcore/result.rs:945:5
+test help_subcommand ... ok
+test hidden_default_val ... FAILED
+thread 'hide_env_vals' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }, "cafe": MatchedArg { occurs: 0, indices: [2], vals: ["MYVAL"] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'hide_possible_vals' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test hide_env_vals ... FAILED
+test hide_possible_vals ... FAILED
+thread 'issue_1046_hidden_scs' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'issue_1052_require_delim_help' panicked at 'assertion failed: `(left == right)`
+  left: `false`,
+ right: `true`: Should Use STDERR failed. Should be false but is true', tests/../clap-test.rs:39:9
+test issue_1046_hidden_scs ... FAILED
+test issue_1052_require_delim_help ... FAILED
+test issue_1112_override_help_long ... ok
+test issue_1112_override_help_short ... ok
+thread 'issue_626_panic' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test issue_1112_override_help_subcmd_long ... thread 'okissue_626_unicode_cutoff
+' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test issue_1112_override_help_subcmd_short ... ok
+test issue_626_panic ... FAILED
+test issue_626_unicode_cutoff ... FAILED
+thread 'issue_688_hidden_pos_vals' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'issue_760' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test issue_688_hidden_pos_vals ... thread 'issue_702_multiple_values' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+FAILED
+test issue_760 ... FAILED
+thread 'test issue_702_multiple_values ... FAILED
+issue_777_wrap_all_things' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'last_arg_mult_usage' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', src/parse/parser.rs:247:21test issue_777_wrap_all_things ... FAILED
+
+thread 'last_arg_mult_usage_req' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', src/parse/parser.rs:247:21
+test last_arg_mult_usage ... FAILED
+test last_arg_mult_usage_req ... FAILED
+thread 'last_arg_mult_usage_req_with_sc' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', src/parse/parser.rs:247:21
+thread 'last_arg_mult_usage_with_sc' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', src/parse/parser.rs:247:21
+test last_arg_mult_usage_req_with_sc ... thread 'FAILEDlong_about' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+
+test last_arg_mult_usage_with_sc ... FAILED
+test long_about ... FAILED
+thread 'no_wrap_default_help' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test no_wrap_default_help ... FAILED
+thread 'multiple_custom_help_headers' panicked at 'assertion failed: `(left == right)`
+  left: `false`,
+ right: `true`: Should Use STDERR failed. Should be false but is true', tests/../clap-test.rs:39:9
+test multiple_custom_help_headers ... thread 'no_wrap_help' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+FAILED
+test no_wrap_help ... FAILED
+thread 'old_newline_chars' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', thread 'libcore/result.rs:945:5
+req_last_arg_usage' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test old_newline_chars ... FAILED
+test req_last_arg_usage ... FAILED
+thread 'ripgrep_usage' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+thread 'ripgrep_usage_using_templates' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }test ripgrep_usage ... FAILED
+', libcore/result.rs:945:5
+test ripgrep_usage_using_templates ... FAILED
+thread 'show_env_vals' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }, "cafe": MatchedArg { occurs: 0, indices: [2], vals: ["MYVAL"] }}, subcommand: None }', libcore/result.rs:945:5
+test show_env_vals ... FAILED
+thread 'sc_negates_reqs' panicked at 'assertion failed: `(left == right)`
+  left: `false`,
+ right: `true`: Should Use STDERR failed. Should be false but is true', tests/../clap-test.rs:39:9
+test sc_negates_reqs ... FAILED
+thread 'show_long_about_issue_897' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {}, subcommand: Some(SubCommand { name: "foo", matches: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None } }) }', libcore/result.rs:945:5
+test show_long_about_issue_897 ... FAILED
+test multi_level_sc_help ... ok
+thread 'subcommand_long_help' panicked at 'assertion failed: m.is_err()', tests/help.rs:656:5
+test subcommand_long_help ... FAILED
+test show_short_about_issue_897 ... ok
+test subcommand_help_rev ... ok
+thread 'wrapping_newline_chars' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test wrapping_newline_chars ... FAILED
+test subcommand_short_help ... ok
+test issue_626_variable_panic ... ok
+
+failures:
+
+failures:
+    after_and_before_help_output
+    args_negate_sc
+    args_with_last_usage
+    complex_help_output
+    complex_subcommand_help_output
+    custom_headers_headers
+    customize_version_and_help
+    final_word_wrapping
+    help_long
+    hidden_args
+    hidden_default_val
+    hide_env_vals
+    hide_possible_vals
+    issue_1046_hidden_scs
+    issue_1052_require_delim_help
+    issue_626_panic
+    issue_626_unicode_cutoff
+    issue_688_hidden_pos_vals
+    issue_702_multiple_values
+    issue_760
+    issue_777_wrap_all_things
+    last_arg_mult_usage
+    last_arg_mult_usage_req
+    last_arg_mult_usage_req_with_sc
+    last_arg_mult_usage_with_sc
+    long_about
+    multiple_custom_help_headers
+    no_wrap_default_help
+    no_wrap_help
+    old_newline_chars
+    req_last_arg_usage
+    ripgrep_usage
+    ripgrep_usage_using_templates
+    sc_negates_reqs
+    show_env_vals
+    show_long_about_issue_897
+    subcommand_long_help
+    wrapping_newline_chars
+
+test result: FAILED. 12 passed; 38 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/hidden_args-b7b9047aa5b20486
+
+running 5 tests
+thread 'hidden_args' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'hidden_long_args' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test hidden_long_args ... FAILED
+test hidden_args ... FAILED
+thread 'hidden_short_args_long_help' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test hidden_short_args_long_help ... FAILED
+test hidden_short_args ... ok
+test hidden_long_args_short_help ... ok
+
+failures:
+
+failures:
+    hidden_args
+    hidden_long_args
+    hidden_short_args_long_help
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/indices-fb78079aa6ca050f
+
+running 11 tests
+test index_flag ... ok
+test index_flags ... ok
+test indices_mult_flags ... ok
+test index_mult_opts ... ok
+thread 'indices_mult_flags_combined' panicked at 'assertion failed: `(left == right)`
+  left: `[1]`,
+ right: `[1, 3, 4]`', tests/indices.rs:126:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'indices_mult_flags_opt_combined_eq' panicked at 'assertion failed: `(left == right)`
+  left: `[1]`,
+ right: `[1, 3, 4]`', tests/indices.rs:179:5
+error: Found argument 'val' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    ind [FLAGS] [OPTIONS]
+
+For more information try --helptest indices_mult_opt_mult_flag ... ok
+
+test indices_mult_flags_combined ... FAILED
+     Running target/debug/deps/macros-f95ff6c112765fb4
+
+running 11 tests
+test arg_enum_trailing_comma ... ok
+test arg_enum ... ok
+test basic ... ok
+test group_macro_set_multiple ... ok
+test group_macro ... ok
+test group_macro_set_not_required ... ok
+test group_macro_set_not_multiple ... ok
+test group_macro_set_required ... ok
+test quoted_arg_name ... ok
+test quoted_arg_long_name ... ok
+test quoted_app_name ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/multiple_occurrences-be0057ab6b1efef2
+
+running 4 tests
+test multiple_occurrences_of_flags_long ... ok
+test multiple_occurrences_of_flags_short ... ok
+test multiple_occurrences_of_flags_mixed ... ok
+test multiple_occurrences_of_flags_large_quantity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/multiple_values-72bdef88598deb74
+
+running 51 tests
+thread 'different_sep_positional' panicked at 'assertion failed: m.is_ok()', test different_sep ... ok
+tests/multiple_values.rs:709:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test low_index_positional ... ok
+thread 'low_index_positional_last_multiple_too' panicked at 'Only one positional argument with .multiple(true) set is allowed per command, unless the second one also has .last(true) set', src/parse/parser.rs:201:13test different_sep_positional ... 
+thread 'FAILED
+low_index_positional_not_required' panicked at 'When using a positional argument with .multiple(true) that is *not the last* positional argument, the last positional argument (i.e the one with the highest index) *must* have .required(true) or .last(true) set.', src/parse/parser.rs:172test low_index_positional_in_subcmd ... :13
+ok
+test low_index_positional_last_multiple_too ... ok
+test low_index_positional_not_required ... ok
+thread 'low_index_positional_too_far_back' panicked at 'Only the last positional argument, or second to last positional argument may be set to .multiple(true)', src/parse/parser.rs:182:13
+test low_index_positional_too_far_back ... ok
+thread 'multiple_vals_with_hyphen' panicked at 'UnknownArgument', tests/multiple_values.rs:1199:5
+test low_index_positional_with_flag ... ok
+test multiple_vals_with_hyphen ... FAILED
+test low_index_positional_with_option ... ok
+thread 'multiple_value_terminator_option' panicked at 'UnknownArgument', tests/multiple_values.rs:1140:5
+test multiple_value_terminator_option ... FAILED
+thread 'no_sep_positionalthread 'multiple_value_terminator_option_other_arg' panicked at 'UnknownArgument', tests/multiple_values.rs:1166:5
+test no_sep ... ok
+' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:750:5
+test multiple_value_terminator_option_other_arg ... FAILED
+test no_sep_positional ... FAILED
+test option_exact_exact ... ok
+test option_exact_exact_mult ... ok
+test option_exact_exact_not_mult ... ok
+test option_exact_less ... ok
+test option_exact_more ... ok
+test option_long ... ok
+test option_max_exact ... ok
+test option_max_less ... ok
+test option_max_more ... ok
+test option_min_exact ... ok
+test option_min_less ... ok
+test option_mixed ... ok
+thread 'option_short_min_more_mult_occurs' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test option_short ... ok
+thread 'option_short_min_more_single_occur' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test option_short_min_more_mult_occurs ... FAILED
+thread 'positional' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:362:5test option_short_min_more_single_occur ... FAILED
+
+thread 'positional_exact_exact' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:383:5
+test positional ... FAILED
+thread 'positional_exact_less' panicked at 'assertion failed: `(left == right)`
+  left: `UnknownArgument`,
+ right: `WrongNumberOfValues`', tests/multiple_values.rs:405:5
+test positional_exact_exact ... FAILED
+thread 'positional_exact_more' panicked at 'assertion failed: `(left == right)`
+  left: `UnknownArgument`,
+ right: `WrongNumberOfValues`', tests/multiple_values.rs:419:5
+test positional_exact_less ... FAILED
+thread 'positional_max_exact' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:488:5
+test positional_exact_more ... thread 'positional_max_less' panicked at 'assertion failed: m.is_ok()FAILED', 
+tests/multiple_values.rs:509:5
+test positional_max_exact ... FAILED
+thread 'positional_max_more' panicked at 'assertion failed: `(left == right)`
+  left: `UnknownArgument`,
+ right: `TooManyValues`', tests/multiple_values.rs:531:5
+test positional_max_less ... FAILED
+test positional_max_more ... FAILED
+thread 'positional_min_exact' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:432:5
+thread 'positional_min_less' panicked at 'assertion failed: `(left == right)`
+  left: `UnknownArgument`,
+ right: `TooFewValues`', tests/multiple_values.rs:454:5
+thread 'positional_min_moretest positional_min_exact ... FAILED
+' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:467:5
+test positional_min_less ... FAILED
+test positional_min_more ... FAILED
+test req_delimiter_long ... ok
+test req_delimiter_long_with_equal ... ok
+test req_delimiter_short_with_equal ... ok
+test req_delimiter_complex ... ok
+test req_delimiter_short_with_no_space ... ok
+test req_delimiter_short_with_space ... ok
+test sep_long_equals ... ok
+test sep_long_space ... ok
+thread 'sep_positional' panicked at 'assertion failed: m.is_ok()', tests/multiple_values.rs:665:5
+test sep_short_equals ... ok
+test sep_positional ... FAILED
+test sep_short_no_space ... ok
+test sep_short_space ... ok
+
+failures:
+
+failures:
+    different_sep_positional
+    multiple_vals_with_hyphen
+    multiple_value_terminator_option
+    multiple_value_terminator_option_other_arg
+    no_sep_positional
+    option_short_min_more_mult_occurs
+    option_short_min_more_single_occur
+    positional
+    positional_exact_exact
+    positional_exact_less
+    positional_exact_more
+    positional_max_exact
+    positional_max_less
+    positional_max_more
+    positional_min_exact
+    positional_min_less
+    positional_min_more
+    sep_positional
+
+test result: FAILED. 33 passed; 18 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/opts-e503fe690dcff9e1
+
+running 33 tests
+test issue_1047_min_zero_vals_default_val ... ok
+test default_values_user_value ... ok
+test double_hyphen_as_value ... ok
+test issue_1105_empty_value_long_equals ... ok
+test issue_1105_empty_value_long_explicit ... ok
+test issue_1105_empty_value_long_fail ... ok
+test issue_1105_empty_value_short_equals ... ok
+test issue_1105_empty_value_short_explicit ... ok
+test issue_1105_empty_value_short_explicit_no_space ... ok
+test issue_1105_empty_value_short_fail ... ok
+test issue_665 ... ok
+test leading_hyphen_fail ... ok
+test leading_hyphen_pass ... ok
+test leading_hyphen_with_flag_after ... ok
+test leading_hyphen_with_flag_before ... ok
+thread 'leading_hyphen_with_only_pos_follows' panicked at 'Err(Error { message: "error: Found argument \'val\' which wasn\'t expected, or isn\'t valid in this context\n\nUSAGE:\n    mvae [OPTIONS] [--] [arg]\n\nFor more information try --help", kind: UnknownArgument, info: Some(["val"]) })', tests/opts.rs:353:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'multiple_vals_pos_arg_delim' panicked at 'assertion failed: r.is_ok()', tests/opts.rs:263:5
+test leading_hyphen_with_only_pos_follows ... FAILED
+test multiple_vals_pos_arg_delim ... FAILED
+thread 'multiple_vals_pos_arg_equals' panicked at 'assertion failed: r.is_ok()', tests/opts.rs:249:5
+test opts_using_long_equals ... ok
+test multiple_vals_pos_arg_equals ... FAILED
+test did_you_mean ... ok
+test opts_using_long_space ... ok
+test opts_using_mixed ... ok
+test opts_using_mixed2 ... ok
+test opts_using_short ... ok
+thread 'require_delims' panicked at 'assertion failed: r.is_ok()', tests/opts.rs:288:5
+test require_delims_no_delim ... ok
+test require_delims ... FAILED
+test require_equals_empty_vals_pass ... ok
+test require_equals_fail ... ok
+thread 'require_equals_min_values_zero' panicked at 'assertion failed: res.is_ok()', tests/opts.rs:43:5
+test lots_o_vals ... ok
+test require_equals_min_values_zero ... FAILED
+test require_equals_no_empty_values_fail ... ok
+test require_equals_pass ... ok
+test stdin_char ... ok
+
+failures:
+
+failures:
+    leading_hyphen_with_only_pos_follows
+    multiple_vals_pos_arg_delim
+    multiple_vals_pos_arg_equals
+    require_delims
+    require_equals_min_values_zero
+
+test result: FAILED. 28 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/positionals-84109505b922c623
+
+running 20 tests
+thread 'last_positional' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', thread 'last_positional_no_double_dash' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index Nonesrc/parse/parser.rs', src/parse/parser.rstest create_positional ... ::247247:ok:21
+21
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+
+test issue_946 ... ok
+test last_positional_no_double_dash ... thread 'last_positional_second_to_last_mult' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "CORPUS" index None', src/parse/parser.rs:FAILED247
+:21
+test last_positional ... FAILED
+test last_positional_second_to_last_mult ... FAILED
+thread 'missing_required' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+thread 'missing_required_2' panicked at 'thread 'multiple_positional_one_required_usage_string' panicked at 'Found positional argument which is not required with a lower index than a required positional argument: "FILES" index None', test missing_required ... src/parse/parser.rs:ok247
+thread 'called `Option::unwrap()` on a `None` value:', libcore/option.rs:345:21
+lots_o_vals' panicked at 'assertion failed: r.is_ok()', tests/positionals.rs:98:5
+21
+test missing_required_2 ... FAILED
+test lots_o_vals ... FAILED
+test multiple_positional_one_required_usage_string ... FAILED
+test multiple_positional_usage_string ... ok
+thread 'only_pos_follow' panicked at 'assertion failed: r.is_ok()', tests/positionals.rs:13:5
+error: Found argument '-' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    test [dummy]
+
+For more information try --help
+test only_pos_follow ... FAILED
+     Running target/debug/deps/posix_compatible-a2bacef08926e08a
+
+running 25 tests
+error: The argument '--flag' cannot be used with '--flag'
+
+USAGE:
+    conflict_overriden [FLAGS]
+
+For more information try --help
+thread 'test conflict_overriden_3 ... conflict_overriden_2' panicked at 'assertion failed: result.is_ok()', okerror: The argument '--flag' cannot be used with '--flag'
+
+USAGE:
+    conflict_overriden [FLAGS]
+
+For more information try --help     Running target/debug/deps/possible_values-30fc67a29963d806
+
+running 13 tests
+test case_insensitive ... ok
+test case_insensitive_multiple ... ok
+test case_insensitive_faili ... ok
+test case_insensitive_multiple_fail ... ok
+test possible_values_of_option ... ok
+test possible_values_of_option_multiple ... ok
+test possible_values_of_option_fail ... ok
+test possible_values_of_option_multiple_fail ... ok
+test possible_values_of_positional ... ok
+test possible_values_of_positional_fail ... ok
+test possible_values_of_positional_multiple ... ok
+test possible_values_of_positional_multiple_fail ... ok
+test possible_values_output ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/propagate_globals-5f0fd91a4351f5f2
+
+running 9 tests
+test tests::global_arg_used_inner ... ok
+test tests::global_arg_default_value ... ok
+test tests::global_arg_used_outer ... ok
+test tests::global_arg_used_top_level ... ok
+test tests::global_flag_2x_used_inner ... ok
+test tests::global_flag_used_inner ... ok
+test tests::global_flag_2x_used_top_level ... ok
+test tests::global_flag_used_outer ... ok
+test tests::global_flag_used_top_level ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/require-33902a031dc524e9
+
+running 41 tests
+test arg_require_group_2 ... ok
+test arg_require_group_3 ... ok
+test arg_require_group ... ok
+test flag_required ... ok
+test flag_required_2 ... ok
+test group_required_2 ... ok
+test group_required_3 ... ok
+test group_required ... ok
+test issue_1158_conflicting_requirements_rev ... ok
+test issue_753 ... ok
+test option_required ... ok
+test option_required_2 ... ok
+thread 'missing_required_output' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test positional_required_2 ... ok
+test positional_required ... ok
+test missing_required_output ... FAILED
+test required_if_val_present_fail ... ok
+
+--> left
+error: Found argument 'id' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    example [OPTIONS] [ID]
+
+For more information try --help
+--> right
+test required_if_val_present_pass ... error: The following required arguments were not provided:
+    -x <X>
+    -y <Y>
+    -z <Z>
+
+USAGE:
+    example <ID> -x <X> -y <Y> -z <Z>
+
+For more information try --help
+--
+ok
+thread 'issue_1158_conflicting_requirements' panicked at 'assertion failed: test::compare_output(app, "example id", ISSUE_1158, true)', tests/require.rs:696:5
+test issue_1158_conflicting_requirements ... FAILED
+test required_if_wrong_val ... ok
+test require_eq ... ok
+test required_ifs_val_present_fail ... ok
+test required_if_val_present_fail_error_output ... ok
+test required_ifs_val_present_pass ... ok
+test required_ifs_wrong_val ... ok
+test required_unless ... ok
+test required_unless_all ... ok
+test required_ifs_wrong_val_mult_fail ... ok
+test required_unless_all_err ... ok
+test required_unless_err ... ok
+test required_unless_one ... ok
+test required_unless_one_1 ... ok
+test required_unless_one_2 ... ok
+test required_unless_one_err ... ok
+test required_unless_one_works_with_long ... ok
+test required_unless_one_works_with_short ... ok
+test required_unless_one_works_with_short_err ... ok
+test required_unless_one_works_without ... ok
+test requires_if_present_mult ... ok
+test requires_if_present_mult_pass ... ok
+test requires_if_present_val_no_present_pass ... ok
+test requires_if_present_val ... ok
+
+failures:
+
+failures:
+    issue_1158_conflicting_requirements
+    missing_required_output
+
+test result: FAILED. 39 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/subcommands-570b8db6c3903f20
+
+running 13 tests
+thread 'invisible_aliases_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test issue_1031_args_with_same_name ... ok
+test issue_1031_args_with_same_name_no_more_vals ... ok
+test invisible_aliases_help_output ... FAILED
+thread 'issue_1161_multiple_hyphen_hyphen' panicked at 'UnknownArgument', tests/subcommands.rs:236:5
+test issue_1161_multiple_hyphen_hyphen ... FAILED
+test alias_help ... ok
+test multiple_aliases ... ok
+test single_alias ... ok
+test subcommand ... ok
+test subcommand_multiple ... ok
+test subcommand_none_given ... ok
+thread 'visible_aliases_help_output' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test visible_aliases_help_output ... FAILED
+test subcmd_did_you_mean_output ... ok
+test subcmd_did_you_mean_output_arg ... ok
+
+failures:
+
+failures:
+    invisible_aliases_help_output
+    issue_1161_multiple_hyphen_hyphen
+    visible_aliases_help_output
+
+test result: FAILED. 10 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/template_help-33b89e7ee50aa6aa
+
+running 6 tests
+thread 'template_notag' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+thread 'template_author_version' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }thread '', template_empty' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945thread 'custom_template' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+:test template_notag ... 5
+libcore/result.rs:945:5
+FAILED
+test template_empty ... FAILED
+test template_author_version ... FAILED
+test custom_template ... FAILED
+thread 'template_unknowntag' panicked at 'called `Result::unwrap_err()` on an `Ok` value: ArgMatches { args: {"hclap_help": MatchedArg { occurs: 1, indices: [1], vals: [] }}, subcommand: None }', libcore/result.rs:945:5
+test template_unknowntag ... FAILED
+thread 'with_template' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test with_template ... FAILED
+
+failures:
+
+failures:
+    custom_template
+    template_author_version
+    template_empty
+    template_notag
+    template_unknowntag
+    with_template
+
+test result: FAILED. 0 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/tests-165126543b5f51a9
+
+running 31 tests
+test add_multiple_arg ... ok
+test create_app ... ok
+error: Found argument 'value' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help
+error: Found argument 'value' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    clap-test [FLAGS] [OPTIONS] [ARGS] [SUBCOMMAND]
+
+For more information try --help
+     Running target/debug/deps/unique_args-0c48c79c8beb3049
+
+running 3 tests
+thread 'unique_arg_shorts' panicked at 'Argument short must be unique
+
+	-a is already in use', thread 'unique_arg_longs' panicked at 'Argument long must be unique
+
+	--long is already in use', src/build/app/mod.rs:src/build/app/mod.rs:1613:13
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+1601:13
+test unique_arg_longs ... ok
+test unique_arg_shorts ... ok
+test unique_arg_names ... FAILED
+
+failures:
+
+failures:
+    unique_arg_names
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/utf8-5daf48c49f14bced
+
+running 18 tests
+test invalid_utf8_lossy_option_short_equals ... ok
+test invalid_utf8_lossy_option_long_equals ... ok
+test invalid_utf8_lossy_option_long_space ... ok
+test invalid_utf8_lossy_option_short_no_space ... ok
+thread 'invalid_utf8_lossy_positional' panicked at 'called `Option::unwrap()` on a `None` value', test invalid_utf8_lossy_option_short_space ... ok
+libcore/option.rs:345:21
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+test invalid_utf8_option_long_equals ... ok
+test invalid_utf8_option_long_space ... ok
+test invalid_utf8_lossy_positional ... FAILED
+test invalid_utf8_option_short_equals ... ok
+test invalid_utf8_option_short_no_space ... ok
+test invalid_utf8_option_short_space ... ok
+thread 'invalid_utf8_positional' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test invalid_utf8_positional ... FAILED
+test invalid_utf8_strict_option_long_equals ... ok
+test invalid_utf8_strict_option_long_space ... ok
+test invalid_utf8_strict_option_short_equals ... ok
+thread 'invalid_utf8_strict_positional' panicked at 'called `Option::unwrap()` on a `None` value', libcore/option.rs:345:21
+test invalid_utf8_strict_option_short_no_space ... ok
+test invalid_utf8_strict_option_short_space ... ok
+test invalid_utf8_strict_positional ... FAILED
+
+failures:
+
+failures:
+    invalid_utf8_lossy_positional
+    invalid_utf8_positional
+    invalid_utf8_strict_positional
+
+test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/version-a9481262e4020918
+
+running 4 tests
+test 1.3thread 'version_long' panicked at 'assertion failed: m.is_err()', tests/version.rs:test complex_version_output ... ok
+test version_short ... ok32:5
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+
+test override_ver ... ok
+test version_long ... FAILED
+
+failures:
+
+failures:
+    version_long
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/version_numbers-c84144278d5f122a
+
+running 2 tests
+Checking code blocks in README.md...
+README.md (line 407) ... ok
+README.md (line 436) ... ok
+README.md (line 460) ... ok
+README.md (line 468) ... ok
+README.md (line 511) ... ok
+test test_readme_deps ... ok
+Checking doc attributes in src/lib.rs...
+src/lib.rs (line 520) ... ok
+test test_html_root_url ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+     Running target/debug/deps/yaml-55127b73e80eeb26
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+
+   Doc-tests clap
+
+running 297 tests
+test src/build/app/mod.rs - build::app::App<'a, 'b>::about (line 211) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::after_help (line 282) ... ok
+test src/build/app/mod.rs - build::app::App (line 50) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::alias (line 694) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::arg (line 618) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::args (line 664) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::author (line 164) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::before_help (line 299) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::bin_name (line 188) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::get_matches (line 1162) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::get_matches_from (line 1245) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::get_matches_mut (line 1175) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::global_setting (line 521) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::group (line 813) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::groups (line 836) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::help_template (line 455) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::long_about (line 234) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::long_version (line 348) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::max_term_width (line 603) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::name (line 256) ... ignored
+test src/build/app/mod.rs - build::app::App<'a, 'b>::new (line 134) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::override_help (line 404) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::override_usage (line 379) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::display_order (line 922) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::aliases (line 719) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::set_term_width (line 575) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::setting (line 479) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::print_help (line 1004) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::subcommand (line 871) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::try_get_matches (line 1216) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::print_long_help (line 1031) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::mut_arg (line 968) ... FAILED
+test src/build/app/mod.rs - build::app::App<'a, 'b>::try_get_matches_from (line 1295) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::try_get_matches_from_mut (line 1331) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::unset_global_setting (line 542) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::version (line 322) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::unset_setting (line 499) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::subcommands (line 891) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::visible_alias (line 748) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::visible_aliases (line 772) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::write_long_version (line 1128) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::write_long_help (line 1083) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::write_version (line 1107) ... ok
+test src/build/app/mod.rs - build::app::App<'a, 'b>::write_help (line 1058) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowExternalSubcommands (line 344) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowInvalidUtf8 (line 149) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowLeadingHyphen (line 183) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 259) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 277) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 295) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 314) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::ColorAlways (line 459) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::AllowNegativeNumbers (line 210) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::ArgRequiredElseHelp (line 401) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::ColorAuto (line 441) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::ColorNever (line 477) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::ArgsNegateSubcommands (line 381) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::ColoredHelp (line 421) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DeriveDisplayOrder (line 575) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DontCollapseArgsInUsage (line 489) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DontDelimitTrailingValues (line 506) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::GlobalVersion (line 592) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::Hidden (line 609) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DisableHelpSubcommand (line 520) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::InferSubcommands (line 637) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DisableVersion (line 542) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::DisableVersion (line 554) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::NextLineHelp (line 675) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::PropagateGlobalValuesDown (line 691) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::NoBinaryName (line 659) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::StrictUtf8 (line 805) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::PropagateGlobalValuesDown (line 707) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::SubcommandRequiredElseHelp (line 782) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::SubcommandRequired (line 833) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::SubcommandsNegateReqs (line 737) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::UnifiedHelpMessage (line 881) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::SubcommandsNegateReqs (line 754) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::TrailingVarArg (line 858) ... FAILED
+test src/build/app/settings.rs - build::app::settings::AppSettings::WaitOnError (line 925) ... ok
+test src/build/arg/mod.rs - build::arg::Arg (line 36) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::allow_hyphen_values (line 2870) ... ok
+test src/build/app/settings.rs - build::app::settings::AppSettings::VersionlessSubcommands (line 897) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::alias (line 305) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::aliases (line 335) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::allow_hyphen_values (line 2877) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::allow_hyphen_values (line 2893) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::conflicts_with (line 770) ... ok
+warning: use of deprecated item 'std::ascii::AsciiExt': use inherent methods instead
+ --> src/build/arg/mod.rs:3251:5
+  |
+5 | use std::ascii::AsciiExt;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: #[warn(deprecated)] on by default
+
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::case_insensitive (line 3249) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::conflicts_with_all (line 816) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::case_insensitive (line 3266) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::conflicts_with (line 779) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::conflicts_with_all (line 826) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value (line 2208) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value (line 2225) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_if (line 2284) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_if (line 2301) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_if (line 2318) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_if (line 2337) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_ifs (line 2402) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_ifs (line 2425) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::default_value_ifs (line 2446) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::display_order (line 2615) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::env (line 2513) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::env (line 2552) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::env (line 2532) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::global (line 2986) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::group (line 1677) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::env (line 2572) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::groups (line 1716) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::help (line 433) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::global (line 2998) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::group (line 1688) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::groups (line 1727) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden (line 3200) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_long_help (line 3864) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::help (line 443) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden (line 3208) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_short_help (line 3787) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_long_help (line 3872) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_long_help (line 3899) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_default_value (line 3153) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_default_value (line 3160) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_env_values (line 3362) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_short_help (line 3795) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hidden_short_help (line 3822) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_env_values (line 3369) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_possible_values (line 3120) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::hide_possible_values (line 3127) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::index (line 1468) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::last (line 2687) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::long (line 273) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::index (line 1475) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::last (line 2697) ... FAILED
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::last (line 2717) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::long_help (line 488) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::max_values (line 1893) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::long (line 282) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::long_help (line 502) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::min_values (line 1957) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::max_values (line 1903) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3493) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::max_values (line 1922) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::min_values (line 1986) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::min_values (line 1967) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3502) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3518) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3535) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3551) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_occurrences (line 3698) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3575) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple (line 3595) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_values (line 3640) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_occurrences (line 3707) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_occurrences (line 3723) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_values (line 3649) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::number_of_values (line 1765) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::multiple_values (line 3665) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::next_line_help (line 3398) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::number_of_values (line 1775) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 870) ... FAILED
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 895) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 906) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 917) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 930) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_value (line 1617) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 945) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_values (line 1558) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with_all (line 975) ... FAILED
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_value (line 1627) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_value (line 1646) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_values (line 1583) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::possible_values (line 1566) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_equals (line 2925) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_delimiter (line 3046) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_delimiter (line 3061) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required (line 2758) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_delimiter (line 3082) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_equals (line 2952) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::require_equals (line 2936) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_if (line 1216) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required (line 2767) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required (line 2782) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_if (line 1227) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_ifs (line 1290) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_if (line 1247) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless (line 552) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_ifs (line 1304) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_ifs (line 1330) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_all (line 617) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless (line 563) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless (line 581) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_one (line 691) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_all (line 629) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_all (line 651) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires (line 1011) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_one (line 703) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::required_unless_one (line 725) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_all (line 1379) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires (line 1022) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_if (line 1082) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires (line 1040) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_all (line 1390) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_all (line 1411) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_ifs (line 1151) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_if (line 1093) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::short (line 232) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_if (line 1111) ... FAILED
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::takes_value (line 2820) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_ifs (line 1165) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::short (line 241) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::takes_value (line 2827) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::use_delimiter (line 3323) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::use_delimiter (line 3305) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_name (line 2132) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::validator (line 1812) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::validator_os (line 1848) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_names (line 2063) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_delimiter (line 2014) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_terminator (line 1513) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_name (line 2140) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_names (line 2071) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::with_name (line 126) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_terminator (line 1524) ... FAILED
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::visible_alias (line 365) ... ok
+test src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::visible_aliases (line 394) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup (line 39) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup (line 58) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::arg (line 140) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::args (line 172) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::conflicts_with (line 365) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::conflicts_with_all (line 401) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::multiple (line 202) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::multiple (line 219) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::required (line 255) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::with_name (line 102) ... ok
+test src/lib.rs -  (line 187) ... ignored
+test src/lib.rs -  (line 114) ... ok
+test src/lib.rs -  (line 288) ... ok
+test src/lib.rs -  (line 208) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::requires (line 288) ... ok
+test src/lib.rs -  (line 42) ... ok
+test src/macros.rs - app_from_crate (line 557) ... ok
+test src/macros.rs - _clap_count_exprs (line 254) ... ok
+test src/build/arg_group.rs - build::arg_group::ArgGroup<'a>::requires_all (line 327) ... ok
+test src/macros.rs - clap_app (line 588) ... ok
+test src/macros.rs - crate_authors (line 447) ... ok
+test src/macros.rs - crate_description (line 502) ... ok
+test src/macros.rs - crate_name (line 524) ... ok
+test src/macros.rs - crate_version (line 418) ... ok
+test src/macros.rs - value_t (line 43) ... ok
+test src/macros.rs - value_t_or_exit (line 89) ... ok
+test src/macros.rs - values_t_or_exit (line 195) ... ok
+test src/macros.rs - values_t (line 133) ... ok
+warning: use of deprecated item 'std::ascii::AsciiExt': use inherent methods instead
+  --> src/macros.rs:286:1
+   |
+5  | / arg_enum!{
+6  | |     #[derive(PartialEq, Debug)]
+7  | |     pub enum Foo {
+8  | |         Bar,
+...  |
+11 | |     }
+12 | | }
+   | |_^
+   |
+   = note: #[warn(deprecated)] on by default
+   = note: this error originates in a macro outside of the current crate (in Nightly builds, run with -Z external-macro-backtrace for more info)
+
+test src/macros.rs - arg_enum (line 282) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::HelpDisplayed (line 331) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::EmptyValue (line 111) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::ArgumentConflict (line 209) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::InvalidSubcommand (line 62) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::InvalidUtf8 (line 304) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::InvalidValue (line 28) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::MissingArgumentOrSubcommand (line 263) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::MissingRequiredArgument (line 227) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::MissingSubcommand (line 243) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::TooFewValues (line 169) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::TooManyValues (line 151) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::UnexpectedMultipleUsage (line 283) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::UnknownArgument (line 45) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::UnrecognizedSubcommand (line 89) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::ValueValidation (line 128) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches (line 20) ... ok
+test src/parse/errors.rs - parse::errors::ErrorKind::VersionDisplayed (line 345) ... FAILED
+test src/parse/errors.rs - parse::errors::ErrorKind::WrongNumberOfValues (line 188) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 391) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 409) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 428) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 454) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 481) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::indices_of (line 520) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::indices_of (line 539) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::indices_of (line 562) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::subcommand (line 698) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::is_present (line 305) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::occurrences_of (line 334) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::subcommand_name (line 671) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::occurrences_of (line 349) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::subcommand (line 718) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::subcommand_matches (line 597) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of (line 100) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of_lossy (line 131) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of_os (line 166) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::values_of (line 197) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::values_of_lossy (line 229) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::values_of_os (line 267) ... FAILED
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::Indices (line 869) ... ok
+test src/parse/matches/subcommand.rs - parse::matches::subcommand::SubCommand (line 17) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::Values (line 765) ... ok
+test src/parse/matches/arg_matches.rs - parse::matches::arg_matches::OsValues (line 818) ... FAILED
+
+failures:
+
+failures:
+    src/build/app/mod.rs - build::app::App<'a, 'b>::mut_arg (line 968)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowInvalidUtf8 (line 149)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 259)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 277)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 295)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowMissingPositional (line 314)
+    src/build/app/settings.rs - build::app::settings::AppSettings::AllowNegativeNumbers (line 210)
+    src/build/app/settings.rs - build::app::settings::AppSettings::NoBinaryName (line 659)
+    src/build/app/settings.rs - build::app::settings::AppSettings::PropagateGlobalValuesDown (line 691)
+    src/build/app/settings.rs - build::app::settings::AppSettings::PropagateGlobalValuesDown (line 707)
+    src/build/app/settings.rs - build::app::settings::AppSettings::StrictUtf8 (line 805)
+    src/build/app/settings.rs - build::app::settings::AppSettings::SubcommandsNegateReqs (line 737)
+    src/build/app/settings.rs - build::app::settings::AppSettings::TrailingVarArg (line 858)
+    src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::last (line 2697)
+    src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with (line 870)
+    src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::overrides_with_all (line 975)
+    src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::requires_if (line 1111)
+    src/build/arg/mod.rs - build::arg::Arg<'a, 'b>::value_terminator (line 1524)
+    src/macros.rs - arg_enum (line 282)
+    src/parse/errors.rs - parse::errors::ErrorKind::HelpDisplayed (line 331)
+    src/parse/errors.rs - parse::errors::ErrorKind::InvalidValue (line 28)
+    src/parse/errors.rs - parse::errors::ErrorKind::MissingRequiredArgument (line 227)
+    src/parse/errors.rs - parse::errors::ErrorKind::TooManyValues (line 151)
+    src/parse/errors.rs - parse::errors::ErrorKind::ValueValidation (line 128)
+    src/parse/errors.rs - parse::errors::ErrorKind::VersionDisplayed (line 345)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 428)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::index_of (line 454)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::occurrences_of (line 349)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of (line 100)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of_lossy (line 131)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::value_of_os (line 166)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::values_of_lossy (line 229)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::ArgMatches<'a>::values_of_os (line 267)
+    src/parse/matches/arg_matches.rs - parse::matches::arg_matches::OsValues (line 818)
+
+test result: FAILED. 261 passed; 34 failed; 2 ignored; 0 measured; 0 filtered out
+
+error: test failed, to rerun pass '--doc'

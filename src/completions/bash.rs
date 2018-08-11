@@ -1,5 +1,4 @@
 // Std
-use std::ffi::OsStr;
 use std::io::Write;
 
 // Internal
