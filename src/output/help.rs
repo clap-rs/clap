@@ -289,7 +289,7 @@ impl<'w> Help<'w> {
         debugln!("Help::val: arg={}", arg.name);
         let mult =
             arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
-        if arg.is_set(ArgSettings::TakesValue) {
+        if arg.is_set(ArgSettings::TakesValue) || arg.index.is_some() {
             let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
                 arg.val_delim.expect(INTERNAL_ERROR_MSG)
             } else {
