@@ -292,21 +292,12 @@ where
 
         //I wonder whether this part is even needed if we insert all Args using make_entries
         let mut key: Vec<(KeyType, usize)> = Vec::new();
-        for (i, a) in self.app.args.values().enumerate() {
-            if let Some(ref index) = a.index {
-                key.push((KeyType::Position(*index), i));
-            } else {
-                if let Some(ref c) = a.short {
-                    key.push((KeyType::Short(*c), i));
-                }
-                if let Some(ref l) = a.long {
-                    key.push((KeyType::Long(OsString::from(l)), i));
-                }
-                if let Some(ref v) = a.aliases {
-                    for (item, _) in v {
-                        key.push((KeyType::Long(OsString::from(item)), i));
-                    }
-                }
+        let mut counter = 0;
+        for (i, a) in self.app.args.values_mut().enumerate() {
+            if a.index == None && a.short == None && a.long == None {
+                counter += 1;
+                a.index = Some(counter);
+                key.push((KeyType::Position(counter), i));
             }
 
             // Add args with default requirements
@@ -1019,7 +1010,7 @@ where
         };
         if let Some(opt) = self.app.args.get(KeyType::Long(arg.into())) {
             debugln!(
-                "Parser::parse_long_arg: Found valid opt '{}'",
+                "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
             self.app.settings.set(AS::ValidArgFound);
@@ -1027,7 +1018,7 @@ where
             if opt.is_set(ArgSettings::TakesValue) {
                 return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
             }
-
+            self.check_for_help_and_version_str(arg)?;
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag);

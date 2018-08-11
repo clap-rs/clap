@@ -27,7 +27,7 @@ fn version_long() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["myprog", "--version"]);
+        .try_get_matches_from(vec!["myprog", "--version"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
