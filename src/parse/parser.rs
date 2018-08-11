@@ -242,7 +242,7 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in positionals!(self.app) {
+            for p in (1..=num_p).rev().filter_map(|n| self.app.args.get(KeyType::Position(n as u64))) {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
