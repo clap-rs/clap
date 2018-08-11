@@ -1590,11 +1590,6 @@ impl<'a, 'b> App<'a, 'b> {
     // Perform expensive assertions on the Arg instance
     fn _arg_debug_asserts(&self, a: &Arg) -> bool {
         debugln!("App::_arg_debug_asserts:{}", a.name);
-        // No naming conflicts
-        assert!(
-            arg_names!(self).fold(0, |acc, n| if n == a.name { acc + 1 } else { acc }) < 2,
-            format!("Non-unique argument name: {} is already in use", a.name)
-        );
 
         // Long conflicts
         if let Some(l) = a.long {

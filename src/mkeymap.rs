@@ -48,6 +48,7 @@ where
                 .map(|&x| (x, &self.value_index[x]))
                 .find(|(_i, x)| x == &&value)
         }) {
+            debug_assert!(false, "Non-unique value found");
             index = idx;
         } else {
             self.value_index.push(value);
