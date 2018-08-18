@@ -1595,14 +1595,18 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
-    pub fn possible_values(mut self, names: &[&'b str]) -> Self {
+    pub fn possible_values<T, I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'b str> + 'b,
+    {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in names {
-                vec.push(s);
+                vec.push(s.into());
             }
         } else {
-            self.possible_vals = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.possible_vals = Some(names.into_iter().map(|s| s.into()).collect::<Vec<_>>());
         }
         self
     }
@@ -2587,7 +2591,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    pub fn env(self, name: &'a str) -> Self { self.env_os(OsStr::new(name)) }
+    pub fn env(self, name: &'a str) -> Self {
+        self.env_os(OsStr::new(name))
+    }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
@@ -3773,7 +3779,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
-    pub fn raw(self, raw: bool) -> Self { self.multiple(raw).allow_hyphen_values(raw).last(raw) }
+    pub fn raw(self, raw: bool) -> Self {
+        self.multiple(raw).allow_hyphen_values(raw).last(raw)
+    }
 
     /// Hides an argument from short help message output.
     ///
@@ -3932,7 +3940,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -3990,14 +4000,20 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     // @TODO @p6 @naming @internal: rename to set_mut
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
+    pub fn setb(&mut self, s: ArgSettings) {
+        self.settings.set(s);
+    }
 
     // @TODO @p6 @naming @internal: rename to unset_mut
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        self.settings.unset(s);
+    }
 
     #[doc(hidden)]
-    pub fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
+    pub fn has_switch(&self) -> bool {
+        self.short.is_some() || self.long.is_some()
+    }
 
     #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {
@@ -4055,8 +4071,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 impl<'a, 'b> Arg<'a, 'b> {
     /// **Deprecated**
     #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `Arg::setting`. Will be removed in v3.0-beta"
+        since = "2.30.0", note = "Renamed to `Arg::setting`. Will be removed in v3.0-beta"
     )]
     pub fn set(mut self, s: ArgSettings) -> Self {
         self.setb(s);
@@ -4065,8 +4080,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// **Deprecated**
     #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta"
+        since = "2.30.0", note = "Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta"
     )]
     pub fn unset(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
@@ -4074,10 +4088,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `Arg::from` instead. Will be removed in v3.0-beta"
-    )]
+    #[deprecated(since = "2.30.0", note = "Use `Arg::from` instead. Will be removed in v3.0-beta")]
     pub fn from_usage(u: &'a str) -> Self {
         let parser = UsageParser::from_usage(u);
         parser.parse()
@@ -4085,15 +4096,21 @@ impl<'a, 'b> Arg<'a, 'b> {
 }
 
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
-    fn from(a: &'z Arg<'a, 'b>) -> Self { a.clone() }
+    fn from(a: &'z Arg<'a, 'b>) -> Self {
+        a.clone()
+    }
 }
 
 impl<'a, 'b> From<&'a str> for Arg<'a, 'b> {
-    fn from(s: &'a str) -> Self { Self::from_usage(s) }
+    fn from(s: &'a str) -> Self {
+        Self::from_usage(s)
+    }
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {
-    fn eq(&self, other: &Arg<'n, 'e>) -> bool { self.name == other.name }
+    fn eq(&self, other: &Arg<'n, 'e>) -> bool {
+        self.name == other.name
+    }
 }
 
 impl<'n, 'e> Display for Arg<'n, 'e> {
@@ -4195,17 +4212,23 @@ impl<'n, 'e> Display for Arg<'n, 'e> {
 }
 
 impl<'n, 'e> PartialOrd for Arg<'n, 'e> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl<'n, 'e> Ord for Arg<'n, 'e> {
-    fn cmp(&self, other: &Arg) -> Ordering { self.name.cmp(&other.name) }
+    fn cmp(&self, other: &Arg) -> Ordering {
+        self.name.cmp(&other.name)
+    }
 }
 
 impl<'n, 'e> Eq for Arg<'n, 'e> {}
 
 impl<'n, 'e> Hash for Arg<'n, 'e> {
-    fn hash<H: Hasher>(&self, state: &mut H) { self.name.hash(state); }
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
 }
 
 impl<'n, 'e> fmt::Debug for Arg<'n, 'e> {
