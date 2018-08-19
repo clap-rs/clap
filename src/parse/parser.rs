@@ -1015,6 +1015,8 @@ where
             );
             self.app.settings.set(AS::ValidArgFound);
 
+            self.seen.push(opt.name);
+
             if opt.is_set(ArgSettings::TakesValue) {
                 return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
             }
@@ -1074,7 +1076,7 @@ where
             if let Some(opt) = self.app.args.get(KeyType::Short(c)) {
                 debugln!("Parser::parse_short_arg:iter:{}: Found valid opt or flag", c);
                 self.app.settings.set(AS::ValidArgFound);
-
+                self.seen.push(opt.name);
                 if !opt.is_set(ArgSettings::TakesValue) {
                     self.check_for_help_and_version_char(c)?;
                     ret = self.parse_flag(opt, matcher)?;
@@ -1263,7 +1265,6 @@ where
 
         matcher.inc_occurrence_of(flag.name);
         matcher.add_index_to(flag.name, self.cur_idx.get());
-
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, &flag.name) {
             matcher.inc_occurrence_of(grp);

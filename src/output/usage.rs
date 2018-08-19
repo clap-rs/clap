@@ -174,7 +174,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
 
     // Gets the `[ARGS]` tag for the usage string
     fn get_args_tag(&self, incl_reqs: bool) -> Option<String> {
-        debugln!("usage::get_args_tag;");
+        debugln!("usage::get_args_tag; incl_reqs = {:?}", incl_reqs);
         let mut count = 0;
         'outer: for pos in positionals!(self.p.app)
             .filter(|pos| !pos.is_set(ArgSettings::Required))
