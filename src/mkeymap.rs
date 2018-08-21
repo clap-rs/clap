@@ -362,6 +362,7 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn insert_duplicate_value() {
         let mut map: MKeyMap<Arg> = MKeyMap::new();
 
@@ -445,7 +446,7 @@ mod tests {
 
         map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
         map.insert(Long(OsString::from("Two")), Arg::with_name("Value2"));
-        map.insert(Position(1), Arg::with_name("Value1"));
+        map.insert(Position(1), Arg::with_name("Value3"));
 
         let iter = map.keys().cloned();
         let mut ground_truth = HashSet::new();
