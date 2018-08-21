@@ -595,6 +595,7 @@ where
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
+                self.seen.push(p.name);
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.name);
