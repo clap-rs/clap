@@ -1,22 +1,18 @@
 // Std
-#[cfg(
-    all(
-        feature = "debug",
-        any(target_os = "windows", target_arch = "wasm32")
-    )
-)]
+#[cfg(all(
+    feature = "debug",
+    any(target_os = "windows", target_arch = "wasm32")
+))]
 use osstringext::OsStrExt3;
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
 use std::iter::Peekable;
 use std::mem;
-#[cfg(
-    all(
-        feature = "debug",
-        not(any(target_os = "windows", target_arch = "wasm32"))
-    )
-)]
+#[cfg(all(
+    feature = "debug",
+    not(any(target_os = "windows", target_arch = "wasm32"))
+))]
 use std::os::unix::ffi::OsStrExt;
 
 // Internal
@@ -33,8 +29,8 @@ use parse::features::suggestions;
 use parse::Validator;
 use parse::{ArgMatcher, SubCommand};
 use util::{ChildGraph, OsStrExt2};
-use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
+use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -113,8 +109,7 @@ where
                 } else {
                     None
                 }
-            })
-            .max()
+            }).max()
             .unwrap_or(&0);
 
         //_highest_idx(&self.positionals);
@@ -129,8 +124,7 @@ where
                 } else {
                     false
                 }
-            })
-            .count();
+            }).count();
 
         assert!(
             highest_idx == num_p as u64,
@@ -167,7 +161,8 @@ where
             // Either the final positional is required
             // Or the second to last has a terminator or .last(true) set
             let ok = last.is_set(ArgSettings::Required)
-                || (second_to_last.terminator.is_some() || second_to_last.is_set(ArgSettings::Last))
+                || (second_to_last.terminator.is_some()
+                    || second_to_last.is_set(ArgSettings::Last))
                 || last.is_set(ArgSettings::Last);
             assert!(
                 ok,
@@ -242,7 +237,10 @@ where
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in (1..=num_p).rev().filter_map(|n| self.app.args.get(KeyType::Position(n as u64))) {
+            for p in (1..=num_p)
+                .rev()
+                .filter_map(|n| self.app.args.get(KeyType::Position(n as u64)))
+            {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -264,18 +262,17 @@ where
             }
         }
         assert!(
-            positionals!(self.app).fold(0, |acc, p| {
-                if p.is_set(ArgSettings::Last) {
-                    acc + 1
-                } else {
-                    acc
-                }
+            positionals!(self.app).fold(0, |acc, p| if p.is_set(ArgSettings::Last) {
+                acc + 1
+            } else {
+                acc
             }) < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
         if positionals!(self.app)
             .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
-            && self.has_subcommands() && !self.is_set(AS::SubcommandsNegateReqs)
+            && self.has_subcommands()
+            && !self.is_set(AS::SubcommandsNegateReqs)
         {
             panic!(
                 "Having a required positional argument with .last(true) set *and* child \
@@ -324,19 +321,17 @@ where
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
             a.is_set(ArgSettings::MultipleValues)
-                && (a.index.unwrap_or(0) as usize
-                    != self
-                        .app
-                        .args
-                        .keys()
-                        .filter(|x| {
-                            if let KeyType::Position(_) = x {
-                                true
-                            } else {
-                                false
-                            }
-                        })
-                        .count())
+                && (a.index.unwrap_or(0) as usize != self
+                    .app
+                    .args
+                    .keys()
+                    .filter(|x| {
+                        if let KeyType::Position(_) = x {
+                            true
+                        } else {
+                            false
+                        }
+                    }).count())
         }) && positionals!(self.app).last().map_or(false, |p_name| {
             !self
                 .app
@@ -507,19 +502,22 @@ where
             }
 
             let positional_count = self
-                        .app
-                        .args
-                        .keys()
-                        .filter(|x| if let KeyType::Position(_) = x { true } else { false })
-                        .count();
-            let is_second_to_last = positional_count > 1         
-                && (pos_counter
-                    == (positional_count - 1));
+                .app
+                .args
+                .keys()
+                .filter(|x| {
+                    if let KeyType::Position(_) = x {
+                        true
+                    } else {
+                        false
+                    }
+                }).count();
+            let is_second_to_last = positional_count > 1 && (pos_counter == (positional_count - 1));
 
-            let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
-                && is_second_to_last;
+            let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && is_second_to_last;
             let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && is_second_to_last && !self.is_set(AS::TrailingValues);
+                && is_second_to_last
+                && !self.is_set(AS::TrailingValues);
             debugln!(
                 "Parser::get_matches_with: Positional counter...{}",
                 pos_counter
@@ -543,9 +541,10 @@ where
                         ParseResult::ValuesDone
                     };
                     let sc_match = { self.possible_subcommand(&n).0 };
-                    if self.is_new_arg(&n, needs_val_of) || sc_match
-                        || suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
-                            .is_some()
+                    if self.is_new_arg(&n, needs_val_of) || sc_match || suggestions::did_you_mean(
+                        &n.to_string_lossy(),
+                        sc_names!(self.app),
+                    ).is_some()
                     {
                         debugln!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -570,8 +569,7 @@ where
                         } else {
                             false
                         }
-                    })
-                    .count();
+                    }).count();
             }
             if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -583,20 +581,17 @@ where
                     ));
                 }
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg)
-                        && pos_counter
-                            == self
-                                .app
-                                .args
-                                .keys()
-                                .filter(|x| {
-                                    if let KeyType::Position(_) = x {
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                })
-                                .count())
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self
+                        .app
+                        .args
+                        .keys()
+                        .filter(|x| {
+                            if let KeyType::Position(_) = x {
+                                true
+                            } else {
+                                false
+                            }
+                        }).count())
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -1074,7 +1069,10 @@ where
             // Option: -o
             // Value: val
             if let Some(opt) = self.app.args.get(KeyType::Short(c)) {
-                debugln!("Parser::parse_short_arg:iter:{}: Found valid opt or flag", c);
+                debugln!(
+                    "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
+                    c
+                );
                 self.app.settings.set(AS::ValidArgFound);
                 self.seen.push(opt.name);
                 if !opt.is_set(ArgSettings::TakesValue) {
@@ -1555,18 +1553,7 @@ where
     pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        !self
-            .app
-            .args
-            .keys()
-            .filter(|x| {
-                if let KeyType::Position(_) = x {
-                    true
-                } else {
-                    false
-                }
-            })
-            .count() == 0
+        self.app.args.keys().filter(|x| x.is_position()).count() > 0
     }
 
     pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }

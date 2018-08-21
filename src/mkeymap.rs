@@ -21,6 +21,27 @@ pub enum KeyType {
     Position(u64),
 }
 
+impl KeyType {
+    pub(crate) fn is_position(&self) -> bool {
+        match *self {
+            KeyType::Position(_) => true,
+            _ => false,
+        }
+    }
+    pub(crate) fn is_short(&self) -> bool {
+        match *self {
+            KeyType::Short(_) => true,
+            _ => false,
+        }
+    }
+    pub(crate) fn is_long(&self) -> bool {
+        match *self {
+            KeyType::Long(_) => true,
+            _ => false,
+        }
+    }
+}
+
 impl<T> MKeyMap<T>
 where
     T: Sized + Hash + PartialEq + Default + Eq,
@@ -57,8 +78,7 @@ where
                 .entry(hash)
                 .and_modify(|x| {
                     x.insert(index);
-                })
-                .or_insert({
+                }).or_insert({
                     let mut set = HashSet::new();
                     set.insert(index);
                     set
@@ -151,8 +171,7 @@ impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
                 v.iter()
                     .map(|(n, _)| KeyType::Long(OsString::from(n)))
                     .collect()
-            })
-            .unwrap_or(Vec::new());
+            }).unwrap_or(Vec::new());
 
         longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
 
@@ -181,8 +200,7 @@ impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
                     v.iter()
                         .map(|(n, _)| KeyType::Long(OsString::from(n)))
                         .collect()
-                })
-                .unwrap_or(Vec::new());
+                }).unwrap_or(Vec::new());
             longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
         }
 
@@ -220,8 +238,7 @@ impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
             .entry(hash)
             .and_modify(|x| {
                 x.insert(index);
-            })
-            .or_insert({
+            }).or_insert({
                 let mut set = HashSet::new();
                 set.insert(index);
                 set
