@@ -3,7 +3,7 @@
 use strsim;
 
 // Internal
-use build::App;
+use build::{App, Propagation};
 use output::fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to
@@ -45,7 +45,7 @@ where
 pub fn did_you_mean_flag_suffix<I, T>(
     arg: &str,
     longs: I,
-    subcommands: &[App],
+    subcommands: &mut [App],
 ) -> (String, Option<String>)
 where
     T: AsRef<str>,
@@ -61,6 +61,7 @@ where
             return (suffix, Some(candidate.to_owned()));
         }
         None => for subcommand in subcommands {
+            subcommand._build(Propagation::NextLevel);
             if let Some(ref candidate) = did_you_mean(
                 arg,
                 longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),

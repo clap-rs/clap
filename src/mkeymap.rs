@@ -1,7 +1,7 @@
 use build::Arg;
 use std::collections::hash_map;
-use std::collections::{HashMap, HashSet};
-use std::ffi::OsString;
+use std::collections::HashMap;
+use std::ffi::{OsStr, OsString};
 use std::hash::Hash;
 use std::slice;
 
@@ -101,6 +101,17 @@ where
         Keys {
             iter: self.keys.keys(),
         }
+    }
+
+    pub fn longs(&self) -> impl Iterator<Item = &OsString> {
+        self.keys.keys().filter_map(|x| match x {
+            KeyType::Long(ref l) => Some(l),
+            _ => None,
+        })
+    }
+
+    pub fn shorts(&self) -> impl Iterator<Item = &KeyType> {
+        self.keys.keys().filter(|x| x.is_short())
     }
 
     pub fn values(&self) -> Values<T> {
@@ -416,26 +427,5 @@ mod tests {
 
         assert_eq!(map.keys.len(), 1);
         assert_eq!(map.value_index.len(), 1);
-    }
-
-    #[test]
-    fn iter_keys() {
-        let mut map: MKeyMap<Arg> = MKeyMap::new();
-
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
-        map.insert(Long(OsString::from("Two")), Arg::with_name("Value2"));
-        map.insert(Position(1), Arg::with_name("Value3"));
-
-        let iter = map.keys().cloned();
-        let mut ground_truth = HashSet::new();
-
-        ground_truth.insert(Long(OsString::from("One")));
-        ground_truth.insert(Long(OsString::from("Two")));
-        ground_truth.insert(Position(1));
-
-        assert_eq!(
-            ground_truth.symmetric_difference(&iter.collect()).count(),
-            0
-        );
     }
 }

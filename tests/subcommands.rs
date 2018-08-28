@@ -63,8 +63,7 @@ fn subcommand() {
                     .takes_value(true)
                     .help("testing testing"),
             ),
-        )
-        .arg(Arg::with_name("other").long("other"))
+        ).arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
@@ -84,8 +83,7 @@ fn subcommand_none_given() {
                     .takes_value(true)
                     .help("testing testing"),
             ),
-        )
-        .arg(Arg::with_name("other").long("other"))
+        ).arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec![""]);
 
     assert!(m.subcommand_name().is_none());
@@ -103,8 +101,7 @@ fn subcommand_multiple() {
                     .help("testing testing"),
             ),
             SubCommand::with_name("add").arg(Arg::with_name("roster").short('r')),
-        ])
-        .arg(Arg::with_name("other").long("other"))
+        ]).arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert!(m.subcommand_matches("some").is_some());

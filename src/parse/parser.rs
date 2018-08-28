@@ -1454,16 +1454,21 @@ where
     'a: 'b,
     'b: 'c,
 {
-    fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    fn did_you_mean_error(&mut self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+        debugln!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
-        let longs = longs!(self.app)
+        let longs = self
+            .app
+            .args
+            .longs()
             .map(|x| x.to_string_lossy().into_owned())
             .collect::<Vec<_>>();
+        debugln!("Parser::did_you_mean_error: longs={:?}", longs);
 
         let suffix = suggestions::did_you_mean_flag_suffix(
             arg,
             longs.iter().map(|ref x| &x[..]),
-            &*self.app.subcommands,
+            self.app.subcommands.as_mut_slice(),
         );
 
         // Add the arg to the matches to build a proper usage string

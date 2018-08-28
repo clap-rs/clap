@@ -1472,6 +1472,14 @@ impl<'a, 'b> App<'a, 'b> {
     // Perform some expensive assertions on the Parser itself
     fn _app_debug_asserts(&mut self) -> bool {
         debugln!("App::app_debug_asserts;");
+        for name in arg_names!(self) {
+            if self.args.values().filter(|x| x.name == name).count() > 1 {
+                panic!(format!(
+                    "Arg names must be unique, found {} more than once",
+                    name
+                ));
+            }
+        }
         // * Args listed inside groups should exist
         // * Groups should not have naming conflicts with Args
 
