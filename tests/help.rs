@@ -570,8 +570,7 @@ fn help_subcommand() {
             SubCommand::with_name("test")
                 .about("tests things")
                 .arg_from_usage("-v --verbose 'with verbosity'"),
-        )
-        .get_matches_from_safe(vec!["myprog", "help"]);
+        ).get_matches_from_safe(vec!["myprog", "help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -603,35 +602,30 @@ fn args_with_last_usage() {
                 .short('v')
                 .long("verbose")
                 .setting(ArgSettings::MultipleOccurrences),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("timeout")
                 .help("Timeout in seconds.")
                 .short('t')
                 .long("timeout")
                 .value_name("SECONDS"),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("frequency")
                 .help("The sampling frequency.")
                 .short('f')
                 .long("frequency")
                 .value_name("HERTZ"),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("binary path")
                 .help("The path of the binary to be profiled. for a binary.")
                 .value_name("BINFILE"),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
                 .settings(&[
                     ArgSettings::MultipleValues,
                     ArgSettings::MultipleOccurrences,
                     ArgSettings::Last,
-                ])
-                .value_name("ARGS"),
+                ]).value_name("ARGS"),
         );
     assert!(test::compare_output(
         app,
@@ -759,8 +753,7 @@ fn issue_626_unicode_cutoff() {
                  beverages. Some coffeehouses also serve cold beverages such as \
                  iced coffee and iced tea. Many cafés also serve some type of \
                  food, such as light snacks, muffins, or pastries.",
-            )
-            .takes_value(true),
+            ).takes_value(true),
     );
     assert!(test::compare_output(
         app,
@@ -782,8 +775,7 @@ fn hide_possible_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -936,15 +928,13 @@ fn issue_702_multiple_values() {
                 .short('s')
                 .long("some")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("other")
                 .help("some other option")
                 .short('o')
                 .long("other")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("label")
                 .help("a label")
                 .short('l')
@@ -963,8 +953,7 @@ fn long_about() {
         .about("bar")
         .long_about(
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
-        )
-        .arg(Arg::with_name("arg1").help("some option"));
+        ).arg(Arg::with_name("arg1").help("some option"));
     assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
 }
 
@@ -980,8 +969,7 @@ fn issue_760() {
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(1),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("opt")
                 .help("tests options")
                 .short('O')
@@ -1013,8 +1001,7 @@ fn ripgrep_usage_using_templates() {
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
     rg [OPTIONS] --type-list",
-        )
-        .template(
+        ).template(
             "\
 {bin} {version}
 
@@ -1050,8 +1037,7 @@ fn hidden_args() {
         .args_from_usage(
             "-f, --flag 'testing flags'
                           -o, --opt [FILE] 'tests options'",
-        )
-        .arg(Arg::with_name("pos").hidden(true));
+        ).arg(Arg::with_name("pos").hidden(true));
     assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
 }
 
@@ -1063,8 +1049,7 @@ fn args_negate_sc() {
         .args_from_usage(
             "-f, --flag 'testing flags'
                           -o, --opt [FILE] 'tests options'",
-        )
-        .arg(Arg::with_name("PATH").help("help"))
+        ).arg(Arg::with_name("PATH").help("help"))
         .subcommand(SubCommand::with_name("test"));
     assert!(test::compare_output(
         app,
@@ -1081,8 +1066,7 @@ fn issue_1046_hidden_scs() {
         .args_from_usage(
             "-f, --flag 'testing flags'
                           -o, --opt [FILE] 'tests options'",
-        )
-        .arg(Arg::with_name("PATH").help("some"))
+        ).arg(Arg::with_name("PATH").help("some"))
         .subcommand(SubCommand::with_name("test").setting(AppSettings::Hidden));
     assert!(test::compare_output(
         app,
@@ -1169,8 +1153,7 @@ fn last_arg_mult_usage_req_with_sc() {
                 .last(true)
                 .required(true)
                 .help("some"),
-        )
-        .subcommand(SubCommand::with_name("test").about("some"));
+        ).subcommand(SubCommand::with_name("test").about("some"));
     assert!(test::compare_output(
         app,
         "last --help",
@@ -1191,8 +1174,7 @@ fn last_arg_mult_usage_with_sc() {
                 .multiple(true)
                 .last(true)
                 .help("some"),
-        )
-        .subcommand(SubCommand::with_name("test").about("some"));
+        ).subcommand(SubCommand::with_name("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }
 
@@ -1231,8 +1213,19 @@ fn issue_1112_setup() -> App<'static, 'static> {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from("-h, --help 'some help'"))
-        .subcommand(SubCommand::with_name("foo").arg(Arg::from("-h, --help 'some help'")))
+        .arg(
+            Arg::with_name("help")
+                .long("help")
+                .short('h')
+                .help("some help"),
+        ).subcommand(
+            SubCommand::with_name("foo").arg(
+                Arg::with_name("help")
+                    .short('h')
+                    .long("help")
+                    .help("some help"),
+            ),
+        )
 }
 
 #[test]
@@ -1312,8 +1305,7 @@ fn hide_env_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -1346,8 +1338,7 @@ fn show_env_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -1375,8 +1366,7 @@ fn custom_headers_headers() {
             Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
-        )
-        .help_heading("NETWORKING")
+        ).help_heading("NETWORKING")
         .arg(
             Arg::with_name("no-proxy")
                 .short('n')
@@ -1423,19 +1413,16 @@ fn multiple_custom_help_headers() {
             Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
-        )
-        .help_heading("NETWORKING")
+        ).help_heading("NETWORKING")
         .arg(
             Arg::with_name("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings"),
-        )
-        .help_heading("SPECIAL")
+        ).help_heading("SPECIAL")
         .arg(Arg::from(
             "-b, --birthday-song <song> 'Change which song is played for birthdays'",
-        ))
-        .stop_custom_headings()
+        )).stop_custom_headings()
         .arg(
             Arg::with_name("speed")
                 .long("speed")

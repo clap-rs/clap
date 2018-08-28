@@ -1,17 +1,15 @@
 use build::Arg;
 use std::collections::hash_map;
-use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::slice;
-// ! rustdoc
 
 #[derive(Default, PartialEq, Debug, Clone)]
 pub struct MKeyMap<T> {
     keys: HashMap<KeyType, usize>,
     value_index: Vec<T>,
-    values: HashMap<u64, HashSet<usize>>,
+    built: bool, // mutation isn't possible after being built
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -57,40 +55,19 @@ where
     }
 
     pub fn push(&mut self, value: T) -> usize {
-        let index;
-        let mut hasher = DefaultHasher::new();
-
-        value.hash(&mut hasher);
-
-        let hash = hasher.finish();
-
-        if let Some((idx, _)) = self.values.get(&hash).and_then(|ids| {
-            ids.iter()
-                .map(|&x| (x, &self.value_index[x]))
-                .find(|(_i, x)| x == &&value)
-        }) {
-            debug_assert!(false, "Non-unique value found");
-            index = idx;
-        } else {
-            self.value_index.push(value);
-            index = self.value_index.len() - 1;
-            self.values
-                .entry(hash)
-                .and_modify(|x| {
-                    x.insert(index);
-                }).or_insert({
-                    let mut set = HashSet::new();
-                    set.insert(index);
-                    set
-                });
+        if self.built {
+            panic!("Cannot add Args to the map after the map is built");
         }
+
+        let index = self.value_index.len();
+        self.value_index.push(value);
 
         index
     }
     //TODO ::push_many([x, y])
 
     pub fn insert_key(&mut self, key: KeyType, index: usize) {
-        if index >= self.values.len() {
+        if index >= self.value_index.len() {
             panic!("Index out of bounds");
         }
 
@@ -115,14 +92,7 @@ where
         }
     }
 
-    pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.values.is_empty() }
-
-    pub fn remove_by_name(&mut self, _name: &str) -> Option<T> { unimplemented!() }
-
-    pub fn remove(&mut self, _key: KeyType) -> Option<T> { unimplemented!() }
-    //TODO ::remove_many([KeyA, KeyB])
-    //? probably shouldn't add a possibility for removal?
-    //? or remove by replacement by some dummy object, so the order is preserved
+    pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.value_index.is_empty() }
 
     pub fn remove_key(&mut self, key: KeyType) { self.keys.remove(&key); }
     //TODO ::remove_keys([KeyA, KeyB])
@@ -153,6 +123,30 @@ where
     }
 }
 
+fn _get_keys(arg: &Arg) -> Vec<KeyType> {
+    if let Some(index) = arg.index {
+        return vec![KeyType::Position(index)];
+    }
+
+    let mut keys = vec![];
+    if let Some(c) = arg.short {
+        keys.push(KeyType::Short(c));
+    }
+    if let Some(ref aliases) = arg.aliases {
+        for long in aliases
+            .iter()
+            .map(|(a, _)| KeyType::Long(OsString::from(a)))
+        {
+            keys.push(long);
+        }
+    }
+    if let Some(long) = arg.long {
+        keys.push(KeyType::Long(OsString::from(long)));
+    }
+
+    keys
+}
+
 impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
     pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
         let index = self.find_by_name(name);
@@ -160,27 +154,14 @@ impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
         self.keys.insert(key, index);
     }
 
-    pub fn make_entries(&mut self, arg: Arg<'a, 'b>) -> usize {
-        let short = arg.short.map(|c| KeyType::Short(c));
-        let positional = arg.index.map(|n| KeyType::Position(n));
+    pub fn _build(&mut self) {
+        self.built = true;
 
-        let mut longs = arg
-            .aliases
-            .clone()
-            .map(|v| {
-                v.iter()
-                    .map(|(n, _)| KeyType::Long(OsString::from(n)))
-                    .collect()
-            }).unwrap_or(Vec::new());
-
-        longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
-
-        let index = self.push(arg);
-        short.map(|s| self.insert_key(s, index));
-        positional.map(|p| self.insert_key(p, index));
-        longs.into_iter().map(|l| self.insert_key(l, index)).count();
-
-        index
+        for (i, arg) in self.value_index.iter_mut().enumerate() {
+            for k in _get_keys(arg) {
+                self.keys.insert(k, i);
+            }
+        }
     }
 
     pub fn make_entries_by_index(&mut self, index: usize) {
@@ -209,51 +190,48 @@ impl<'a, 'b> MKeyMap<Arg<'a, 'b>> {
         longs.into_iter().map(|l| self.insert_key(l, index)).count();
     }
 
-    pub fn mut_arg<F>(&mut self, name: &str, f: F)
-    where
-        F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
-    {
-        let index = self.find_by_name(name);
-        let new_arg = f(self.value_index[index].clone());
-
-        let value_key = self
-            .values
-            .iter()
-            .filter(|(_, v)| v.contains(&index))
-            .map(|(k, _)| k)
-            .next()
-            .map(|&x| x);
-        value_key.map(|k| {
-            self.values.entry(k).and_modify(|v| {
-                v.remove(&index);
-            })
-        });
-
-        let mut hasher = DefaultHasher::new();
-
-        new_arg.hash(&mut hasher);
-
-        let hash = hasher.finish();
-        self.values
-            .entry(hash)
-            .and_modify(|x| {
-                x.insert(index);
-            }).or_insert({
-                let mut set = HashSet::new();
-                set.insert(index);
-                set
-            });
-
-        self.value_index.push(new_arg);
-        self.value_index.swap_remove(index);
-        self.make_entries_by_index(index);
-    }
-
     pub fn find_by_name(&mut self, name: &str) -> usize {
         self.value_index
             .iter()
             .position(|x| x.name == name)
             .expect("No such name found")
+    }
+
+    pub fn remove(&mut self, key: KeyType) -> Option<Arg<'a, 'b>> {
+        if self.built {
+            panic!("Cannot remove args after being built");
+        }
+        let index = if let Some(index) = self.keys.get(&key) {
+            index.clone()
+        } else {
+            return None;
+        };
+        let arg = self.value_index.swap_remove(index);
+        for key in _get_keys(&arg) {
+            let _ = self.keys.remove(&key);
+        }
+        Some(arg)
+    }
+    //TODO ::remove_many([KeyA, KeyB])
+    //? probably shouldn't add a possibility for removal?
+    //? or remove by replacement by some dummy object, so the order is preserved
+
+    pub fn remove_by_name(&mut self, _name: &str) -> Option<Arg<'a, 'b>> {
+        if self.built {
+            panic!("Cannot remove args after being built");
+        }
+        let mut index = None;
+        for (i, arg) in self.value_index.iter().enumerate() {
+            if arg.name == _name {
+                index = Some(i);
+                break;
+            }
+        }
+        if let Some(i) = index {
+            Some(self.value_index.swap_remove(i))
+        } else {
+            None
+        }
     }
 }
 
@@ -368,11 +346,11 @@ mod tests {
 
         map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
 
-        let orig_len = map.values.len();
+        let orig_len = map.value_index.len();
 
         map.insert(Long(OsString::from("Two")), Arg::with_name("Value1"));
 
-        assert_eq!(map.values.len(), orig_len);
+        assert_eq!(map.value_index.len(), orig_len);
         assert_eq!(
             map.get(Long(OsString::from("One"))),
             map.get(Long(OsString::from("Two")))
@@ -399,7 +377,7 @@ mod tests {
             map.get(Long(OsString::from("One"))),
             map.get(Long(OsString::from("Two")))
         );
-        assert_eq!(map.values.len(), 1);
+        assert_eq!(map.value_index.len(), 1);
     }
 
     // #[test]
@@ -437,7 +415,7 @@ mod tests {
         map.remove_key(Long(OsString::from("One")));
 
         assert_eq!(map.keys.len(), 1);
-        assert_eq!(map.values.len(), 1);
+        assert_eq!(map.value_index.len(), 1);
     }
 
     #[test]

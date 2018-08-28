@@ -639,7 +639,7 @@ impl<'a, 'b> App<'a, 'b> {
             None
         };
         let arg = a.into().help_heading(help_heading);
-        self.args.make_entries(arg);
+        self.args.push(arg);
         self
     }
 
@@ -679,7 +679,7 @@ impl<'a, 'b> App<'a, 'b> {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
         for arg in args.into_iter() {
-            self.args.make_entries(arg.into());
+            self.args.push(arg.into());
         }
         self
     }
@@ -988,7 +988,11 @@ impl<'a, 'b> App<'a, 'b> {
     where
         F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
     {
-        self.args.mut_arg(arg, f);
+        let a = self
+            .args
+            .remove_by_name(arg)
+            .expect(&*format!("Arg '{}' not found.", arg));
+        self.args.push(f(a));
 
         self
     }
@@ -1461,6 +1465,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
 
         debug_assert!(self._app_debug_asserts());
+        self.args._build();
         self.settings.set(AppSettings::Propagated);
     }
 
@@ -1508,7 +1513,7 @@ impl<'a, 'b> App<'a, 'b> {
             }
             {
                 for a in self.args.values().filter(|a| a.is_set(ArgSettings::Global)) {
-                    sc.args.make_entries(a.clone());
+                    sc.args.push(a.clone());
                 }
             }
             // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
@@ -1521,7 +1526,12 @@ impl<'a, 'b> App<'a, 'b> {
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
-        if !self.contains_long("help") {
+        if !self
+            .args
+            .values()
+            .filter_map(|x| x.long)
+            .any(|x| x == "help")
+        {
             debugln!("App::_create_help_and_version: Building --help");
             if self.help_short.is_none() && !self.contains_short('h') {
                 self.help_short = Some('h');
@@ -1532,11 +1542,16 @@ impl<'a, 'b> App<'a, 'b> {
 
             // we have to set short manually because we're dealing with char's
             arg.short = self.help_short;
-            self.args.make_entries(arg);
+            self.args.push(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongHelp);
         }
-        if !self.is_set(AppSettings::DisableVersion) && !self.contains_long("version") {
+        if !self.is_set(AppSettings::DisableVersion) && !self
+            .args
+            .values()
+            .filter_map(|x| x.long)
+            .any(|x| x == "version")
+        {
             debugln!("App::_create_help_and_version: Building --version");
             if self.version_short.is_none() && !self.contains_short('V') {
                 self.version_short = Some('V');
@@ -1547,7 +1562,7 @@ impl<'a, 'b> App<'a, 'b> {
                 .help(self.version_message.unwrap_or("Prints version information"));
             // we have to set short manually because we're dealing with char's
             arg.short = self.version_short;
-            self.args.make_entries(arg);
+            self.args.push(arg);
         } else {
             self.settings.unset(AppSettings::NeedsLongVersion);
         }
@@ -1594,10 +1609,11 @@ impl<'a, 'b> App<'a, 'b> {
         // Long conflicts
         if let Some(l) = a.long {
             assert!(
-                args!(self).fold(
-                    0,
-                    |acc, arg| if arg.long == Some(l) { acc + 1 } else { acc },
-                ) < 2,
+                args!(self).fold(0, |acc, arg| if arg.long == Some(l) {
+                    acc + 1
+                } else {
+                    acc
+                },) < 2,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
@@ -1606,10 +1622,11 @@ impl<'a, 'b> App<'a, 'b> {
         // Short conflicts
         if let Some(s) = a.short {
             assert!(
-                args!(self).fold(
-                    0,
-                    |acc, arg| if arg.short == Some(s) { acc + 1 } else { acc },
-                ) < 2,
+                args!(self).fold(0, |acc, arg| if arg.short == Some(s) {
+                    acc + 1
+                } else {
+                    acc
+                },) < 2,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );
@@ -1618,12 +1635,10 @@ impl<'a, 'b> App<'a, 'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).fold(0, |acc, p| {
-                    if p.index == Some(idx as u64) {
-                        acc + 1
-                    } else {
-                        acc
-                    }
+                positionals!(self).fold(0, |acc, p| if p.index == Some(idx as u64) {
+                    acc + 1
+                } else {
+                    acc
                 }) < 2,
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
@@ -1718,8 +1733,7 @@ impl<'a, 'b> App<'a, 'b> {
                 } else {
                     x.to_string()
                 }
-            })
-            .collect::<Vec<_>>()
+            }).collect::<Vec<_>>()
             .join("|");
         format!("<{}>", &*g_string)
     }
@@ -1748,7 +1762,11 @@ impl<'a, 'b> App<'a, 'b> {
             ColorWhen::Auto
         }
     }
+
     pub(crate) fn contains_long(&self, l: &str) -> bool {
+        if !self.is_set(AppSettings::Propagated) {
+            panic!("If App::_build hasn't been called, manually search through Arg longs");
+        }
         longs!(self).any(|al| al == &OsString::from(l))
     }
 
@@ -1926,7 +1944,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// **Deprecated:** Use
     #[deprecated(
         since = "2.30.0",
-        note = "Use `App::mut_arg(\"help\", |a| a.short(\"H\"))` instead. Will be removed in v3.0-beta"
+        note = "Build and Arg with a long of '--help' to override the default help arg instead. Will be removed in v3.0-beta"
     )]
     pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
         let c = s
@@ -1942,7 +1960,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// **Deprecated:** Use
     #[deprecated(
         since = "2.30.0",
-        note = "Use `App::mut_arg(\"version\", |a| a.short(\"v\"))` instead. Will be removed in v3.0-beta"
+        note = "Build and Arg with a long of '--version' to override the default version arg instead. Will be removed in v3.0-beta"
     )]
     pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
         let c = s
@@ -2011,7 +2029,7 @@ impl<'a, 'b> App<'a, 'b> {
         note = "Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta"
     )]
     pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.args.make_entries(Arg::from(usage));
+        self.args.push(Arg::from(usage));
         self
     }
 
@@ -2026,7 +2044,7 @@ impl<'a, 'b> App<'a, 'b> {
             if l.is_empty() {
                 continue;
             }
-            self.args.make_entries(Arg::from(l));
+            self.args.push(Arg::from(l));
         }
         self
     }
