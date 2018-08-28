@@ -1533,7 +1533,9 @@ impl<'a, 'b> App<'a, 'b> {
             .any(|x| x == "help")
         {
             debugln!("App::_create_help_and_version: Building --help");
-            if self.help_short.is_none() && !self.contains_short('h') {
+            if self.help_short.is_none()
+                && !self.args.values().filter_map(|x| x.short).any(|x| x == 'h')
+            {
                 self.help_short = Some('h');
             }
             let mut arg = Arg::with_name("hclap_help")
@@ -1553,7 +1555,9 @@ impl<'a, 'b> App<'a, 'b> {
             .any(|x| x == "version")
         {
             debugln!("App::_create_help_and_version: Building --version");
-            if self.version_short.is_none() && !self.contains_short('V') {
+            if self.version_short.is_none()
+                && !self.args.values().filter_map(|x| x.short).any(|x| x == 'V')
+            {
                 self.version_short = Some('V');
             }
             // name is "vclap_version" because flags are sorted by name
@@ -1770,7 +1774,12 @@ impl<'a, 'b> App<'a, 'b> {
         longs!(self).any(|al| al == &OsString::from(l))
     }
 
-    pub(crate) fn contains_short(&self, s: char) -> bool { shorts!(self).any(|&arg_s| arg_s == s) }
+    pub(crate) fn contains_short(&self, s: char) -> bool {
+        if !self.is_set(AppSettings::Propagated) {
+            panic!("If App::_build hasn't been called, manually search through Arg shorts");
+        }
+        shorts!(self).any(|&arg_s| arg_s == s)
+    }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)
