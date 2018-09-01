@@ -110,7 +110,7 @@ Because `docopt` is doing a ton of work to parse your help messages and determin
 
 #### All else being equal, what are some reasons *not* to use `clap`? (The Anti Pitch)
 
-Depending on the style in which you choose to define the valid arguments, `clap` can be very verbose. `clap` also offers so many finetuning knobs and dials, that learning everything can seem overwhelming. I strive to keep the simple cases simple, but when turning all those custom dials it can get complex. `clap` is also opinionated about parsing. Even though so much can be tweaked and tuned with `clap` (and I'm adding more all the time), there are still certain features which `clap` implements in specific ways which may be contrary to some users use-cases. Finally, `clap` is "stringly typed" when referring to arguments which can cause typos in code. This particular paper-cut is being actively worked on, and should be gone in v3.x.
+Depending on the style in which you choose to define the valid arguments, `clap` can be very verbose. `clap` also offers so many fine-tuning knobs and dials, that learning everything can seem overwhelming. I strive to keep the simple cases simple, but when turning all those custom dials it can get complex. `clap` is also opinionated about parsing. Even though so much can be tweaked and tuned with `clap` (and I'm adding more all the time), there are still certain features which `clap` implements in specific ways which may be contrary to some users use-cases. Finally, `clap` is "stringly typed" when referring to arguments which can cause typos in code. This particular paper-cut is being actively worked on, and should be gone in v3.x.
 
 ## Features
 
@@ -241,7 +241,7 @@ fn main() {
 }
 ```
 
-One could also optionally decleare their CLI in YAML format and keep your Rust source tidy
+One could also optionally declare their CLI in YAML format and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
 
 First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
