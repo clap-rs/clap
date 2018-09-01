@@ -1437,6 +1437,7 @@ impl<'a, 'b> App<'a, 'b> {
             true
         });
 
+        let mut pos_counter = 1;
         for a in self.args.values_mut() {
             // Fill in the groups
             if let Some(ref grps) = a.groups {
@@ -1462,6 +1463,10 @@ impl<'a, 'b> App<'a, 'b> {
                 self.settings.set(AppSettings::ContainsLast);
             }
             a._build();
+            if a.short.is_none() && a.long.is_none() && a.index.is_none() {
+                a.index = Some(pos_counter);
+                pos_counter+=1;
+            }
         }
 
         debug_assert!(self._app_debug_asserts());
