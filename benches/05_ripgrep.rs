@@ -301,7 +301,7 @@ where
                 "file", "files", "help-short", "help", "regexp", "type-list",
                 "version",
              ]))
-        .arg(arg("path").setting(ArgSettings::MultipleOccurrences))
+        .arg(arg("path").setting(ArgSettings::MultipleValues).setting(ArgSettings::MultipleOccurrences))
         .arg(flag("regexp").short('e')
              .settings(&[
                   ArgSettings::AllowHyphenValues, 
