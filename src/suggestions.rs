@@ -71,8 +71,14 @@ where
                 .filter_map(|f| f.s.long)
                 .chain(subcommand.p.opts.iter().filter_map(|o| o.s.long));
 
-            let candidate = did_you_mean(arg, opts)?;
-            let score = args_rest.iter().position(|x| *x == subcommand.get_name())?;
+            let candidate = match did_you_mean(arg, opts) {
+                Some(candidate) => candidate,
+                None => return None
+            };
+            let score = match args_rest.iter().position(|x| *x == subcommand.get_name()) {
+                Some(score) => score,
+                None => return None
+            };
 
             let suffix = format!(
                 "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
