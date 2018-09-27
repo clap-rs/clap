@@ -1,6 +1,7 @@
 mod utils;
 
-use clap::{App, Arg, ErrorKind};
+include!("../clap-test.rs");
+use clap::{App, Arg, SubCommand, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -216,14 +217,6 @@ fn subcmd_did_you_mean_output_ambiguous() {
         DYM_SUBCMD_AMBIGUOUS,
         true
     ));
-}
-
-#[test]
-#[cfg(feature = "suggestions")]
-fn subcmd_did_you_mean_output_arg() {
-    let app =
-        App::new("dym").subcommand(App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"));
-    assert!(utils::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
 
 #[test]
