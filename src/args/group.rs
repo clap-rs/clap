@@ -45,7 +45,7 @@ use yaml_rust::Yaml;
 ///          --minor         'auto increase minor'
 ///          --patch         'auto increase patch'")
 ///     .group(ArgGroup::with_name("vers")
-///          .args(&["set-ver", "major", "minor","patch"])
+///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
 ///     .get_matches_from_safe(vec!["app", "--major", "--patch"]);
 /// // Because we used two args in the group it's an error
