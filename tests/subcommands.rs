@@ -42,15 +42,6 @@ USAGE:
 
 For more information try --help";
 
-#[cfg(feature = "suggestions")]
-static DYM_ARG: &'static str = "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
-\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
-
-USAGE:
-    dym [SUBCOMMAND]
-
-For more information try --help";
-
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -137,10 +128,34 @@ fn subcmd_did_you_mean_output() {
 #[test]
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output_arg() {
+    static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
     let app = App::new("dym")
         .subcommand(SubCommand::with_name("subcmd")
             .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
-    assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
+    assert!(test::compare_output(app, "dym --subcmarg subcmd", EXPECTED, true));
+}
+
+#[test]
+#[cfg(feature="suggestions")]
+fn subcmd_did_you_mean_output_arg_false_positives() {
+    static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
+    let app = App::new("dym")
+        .subcommand(SubCommand::with_name("subcmd")
+            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+    assert!(test::compare_output(app, "dym --subcmarg foo", EXPECTED, true));
 }
 
 #[test]
