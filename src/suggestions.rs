@@ -44,6 +44,7 @@ where
 #[cfg_attr(feature = "lints", allow(needless_lifetimes))]
 pub fn did_you_mean_flag_suffix<'z, T, I>(
     arg: &str,
+    args_rest: &'z [&str],
     longs: I,
     subcommands: &'z [App],
 ) -> (String, Option<&'z str>)
@@ -51,16 +52,18 @@ where
     T: AsRef<str> + 'z,
     I: IntoIterator<Item = &'z T>,
 {
-    match did_you_mean(arg, longs) {
-        Some(candidate) => {
-            let suffix = format!(
-                "\n\tDid you mean {}{}?",
-                Format::Good("--"),
-                Format::Good(candidate)
+    if let Some(candidate) = did_you_mean(arg, longs) {
+        let suffix = format!(
+            "\n\tDid you mean {}{}?",
+            Format::Good("--"),
+            Format::Good(candidate)
             );
-            return (suffix, Some(candidate));
-        }
-        None => for subcommand in subcommands {
+        return (suffix, Some(candidate));
+    }
+
+    subcommands
+        .into_iter()
+        .filter_map(|subcommand| {
             let opts = subcommand
                 .p
                 .flags
@@ -68,18 +71,27 @@ where
                 .filter_map(|f| f.s.long)
                 .chain(subcommand.p.opts.iter().filter_map(|o| o.s.long));
 
-            if let Some(candidate) = did_you_mean(arg, opts) {
-                let suffix = format!(
-                    "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
-                    Format::Good("--"),
-                    Format::Good(candidate),
-                    Format::Good(subcommand.get_name())
-                );
-                return (suffix, Some(candidate));
-            }
-        },
-    }
-    (String::new(), None)
+            let candidate = match did_you_mean(arg, opts) {
+                Some(candidate) => candidate,
+                None => return None
+            };
+            let score = match args_rest.iter().position(|x| *x == subcommand.get_name()) {
+                Some(score) => score,
+                None => return None
+            };
+
+            let suffix = format!(
+                "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
+                Format::Good("--"),
+                Format::Good(candidate),
+                Format::Good(subcommand.get_name())
+            );
+
+            Some((score, (suffix, Some(candidate))))
+        })
+        .min_by_key(|&(score, _)| score)
+        .map(|(_, suggestion)| suggestion)
+        .unwrap_or_else(|| (String::new(), None))
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
