@@ -1186,13 +1186,6 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_long_help(&mut self) -> ClapResult<()> {
-        // If there are global arguments, or settings we need to propagate them down to subcommands
-        // before parsing incase we run into a subcommand
-        self.p.propagate_globals();
-        self.p.propagate_settings();
-        self.p.derive_display_order();
-
-        self.p.create_help_and_version();
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
         self.write_long_help(&mut buf_w)
@@ -1252,6 +1245,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+        // If there are global arguments, or settings we need to propagate them down to subcommands
+        // before parsing incase we run into a subcommand
         self.p.propagate_globals();
         self.p.propagate_settings();
         self.p.derive_display_order();
