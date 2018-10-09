@@ -928,7 +928,7 @@ where
                     }
 
                     if arg_os.starts_with(b"--") {
-                        needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
+                        needs_val_of = self.parse_long_arg(matcher, &arg_os, it)?;
                         debugln!(
                             "Parser:get_matches_with: After parse_long_arg {:?}",
                             needs_val_of
@@ -1554,11 +1554,16 @@ where
         }
     }
 
-    fn parse_long_arg(
+    fn parse_long_arg<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
         full_arg: &OsStr,
-    ) -> ClapResult<ParseResult<'a>> {
+        it: &mut Peekable<I>,
+    ) -> ClapResult<ParseResult<'a>>
+    where
+        I: Iterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
 
@@ -1614,8 +1619,14 @@ where
         }
 
         debugln!("Parser::parse_long_arg: Didn't match anything");
-        self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher)
-            .map(|_| ParseResult::NotFound)
+
+        let args_rest: Vec<_> = it.map(|x| x.clone().into()).collect();
+        let args_rest2: Vec<_> = args_rest.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect();
+        self.did_you_mean_error(
+            arg.to_str().expect(INVALID_UTF8),
+            matcher,
+            &args_rest2[..]
+        ).map(|_| ParseResult::NotFound)
     }
 
     #[cfg_attr(feature = "lints", allow(len_zero))]
@@ -1872,9 +1883,9 @@ where
         Ok(ParseResult::Flag)
     }
 
-    fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    fn did_you_mean_error(&self, arg: &str, matcher: &mut ArgMatcher<'a>, args_rest: &[&str]) -> ClapResult<()> {
         // Didn't match a flag or option
-        let suffix = suggestions::did_you_mean_flag_suffix(arg, longs!(self), &self.subcommands);
+        let suffix = suggestions::did_you_mean_flag_suffix(arg, &args_rest, longs!(self), &self.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
