@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, ErrorKind, SubCommand};
+use clap::{App, Arg, ErrorKind, };
 
 static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
@@ -56,7 +56,7 @@ For more information try --help";
 fn subcommand() {
     let m = App::new("test")
         .subcommand(
-            SubCommand::with_name("some").arg(
+            App::new("some").arg(
                 Arg::with_name("test")
                     .short('t')
                     .long("test")
@@ -77,7 +77,7 @@ fn subcommand() {
 fn subcommand_none_given() {
     let m = App::new("test")
         .subcommand(
-            SubCommand::with_name("some").arg(
+            App::new("some").arg(
                 Arg::with_name("test")
                     .short('t')
                     .long("test")
@@ -95,14 +95,14 @@ fn subcommand_none_given() {
 fn subcommand_multiple() {
     let m = App::new("test")
         .subcommands(vec![
-            SubCommand::with_name("some").arg(
+            App::new("some").arg(
                 Arg::with_name("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
-            SubCommand::with_name("add").arg(Arg::with_name("roster").short('r')),
+            App::new("add").arg(Arg::with_name("roster").short('r')),
         ])
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
@@ -118,7 +118,7 @@ fn subcommand_multiple() {
 #[test]
 fn single_alias() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
+        .subcommand(App::new("test").alias("do-stuff"))
         .get_matches_from(vec!["myprog", "do-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -126,7 +126,7 @@ fn single_alias() {
 #[test]
 fn multiple_aliases() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").aliases(&["do-stuff", "test-stuff"]))
+        .subcommand(App::new("test").aliases(&["do-stuff", "test-stuff"]))
         .get_matches_from(vec!["myprog", "test-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }
@@ -134,7 +134,7 @@ fn multiple_aliases() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output() {
-    let app = App::new("dym").subcommand(SubCommand::with_name("subcmd"));
+    let app = App::new("dym").subcommand(App::new("subcmd"));
     assert!(test::compare_output(app, "dym subcm", DYM_SUBCMD, true));
 }
 
@@ -142,7 +142,7 @@ fn subcmd_did_you_mean_output() {
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
     let app = App::new("dym").subcommand(
-        SubCommand::with_name("subcmd").arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'"),
+        App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"),
     );
     assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
@@ -150,8 +150,8 @@ fn subcmd_did_you_mean_output_arg() {
 #[test]
 fn alias_help() {
     let m = App::new("myprog")
-        .subcommand(SubCommand::with_name("test").alias("do-stuff"))
-        .get_matches_from_safe(vec!["myprog", "help", "do-stuff"]);
+        .subcommand(App::new("test").alias("do-stuff"))
+        .try_get_matches_from(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
 }
@@ -159,7 +159,7 @@ fn alias_help() {
 #[test]
 fn visible_aliases_help_output() {
     let app = App::new("clap-test").version("2.6").subcommand(
-        SubCommand::with_name("test")
+        App::new("test")
             .about("Some help")
             .alias("invisible")
             .visible_alias("dongle")
@@ -176,7 +176,7 @@ fn visible_aliases_help_output() {
 #[test]
 fn invisible_aliases_help_output() {
     let app = App::new("clap-test").version("2.6").subcommand(
-        SubCommand::with_name("test")
+        App::new("test")
             .about("Some help")
             .alias("invisible"),
     );
@@ -192,8 +192,8 @@ fn invisible_aliases_help_output() {
 fn issue_1031_args_with_same_name() {
     let res = App::new("prog")
         .arg(Arg::from("--ui-path=<PATH>"))
-        .subcommand(SubCommand::with_name("signer"))
-        .get_matches_from_safe(vec!["prog", "--ui-path", "signer"]);
+        .subcommand(App::new("signer"))
+        .try_get_matches_from(vec!["prog", "--ui-path", "signer"]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -204,8 +204,8 @@ fn issue_1031_args_with_same_name() {
 fn issue_1031_args_with_same_name_no_more_vals() {
     let res = App::new("prog")
         .arg(Arg::from("--ui-path=<PATH>"))
-        .subcommand(SubCommand::with_name("signer"))
-        .get_matches_from_safe(vec!["prog", "--ui-path", "value", "signer"]);
+        .subcommand(App::new("signer"))
+        .try_get_matches_from(vec!["prog", "--ui-path", "value", "signer"]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -220,7 +220,7 @@ fn issue_1161_multiple_hyphen_hyphen() {
         .arg(Arg::with_name("eff").short('f'))
         .arg(Arg::with_name("pea").short('p').takes_value(true))
         .arg(Arg::with_name("slop").multiple(true).last(true))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "-f",
             "-p=bob",
             "--",

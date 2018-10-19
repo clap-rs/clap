@@ -611,7 +611,7 @@ where
                     sc_m.add_val_to("", &a);
                 }
 
-                matcher.subcommand(SubCommand {
+                matcher.subcommand( SubCommand{
                     name: sc_name,
                     matches: sc_m.into(),
                 });
@@ -886,7 +886,7 @@ where
             let name = sc.name.clone();
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
-            matcher.subcommand(SubCommand {
+            matcher.subcommand( SubCommand{
                 name: name,
                 matches: sc_matcher.into(),
             });

@@ -595,11 +595,11 @@ impl<'a> ArgMatches<'a> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// let app_m = App::new("myprog")
     ///     .arg(Arg::with_name("debug")
     ///         .short('d'))
-    ///     .subcommand(SubCommand::with_name("test")
+    ///     .subcommand(App::new("test")
     ///         .arg(Arg::with_name("opt")
     ///             .long("option")
     ///             .takes_value(true)))
@@ -616,7 +616,7 @@ impl<'a> ArgMatches<'a> {
     ///     assert_eq!(sub_m.value_of("opt"), Some("val"));
     /// }
     /// ```
-    /// [`Subcommand`]: ./struct.SubCommand.html
+    /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
@@ -669,11 +669,11 @@ impl<'a> ArgMatches<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     ///  let app_m = App::new("git")
-    ///      .subcommand(SubCommand::with_name("clone"))
-    ///      .subcommand(SubCommand::with_name("push"))
-    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .subcommand(App::new("clone"))
+    ///      .subcommand(App::new("push"))
+    ///      .subcommand(App::new("commit"))
     ///      .get_matches();
     ///
     /// match app_m.subcommand_name() {
@@ -683,7 +683,7 @@ impl<'a> ArgMatches<'a> {
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
-    /// [`Subcommand`]: ./struct.SubCommand.html
+    /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_name(&self) -> Option<&str> {
@@ -696,11 +696,11 @@ impl<'a> ArgMatches<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     ///  let app_m = App::new("git")
-    ///      .subcommand(SubCommand::with_name("clone"))
-    ///      .subcommand(SubCommand::with_name("push"))
-    ///      .subcommand(SubCommand::with_name("commit"))
+    ///      .subcommand(App::new("clone"))
+    ///      .subcommand(App::new("push"))
+    ///      .subcommand(App::new("commit"))
     ///      .get_matches();
     ///
     /// match app_m.subcommand() {

@@ -5,7 +5,7 @@ use clap::{App, Arg, ErrorKind};
 fn flag_overrides_itself() {
     let res = App::new("posix")
         .arg(Arg::from("--flag  'some flag'").overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "--flag", "--flag"]);
+        .try_get_matches_from(vec!["", "--flag", "--flag"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
@@ -16,7 +16,7 @@ fn flag_overrides_itself() {
 fn mult_flag_overrides_itself() {
     let res = App::new("posix")
         .arg(Arg::from("--flag...  'some flag'").overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "--flag", "--flag", "--flag", "--flag"]);
+        .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
@@ -27,7 +27,7 @@ fn mult_flag_overrides_itself() {
 fn option_overrides_itself() {
     let res = App::new("posix")
         .arg(Arg::from("--opt [val] 'some option'").overrides_with("opt"))
-        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other"]);
+        .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
@@ -44,7 +44,7 @@ fn mult_option_require_delim_overrides_itself() {
                 .number_of_values(1)
                 .require_delimiter(true),
         )
-        .get_matches_from_safe(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
+        .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
@@ -59,7 +59,7 @@ fn mult_option_require_delim_overrides_itself() {
 fn mult_option_overrides_itself() {
     let res = App::new("posix")
         .arg(Arg::from("--opt [val]... 'some option'").overrides_with("opt"))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "--opt", "first", "overides", "--opt", "some", "other", "val",
         ]);
     assert!(res.is_ok());
@@ -90,7 +90,7 @@ fn pos_mult_overrides_itself() {
     // opts with multiple
     let res = App::new("posix")
         .arg(Arg::from("[val]... 'some pos'").overrides_with("val"))
-        .get_matches_from_safe(vec!["", "some", "other", "value"]);
+        .try_get_matches_from(vec!["", "some", "other", "value"]);
     assert!(res.is_ok());
     let m = res.unwrap();
     assert!(m.is_present("val"));
@@ -224,7 +224,7 @@ fn conflict_overriden_2() {
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-f", "-d", "-c"]);
+        .try_get_matches_from(vec!["", "-f", "-d", "-c"]);
     assert!(result.is_ok());
     let m = result.unwrap();
     assert!(m.is_present("color"));
@@ -238,7 +238,7 @@ fn conflict_overriden_3() {
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-d", "-c", "-f"]);
+        .try_get_matches_from(vec!["", "-d", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
@@ -261,7 +261,7 @@ fn pos_required_overridden_by_flag() {
     let result = App::new("require_overriden")
         .arg(Arg::with_name("pos").index(1).required(true))
         .arg(Arg::from("-c, --color 'some flag'").overrides_with("pos"))
-        .get_matches_from_safe(vec!["", "test", "-c"]);
+        .try_get_matches_from(vec!["", "test", "-c"]);
     assert!(result.is_ok(), "{:?}", result.unwrap_err());
 }
 
@@ -293,7 +293,7 @@ fn require_overriden_4() {
         .arg(Arg::from("-f, --flag 'some flag'").requires("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
-        .get_matches_from_safe(vec!["", "-c", "-f"]);
+        .try_get_matches_from(vec!["", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);

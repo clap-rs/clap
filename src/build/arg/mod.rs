@@ -569,7 +569,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
     ///
@@ -587,7 +587,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::with_name("dbg")
     ///         .long("debug"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -638,7 +638,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("infile")
     ///         .short('i')
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--debug", "-i", "file"
     ///     ]);
     ///
@@ -660,7 +660,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("infile")
     ///         .short('i')
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -712,7 +712,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("infile")
     ///         .short('i')
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--debug"
     ///     ]);
     ///
@@ -734,7 +734,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("infile")
     ///         .short('i')
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -785,7 +785,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--debug", "--config", "file.conf"
     ///     ]);
     ///
@@ -834,7 +834,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("debug"))
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf", "file.txt"
     ///     ]);
     ///
@@ -1028,7 +1028,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -1046,7 +1046,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("config"))
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf"
     ///     ]);
     ///
@@ -1098,7 +1098,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .requires_if("my.cfg", "other")
     ///         .long("config"))
     ///     .arg(Arg::with_name("other"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "some.cfg"
     ///     ]);
     ///
@@ -1116,7 +1116,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .requires_if("my.cfg", "input")
     ///         .long("config"))
     ///     .arg(Arg::with_name("input"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "my.cfg"
     ///     ]);
     ///
@@ -1176,7 +1176,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("option")
     ///         .takes_value(true))
     ///     .arg(Arg::with_name("other"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "special.conf"
     ///     ]);
     ///
@@ -1234,7 +1234,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("other")
     ///         .long("other")
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "not-special"
     ///     ]);
     ///
@@ -1254,7 +1254,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("other")
     ///         .long("other")
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "special"
     ///     ]);
     ///
@@ -1317,7 +1317,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("option")
     ///         .takes_value(true)
     ///         .long("option"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--option", "other"
     ///     ]);
     ///
@@ -1343,7 +1343,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("option")
     ///         .takes_value(true)
     ///         .long("option"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--option", "spec"
     ///     ]);
     ///
@@ -1398,7 +1398,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .index(1))
     ///     .arg(Arg::with_name("output")
     ///         .index(2))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
@@ -1419,7 +1419,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .index(1))
     ///     .arg(Arg::with_name("output")
     ///         .index(2))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--config", "file.conf", "in.txt"
     ///     ]);
     ///
@@ -1587,7 +1587,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .long("mode")
     ///         .takes_value(true)
     ///         .possible_values(&["fast", "slow", "medium"]))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--mode", "wrong"
     ///     ]);
     /// assert!(res.is_err());
@@ -1652,7 +1652,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .possible_value("fast")
     ///         .possible_value("slow")
     ///         .possible_value("medium"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "--mode", "wrong"
     ///     ]);
     /// assert!(res.is_err());
@@ -1779,7 +1779,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .number_of_values(2)
     ///         .short('F'))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1"
     ///     ]);
     ///
@@ -1819,7 +1819,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .index(1)
     ///         .validator(has_at))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "some@file"
     ///     ]);
     /// assert!(res.is_ok());
@@ -1858,7 +1858,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("file")
     ///         .index(1)
     ///         .validator_os(has_ampersand))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "Fish & chips"
     ///     ]);
     /// assert!(res.is_ok());
@@ -1907,7 +1907,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .max_values(3)
     ///         .short('F'))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2"
     ///     ]);
     ///
@@ -1926,7 +1926,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .max_values(2)
     ///         .short('F'))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
     ///
@@ -1971,7 +1971,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .min_values(2)
     ///         .short('F'))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
     ///
@@ -1990,7 +1990,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .takes_value(true)
     ///         .min_values(2)
     ///         .short('F'))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1"
     ///     ]);
     ///
@@ -2974,7 +2974,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// Specifies that an argument can be matched to all child [`SubCommand`]s.
+    /// Specifies that an argument can be matched to all child [``]s.
     ///
     /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands), however
     /// their values once a user uses them will be propagated back up to parents. In effect, this
@@ -2996,14 +2996,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// want to clutter the source with three duplicate [`Arg`] definitions.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, SubCommand, ArgSettings};
+    /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("verb")
     ///         .long("verbose")
     ///         .short('v')
     ///         .setting(ArgSettings::Global))
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .subcommand(SubCommand::with_name("do-stuff"))
+    ///     .subcommand(App::new("test"))
+    ///     .subcommand(App::new("do-stuff"))
     ///     .get_matches_from(vec![
     ///         "prog", "do-stuff", "--verbose"
     ///     ]);
@@ -3012,7 +3012,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
     /// assert!(sub_m.is_present("verb"));
     /// ```
-    /// [`SubCommand`]: ./struct.App.html#method.subcommand
+    /// [``]: ./struct.App.html#method.subcommand
     /// [required]: ./enum.ArgSettings.html#variant.Required
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::is_present("flag")`]: ./struct.ArgMatches.html#method.is_present
@@ -3846,9 +3846,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn hidden_short_help(self, hide: bool) -> Self {
         if hide {
-            self.set(ArgSettings::HiddenShortHelp)
+            self.setting(ArgSettings::HiddenShortHelp)
         } else {
-            self.unset(ArgSettings::HiddenShortHelp)
+            self.unset_setting(ArgSettings::HiddenShortHelp)
         }
     }
 
@@ -3923,9 +3923,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     pub fn hidden_long_help(self, hide: bool) -> Self {
         if hide {
-            self.set(ArgSettings::HiddenLongHelp)
+            self.setting(ArgSettings::HiddenLongHelp)
         } else {
-            self.unset(ArgSettings::HiddenLongHelp)
+            self.unset_setting(ArgSettings::HiddenLongHelp)
         }
     }
 
@@ -4050,46 +4050,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 }
 
-// Deprecations
-// @TODO @v3-beta: remove
-impl<'a, 'b> Arg<'a, 'b> {
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `Arg::setting`. Will be removed in v3.0-beta"
-    )]
-    pub fn set(mut self, s: ArgSettings) -> Self {
-        self.setb(s);
-        self
-    }
-
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `Arg::unset_setting`. Will be removed in v3.0-beta"
-    )]
-    pub fn unset(mut self, s: ArgSettings) -> Self {
-        self.unsetb(s);
-        self
-    }
-
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `Arg::from` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn from_usage(u: &'a str) -> Self {
-        let parser = UsageParser::from_usage(u);
-        parser.parse()
-    }
-}
-
 impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for Arg<'a, 'b> {
     fn from(a: &'z Arg<'a, 'b>) -> Self { a.clone() }
 }
 
 impl<'a, 'b> From<&'a str> for Arg<'a, 'b> {
-    fn from(s: &'a str) -> Self { Self::from_usage(s) }
+    fn from(s: &'a str) -> Self { UsageParser::from_usage(s).parse() }
 }
 
 impl<'n, 'e> PartialEq for Arg<'n, 'e> {

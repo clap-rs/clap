@@ -49,7 +49,7 @@ fn main() {
                             // not, the valid values will ALWAYS be displayed on a failed parse.
                             .possible_values(&enum_vals))
                     // For the second positional, lets not use possible_values() just to show the difference
-                    .arg_from_usage("<oof> 'The Oof to use'")
+                    .arg("<oof> 'The Oof to use'")
                     .get_matches();
 
     let t = value_t!(m.value_of("foo"), Foo).unwrap_or_else(|e| e.exit());

@@ -15,10 +15,10 @@ use ArgMatches;
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{App, Arg, SubCommand};
+/// # use clap::{App, Arg, };
 /// App::new("myprog")
 ///     .subcommand(
-///         SubCommand::with_name("config")
+///         App::new("config")
 ///             .about("Used for configuration")
 ///             .arg(Arg::with_name("config_file")
 ///                 .help("The configuration file to use")
@@ -35,24 +35,3 @@ pub struct SubCommand<'a> {
     pub matches: ArgMatches<'a>,
 }
 
-impl<'a> SubCommand<'a> {
-    // @TODO-v3-beta: remove
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.32.0",
-        note = "Use App::new instead. Will be removed in v3-beta"
-    )]
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
-
-    // @TODO-v3-beta: remove
-    /// **Deprecated**
-    #[cfg_attr(
-        feature = "yaml",
-        deprecated(
-            since = "2.32.0",
-            note = "Use App::from instead. Will be removed in v3-beta"
-        )
-    )]
-    #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &Yaml) -> App { App::from_yaml(yaml) }
-}

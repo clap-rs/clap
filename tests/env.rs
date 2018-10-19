@@ -11,7 +11,7 @@ fn env() {
 
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -26,7 +26,7 @@ fn env_os() {
 
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").env_os(OsStr::new("CLP_TEST_ENV")))
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -43,7 +43,7 @@ fn no_env() {
 
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV_NONE"))
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -62,7 +62,7 @@ fn with_default() {
                 .env("CLP_TEST_ENV")
                 .default_value("default"),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -77,7 +77,7 @@ fn opt_user_override() {
 
     let r = App::new("df")
         .arg(Arg::from("--arg [FILE] 'some arg'").env("CLP_TEST_ENV"))
-        .get_matches_from_safe(vec!["", "--arg", "opt"]);
+        .try_get_matches_from(vec!["", "--arg", "opt"]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -92,7 +92,7 @@ fn positionals() {
 
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -107,7 +107,7 @@ fn positionals_user_override() {
 
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
-        .get_matches_from_safe(vec!["", "opt"]);
+        .try_get_matches_from(vec!["", "opt"]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -127,7 +127,7 @@ fn multiple_one() {
                 .use_delimiter(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -147,7 +147,7 @@ fn multiple_three() {
                 .use_delimiter(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -169,7 +169,7 @@ fn multiple_no_delimiter() {
                 .env("CLP_TEST_ENV_MULTI2")
                 .multiple(true),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -191,7 +191,7 @@ fn possible_value() {
                 .env("CLP_TEST_ENV")
                 .possible_value("env"),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -210,7 +210,7 @@ fn not_possible_value() {
                 .env("CLP_TEST_ENV")
                 .possible_value("never"),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_err());
 }
@@ -231,7 +231,7 @@ fn validator() {
                     }
                 }),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -271,7 +271,7 @@ fn validator_invalid() {
                     }
                 }),
         )
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
 
     assert!(r.is_err());
 }

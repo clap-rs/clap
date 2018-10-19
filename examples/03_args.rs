@@ -5,14 +5,14 @@ use clap::{App, Arg};
 fn main() {
     // Args describe a possible valid argument which may be supplied by the user at runtime. There
     // are three different types of arguments (flags, options, and positional) as well as a fourth
-    // special type of argument, called SubCommands (which will be discussed separately).
+    // special type of argument, called s (which will be discussed separately).
     //
     // Args are described in the same manner as Apps using the "builder pattern" with multiple
     // methods describing various settings for the individual arguments. Or by supplying a "usage"
     // string. Both methods have their pros and cons.
     //
     // Arguments can be added to applications in two manners, one at a time with the arg(), and
-    // arg_from_usage() method, or multiple arguments at once via a Vec<Arg> inside the args() method,
+    // arg() method, or multiple arguments at once via a Vec<Arg> inside the args() method,
     // or a single &str describing multiple Args (one per line) supplied to args_from_usage().
     //
     // There are various options which can be set for a given argument, some apply to any of the
@@ -49,16 +49,16 @@ fn main() {
 
                         // *Note* the following two examples are convenience methods, if you wish
                         // to still get the full configurability of Arg::with_name() and the readability
-                        // of arg_from_usage(), you can instantiate a new Arg with Arg::from() and
+                        // of arg(), you can instantiate a new Arg with Arg::from() and
                         // still be able to set all the additional properties, just like Arg::with_name()
                         //
                         //
                         // One "Flag" using a usage string
-                        .arg_from_usage("--license 'display the license file'")
+                        .arg("--license 'display the license file'")
 
                         // Two args, one "Positional", and one "Option" using a usage string
-                        .args_from_usage("[output] 'Supply an output file to use'
-                                          -i, --int=[IFACE] 'Set an interface to use'")
+                        .arg("[output] 'Supply an output file to use'")
+                        .arg("-i, --int=[IFACE] 'Set an interface to use'")
                         .get_matches();
 
     // Here are some examples of using the arguments defined above. Keep in mind that this is only

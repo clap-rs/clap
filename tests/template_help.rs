@@ -1,7 +1,7 @@
 extern crate clap;
 extern crate regex;
 
-use clap::{App, SubCommand};
+use clap::{App, };
 
 include!("../clap-test.rs");
 
@@ -51,7 +51,7 @@ SUBCOMMANDS:
 
 #[test]
 fn with_template() {
-    let app = app_example1().template(EXAMPLE1_TMPL_S);
+    let app = app_example1().help_template(EXAMPLE1_TMPL_S);
     assert!(test::compare_output(
         app,
         "MyApp --help",
@@ -62,7 +62,7 @@ fn with_template() {
 
 #[test]
 fn custom_template() {
-    let app = app_example1().template(EXAMPLE1_TMPS_F);
+    let app = app_example1().help_template(EXAMPLE1_TMPS_F);
     assert!(test::compare_output(
         app,
         "MyApp --help",
@@ -77,7 +77,7 @@ fn template_empty() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .template("");
+        .help_template("");
     assert!(test::compare_output(app, "MyApp --help", "", false));
 }
 
@@ -87,7 +87,7 @@ fn template_notag() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .template("test no tag test");
+        .help_template("test no tag test");
     assert!(test::compare_output(
         app,
         "MyApp --help",
@@ -102,7 +102,7 @@ fn template_unknowntag() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .template("test {unknown_tag} test");
+        .help_template("test {unknown_tag} test");
     assert!(test::compare_output(
         app,
         "MyApp --help",
@@ -117,7 +117,7 @@ fn template_author_version() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .template("{author}\n{version}\n{about}\n{bin}");
+        .help_template("{author}\n{version}\n{about}\n{bin}");
     assert!(test::compare_output(
         app,
         "MyApp --help",
@@ -133,14 +133,12 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .args_from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'
-                          <output>            'Sets an optional output file'
-                          -d...               'Turn debugging information on'",
-        )
+        .arg("-c, --config=[FILE] 'Sets a custom config file'")
+        .arg("<output>            'Sets an optional output file'")
+        .arg("-d...               'Turn debugging information on'")
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .about("does testing things")
-                .arg_from_usage("-l, --list 'lists test values'"),
+                .arg("-l, --list 'lists test values'"),
         )
 }

@@ -138,7 +138,7 @@ pub enum AppSettings {
     /// UTF-8 values
     ///
     /// **NOTE:** This rule only applies to  argument values, as flags, options, and
-    /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
+    /// [``]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -154,8 +154,8 @@ pub enum AppSettings {
     ///
     /// let r = App::new("myprog")
     ///   //.setting(AppSettings::AllowInvalidUtf8)
-    ///     .arg_from_usage("<arg> 'some positional arg'")
-    ///     .get_matches_from_safe(
+    ///     .arg("<arg> 'some positional arg'")
+    ///     .try_get_matches_from(
     ///         vec![
     ///             OsString::from("myprog"),
     ///             OsString::from_vec(vec![0xe9])]);
@@ -168,7 +168,7 @@ pub enum AppSettings {
     /// [`ArgMatches::os_values_of`]: ./struct.ArgMatches.html#method.os_values_of
     /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
     /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     AllowInvalidUtf8,
 
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
@@ -213,7 +213,7 @@ pub enum AppSettings {
     ///     .version("v1.1")
     ///     .setting(AppSettings::AllowNegativeNumbers)
     ///     .arg(Arg::with_name("num"))
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "-20"
     ///     ]);
     /// assert!(res.is_ok());
@@ -332,7 +332,7 @@ pub enum AppSettings {
 
     /// Specifies that an unexpected positional argument,
     /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
-    /// should instead be treated as a [`SubCommand`] within the [`ArgMatches`] struct.
+    /// should instead be treated as a [``] within the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution,
     /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
@@ -362,7 +362,7 @@ pub enum AppSettings {
     /// }
     /// ```
     /// [`ErrorKind::UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
 
@@ -384,14 +384,14 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgsNegateSubcommands)
     /// # ;
     /// ```
-    /// [subcommands]: ./struct.SubCommand.html
+    /// [subcommands]: ./struct..html
     /// [argument]: ./struct.Arg.html
     ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
     /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** [`SubCommand`]s count as arguments
+    /// **NOTE:** [``]s count as arguments
     ///
     /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
     /// ensure that some argument is always present.
@@ -404,7 +404,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     ArgRequiredElseHelp,
 
@@ -419,7 +419,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::ColoredHelp)
     ///     .get_matches();
@@ -439,7 +439,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::ColorAuto)
     ///     .get_matches();
@@ -457,7 +457,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::ColorAlways)
     ///     .get_matches();
@@ -475,7 +475,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::ColorNever)
     ///     .get_matches();
@@ -487,7 +487,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::DontCollapseArgsInUsage)
     ///     .get_matches();
@@ -504,7 +504,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::DontDelimitTrailingValues)
     ///     .get_matches();
@@ -518,23 +518,23 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind, SubCommand};
+    /// # use clap::{App, AppSettings, ErrorKind, };
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableHelpSubcommand)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
     ///     // be generated as well
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "help"
     ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
+    /// Disables `-V` and `--version` [`App`] without affecting any of the [``]s
     /// (Defaults to `false`; application *does* have a version flag)
     ///
     /// # Examples
@@ -544,7 +544,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableVersion)
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "-V"
     ///     ]);
     /// assert!(res.is_err());
@@ -552,36 +552,36 @@ pub enum AppSettings {
     /// ```
     ///
     /// ```rust
-    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-V"
     ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::VersionDisplayed);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
     DisableVersion,
 
-    /// Displays the arguments and [`SubCommand`]s in the help message in the order that they were
+    /// Displays the arguments and [``]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     DeriveDisplayOrder,
 
-    /// Specifies to use the version of the current command for all child [`SubCommand`]s.
+    /// Specifies to use the version of the current command for all child [``]s.
     /// (Defaults to `false`; subcommands have independent version strings from their parents.)
     ///
     /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
@@ -590,30 +590,30 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::GlobalVersion)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches();
     /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     GlobalVersion,
 
-    /// Specifies that this [`SubCommand`] should be hidden from help messages
+    /// Specifies that this [``] should be hidden from help messages
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, };
     /// App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("test")
+    ///     .subcommand(App::new("test")
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
@@ -635,16 +635,16 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("prog")
     ///     .setting(AppSettings::InferSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .subcommand(App::new("test"))
     ///     .get_matches_from(vec![
     ///         "prog", "te"
     ///     ]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`subcommands`]: ./struct.SubCommand.html
+    /// [`subcommands`]: ./struct..html
     /// [positional/free arguments]: ./struct.Arg.html#method.index
     /// [aliases]: ./struct.App.html#method.alias
     /// [`AppSeettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
@@ -673,7 +673,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::NextLineHelp)
     ///     .get_matches();
@@ -689,11 +689,11 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, };
     /// let m = App::new("myprog")
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
-    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set", "foo"]);
     ///
     /// assert_eq!(m.value_of("cmd"), Some("set"));
@@ -705,11 +705,11 @@ pub enum AppSettings {
     /// propagated down.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, };
     /// let m = App::new("myprog")
     ///     .arg(Arg::from("[cmd] 'command to run'")
     ///         .global(true))
-    ///     .subcommand(SubCommand::with_name("foo"))
+    ///     .subcommand(App::new("foo"))
     ///     .get_matches_from(vec!["myprog", "set"]);
     ///
     /// assert_eq!(m.value_of("cmd"), Some("set"));
@@ -722,7 +722,7 @@ pub enum AppSettings {
     )]
     PropagateGlobalValuesDown,
 
-    /// Allows [`SubCommand`]s to override all requirements of the parent command.
+    /// Allows [``]s to override all requirements of the parent command.
     /// For example if you had a subcommand or top level application with a required argument
     /// that is only required as long as there is no subcommand present,
     /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
@@ -735,12 +735,12 @@ pub enum AppSettings {
     /// This first example shows that it is an error to not use a required argument
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
+    /// # use clap::{App, Arg, AppSettings, ErrorKind};
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::with_name("opt").required(true))
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog"
     ///     ]);
     /// assert!(err.is_err());
@@ -752,23 +752,23 @@ pub enum AppSettings {
     /// valid subcommand is used.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, SubCommand, ErrorKind};
+    /// # use clap::{App, Arg, AppSettings, ErrorKind};
     /// let noerr = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
     ///     .arg(Arg::with_name("opt").required(true))
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "test"
     ///     ]);
     /// assert!(noerr.is_ok());
     /// # ;
     /// ```
     /// [`Arg::required(true)`]: ./struct.Arg.html#method.required
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     SubcommandsNegateReqs,
 
     /// Specifies that the help text should be displayed (before exiting gracefully) if no
-    /// [`SubCommand`]s are present at runtime (i.e. an empty run such as `$ myprog`).
+    /// [``]s are present at runtime (i.e. an empty run such as `$ myprog`).
     ///
     /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
     /// nearly same thing; this prints the help text, and the other prints an error.
@@ -785,7 +785,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     SubcommandRequiredElseHelp,
@@ -794,7 +794,7 @@ pub enum AppSettings {
     /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
     /// **NOTE:** This rule only applies to argument values; Things such as flags, options, and
-    /// [`SubCommand`]s themselves only allow valid UTF-8 code points.
+    /// [``]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -810,8 +810,8 @@ pub enum AppSettings {
     ///
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::StrictUtf8)
-    ///     .arg_from_usage("<arg> 'some positional arg'")
-    ///     .get_matches_from_safe(
+    ///     .arg("<arg> 'some positional arg'")
+    ///     .try_get_matches_from(
     ///         vec![
     ///             OsString::from("myprog"),
     ///             OsString::from_vec(vec![0xe9])]);
@@ -819,11 +819,11 @@ pub enum AppSettings {
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`ErrorKind::InvalidUtf8`]: ./enum.ErrorKind.html#variant.InvalidUtf8
     StrictUtf8,
 
-    /// Allows specifying that if no [`SubCommand`] is present at runtime,
+    /// Allows specifying that if no [``] is present at runtime,
     /// error and exit gracefully.
     ///
     /// **NOTE:** This defaults to `false` (subcommands do *not* need to be present)
@@ -831,18 +831,18 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog",
     ///     ]);
     /// assert!(err.is_err());
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     SubcommandRequired,
 
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
@@ -879,7 +879,7 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand, AppSettings};
+    /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::UnifiedHelpMessage)
     ///     .get_matches();
@@ -887,7 +887,7 @@ pub enum AppSettings {
     /// ```
     UnifiedHelpMessage,
 
-    /// Disables `-V` and `--version` for all [`SubCommand`]s
+    /// Disables `-V` and `--version` for all [``]s
     /// (Defaults to `false`; subcommands *do* have version flags.)
     ///
     /// **NOTE:** This setting must be set **prior** adding any subcommands
@@ -895,18 +895,18 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-V"
     ///     ]);
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     VersionlessSubcommands,
 
     /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
@@ -916,7 +916,7 @@ pub enum AppSettings {
     /// Windows where a user tries to open the binary by double-clicking instead of using the
     /// command line.
     ///
-    /// **NOTE:** This setting is **not** recursive with [`SubCommand`]s, meaning if you wish this
+    /// **NOTE:** This setting is **not** recursive with [``]s, meaning if you wish this
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
     /// rare)
     ///
@@ -928,7 +928,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     WaitOnError,
 
     #[doc(hidden)]

@@ -46,7 +46,7 @@
 //! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 //! // to generate arguments dynamically.
 //! extern crate clap;
-//! use clap::{Arg, App, SubCommand};
+//! use clap::{Arg, App, };
 //!
 //! fn main() {
 //!     let matches = App::new("My Super Program")
@@ -67,7 +67,7 @@
 //!                                .short('v')
 //!                                .multiple(true)
 //!                                .help("Sets the level of verbosity"))
-//!                           .subcommand(SubCommand::with_name("test")
+//!                           .subcommand(App::new("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
@@ -117,22 +117,21 @@
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
 //! extern crate clap;
-//! use clap::{Arg, App, SubCommand};
+//! use clap::{Arg, App, };
 //!
 //! fn main() {
 //!     let matches = App::new("myapp")
 //!                           .version("1.0")
 //!                           .author("Kevin K. <kbknapp@gmail.com>")
 //!                           .about("Does awesome things")
-//!                           .args_from_usage(
-//!                               "-c, --config=[FILE] 'Sets a custom config file'
-//!                               <INPUT>              'Sets the input file to use'
-//!                               -v...                'Sets the level of verbosity'")
-//!                           .subcommand(SubCommand::with_name("test")
+//!                           .arg("-c, --config=[FILE] 'Sets a custom config file'")
+//!                           .arg("<INPUT>              'Sets the input file to use'")
+//!                           .arg("-v...                'Sets the level of verbosity'")
+//!                           .subcommand(App::new("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
-//!                                       .arg_from_usage("-d, --debug 'Print debug information'"))
+//!                                       .arg("-d, --debug 'Print debug information'"))
 //!                           .get_matches();
 //!
 //!     // Same as previous example...
@@ -566,10 +565,9 @@ extern crate vec_map;
 extern crate yaml_rust;
 
 pub use build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
-pub use completions::Shell;
 pub use output::fmt::Format;
 pub use parse::errors::{Error, ErrorKind, Result};
-pub use parse::{ArgMatches, OsValues, SubCommand, Values};
+pub use parse::{ArgMatches, OsValues, Values};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 
@@ -582,7 +580,6 @@ use std::result::Result as StdResult;
 #[macro_use]
 mod macros;
 mod build;
-mod completions;
 mod output;
 mod parse;
 mod util;

@@ -39,15 +39,14 @@ use yaml_rust;
 /// ```rust
 /// # use clap::{App, ArgGroup, ErrorKind};
 /// let result = App::new("app")
-///     .args_from_usage(
-///         "--set-ver [ver] 'set the version manually'
-///          --major         'auto increase major'
-///          --minor         'auto increase minor'
-///          --patch         'auto increase patch'")
+///     .arg("--set-ver [ver] 'set the version manually'")
+///     .arg("--major         'auto increase major'")
+///     .arg("--minor         'auto increase minor'")
+///     .arg("--patch         'auto increase patch'")
 ///     .group(ArgGroup::with_name("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
-///     .get_matches_from_safe(vec!["app", "--major", "--patch"]);
+///     .try_get_matches_from(vec!["app", "--major", "--patch"]);
 /// // Because we used two args in the group it's an error
 /// assert!(result.is_err());
 /// let err = result.unwrap_err();
@@ -58,15 +57,14 @@ use yaml_rust;
 /// ```rust
 /// # use clap::{App, ArgGroup};
 /// let result = App::new("app")
-///     .args_from_usage(
-///         "--set-ver [ver] 'set the version manually'
-///          --major         'auto increase major'
-///          --minor         'auto increase minor'
-///          --patch         'auto increase patch'")
+///     .arg("--set-ver [ver] 'set the version manually'")
+///     .arg("--major         'auto increase major'")
+///     .arg("--minor         'auto increase minor'")
+///     .arg("--patch         'auto increase patch'")
 ///     .group(ArgGroup::with_name("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
-///     .get_matches_from_safe(vec!["app", "--major"]);
+///     .try_get_matches_from(vec!["app", "--major"]);
 /// assert!(result.is_ok());
 /// let matches = result.unwrap();
 /// // We may not know which of the args was used, so we can test for the group...
@@ -225,7 +223,7 @@ impl<'a> ArgGroup<'a> {
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"]))
-    ///     .get_matches_from_safe(vec!["myprog", "-f", "-c"]);
+    ///     .try_get_matches_from(vec!["myprog", "-f", "-c"]);
     /// // Because we used both args in the group it's an error
     /// assert!(result.is_err());
     /// let err = result.unwrap_err();
@@ -242,7 +240,7 @@ impl<'a> ArgGroup<'a> {
     /// that one argument from this group *must* be present at runtime (unless
     /// conflicting with another argument).
     ///
-    /// **NOTE:** This setting only applies to the current [`App`] / [`SubCommand`], and not
+    /// **NOTE:** This setting only applies to the current [`App`] / [``], and not
     /// globally.
     ///
     /// **NOTE:** By default, [`ArgGroup::multiple`] is set to `false` which when combined with
@@ -262,14 +260,14 @@ impl<'a> ArgGroup<'a> {
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
     ///         .required(true))
-    ///     .get_matches_from_safe(vec!["myprog"]);
+    ///     .try_get_matches_from(vec!["myprog"]);
     /// // Because we didn't use any of the args in the group, it's an error
     /// assert!(result.is_err());
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`App`]: ./struct.App.html
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`ArgGroup::multiple`]: ./struct.ArgGroup.html#method.multiple
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
@@ -297,7 +295,7 @@ impl<'a> ArgGroup<'a> {
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires("debug"))
-    ///     .get_matches_from_safe(vec!["myprog", "-c"]);
+    ///     .try_get_matches_from(vec!["myprog", "-c"]);
     /// // because we used an arg from the group, and the group requires "-d" to be used, it's an
     /// // error
     /// assert!(result.is_err());
@@ -338,7 +336,7 @@ impl<'a> ArgGroup<'a> {
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires_all(&["debug", "verb"]))
-    ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
+    ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
     /// // because we used an arg from the group, and the group requires "-d" and "-v" to be used,
     /// // yet we only used "-d" it's an error
     /// assert!(result.is_err());
@@ -374,7 +372,7 @@ impl<'a> ArgGroup<'a> {
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with("debug"))
-    ///     .get_matches_from_safe(vec!["myprog", "-c", "-d"]);
+    ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
     /// // because we used an arg from the group, and the group conflicts with "-d", it's an error
     /// assert!(result.is_err());
     /// let err = result.unwrap_err();
@@ -412,7 +410,7 @@ impl<'a> ArgGroup<'a> {
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with_all(&["debug", "verb"]))
-    ///     .get_matches_from_safe(vec!["myprog", "-c", "-v"]);
+    ///     .try_get_matches_from(vec!["myprog", "-c", "-v"]);
     /// // because we used an arg from the group, and the group conflicts with either "-v" or "-d"
     /// // it's an error
     /// assert!(result.is_err());

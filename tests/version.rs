@@ -15,7 +15,7 @@ fn version_short() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["myprog", "-V"]);
+        .try_get_matches_from(vec!["myprog", "-V"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
@@ -27,7 +27,7 @@ fn version_long() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["myprog", "--version"]);
+        .try_get_matches_from(vec!["myprog", "--version"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
@@ -36,7 +36,7 @@ fn version_long() {
 #[test]
 fn complex_version_output() {
     let mut a = App::new("clap-test").version("v1.4.8");
-    let _ = a.get_matches_from_safe_borrow(vec![""]);
+    let _ = a.try_get_matches_from_mut(vec![""]);
 
     // Now we check the output of print_version()
     let mut ver = vec![];
@@ -51,7 +51,7 @@ fn override_ver() {
         .about("tests stuff")
         .version("1.3")
         .arg(Arg::from("-v, --version 'some version'"))
-        .get_matches_from_safe(vec!["test", "--version"]);
+        .try_get_matches_from(vec!["test", "--version"]);
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("version"));

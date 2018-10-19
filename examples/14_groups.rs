@@ -28,10 +28,10 @@ fn main() {
     // Create application like normal
     let matches = App::new("myapp")
                       // Add the version arguments
-                      .args_from_usage("--set-ver [ver] 'set version manually'
-                                        --major         'auto inc major'
-                                        --minor         'auto inc minor'
-                                        --patch         'auto inc patch'")
+                      .arg("--set-ver [ver] 'set version manually'")
+                      .arg("--major         'auto inc major'")
+                      .arg("--minor         'auto inc minor'")
+                      .arg("--patch         'auto inc patch'")
                       // Create a group, make it required, and add the above arguments
                       .group(ArgGroup::with_name("vers")
                                           .required(true)

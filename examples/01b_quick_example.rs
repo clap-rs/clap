@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, };
 
 fn main() {
     // This method shows the traditional, and slightly more configurable way to set up arguments. This method is
@@ -57,7 +57,7 @@ fn main() {
                 .help("Turn debugging information on"),
         )
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .about("does testing things")
                 .arg(Arg::with_name("list").short('l').help("lists test values")),
         )

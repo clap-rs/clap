@@ -17,7 +17,6 @@ use yaml_rust::Yaml;
 
 // Internal
 use build::{Arg, ArgGroup, ArgSettings};
-use completions::{ComplGen, Shell};
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
@@ -180,7 +179,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// **Pro-tip:** When building things such as third party `cargo` subcommands, this setting
     /// **should** be used!
     ///
-    /// **NOTE:** This command **should not** be used for [`SubCommand`]s.
+    /// **NOTE:** This command **should not** be used for [``]s.
     ///
     /// # Examples
     ///
@@ -190,7 +189,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
         self.bin_name = Some(name.into());
         self
@@ -469,7 +468,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Enables a single command, or [`SubCommand`], level settings.
+    /// Enables a single command, or [``], level settings.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
@@ -482,14 +481,14 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self
     }
 
-    /// Disables a single command, or [`SubCommand`], level setting.
+    /// Disables a single command, or [``], level setting.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
@@ -501,11 +500,12 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .unset_setting(AppSettings::ColorAuto)
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
+        self.g_settings.unset(setting);
         self
     }
 
@@ -683,7 +683,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding a [`SubCommand`] alias, which function as "hidden" subcommands that
+    /// Allows adding a [``] alias, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
     /// this command, and not all variants.
@@ -691,14 +691,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .alias("do-stuff"))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
             als.push((name.into(), false));
@@ -708,7 +708,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding [`SubCommand`] aliases, which function as "hidden" subcommands that
+    /// Allows adding [``] aliases, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
     /// this command, and not all variants.
@@ -716,9 +716,9 @@ impl<'a, 'b> App<'a, 'b> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
     ///                 .arg(Arg::with_name("input")
     ///                             .help("the file to add")
@@ -727,7 +727,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///             .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.aliases {
             for n in names {
@@ -739,20 +739,20 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding a [`SubCommand`] alias that functions exactly like those defined with
+    /// Allows adding a [``] alias that functions exactly like those defined with
     /// [`App::alias`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .visible_alias("do-stuff"))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`App::alias`]: ./struct.App.html#method.alias
     pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
@@ -763,20 +763,20 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows adding multiple [`SubCommand`] aliases that functions exactly like those defined
+    /// Allows adding multiple [``] aliases that functions exactly like those defined
     /// with [`App::aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
-    ///             .subcommand(SubCommand::with_name("test")
+    ///             .subcommand(App::new("test")
     ///                 .visible_aliases(&["do-stuff", "tests"]))
     ///             .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`App::aliases`]: ./struct.App.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
         if let Some(ref mut als) = self.aliases {
@@ -860,7 +860,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Adds a [`SubCommand`] to the list of valid possibilities. Subcommands are effectively
+    /// Adds a [``] to the list of valid possibilities. Subcommands are effectively
     /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
     /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
     /// version, and usage.
@@ -868,14 +868,14 @@ impl<'a, 'b> App<'a, 'b> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// App::new("myprog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Controls configuration features")
-    ///         .arg_from_usage("<config> 'Required configuration file to use'"))
+    ///         .arg("<config> 'Required configuration file to use'"))
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
     pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
         self.subcommands.push(subcmd);
@@ -883,20 +883,20 @@ impl<'a, 'b> App<'a, 'b> {
     }
 
     /// Adds multiple subcommands to the list of valid possibilities by iterating over an
-    /// [`IntoIterator`] of [`SubCommand`]s
+    /// [`IntoIterator`] of [``]s
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, SubCommand};
+    /// # use clap::{App, Arg, };
     /// # App::new("myprog")
     /// .subcommands( vec![
-    ///        SubCommand::with_name("config").about("Controls configuration functionality")
+    ///        App::new("config").about("Controls configuration functionality")
     ///                                 .arg(Arg::with_name("config_file").index(1)),
-    ///        SubCommand::with_name("debug").about("Controls debug functionality")])
+    ///        App::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
     where
@@ -908,7 +908,7 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
-    /// Allows custom ordering of [`SubCommand`]s within the help message. Subcommands with a lower
+    /// Allows custom ordering of [``]s within the help message. Subcommands with a lower
     /// value will be displayed first in the help message. This is helpful when one would like to
     /// emphasise frequently used subcommands, or prioritize those towards the top of the list.
     /// Duplicate values **are** allowed. Subcommands with duplicate display orders will be
@@ -919,15 +919,15 @@ impl<'a, 'b> App<'a, 'b> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, SubCommand};
+    /// # use clap::{App, };
     /// let m = App::new("cust-ord")
-    ///     .subcommand(SubCommand::with_name("alpha") // typically subcommands are grouped
+    ///     .subcommand(App::new("alpha") // typically subcommands are grouped
     ///                                                // alphabetically by name. Subcommands
     ///                                                // without a display_order have a value of
     ///                                                // 999 and are displayed alphabetically with
     ///                                                // all other 999 subcommands
     ///         .about("Some help and text"))
-    ///     .subcommand(SubCommand::with_name("beta")
+    ///     .subcommand(App::new("beta")
     ///         .display_order(1)   // In order to force this subcommand to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other subcommands with a value of 1 will be displayed
@@ -954,7 +954,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     beta    I should be first!
     ///     alpha   Some help and text
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
         self
@@ -1313,7 +1313,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
     /// ```
     /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
-    /// [`App::try_get_matches`]: ./struct.App.html#method.get_matches_safe
+    /// [`App::try_get_matches`]: ./struct.App.html#method.try_get_matches
     /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
     /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
     /// [`Error::exit`]: ./struct.Error.html#method.exit
@@ -1528,34 +1528,24 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
-        // name is "hclap_help" because flags are sorted by name
-        if !self.contains_long("help") {
+        if !self.args.iter().any(|x| x.name == "help") {
             debugln!("App::_create_help_and_version: Building --help");
-            if self.help_short.is_none() && !self.contains_short('h') {
-                self.help_short = Some('h');
-            }
-            let mut arg = Arg::with_name("hclap_help")
+            let help = Arg::with_name("help")
+                .short('h')
                 .long("help")
-                .help(self.help_message.unwrap_or("Prints help information"));
+                .help("Prints help information");
 
-            // we have to set short manually because we're dealing with char's
-            arg.short = self.help_short;
-            self.args.push(arg);
+            self.args.push(help);
         } else {
             self.settings.unset(AppSettings::NeedsLongHelp);
         }
-        if !self.is_set(AppSettings::DisableVersion) && !self.contains_long("version") {
+        if !self.args.iter().any(|x| x.name == "version") {
             debugln!("App::_create_help_and_version: Building --version");
-            if self.version_short.is_none() && !self.contains_short('V') {
-                self.version_short = Some('V');
-            }
-            // name is "vclap_version" because flags are sorted by name
-            let mut arg = Arg::with_name("vclap_version")
+            let version = Arg::with_name("version")
+                .short('V')
                 .long("version")
-                .help(self.version_message.unwrap_or("Prints version information"));
-            // we have to set short manually because we're dealing with char's
-            arg.short = self.version_short;
-            self.args.push(arg);
+                .help("Prints version information");
+            self.args.push(version);
         } else {
             self.settings.unset(AppSettings::NeedsLongVersion);
         }
@@ -1870,271 +1860,9 @@ impl<'a, 'b> App<'a, 'b> {
     }
 }
 
-// @TODO @v3-beta: remove
-// Deprecations
-impl<'a, 'b> App<'a, 'b> {
-    /// **Deprecated:** Use `App::global_setting( SettingOne | SettingTwo )` instead
-    #[deprecated(
-        since = "2.33.0",
-        note = "Use `App::global_setting( SettingOne | SettingTwo )` instead"
-    )]
-    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.set(*s);
-            self.g_settings.set(*s)
-        }
-        self
-    }
-
-    /// **Deprecated:** Use `App::setting( SettingOne | SettingTwo )` instead
-    #[deprecated(
-        since = "2.33.0",
-        note = "Use `App::setting( SettingOne | SettingTwo )` instead"
-    )]
-    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.set(*s);
-        }
-        self
-    }
-
-    /// **Deprecated:** Use `App::unset_setting( SettingOne | SettingTwo )` instead
-    #[deprecated(
-        since = "2.33.0",
-        note = "Use `App::unset_setting( SettingOne | SettingTwo )` instead"
-    )]
-    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
-        for s in settings {
-            self.settings.unset(*s);
-            self.g_settings.unset(*s);
-        }
-        self
-    }
-
-    /// **Deprecated:** Use explicit `App::author()` and `App::version()` calls instead.
-    #[deprecated(
-        since = "2.14.1",
-        note = "Can never work; use explicit App::author() and \
-                App::version() calls instead. Will be removed in v3.0-beta"
-    )]
-    pub fn with_defaults<S: Into<String>>(n: S) -> Self {
-        App {
-            name: n.into(),
-            author: Some("Kevin K. <kbknapp@gmail.com>"),
-            version: Some("2.19.2"),
-            ..Default::default()
-        }
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use App::from instead. Will be removed in v3.0-beta"
-    )]
-    #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> { App::from(yaml) }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::mut_arg(\"help\", |a| a.short(\"H\"))` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn help_short<S: AsRef<str> + 'b>(mut self, s: S) -> Self {
-        let c = s
-            .as_ref()
-            .trim_left_matches(|c| c == '-')
-            .chars()
-            .nth(0)
-            .unwrap_or('h');
-        self.help_short = Some(c);
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::mut_arg(\"version\", |a| a.short(\"v\"))` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn version_short<S: AsRef<str>>(mut self, s: S) -> Self {
-        let c = s
-            .as_ref()
-            .trim_left_matches(|c| c == '-')
-            .chars()
-            .nth(0)
-            .unwrap_or('V');
-        self.version_short = Some(c);
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::mut_arg(\"help\", |a| a.help(\"Some message\"))` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn help_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.help_message = Some(s.into());
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::mut_arg(\"version\", |a| a.short(\"Some message\"))` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn version_message<S: Into<&'a str>>(mut self, s: S) -> Self {
-        self.version_message = Some(s.into());
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `App::override_usage`. Will be removed in v3.0-beta"
-    )]
-    pub fn usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
-        self.usage_str = Some(usage.into());
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `App::override_help`. Will be removed in v3.0-beta"
-    )]
-    pub fn help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.help_str = Some(help.into());
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed to `App::help_template`. Will be removed in v3.0-beta"
-    )]
-    pub fn template<S: Into<&'b str>>(mut self, s: S) -> Self {
-        self.template = Some(s.into());
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::arg(Arg::from(&str)` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn arg_from_usage(mut self, usage: &'a str) -> Self {
-        self.args.push(Arg::from(usage));
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `App::args(&str)` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn args_from_usage(mut self, usage: &'a str) -> Self {
-        for line in usage.lines() {
-            let l = line.trim();
-            if l.is_empty() {
-                continue;
-            }
-            self.args.push(Arg::from(l));
-        }
-        self
-    }
-
-    /// **Deprecated:** Use
-    #[allow(deprecated)]
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `clap_generate crate and clap_generate::generate_completions` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn gen_completions<T: Into<OsString>, S: Into<String>>(
-        &mut self,
-        bin_name: S,
-        for_shell: Shell,
-        out_dir: T,
-    ) {
-        use std::error::Error;
-
-        let out_dir = PathBuf::from(out_dir.into());
-        let name = &*self.bin_name.as_ref().unwrap().clone();
-        let file_name = match for_shell {
-            Shell::Bash => format!("{}.bash", name),
-            Shell::Fish => format!("{}.fish", name),
-            Shell::Zsh => format!("_{}", name),
-            Shell::PowerShell => format!("_{}.ps1", name),
-            Shell::Elvish => format!("{}.elv", name),
-            _ => panic!("Unsupported shell type for completion generation"),
-        };
-
-        let mut file = match File::create(out_dir.join(file_name)) {
-            Err(why) => panic!("couldn't create completion file: {}", why.description()),
-            Ok(file) => file,
-        };
-        self.gen_completions_to(bin_name.into(), for_shell, &mut file)
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `clap_generate crate and clap_generate::generate_completions_to` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn gen_completions_to<W: Write, S: Into<String>>(
-        &mut self,
-        bin_name: S,
-        for_shell: Shell,
-        buf: &mut W,
-    ) {
-        self.bin_name = Some(bin_name.into());
-        if !self.is_set(AppSettings::Propagated) {
-            self._build(Propagation::Full);
-            self._build_bin_names();
-        }
-
-        ComplGen::new(self).generate(for_shell, buf)
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed `App::try_get_matches` to be consistent with Rust naming conventions. Will be removed in v3.0-beta"
-    )]
-    pub fn get_matches_safe(self) -> ClapResult<ArgMatches<'a>> {
-        // Start the parsing
-        self.try_get_matches_from(&mut env::args_os())
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed `App::try_get_matches_from` to be consistent with Rust naming conventions. Will be removed in v3.0-beta"
-    )]
-    pub fn get_matches_from_safe<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        self.try_get_matches_from_mut(itr)
-    }
-
-    /// **Deprecated:** Use
-    #[deprecated(
-        since = "2.30.0",
-        note = "Renamed `App::try_get_matches_from_mut` to be consistent with Rust naming conventions. Will be removed in v3.0-beta"
-    )]
-    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
-        self.try_get_matches_from_mut(itr)
-    }
-}
-
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a, 'a> {
     fn from(mut yaml: &'a Yaml) -> Self {
-        use parse::SubCommand;
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
@@ -2264,7 +1992,7 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         }
         if let Some(v) = yaml["subcommands"].as_vec() {
             for sc_yaml in v {
-                a = a.subcommand(SubCommand::from_yaml(sc_yaml));
+                a = a.subcommand(::from_yaml(sc_yaml));
             }
         }
         if let Some(v) = yaml["groups"].as_vec() {

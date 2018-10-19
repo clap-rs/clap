@@ -33,7 +33,7 @@ where
 
 pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
     let mut buf = Cursor::new(Vec::with_capacity(50));
-    let res = l.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
+    let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
     err.write_to(&mut buf).unwrap();
     let content = buf.into_inner();
@@ -50,7 +50,7 @@ pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
 
 pub fn compare_output2(l: App, args: &str, right1: &str, right2: &str, stderr: bool) -> bool {
     let mut buf = Cursor::new(Vec::with_capacity(50));
-    let res = l.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
+    let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
     let err = res.unwrap_err();
     err.write_to(&mut buf).unwrap();
     let content = buf.into_inner();
