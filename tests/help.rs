@@ -440,8 +440,8 @@ ARGS:
 
 FLAGS:
     -h, --help       Prints help information
-    -V, --version    Prints version information
     -v, --verbose    Prints out more stuff.
+    -V, --version    Prints version information
 
 OPTIONS:
     -f, --frequency <HERTZ>    The sampling frequency.
@@ -479,14 +479,14 @@ USAGE:
     myapp [arg1]
 
 ARGS:
-    <arg1>
+    <arg1>    
             some option
 
 FLAGS:
-    -h, --help
+    -h, --help       
             Prints help information
 
-    -V, --version
+    -V, --version    
             Prints version information";
 
 static HIDE_ENV_VALS: &'static str = "ctest 0.1
@@ -1451,10 +1451,10 @@ USAGE:
     ctest foo
 
 FLAGS:
-    -h, --help
+    -h, --help       
             Prints help information
 
-    -V, --version
+    -V, --version    
             Prints version information";
 
 #[test]
