@@ -14,39 +14,38 @@ bitflags! {
         const UNIFIED_HELP         = 1 << 5;
         const WAIT_ON_ERROR        = 1 << 6;
         const SC_REQUIRED_ELSE_HELP= 1 << 7;
-        const NEEDS_LONG_HELP      = 1 << 8;
-        const NEEDS_LONG_VERSION   = 1 << 9;
-        const NEEDS_SC_HELP        = 1 << 10;
-        const DISABLE_VERSION      = 1 << 11;
-        const HIDDEN               = 1 << 12;
-        const TRAILING_VARARG      = 1 << 13;
-        const NO_BIN_NAME          = 1 << 14;
-        const ALLOW_UNK_SC         = 1 << 15;
-        const UTF8_STRICT          = 1 << 16;
-        const UTF8_NONE            = 1 << 17;
-        const LEADING_HYPHEN       = 1 << 18;
-        const NO_POS_VALUES        = 1 << 19;
-        const NEXT_LINE_HELP       = 1 << 20;
-        const DERIVE_DISP_ORDER    = 1 << 21;
-        const COLORED_HELP         = 1 << 22;
-        const COLOR_ALWAYS         = 1 << 23;
-        const COLOR_AUTO           = 1 << 24;
-        const COLOR_NEVER          = 1 << 25;
-        const DONT_DELIM_TRAIL     = 1 << 26;
-        const ALLOW_NEG_NUMS       = 1 << 27;
-        const LOW_INDEX_MUL_POS    = 1 << 28;
-        const DISABLE_HELP_SC      = 1 << 29;
-        const DONT_COLLAPSE_ARGS   = 1 << 30;
-        const ARGS_NEGATE_SCS      = 1 << 31;
-        const PROPAGATE_VALS_DOWN  = 1 << 32;
-        const ALLOW_MISSING_POS    = 1 << 33;
-        const TRAILING_VALUES      = 1 << 34;
-        const VALID_NEG_NUM_FOUND  = 1 << 35;
-        const PROPAGATED           = 1 << 36;
-        const VALID_ARG_FOUND      = 1 << 37;
-        const INFER_SUBCOMMANDS    = 1 << 38;
-        const CONTAINS_LAST        = 1 << 39;
-        const ARGS_OVERRIDE_SELF   = 1 << 40;
+        const NO_AUTO_HELP         = 1 << 8;
+        const NO_AUTO_VERSION      = 1 << 9;
+        const DISABLE_VERSION      = 1 << 10;
+        const HIDDEN               = 1 << 11;
+        const TRAILING_VARARG      = 1 << 12;
+        const NO_BIN_NAME          = 1 << 13;
+        const ALLOW_UNK_SC         = 1 << 14;
+        const UTF8_STRICT          = 1 << 15;
+        const UTF8_NONE            = 1 << 16;
+        const LEADING_HYPHEN       = 1 << 17;
+        const NO_POS_VALUES        = 1 << 18;
+        const NEXT_LINE_HELP       = 1 << 19;
+        const DERIVE_DISP_ORDER    = 1 << 20;
+        const COLORED_HELP         = 1 << 21;
+        const COLOR_ALWAYS         = 1 << 22;
+        const COLOR_AUTO           = 1 << 23;
+        const COLOR_NEVER          = 1 << 24;
+        const DONT_DELIM_TRAIL     = 1 << 25;
+        const ALLOW_NEG_NUMS       = 1 << 26;
+        const LOW_INDEX_MUL_POS    = 1 << 27;
+        const DISABLE_HELP_SC      = 1 << 28;
+        const DONT_COLLAPSE_ARGS   = 1 << 29;
+        const ARGS_NEGATE_SCS      = 1 << 30;
+        const PROPAGATE_VALS_DOWN  = 1 << 31;
+        const ALLOW_MISSING_POS    = 1 << 32;
+        const TRAILING_VALUES      = 1 << 33;
+        const VALID_NEG_NUM_FOUND  = 1 << 34;
+        const PROPAGATED           = 1 << 35;
+        const VALID_ARG_FOUND      = 1 << 36;
+        const INFER_SUBCOMMANDS    = 1 << 37;
+        const CONTAINS_LAST        = 1 << 38;
+        const ARGS_OVERRIDE_SELF   = 1 << 39;
     }
 }
 
@@ -61,13 +60,7 @@ impl BitOr for AppFlags {
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(
-            Flags::NEEDS_LONG_VERSION
-                | Flags::NEEDS_LONG_HELP
-                | Flags::NEEDS_SC_HELP
-                | Flags::UTF8_NONE
-                | Flags::COLOR_AUTO,
-        )
+        AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO)
     }
 }
 
@@ -97,9 +90,8 @@ impl AppFlags {
         HidePossibleValuesInHelp => Flags::NO_POS_VALUES,
         Hidden => Flags::HIDDEN,
         LowIndexMultiplePositional => Flags::LOW_INDEX_MUL_POS,
-        NeedsLongHelp => Flags::NEEDS_LONG_HELP,
-        NeedsLongVersion => Flags::NEEDS_LONG_VERSION,
-        NeedsSubcommandHelp => Flags::NEEDS_SC_HELP,
+        NoAutoHelp => Flags::NO_AUTO_HELP,
+        NoAutoVersion => Flags::NO_AUTO_VERSION,
         NoBinaryName => Flags::NO_BIN_NAME,
         PropagateGlobalValuesDown=> Flags::PROPAGATE_VALS_DOWN,
         StrictUtf8 => Flags::UTF8_STRICT,
@@ -931,14 +923,11 @@ pub enum AppSettings {
     /// [``]: ./struct..html
     WaitOnError,
 
-    #[doc(hidden)]
-    NeedsLongVersion,
+    /// @TODO-v3: @docs write them...maybe rename
+    NoAutoHelp,
 
-    #[doc(hidden)]
-    NeedsLongHelp,
-
-    #[doc(hidden)]
-    NeedsSubcommandHelp,
+    /// @TODO-v3: @docs write them...maybe rename
+    NoAutoVersion,
 
     #[doc(hidden)]
     LowIndexMultiplePositional,

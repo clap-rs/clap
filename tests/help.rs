@@ -712,7 +712,7 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest").set_term_width(0).about(MULTI_SC_HELP);
+    let app = App::new("ctest").set_term_width(0).override_help(MULTI_SC_HELP);
     assert!(test::compare_output(
         app,
         "ctest --help",
@@ -1221,6 +1221,7 @@ fn issue_1112_setup() -> App<'static, 'static> {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
+        .global_setting(AppSettings::NoAutoHelp)
         .arg(Arg::from("-h, --help 'some help'"))
         .subcommand(App::new("foo").arg(Arg::from("-h, --help 'some help'")))
 }

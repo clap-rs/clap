@@ -111,14 +111,6 @@ where
     #[doc(hidden)]
     pub groups: Vec<ArgGroup<'a>>,
     #[doc(hidden)]
-    pub help_short: Option<char>,
-    #[doc(hidden)]
-    pub version_short: Option<char>,
-    #[doc(hidden)]
-    pub help_message: Option<&'a str>,
-    #[doc(hidden)]
-    pub version_message: Option<&'a str>,
-    #[doc(hidden)]
     pub help_headings: Vec<Option<&'a str>>,
 }
 
@@ -1536,8 +1528,6 @@ impl<'a, 'b> App<'a, 'b> {
                 .help("Prints help information");
 
             self.args.push(help);
-        } else {
-            self.settings.unset(AppSettings::NeedsLongHelp);
         }
         if !self.args.iter().any(|x| x.name == "version") {
             debugln!("App::_create_help_and_version: Building --version");
@@ -1546,8 +1536,6 @@ impl<'a, 'b> App<'a, 'b> {
                 .long("version")
                 .help("Prints version information");
             self.args.push(version);
-        } else {
-            self.settings.unset(AppSettings::NeedsLongVersion);
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
@@ -1558,8 +1546,6 @@ impl<'a, 'b> App<'a, 'b> {
                 App::new("help")
                     .about("Prints this message or the help of the given subcommand(s)"),
             );
-        } else {
-            self.settings.unset(AppSettings::NeedsSubcommandHelp);
         }
     }
 
@@ -1897,8 +1883,6 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         yaml_str!(a, yaml, template);
         yaml_str!(a, yaml, usage);
         yaml_str!(a, yaml, help);
-        yaml_str!(a, yaml, help_short);
-        yaml_str!(a, yaml, version_short);
         yaml_str!(a, yaml, help_message);
         yaml_str!(a, yaml, version_message);
         yaml_str!(a, yaml, alias);

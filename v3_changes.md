@@ -11,6 +11,9 @@
 * Ability to mutate args once they've been added to an `App`
 * `App::args` and `App::arg` are more generic
 * Can unset global settings
+* Instead of adding arg with long `--help` or `--version` you can use `App::mut_arg` to override things
+  * Caution, must fully override
+  * No longer forces auto-handle of help/ver however if still desired `AppSettings::NoAuto{Help,Version}`
 
 # How to Upgrade
 
