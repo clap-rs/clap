@@ -14,7 +14,7 @@ where
 }
 
 impl<'a, 'b> BashGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { BashGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { BashGen { p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         w!(

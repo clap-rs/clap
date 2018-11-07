@@ -27,7 +27,7 @@ where
 }
 
 impl<'a, 'b> ComplGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { ComplGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { ComplGen { p } }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {

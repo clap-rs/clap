@@ -20,7 +20,7 @@ where
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
         debugln!("ZshGen::new;");
-        ZshGen { p: p }
+        ZshGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
