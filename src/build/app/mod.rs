@@ -1360,6 +1360,152 @@ impl<'a, 'b> App<'a, 'b> {
 
         self._do_parse(&mut it.peekable())
     }
+
+    /// Adds configuration options from a [YAML document].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # #[macro_use]
+    /// # use clap::App;
+    /// let template = load_yaml!("cli.yml");
+    /// App::new("myprog")
+    ///     .add_from_yaml(template)
+    /// # ;
+    /// ```
+    /// [YAML document]: https://docs.rs/yaml-rust/0.4/yaml_rust/yaml/enum.Yaml.html
+    #[cfg(feature = "yaml")]
+    pub fn add_from_yaml(mut self, yaml: &'a Yaml) -> Self {
+        use parse::SubCommand;
+
+        macro_rules! yaml_str {
+            ($a:ident, $y:ident, $i:ident) => {
+                if let Some(v) = $y[stringify!($i)].as_str() {
+                    $a = $a.$i(v);
+                } else if $y[stringify!($i)] != Yaml::BadValue {
+                    panic!(
+                        "Failed to convert YAML value {:?} to a string",
+                        $y[stringify!($i)]
+                    );
+                }
+            };
+        }
+
+        yaml_str!(self, yaml, version);
+        yaml_str!(self, yaml, author);
+        yaml_str!(self, yaml, bin_name);
+        yaml_str!(self, yaml, about);
+        yaml_str!(self, yaml, before_help);
+        yaml_str!(self, yaml, after_help);
+        yaml_str!(self, yaml, template);
+        yaml_str!(self, yaml, usage);
+        yaml_str!(self, yaml, help);
+        yaml_str!(self, yaml, help_short);
+        yaml_str!(self, yaml, version_short);
+        yaml_str!(self, yaml, help_message);
+        yaml_str!(self, yaml, version_message);
+        yaml_str!(self, yaml, alias);
+        yaml_str!(self, yaml, visible_alias);
+
+        if let Some(v) = yaml["display_order"].as_i64() {
+            self = self.display_order(v as usize);
+        } else if yaml["display_order"] != Yaml::BadValue {
+            panic!(
+                "Failed to convert YAML value {:?} to a u64",
+                yaml["display_order"]
+            );
+        }
+        if let Some(v) = yaml["setting"].as_str() {
+            self = self.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["setting"] != Yaml::BadValue {
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
+        }
+        if let Some(v) = yaml["settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    self = self.setting(s.parse().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        } else if let Some(v) = yaml["settings"].as_str() {
+            self = self.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["settings"] != Yaml::BadValue {
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["settings"]
+            );
+        }
+        if let Some(v) = yaml["global_setting"].as_str() {
+            self = self.setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["global_setting"] != Yaml::BadValue {
+            panic!(
+                "Failed to convert YAML value {:?} to an AppSetting",
+                yaml["setting"]
+            );
+        }
+        if let Some(v) = yaml["global_settings"].as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    self = self.global_setting(s.parse().expect("unknown AppSetting found in YAML file"));
+                }
+            }
+        } else if let Some(v) = yaml["global_settings"].as_str() {
+            self = self.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
+        } else if yaml["global_settings"] != Yaml::BadValue {
+            panic!(
+                "Failed to convert YAML value {:?} to a string",
+                yaml["global_settings"]
+            );
+        }
+
+        macro_rules! vec_or_str {
+            ($a:ident, $y:ident, $as_vec:ident, $as_single:ident) => {{
+                let maybe_vec = $y[stringify!($as_vec)].as_vec();
+                if let Some(vec) = maybe_vec {
+                    for ys in vec {
+                        if let Some(s) = ys.as_str() {
+                            $a = $a.$as_single(s);
+                        } else {
+                            panic!("Failed to convert YAML value {:?} to a string", ys);
+                        }
+                    }
+                } else {
+                    if let Some(s) = $y[stringify!($as_vec)].as_str() {
+                        $a = $a.$as_single(s);
+                    } else if $y[stringify!($as_vec)] != Yaml::BadValue {
+                        panic!(
+                            "Failed to convert YAML value {:?} to either a vec or string",
+                            $y[stringify!($as_vec)]
+                        );
+                    }
+                }
+                $a
+            }};
+        }
+
+        self = vec_or_str!(self, yaml, aliases, alias);
+        self = vec_or_str!(self, yaml, visible_aliases, visible_alias);
+
+        if let Some(v) = yaml["args"].as_vec() {
+            for arg_yaml in v {
+                self = self.arg(Arg::from_yaml(arg_yaml.as_hash().unwrap()));
+            }
+        }
+        if let Some(v) = yaml["subcommands"].as_vec() {
+            for sc_yaml in v {
+                self = self.subcommand(SubCommand::from_yaml(sc_yaml));
+            }
+        }
+        if let Some(v) = yaml["groups"].as_vec() {
+            for ag_yaml in v {
+                self = self.group(ArgGroup::from(ag_yaml.as_hash().unwrap()));
+            }
+        }
+
+        self
+    }
 }
 
 // Internally used only
