@@ -827,6 +827,64 @@ fn aaos_opts() {
 }
 
 #[test]
+fn aaos_opts_two_values() {
+    // opts with two values
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val1] [val2] 'some option'"))
+        .get_matches_from_safe(vec![
+            "", "--opt", "some", "thing", "--opt", "other", "stuff",
+        ]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["other", "stuff"]
+    );
+}
+
+#[test]
+fn aaos_opts_two_values_delimiter() {
+    // opts with two values and a delimiter
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::from_usage("--opt [val1] [val2] 'some option'").require_delimiter(true))
+        .get_matches_from_safe(vec!["", "--opt=some,thing", "--opt=other,stuff"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["other", "stuff"]
+    );
+}
+
+#[test]
+fn aaos_opts_min_value() {
+    // opts with min_value
+    let res = App::new("posix")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(
+            Arg::from_usage("--opt [val] 'some option'")
+                .require_delimiter(true)
+                .min_values(0),
+        )
+        .get_matches_from_safe(vec!["", "--opt", "--opt=val1,val2"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("opt"));
+    assert_eq!(m.occurrences_of("opt"), 1);
+    assert_eq!(
+        m.values_of("opt").unwrap().collect::<Vec<_>>(),
+        &["val1", "val2"]
+    );
+}
+
+
+#[test]
 fn aaos_opts_w_other_overrides() {
     // opts with other overrides
     let res = App::new("posix")
