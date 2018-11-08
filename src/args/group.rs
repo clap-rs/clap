@@ -1,9 +1,9 @@
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
 use std::fmt::{Debug, Formatter, Result};
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+#[cfg(feature = "yaml")]
+use linked_hash_map::LinkedHashMap;
 
 /// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
 /// arguments". By placing arguments in a logical group, you can create easier requirement and
@@ -454,8 +454,8 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
-    fn from(b: &'a BTreeMap<Yaml, Yaml>) -> Self {
+impl<'a> From<&'a LinkedHashMap<Yaml, Yaml>> for ArgGroup<'a> {
+    fn from(b: &'a LinkedHashMap<Yaml, Yaml>) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {

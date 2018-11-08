@@ -548,6 +548,8 @@ extern crate unicode_width;
 extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
+#[cfg(feature = "yaml")]
+extern crate linked_hash_map;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;

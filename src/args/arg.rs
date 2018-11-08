@@ -1,5 +1,3 @@
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
 use std::rc::Rc;
 use std::ffi::{OsStr, OsString};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
@@ -10,6 +8,8 @@ use std::env;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
+#[cfg(feature = "yaml")]
+use linked_hash_map::LinkedHashMap;
 use map::VecMap;
 
 use usage_parser::UsageParser;
@@ -91,7 +91,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &BTreeMap<Yaml, Yaml>) -> Arg {
+    pub fn from_yaml(y: &LinkedHashMap<Yaml, Yaml>) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
         let name_str = name_yml.as_str().unwrap();
