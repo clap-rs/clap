@@ -1071,11 +1071,14 @@ where
                     }
                     self.cache = Some(p.b.name);
                 }
-                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.b.name);
                 let _ = self.groups_for_arg(p.b.name)
                     .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+
+                // Add value after increasing the occurrence count to ensure it is associated with
+                // the new occurence.
+                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 self.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1740,6 +1743,7 @@ where
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
 
         debug!("Parser::parse_opt; Checking for val...");
+        let mut parsed_val = None;
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
@@ -1757,7 +1761,8 @@ where
                 fv,
                 fv.starts_with(&[b'='])
             );
-            self.add_val_to_arg(opt, v, matcher)?;
+
+            parsed_val = Some(v);
         } else if needs_eq && !(empty_vals || min_vals_zero) {
             sdebugln!("None, but requires equals...Error");
             return Err(Error::empty_value(
@@ -1773,6 +1778,12 @@ where
         // Increment or create the group "args"
         self.groups_for_arg(opt.b.name)
             .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+
+        // Add value after increasing the occurrence count to ensure it is associated with the new
+        // occurence.
+        if let Some(v) = parsed_val {
+            self.add_val_to_arg(opt, v, matcher)?;
+        }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::Multiple);

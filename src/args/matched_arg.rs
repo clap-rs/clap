@@ -7,6 +7,10 @@ pub struct MatchedArg {
     #[doc(hidden)] pub occurs: u64,
     #[doc(hidden)] pub indices: Vec<usize>,
     #[doc(hidden)] pub vals: Vec<OsString>,
+    // This contains the positions in `vals` at which each occurrence starts.  The first occurrence
+    // is implicitely starting at position `0` so that `occurrences` is empty in the common case of
+    // a single occurrence.
+    #[doc(hidden)] pub occurrences: Vec<usize>,
 }
 
 impl Default for MatchedArg {
@@ -15,6 +19,7 @@ impl Default for MatchedArg {
             occurs: 1,
             indices: Vec::new(),
             vals: Vec::new(),
+            occurrences: Vec::new(),
         }
     }
 }

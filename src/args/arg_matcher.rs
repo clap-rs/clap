@@ -64,13 +64,18 @@ impl<'a> ArgMatcher<'a> {
                 return;
             }
             if let Some(ma) = self.get_mut(aa.name()) {
-                if ma.vals.len() > 1 {
-                    // swap_remove(0) would be O(1) but does not preserve order, which
-                    // we need
-                    ma.vals.remove(0);
+                if ma.occurs > 1 {
+                    if aa.takes_value() {
+                        // Only keep values for the last occurrence
+                        let len = ma.vals.len();
+                        let keep = len - ma.occurrences.pop().unwrap_or(len);
+
+                        ma.vals.rotate_right(keep);
+                        ma.vals.truncate(keep);
+                    }
+
                     ma.occurs = 1;
-                } else if !aa.takes_value() && ma.occurs > 1 {
-                    ma.occurs = 1;
+                    ma.occurrences.clear();
                 }
             }
         }
@@ -155,6 +160,11 @@ impl<'a> ArgMatcher<'a> {
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);
         if let Some(a) = self.get_mut(arg) {
+            if a.occurs > 0 {
+                // If not the first occurrence, we need to record the position in the vals vector
+                // at which this occurrence starts
+                a.occurrences.push(a.vals.len());
+            }
             a.occurs += 1;
             return;
         }
@@ -174,6 +184,7 @@ impl<'a> ArgMatcher<'a> {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
+            occurrences: Vec::new(),
         });
         ma.vals.push(val.to_owned());
     }
@@ -183,6 +194,7 @@ impl<'a> ArgMatcher<'a> {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::new(),
+            occurrences: Vec::new(),
         });
         ma.indices.push(idx);
     }
