@@ -31,7 +31,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("speed")
     ///         .possible_value("fast")
     ///         .possible_value("slow"))
-    ///     .get_matches_from_safe(vec!["prog", "other"]);
+    ///     .try_get_matches_from(vec!["prog", "other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
@@ -46,13 +46,13 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
     ///     .arg(Arg::from("--flag 'some flag'"))
-    ///     .get_matches_from_safe(vec!["prog", "--other"]);
+    ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     UnknownArgument,
 
-    /// Occurs when the user provides an unrecognized [`SubCommand`] which meets the threshold for
+    /// Occurs when the user provides an unrecognized [``] which meets the threshold for
     /// being similar enough to an existing subcommand.
     /// If it doesn't meet the threshold, or the 'suggestions' feature is disabled,
     /// the more general [`UnknownArgument`] error is returned.
@@ -61,22 +61,22 @@ pub enum ErrorKind {
     ///
     #[cfg_attr(not(feature = "suggestions"), doc = " ```no_run")]
     #[cfg_attr(feature = "suggestions", doc = " ```")]
-    /// # use clap::{App, Arg, ErrorKind, SubCommand};
+    /// # use clap::{App, Arg, ErrorKind, };
     /// let result = App::new("prog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!["prog", "confi"]);
+    ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     InvalidSubcommand,
 
-    /// Occurs when the user provides an unrecognized [`SubCommand`] which either
+    /// Occurs when the user provides an unrecognized [``] which either
     /// doesn't meet the threshold for being similar enough to an existing subcommand,
     /// or the 'suggestions' feature is disabled.
     /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
@@ -87,18 +87,18 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, SubCommand};
+    /// # use clap::{App, Arg, ErrorKind, };
     /// let result = App::new("prog")
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")
     ///             .index(1)))
-    ///     .get_matches_from_safe(vec!["prog", "help", "nothing"]);
+    ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`InvalidSubcommand`]: ./enum.ErrorKind.html#variant.InvalidSubcommand
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     UnrecognizedSubcommand,
@@ -229,7 +229,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .arg(Arg::with_name("debug")
     ///         .required(true))
-    ///     .get_matches_from_safe(vec!["prog"]);
+    ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
@@ -241,11 +241,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings, SubCommand, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// let err = App::new("prog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog",
     ///     ]);
     /// assert!(err.is_err());
@@ -255,24 +255,24 @@ pub enum ErrorKind {
     /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     MissingSubcommand,
 
-    /// Occurs when either an argument or [`SubCommand`] is required, as defined by
+    /// Occurs when either an argument or [``] is required, as defined by
     /// [`AppSettings::ArgRequiredElseHelp`], but the user did not provide one.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind, SubCommand};
+    /// # use clap::{App, Arg, AppSettings, ErrorKind, };
     /// let result = App::new("prog")
     ///     .setting(AppSettings::ArgRequiredElseHelp)
-    ///     .subcommand(SubCommand::with_name("config")
+    ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::with_name("config_file")
     ///             .help("The configuration file to use")))
-    ///     .get_matches_from_safe(vec!["prog"]);
+    ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingArgumentOrSubcommand);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [``]: ./struct..html
     /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     MissingArgumentOrSubcommand,
 
@@ -286,7 +286,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug")
     ///         .multiple(false))
-    ///     .get_matches_from_safe(vec!["prog", "--debug", "--debug"]);
+    ///     .try_get_matches_from(vec!["prog", "--debug", "--debug"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
     /// ```
@@ -311,7 +311,7 @@ pub enum ErrorKind {
     ///     .arg(Arg::with_name("utf8")
     ///         .short('u')
     ///         .takes_value(true))
-    ///     .get_matches_from_safe(vec![OsString::from("myprog"),
+    ///     .try_get_matches_from(vec![OsString::from("myprog"),
     ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
@@ -331,7 +331,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .get_matches_from_safe(vec!["prog", "--help"]);
+    ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::HelpDisplayed);
     /// ```
@@ -345,7 +345,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .get_matches_from_safe(vec!["prog", "--version"]);
+    ///     .try_get_matches_from(vec!["prog", "--version"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::VersionDisplayed);
     /// ```

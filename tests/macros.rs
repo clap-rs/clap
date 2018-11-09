@@ -110,7 +110,7 @@ fn quoted_arg_long_name() {
     );
 
     let matches = app
-        .get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+        .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
@@ -148,7 +148,7 @@ fn quoted_arg_name() {
     );
 
     let matches = app
-        .get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+        .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
@@ -166,7 +166,7 @@ fn group_macro() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -186,7 +186,7 @@ fn group_macro_set_multiple() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -208,7 +208,7 @@ fn group_macro_set_not_multiple() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
@@ -227,7 +227,7 @@ fn group_macro_set_required() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    let result = app.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -246,7 +246,7 @@ fn group_macro_set_not_required() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    let result = app.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(!matches.is_present("difficulty"));

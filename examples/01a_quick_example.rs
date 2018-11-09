@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, SubCommand};
+use clap::{App, };
 
 fn main() {
     // This example shows how to create an application with several arguments using usage strings, which can be
@@ -35,15 +35,13 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .args_from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'
-                                         <output> 'Sets an optional output file'
-                                         -d... 'Turn debugging information on'",
-        )
+        .arg("-c, --config=[FILE] 'Sets a custom config file'")
+        .arg("<output> 'Sets an optional output file'")
+        .arg("-d... 'Turn debugging information on'")
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .about("does testing things")
-                .arg_from_usage("-l, --list 'lists test values'"),
+                .arg("-l, --list 'lists test values'"),
         )
         .get_matches();
 

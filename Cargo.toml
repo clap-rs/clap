@@ -1,7 +1,7 @@
 [package]
 
 name = "clap"
-version = "3.0.0-alpha.1"
+version = "3.0.0-beta.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
 exclude = [
 	".github/*",
@@ -82,13 +82,13 @@ debug       = [] # Enables debug messages
 no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 doc         = ["yaml"] # All the features which add to documentation
 
-[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = true
-debug-assertions = false
-codegen-units = 1
+# [profile.release]
+# opt-level = 3
+# debug = false
+# rpath = false
+# lto = true
+# debug-assertions = false
+# codegen-units = 1
 
 [profile.dev]
 opt-level = 0

@@ -23,7 +23,7 @@ fn help_message() {
     let yml = load_yaml!("app.yml");
     let mut app = App::from_yaml(yml);
     // Generate the full help message!
-    let _ = app.get_matches_from_safe_borrow(Vec::<String>::new());
+    let _ = app.try_get_matches_from_mut(Vec::<String>::new());
 
     let mut help_buffer = Vec::new();
     app.write_help(&mut help_buffer).unwrap();
@@ -38,7 +38,7 @@ fn author() {
     let yml = load_yaml!("app.yml");
     let mut app = App::from_yaml(yml);
     // Generate the full help message!
-    let _ = app.get_matches_from_safe_borrow(Vec::<String>::new());
+    let _ = app.try_get_matches_from_mut(Vec::<String>::new());
 
     let mut help_buffer = Vec::new();
     app.write_help(&mut help_buffer).unwrap();

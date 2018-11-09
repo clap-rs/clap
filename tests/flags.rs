@@ -18,7 +18,7 @@ fn flag_using_short() {
 fn lots_o_flags_sep() {
     let r = App::new("opts")
         .arg(Arg::from("-o... 'some flag'"))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
@@ -52,7 +52,7 @@ fn lots_o_flags_sep() {
 fn lots_o_flags_combined() {
     let r = App::new("opts")
         .arg(Arg::from("-o... 'some flag'"))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",

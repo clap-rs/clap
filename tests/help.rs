@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind, SubCommand};
+use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind, };
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -440,8 +440,8 @@ ARGS:
 
 FLAGS:
     -h, --help       Prints help information
-    -V, --version    Prints version information
     -v, --verbose    Prints out more stuff.
+    -V, --version    Prints version information
 
 OPTIONS:
     -f, --frequency <HERTZ>    The sampling frequency.
@@ -541,7 +541,7 @@ fn setup() -> App<'static, 'static> {
 
 #[test]
 fn help_short() {
-    let m = setup().get_matches_from_safe(vec!["myprog", "-h"]);
+    let m = setup().try_get_matches_from(vec!["myprog", "-h"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -549,7 +549,7 @@ fn help_short() {
 
 #[test]
 fn help_long() {
-    let m = setup().get_matches_from_safe(vec!["myprog", "--help"]);
+    let m = setup().try_get_matches_from(vec!["myprog", "--help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -557,7 +557,7 @@ fn help_long() {
 
 #[test]
 fn help_no_subcommand() {
-    let m = setup().get_matches_from_safe(vec!["myprog", "help"]);
+    let m = setup().try_get_matches_from(vec!["myprog", "help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
@@ -567,11 +567,11 @@ fn help_no_subcommand() {
 fn help_subcommand() {
     let m = setup()
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .about("tests things")
-                .arg_from_usage("-v --verbose 'with verbosity'"),
+                .arg("-v --verbose 'with verbosity'"),
         )
-        .get_matches_from_safe(vec!["myprog", "help"]);
+        .try_get_matches_from(vec!["myprog", "help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -643,7 +643,7 @@ fn args_with_last_usage() {
 
 #[test]
 fn subcommand_short_help() {
-    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "subcmd", "-h"]);
+    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "-h"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -651,7 +651,7 @@ fn subcommand_short_help() {
 
 #[test]
 fn subcommand_long_help() {
-    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "subcmd", "--help"]);
+    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "--help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -659,7 +659,7 @@ fn subcommand_long_help() {
 
 #[test]
 fn subcommand_help_rev() {
-    let m = test::complex_app().get_matches_from_safe(vec!["clap-test", "help", "subcmd"]);
+    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "help", "subcmd"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -693,15 +693,13 @@ fn after_and_before_help_output() {
 #[test]
 fn multi_level_sc_help() {
     let app = App::new("ctest").subcommand(
-        SubCommand::with_name("subcmd").subcommand(
-            SubCommand::with_name("multi")
+        App::new("subcmd").subcommand(
+            App::new("multi")
                 .about("tests subcommands")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .version("0.1")
-                .args_from_usage(
-                    "-f, --flag                    'tests flags'
-                    -o, --option [scoption]...    'tests options'",
-                ),
+                .arg("-f, --flag                    'tests flags'")
+                .arg("-o, --option [scoption]...    'tests options'")
         ),
     );
     assert!(test::compare_output(
@@ -714,7 +712,7 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest").set_term_width(0).help(MULTI_SC_HELP);
+    let app = App::new("ctest").set_term_width(0).override_help(MULTI_SC_HELP);
     assert!(test::compare_output(
         app,
         "ctest --help",
@@ -836,7 +834,7 @@ fn issue_626_variable_panic() {
                d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
                Le café est souvent une contribution majeure aux exportations des régions productrices.")
                .takes_value(true))
-            .get_matches_from_safe(vec!["ctest", "--help"]);
+            .try_get_matches_from(vec!["ctest", "--help"]);
     }
 }
 
@@ -993,7 +991,7 @@ fn issue_760() {
 
 #[test]
 fn ripgrep_usage() {
-    let app = App::new("ripgrep").version("0.5").usage(
+    let app = App::new("ripgrep").version("0.5").override_usage(
         "rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
@@ -1007,14 +1005,14 @@ fn ripgrep_usage() {
 fn ripgrep_usage_using_templates() {
     let app = App::new("ripgrep")
         .version("0.5")
-        .usage(
+        .override_usage(
             "
     rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
     rg [OPTIONS] --type-list",
         )
-        .template(
+        .help_template(
             "\
 {bin} {version}
 
@@ -1032,9 +1030,9 @@ fn sc_negates_reqs() {
     let app = App::new("prog")
         .version("1.0")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg_from_usage("-o, --opt <FILE> 'tests options'")
+        .arg("-o, --opt <FILE> 'tests options'")
         .arg(Arg::with_name("PATH").help("help"))
-        .subcommand(SubCommand::with_name("test"));
+        .subcommand(App::new("test"));
     assert!(test::compare_output(
         app,
         "prog --help",
@@ -1047,10 +1045,8 @@ fn sc_negates_reqs() {
 fn hidden_args() {
     let app = App::new("prog")
         .version("1.0")
-        .args_from_usage(
-            "-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'",
-        )
+        .arg("-f, --flag 'testing flags'")
+        .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("pos").hidden(true));
     assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
 }
@@ -1060,12 +1056,10 @@ fn args_negate_sc() {
     let app = App::new("prog")
         .version("1.0")
         .setting(AppSettings::ArgsNegateSubcommands)
-        .args_from_usage(
-            "-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'",
-        )
+        .arg("-f, --flag 'testing flags'")
+        .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("PATH").help("help"))
-        .subcommand(SubCommand::with_name("test"));
+        .subcommand(App::new("test"));
     assert!(test::compare_output(
         app,
         "prog --help",
@@ -1078,12 +1072,10 @@ fn args_negate_sc() {
 fn issue_1046_hidden_scs() {
     let app = App::new("prog")
         .version("1.0")
-        .args_from_usage(
-            "-f, --flag 'testing flags'
-                          -o, --opt [FILE] 'tests options'",
-        )
+        .arg("-f, --flag 'testing flags'")
+        .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("PATH").help("some"))
-        .subcommand(SubCommand::with_name("test").setting(AppSettings::Hidden));
+        .subcommand(App::new("test").setting(AppSettings::Hidden));
     assert!(test::compare_output(
         app,
         "prog --help",
@@ -1108,10 +1100,8 @@ fn customize_version_and_help() {
         .version("0.1")
         .author("Nobody <odysseus@example.com>")
         .about("You can customize the version and help text")
-        .help_short("H")
-        .help_message("Print help information")
-        .version_short("v")
-        .version_message("Print version information");
+        .mut_arg("help", |h| h.short('H').long("help").help("Print help information"))
+        .mut_arg("version", |v| v.short('v').long("version").help("Print version information"));
     assert!(test::compare_output(
         app,
         "customize --help",
@@ -1170,7 +1160,7 @@ fn last_arg_mult_usage_req_with_sc() {
                 .required(true)
                 .help("some"),
         )
-        .subcommand(SubCommand::with_name("test").about("some"));
+        .subcommand(App::new("test").about("some"));
     assert!(test::compare_output(
         app,
         "last --help",
@@ -1192,7 +1182,7 @@ fn last_arg_mult_usage_with_sc() {
                 .last(true)
                 .help("some"),
         )
-        .subcommand(SubCommand::with_name("test").about("some"));
+        .subcommand(App::new("test").about("some"));
     assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
 }
 
@@ -1231,13 +1221,14 @@ fn issue_1112_setup() -> App<'static, 'static> {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
+        .global_setting(AppSettings::NoAutoHelp)
         .arg(Arg::from("-h, --help 'some help'"))
-        .subcommand(SubCommand::with_name("foo").arg(Arg::from("-h, --help 'some help'")))
+        .subcommand(App::new("foo").arg(Arg::from("-h, --help 'some help'")))
 }
 
 #[test]
 fn issue_1112_override_help_long() {
-    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "--help"]);
+    let m = issue_1112_setup().try_get_matches_from(vec!["test", "--help"]);
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("help"));
@@ -1245,7 +1236,7 @@ fn issue_1112_override_help_long() {
 
 #[test]
 fn issue_1112_override_help_short() {
-    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "-h"]);
+    let m = issue_1112_setup().try_get_matches_from(vec!["test", "-h"]);
 
     assert!(m.is_ok());
     assert!(m.unwrap().is_present("help"));
@@ -1253,7 +1244,7 @@ fn issue_1112_override_help_short() {
 
 #[test]
 fn issue_1112_override_help_subcmd_long() {
-    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "foo", "--help"]);
+    let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "--help"]);
 
     assert!(m.is_ok());
     assert!(
@@ -1266,7 +1257,7 @@ fn issue_1112_override_help_subcmd_long() {
 
 #[test]
 fn issue_1112_override_help_subcmd_short() {
-    let m = issue_1112_setup().get_matches_from_safe(vec!["test", "foo", "-h"]);
+    let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "-h"]);
 
     assert!(m.is_ok());
     assert!(
@@ -1470,7 +1461,7 @@ FLAGS:
 #[test]
 fn show_long_about_issue_897() {
     let app = App::new("ctest").version("0.1").subcommand(
-        SubCommand::with_name("foo")
+        App::new("foo")
             .version("0.1")
             .about("About foo")
             .long_about("Long about foo"),
@@ -1496,7 +1487,7 @@ FLAGS:
 #[test]
 fn show_short_about_issue_897() {
     let app = App::new("ctest").version("0.1").subcommand(
-        SubCommand::with_name("foo")
+        App::new("foo")
             .version("0.1")
             .about("About foo")
             .long_about("Long about foo"),

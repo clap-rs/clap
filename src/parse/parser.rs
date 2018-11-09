@@ -424,7 +424,7 @@ where
                             );
                             if is_match {
                                 let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
-                                if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
+                                if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
                                     self.parse_help_subcommand(it)?;
                                 }
                                 subcmd_name = Some(sc_name.to_owned());
@@ -611,7 +611,7 @@ where
                     sc_m.add_val_to("", &a);
                 }
 
-                matcher.subcommand(SubCommand {
+                matcher.subcommand( SubCommand{
                     name: sc_name,
                     matches: sc_m.into(),
                 });
@@ -886,7 +886,7 @@ where
             let name = sc.name.clone();
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
-            matcher.subcommand(SubCommand {
+            matcher.subcommand( SubCommand{
                 name: name,
                 matches: sc_matcher.into(),
             });
@@ -905,11 +905,11 @@ where
 
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if arg == "help" && self.app.settings.is_set(AS::NeedsLongHelp) {
+        if arg == "help" && !self.app.settings.is_set(AS::NoAutoHelp) {
             sdebugln!("Help");
             return Err(self.help_err(true));
         }
-        if arg == "version" && self.app.settings.is_set(AS::NeedsLongVersion) {
+        if arg == "version" && !self.app.settings.is_set(AS::NoAutoVersion) {
             sdebugln!("Version");
             return Err(self.version_err(true));
         }
@@ -926,16 +926,20 @@ where
         );
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if let Some(h) = self.app.help_short {
-            if arg == h && self.app.settings.is_set(AS::NeedsLongHelp) {
-                sdebugln!("Help");
-                return Err(self.help_err(false));
+        if let Some(help) = self.app.find("help") {
+            if let Some(h) = help.short {
+                if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
+                    sdebugln!("Help");
+                    return Err(self.help_err(false));
+                }
             }
         }
-        if let Some(v) = self.app.version_short {
-            if arg == v && self.app.settings.is_set(AS::NeedsLongVersion) {
-                sdebugln!("Version");
-                return Err(self.version_err(false));
+        if let Some(version) = self.app.find("version") {
+            if let Some(v) = version.short {
+                if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
+                    sdebugln!("Version");
+                    return Err(self.version_err(false));
+                }
             }
         }
         sdebugln!("Neither");

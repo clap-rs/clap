@@ -46,7 +46,7 @@ macro_rules! load_yaml {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
@@ -92,7 +92,7 @@ macro_rules! value_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t_or_exit!(matches.value_of("length"), u32);
@@ -136,7 +136,7 @@ macro_rules! value_t_or_exit {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
@@ -198,7 +198,7 @@ macro_rules! values_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
@@ -578,7 +578,7 @@ macro_rules! app_from_crate {
     };
 }
 
-/// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
+/// Build `App`, `Arg`s, ``s and `Group`s with Usage-string like input
 /// but without the associated parsing runtime cost.
 ///
 /// `clap_app!` also supports several shorthand syntaxes.
@@ -701,7 +701,7 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.subcommand(
-                clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+                clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
             ))
             $($tt)*
         }
@@ -789,7 +789,7 @@ macro_rules! clap_app {
 
 // Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
-        clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+        clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
     };
 // Start the magic
     (($name:expr) => $($tail:tt)*) => {{

@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, ErrorKind, SubCommand};
+use clap::{App, Arg, ErrorKind, };
 
 #[test]
 fn option_long() {
@@ -12,7 +12,7 @@ fn option_long() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "--option", "val1", "--option", "val2", "--option", "val3",
         ]);
 
@@ -37,7 +37,7 @@ fn option_short() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -61,7 +61,7 @@ fn option_mixed() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "val1", "--option", "val2", "--option", "val3", "-o", "val4",
         ]);
 
@@ -87,7 +87,7 @@ fn option_exact_exact() {
                 .multiple(true)
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -110,7 +110,7 @@ fn option_exact_exact_not_mult() {
                 .takes_value(true)
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -134,7 +134,7 @@ fn option_exact_exact_mult() {
                 .multiple(true)
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
         ]);
 
@@ -160,7 +160,7 @@ fn option_exact_less() {
                 .multiple(true)
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
@@ -177,7 +177,7 @@ fn option_exact_more() {
                 .multiple(true)
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
@@ -196,7 +196,7 @@ fn option_min_exact() {
                 .multiple(true)
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -220,7 +220,7 @@ fn option_min_less() {
                 .multiple(true)
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooFewValues);
@@ -238,7 +238,7 @@ fn option_short_min_more_mult_occurs() {
                 .multiple(true)
                 .min_values(3),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
@@ -267,7 +267,7 @@ fn option_short_min_more_single_occur() {
                 .multiple(true)
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
+        .try_get_matches_from(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -293,7 +293,7 @@ fn option_max_exact() {
                 .multiple(true)
                 .max_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -317,7 +317,7 @@ fn option_max_less() {
                 .multiple(true)
                 .max_values(3),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1", "-o", "val2"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -341,7 +341,7 @@ fn option_max_more() {
                 .multiple(true)
                 .max_values(3),
         )
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
@@ -357,7 +357,7 @@ fn positional() {
                 .help("multiple positionals")
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -378,7 +378,7 @@ fn positional_exact_exact() {
                 .help("multiple positionals")
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -399,7 +399,7 @@ fn positional_exact_less() {
                 .help("multiple positionals")
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
@@ -413,7 +413,7 @@ fn positional_exact_more() {
                 .help("multiple positionals")
                 .number_of_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
@@ -427,7 +427,7 @@ fn positional_min_exact() {
                 .help("multiple positionals")
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -448,7 +448,7 @@ fn positional_min_less() {
                 .help("multiple positionals")
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooFewValues);
@@ -462,7 +462,7 @@ fn positional_min_more() {
                 .help("multiple positionals")
                 .min_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -483,7 +483,7 @@ fn positional_max_exact() {
                 .help("multiple positionals")
                 .max_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -504,7 +504,7 @@ fn positional_max_less() {
                 .help("multiple positionals")
                 .max_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -525,7 +525,7 @@ fn positional_max_more() {
                 .help("multiple positionals")
                 .max_values(3),
         )
-        .get_matches_from_safe(vec!["myprog", "val1", "val2", "val3", "val4"]);
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
@@ -542,7 +542,7 @@ fn sep_long_equals() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "--option=val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -566,7 +566,7 @@ fn sep_long_space() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "--option", "val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "--option", "val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -590,7 +590,7 @@ fn sep_short_equals() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "-o=val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "-o=val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -614,7 +614,7 @@ fn sep_short_space() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "-o", "val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -638,7 +638,7 @@ fn sep_short_no_space() {
                 .takes_value(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "-oval1,val2,val3"]);
+        .try_get_matches_from(vec!["", "-oval1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -660,7 +660,7 @@ fn sep_positional() {
                 .use_delimiter(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["", "val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -683,7 +683,7 @@ fn different_sep() {
                 .takes_value(true)
                 .value_delimiter(";"),
         )
-        .get_matches_from_safe(vec!["", "--option=val1;val2;val3"]);
+        .try_get_matches_from(vec!["", "--option=val1;val2;val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -704,7 +704,7 @@ fn different_sep_positional() {
                 .help("multiple options")
                 .value_delimiter(";"),
         )
-        .get_matches_from_safe(vec!["", "val1;val2;val3"]);
+        .try_get_matches_from(vec!["", "val1;val2;val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -727,7 +727,7 @@ fn no_sep() {
                 .takes_value(true)
                 .use_delimiter(false),
         )
-        .get_matches_from_safe(vec!["", "--option=val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -745,7 +745,7 @@ fn no_sep_positional() {
                 .help("multiple options")
                 .use_delimiter(false),
         )
-        .get_matches_from_safe(vec!["", "val1,val2,val3"]);
+        .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -767,7 +767,7 @@ fn req_delimiter_long() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec!["", "--option", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "--option", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -796,7 +796,7 @@ fn req_delimiter_long_with_equal() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec!["", "--option=val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "--option=val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -825,7 +825,7 @@ fn req_delimiter_short_with_space() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec!["", "-o", "val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -854,7 +854,7 @@ fn req_delimiter_short_with_no_space() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec!["", "-oval1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "-oval1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -883,7 +883,7 @@ fn req_delimiter_short_with_equal() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec!["", "-o=val1", "val2", "val3"]);
+        .try_get_matches_from(vec!["", "-o=val1", "val2", "val3"]);
 
     assert!(m.is_ok());
     let m = m.unwrap();
@@ -913,7 +913,7 @@ fn req_delimiter_complex() {
                 .takes_value(true),
         )
         .arg(Arg::with_name("args").multiple(true).index(1))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "",
             "val1",
             "-oval2",
@@ -974,7 +974,7 @@ fn low_index_positional_not_required() {
                 .multiple(true),
         )
         .arg(Arg::with_name("target").index(2))
-        .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
 }
 
 #[test]
@@ -993,7 +993,7 @@ fn low_index_positional_last_multiple_too() {
                 .required(true)
                 .multiple(true),
         )
-        .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
 }
 
 #[test]
@@ -1008,7 +1008,7 @@ fn low_index_positional_too_far_back() {
         )
         .arg(Arg::with_name("target").required(true).index(2))
         .arg(Arg::with_name("target2").required(true).index(3))
-        .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
 }
 
 #[test]
@@ -1021,7 +1021,7 @@ fn low_index_positional() {
                 .multiple(true),
         )
         .arg(Arg::with_name("target").index(2).required(true))
-        .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();
@@ -1041,7 +1041,7 @@ fn low_index_positional() {
 fn low_index_positional_in_subcmd() {
     let m = App::new("lip")
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .arg(
                     Arg::with_name("files")
                         .index(1)
@@ -1050,7 +1050,7 @@ fn low_index_positional_in_subcmd() {
                 )
                 .arg(Arg::with_name("target").index(2).required(true)),
         )
-        .get_matches_from_safe(vec!["lip", "test", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec!["lip", "test", "file1", "file2", "file3", "target"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();
@@ -1078,7 +1078,7 @@ fn low_index_positional_with_option() {
         )
         .arg(Arg::with_name("target").index(2).required(true))
         .arg(Arg::with_name("opt").long("option").takes_value(true))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "lip", "file1", "file2", "file3", "target", "--option", "test",
         ]);
 
@@ -1108,7 +1108,7 @@ fn low_index_positional_with_flag() {
         )
         .arg(Arg::with_name("target").index(2).required(true))
         .arg(Arg::with_name("flg").long("flag"))
-        .get_matches_from_safe(vec!["lip", "file1", "file2", "file3", "target", "--flag"]);
+        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target", "--flag"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();
@@ -1135,7 +1135,7 @@ fn multiple_value_terminator_option() {
                 .multiple(true),
         )
         .arg(Arg::with_name("other"))
-        .get_matches_from_safe(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
+        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();
@@ -1161,7 +1161,7 @@ fn multiple_value_terminator_option_other_arg() {
         )
         .arg(Arg::with_name("other"))
         .arg(Arg::with_name("flag").short('F'))
-        .get_matches_from_safe(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
+        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     let m = m.unwrap();
@@ -1186,7 +1186,7 @@ fn multiple_vals_with_hyphen() {
                 .value_terminator(";"),
         )
         .arg(Arg::with_name("location"))
-        .get_matches_from_safe(vec![
+        .try_get_matches_from(vec![
             "do",
             "find",
             "-type",

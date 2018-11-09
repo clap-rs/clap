@@ -5,7 +5,7 @@ mod test {
 
     use regex::Regex;
 
-    use clap::{App, Arg, SubCommand, ArgGroup};
+    use clap::{App, Arg, ArgGroup};
 
     fn compare<S, S2>(l: S, r: S2) -> bool
         where S: AsRef<str>,
@@ -31,7 +31,7 @@ mod test {
 
     pub fn compare_output(l: App, args: &str, right: &str, stderr: bool) -> bool {
         let mut buf = Cursor::new(Vec::with_capacity(50));
-        let res = l.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
+        let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
         let err = res.unwrap_err();
         err.write_to(&mut buf).unwrap();
         let content = buf.into_inner();
@@ -43,7 +43,7 @@ mod test {
 
     pub fn compare_output2(l: App, args: &str, right1: &str, right2: &str, stderr: bool) -> bool {
         let mut buf = Cursor::new(Vec::with_capacity(50));
-        let res = l.get_matches_from_safe(args.split(' ').collect::<Vec<_>>());
+        let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
         let err = res.unwrap_err();
         err.write_to(&mut buf).unwrap();
         let content = buf.into_inner();
@@ -55,15 +55,14 @@ mod test {
     // Legacy tests from the pyhton script days
 
     pub fn complex_app() -> App<'static, 'static> {
-        let args = "-o --option=[opt]... 'tests options'
-                    [positional] 'tests positionals'";
         let opt3_vals = ["fast", "slow"];
         let pos3_vals = ["vi", "emacs"];
         App::new("clap-test")
             .version("v1.4.8")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .args_from_usage(args)
+            .arg("-o --option=[opt]... 'tests options'")
+            .arg("[positional] 'tests positionals'")
             .arg(Arg::from("-f --flag... 'tests flags'")
                 .global(true))
             .args(&[
@@ -77,12 +76,12 @@ mod test {
                 Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
                 Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3)
             ])
-            .subcommand(SubCommand::with_name("subcmd")
+            .subcommand(App::new("subcmd")
                                     .about("tests subcommands")
                                     .version("0.1")
                                     .author("Kevin K. <kbknapp@gmail.com>")
-                                    .arg_from_usage("-o --option [scoption]... 'tests options'")
-                                    .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests other args'")
-                                    .arg_from_usage("[scpositional] 'tests positionals'"))
+                                    .arg("-o --option [scoption]... 'tests options'")
+                                    .arg("-s --subcmdarg [subcmdarg] 'tests other args'")
+                                    .arg("[scpositional] 'tests positionals'"))
     }
 }
