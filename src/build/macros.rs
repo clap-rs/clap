@@ -77,10 +77,28 @@ macro_rules! yaml_opt_str {
 }
 
 #[cfg(feature = "yaml")]
+macro_rules! yaml_char {
+    ($v:expr) => {{
+        $v.as_str()
+            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
+            .chars()
+            .next()
+            .unwrap_or_else(|| panic!("Expected char"))
+    }};
+}
+
+#[cfg(feature = "yaml")]
 macro_rules! yaml_str {
     ($v:expr) => {{
         $v.as_str()
             .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
+    }};
+}
+
+#[cfg(feature = "yaml")]
+macro_rules! yaml_to_char {
+    ($a:ident, $v:ident, $c:ident) => {{
+        $a.$c(yaml_char!($v))
     }};
 }
 

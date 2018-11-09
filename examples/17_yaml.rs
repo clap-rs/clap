@@ -13,6 +13,8 @@
 
 // Using yaml requires calling a clap macro `load_yaml!()` so we must use the '#[macro_use]'
 // directive
+// Note: If you're using clap as a dependency and don't have a feature for your users called
+// "yaml", you'll need to remove the #[cfg(feature = "yaml")] conditional compilation attribute
 #[cfg(feature = "yaml")]
 #[macro_use]
 extern crate clap;

@@ -163,7 +163,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
         for (k, v) in arg_settings.iter() {
             a = match k.as_str().unwrap() {
-                "short" => yaml_to_str!(a, v, short),
+                "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
                 "aliases" => yaml_vec_or_str!(v, a, alias),
                 "help" => yaml_to_str!(a, v, help),
