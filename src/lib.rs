@@ -516,7 +516,7 @@
 //! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/3.0.0-alpha.1")]
+#![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.1")]
 #![deny(
     missing_docs,
     missing_debug_implementations,

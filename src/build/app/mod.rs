@@ -804,11 +804,10 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// App::new("app")
-    ///     .args_from_usage(
-    ///         "--set-ver [ver] 'set the version manually'
-    ///          --major         'auto increase major'
-    ///          --minor         'auto increase minor'
-    ///          --patch         'auto increase patch'")
+    ///     .arg("--set-ver [ver] 'set the version manually'")
+    ///     .arg("--major 'auto increase major'")
+    ///     .arg("--minor 'auto increase minor'")
+    ///     .arg("--patch 'auto increase patch'")
     ///     .group(ArgGroup::with_name("vers")
     ///          .args(&["set-ver", "major", "minor","patch"])
     ///          .required(true))
@@ -827,13 +826,12 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```no_run
     /// # use clap::{App, ArgGroup};
     /// App::new("app")
-    ///     .args_from_usage(
-    ///         "--set-ver [ver] 'set the version manually'
-    ///          --major         'auto increase major'
-    ///          --minor         'auto increase minor'
-    ///          --patch         'auto increase patch'
-    ///          -c [FILE]       'a config file'
-    ///          -i [IFACE]      'an interface'")
+    ///     .arg("--set-ver [ver] 'set the version manually'")
+    ///     .arg("--major         'auto increase major'")
+    ///     .arg("--minor         'auto increase minor'")
+    ///     .arg("--patch         'auto increase patch'")
+    ///     .arg("-c [FILE]       'a config file'")
+    ///     .arg("-i [IFACE]      'an interface'")
     ///     .groups(&[
     ///         ArgGroup::with_name("vers")
     ///             .args(&["set-ver", "major", "minor","patch"])
@@ -1520,21 +1518,26 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
-        if !self.args.iter().any(|x| x.name == "help") {
+        if !(self.args.iter().any(|x| x.long == Some("help")) || self.args.iter().any(|x| x.name == "help")){
             debugln!("App::_create_help_and_version: Building --help");
-            let help = Arg::with_name("help")
-                .short('h')
+            let mut help = Arg::with_name("help")
                 .long("help")
                 .help("Prints help information");
+            if !self.args.iter().any(|x| x.short == Some('h')) {
+                help = help.short('h');
+            }
 
             self.args.push(help);
         }
-        if !self.args.iter().any(|x| x.name == "version") {
+        if !(self.args.iter().any(|x| x.long == Some("version")) || self.args.iter().any(|x| x.name == "version") || self.is_set(AppSettings::DisableVersion)){
             debugln!("App::_create_help_and_version: Building --version");
-            let version = Arg::with_name("version")
-                .short('V')
+            let mut version = Arg::with_name("version")
                 .long("version")
                 .help("Prints version information");
+            if !self.args.iter().any(|x| x.short == Some('V')) {
+                version = version.short('V');
+            }
+
             self.args.push(version);
         }
         if self.has_subcommands()
