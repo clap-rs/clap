@@ -10,6 +10,8 @@ use args::{ArgMatches, MatchedArg, SubCommand};
 use args::AnyArg;
 use args::settings::ArgSettings;
 
+use INTERNAL_ERROR_MSG;
+
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
@@ -68,9 +70,15 @@ impl<'a> ArgMatcher<'a> {
                     if aa.takes_value() {
                         // Only keep values for the last occurrence
                         let len = ma.vals.len();
-                        let keep = len - ma.occurrences.pop().unwrap_or(len);
+                        let occurrence_start = ma.occurrences.pop().expect(INTERNAL_ERROR_MSG);
 
-                        ma.vals.rotate_right(keep);
+                        // 1.26 has `rotate_left`, but we can't use it.
+                        // ma.vals.rotate_left(occurrence_start);
+                        let keep = len - occurrence_start;
+                        for i in 0..keep {
+                            ma.vals.swap(i, occurrence_start + i);
+                        }
+
                         ma.vals.truncate(keep);
                     }
 
