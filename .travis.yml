@@ -3,6 +3,8 @@ language: rust
 cache: cargo
 rust:
   - nightly
+  - beta
+  - stable
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
