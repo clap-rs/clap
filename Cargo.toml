@@ -54,7 +54,6 @@ textwrap              = "0.10.0"
 indexmap              = "1.0.1"
 strsim    = { version = "0.8.0",  optional = true }
 yaml-rust = { version = "0.4",  optional = true }
-clippy    = { version = "~0.0.302", optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
 term_size = { version = "1.0.0-beta1", optional = true }
@@ -77,7 +76,6 @@ derive      = ["clap_derive"]
 yaml        = ["yaml-rust"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
-lints       = ["clippy"] # Requires nightly Rust
 debug       = [] # Enables debug messages
 no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 doc         = ["yaml"] # All the features which add to documentation
