@@ -1,7 +1,3 @@
-// Third Party
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
-
 // Internal
 use ArgMatches;
 
