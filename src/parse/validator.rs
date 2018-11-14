@@ -517,7 +517,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             .p
             .app
             .args
-            .values()
+            .args
+            .iter()
             .filter(|a| a.r_ifs.is_some())
             .map(|a| (a, a.r_ifs.as_ref().unwrap()))
         {
@@ -562,7 +563,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             .p
             .app
             .args
-            .values()
+            .args
+            .iter()
             .filter(|a| a.r_unless.is_some())
             .filter(|a| !matcher.contains(a.name))
         {

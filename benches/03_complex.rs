@@ -4,7 +4,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, ArgSettings, SubCommand};
+use clap::{App, AppSettings, Arg, ArgSettings, };
 
 use test::Bencher;
 
@@ -39,12 +39,12 @@ macro_rules! create_app {
                 Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
             ])
             .subcommand(
-                SubCommand::with_name("subcmd")
+                App::new("subcmd")
                     .about("tests subcommands")
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")
-                    .arg_from_usage("-o --option [scoption]... 'tests options'")
-                    .arg_from_usage("[scpositional] 'tests positionals'"),
+                    .arg("-o --option [scoption]... 'tests options'")
+                    .arg("[scpositional] 'tests positionals'"),
             )
     }};
 }
@@ -146,7 +146,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .max_values(3),
             )
             .subcommand(
-                SubCommand::with_name("subcmd")
+                App::new("subcmd")
                     .about("tests subcommands")
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")

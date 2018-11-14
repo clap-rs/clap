@@ -1,5 +1,5 @@
 // Working with subcommands is simple. There are a few key points to remember when working with
-// subcommands in clap. First, SubCommands are really just Apps. This means they can have their own
+// subcommands in clap. First, s are really just Apps. This means they can have their own
 // settings, version, authors, args, and even their own subcommands. The next thing to remember is
 // that subcommands are set up in a tree like heirachy.
 //
@@ -41,7 +41,7 @@
 
 extern crate clap;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg, };
 
 fn main() {
     let matches = App::new("git")
@@ -49,28 +49,28 @@ fn main() {
         .version("1.0")
         .author("Me")
         .subcommand(
-            SubCommand::with_name("clone").about("clones repos").arg(
+            App::new("clone").about("clones repos").arg(
                 Arg::with_name("repo")
                     .help("The repo to clone")
                     .required(true),
             ),
         )
         .subcommand(
-            SubCommand::with_name("push")
+            App::new("push")
                 .about("pushes things")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
-                    SubCommand::with_name("remote")  // Subcommands can have thier own subcommands,
+                    App::new("remote")  // Subcommands can have thier own subcommands,
                                                          // which in turn have their own subcommands
                 .about("pushes remote things")
                 .arg(Arg::with_name("repo")
                     .required(true)
                     .help("The remote repo to push things to")),
                 )
-                .subcommand(SubCommand::with_name("local").about("pushes local things")),
+                .subcommand(App::new("local").about("pushes local things")),
         )
         .subcommand(
-            SubCommand::with_name("add")
+            App::new("add")
             .about("adds things")
             .author("Someone Else")                     // Subcommands can list different authors
             .version("v2.0 (I'm versioned differently") // or different version from their parents

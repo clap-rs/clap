@@ -686,7 +686,7 @@ impl<'w> Help<'w> {
         let opts = parser.has_opts();
         let subcmds = parser.has_visible_subcommands();
 
-        let custom_headings = custom_headings!(parser.app).fold(0, |acc, arg| {
+        let custom_headings = parser.app.args.args.iter().fold(0, |acc, arg| {
             if arg.help_heading.is_some() {
                 acc + 1
             } else {
@@ -708,7 +708,7 @@ impl<'w> Help<'w> {
         let unified_help = parser.is_set(AppSettings::UnifiedHelpMessage);
 
         if unified_help && (flags || opts) {
-            let opts_flags = args!(parser.app).filter(|a| a.has_switch());
+            let opts_flags = parser.app.args.args.iter().filter(|a| a.has_switch());
             if !first {
                 self.writer.write_all(b"\n\n")?;
             }
@@ -745,7 +745,7 @@ impl<'w> Help<'w> {
                     }
                     color!(self, format!("{}:\n", heading), warning)?;
                     self.write_args(
-                        custom_headings!(parser.app).filter(|a| a.help_heading.unwrap() == heading),
+                        parser.app.args.args.iter().filter(|a| a.help_heading.is_some() && a.help_heading.unwrap() == heading),
                     )?;
                     first = false
                 }
@@ -1070,7 +1070,7 @@ impl<'w> Help<'w> {
                     self.write_all_args(parser)?;
                 }
                 b"unified" => {
-                    let opts_flags = parser.app.args.values().filter(|a| a.has_switch());
+                    let opts_flags = parser.app.args.args.iter().filter(|a| a.has_switch());
                     self.write_args(opts_flags)?;
                 }
                 b"flags" => {

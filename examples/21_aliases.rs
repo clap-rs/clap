@@ -1,11 +1,11 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, };
 
 fn main() {
     let matches = App::new("MyApp")
         .subcommand(
-            SubCommand::with_name("ls")
+            App::new("ls")
                 .aliases(&["list", "dir"])
                 .about("Adds files to myapp")
                 .version("0.1")

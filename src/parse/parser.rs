@@ -67,7 +67,8 @@ where
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
-            .values()
+            .args
+            .iter()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
             .map(|a| a.name)
         {
@@ -102,7 +103,9 @@ where
         let highest_idx = *self
             .app
             .args
-            .keys()
+            .keys
+            .iter()
+            .map(|x| &x.key)
             .filter_map(|x| {
                 if let KeyType::Position(n) = x {
                     Some(n)
@@ -117,7 +120,9 @@ where
         let num_p = self
             .app
             .args
-            .keys()
+            .keys
+            .iter()
+            .map(|x| &x.key)
             .filter(|x| {
                 if let KeyType::Position(_) = x {
                     true
@@ -290,7 +295,7 @@ where
         //I wonder whether this part is even needed if we insert all Args using make_entries
         let mut key: Vec<(KeyType, usize)> = Vec::new();
         let mut counter = 0;
-        for (i, a) in self.app.args.values_mut().enumerate() {
+        for (i, a) in self.app.args.args.iter_mut().enumerate() {
             if a.index == None && a.short == None && a.long == None {
                 counter += 1;
                 a.index = Some(counter);
@@ -324,7 +329,9 @@ where
                 && (a.index.unwrap_or(0) as usize != self
                     .app
                     .args
-                    .keys()
+                    .keys
+                    .iter()
+                    .map(|x| &x.key)
                     .filter(|x| {
                         if let KeyType::Position(_) = x {
                             true
@@ -420,7 +427,7 @@ where
                             );
                             if is_match {
                                 let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
-                                if sc_name == "help" && self.is_set(AS::NeedsSubcommandHelp) {
+                                if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
                                     self.parse_help_subcommand(it)?;
                                 }
                                 subcmd_name = Some(sc_name.to_owned());
@@ -504,7 +511,9 @@ where
             let positional_count = self
                 .app
                 .args
-                .keys()
+                .keys
+                .iter()
+                .map(|x| &x.key)
                 .filter(|x| {
                     if let KeyType::Position(_) = x {
                         true
@@ -562,7 +571,9 @@ where
                 pos_counter = self
                     .app
                     .args
-                    .keys()
+                    .keys
+                    .iter()
+                    .map(|x| &x.key)
                     .filter(|x| {
                         if let KeyType::Position(_) = x {
                             true
@@ -584,7 +595,9 @@ where
                     && (self.is_set(AS::TrailingVarArg) && pos_counter == self
                         .app
                         .args
-                        .keys()
+                        .keys
+                        .iter()
+                        .map(|x| &x.key)
                         .filter(|x| {
                             if let KeyType::Position(_) = x {
                                 true
@@ -637,7 +650,7 @@ where
                     sc_m.add_val_to("", &a);
                 }
 
-                matcher.subcommand(SubCommand {
+                matcher.subcommand( SubCommand{
                     name: sc_name,
                     matches: sc_m.into(),
                 });
@@ -909,7 +922,7 @@ where
             let name = sc.name.clone();
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
-            matcher.subcommand(SubCommand {
+            matcher.subcommand( SubCommand{
                 name: name,
                 matches: sc_matcher.into(),
             });
@@ -928,11 +941,11 @@ where
 
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if arg == "help" && self.app.settings.is_set(AS::NeedsLongHelp) {
+        if arg == "help" && !self.app.settings.is_set(AS::NoAutoHelp) {
             sdebugln!("Help");
             return Err(self.help_err(true));
         }
-        if arg == "version" && self.app.settings.is_set(AS::NeedsLongVersion) {
+        if arg == "version" && !self.app.settings.is_set(AS::NoAutoVersion) {
             sdebugln!("Version");
             return Err(self.version_err(true));
         }
@@ -949,16 +962,20 @@ where
         );
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if let Some(h) = self.app.help_short {
-            if arg == h && self.app.settings.is_set(AS::NeedsLongHelp) {
-                sdebugln!("Help");
-                return Err(self.help_err(false));
+        if let Some(help) = self.app.find("help") {
+            if let Some(h) = help.short {
+                if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
+                    sdebugln!("Help");
+                    return Err(self.help_err(false));
+                }
             }
         }
-        if let Some(v) = self.app.version_short {
-            if arg == v && self.app.settings.is_set(AS::NeedsLongVersion) {
-                sdebugln!("Version");
-                return Err(self.version_err(false));
+        if let Some(version) = self.app.find("version") {
+            if let Some(v) = version.short {
+                if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
+                    sdebugln!("Version");
+                    return Err(self.version_err(false));
+                }
             }
         }
         sdebugln!("Neither");
@@ -978,7 +995,7 @@ where
         };
 
         self.app.long_about.is_some()
-            || args!(self.app).any(|f| should_long(&f))
+            || self.app.args.args.iter().any(|f| should_long(&f))
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
 
@@ -1426,7 +1443,7 @@ where
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
-        for a in self.app.args.values() {
+        for a in self.app.args.args.iter() {
             if let Some(ref val) = a.env {
                 if matcher
                     .get(a.name)
@@ -1460,8 +1477,13 @@ where
         let longs = self
             .app
             .args
-            .longs()
-            .map(|x| x.to_string_lossy().into_owned())
+            .keys
+            .iter()
+            .map(|x| &x.key)
+            .filter_map(|x| match x {
+                KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
+                _ => None
+            })
             .collect::<Vec<_>>();
         debugln!("Parser::did_you_mean_error: longs={:?}", longs);
 
@@ -1559,7 +1581,7 @@ where
     pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys().filter(|x| x.is_position()).count() > 0
+        self.app.args.keys.iter().any(|x| x.key.is_position())
     }
 
     pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }

@@ -1,10 +1,10 @@
 extern crate clap;
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg, };
 
 fn main() {
-    // SubCommands function exactly like sub-Apps, because that's exactly what they are. Each
-    // instance of a SubCommand can have it's own version, author(s), Args, and even it's own
+    // s function exactly like sub-Apps, because that's exactly what they are. Each
+    // instance of a  can have it's own version, author(s), Args, and even it's own
     // subcommands.
     //
     // # Help and Version
@@ -16,14 +16,14 @@ fn main() {
     // subcommand along with "-h" and "--help" (applies to sub-subcommands as well).
     //
     // Just like arg() and args(), subcommands can be specified one at a time via subcommand() or
-    // multiple ones at once with a Vec<SubCommand> provided to subcommands().
+    // multiple ones at once with a Vec<> provided to subcommands().
     let matches = App::new("MyApp")
                         // Normal App and Arg configuration goes here...
 
                         // In the following example assume we wanted an application which
                         // supported an "add" subcommand, this "add" subcommand also took
                         // one positional argument of a file to add:
-                        .subcommand(SubCommand::with_name("add")                        // The name we call argument with
+                        .subcommand(App::new("add")                        // The name we call argument with
                                                 .about("Adds files to myapp")           // The message displayed in "myapp -h"
                                                                                         // or "myapp help"
                                                 .version("0.1")                         // Subcommands can have independent version

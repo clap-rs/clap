@@ -46,7 +46,7 @@ macro_rules! load_yaml {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t!(matches.value_of("length"), u32).unwrap_or_else(|e| e.exit());
@@ -92,7 +92,7 @@ macro_rules! value_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
 ///               .get_matches();
 ///
 /// let len      = value_t_or_exit!(matches.value_of("length"), u32);
@@ -136,7 +136,7 @@ macro_rules! value_t_or_exit {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t!(matches.values_of("seq"), u32).unwrap_or_else(|e| e.exit());
@@ -198,7 +198,7 @@ macro_rules! values_t {
 /// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
-///               .arg_from_usage("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
+///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
 ///               .get_matches();
 ///
 /// let vals = values_t_or_exit!(matches.values_of("seq"), u32);
@@ -578,7 +578,7 @@ macro_rules! app_from_crate {
     };
 }
 
-/// Build `App`, `Arg`s, `SubCommand`s and `Group`s with Usage-string like input
+/// Build `App`, `Arg`s, ``s and `Group`s with Usage-string like input
 /// but without the associated parsing runtime cost.
 ///
 /// `clap_app!` also supports several shorthand syntaxes.
@@ -701,7 +701,7 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         clap_app!{ @app
             ($builder.subcommand(
-                clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+                clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
             ))
             $($tt)*
         }
@@ -789,7 +789,7 @@ macro_rules! clap_app {
 
 // Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
-        clap_app!{ @app ($crate::SubCommand::with_name(stringify!($name))) $($tail)* }
+        clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
     };
 // Start the magic
     (($name:expr) => $($tail:tt)*) => {{
@@ -883,34 +883,13 @@ macro_rules! write_nspaces {
     }};
 }
 
-macro_rules! args {
-    ($app:expr, $how:ident) => {
-        $app.args.$how()
-    };
-    ($app:expr) => {
-        args!($app, values)
-    };
-}
-
-macro_rules! args_mut {
-    ($app:expr) => {
-        args!($app, values_mut)
-    };
-}
-
 macro_rules! flags {
     ($app:expr, $how:ident) => {{
-        use mkeymap::KeyType::*;
         $app.args
+            .args
             .$how()
-            .filter(|(_, a)| !a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|(k, _)| match k {
-                Long(_) => true,
-                Short(_) => true,
-                Position(_) => false,
-            })
-            .filter(|(_, a)| !a.help_heading.is_some())
-            .map(|(_, v)| v)
+            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
         flags!($app, iter)
@@ -926,17 +905,11 @@ macro_rules! flags_mut {
 
 macro_rules! opts {
     ($app:expr, $how:ident) => {{
-        use mkeymap::KeyType::*;
         $app.args
+            .args
             .$how()
-            .filter(|(_, a)| a.settings.is_set(::build::ArgSettings::TakesValue))
-            .filter(|(k, _)| match k {
-                Long(_) => true,
-                Short(_) => true,
-                Position(_) => false,
-            })
-            .filter(|(_, a)| !a.help_heading.is_some())
-            .map(|(_, v)| v)
+            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
         opts!($app, iter)
@@ -953,7 +926,8 @@ macro_rules! opts_mut {
 macro_rules! positionals {
     ($app:expr) => {
         $app.args
-            .values()
+            .args
+            .iter()
             .filter(|a| !(a.short.is_some() || a.long.is_some()))
     };
 }
@@ -964,16 +938,6 @@ macro_rules! positionals_mut {
         $app.args
             .values_mut()
             .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! custom_headings {
-    ($app:expr, $how:ident) => {
-        $app.args.$how().filter(|a| (a.help_heading.is_some()))
-    };
-    ($app:expr) => {
-        custom_headings!($app, values)
     };
 }
 
@@ -1018,17 +982,6 @@ macro_rules! groups_for_arg {
     }};
 }
 
-// Finds an arg by name
-// ! look up usages and find ways to improve performance
-macro_rules! find {
-    ($app:expr, $name:expr, $what:ident) => {
-        $what!($app).find(|a| &a.name == $name)
-    };
-    ($app:expr, $name:expr) => {
-        $app.args.values().find(|a| &a.name == $name)
-    };
-}
-
 macro_rules! find_subcmd_cloned {
     ($_self:expr, $sc:expr) => {{
         subcommands_cloned!($_self)
@@ -1043,30 +996,11 @@ macro_rules! find_subcmd {
     }};
 }
 
-// macro_rules! shorts {
-//     ($app:expr) => {{
-//         _shorts_longs!($app, short)
-//     }};
-// }
-
 macro_rules! longs {
     ($app:expr) => {{
         use mkeymap::KeyType;
-        $app.args.keys().filter_map(|a| {
+        $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
             if let KeyType::Long(v) = a {
-                Some(v)
-            } else {
-                None
-            }
-        })
-    }};
-}
-
-macro_rules! shorts {
-    ($app:expr) => {{
-        use mkeymap::KeyType;
-        $app.args.keys().filter_map(|a| {
-            if let KeyType::Short(v) = a {
                 Some(v)
             } else {
                 None
@@ -1077,7 +1011,7 @@ macro_rules! shorts {
 
 macro_rules! _names {
     (@args $app:expr) => {{
-        $app.args.values().map(|a| &*a.name)
+        $app.args.args.iter().map(|a| &*a.name)
     }};
     (@sc $app:expr) => {{
         $app.subcommands.iter().map(|s| &*s.name).chain(

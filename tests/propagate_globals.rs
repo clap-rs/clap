@@ -4,7 +4,7 @@ extern crate regex;
 #[cfg(test)]
 mod tests {
     include!("../clap-test.rs");
-    use clap::{App, Arg, ArgMatches, ArgSettings, SubCommand};
+    use clap::{App, Arg, ArgMatches, ArgSettings, };
 
     fn get_app() -> App<'static, 'static> {
         App::new("myprog")
@@ -23,7 +23,7 @@ mod tests {
                     .setting(ArgSettings::MultipleOccurrences)
                     .setting(ArgSettings::Global),
             )
-            .subcommand(SubCommand::with_name("outer").subcommand(SubCommand::with_name("inner")))
+            .subcommand(App::new("outer").subcommand(App::new("inner")))
     }
 
     fn get_matches(app: App<'static, 'static>, argv: &'static str) -> ArgMatches<'static> {

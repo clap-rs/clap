@@ -4,7 +4,7 @@ extern crate regex;
 #[cfg(test)]
 mod tests {
     include!("../clap-test.rs");
-    use clap::{App, Arg, SubCommand};
+    use clap::{App, Arg, };
 
     fn get_app() -> App<'static, 'static> {
         App::new("myprog")
@@ -23,14 +23,14 @@ mod tests {
                     .multiple(true)
                     .global(true),
             )
-            .subcommand(SubCommand::with_name("outer").subcommand(SubCommand::with_name("inner")))
+            .subcommand(App::new("outer").subcommand(App::new("inner")))
     }
 
     #[test]
     fn issue_1076() {
         let mut app = get_app();
-        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
-        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
-        let _ = app.get_matches_from_safe_borrow(vec!["myprog"]);
+        let _ = app.try_get_matches_from_mut(vec!["myprog"]);
+        let _ = app.try_get_matches_from_mut(vec!["myprog"]);
+        let _ = app.try_get_matches_from_mut(vec!["myprog"]);
     }
 }

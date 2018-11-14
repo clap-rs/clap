@@ -28,9 +28,8 @@ fn main() {
     let matches = App::new("myapp")
                         // Create two arguments, a required positional which accepts multiple values
                         // and an optional '-l value'
-                        .args_from_usage(
-                            "<seq>... 'A sequence of whole positive numbers, i.e. 20 25 30'
-                            -l [len] 'A length to use, defaults to 10 when omitted'")
+                        .arg("<seq>... 'A sequence of whole positive numbers, i.e. 20 25 30'")
+                        .arg("-l [len] 'A length to use, defaults to 10 when omitted'")
                         .get_matches();
 
     // Here we get a value of type u32 from our optional -l argument.

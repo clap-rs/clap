@@ -15,7 +15,7 @@ fn main() {
     };
 
     // External module may contain this subcommand. If this exists in another module, a function is
-    // required to access it. Recommend `fn clap() -> Clap::SubCommand`.
+    // required to access it. Recommend `fn clap() -> Clap::`.
     let external_sub_command = clap_app!( @subcommand foo =>
         (@arg bar: -b "Bar")
     );

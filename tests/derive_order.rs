@@ -3,7 +3,7 @@ extern crate regex;
 
 use std::str;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg, };
 
 include!("../clap-test.rs");
 
@@ -225,7 +225,7 @@ fn derive_order_subcommand_propagate() {
         .global_setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .subcommand(
-            SubCommand::with_name("sub").version("1.2").args(&[
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
                 Arg::with_name("option_b")
                     .long("option_b")
@@ -252,7 +252,7 @@ fn unified_help_subcommand_propagate() {
     let app = App::new("test")
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
-            SubCommand::with_name("sub").version("1.2").args(&[
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
                 Arg::with_name("option_b")
                     .long("option_b")
@@ -280,7 +280,7 @@ fn unified_help_and_derive_order_subcommand_propagate() {
         .global_setting(AppSettings::DeriveDisplayOrder)
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
-            SubCommand::with_name("sub").version("1.2").args(&[
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
                 Arg::with_name("option_b")
                     .long("option_b")
@@ -308,7 +308,7 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
         .global_setting(AppSettings::DeriveDisplayOrder)
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
-            SubCommand::with_name("sub").version("1.2").args(&[
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
                 Arg::with_name("option_b")
                     .long("option_b")

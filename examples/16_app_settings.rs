@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, AppSettings, SubCommand};
+use clap::{App, AppSettings, };
 
 fn main() {
     // You can use AppSettings to change the application level behavior of clap. .setting() function
@@ -15,11 +15,11 @@ fn main() {
                         .setting(AppSettings::SubcommandsNegateReqs)
                                             // Negates requirement of parent command.
 
-                        .arg_from_usage("<input> 'input file to use'")
+                        .arg("<input> 'input file to use'")
                                             // Required positional argument called input.  This
                                             // will be only required if subcommand is not present.
 
-                        .subcommand(SubCommand::with_name("test")
+                        .subcommand(App::new("test")
                                                 .about("does some testing"))
                                             // if program is invoked with subcommand, you do not
                                             // need to specify the <input> argument anymore due to

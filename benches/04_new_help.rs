@@ -8,7 +8,7 @@ use test::Bencher;
 use std::io::Cursor;
 
 use clap::App;
-use clap::{Arg, ArgSettings, SubCommand};
+use clap::{Arg, ArgSettings, };
 
 fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
@@ -28,7 +28,7 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
         .arg("<output> 'Sets an optional output file'")
         .arg("-d... 'Turn debugging information on'")
         .subcommand(
-            SubCommand::with_name("test")
+            App::new("test")
                 .about("does testing things")
                 .arg("-l, --list 'lists test values'"),
         )
@@ -59,7 +59,7 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
                 .index(1)
                 .setting(ArgSettings::Required),
         ])
-        .arg_from_usage("--license 'display the license file'")
+        .arg("--license 'display the license file'")
         .args_from_usage(
             "[output] 'Supply an output file to use'
                           -i, --int=[IFACE] 'Set an interface to use'",

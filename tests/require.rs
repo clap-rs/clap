@@ -36,7 +36,7 @@ fn flag_required() {
     let result = App::new("flag_required")
         .arg(Arg::from("-f, --flag 'some flag'").requires("color"))
         .arg(Arg::from("-c, --color 'third flag'"))
-        .get_matches_from_safe(vec!["", "-f"]);
+        .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -57,7 +57,7 @@ fn option_required() {
     let result = App::new("option_required")
         .arg(Arg::from("-f [flag] 'some flag'").requires("c"))
         .arg(Arg::from("-c [color] 'third flag'"))
-        .get_matches_from_safe(vec!["", "-f", "val"]);
+        .try_get_matches_from(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -79,7 +79,7 @@ fn option_required_2() {
 fn positional_required() {
     let result = App::new("positional_required")
         .arg(Arg::with_name("flag").index(1).required(true))
-        .get_matches_from_safe(vec![""]);
+        .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -106,7 +106,7 @@ fn group_required() {
         )
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
-        .get_matches_from_safe(vec!["", "-f"]);
+        .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -210,7 +210,7 @@ fn issue_753() {
         )
         .arg(Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'").required_unless("list"))
         .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
-        .get_matches_from_safe(vec!["test", "--list"]);
+        .try_get_matches_from(vec!["test", "--list"]);
     assert!(m.is_ok());
 }
 
@@ -224,7 +224,7 @@ fn required_unless() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .get_matches_from_safe(vec!["unlesstest", "--debug"]);
+        .try_get_matches_from(vec!["unlesstest", "--debug"]);
 
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -242,7 +242,7 @@ fn required_unless_err() {
                 .long("config"),
         )
         .arg(Arg::with_name("dbg").long("debug"))
-        .get_matches_from_safe(vec!["unlesstest"]);
+        .try_get_matches_from(vec!["unlesstest"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -261,7 +261,7 @@ fn required_unless_all() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessall", "--debug", "-i", "file"]);
+        .try_get_matches_from(vec!["unlessall", "--debug", "-i", "file"]);
 
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -281,7 +281,7 @@ fn required_unless_all_err() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessall", "--debug"]);
+        .try_get_matches_from(vec!["unlessall", "--debug"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -300,7 +300,7 @@ fn required_unless_one() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessone", "--debug"]);
+        .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -321,7 +321,7 @@ fn required_unless_one_2() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessone", "-i", "file"]);
+        .try_get_matches_from(vec!["unlessone", "-i", "file"]);
 
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -340,7 +340,7 @@ fn required_unless_one_works_with_short() {
                 .short('x')
                 .required_unless_one(&["a", "b"]),
         )
-        .get_matches_from_safe(vec!["unlessone", "-a"]);
+        .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -355,7 +355,7 @@ fn required_unless_one_works_with_short_err() {
                 .short('x')
                 .required_unless_one(&["a", "b"]),
         )
-        .get_matches_from_safe(vec!["unlessone"]);
+        .try_get_matches_from(vec!["unlessone"]);
 
     assert!(!res.is_ok());
 }
@@ -366,7 +366,7 @@ fn required_unless_one_works_without() {
         .arg(Arg::with_name("a").conflicts_with("b").short('a'))
         .arg(Arg::with_name("b").short('b'))
         .arg(Arg::with_name("x").required_unless_one(&["a", "b"]))
-        .get_matches_from_safe(vec!["unlessone", "-a"]);
+        .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -381,7 +381,7 @@ fn required_unless_one_works_with_long() {
                 .long("x_is_the_option")
                 .required_unless_one(&["a", "b"]),
         )
-        .get_matches_from_safe(vec!["unlessone", "-a"]);
+        .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -397,7 +397,7 @@ fn required_unless_one_1() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessone", "--debug"]);
+        .try_get_matches_from(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -417,7 +417,7 @@ fn required_unless_one_err() {
         )
         .arg(Arg::with_name("dbg").long("debug"))
         .arg(Arg::with_name("infile").short('i').takes_value(true))
-        .get_matches_from_safe(vec!["unlessone"]);
+        .try_get_matches_from(vec!["unlessone"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -445,7 +445,7 @@ fn requires_if_present_val() {
                 .long("config"),
         )
         .arg(Arg::with_name("extra").long("extra"))
-        .get_matches_from_safe(vec!["unlessone", "--config=my.cfg"]);
+        .try_get_matches_from(vec!["unlessone", "--config=my.cfg"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -462,7 +462,7 @@ fn requires_if_present_mult() {
         )
         .arg(Arg::with_name("extra").long("extra"))
         .arg(Arg::with_name("other").long("other"))
-        .get_matches_from_safe(vec!["unlessone", "--config=other.cfg"]);
+        .try_get_matches_from(vec!["unlessone", "--config=other.cfg"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -479,7 +479,7 @@ fn requires_if_present_mult_pass() {
         )
         .arg(Arg::with_name("extra").long("extra"))
         .arg(Arg::with_name("other").long("other"))
-        .get_matches_from_safe(vec!["unlessone", "--config=some.cfg"]);
+        .try_get_matches_from(vec!["unlessone", "--config=some.cfg"]);
 
     assert!(res.is_ok());
 }
@@ -494,7 +494,7 @@ fn requires_if_present_val_no_present_pass() {
                 .long("config"),
         )
         .arg(Arg::with_name("extra").long("extra"))
-        .get_matches_from_safe(vec!["unlessone"]);
+        .try_get_matches_from(vec!["unlessone"]);
 
     assert!(res.is_ok());
 }
@@ -511,7 +511,7 @@ fn required_if_val_present_pass() {
                 .long("config"),
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
-        .get_matches_from_safe(vec!["ri", "--extra", "val", "--config", "my.cfg"]);
+        .try_get_matches_from(vec!["ri", "--extra", "val", "--config", "my.cfg"]);
 
     assert!(res.is_ok());
 }
@@ -526,7 +526,7 @@ fn required_if_val_present_fail() {
                 .long("config"),
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
-        .get_matches_from_safe(vec!["ri", "--extra", "val"]);
+        .try_get_matches_from(vec!["ri", "--extra", "val"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -576,7 +576,7 @@ fn required_if_wrong_val() {
                 .long("config"),
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
-        .get_matches_from_safe(vec!["ri", "--extra", "other"]);
+        .try_get_matches_from(vec!["ri", "--extra", "other"]);
 
     assert!(res.is_ok());
 }
@@ -592,7 +592,7 @@ fn required_ifs_val_present_pass() {
         )
         .arg(Arg::with_name("option").takes_value(true).long("option"))
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
-        .get_matches_from_safe(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
+        .try_get_matches_from(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
 
     assert!(res.is_ok());
 }
@@ -608,7 +608,7 @@ fn required_ifs_val_present_fail() {
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .arg(Arg::with_name("option").takes_value(true).long("option"))
-        .get_matches_from_safe(vec!["ri", "--option", "spec"]);
+        .try_get_matches_from(vec!["ri", "--option", "spec"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -625,7 +625,7 @@ fn required_ifs_wrong_val() {
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .arg(Arg::with_name("option").takes_value(true).long("option"))
-        .get_matches_from_safe(vec!["ri", "--option", "other"]);
+        .try_get_matches_from(vec!["ri", "--option", "other"]);
 
     assert!(res.is_ok());
 }
@@ -641,7 +641,7 @@ fn required_ifs_wrong_val_mult_fail() {
         )
         .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .arg(Arg::with_name("option").takes_value(true).long("option"))
-        .get_matches_from_safe(vec!["ri", "--extra", "other", "--option", "spec"]);
+        .try_get_matches_from(vec!["ri", "--extra", "other", "--option", "spec"]);
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
@@ -674,19 +674,19 @@ For more information try --help";
 fn issue_1158_app() -> App<'static, 'static> {
     App::new("example")
         .arg(
-            Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+            Arg::from("-c, --config [FILE] 'Custom config file.'")
                 .required_unless("ID")
                 .conflicts_with("ID"),
         )
         .arg(
-            Arg::from_usage("[ID] 'ID'")
+            Arg::from("[ID] 'ID'")
                 .required_unless("config")
                 .conflicts_with("config")
                 .requires_all(&["x", "y", "z"]),
         )
-        .arg(Arg::from_usage("-x [X] 'X'"))
-        .arg(Arg::from_usage("-y [Y] 'Y'"))
-        .arg(Arg::from_usage("-z [Z] 'Z'"))
+        .arg(Arg::from("-x [X] 'X'"))
+        .arg(Arg::from("-y [Y] 'Y'"))
+        .arg(Arg::from("-z [Z] 'Z'"))
 }
 
 #[test]
