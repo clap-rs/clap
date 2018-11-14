@@ -1397,11 +1397,9 @@ impl<'a, 'b> App<'a, 'b> {
         yaml_str!(self, yaml, about);
         yaml_str!(self, yaml, before_help);
         yaml_str!(self, yaml, after_help);
-        yaml_str!(self, yaml, template);
-        yaml_str!(self, yaml, usage);
-        yaml_str!(self, yaml, help);
-        yaml_str!(self, yaml, help_short);
-        yaml_str!(self, yaml, version_short);
+        yaml_str!(self, yaml, help_template);
+        yaml_str!(self, yaml, override_usage);
+        yaml_str!(self, yaml, override_help);
         yaml_str!(self, yaml, help_message);
         yaml_str!(self, yaml, version_message);
         yaml_str!(self, yaml, alias);
@@ -1495,7 +1493,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
         if let Some(v) = yaml["subcommands"].as_vec() {
             for sc_yaml in v {
-                self = self.subcommand(SubCommand::from_yaml(sc_yaml));
+                self = self.subcommand(App::from(sc_yaml));
             }
         }
         if let Some(v) = yaml["groups"].as_vec() {
