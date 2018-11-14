@@ -139,6 +139,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
+                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
                 "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
                 "required_unless_all" => {
                     a = yaml_vec_or_str!(v, a, required_unless);
