@@ -13,11 +13,9 @@ macro_rules! create_app {
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .args_from_usage(
-                "-f --flag         'tests flags'
-                                  -o --option=[opt] 'tests options'
-                                  [positional]      'tests positional'",
-            )
+            .arg("-f --flag         'tests flags'")
+            .arg("-o --option=[opt] 'tests options'")
+            .arg("[positional]      'tests positional'")
     }};
 }
 

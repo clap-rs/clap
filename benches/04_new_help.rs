@@ -60,10 +60,8 @@ fn app_example3<'b, 'c>() -> App<'b, 'c> {
                 .setting(ArgSettings::Required),
         ])
         .arg("--license 'display the license file'")
-        .args_from_usage(
-            "[output] 'Supply an output file to use'
-                          -i, --int=[IFACE] 'Set an interface to use'",
-        )
+        .arg("[output] 'Supply an output file to use'")
+        .arg("-i, --int=[IFACE] 'Set an interface to use'")
 }
 
 fn app_example4<'b, 'c>() -> App<'b, 'c> {
@@ -223,6 +221,6 @@ fn example10(b: &mut Bencher) {
 
 #[bench]
 fn example4_template(b: &mut Bencher) {
-    let mut app = app_example4().template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
+    let mut app = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
     b.iter(|| build_help(&mut app));
 }

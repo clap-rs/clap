@@ -8,8 +8,6 @@ use clap::{App, AppSettings, Arg, ArgSettings, };
 
 use test::Bencher;
 
-static ARGS: &'static str = "-o --option=[opt]... 'tests options'
-                             [positional] 'tests positionals'";
 static OPT3_VALS: [&'static str; 2] = ["fast", "slow"];
 static POS3_VALS: [&'static str; 2] = ["vi", "emacs"];
 
@@ -19,7 +17,8 @@ macro_rules! create_app {
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .args_from_usage(ARGS)
+            .arg("-o --option=[opt]... 'tests options'")
+            .arg("[positional] 'tests positionals'")
             .arg(Arg::from("-f --flag... 'tests flags'").setting(ArgSettings::Global))
             .args(&[
                 Arg::from("[flag2] -F 'tests flags with exclusions'")

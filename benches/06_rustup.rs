@@ -7,7 +7,7 @@
 extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, Shell, };
+use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings};
 
 use test::Bencher;
 
@@ -230,11 +230,6 @@ pub fn build_cli() -> App<'static, 'static> {
             .subcommand(App::new("default-host")
                 .about("The triple used to identify toolchains when not specified")
                 .arg(Arg::with_name("host_triple").setting(ArgSettings::Required))))
-        .subcommand(App::new("completions")
-            .about("Generate completion scripts for your shell")
-            .after_help(COMPLETIONS_HELP)
-            .setting(AppSettings::ArgRequiredElseHelp)
-            .arg(Arg::with_name("shell").possible_values(&Shell::variants())))
 }
 
 static RUSTUP_HELP: &'static str = r"
