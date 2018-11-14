@@ -3,7 +3,7 @@ extern crate regex;
 
 use std::str;
 
-use clap::{App, AppSettings, Arg, };
+use clap::{App, AppSettings, Arg};
 
 include!("../clap-test.rs");
 

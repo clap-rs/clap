@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind, };
+use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -603,30 +603,35 @@ fn args_with_last_usage() {
                 .short('v')
                 .long("verbose")
                 .setting(ArgSettings::MultipleOccurrences),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("timeout")
                 .help("Timeout in seconds.")
                 .short('t')
                 .long("timeout")
                 .value_name("SECONDS"),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("frequency")
                 .help("The sampling frequency.")
                 .short('f')
                 .long("frequency")
                 .value_name("HERTZ"),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("binary path")
                 .help("The path of the binary to be profiled. for a binary.")
                 .value_name("BINFILE"),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
                 .settings(&[
                     ArgSettings::MultipleValues,
                     ArgSettings::MultipleOccurrences,
                     ArgSettings::Last,
-                ]).value_name("ARGS"),
+                ])
+                .value_name("ARGS"),
         );
     assert!(test::compare_output(
         app,
@@ -694,7 +699,7 @@ fn multi_level_sc_help() {
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .version("0.1")
                 .arg("-f, --flag                    'tests flags'")
-                .arg("-o, --option [scoption]...    'tests options'")
+                .arg("-o, --option [scoption]...    'tests options'"),
         ),
     );
     assert!(test::compare_output(
@@ -707,7 +712,9 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest").set_term_width(0).override_help(MULTI_SC_HELP);
+    let app = App::new("ctest")
+        .set_term_width(0)
+        .override_help(MULTI_SC_HELP);
     assert!(test::compare_output(
         app,
         "ctest --help",
@@ -752,7 +759,8 @@ fn issue_626_unicode_cutoff() {
                  beverages. Some coffeehouses also serve cold beverages such as \
                  iced coffee and iced tea. Many cafés also serve some type of \
                  food, such as light snacks, muffins, or pastries.",
-            ).takes_value(true),
+            )
+            .takes_value(true),
     );
     assert!(test::compare_output(
         app,
@@ -774,7 +782,8 @@ fn hide_possible_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -927,13 +936,15 @@ fn issue_702_multiple_values() {
                 .short('s')
                 .long("some")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("other")
                 .help("some other option")
                 .short('o')
                 .long("other")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("label")
                 .help("a label")
                 .short('l')
@@ -952,7 +963,8 @@ fn long_about() {
         .about("bar")
         .long_about(
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
-        ).arg(Arg::with_name("arg1").help("some option"));
+        )
+        .arg(Arg::with_name("arg1").help("some option"));
     assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
 }
 
@@ -968,7 +980,8 @@ fn issue_760() {
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(1),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("opt")
                 .help("tests options")
                 .short('O')
@@ -1089,8 +1102,14 @@ fn customize_version_and_help() {
         .version("0.1")
         .author("Nobody <odysseus@example.com>")
         .about("You can customize the version and help text")
-        .mut_arg("help", |h| h.short('H').long("help").help("Print help information"))
-        .mut_arg("version", |v| v.short('v').long("version").help("Print version information"));
+        .mut_arg("help", |h| {
+            h.short('H').long("help").help("Print help information")
+        })
+        .mut_arg("version", |v| {
+            v.short('v')
+                .long("version")
+                .help("Print version information")
+        });
     assert!(test::compare_output(
         app,
         "customize --help",
@@ -1236,12 +1255,11 @@ fn issue_1112_override_help_subcmd_long() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "--help"]);
 
     assert!(m.is_ok());
-    assert!(
-        m.unwrap()
-            .subcommand_matches("foo")
-            .unwrap()
-            .is_present("help")
-    );
+    assert!(m
+        .unwrap()
+        .subcommand_matches("foo")
+        .unwrap()
+        .is_present("help"));
 }
 
 #[test]
@@ -1249,12 +1267,11 @@ fn issue_1112_override_help_subcmd_short() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "-h"]);
 
     assert!(m.is_ok());
-    assert!(
-        m.unwrap()
-            .subcommand_matches("foo")
-            .unwrap()
-            .is_present("help")
-    );
+    assert!(m
+        .unwrap()
+        .subcommand_matches("foo")
+        .unwrap()
+        .is_present("help"));
 }
 
 #[test]
@@ -1292,7 +1309,8 @@ fn hide_env_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -1325,7 +1343,8 @@ fn show_env_vals() {
                 .possible_values(&["fast", "slow"])
                 .help("Some vals")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("cafe")
                 .short('c')
                 .long("cafe")
@@ -1353,7 +1372,8 @@ fn custom_headers_headers() {
             Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
-        ).help_heading("NETWORKING")
+        )
+        .help_heading("NETWORKING")
         .arg(
             Arg::with_name("no-proxy")
                 .short('n')
@@ -1400,16 +1420,19 @@ fn multiple_custom_help_headers() {
             Arg::from("-f, --fake <some> <val> 'some help'")
                 .require_delimiter(true)
                 .value_delimiter(":"),
-        ).help_heading("NETWORKING")
+        )
+        .help_heading("NETWORKING")
         .arg(
             Arg::with_name("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings"),
-        ).help_heading("SPECIAL")
+        )
+        .help_heading("SPECIAL")
         .arg(Arg::from(
             "-b, --birthday-song <song> 'Change which song is played for birthdays'",
-        )).stop_custom_headings()
+        ))
+        .stop_custom_headings()
         .arg(
             Arg::with_name("speed")
                 .long("speed")

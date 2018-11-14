@@ -30,206 +30,306 @@ pub fn build_cli() -> App<'static, 'static> {
         .setting(AppSettings::VersionlessSubcommands)
         .setting(AppSettings::DeriveDisplayOrder)
         // .setting(AppSettings::SubcommandRequiredElseHelp)
-        .arg(Arg::with_name("verbose")
-            .help("Enable verbose output")
-            .short('v')
-            .long("verbose"))
-        .subcommand(App::new("show")
-            .about("Show the active and installed toolchains")
-            .after_help(SHOW_HELP))
-        .subcommand(App::new("install")
-            .about("Update Rust toolchains")
-            .after_help(TOOLCHAIN_INSTALL_HELP)
-            .setting(AppSettings::Hidden) // synonym for 'toolchain install'
-            .arg(Arg::with_name("toolchain")
-                .setting(ArgSettings::Required)))
-        .subcommand(App::new("update")
-            .about("Update Rust toolchains")
-            .after_help(UPDATE_HELP)
-            .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
-            .arg(Arg::with_name("no-self-update")
-                .help("Don't perform self update when running the `rustup` command")
-                .long("no-self-update")
-                .setting(ArgSettings::Hidden)))
-        .subcommand(App::new("default")
-            .about("Set the default toolchain")
-            .after_help(DEFAULT_HELP)
-            .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)))
-        .subcommand(App::new("toolchain")
-            .about("Modify or query the installed toolchains")
-            .after_help(TOOLCHAIN_HELP)
-            .setting(AppSettings::DeriveDisplayOrder)
-            // .setting(AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(App::new("list").about("List installed toolchains"))
-            .subcommand(App::new("install")
-                .about("Install or update a given toolchain")
-                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)))
-            .subcommand(App::new("uninstall")
-                .about("Uninstall a toolchain")
-                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)))
-            .subcommand(App::new("link")
-                .about("Create a custom toolchain by symlinking to a directory")
+        .arg(
+            Arg::with_name("verbose")
+                .help("Enable verbose output")
+                .short('v')
+                .long("verbose"),
+        )
+        .subcommand(
+            App::new("show")
+                .about("Show the active and installed toolchains")
+                .after_help(SHOW_HELP),
+        )
+        .subcommand(
+            App::new("install")
+                .about("Update Rust toolchains")
+                .after_help(TOOLCHAIN_INSTALL_HELP)
+                .setting(AppSettings::Hidden) // synonym for 'toolchain install'
+                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+        )
+        .subcommand(
+            App::new("update")
+                .about("Update Rust toolchains")
+                .after_help(UPDATE_HELP)
                 .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
-                .arg(Arg::with_name("path").setting(ArgSettings::Required)))
-            .subcommand(App::new("update")
-                .setting(AppSettings::Hidden) // synonym for 'install'
-                .arg(Arg::with_name("toolchain")
-                .setting(ArgSettings::Required)))
-            .subcommand(App::new("add")
-                .setting(AppSettings::Hidden) // synonym for 'install'
-                .arg(Arg::with_name("toolchain")
-                     .setting(ArgSettings::Required)))
-            .subcommand(App::new("remove")
-                .setting(AppSettings::Hidden) // synonym for 'uninstall'
-                .arg(Arg::with_name("toolchain")
-                     .setting(ArgSettings::Required))))
-        .subcommand(App::new("target")
-            .about("Modify a toolchain's supported targets")
-            .setting(AppSettings::VersionlessSubcommands)
-            .setting(AppSettings::DeriveDisplayOrder)
-            // .setting(AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(App::new("list")
-                .about("List installed and available targets")
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("add")
-                .about("Add a target to a Rust toolchain")
-                .arg(Arg::with_name("target").setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("remove")
-                .about("Remove a target  from a Rust toolchain")
-                .arg(Arg::with_name("target").setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("install")
-                .setting(AppSettings::Hidden) // synonym for 'add'
-                .arg(Arg::with_name("target")
-                    .setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("uninstall")
-                .setting(AppSettings::Hidden) // synonym for 'remove'
-                .arg(Arg::with_name("target")
-                    .setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue))))
-        .subcommand(App::new("component")
-            .about("Modify a toolchain's installed components")
-            .setting(AppSettings::VersionlessSubcommands)
-            .setting(AppSettings::DeriveDisplayOrder)
-            // .setting(AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(App::new("list")
-                .about("List installed and available components")
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("add")
-                .about("Add a component to a Rust toolchain")
-                .arg(Arg::with_name("component").setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue))
-                .arg(Arg::with_name("target")
-                    .long("target")
-                    .setting(ArgSettings::TakesValue)))
-            .subcommand(App::new("remove")
-                .about("Remove a component from a Rust toolchain")
-                .arg(Arg::with_name("component").setting(ArgSettings::Required))
-                .arg(Arg::with_name("toolchain")
-                    .long("toolchain")
-                    .setting(ArgSettings::TakesValue))
-                .arg(Arg::with_name("target")
-                    .long("target")
-                    .setting(ArgSettings::TakesValue))))
-        .subcommand(App::new("override")
-            .about("Modify directory toolchain overrides")
-            .after_help(OVERRIDE_HELP)
-            .setting(AppSettings::VersionlessSubcommands)
-            .setting(AppSettings::DeriveDisplayOrder)
-            // .setting(AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(App::new("list").about("List directory toolchain overrides"))
-            .subcommand(App::new("set")
-                .about("Set the override toolchain for a directory")
-                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)))
-            .subcommand(App::new("unset")
-                .about("Remove the override toolchain for a directory")
-                .after_help(OVERRIDE_UNSET_HELP)
-                .arg(Arg::with_name("path")
-                    .long("path")
-                    .setting(ArgSettings::TakesValue)
-                    .help("Path to the directory"))
-                .arg(Arg::with_name("nonexistent")
-                    .long("nonexistent")
-                    .help("Remove override toolchain for all nonexistent directories")))
-            .subcommand(App::new("add")
-                .setting(AppSettings::Hidden) // synonym for 'set'
-                .arg(Arg::with_name("toolchain")
-                     .setting(ArgSettings::Required)))
-            .subcommand(App::new("remove")
-                .setting(AppSettings::Hidden) // synonym for 'unset'
-                .about("Remove the override toolchain for a directory")
-                .arg(Arg::with_name("path")
-                    .long("path")
-                    .setting(ArgSettings::TakesValue))
-                .arg(Arg::with_name("nonexistent")
-                    .long("nonexistent")
-                    .help("Remove override toolchain for all nonexistent directories"))))
-        .subcommand(App::new("run")
-            .about("Run a command with an environment configured for a given toolchain")
-            .after_help(RUN_HELP)
-            .setting(AppSettings::TrailingVarArg)
-            .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
-            .arg(Arg::with_name("command")
-                .settings(&[ArgSettings::Required, ArgSettings::MultipleValues, ArgSettings::MultipleOccurrences])))
-        .subcommand(App::new("which")
-            .about("Display which binary will be run for a given command")
-            .arg(Arg::with_name("command").setting(ArgSettings::Required)))
-        .subcommand(App::new("doc")
-            .about("Open the documentation for the current toolchain")
-            .after_help(DOC_HELP)
-            .arg(Arg::with_name("book")
-                .long("book")
-                .help("The Rust Programming Language book"))
-            .arg(Arg::with_name("std")
-                .long("std")
-                .help("Standard library API documentation"))
-            .group(ArgGroup::with_name("page").args(&["book", "std"])))
-        .subcommand(App::new("man")
-            .about("View the man page for a given command")
-            .arg(Arg::with_name("command").setting(ArgSettings::Required))
-            .arg(Arg::with_name("toolchain")
-                .long("toolchain")
-                .setting(ArgSettings::TakesValue)))
-        .subcommand(App::new("self")
-            .about("Modify the rustup installation")
-            .setting(AppSettings::VersionlessSubcommands)
-            .setting(AppSettings::DeriveDisplayOrder)
-            .subcommand(App::new("update")
-                .about("Download and install updates to rustup"))
-            .subcommand(App::new("uninstall")
-                .about("Uninstall rustup.")
-                .arg(Arg::with_name("no-prompt").short('y')))
-            .subcommand(App::new("upgrade-data")
-                .about("Upgrade the internal data format.")))
-        .subcommand(App::new("telemetry")
-            .about("rustup telemetry commands")
-            .setting(AppSettings::Hidden)
-            .setting(AppSettings::VersionlessSubcommands)
-            .setting(AppSettings::DeriveDisplayOrder)
-            .subcommand(App::new("enable").about("Enable rustup telemetry"))
-            .subcommand(App::new("disable").about("Disable rustup telemetry"))
-            .subcommand(App::new("analyze").about("Analyze stored telemetry")))
-        .subcommand(App::new("set")
-            .about("Alter rustup settings")
-            .subcommand(App::new("default-host")
-                .about("The triple used to identify toolchains when not specified")
-                .arg(Arg::with_name("host_triple").setting(ArgSettings::Required))))
+                .arg(
+                    Arg::with_name("no-self-update")
+                        .help("Don't perform self update when running the `rustup` command")
+                        .long("no-self-update")
+                        .setting(ArgSettings::Hidden),
+                ),
+        )
+        .subcommand(
+            App::new("default")
+                .about("Set the default toolchain")
+                .after_help(DEFAULT_HELP)
+                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+        )
+        .subcommand(
+            App::new("toolchain")
+                .about("Modify or query the installed toolchains")
+                .after_help(TOOLCHAIN_HELP)
+                .setting(AppSettings::DeriveDisplayOrder)
+                // .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(App::new("list").about("List installed toolchains"))
+                .subcommand(
+                    App::new("install")
+                        .about("Install or update a given toolchain")
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("uninstall")
+                        .about("Uninstall a toolchain")
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("link")
+                        .about("Create a custom toolchain by symlinking to a directory")
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
+                        .arg(Arg::with_name("path").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("update")
+                        .setting(AppSettings::Hidden) // synonym for 'install'
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("add")
+                        .setting(AppSettings::Hidden) // synonym for 'install'
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("remove")
+                        .setting(AppSettings::Hidden) // synonym for 'uninstall'
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                ),
+        )
+        .subcommand(
+            App::new("target")
+                .about("Modify a toolchain's supported targets")
+                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DeriveDisplayOrder)
+                // .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(
+                    App::new("list")
+                        .about("List installed and available targets")
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("add")
+                        .about("Add a target to a Rust toolchain")
+                        .arg(Arg::with_name("target").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("remove")
+                        .about("Remove a target  from a Rust toolchain")
+                        .arg(Arg::with_name("target").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("install")
+                        .setting(AppSettings::Hidden) // synonym for 'add'
+                        .arg(Arg::with_name("target").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("uninstall")
+                        .setting(AppSettings::Hidden) // synonym for 'remove'
+                        .arg(Arg::with_name("target").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                ),
+        )
+        .subcommand(
+            App::new("component")
+                .about("Modify a toolchain's installed components")
+                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DeriveDisplayOrder)
+                // .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(
+                    App::new("list")
+                        .about("List installed and available components")
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("add")
+                        .about("Add a component to a Rust toolchain")
+                        .arg(Arg::with_name("component").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        )
+                        .arg(
+                            Arg::with_name("target")
+                                .long("target")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                )
+                .subcommand(
+                    App::new("remove")
+                        .about("Remove a component from a Rust toolchain")
+                        .arg(Arg::with_name("component").setting(ArgSettings::Required))
+                        .arg(
+                            Arg::with_name("toolchain")
+                                .long("toolchain")
+                                .setting(ArgSettings::TakesValue),
+                        )
+                        .arg(
+                            Arg::with_name("target")
+                                .long("target")
+                                .setting(ArgSettings::TakesValue),
+                        ),
+                ),
+        )
+        .subcommand(
+            App::new("override")
+                .about("Modify directory toolchain overrides")
+                .after_help(OVERRIDE_HELP)
+                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DeriveDisplayOrder)
+                // .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(App::new("list").about("List directory toolchain overrides"))
+                .subcommand(
+                    App::new("set")
+                        .about("Set the override toolchain for a directory")
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("unset")
+                        .about("Remove the override toolchain for a directory")
+                        .after_help(OVERRIDE_UNSET_HELP)
+                        .arg(
+                            Arg::with_name("path")
+                                .long("path")
+                                .setting(ArgSettings::TakesValue)
+                                .help("Path to the directory"),
+                        )
+                        .arg(
+                            Arg::with_name("nonexistent")
+                                .long("nonexistent")
+                                .help("Remove override toolchain for all nonexistent directories"),
+                        ),
+                )
+                .subcommand(
+                    App::new("add")
+                        .setting(AppSettings::Hidden) // synonym for 'set'
+                        .arg(Arg::with_name("toolchain").setting(ArgSettings::Required)),
+                )
+                .subcommand(
+                    App::new("remove")
+                        .setting(AppSettings::Hidden) // synonym for 'unset'
+                        .about("Remove the override toolchain for a directory")
+                        .arg(
+                            Arg::with_name("path")
+                                .long("path")
+                                .setting(ArgSettings::TakesValue),
+                        )
+                        .arg(
+                            Arg::with_name("nonexistent")
+                                .long("nonexistent")
+                                .help("Remove override toolchain for all nonexistent directories"),
+                        ),
+                ),
+        )
+        .subcommand(
+            App::new("run")
+                .about("Run a command with an environment configured for a given toolchain")
+                .after_help(RUN_HELP)
+                .setting(AppSettings::TrailingVarArg)
+                .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
+                .arg(Arg::with_name("command").settings(&[
+                    ArgSettings::Required,
+                    ArgSettings::MultipleValues,
+                    ArgSettings::MultipleOccurrences,
+                ])),
+        )
+        .subcommand(
+            App::new("which")
+                .about("Display which binary will be run for a given command")
+                .arg(Arg::with_name("command").setting(ArgSettings::Required)),
+        )
+        .subcommand(
+            App::new("doc")
+                .about("Open the documentation for the current toolchain")
+                .after_help(DOC_HELP)
+                .arg(
+                    Arg::with_name("book")
+                        .long("book")
+                        .help("The Rust Programming Language book"),
+                )
+                .arg(
+                    Arg::with_name("std")
+                        .long("std")
+                        .help("Standard library API documentation"),
+                )
+                .group(ArgGroup::with_name("page").args(&["book", "std"])),
+        )
+        .subcommand(
+            App::new("man")
+                .about("View the man page for a given command")
+                .arg(Arg::with_name("command").setting(ArgSettings::Required))
+                .arg(
+                    Arg::with_name("toolchain")
+                        .long("toolchain")
+                        .setting(ArgSettings::TakesValue),
+                ),
+        )
+        .subcommand(
+            App::new("self")
+                .about("Modify the rustup installation")
+                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DeriveDisplayOrder)
+                .subcommand(App::new("update").about("Download and install updates to rustup"))
+                .subcommand(
+                    App::new("uninstall")
+                        .about("Uninstall rustup.")
+                        .arg(Arg::with_name("no-prompt").short('y')),
+                )
+                .subcommand(App::new("upgrade-data").about("Upgrade the internal data format.")),
+        )
+        .subcommand(
+            App::new("telemetry")
+                .about("rustup telemetry commands")
+                .setting(AppSettings::Hidden)
+                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DeriveDisplayOrder)
+                .subcommand(App::new("enable").about("Enable rustup telemetry"))
+                .subcommand(App::new("disable").about("Disable rustup telemetry"))
+                .subcommand(App::new("analyze").about("Analyze stored telemetry")),
+        )
+        .subcommand(
+            App::new("set").about("Alter rustup settings").subcommand(
+                App::new("default-host")
+                    .about("The triple used to identify toolchains when not specified")
+                    .arg(Arg::with_name("host_triple").setting(ArgSettings::Required)),
+            ),
+        )
 }
 
 static RUSTUP_HELP: &'static str = r"

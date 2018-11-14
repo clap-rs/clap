@@ -249,7 +249,8 @@ fn validator_output() {
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_VO")
                 .validator(|s| s.parse::<i32>()),
-        ).get_matches_from(vec![""]);
+        )
+        .get_matches_from(vec![""]);
 
     assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
 }

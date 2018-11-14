@@ -1,8 +1,5 @@
 // Std
-#[cfg(all(
-    feature = "debug",
-    any(target_os = "windows", target_arch = "wasm32")
-))]
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
 use osstringext::OsStrExt3;
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
@@ -112,7 +109,8 @@ where
                 } else {
                     None
                 }
-            }).max()
+            })
+            .max()
             .unwrap_or(&0);
 
         //_highest_idx(&self.positionals);
@@ -129,7 +127,8 @@ where
                 } else {
                     false
                 }
-            }).count();
+            })
+            .count();
 
         assert!(
             highest_idx == num_p as u64,
@@ -326,19 +325,21 @@ where
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
             a.is_set(ArgSettings::MultipleValues)
-                && (a.index.unwrap_or(0) as usize != self
-                    .app
-                    .args
-                    .keys
-                    .iter()
-                    .map(|x| &x.key)
-                    .filter(|x| {
-                        if let KeyType::Position(_) = x {
-                            true
-                        } else {
-                            false
-                        }
-                    }).count())
+                && (a.index.unwrap_or(0) as usize
+                    != self
+                        .app
+                        .args
+                        .keys
+                        .iter()
+                        .map(|x| &x.key)
+                        .filter(|x| {
+                            if let KeyType::Position(_) = x {
+                                true
+                            } else {
+                                false
+                            }
+                        })
+                        .count())
         }) && positionals!(self.app).last().map_or(false, |p_name| {
             !self
                 .app
@@ -369,10 +370,7 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[cfg_attr(
-        feature = "lints",
-        allow(while_let_on_iterator, collapsible_if)
-    )]
+    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -520,7 +518,8 @@ where
                     } else {
                         false
                     }
-                }).count();
+                })
+                .count();
             let is_second_to_last = positional_count > 1 && (pos_counter == (positional_count - 1));
 
             let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && is_second_to_last;
@@ -550,10 +549,10 @@ where
                         ParseResult::ValuesDone
                     };
                     let sc_match = { self.possible_subcommand(&n).0 };
-                    if self.is_new_arg(&n, needs_val_of) || sc_match || suggestions::did_you_mean(
-                        &n.to_string_lossy(),
-                        sc_names!(self.app),
-                    ).is_some()
+                    if self.is_new_arg(&n, needs_val_of)
+                        || sc_match
+                        || suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
+                            .is_some()
                     {
                         debugln!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -580,7 +579,8 @@ where
                         } else {
                             false
                         }
-                    }).count();
+                    })
+                    .count();
             }
             if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -592,19 +592,22 @@ where
                     ));
                 }
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg) && pos_counter == self
-                        .app
-                        .args
-                        .keys
-                        .iter()
-                        .map(|x| &x.key)
-                        .filter(|x| {
-                            if let KeyType::Position(_) = x {
-                                true
-                            } else {
-                                false
-                            }
-                        }).count())
+                    && (self.is_set(AS::TrailingVarArg)
+                        && pos_counter
+                            == self
+                                .app
+                                .args
+                                .keys
+                                .iter()
+                                .map(|x| &x.key)
+                                .filter(|x| {
+                                    if let KeyType::Position(_) = x {
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                })
+                                .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -650,7 +653,7 @@ where
                     sc_m.add_val_to("", &a);
                 }
 
-                matcher.subcommand( SubCommand{
+                matcher.subcommand(SubCommand {
                     name: sc_name,
                     matches: sc_m.into(),
                 });
@@ -922,7 +925,7 @@ where
             let name = sc.name.clone();
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
-            matcher.subcommand( SubCommand{
+            matcher.subcommand(SubCommand {
                 name: name,
                 matches: sc_matcher.into(),
             });
@@ -1482,7 +1485,7 @@ where
             .map(|x| &x.key)
             .filter_map(|x| match x {
                 KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
-                _ => None
+                _ => None,
             })
             .collect::<Vec<_>>();
         debugln!("Parser::did_you_mean_error: longs={:?}", longs);

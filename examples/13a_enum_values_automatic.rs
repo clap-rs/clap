@@ -40,17 +40,18 @@ fn main() {
     // Create the application like normal
     let enum_vals = ["fast", "slow"];
     let m = App::new("myapp")
-                    // Use a single positional argument that is required
-                    .arg(Arg::from("<foo> 'The Foo to use'")
-                        .possible_values(&Foo::variants()))
-                    .arg(Arg::from("<speed> 'The speed to use'")
-                            // You can define a list of possible values if you want the values to be
-                            // displayed in the help information. Whether you use possible_values() or
-                            // not, the valid values will ALWAYS be displayed on a failed parse.
-                            .possible_values(&enum_vals))
-                    // For the second positional, lets not use possible_values() just to show the difference
-                    .arg("<oof> 'The Oof to use'")
-                    .get_matches();
+        // Use a single positional argument that is required
+        .arg(Arg::from("<foo> 'The Foo to use'").possible_values(&Foo::variants()))
+        .arg(
+            Arg::from("<speed> 'The speed to use'")
+                // You can define a list of possible values if you want the values to be
+                // displayed in the help information. Whether you use possible_values() or
+                // not, the valid values will ALWAYS be displayed on a failed parse.
+                .possible_values(&enum_vals),
+        )
+        // For the second positional, lets not use possible_values() just to show the difference
+        .arg("<oof> 'The Oof to use'")
+        .get_matches();
 
     let t = value_t!(m.value_of("foo"), Foo).unwrap_or_else(|e| e.exit());
     let t2 = value_t!(m.value_of("oof"), Oof).unwrap_or_else(|e| e.exit());

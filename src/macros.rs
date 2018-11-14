@@ -27,8 +27,7 @@
 #[macro_export]
 macro_rules! load_yaml {
     ($yml:expr) => {
-        &::clap::YamlLoader::load_from_str(include_str!($yml))
-            .expect("failed to load YAML file")[0]
+        &::clap::YamlLoader::load_from_str(include_str!($yml)).expect("failed to load YAML file")[0]
     };
 }
 
@@ -116,7 +115,8 @@ macro_rules! value_t_or_exit {
                 Err(_) => ::clap::Error::value_validation_auto(format!(
                     "The argument '{}' isn't a valid value",
                     v
-                )).exit(),
+                ))
+                .exit(),
             }
         } else {
             ::clap::Error::argument_not_found_auto($v).exit()
@@ -227,9 +227,11 @@ macro_rules! values_t_or_exit {
                 v.parse::<$t>().unwrap_or_else(|_| {
                     ::clap::Error::value_validation_auto(format!(
                         "One or more arguments aren't valid values"
-                    )).exit()
+                    ))
+                    .exit()
                 })
-            }).collect::<Vec<$t>>()
+            })
+            .collect::<Vec<$t>>()
         } else {
             ::clap::Error::argument_not_found_auto($v).exit()
         }
@@ -466,7 +468,7 @@ macro_rules! crate_authors {
         struct CargoAuthors {
             __private_field: (),
         };
-                        
+
         impl Deref for CargoAuthors {
             type Target = str;
 
@@ -984,15 +986,13 @@ macro_rules! groups_for_arg {
 
 macro_rules! find_subcmd_cloned {
     ($_self:expr, $sc:expr) => {{
-        subcommands_cloned!($_self)
-            .find(|a| match_alias!(a, $sc, &*a.name))
+        subcommands_cloned!($_self).find(|a| match_alias!(a, $sc, &*a.name))
     }};
 }
 
 macro_rules! find_subcmd {
     ($app:expr, $sc:expr) => {{
-        subcommands!($app)
-            .find(|a| match_alias!(a, $sc, &*a.name))
+        subcommands!($app).find(|a| match_alias!(a, $sc, &*a.name))
     }};
 }
 

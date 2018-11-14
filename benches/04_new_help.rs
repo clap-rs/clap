@@ -8,7 +8,7 @@ use test::Bencher;
 use std::io::Cursor;
 
 use clap::App;
-use clap::{Arg, ArgSettings, };
+use clap::{Arg, ArgSettings};
 
 fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
@@ -22,9 +22,7 @@ fn app_example1<'b, 'c>() -> App<'b, 'c> {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg(
-            "-c, --config=[FILE] 'Sets a custom config file'"
-        )
+        .arg("-c, --config=[FILE] 'Sets a custom config file'")
         .arg("<output> 'Sets an optional output file'")
         .arg("-d... 'Turn debugging information on'")
         .subcommand(

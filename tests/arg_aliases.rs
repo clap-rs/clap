@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, };
+use clap::{App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
 Some help

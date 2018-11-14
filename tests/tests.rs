@@ -106,7 +106,8 @@ pub fn check_complex_output(args: &str, out: &str) {
                 "option present {} times with value: {}",
                 matches.occurrences_of("option"),
                 v
-            ).unwrap();
+            )
+            .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {
@@ -129,24 +130,28 @@ pub fn check_complex_output(args: &str, out: &str) {
             w,
             "option2 present with value of: {}",
             matches.value_of("long-option-2").unwrap()
-        ).unwrap();
+        )
+        .unwrap();
         writeln!(
             w,
             "positional2 present with value of: {}",
             matches.value_of("positional2").unwrap()
-        ).unwrap();
+        )
+        .unwrap();
     } else {
         writeln!(w, "flag2 NOT present").unwrap();
         writeln!(
             w,
             "option2 maybe present with value of: {}",
             matches.value_of("long-option-2").unwrap_or("Nothing")
-        ).unwrap();
+        )
+        .unwrap();
         writeln!(
             w,
             "positional2 maybe present with value of: {}",
             matches.value_of("positional2").unwrap_or("Nothing")
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     let _ = match matches.value_of("Option3").unwrap_or("") {
@@ -168,7 +173,8 @@ pub fn check_complex_output(args: &str, out: &str) {
                 "option present {} times with value: {}",
                 matches.occurrences_of("option"),
                 v
-            ).unwrap();
+            )
+            .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {

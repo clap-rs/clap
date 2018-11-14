@@ -36,11 +36,13 @@ impl FromStr for Vals {
 fn main() {
     // Create the application like normal
     let m = App::new("myapp")
-                    // Use a single positional argument that is required
-                    .arg(Arg::from("<type> 'The type to use'")
-                            // Define the list of possible values
-                            .possible_values(&["Foo", "Bar", "Baz", "Qux"]))
-                    .get_matches();
+        // Use a single positional argument that is required
+        .arg(
+            Arg::from("<type> 'The type to use'")
+                // Define the list of possible values
+                .possible_values(&["Foo", "Bar", "Baz", "Qux"]),
+        )
+        .get_matches();
 
     let t = value_t!(m, "type", Vals).unwrap_or_else(|e| e.exit());
 

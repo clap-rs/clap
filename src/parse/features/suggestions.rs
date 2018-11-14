@@ -60,21 +60,23 @@ where
             );
             return (suffix, Some(candidate.to_owned()));
         }
-        None => for subcommand in subcommands {
-            subcommand._build(Propagation::NextLevel);
-            if let Some(ref candidate) = did_you_mean(
-                arg,
-                longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),
-            ) {
-                let suffix = format!(
-                    "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
-                    Format::Good("--"),
-                    Format::Good(candidate),
-                    Format::Good(subcommand.get_name())
-                );
-                return (suffix, Some(candidate.clone()));
+        None => {
+            for subcommand in subcommands {
+                subcommand._build(Propagation::NextLevel);
+                if let Some(ref candidate) = did_you_mean(
+                    arg,
+                    longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),
+                ) {
+                    let suffix = format!(
+                        "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
+                        Format::Good("--"),
+                        Format::Good(candidate),
+                        Format::Good(subcommand.get_name())
+                    );
+                    return (suffix, Some(candidate.clone()));
+                }
             }
-        },
+        }
     }
     (String::new(), None)
 }

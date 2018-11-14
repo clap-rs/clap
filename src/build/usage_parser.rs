@@ -78,7 +78,9 @@ impl<'a> UsageParser<'a> {
             .usage
             .as_bytes()
             .get(self.pos)
-            .expect(INTERNAL_ERROR_MSG) == b'<' && !self.explicit_name_set
+            .expect(INTERNAL_ERROR_MSG)
+            == b'<'
+            && !self.explicit_name_set
         {
             arg.setb(ArgSettings::Required);
         }
@@ -127,7 +129,8 @@ impl<'a> UsageParser<'a> {
             .usage
             .as_bytes()
             .get(self.pos)
-            .expect(INTERNAL_ERROR_MSG) == b'-'
+            .expect(INTERNAL_ERROR_MSG)
+            == b'-'
         {
             self.pos += 1;
             self.long(arg);

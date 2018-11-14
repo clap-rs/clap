@@ -4,7 +4,7 @@ use std::ffi::{OsStr, OsString};
 #[derive(PartialEq, Debug, Clone)]
 pub struct Key {
     pub key: KeyType,
-    pub index: usize
+    pub index: usize,
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
@@ -46,7 +46,7 @@ impl PartialEq<&str> for KeyType {
     fn eq(&self, rhs: &&str) -> bool {
         match self {
             KeyType::Long(ref l) => l == OsStr::new(rhs),
-            _ => false
+            _ => false,
         }
     }
 }
@@ -55,7 +55,7 @@ impl PartialEq<char> for KeyType {
     fn eq(&self, rhs: &char) -> bool {
         match self {
             KeyType::Short(c) => c == rhs,
-            _ => false
+            _ => false,
         }
     }
 }
@@ -65,13 +65,9 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
-    pub fn contains_long(&self, l: &str) -> bool {
-        self.keys.iter().any(|x| x.key == l)
-    }
+    pub fn contains_long(&self, l: &str) -> bool { self.keys.iter().any(|x| x.key == l) }
 
-    pub fn contains_short(&self, c: char) -> bool {
-        self.keys.iter().any(|x| x.key == c)
-    }
+    pub fn contains_short(&self, c: char) -> bool { self.keys.iter().any(|x| x.key == c) }
 
     pub fn insert(&mut self, key: KeyType, value: Arg<'a, 'b>) -> usize {
         let index = self.push(value);
@@ -96,7 +92,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
             panic!("Index out of bounds");
         }
 
-        self.keys.push(Key {key, index});
+        self.keys.push(Key { key, index });
     }
     //TODO ::insert_keyset([Long, Key2])
 
@@ -123,7 +119,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
 
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
 
-    pub fn remove_key(&mut self, key: KeyType) { 
+    pub fn remove_key(&mut self, key: KeyType) {
         let mut idx = None;
         for (i, k) in self.keys.iter().enumerate() {
             if k.key == key {
@@ -140,7 +136,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
     pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
         let index = self.find_by_name(name);
 
-        self.keys.push(Key {key, index});
+        self.keys.push(Key { key, index });
     }
 
     pub fn _build(&mut self) {
@@ -148,7 +144,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
 
         for (i, arg) in self.args.iter_mut().enumerate() {
             for k in _get_keys(arg) {
-                self.keys.push(Key {key: k, index: i});
+                self.keys.push(Key { key: k, index: i });
             }
         }
     }
@@ -170,7 +166,8 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
                     v.iter()
                         .map(|(n, _)| KeyType::Long(OsString::from(n)))
                         .collect()
-                }).unwrap_or(Vec::new());
+                })
+                .unwrap_or(Vec::new());
             longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
         }
 

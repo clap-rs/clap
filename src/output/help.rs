@@ -81,11 +81,13 @@ impl<'w> Help<'w> {
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => if width == 0 {
-                    usize::MAX
-                } else {
-                    width
-                },
+                Some(width) => {
+                    if width == 0 {
+                        usize::MAX
+                    } else {
+                        width
+                    }
+                }
                 None => cmp::min(
                     term_size::dimensions().map_or(120, |(w, _)| w),
                     match max_w {
@@ -141,7 +143,8 @@ impl<'w> Help<'w> {
             parser.app.term_w,
             parser.app.max_w,
             use_long,
-        ).write_help(parser)
+        )
+        .write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -744,9 +747,9 @@ impl<'w> Help<'w> {
                         self.writer.write_all(b"\n\n")?;
                     }
                     color!(self, format!("{}:\n", heading), warning)?;
-                    self.write_args(
-                        parser.app.args.args.iter().filter(|a| a.help_heading.is_some() && a.help_heading.unwrap() == heading),
-                    )?;
+                    self.write_args(parser.app.args.args.iter().filter(|a| {
+                        a.help_heading.is_some() && a.help_heading.unwrap() == heading
+                    }))?;
                     first = false
                 }
             }

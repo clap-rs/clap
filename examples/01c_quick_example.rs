@@ -42,7 +42,8 @@ fn main() {
             (author: "Someone E. <someone_else@other.com>")
             (@arg verbose: -v --verbose "Print test information verbosely")
         )
-    ).get_matches();
+    )
+    .get_matches();
 
     // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
     // required we could have used an 'if let' to conditionally get the value)

@@ -3967,7 +3967,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
-            || self.is_set(ArgSettings::RequireDelimiter)) && self.val_delim.is_none()
+            || self.is_set(ArgSettings::RequireDelimiter))
+            && self.val_delim.is_none()
         {
             self.val_delim = Some(',');
         }
@@ -4012,7 +4013,8 @@ impl<'a, 'b> Arg<'a, 'b> {
             .as_ref()
             .map_or(true, |names| names.len() < 2);
         if (self.is_set(ArgSettings::MultipleValues)
-            || self.is_set(ArgSettings::MultipleOccurrences)) && mult_vals
+            || self.is_set(ArgSettings::MultipleOccurrences))
+            && mult_vals
         {
             "..."
         } else {

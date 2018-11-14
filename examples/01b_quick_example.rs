@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, Arg, };
+use clap::{App, Arg};
 
 fn main() {
     // This method shows the traditional, and slightly more configurable way to set up arguments. This method is

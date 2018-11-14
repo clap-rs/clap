@@ -296,68 +296,109 @@ where
         .arg(flag("help"))
         .arg(flag("version").short('V'))
         // First, set up primary positional/flag arguments.
-        .arg(arg("pattern")
-             .required_unless_one(&[
-                "file", "files", "help-short", "help", "regexp", "type-list",
-                "version",
-             ]))
-        .arg(arg("path").setting(ArgSettings::MultipleValues).setting(ArgSettings::MultipleOccurrences))
-        .arg(flag("regexp").short('e')
-             .settings(&[
-                  ArgSettings::AllowHyphenValues, 
-                  ArgSettings::MultipleOccurrences, 
-                  ArgSettings::TakesValue])
-             .value_name("pattern"))
-        .arg(flag("files")
-             // This should also conflict with `pattern`, but the first file
-             // path will actually be in `pattern`.
-             .conflicts_with_all(&["file", "regexp", "type-list"]))
-        .arg(flag("type-list")
-             .conflicts_with_all(&["file", "files", "pattern", "regexp"]))
+        .arg(arg("pattern").required_unless_one(&[
+            "file",
+            "files",
+            "help-short",
+            "help",
+            "regexp",
+            "type-list",
+            "version",
+        ]))
+        .arg(
+            arg("path")
+                .setting(ArgSettings::MultipleValues)
+                .setting(ArgSettings::MultipleOccurrences),
+        )
+        .arg(
+            flag("regexp")
+                .short('e')
+                .settings(&[
+                    ArgSettings::AllowHyphenValues,
+                    ArgSettings::MultipleOccurrences,
+                    ArgSettings::TakesValue,
+                ])
+                .value_name("pattern"),
+        )
+        .arg(
+            flag("files")
+                // This should also conflict with `pattern`, but the first file
+                // path will actually be in `pattern`.
+                .conflicts_with_all(&["file", "regexp", "type-list"]),
+        )
+        .arg(flag("type-list").conflicts_with_all(&["file", "files", "pattern", "regexp"]))
         // Second, set up common flags.
         .arg(flag("text").short('a'))
         .arg(flag("count").short('c'))
-        .arg(flag("color")
-             .value_name("WHEN")
-             .setting(ArgSettings::HidePossibleValues)
-             .possible_values(&["never", "auto", "always", "ansi"]))
-        .arg(flag("colors").value_name("SPEC")
-             .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue]))
+        .arg(
+            flag("color")
+                .value_name("WHEN")
+                .setting(ArgSettings::HidePossibleValues)
+                .possible_values(&["never", "auto", "always", "ansi"]),
+        )
+        .arg(
+            flag("colors")
+                .value_name("SPEC")
+                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue]),
+        )
         .arg(flag("fixed-strings").short('F'))
-        .arg(flag("glob").short('g')
-             .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-             .value_name("GLOB"))
+        .arg(
+            flag("glob")
+                .short('g')
+                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .value_name("GLOB"),
+        )
         .arg(flag("ignore-case").short('i'))
         .arg(flag("line-number").short('n'))
         .arg(flag("no-line-number").short('N'))
         .arg(flag("quiet").short('q'))
-        .arg(flag("type").short('t')
-             .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-             .value_name("TYPE"))
-        .arg(flag("type-not").short('T')
-             .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
-             .value_name("TYPE"))
-        .arg(flag("unrestricted").short('u')
-             .setting(ArgSettings::MultipleOccurrences))
+        .arg(
+            flag("type")
+                .short('t')
+                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .value_name("TYPE"),
+        )
+        .arg(
+            flag("type-not")
+                .short('T')
+                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .value_name("TYPE"),
+        )
+        .arg(
+            flag("unrestricted")
+                .short('u')
+                .setting(ArgSettings::MultipleOccurrences),
+        )
         .arg(flag("invert-match").short('v'))
         .arg(flag("word-regexp").short('w'))
         // Third, set up less common flags.
-        .arg(flag("after-context").short('A')
-             .value_name("NUM")
-             .validator(validate_number))
-        .arg(flag("before-context").short('B')
-             .value_name("NUM")
-             .validator(validate_number))
-        .arg(flag("context").short('C')
-             .value_name("NUM")
-             .validator(validate_number))
+        .arg(
+            flag("after-context")
+                .short('A')
+                .value_name("NUM")
+                .validator(validate_number),
+        )
+        .arg(
+            flag("before-context")
+                .short('B')
+                .value_name("NUM")
+                .validator(validate_number),
+        )
+        .arg(
+            flag("context")
+                .short('C')
+                .value_name("NUM")
+                .validator(validate_number),
+        )
         .arg(flag("column"))
-        .arg(flag("context-separator")
-             .value_name("SEPARATOR"))
+        .arg(flag("context-separator").value_name("SEPARATOR"))
         .arg(flag("debug"))
-        .arg(flag("file").short('f')
-             .value_name("FILE")
-             .setting(ArgSettings::MultipleOccurrences))
+        .arg(
+            flag("file")
+                .short('f')
+                .value_name("FILE")
+                .setting(ArgSettings::MultipleOccurrences),
+        )
         .arg(flag("files-with-matches").short('l'))
         .arg(flag("files-without-match"))
         .arg(flag("with-filename").short('H'))
@@ -365,16 +406,23 @@ where
         .arg(flag("heading").overrides_with("no-heading"))
         .arg(flag("no-heading").overrides_with("heading"))
         .arg(flag("hidden"))
-        .arg(flag("ignore-file")
-             .value_name("FILE")
-             .setting(ArgSettings::MultipleOccurrences))
+        .arg(
+            flag("ignore-file")
+                .value_name("FILE")
+                .setting(ArgSettings::MultipleOccurrences),
+        )
         .arg(flag("follow").short('L'))
-        .arg(flag("max-count")
-             .short('m').value_name("NUM")
-             .validator(validate_number))
-        .arg(flag("maxdepth")
-             .value_name("NUM")
-             .validator(validate_number))
+        .arg(
+            flag("max-count")
+                .short('m')
+                .value_name("NUM")
+                .validator(validate_number),
+        )
+        .arg(
+            flag("maxdepth")
+                .value_name("NUM")
+                .validator(validate_number),
+        )
         .arg(flag("mmap"))
         .arg(flag("no-messages"))
         .arg(flag("no-mmap"))
@@ -388,16 +436,23 @@ where
         .arg(flag("case-sensitive").short('s'))
         .arg(flag("smart-case").short('S'))
         .arg(flag("sort-files"))
-        .arg(flag("threads")
-             .short('j').value_name("ARG")
-             .validator(validate_number))
+        .arg(
+            flag("threads")
+                .short('j')
+                .value_name("ARG")
+                .validator(validate_number),
+        )
         .arg(flag("vimgrep"))
-        .arg(flag("type-add")
-             .value_name("TYPE")
-             .setting(ArgSettings::MultipleOccurrences))
-        .arg(flag("type-clear")
-             .value_name("TYPE")
-             .setting(ArgSettings::MultipleOccurrences))
+        .arg(
+            flag("type-add")
+                .value_name("TYPE")
+                .setting(ArgSettings::MultipleOccurrences),
+        )
+        .arg(
+            flag("type-clear")
+                .value_name("TYPE")
+                .setting(ArgSettings::MultipleOccurrences),
+        )
 }
 
 struct Usage {

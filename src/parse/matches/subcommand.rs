@@ -34,4 +34,3 @@ pub struct SubCommand<'a> {
     #[doc(hidden)]
     pub matches: ArgMatches<'a>,
 }
-

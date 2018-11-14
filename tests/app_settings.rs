@@ -1,7 +1,7 @@
 extern crate clap;
 extern crate regex;
 
-use clap::{App, AppSettings, Arg, ErrorKind, Propagation, };
+use clap::{App, AppSettings, Arg, ErrorKind, Propagation};
 
 include!("../clap-test.rs");
 
@@ -285,14 +285,13 @@ fn global_setting() {
         .global_setting(AppSettings::ColoredHelp)
         .subcommand(App::new("subcmd"));
     app._propagate(Propagation::NextLevel);
-    assert!(
-        app.subcommands
-            .iter()
-            .filter(|s| s.name == "subcmd")
-            .next()
-            .unwrap()
-            .is_set(AppSettings::ColoredHelp)
-    );
+    assert!(app
+        .subcommands
+        .iter()
+        .filter(|s| s.name == "subcmd")
+        .next()
+        .unwrap()
+        .is_set(AppSettings::ColoredHelp));
 }
 
 #[test]
@@ -302,22 +301,20 @@ fn global_settings() {
         .global_setting(AppSettings::TrailingVarArg)
         .subcommand(App::new("subcmd"));
     app._propagate(Propagation::NextLevel);
-    assert!(
-        app.subcommands
-            .iter()
-            .filter(|s| s.name == "subcmd")
-            .next()
-            .unwrap()
-            .is_set(AppSettings::ColoredHelp)
-    );
-    assert!(
-        app.subcommands
-            .iter()
-            .filter(|s| s.name == "subcmd")
-            .next()
-            .unwrap()
-            .is_set(AppSettings::TrailingVarArg)
-    );
+    assert!(app
+        .subcommands
+        .iter()
+        .filter(|s| s.name == "subcmd")
+        .next()
+        .unwrap()
+        .is_set(AppSettings::ColoredHelp));
+    assert!(app
+        .subcommands
+        .iter()
+        .filter(|s| s.name == "subcmd")
+        .next()
+        .unwrap()
+        .is_set(AppSettings::TrailingVarArg));
 }
 
 #[test]
@@ -510,9 +507,15 @@ fn unset_settings() {
     assert!(&m.is_set(AppSettings::AllowInvalidUtf8));
     assert!(&m.is_set(AppSettings::ColorAuto));
 
-    let m = m.unset_setting(AppSettings::AllowInvalidUtf8)
+    let m = m
+        .unset_setting(AppSettings::AllowInvalidUtf8)
         .unset_setting(AppSettings::ColorAuto);
-    assert!(!m.is_set(AppSettings::AllowInvalidUtf8), "l: {:?}\ng:{:?}", m.settings, m.g_settings);
+    assert!(
+        !m.is_set(AppSettings::AllowInvalidUtf8),
+        "l: {:?}\ng:{:?}",
+        m.settings,
+        m.g_settings
+    );
     assert!(!m.is_set(AppSettings::ColorAuto));
 }
 
@@ -566,16 +569,13 @@ fn require_eq() {
 
 #[test]
 fn args_negate_subcommands_one_level() {
-    let res =
-        App::new("disablehelp")
-            .setting(AppSettings::ArgsNegateSubcommands)
-            .setting(AppSettings::SubcommandsNegateReqs)
-            .arg("<arg1> 'some arg'")
-            .arg("<arg2> 'some arg'")
-            .subcommand(App::new("sub1").subcommand(
-                App::new("sub2").subcommand(App::new("sub3")),
-            ))
-            .try_get_matches_from(vec!["", "pickles", "sub1"]);
+    let res = App::new("disablehelp")
+        .setting(AppSettings::ArgsNegateSubcommands)
+        .setting(AppSettings::SubcommandsNegateReqs)
+        .arg("<arg1> 'some arg'")
+        .arg("<arg2> 'some arg'")
+        .subcommand(App::new("sub1").subcommand(App::new("sub2").subcommand(App::new("sub3"))))
+        .try_get_matches_from(vec!["", "pickles", "sub1"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
     assert_eq!(m.value_of("arg2"), Some("sub1"));
@@ -592,9 +592,7 @@ fn args_negate_subcommands_two_levels() {
             App::new("sub1")
                 .arg("<arg> 'some'")
                 .arg("<arg2> 'some'")
-                .subcommand(
-                    App::new("sub2").subcommand(App::new("sub3")),
-                ),
+                .subcommand(App::new("sub2").subcommand(App::new("sub3"))),
         )
         .try_get_matches_from(vec!["", "sub1", "arg", "sub2"]);
     assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);

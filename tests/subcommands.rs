@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, ErrorKind, };
+use clap::{App, Arg, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
 
@@ -63,7 +63,8 @@ fn subcommand() {
                     .takes_value(true)
                     .help("testing testing"),
             ),
-        ).arg(Arg::with_name("other").long("other"))
+        )
+        .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
@@ -83,7 +84,8 @@ fn subcommand_none_given() {
                     .takes_value(true)
                     .help("testing testing"),
             ),
-        ).arg(Arg::with_name("other").long("other"))
+        )
+        .arg(Arg::with_name("other").long("other"))
         .get_matches_from(vec![""]);
 
     assert!(m.subcommand_name().is_none());
@@ -139,9 +141,8 @@ fn subcmd_did_you_mean_output() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
-    let app = App::new("dym").subcommand(
-        App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"),
-    );
+    let app =
+        App::new("dym").subcommand(App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"));
     assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
 
@@ -173,11 +174,9 @@ fn visible_aliases_help_output() {
 
 #[test]
 fn invisible_aliases_help_output() {
-    let app = App::new("clap-test").version("2.6").subcommand(
-        App::new("test")
-            .about("Some help")
-            .alias("invisible"),
-    );
+    let app = App::new("clap-test")
+        .version("2.6")
+        .subcommand(App::new("test").about("Some help").alias("invisible"));
     assert!(test::compare_output(
         app,
         "clap-test --help",

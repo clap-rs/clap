@@ -1,6 +1,6 @@
 extern crate clap;
 
-use clap::{App, };
+use clap::App;
 
 fn main() {
     // This example shows how to create an application with several arguments using usage strings, which can be

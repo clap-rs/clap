@@ -59,9 +59,7 @@ impl BitOr for AppFlags {
 }
 
 impl Default for AppFlags {
-    fn default() -> Self {
-        AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO)
-    }
+    fn default() -> Self { AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO) }
 }
 
 #[allow(deprecated)]
@@ -708,10 +706,7 @@ pub enum AppSettings {
     ///
     /// assert!(m.subcommand_matches("foo").is_none());
     /// ```
-    #[deprecated(
-        since = "2.27.0",
-        note = "No longer required to propagate values"
-    )]
+    #[deprecated(since = "2.27.0", note = "No longer required to propagate values")]
     PropagateGlobalValuesDown,
 
     /// Allows [``]s to override all requirements of the parent command.

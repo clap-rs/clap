@@ -81,7 +81,8 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
         if opts!(self.p.app).any(|o| o.is_set(ArgSettings::MultipleValues))
             && positionals!(self.p.app).any(|p| !p.is_set(ArgSettings::Required))
             && !(self.p.app.has_visible_subcommands()
-                || self.p.is_set(AS::AllowExternalSubcommands)) && !has_last
+                || self.p.is_set(AS::AllowExternalSubcommands))
+            && !has_last
         {
             usage.push_str(" [--]");
         }

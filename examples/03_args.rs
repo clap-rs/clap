@@ -26,40 +26,38 @@ fn main() {
     // safely override "-V" and "-h" to your own arguments, and "--help" and "--version" will still
     // be automatically generated for you.
     let matches = App::new("MyApp")
-                        // All application settings go here...
-
-                        // A simple "Flag" argument example (i.e. "-d") using the builder pattern
-                        .arg(Arg::with_name("debug")
-                                    .help("turn on debugging information")
-                                    .short('d'))
-
-                        // Two arguments, one "Option" argument (i.e. one that takes a value) such
-                        // as "-c some", and one positional argument (i.e. "myapp some_file")
-                        .args(&[
-                            Arg::with_name("config")
-                                    .help("sets the config file to use")
-                                    .takes_value(true)
-                                    .short('c')
-                                    .long("config"),
-                            Arg::with_name("input")
-                                    .help("the input file to use")
-                                    .index(1)
-                                    .required(true)
-                        ])
-
-                        // *Note* the following two examples are convenience methods, if you wish
-                        // to still get the full configurability of Arg::with_name() and the readability
-                        // of arg(), you can instantiate a new Arg with Arg::from() and
-                        // still be able to set all the additional properties, just like Arg::with_name()
-                        //
-                        //
-                        // One "Flag" using a usage string
-                        .arg("--license 'display the license file'")
-
-                        // Two args, one "Positional", and one "Option" using a usage string
-                        .arg("[output] 'Supply an output file to use'")
-                        .arg("-i, --int=[IFACE] 'Set an interface to use'")
-                        .get_matches();
+        // All application settings go here...
+        // A simple "Flag" argument example (i.e. "-d") using the builder pattern
+        .arg(
+            Arg::with_name("debug")
+                .help("turn on debugging information")
+                .short('d'),
+        )
+        // Two arguments, one "Option" argument (i.e. one that takes a value) such
+        // as "-c some", and one positional argument (i.e. "myapp some_file")
+        .args(&[
+            Arg::with_name("config")
+                .help("sets the config file to use")
+                .takes_value(true)
+                .short('c')
+                .long("config"),
+            Arg::with_name("input")
+                .help("the input file to use")
+                .index(1)
+                .required(true),
+        ])
+        // *Note* the following two examples are convenience methods, if you wish
+        // to still get the full configurability of Arg::with_name() and the readability
+        // of arg(), you can instantiate a new Arg with Arg::from() and
+        // still be able to set all the additional properties, just like Arg::with_name()
+        //
+        //
+        // One "Flag" using a usage string
+        .arg("--license 'display the license file'")
+        // Two args, one "Positional", and one "Option" using a usage string
+        .arg("[output] 'Supply an output file to use'")
+        .arg("-i, --int=[IFACE] 'Set an interface to use'")
+        .get_matches();
 
     // Here are some examples of using the arguments defined above. Keep in mind that this is only
     // an example, and may be somewhat contrived

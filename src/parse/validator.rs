@@ -11,8 +11,8 @@ use parse::errors::Result as ClapResult;
 use parse::errors::{Error, ErrorKind};
 use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
 use util::ChildGraph;
-use INVALID_UTF8;
 use INTERNAL_ERROR_MSG;
+use INVALID_UTF8;
 
 pub struct Validator<'a, 'b, 'c, 'z>
 where
@@ -229,7 +229,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     .unroll_args_in_group(g.name)
                     .iter()
                     .filter(|a| matcher.contains(a))
-                    .count() > 1;
+                    .count()
+                    > 1;
 
                 let conf_with_arg = if let Some(ref c) = g.conflicts {
                     c.iter().any(|x| matcher.contains(x))

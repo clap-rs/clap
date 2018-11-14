@@ -1534,7 +1534,12 @@ impl<'a, 'b> App<'a, 'b> {
 
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
-        if !(self.args.args.iter().any(|x| x.long == Some("help") || x.name == "help")) {
+        if !(self
+            .args
+            .args
+            .iter()
+            .any(|x| x.long == Some("help") || x.name == "help"))
+        {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
                 .long("help")
@@ -1545,7 +1550,11 @@ impl<'a, 'b> App<'a, 'b> {
 
             self.args.push(help);
         }
-        if !(self.args.args.iter().any(|x| x.long == Some("version") || x.name == "version")
+        if !(self
+            .args
+            .args
+            .iter()
+            .any(|x| x.long == Some("version") || x.name == "version")
             || self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
@@ -1602,11 +1611,7 @@ impl<'a, 'b> App<'a, 'b> {
         // Long conflicts
         if let Some(l) = a.long {
             assert!(
-                self.args
-                    .args
-                    .iter()
-                    .filter(|x| x.long == Some(l))
-                    .count() < 2,
+                self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
@@ -1615,11 +1620,7 @@ impl<'a, 'b> App<'a, 'b> {
         // Short conflicts
         if let Some(s) = a.short {
             assert!(
-                self.args
-                    .args
-                    .iter()
-                    .filter(|x| x.short == Some(s))
-                    .count() < 2,
+                self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );

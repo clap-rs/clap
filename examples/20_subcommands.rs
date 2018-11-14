@@ -41,7 +41,7 @@
 
 extern crate clap;
 
-use clap::{App, AppSettings, Arg, };
+use clap::{App, AppSettings, Arg};
 
 fn main() {
     let matches = App::new("git")
@@ -60,26 +60,30 @@ fn main() {
                 .about("pushes things")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
-                    App::new("remote")  // Subcommands can have thier own subcommands,
-                                                         // which in turn have their own subcommands
-                .about("pushes remote things")
-                .arg(Arg::with_name("repo")
-                    .required(true)
-                    .help("The remote repo to push things to")),
+                    App::new("remote") // Subcommands can have thier own subcommands,
+                        // which in turn have their own subcommands
+                        .about("pushes remote things")
+                        .arg(
+                            Arg::with_name("repo")
+                                .required(true)
+                                .help("The remote repo to push things to"),
+                        ),
                 )
                 .subcommand(App::new("local").about("pushes local things")),
         )
         .subcommand(
             App::new("add")
-            .about("adds things")
-            .author("Someone Else")                     // Subcommands can list different authors
-            .version("v2.0 (I'm versioned differently") // or different version from their parents
-            .setting(AppSettings::ArgRequiredElseHelp)  // They can even have different settings
-            .arg(Arg::with_name("stuff")
-                .long("stuff")
-                .help("Stuff to add")
-                .takes_value(true)
-                .multiple(true)),
+                .about("adds things")
+                .author("Someone Else") // Subcommands can list different authors
+                .version("v2.0 (I'm versioned differently") // or different version from their parents
+                .setting(AppSettings::ArgRequiredElseHelp) // They can even have different settings
+                .arg(
+                    Arg::with_name("stuff")
+                        .long("stuff")
+                        .help("Stuff to add")
+                        .takes_value(true)
+                        .multiple(true),
+                ),
         )
         .get_matches();
 

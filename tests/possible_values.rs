@@ -200,12 +200,11 @@ fn case_insensitive() {
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
 
     assert!(m.is_ok());
-    assert!(
-        m.unwrap()
-            .value_of("option")
-            .unwrap()
-            .eq_ignore_ascii_case("test123")
-    );
+    assert!(m
+        .unwrap()
+        .value_of("option")
+        .unwrap()
+        .eq_ignore_ascii_case("test123"));
 }
 
 #[test]
