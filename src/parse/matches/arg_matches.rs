@@ -1,7 +1,7 @@
 // Std
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
-use std::iter::Map;
+use std::iter::{Cloned, Map};
 use std::slice::Iter;
 
 // Third Party
@@ -579,10 +579,8 @@ impl<'a> ArgMatches<'a> {
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn indices_of<S: AsRef<str>>(&'a self, name: S) -> Option<Indices<'a>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            fn to_usize(i: &usize) -> usize { *i }
-            let to_usize: fn(&usize) -> usize = to_usize; // coerce to fn pointer
             return Some(Indices {
-                iter: arg.indices.iter().map(to_usize),
+                iter: arg.indices.iter().cloned(),
             });
         }
         None
@@ -886,7 +884,7 @@ impl<'a> Default for OsValues<'a> {
 #[allow(missing_debug_implementations)]
 pub struct Indices<'a> {
     // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
-    iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
+    iter: Cloned<Iter<'a, usize>>,
 }
 
 impl<'a> Iterator for Indices<'a> {
@@ -907,9 +905,8 @@ impl<'a> Default for Indices<'a> {
     fn default() -> Self {
         static EMPTY: [usize; 0] = [];
         // This is never called because the iterator is empty:
-        fn to_usize(_: &usize) -> usize { unreachable!() };
         Indices {
-            iter: EMPTY[..].iter().map(to_usize),
+            iter: EMPTY[..].iter().cloned(),
         }
     }
 }

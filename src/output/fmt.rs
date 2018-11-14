@@ -58,7 +58,7 @@ macro_rules! color {
 }
 
 impl Colorizer {
-    pub fn new(option: ColorizerOption) -> Colorizer {
+    pub fn new(option: &ColorizerOption) -> Colorizer {
         let is_a_tty = is_a_tty(option.use_stderr);
         let is_term_dumb = is_term_dumb();
         Colorizer {
@@ -105,7 +105,7 @@ impl Colorizer {
 
 impl Default for Colorizer {
     fn default() -> Self {
-        Colorizer::new(ColorizerOption {
+        Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: ColorWhen::Auto,
         })

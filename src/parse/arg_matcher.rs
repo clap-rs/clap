@@ -64,7 +64,7 @@ impl<'a> ArgMatcher<'a> {
             mem::swap(&mut am.0, &mut sc.matches);
         }
 
-        for (name, matched_arg) in vals_map.into_iter() {
+        for (name, matched_arg) in vals_map.iter_mut() {
             self.0.args.insert(name, matched_arg.clone());
         }
     }
@@ -128,7 +128,7 @@ impl<'a> ArgMatcher<'a> {
         ma.indices.push(idx);
     }
 
-    pub fn needs_more_vals<'b>(&self, o: &Arg) -> bool {
+    pub fn needs_more_vals(&self, o: &Arg) -> bool {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(o.name) {
             if let Some(num) = o.num_vals {
@@ -140,7 +140,7 @@ impl<'a> ArgMatcher<'a> {
                 };
             } else if let Some(num) = o.max_vals {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return !((ma.vals.len() as u64) > num);
+                return (ma.vals.len() as u64) <= num;
             } else if o.min_vals.is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;

@@ -73,8 +73,8 @@ where
         }
 
         Parser {
-            app: app,
-            required: ChildGraph::from(reqs),
+            app,
+            required: reqs,
             overriden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
@@ -139,9 +139,8 @@ where
         );
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        if positionals!(self.app).any(|a| {
-            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64)
-        }) {
+        let only_highest = |a: &Arg| a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64);
+        if positionals!(self.app).any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
             //  * a value terminator
@@ -153,13 +152,13 @@ where
             let last = self
                 .app
                 .args
-                .get(KeyType::Position(highest_idx))
+                .get(&KeyType::Position(highest_idx))
                 .expect(INTERNAL_ERROR_MSG);
 
             let second_to_last = self
                 .app
                 .args
-                .get(KeyType::Position(highest_idx - 1))
+                .get(&KeyType::Position(highest_idx - 1))
                 .expect(INTERNAL_ERROR_MSG);
 
             // Either the final positional is required
@@ -243,7 +242,7 @@ where
             let mut found = false;
             for p in (1..=num_p)
                 .rev()
-                .filter_map(|n| self.app.args.get(KeyType::Position(n as u64)))
+                .filter_map(|n| self.app.args.get(&KeyType::Position(n as u64)))
             {
                 if found {
                     assert!(
@@ -332,13 +331,7 @@ where
                         .keys
                         .iter()
                         .map(|x| &x.key)
-                        .filter(|x| {
-                            if let KeyType::Position(_) = x {
-                                true
-                            } else {
-                                false
-                            }
-                        })
+                        .filter(|x| x.is_position())
                         .count())
         }) && positionals!(self.app).last().map_or(false, |p_name| {
             !self
@@ -477,22 +470,17 @@ where
                             _ => (),
                         }
                     }
-                } else {
-                    if let ParseResult::Opt(name) = needs_val_of {
-                        // Check to see if parsing a value from a previous arg
-                        let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
-                        // get the option so we can check the settings
-                        needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
-                        // get the next value from the iterator
-                        continue;
-                    }
+                } else if let ParseResult::Opt(name) = needs_val_of {
+                    // Check to see if parsing a value from a previous arg
+                    let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
+                    // get the option so we can check the settings
+                    needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
+                    // get the next value from the iterator
+                    continue;
                 }
             }
 
-            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound))
-                && !self.is_set(AS::InferSubcommands)
-                && !self.is_set(AS::AllowExternalSubcommands)
-            {
+            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) || self.is_set(AS::AllowExternalSubcommands) || self.is_set(AS::InferSubcommands)) {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
                 {
@@ -600,13 +588,7 @@ where
                                 .keys
                                 .iter()
                                 .map(|x| &x.key)
-                                .filter(|x| {
-                                    if let KeyType::Position(_) = x {
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                })
+                                .filter(|x| x.is_position())
                                 .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
@@ -724,7 +706,7 @@ where
 
         self.remove_overrides(matcher);
 
-        Validator::new(self).validate(needs_val_of, subcmd_name, matcher)
+        Validator::new(self).validate(needs_val_of, &subcmd_name, matcher)
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
@@ -863,7 +845,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len() == 1)
+            arg_os.len() != 1
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -926,7 +908,7 @@ where
             let mut p = Parser::new(sc);
             p.get_matches_with(&mut sc_matcher, it)?;
             matcher.subcommand(SubCommand {
-                name: name,
+                name,
                 matches: sc_matcher.into(),
             });
         }
@@ -1024,7 +1006,7 @@ where
             sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
-        if let Some(opt) = self.app.args.get(KeyType::Long(arg.into())) {
+        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.into())) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1089,7 +1071,7 @@ where
             // concatenated value: -oval
             // Option: -o
             // Value: val
-            if let Some(opt) = self.app.args.get(KeyType::Short(c)) {
+            if let Some(opt) = self.app.args.get(&KeyType::Short(c)) {
                 debugln!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
@@ -1111,7 +1093,7 @@ where
                     p[1].as_bytes()
                 );
                 let i = p[0].as_bytes().len() + 1;
-                let val = if p[1].as_bytes().len() > 0 {
+                let val = if !p[1].as_bytes().is_empty() {
                     debugln!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
@@ -1159,7 +1141,7 @@ where
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.len() == 0 || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
@@ -1174,7 +1156,7 @@ where
                 fv.starts_with(&[b'='])
             );
             self.add_val_to_arg(opt, v, matcher)?;
-        } else if needs_eq && !(empty_vals || min_vals_zero) {
+        } else if needs_eq && !(empty_vals || min_vals_zero)  {
             sdebugln!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
                 opt,
@@ -1448,19 +1430,8 @@ where
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
         for a in self.app.args.args.iter() {
             if let Some(ref val) = a.env {
-                if matcher
-                    .get(a.name)
-                    .map(|ma| ma.vals.len())
-                    .map(|len| len == 0)
-                    .unwrap_or(false)
-                {
-                    if let Some(ref val) = val.1 {
-                        self.add_val_to_arg(a, OsStr::new(val), matcher)?;
-                    }
-                } else {
-                    if let Some(ref val) = val.1 {
-                        self.add_val_to_arg(a, OsStr::new(val), matcher)?;
-                    }
+                if let Some(ref val) = val.1 {
+                    self.add_val_to_arg(a, OsStr::new(val), matcher)?;
                 }
             }
         }
@@ -1498,7 +1469,7 @@ where
 
         // Add the arg to the matches to build a proper usage string
         if let Some(ref name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(KeyType::Long(OsString::from(name))) {
+            if let Some(opt) = self.app.args.get(&KeyType::Long(OsString::from(name))) {
                 for g in groups_for_arg!(self.app, &opt.name) {
                     matcher.inc_occurrence_of(g);
                 }
@@ -1515,8 +1486,7 @@ where
                     true
                 }
             })
-            // .chain(Some(arg).iter())
-            .map(|&n| n)
+            .cloned()
             .collect();
         Err(ClapError::unknown_argument(
             &*format!("--{}", arg),

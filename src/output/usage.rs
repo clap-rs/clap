@@ -17,7 +17,7 @@ where
 }
 
 impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
-    pub fn new(p: &'z Parser<'a, 'b, 'c>) -> Self { Usage { p: p } }
+    pub fn new(p: &'z Parser<'a, 'b, 'c>) -> Self { Usage { p } }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
@@ -191,7 +191,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                     .app
                     .groups
                     .iter()
-                    .any(|g| g.required && (&g.name == &grp_s))
+                    .any(|g| g.required && (g.name == grp_s))
                 {
                     continue 'outer;
                 }
@@ -286,7 +286,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                     .app
                     .groups
                     .iter()
-                    .any(|g| &g.name == &grp_s && g.required)
+                    .any(|g| g.name == grp_s && g.required)
                 {
                     debugln!("usage::needs_flags_tag:iter:iter: Group is required");
                     continue 'outer;

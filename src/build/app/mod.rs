@@ -5,10 +5,9 @@ pub use self::settings::{AppFlags, AppSettings};
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
-use std::fs::File;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::iter::Peekable;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process;
 
 // Third Party
@@ -1187,12 +1186,10 @@ impl<'a, 'b> App<'a, 'b> {
                         let i = io::stdin();
                         i.lock().read_line(&mut s).unwrap();
                     }
-                    drop(self);
                     drop(e);
                     process::exit(1);
                 }
 
-                drop(self);
                 e.exit()
             })
     }
@@ -1390,7 +1387,7 @@ impl<'a, 'b> App<'a, 'b> {
             parser.get_matches_with(&mut matcher, it)?;
         }
 
-        let global_arg_vec: Vec<&str> = (&self)
+        let global_arg_vec: Vec<&str> = self
             .args
             .args
             .iter()

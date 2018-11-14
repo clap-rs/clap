@@ -27,7 +27,7 @@ where
 impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
     pub fn new(p: &'z mut Parser<'a, 'b, 'c>) -> Self {
         Validator {
-            p: p,
+            p,
             c: ChildGraph::with_capacity(5),
         }
     }
@@ -35,7 +35,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
     pub fn validate(
         &mut self,
         needs_val_of: ParseResult<'a>,
-        subcmd_name: Option<String>,
+        subcmd_name: &Option<String>,
         matcher: &mut ArgMatcher<'a>,
     ) -> ClapResult<()> {
         debugln!("Validator::validate;");
@@ -76,7 +76,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
             });
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
+        if !(self.p.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some() || reqs_validated) {
             self.validate_required(matcher)?;
             self.validate_required_unless(matcher)?;
         }
@@ -121,7 +121,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                                 true
                             }
                         })
-                        .map(|&n| n)
+                        .cloned()
                         .collect();
                     return Err(Error::invalid_value(
                         val_str,
@@ -147,7 +147,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 debug!("Validator::validate_arg_values: checking validator...");
                 if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
                     sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg), e, self.p.app.color()));
+                    return Err(Error::value_validation(Some(arg), &e, self.p.app.color()));
                 } else {
                     sdebugln!("good");
                 }
@@ -158,7 +158,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     sdebugln!("error");
                     return Err(Error::value_validation(
                         Some(arg),
-                        (*e).to_string(),
+                        &(*e).to_string(),
                         self.p.app.color(),
                     ));
                 } else {
@@ -301,9 +301,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                         // }
                     }
                 }
-            } else {
-                debugln!("Validator::gather_conflicts:iter:{}:group;", name);
-                if let Some(g) = self
+            } else if let Some(g) = self
                     .p
                     .app
                     .groups
@@ -311,10 +309,8 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     .filter(|g| !g.multiple)
                     .find(|grp| &grp.name == name)
                 {
-                    // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
-                    self.c.insert(g.name);
-                    // }
-                }
+                debugln!("Validator::gather_conflicts:iter:{}:group;", name);
+                self.c.insert(g.name);
             }
         }
     }
@@ -327,15 +323,11 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                 for req in self.p.app.unroll_requirements_for_arg(arg.name, matcher) {
                     self.p.required.insert(req);
                 }
-            } else {
+            } else if let Some(g) = self.p.app.groups.iter().find(|grp| &grp.name == name) {
                 debugln!("Validator::gather_conflicts:iter:{}:group;", name);
-                if let Some(g) = self.p.app.groups.iter().find(|grp| &grp.name == name) {
-                    if let Some(ref reqs) = g.requires {
-                        for r in reqs {
-                            // for g_arg in self.p.app.unroll_requirements_for_arg(r, matcher) {
-                            self.p.required.insert(r);
-                            // }
-                        }
+                if let Some(ref reqs) = g.requires {
+                    for r in reqs {
+                        self.p.required.insert(r);
                     }
                 }
             }
@@ -605,7 +597,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
         incl: Option<&str>,
     ) -> ClapResult<()> {
         debugln!("Validator::missing_required_error; incl={:?}", incl);
-        let c = Colorizer::new(ColorizerOption {
+        let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: self.p.app.color(),
         });
@@ -640,7 +632,7 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     true
                 }
             })
-            .map(|&n| n)
+            .cloned()
             .chain(incl)
             .collect();
         Err(Error::missing_required_argument(

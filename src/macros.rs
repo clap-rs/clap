@@ -66,7 +66,7 @@ macro_rules! value_t {
         if let Some(v) = $m.value_of($v) {
             match v.parse::<$t>() {
                 Ok(val) => Ok(val),
-                Err(_) => Err(::clap::Error::value_validation_auto(format!(
+                Err(_) => Err(::clap::Error::value_validation_auto(&format!(
                     "The argument '{}' isn't a valid value",
                     v
                 ))),
@@ -112,7 +112,7 @@ macro_rules! value_t_or_exit {
         if let Some(v) = $m.value_of($v) {
             match v.parse::<$t>() {
                 Ok(val) => val,
-                Err(_) => ::clap::Error::value_validation_auto(format!(
+                Err(_) => ::clap::Error::value_validation_auto(&format!(
                     "The argument '{}' isn't a valid value",
                     v
                 ))
@@ -166,7 +166,7 @@ macro_rules! values_t {
                 match pv.parse::<$t>() {
                     Ok(rv) => tmp.push(rv),
                     Err(..) => {
-                        err = Some(::clap::Error::value_validation_auto(format!(
+                        err = Some(::clap::Error::value_validation_auto(&format!(
                             "The argument '{}' isn't a valid value",
                             pv
                         )));
@@ -225,7 +225,7 @@ macro_rules! values_t_or_exit {
         if let Some(vals) = $m.values_of($v) {
             vals.map(|v| {
                 v.parse::<$t>().unwrap_or_else(|_| {
-                    ::clap::Error::value_validation_auto(format!(
+                    ::clap::Error::value_validation_auto(&format!(
                         "One or more arguments aren't valid values"
                     ))
                     .exit()
@@ -1020,12 +1020,6 @@ macro_rules! _names {
                 .filter(|s| s.aliases.is_some())
                 .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
         )
-    }};
-}
-
-macro_rules! arg_names {
-    ($app:expr) => {{
-        _names!(@args $app)
     }};
 }
 

@@ -7,7 +7,7 @@ struct Child<T> {
 impl<T> Child<T> {
     fn new(id: T) -> Self {
         Child {
-            id: id,
+            id,
             children: None,
         }
     }
@@ -54,5 +54,5 @@ where
 
     pub fn iter(&self) -> impl Iterator<Item = &T> { self.0.iter().map(|r| &r.id) }
 
-    pub fn contains(&self, req: T) -> bool { self.0.iter().find(|r| r.id == req).is_some() }
+    pub fn contains(&self, req: T) -> bool { self.0.iter().any(|r| r.id == req) }
 }

@@ -24,6 +24,9 @@ use yaml_rust;
 use build::UsageParser;
 use INTERNAL_ERROR_MSG;
 
+type Validator = Rc<Fn(String) -> Result<(), String>>;
+type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
+
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
 ///
@@ -91,9 +94,9 @@ where
     #[doc(hidden)]
     pub min_vals: Option<u64>,
     #[doc(hidden)]
-    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    pub validator: Option<Validator>,
     #[doc(hidden)]
-    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), String>>>,
+    pub validator_os: Option<ValidatorOs>,
     #[doc(hidden)]
     pub val_delim: Option<char>,
     #[doc(hidden)]
@@ -675,7 +678,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.r_unless = Some(names.to_vec());
         }
         self.setting(ArgSettings::RequiredUnlessAll)
     }
@@ -750,7 +753,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.r_unless = Some(names.to_vec());
         }
         self
     }
@@ -848,7 +851,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.blacklist = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.blacklist = Some(names.to_vec());
         }
         self
     }
@@ -956,9 +959,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     pub fn overrides_with(mut self, name: &'a str) -> Self {
         if let Some(ref mut vec) = self.overrides {
-            vec.push(name.as_ref());
+            vec.push(name);
         } else {
-            self.overrides = Some(vec![name.as_ref()]);
+            self.overrides = Some(vec![name]);
         }
         self
     }
@@ -996,7 +999,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.overrides = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.overrides = Some(names.to_vec());
         }
         self
     }
@@ -1602,7 +1605,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.possible_vals = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.possible_vals = Some(names.to_vec());
         }
         self
     }
@@ -1746,7 +1749,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.groups = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+            self.groups = Some(names.to_vec());
         }
         self
     }

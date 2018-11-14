@@ -27,7 +27,7 @@ mod term_size {
 
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
-const TAB: &'static str = "    ";
+const TAB: &str = "    ";
 
 macro_rules! color {
     ($_self:ident, $s:expr, $c:ident) => {
@@ -64,7 +64,7 @@ pub struct Help<'w> {
 // Public Functions
 impl<'w> Help<'w> {
     /// Create a new `Help` instance.
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub fn new(
         w: &'w mut Write,
         next_line_help: bool,
@@ -78,8 +78,8 @@ impl<'w> Help<'w> {
         debugln!("Help::new;");
         Help {
             writer: w,
-            next_line_help: next_line_help,
-            hide_pv: hide_pv,
+            next_line_help,
+            hide_pv,
             term_w: match term_w {
                 Some(width) => {
                     if width == 0 {
@@ -96,11 +96,11 @@ impl<'w> Help<'w> {
                     },
                 ),
             },
-            color: color,
-            cizer: cizer,
+            color,
+            cizer,
             longest: 0,
             force_next_line: false,
-            use_long: use_long,
+            use_long,
         }
     }
 
@@ -130,7 +130,7 @@ impl<'w> Help<'w> {
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_v = parser.is_set(AppSettings::HidePossibleValuesInHelp);
         let color = parser.is_set(AppSettings::ColoredHelp);
-        let cizer = Colorizer::new(ColorizerOption {
+        let cizer = Colorizer::new(&ColorizerOption {
             use_stderr: stderr,
             when: parser.app.color(),
         });
@@ -182,15 +182,13 @@ impl<'w> Help<'w> {
         }
         let mut first = true;
         let arg_c = arg_v.len();
-        let mut current_arg_ix = 0;
-        for arg in arg_v {
+        for (i, arg) in arg_v.iter().enumerate() {
             if first {
                 first = false;
             } else {
                 self.writer.write_all(b"\n")?;
             }
-            self.write_arg(arg, current_arg_ix < arg_c)?;
-            current_arg_ix += 1;
+            self.write_arg(arg, i < arg_c)?;
         }
         Ok(())
     }
@@ -463,7 +461,7 @@ impl<'w> Help<'w> {
             write!(self.writer, "{}", part)?;
         }
         for part in help.lines().skip(1) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
             if nlh || self.force_next_line {
                 write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
             } else if arg.has_switch() {
@@ -474,7 +472,7 @@ impl<'w> Help<'w> {
             write!(self.writer, "{}", part)?;
         }
         if !prevent_nlh && !help.contains('\n') && (nlh || self.force_next_line) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
         }
         Ok(())
     }
@@ -654,7 +652,7 @@ impl<'w> Help<'w> {
             write!(self.writer, "{}", part)?;
         }
         for part in help.lines().skip(1) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
             if nlh || self.force_next_line {
                 write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
             } else {
@@ -663,7 +661,7 @@ impl<'w> Help<'w> {
             write!(self.writer, "{}", part)?;
         }
         if !help.contains('\n') && (nlh || self.force_next_line) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
         }
         Ok(())
     }
@@ -674,7 +672,7 @@ impl<'w> Help<'w> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
     #[cfg_attr(feature = "lints", allow(useless_let_if_seq))]
-    #[cfg_attr(feature = "cargo-clippy", allow(useless_let_if_seq))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();

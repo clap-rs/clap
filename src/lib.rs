@@ -527,20 +527,17 @@
 )]
 // @TODO @v3-beta: remove me!
 #![allow(deprecated)]
-// Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (bitflags, clippy)
-//      trivial_numeric_casts       (bitflags)
 #![cfg_attr(
     not(any(feature = "lints", feature = "nightly")),
     forbid(unstable_features)
 )]
-#![cfg_attr(feature = "lints", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
-#![cfg_attr(feature = "lints", allow(doc_markdown))]
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+#![cfg_attr(feature = "lints", feature(plugin))]
+#![cfg_attr(feature = "lints", plugin(clippy))]
+// #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+// #![cfg_attr(feature = "lints", allow(doc_markdown))]
+// #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 extern crate ansi_term;
@@ -586,9 +583,9 @@ mod output;
 mod parse;
 mod util;
 
-const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
+const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/kbknapp/clap-rs/issues";
-const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs
 pub trait Clap: FromArgMatches + IntoApp + Sized {}
