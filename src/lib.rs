@@ -584,7 +584,7 @@ mod parse;
 mod util;
 
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
-                                          report at https://github.com/kbknapp/clap-rs/issues";
+                                  report at https://github.com/kbknapp/clap-rs/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs

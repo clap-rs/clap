@@ -171,8 +171,12 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
             longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
         }
 
-        if let Some(s) = short { self.insert_key(s, index) }
-        if let Some(p) = positional { self.insert_key(p, index) }
+        if let Some(s) = short {
+            self.insert_key(s, index)
+        }
+        if let Some(p) = positional {
+            self.insert_key(p, index)
+        }
     }
 
     pub fn find_by_name(&mut self, name: &str) -> usize {

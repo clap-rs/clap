@@ -139,7 +139,9 @@ where
         );
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        let only_highest = |a: &Arg| a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64);
+        let only_highest = |a: &Arg| {
+            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64)
+        };
         if positionals!(self.app).any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
@@ -480,7 +482,10 @@ where
                 }
             }
 
-            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) || self.is_set(AS::AllowExternalSubcommands) || self.is_set(AS::InferSubcommands)) {
+            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
+                || self.is_set(AS::AllowExternalSubcommands)
+                || self.is_set(AS::InferSubcommands))
+            {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
                 {

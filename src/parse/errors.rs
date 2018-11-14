@@ -444,12 +444,7 @@ impl Error {
         }
     }
     #[doc(hidden)]
-    pub fn argument_conflict<O, U>(
-        arg: &Arg,
-        other: Option<O>,
-        usage: U,
-        color: ColorWhen,
-    ) -> Self
+    pub fn argument_conflict<O, U>(arg: &Arg, other: Option<O>, usage: U, color: ColorWhen) -> Self
     where
         O: Into<String>,
         U: Display,

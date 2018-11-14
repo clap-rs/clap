@@ -5,12 +5,7 @@ struct Child<T> {
 }
 
 impl<T> Child<T> {
-    fn new(id: T) -> Self {
-        Child {
-            id,
-            children: None,
-        }
-    }
+    fn new(id: T) -> Self { Child { id, children: None } }
 }
 
 #[derive(Debug)]

@@ -302,13 +302,13 @@ impl<'a, 'b, 'c, 'z> Validator<'a, 'b, 'c, 'z> {
                     }
                 }
             } else if let Some(g) = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .filter(|g| !g.multiple)
-                    .find(|grp| &grp.name == name)
-                {
+                .p
+                .app
+                .groups
+                .iter()
+                .filter(|g| !g.multiple)
+                .find(|grp| &grp.name == name)
+            {
                 debugln!("Validator::gather_conflicts:iter:{}:group;", name);
                 self.c.insert(g.name);
             }
