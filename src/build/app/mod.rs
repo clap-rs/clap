@@ -1062,7 +1062,7 @@ impl<'a, 'b> App<'a, 'b> {
         self._build(Propagation::NextLevel);
 
         let p = Parser::new(self);
-        Help::write_parser_help(w, &p, false)
+        Help::new(w, &p, false, false).write_help()
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1087,7 +1087,7 @@ impl<'a, 'b> App<'a, 'b> {
         self._build(Propagation::NextLevel);
 
         let p = Parser::new(self);
-        Help::write_parser_help(w, &p, true)
+        Help::new(w, &p, true, false).write_help()
     }
 
     /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.

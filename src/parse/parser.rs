@@ -1508,7 +1508,7 @@ where
     }
 
     pub(crate) fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::write_parser_help_to_stderr(w, &self)
+        Help::new(w, self, false, true).write_help()
     }
 
     fn help_err(&self, mut use_long: bool) -> ClapError {
@@ -1518,7 +1518,7 @@ where
         );
         use_long = use_long && self.use_long_help();
         let mut buf = vec![];
-        match Help::write_parser_help(&mut buf, self, use_long) {
+        match Help::new(&mut buf, self, use_long, false).write_help() {
             Err(e) => e,
             _ => ClapError {
                 message: String::from_utf8(buf).unwrap_or_default(),

@@ -74,19 +74,11 @@ color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 derive      = ["clap_derive"]
 yaml        = ["yaml-rust"]
-unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
-nightly     = [] # for building with unstable Rust features (currently none)
+unstable    = [] # for building with unstable clap features (doesn't require nightly Rust)
+nightly     = [] # for building with unstable Rust features
 debug       = [] # Enables debug messages
 no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 doc         = ["yaml"] # All the features which add to documentation
-
-# [profile.release]
-# opt-level = 3
-# debug = false
-# rpath = false
-# lto = true
-# debug-assertions = false
-# codegen-units = 1
 
 [profile.dev]
 opt-level = 0
