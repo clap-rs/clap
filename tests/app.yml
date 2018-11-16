@@ -90,6 +90,11 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
+    - case_insensitive:
+        help: Test case_insensitive
+        possible_values: [test123, test321]
+        case_insensitive: true
+
 arg_groups:
     - test:
         args:
