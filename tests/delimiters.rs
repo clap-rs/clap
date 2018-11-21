@@ -6,7 +6,7 @@ use clap::{App, Arg, ArgSettings};
 fn opt_default_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .long("option")
                 .setting(ArgSettings::TakesValue),
         )
@@ -24,7 +24,7 @@ fn opt_default_no_delim() {
 fn opt_eq_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .long("option")
                 .setting(ArgSettings::TakesValue),
         )
@@ -42,7 +42,7 @@ fn opt_eq_no_delim() {
 fn opt_s_eq_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .setting(ArgSettings::TakesValue),
         )
@@ -60,7 +60,7 @@ fn opt_s_eq_no_delim() {
 fn opt_s_default_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .setting(ArgSettings::TakesValue),
         )
@@ -78,7 +78,7 @@ fn opt_s_default_no_delim() {
 fn opt_s_no_space_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .setting(ArgSettings::TakesValue),
         )
@@ -96,7 +96,7 @@ fn opt_s_no_space_no_delim() {
 fn opt_s_no_space_mult_no_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .setting(ArgSettings::MultipleValues),
         )
@@ -114,7 +114,7 @@ fn opt_s_no_space_mult_no_delim() {
 fn opt_eq_mult_def_delim() {
     let m = App::new("no_delim")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .long("opt")
                 .multiple(true)
                 .use_delimiter(true)

@@ -279,7 +279,7 @@ fn app<F>(next_line_help: bool, doc: F) -> App<'static, 'static>
 where
     F: Fn(&'static str) -> &'static str,
 {
-    let arg = |name| Arg::with_name(name).help(doc(name));
+    let arg = |name| Arg::new(name).help(doc(name));
     let flag = |name| arg(name).long(name);
 
     App::new("ripgrep")

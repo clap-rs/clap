@@ -59,7 +59,7 @@ fn create_app_builder(b: &mut Bencher) {
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
             .arg(
-                Arg::with_name("opt")
+                Arg::new("opt")
                     .help("tests options")
                     .short('o')
                     .long("option")
@@ -67,26 +67,26 @@ fn create_app_builder(b: &mut Bencher) {
                     .setting(ArgSettings::MultipleOccurrences),
             )
             .arg(
-                Arg::with_name("positional")
+                Arg::new("positional")
                     .help("tests positionals")
                     .index(1),
             )
             .arg(
-                Arg::with_name("flag")
+                Arg::new("flag")
                     .short('f')
                     .help("tests flags")
                     .long("flag")
                     .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::Global]),
             )
             .arg(
-                Arg::with_name("flag2")
+                Arg::new("flag2")
                     .short('F')
                     .help("tests flags with exclusions")
                     .conflicts_with("flag")
                     .requires("option2"),
             )
             .arg(
-                Arg::with_name("option2")
+                Arg::new("option2")
                     .help("tests long options with exclusions")
                     .conflicts_with("option")
                     .requires("positional2")
@@ -94,12 +94,12 @@ fn create_app_builder(b: &mut Bencher) {
                     .long("long-option-2"),
             )
             .arg(
-                Arg::with_name("positional2")
+                Arg::new("positional2")
                     .index(3)
                     .help("tests positionals with exclusions"),
             )
             .arg(
-                Arg::with_name("option3")
+                Arg::new("option3")
                     .short('O')
                     .long("Option")
                     .setting(ArgSettings::TakesValue)
@@ -107,7 +107,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .possible_values(&OPT3_VALS),
             )
             .arg(
-                Arg::with_name("positional3")
+                Arg::new("positional3")
                     .setting(ArgSettings::MultipleValues)
                     .setting(ArgSettings::MultipleOccurrences)
                     .help("tests positionals with specific values")
@@ -115,13 +115,13 @@ fn create_app_builder(b: &mut Bencher) {
                     .possible_values(&POS3_VALS),
             )
             .arg(
-                Arg::with_name("multvals")
+                Arg::new("multvals")
                     .long("multvals")
                     .help("Tests mutliple values, not mult occs")
                     .value_names(&["one", "two"]),
             )
             .arg(
-                Arg::with_name("multvalsmo")
+                Arg::new("multvalsmo")
                     .long("multvalsmo")
                     .setting(ArgSettings::MultipleValues)
                     .setting(ArgSettings::MultipleOccurrences)
@@ -129,7 +129,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .value_names(&["one", "two"]),
             )
             .arg(
-                Arg::with_name("minvals")
+                Arg::new("minvals")
                     .long("minvals2")
                     .setting(ArgSettings::MultipleValues)
                     .setting(ArgSettings::MultipleOccurrences)
@@ -137,7 +137,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .min_values(2),
             )
             .arg(
-                Arg::with_name("maxvals")
+                Arg::new("maxvals")
                     .long("maxvals3")
                     .setting(ArgSettings::MultipleValues)
                     .setting(ArgSettings::MultipleOccurrences)
@@ -150,7 +150,7 @@ fn create_app_builder(b: &mut Bencher) {
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")
                     .arg(
-                        Arg::with_name("scoption")
+                        Arg::new("scoption")
                             .short('o')
                             .long("option")
                             .setting(ArgSettings::MultipleValues)
@@ -158,7 +158,7 @@ fn create_app_builder(b: &mut Bencher) {
                             .help("tests options"),
                     )
                     .arg(
-                        Arg::with_name("scpositional")
+                        Arg::new("scpositional")
                             .index(1)
                             .help("tests positionals"),
                     ),

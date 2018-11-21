@@ -77,7 +77,7 @@ OPTIONS:
 fn sub_command_negate_required() {
     App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg(Arg::with_name("test").required(true).index(1))
+        .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
         .get_matches_from(vec!["myprog", "sub1"]);
 }
@@ -96,7 +96,7 @@ fn global_version() {
 fn sub_command_negate_required_2() {
     let result = App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg(Arg::with_name("test").required(true).index(1))
+        .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
@@ -119,7 +119,7 @@ fn sub_command_required() {
 fn arg_required_else_help() {
     let result = App::new("arg_required")
         .setting(AppSettings::ArgRequiredElseHelp)
-        .arg(Arg::with_name("test").index(1))
+        .arg(Arg::new("test").index(1))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -130,7 +130,7 @@ fn arg_required_else_help() {
 fn arg_required_else_help_over_reqs() {
     let result = App::new("arg_required")
         .setting(AppSettings::ArgRequiredElseHelp)
-        .arg(Arg::with_name("test").index(1).required(true))
+        .arg(Arg::new("test").index(1).required(true))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -165,7 +165,7 @@ fn infer_subcommands_fail_no_args() {
 fn infer_subcommands_fail_with_args() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .arg(Arg::with_name("some"))
+        .arg(Arg::new("some"))
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "t"]);
@@ -177,7 +177,7 @@ fn infer_subcommands_fail_with_args() {
 fn infer_subcommands_fail_with_args2() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
-        .arg(Arg::with_name("some"))
+        .arg(Arg::new("some"))
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
@@ -232,7 +232,7 @@ fn infer_subcommands_fail_suggestions() {
 fn no_bin_name() {
     let result = App::new("arg_required")
         .setting(AppSettings::NoBinaryName)
-        .arg(Arg::with_name("test").required(true).index(1))
+        .arg(Arg::new("test").required(true).index(1))
         .try_get_matches_from(vec!["testing"]);
     assert!(result.is_ok());
     let matches = result.unwrap();
@@ -416,8 +416,8 @@ fn delim_values_trailingvararg_with_delim() {
 fn leading_hyphen_short() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::with_name("some"))
-        .arg(Arg::with_name("other").short('o'))
+        .arg(Arg::new("some"))
+        .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "-bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -430,8 +430,8 @@ fn leading_hyphen_short() {
 fn leading_hyphen_long() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::with_name("some"))
-        .arg(Arg::with_name("other").short('o'))
+        .arg(Arg::new("some"))
+        .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -444,8 +444,8 @@ fn leading_hyphen_long() {
 fn leading_hyphen_opt() {
     let res = App::new("leadhy")
         .setting(AppSettings::AllowLeadingHyphen)
-        .arg(Arg::with_name("some").takes_value(true).long("opt"))
-        .arg(Arg::with_name("other").short('o'))
+        .arg(Arg::new("some").takes_value(true).long("opt"))
+        .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -458,8 +458,8 @@ fn leading_hyphen_opt() {
 fn allow_negative_numbers() {
     let res = App::new("negnum")
         .setting(AppSettings::AllowNegativeNumbers)
-        .arg(Arg::with_name("panum"))
-        .arg(Arg::with_name("onum").short('o').takes_value(true))
+        .arg(Arg::new("panum"))
+        .arg(Arg::new("onum").short('o').takes_value(true))
         .try_get_matches_from(vec!["negnum", "-20", "-o", "-1.2"]);
     assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
     let m = res.unwrap();
@@ -471,8 +471,8 @@ fn allow_negative_numbers() {
 fn allow_negative_numbers_fail() {
     let res = App::new("negnum")
         .setting(AppSettings::AllowNegativeNumbers)
-        .arg(Arg::with_name("panum"))
-        .arg(Arg::with_name("onum").short('o').takes_value(true))
+        .arg(Arg::new("panum"))
+        .arg(Arg::new("onum").short('o').takes_value(true))
         .try_get_matches_from(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument)
@@ -536,9 +536,9 @@ fn dont_collapse_args() {
         .version("v1.4.8")
         .setting(AppSettings::DontCollapseArgsInUsage)
         .args(&[
-            Arg::with_name("arg1").help("some"),
-            Arg::with_name("arg2").help("some"),
-            Arg::with_name("arg3").help("some"),
+            Arg::new("arg1").help("some"),
+            Arg::new("arg2").help("some"),
+            Arg::new("arg3").help("some"),
         ]);
     assert!(test::compare_output(
         app,
@@ -551,7 +551,7 @@ fn dont_collapse_args() {
 #[test]
 fn require_eq() {
     let app = App::new("clap-test").version("v1.4.8").arg(
-        Arg::with_name("opt")
+        Arg::new("opt")
             .long("opt")
             .short('o')
             .required(true)

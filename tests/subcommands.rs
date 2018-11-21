@@ -57,14 +57,14 @@ fn subcommand() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
         )
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
@@ -78,14 +78,14 @@ fn subcommand_none_given() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
         )
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec![""]);
 
     assert!(m.subcommand_name().is_none());
@@ -96,15 +96,15 @@ fn subcommand_multiple() {
     let m = App::new("test")
         .subcommands(vec![
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .help("testing testing"),
             ),
-            App::new("add").arg(Arg::with_name("roster").short('r')),
+            App::new("add").arg(Arg::new("roster").short('r')),
         ])
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert!(m.subcommand_matches("some").is_some());
@@ -214,9 +214,9 @@ fn issue_1031_args_with_same_name_no_more_vals() {
 fn issue_1161_multiple_hyphen_hyphen() {
     // from example 22
     let res = App::new("myprog")
-        .arg(Arg::with_name("eff").short('f'))
-        .arg(Arg::with_name("pea").short('p').takes_value(true))
-        .arg(Arg::with_name("slop").multiple(true).last(true))
+        .arg(Arg::new("eff").short('f'))
+        .arg(Arg::new("pea").short('p').takes_value(true))
+        .arg(Arg::new("slop").multiple(true).last(true))
         .try_get_matches_from(vec![
             "-f",
             "-p=bob",

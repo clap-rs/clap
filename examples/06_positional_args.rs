@@ -14,7 +14,7 @@ fn main() {
         // mind that you DO NOT need to set each of these for every flag, only the
         // ones that apply to your individual case.
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .help("the input file to use") // Displayed when showing help info
                 .index(1) // Set the order in which the user must
                 // specify this argument (Starts at 1)
@@ -30,7 +30,7 @@ fn main() {
                                  // required arguments
         )
         .arg(
-            Arg::with_name("config")
+            Arg::new("config")
                 .help("the config file to use")
                 .index(2),
         ) // Note, we do not need to specify required(true)

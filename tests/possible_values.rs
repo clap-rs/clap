@@ -33,7 +33,7 @@ For more information try --help";
 fn possible_values_of_positional() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("positional")
+            Arg::new("positional")
                 .index(1)
                 .possible_value("test123"),
         )
@@ -50,7 +50,7 @@ fn possible_values_of_positional() {
 fn possible_values_of_positional_fail() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("positional")
+            Arg::new("positional")
                 .index(1)
                 .possible_value("test123"),
         )
@@ -64,7 +64,7 @@ fn possible_values_of_positional_fail() {
 fn possible_values_of_positional_multiple() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("positional")
+            Arg::new("positional")
                 .index(1)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -86,7 +86,7 @@ fn possible_values_of_positional_multiple() {
 fn possible_values_of_positional_multiple_fail() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("positional")
+            Arg::new("positional")
                 .index(1)
                 .possible_value("test123")
                 .possible_value("test321")
@@ -102,7 +102,7 @@ fn possible_values_of_positional_multiple_fail() {
 fn possible_values_of_option() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -121,7 +121,7 @@ fn possible_values_of_option() {
 fn possible_values_of_option_fail() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -137,7 +137,7 @@ fn possible_values_of_option_fail() {
 fn possible_values_of_option_multiple() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -161,7 +161,7 @@ fn possible_values_of_option_multiple() {
 fn possible_values_of_option_multiple_fail() {
     let m = App::new("possible_values")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -189,7 +189,7 @@ fn possible_values_output() {
 fn case_insensitive() {
     let m = App::new("pv")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -211,7 +211,7 @@ fn case_insensitive() {
 fn case_insensitive_faili() {
     let m = App::new("pv")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -228,7 +228,7 @@ fn case_insensitive_faili() {
 fn case_insensitive_multiple() {
     let m = App::new("pv")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)
@@ -250,7 +250,7 @@ fn case_insensitive_multiple() {
 fn case_insensitive_multiple_fail() {
     let m = App::new("pv")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .long("--option")
                 .takes_value(true)

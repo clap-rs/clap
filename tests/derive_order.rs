@@ -120,13 +120,13 @@ OPTIONS:
 #[test]
 fn no_derive_order() {
     let app = App::new("test").version("1.2").args(&[
-        Arg::with_name("flag_b").long("flag_b").help("first flag"),
-        Arg::with_name("option_b")
+        Arg::new("flag_b").long("flag_b").help("first flag"),
+        Arg::new("option_b")
             .long("option_b")
             .takes_value(true)
             .help("first option"),
-        Arg::with_name("flag_a").long("flag_a").help("second flag"),
-        Arg::with_name("option_a")
+        Arg::new("flag_a").long("flag_a").help("second flag"),
+        Arg::new("option_a")
             .long("option_a")
             .takes_value(true)
             .help("second option"),
@@ -146,13 +146,13 @@ fn derive_order() {
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .args(&[
-            Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b")
+            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("option_b")
                 .long("option_b")
                 .takes_value(true)
                 .help("first option"),
-            Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a")
+            Arg::new("flag_a").long("flag_a").help("second flag"),
+            Arg::new("option_a")
                 .long("option_a")
                 .takes_value(true)
                 .help("second option"),
@@ -172,13 +172,13 @@ fn unified_help() {
         .setting(AppSettings::UnifiedHelpMessage)
         .version("1.2")
         .args(&[
-            Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b")
+            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("option_b")
                 .long("option_b")
                 .takes_value(true)
                 .help("first option"),
-            Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a")
+            Arg::new("flag_a").long("flag_a").help("second flag"),
+            Arg::new("option_a")
                 .long("option_a")
                 .takes_value(true)
                 .help("second option"),
@@ -199,13 +199,13 @@ fn unified_help_and_derive_order() {
         .setting(AppSettings::UnifiedHelpMessage)
         .version("1.2")
         .args(&[
-            Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b")
+            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("option_b")
                 .long("option_b")
                 .takes_value(true)
                 .help("first option"),
-            Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a")
+            Arg::new("flag_a").long("flag_a").help("second flag"),
+            Arg::new("option_a")
                 .long("option_a")
                 .takes_value(true)
                 .help("second option"),
@@ -226,13 +226,13 @@ fn derive_order_subcommand_propagate() {
         .version("1.2")
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b")
+                Arg::new("flag_b").long("flag_b").help("first flag"),
+                Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
                     .help("first option"),
-                Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a")
+                Arg::new("flag_a").long("flag_a").help("second flag"),
+                Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
                     .help("second option"),
@@ -253,13 +253,13 @@ fn unified_help_subcommand_propagate() {
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b")
+                Arg::new("flag_b").long("flag_b").help("first flag"),
+                Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
                     .help("first option"),
-                Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a")
+                Arg::new("flag_a").long("flag_a").help("second flag"),
+                Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
                     .help("second option"),
@@ -281,13 +281,13 @@ fn unified_help_and_derive_order_subcommand_propagate() {
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b")
+                Arg::new("flag_b").long("flag_b").help("first flag"),
+                Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
                     .help("first option"),
-                Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a")
+                Arg::new("flag_a").long("flag_a").help("second flag"),
+                Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
                     .help("second option"),
@@ -309,16 +309,16 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
         .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b")
+                Arg::new("flag_b").long("flag_b").help("first flag"),
+                Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
                     .help("first option"),
-                Arg::with_name("flag_a")
+                Arg::new("flag_a")
                     .long("flag_a")
                     .help("second flag")
                     .display_order(0),
-                Arg::with_name("option_a")
+                Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
                     .help("second option"),

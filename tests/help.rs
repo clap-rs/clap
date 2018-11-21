@@ -598,33 +598,33 @@ fn args_with_last_usage() {
         .version("0.1")
         .setting(AppSettings::TrailingVarArg)
         .arg(
-            Arg::with_name("verbose")
+            Arg::new("verbose")
                 .help("Prints out more stuff.")
                 .short('v')
                 .long("verbose")
                 .setting(ArgSettings::MultipleOccurrences),
         )
         .arg(
-            Arg::with_name("timeout")
+            Arg::new("timeout")
                 .help("Timeout in seconds.")
                 .short('t')
                 .long("timeout")
                 .value_name("SECONDS"),
         )
         .arg(
-            Arg::with_name("frequency")
+            Arg::new("frequency")
                 .help("The sampling frequency.")
                 .short('f')
                 .long("frequency")
                 .value_name("HERTZ"),
         )
         .arg(
-            Arg::with_name("binary path")
+            Arg::new("binary path")
                 .help("The path of the binary to be profiled. for a binary.")
                 .value_name("BINFILE"),
         )
         .arg(
-            Arg::with_name("pass through args")
+            Arg::new("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
                 .settings(&[
                     ArgSettings::MultipleValues,
@@ -748,7 +748,7 @@ fn complex_subcommand_help_output() {
 #[test]
 fn issue_626_unicode_cutoff() {
     let app = App::new("ctest").version("0.1").set_term_width(70).arg(
-        Arg::with_name("cafe")
+        Arg::new("cafe")
             .short('c')
             .long("cafe")
             .value_name("FILE")
@@ -775,7 +775,7 @@ fn hide_possible_vals() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(
-            Arg::with_name("pos")
+            Arg::new("pos")
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
@@ -784,7 +784,7 @@ fn hide_possible_vals() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("cafe")
+            Arg::new("cafe")
                 .short('c')
                 .long("cafe")
                 .value_name("FILE")
@@ -806,7 +806,7 @@ fn issue_626_panic() {
     let app = App::new("ctest")
         .version("0.1")
         .set_term_width(52)
-        .arg(Arg::with_name("cafe")
+        .arg(Arg::new("cafe")
            .short('c')
            .long("cafe")
            .value_name("FILE")
@@ -828,7 +828,7 @@ fn issue_626_variable_panic() {
         let _ = App::new("ctest")
             .version("0.1")
             .set_term_width(i)
-            .arg(Arg::with_name("cafe")
+            .arg(Arg::new("cafe")
                .short('c')
                .long("cafe")
                .value_name("FILE")
@@ -856,7 +856,7 @@ fn wrapping_newline_chars() {
     let app = App::new("ctest")
         .version("0.1")
         .set_term_width(60)
-        .arg(Arg::with_name("mode").help(
+        .arg(Arg::new("mode").help(
             "x, max, maximum   20 characters, contains symbols.{n}\
              l, long           Copy-friendly, 14 characters, contains symbols.{n}\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
@@ -872,7 +872,7 @@ fn wrapping_newline_chars() {
 #[test]
 fn old_newline_chars() {
     let app = App::new("ctest").version("0.1").arg(
-        Arg::with_name("mode")
+        Arg::new("mode")
             .short('m')
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
@@ -892,7 +892,7 @@ fn issue_688_hidden_pos_vals() {
             .version("0.1")
 			.set_term_width(120)
 			.setting(AppSettings::HidePossibleValuesInHelp)
-			.arg(Arg::with_name("filter")
+			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
@@ -903,7 +903,7 @@ fn issue_688_hidden_pos_vals() {
     let app2 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
-			.arg(Arg::with_name("filter")
+			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear).")
 				.long("filter")
@@ -914,7 +914,7 @@ fn issue_688_hidden_pos_vals() {
     let app3 = App::new("ctest")
             .version("0.1")
 			.set_term_width(120)
-			.arg(Arg::with_name("filter")
+			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
@@ -928,24 +928,24 @@ fn issue_702_multiple_values() {
         .version("1.0")
         .author("foo")
         .about("bar")
-        .arg(Arg::with_name("arg1").help("some option"))
-        .arg(Arg::with_name("arg2").multiple(true).help("some option"))
+        .arg(Arg::new("arg1").help("some option"))
+        .arg(Arg::new("arg2").multiple(true).help("some option"))
         .arg(
-            Arg::with_name("some")
+            Arg::new("some")
                 .help("some option")
                 .short('s')
                 .long("some")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("other")
+            Arg::new("other")
                 .help("some other option")
                 .short('o')
                 .long("other")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("label")
+            Arg::new("label")
                 .help("a label")
                 .short('l')
                 .long("label")
@@ -964,7 +964,7 @@ fn long_about() {
         .long_about(
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
         )
-        .arg(Arg::with_name("arg1").help("some option"));
+        .arg(Arg::new("arg1").help("some option"));
     assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
 }
 
@@ -973,7 +973,7 @@ fn issue_760() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .help("tests options")
                 .short('o')
                 .long("option")
@@ -982,7 +982,7 @@ fn issue_760() {
                 .number_of_values(1),
         )
         .arg(
-            Arg::with_name("opt")
+            Arg::new("opt")
                 .help("tests options")
                 .short('O')
                 .long("opt")
@@ -1033,7 +1033,7 @@ fn sc_negates_reqs() {
         .version("1.0")
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg("-o, --opt <FILE> 'tests options'")
-        .arg(Arg::with_name("PATH").help("help"))
+        .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(test::compare_output(
         app,
@@ -1049,7 +1049,7 @@ fn hidden_args() {
         .version("1.0")
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
-        .arg(Arg::with_name("pos").hidden(true));
+        .arg(Arg::new("pos").hidden(true));
     assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
 }
 
@@ -1060,7 +1060,7 @@ fn args_negate_sc() {
         .setting(AppSettings::ArgsNegateSubcommands)
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
-        .arg(Arg::with_name("PATH").help("help"))
+        .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(test::compare_output(
         app,
@@ -1076,7 +1076,7 @@ fn issue_1046_hidden_scs() {
         .version("1.0")
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
-        .arg(Arg::with_name("PATH").help("some"))
+        .arg(Arg::new("PATH").help("some"))
         .subcommand(App::new("test").setting(AppSettings::Hidden));
     assert!(test::compare_output(
         app,
@@ -1122,10 +1122,10 @@ fn customize_version_and_help() {
 fn last_arg_mult_usage() {
     let app = App::new("last")
         .version("0.1")
-        .arg(Arg::with_name("TARGET").required(true).help("some"))
-        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
-            Arg::with_name("ARGS")
+            Arg::new("ARGS")
                 .multiple(true)
                 .last(true)
                 .help("some"),
@@ -1137,10 +1137,10 @@ fn last_arg_mult_usage() {
 fn last_arg_mult_usage_req() {
     let app = App::new("last")
         .version("0.1")
-        .arg(Arg::with_name("TARGET").required(true).help("some"))
-        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
-            Arg::with_name("ARGS")
+            Arg::new("ARGS")
                 .multiple(true)
                 .last(true)
                 .required(true)
@@ -1159,10 +1159,10 @@ fn last_arg_mult_usage_req_with_sc() {
     let app = App::new("last")
         .version("0.1")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg(Arg::with_name("TARGET").required(true).help("some"))
-        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
-            Arg::with_name("ARGS")
+            Arg::new("ARGS")
                 .multiple(true)
                 .last(true)
                 .required(true)
@@ -1182,10 +1182,10 @@ fn last_arg_mult_usage_with_sc() {
     let app = App::new("last")
         .version("0.1")
         .setting(AppSettings::ArgsNegateSubcommands)
-        .arg(Arg::with_name("TARGET").required(true).help("some"))
-        .arg(Arg::with_name("CORPUS").help("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
-            Arg::with_name("ARGS")
+            Arg::new("ARGS")
                 .multiple(true)
                 .last(true)
                 .help("some"),
@@ -1197,7 +1197,7 @@ fn last_arg_mult_usage_with_sc() {
 #[test]
 fn hidden_default_val() {
     let app1 = App::new("default").version("0.1").set_term_width(120).arg(
-        Arg::with_name("argument")
+        Arg::new("argument")
             .help("Pass an argument to the program. [default: default-argument]")
             .long("arg")
             .default_value("default-argument")
@@ -1211,7 +1211,7 @@ fn hidden_default_val() {
     ));
 
     let app2 = App::new("default").version("0.1").set_term_width(120).arg(
-        Arg::with_name("argument")
+        Arg::new("argument")
             .help("Pass an argument to the program.")
             .long("arg")
             .default_value("default-argument"),
@@ -1302,7 +1302,7 @@ fn hide_env_vals() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(
-            Arg::with_name("pos")
+            Arg::new("pos")
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
@@ -1311,7 +1311,7 @@ fn hide_env_vals() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("cafe")
+            Arg::new("cafe")
                 .short('c')
                 .long("cafe")
                 .value_name("FILE")
@@ -1336,7 +1336,7 @@ fn show_env_vals() {
     let app = App::new("ctest")
         .version("0.1")
         .arg(
-            Arg::with_name("pos")
+            Arg::new("pos")
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
@@ -1345,7 +1345,7 @@ fn show_env_vals() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("cafe")
+            Arg::new("cafe")
                 .short('c')
                 .long("cafe")
                 .value_name("FILE")
@@ -1375,7 +1375,7 @@ fn custom_headers_headers() {
         )
         .help_heading("NETWORKING")
         .arg(
-            Arg::with_name("no-proxy")
+            Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings"),
@@ -1423,7 +1423,7 @@ fn multiple_custom_help_headers() {
         )
         .help_heading("NETWORKING")
         .arg(
-            Arg::with_name("no-proxy")
+            Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings"),
@@ -1434,7 +1434,7 @@ fn multiple_custom_help_headers() {
         ))
         .stop_custom_headings()
         .arg(
-            Arg::with_name("speed")
+            Arg::new("speed")
                 .long("speed")
                 .short('s')
                 .value_name("SPEED")

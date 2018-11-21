@@ -9,13 +9,13 @@ use clap::{App, Arg};
 fn indices_mult_opts() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .takes_value(true)
                 .multiple(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .takes_value(true)
                 .multiple(true),
@@ -36,13 +36,13 @@ fn indices_mult_opts() {
 fn index_mult_opts() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .takes_value(true)
                 .multiple(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .takes_value(true)
                 .multiple(true),
@@ -56,8 +56,8 @@ fn index_mult_opts() {
 #[test]
 fn index_flag() {
     let m = App::new("ind")
-        .arg(Arg::with_name("exclude").short('e'))
-        .arg(Arg::with_name("include").short('i'))
+        .arg(Arg::new("exclude").short('e'))
+        .arg(Arg::new("include").short('i'))
         .get_matches_from(vec!["ind", "-e", "-i"]);
 
     assert_eq!(m.index_of("exclude"), Some(1));
@@ -68,12 +68,12 @@ fn index_flag() {
 fn index_flags() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .multiple_occurrences(true),
         )
@@ -87,12 +87,12 @@ fn index_flags() {
 fn indices_mult_flags() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .multiple_occurrences(true),
         )
@@ -112,12 +112,12 @@ fn indices_mult_flags() {
 fn indices_mult_flags_combined() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .multiple_occurrences(true),
         )
@@ -137,16 +137,16 @@ fn indices_mult_flags_combined() {
 fn indices_mult_flags_opt_combined() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .multiple_occurrences(true),
         )
-        .arg(Arg::with_name("option").short('o').takes_value(true))
+        .arg(Arg::new("option").short('o').takes_value(true))
         .get_matches_from(vec!["ind", "-eieeio", "val"]);
 
     assert_eq!(
@@ -164,16 +164,16 @@ fn indices_mult_flags_opt_combined() {
 fn indices_mult_flags_opt_combined_eq() {
     let m = App::new("ind")
         .arg(
-            Arg::with_name("exclude")
+            Arg::new("exclude")
                 .short('e')
                 .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("include")
+            Arg::new("include")
                 .short('i')
                 .multiple_occurrences(true),
         )
-        .arg(Arg::with_name("option").short('o').takes_value(true))
+        .arg(Arg::new("option").short('o').takes_value(true))
         .get_matches_from(vec!["ind", "-eieeio=val"]);
 
     assert_eq!(
@@ -191,7 +191,7 @@ fn indices_mult_flags_opt_combined_eq() {
 fn indices_mult_opt_value_delim_eq() {
     let m = App::new("myapp")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .takes_value(true)
                 .use_delimiter(true)
@@ -208,7 +208,7 @@ fn indices_mult_opt_value_delim_eq() {
 fn indices_mult_opt_value_no_delim_eq() {
     let m = App::new("myapp")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .takes_value(true)
                 .multiple(true),
@@ -221,12 +221,12 @@ fn indices_mult_opt_value_no_delim_eq() {
 fn indices_mult_opt_mult_flag() {
     let m = App::new("myapp")
         .arg(
-            Arg::with_name("option")
+            Arg::new("option")
                 .short('o')
                 .takes_value(true)
                 .multiple_occurrences(true),
         )
-        .arg(Arg::with_name("flag").short('f').multiple_occurrences(true))
+        .arg(Arg::new("flag").short('f').multiple_occurrences(true))
         .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
 
     assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
