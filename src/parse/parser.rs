@@ -30,14 +30,104 @@ use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
-pub enum ParseResult {
-    Flag,
-    Opt(u64),
-    Pos(u64),
-    MaybeHyphenValue,
-    MaybeNegNum,
-    NotFound,
-    ValuesDone,
+pub enum ParserState {
+    Initial,
+}
+
+fn assert_highest_index_matches_len(positionals: &[(u64, &Arg)]) {
+    // Firt we verify that the highest supplied index, is equal to the number of
+    // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
+    // but no 2)
+    let highest_idx = positionals.iter().max_by(|x| x.0).unwrap();
+
+    let num_p = positionals.len();
+
+    assert!(
+        highest_idx.0 == num_p as u64,
+        "Found positional argument whose index is {} but there \
+            are only {} positional arguments defined",
+        highest_idx.0,
+        num_p
+    );
+}
+
+fn assert_low_index_multiples(positionals: &[(u64, &Arg)]) {
+    // First we make sure if there is a positional that allows multiple values
+    // the one before it (second to last) has one of these:
+    //  * a value terminator
+    //  * ArgSettings::Last
+    //  * The last arg is Required
+
+    let last = positionals.iter().last().unwrap();
+
+    let second_to_last = positionals.iter().rev().next().unwrap();
+
+    // Either the final positional is required
+    // Or the second to last has a terminator or .last(true) set
+    let ok = (last.is_set(ArgSettings::Required) || last.is_set(ArgSettings::Last))
+        || (second_to_last.terminator.is_some()
+            || second_to_last.is_set(ArgSettings::Last));
+    assert!(
+        ok,
+        "When using a positional argument with .multiple(true) that is *not the \
+            last* positional argument, the last positional argument (i.e the one \
+            with the highest index) *must* have .required(true) or .last(true) set."
+    );
+}
+
+fn assert_missing_positionals(positionals: &[(u64, &Arg)]) {
+    // Check that if a required positional argument is found, all positions with a lower
+    // index are also required.
+    let mut found = false;
+    let mut foundx2 = false;
+
+    for (i, p) in positionals.iter().rev() {
+        if foundx2 && !p.is_set(ArgSettings::Required) {
+            assert!(
+                p.is_set(ArgSettings::Required),
+                "Found positional argument which is not required with a lower \
+                    index than a required positional argument by two or more: {:?} \
+                    index {:?}",
+                p.name,
+                i
+            );
+        } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
+            // Args that .last(true) don't count since they can be required and have
+            // positionals with a lower index that aren't required
+            // Imagine: prog <req1> [opt1] -- <req2>
+            // Both of these are valid invocations:
+            //      $ prog r1 -- r2
+            //      $ prog r1 o1 -- r2
+            if found {
+                foundx2 = true;
+                continue;
+            }
+            found = true;
+            continue;
+        } else {
+            found = false;
+        }
+    }
+}
+
+fn asssert_only_one_last(positionals: &[(u64, &Arg)]) {
+    assert!(
+        positionals.iter().fold(0, |acc, (_, p)| if p.is_set(ArgSettings::Last) {
+            acc + 1
+        } else {
+            acc
+        }) < 2,
+        "Only one positional argument may have last(true) set. Found two."
+    );
+}
+
+fn assert_required_last_and_subcommands(positionals: &[(u64, &Arg)]) {
+    assert!(!(positionals.iter()
+        .any(|(_, p)| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
+        && self.has_subcommands()
+        && !self.is_set(AS::SubcommandsNegateReqs)),
+            "Having a required positional argument with .last(true) set *and* child \
+                subcommands without setting SubcommandsNegateReqs isn't compatible.");
 }
 
 #[doc(hidden)]
@@ -46,9 +136,7 @@ where
     'help: 'c,
 {
     pub app: &'c mut App<'help>,
-    pub required: ChildGraph<u64>,
-    pub overriden: Vec<u64>,
-    seen: Vec<u64>,
+    seen: Vec<SeenArg>,
     cur_idx: Cell<usize>,
 }
 
@@ -58,229 +146,42 @@ where
     'help: 'c,
 {
     pub fn new(app: &'c mut App<'help>) -> Self {
-        let mut reqs = ChildGraph::with_capacity(5);
-        for a in app
-            .args
-            .args
-            .iter()
-            .filter(|a| a.settings.is_set(ArgSettings::Required))
-            .map(|a| a.id)
-        {
-            reqs.insert(a);
-        }
-
         Parser {
             app,
-            required: reqs,
-            overriden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
-    fn _verify_positionals(&mut self) -> bool {
-        debugln!("Parser::_verify_positionals;");
+    fn _setup_positionals(&mut self) -> bool {
+        debugln!("Parser::_setup_positionals;");
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
-        //
-        // Firt we verify that the index highest supplied index, is equal to the number of
-        // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
-        // but no 2)
 
-        // #[cfg(feature = "vec_map")]
-        // fn _highest_idx(map: &VecMap<&str>) -> usize { map.keys().last().unwrap_or(0) }
-
-        // #[cfg(not(feature = "vec_map"))]
-        // fn _highest_idx(map: &VecMap<&str>) -> usize { *map.keys().last().unwrap_or(&0) }
-
-        let highest_idx = *self
+        let positionals: Vec<_> = *self
             .app
             .args
-            .keys
             .iter()
-            .map(|x| &x.key)
-            .filter_map(|x| {
-                if let KeyType::Position(n) = x {
-                    Some(n)
-                } else {
-                    None
-                }
-            })
-            .max()
-            .unwrap_or(&0);
+            .filter(|x| x.index.is_some())
+            .map(|x| (x.index.unwrap(), x))
+            .collect();
+        
+        if positionals.is_empty() { return true; }
 
-        //_highest_idx(&self.positionals);
+        assert_highest_index_matches_len(&*positionals);
 
-        let num_p = self
-            .app
-            .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
-            .filter(|x| {
-                if let KeyType::Position(_) = x {
-                    true
-                } else {
-                    false
-                }
-            })
-            .count();
-
-        assert!(
-            highest_idx == num_p as u64,
-            "Found positional argument whose index is {} but there \
-             are only {} positional arguments defined",
-            highest_idx,
-            num_p
-        );
-
-        // Next we verify that only the highest index has a .multiple(true) (if any)
-        let only_highest = |a: &Arg| {
-            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx as u64)
-        };
-        if positionals!(self.app).any(only_highest) {
-            // First we make sure if there is a positional that allows multiple values
-            // the one before it (second to last) has one of these:
-            //  * a value terminator
-            //  * ArgSettings::Last
-            //  * The last arg is Required
-
-            // We can't pass the closure (it.next()) to the macro directly because each call to
-            // find() (iterator, not macro) gets called repeatedly.
-            let last = self
-                .app
-                .args
-                .get(&KeyType::Position(highest_idx))
-                .expect(INTERNAL_ERROR_MSG);
-
-            let second_to_last = self
-                .app
-                .args
-                .get(&KeyType::Position(highest_idx - 1))
-                .expect(INTERNAL_ERROR_MSG);
-
-            // Either the final positional is required
-            // Or the second to last has a terminator or .last(true) set
-            let ok = last.is_set(ArgSettings::Required)
-                || (second_to_last.terminator.is_some()
-                    || second_to_last.is_set(ArgSettings::Last))
-                || last.is_set(ArgSettings::Last);
-            assert!(
-                ok,
-                "When using a positional argument with .multiple(true) that is *not the \
-                 last* positional argument, the last positional argument (i.e the one \
-                 with the highest index) *must* have .required(true) or .last(true) set."
-            );
-
-            // We make sure if the second to last is Multiple the last is ArgSettings::Last
-            let ok = second_to_last.is_set(ArgSettings::MultipleValues)
-                || last.is_set(ArgSettings::Last);
-            assert!(
-                ok,
-                "Only the last positional argument, or second to last positional \
-                 argument may be set to .multiple(true)"
-            );
-
-            // Next we check how many have both Multiple and not a specific number of values set
-            let count = positionals!(self.app).fold(0, |acc, p| {
-                if p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none() {
-                    acc + 1
-                } else {
-                    acc
-                }
-            });
-            let ok = count <= 1
-                || (last.is_set(ArgSettings::Last)
-                    && last.is_set(ArgSettings::MultipleValues)
-                    && second_to_last.is_set(ArgSettings::MultipleValues)
-                    && count == 2);
-            assert!(
-                ok,
-                "Only one positional argument with .multiple(true) set is allowed per \
-                 command, unless the second one also has .last(true) set"
-            );
+        if positionals.iter().filter(|(_, p)| p.is_set(ArgSettings::MultipleValues)).count() > 1 {
+            assert_low_index_multiples(&*positionals);
+            self.set(AS::LowIndexMultiplePositional);
         }
 
-        if self.is_set(AS::AllowMissingPositional) {
-            // Check that if a required positional argument is found, all positions with a lower
-            // index are also required.
-            let mut found = false;
-            let mut foundx2 = false;
+        if !self.is_set(AS::AllowMissingPositional) {
+            assert_missing_positionals(&*positionals);
+        }
 
-            for p in positionals!(self.app) {
-                if foundx2 && !p.is_set(ArgSettings::Required) {
-                    assert!(
-                        p.is_set(ArgSettings::Required),
-                        "Found positional argument which is not required with a lower \
-                         index than a required positional argument by two or more: {:?} \
-                         index {:?}",
-                        p.name,
-                        p.index
-                    );
-                } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
-                    // Args that .last(true) don't count since they can be required and have
-                    // positionals with a lower index that aren't required
-                    // Imagine: prog <req1> [opt1] -- <req2>
-                    // Both of these are valid invocations:
-                    //      $ prog r1 -- r2
-                    //      $ prog r1 o1 -- r2
-                    if found {
-                        foundx2 = true;
-                        continue;
-                    }
-                    found = true;
-                    continue;
-                } else {
-                    found = false;
-                }
-            }
-        } else {
-            // Check that if a required positional argument is found, all positions with a lower
-            // index are also required
-            let mut found = false;
-            for p in (1..=num_p)
-                .rev()
-                .filter_map(|n| self.app.args.get(&KeyType::Position(n as u64)))
-            {
-                if found {
-                    assert!(
-                        p.is_set(ArgSettings::Required),
-                        "Found positional argument which is not required with a lower \
-                         index than a required positional argument: {:?} index {:?}",
-                        p.name,
-                        p.index
-                    );
-                } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
-                    // Args that .last(true) don't count since they can be required and have
-                    // positionals with a lower index that aren't required
-                    // Imagine: prog <req1> [opt1] -- <req2>
-                    // Both of these are valid invocations:
-                    //      $ prog r1 -- r2
-                    //      $ prog r1 o1 -- r2
-                    found = true;
-                    continue;
-                }
-            }
-        }
-        assert!(
-            positionals!(self.app).fold(0, |acc, p| if p.is_set(ArgSettings::Last) {
-                acc + 1
-            } else {
-                acc
-            }) < 2,
-            "Only one positional argument may have last(true) set. Found two."
-        );
-        if positionals!(self.app)
-            .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
-            && self.has_subcommands()
-            && !self.is_set(AS::SubcommandsNegateReqs)
-        {
-            panic!(
-                "Having a required positional argument with .last(true) set *and* child \
-                 subcommands without setting SubcommandsNegateReqs isn't compatible."
-            );
-        }
+        assert_only_one_last(&*positionals);
+
+        assert_required_last_and_subcommands(&*positioanls);
 
         true
     }
@@ -289,69 +190,9 @@ where
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
 
-        //I wonder whether this part is even needed if we insert all Args using make_entries
-        let mut key: Vec<(KeyType, usize)> = Vec::new();
-        let mut counter = 0;
-        for (i, a) in self.app.args.args.iter_mut().enumerate() {
-            if a.index == None && a.short == None && a.long == None {
-                counter += 1;
-                a.index = Some(counter);
-                key.push((KeyType::Position(counter), i));
-            }
+        self.app.args._build();
 
-            // Add args with default requirements
-            if a.is_set(ArgSettings::Required) {
-                debugln!("Parser::_build: adding {} to default requires", a.name);
-                let idx = self.required.insert(a.name);
-                // If the arg is required, add all it's requirements to master required list
-                if let Some(ref areqs) = a.requires {
-                    for name in areqs
-                        .iter()
-                        .filter(|&&(val, _)| val.is_none())
-                        .map(|&(_, name)| name)
-                    {
-                        self.required.insert_child(idx, name);
-                    }
-                }
-            }
-        }
-        for (k, i) in key.into_iter() {
-            self.app.args.insert_key(k, i);
-        }
-
-        debug_assert!(self._verify_positionals());
-        // Set the LowIndexMultiple flag if required
-        if positionals!(self.app).any(|a| {
-            a.is_set(ArgSettings::MultipleValues)
-                && (a.index.unwrap_or(0) as usize
-                    != self
-                        .app
-                        .args
-                        .keys
-                        .iter()
-                        .map(|x| &x.key)
-                        .filter(|x| x.is_position())
-                        .count())
-        }) && positionals!(self.app).last().map_or(false, |p_name| {
-            !self
-                .app
-                .find(p_name.name)
-                .expect(INTERNAL_ERROR_MSG)
-                .is_set(ArgSettings::Last)
-        }) {
-            self.app.settings.set(AS::LowIndexMultiplePositional);
-        }
-
-        for group in &self.app.groups {
-            if group.required {
-                let idx = self.required.insert(group.name);
-                if let Some(ref reqs) = group.requires {
-                    for a in reqs {
-                        self.required.insert_child(idx, *a);
-                    }
-                }
-            }
-        }
+        self._setup_positionals();
     }
 }
 
@@ -361,7 +202,6 @@ where
     'help: 'c,
 {
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -375,11 +215,10 @@ where
         // Verify all positional assertions pass
         self._build();
 
-        let has_args = self.has_args();
-
         let mut subcmd_name: Option<u64> = None;
-        let mut needs_val_of: ParseResult = ParseResult::NotFound;
+        let mut state: ParseResult = ParseState::Initial;
         let mut pos_counter = 1;
+
         while let Some(arg) = it.next() {
             let arg_os = arg.into();
             debugln!(
@@ -388,9 +227,8 @@ where
                 &*arg_os.as_bytes()
             );
 
-            self.unset(AS::ValidNegNumFound);
             // Is this a new argument, or values from a previous option?
-            let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of);
+            let starts_new_arg = self.is_new_arg(&arg_os, state);
             if !self.is_set(AS::TrailingValues)
                 && arg_os.starts_with(b"--")
                 && arg_os.len() == 2
@@ -651,7 +489,7 @@ where
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 ));
-            } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
+            } else if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 if let Some(cdate) =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
                 {
@@ -804,35 +642,30 @@ where
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
-    #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
-    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
-        debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
-        let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
-            true
+    fn is_new_arg(&mut self, arg_os: &OsStr, curr_state: ParserState) -> ParserState {
+        debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, state);
+        let new_state = ParserState::Initial;
+        if self.is_set(AS::AllowLeadingHyphen) {
+            new_state = ParserState::GlobalHyphenValuesAllowed;
         } else if self.is_set(AS::AllowNegativeNumbers) {
             let a = arg_os.to_string_lossy();
-            if a.parse::<i64>().is_ok() || a.parse::<f64>().is_ok() {
-                self.set(AS::ValidNegNumFound);
-                true
-            } else {
-                false
+            if let Ok(i) = a.parse::<i64>() {
+                new_state = ParserState::ValidNegIntFound(i);
+            } else if let Ok(f) = a.parse::<f64>() {
+                new_state = ParserState::ValidNegFloatFound(f);
             }
-        } else {
-            false
-        };
-        let arg_allows_tac = match needs_val_of {
-            ParseResult::Opt(name) => {
-                let o = self.app.find(name).expect(INTERNAL_ERROR_MSG);
-                (o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
+        }
+
+        match curr_state {
+            ParserState::Opt(id) | ParserStatePos(id) => {
+                let a = self.app.find(name).expect(INTERNAL_ERROR_MSG);
+                if a.is_set(ArgSettings::AllowHyphenValues) {
+                    new_state = ParserState::MaybeValueOf(id);
+                }
             }
-            ParseResult::Pos(name) => {
-                let p = self.app.find(name).expect(INTERNAL_ERROR_MSG);
-                (p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
-            }
-            ParseResult::ValuesDone => return true,
-            _ => false,
-        };
-        debugln!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
+            ParserState::ValuesDone => new_state = ParserState::ValuesDone,
+            _ => (),
+        }
 
         // Is this a new argument, or values from a previous option?
         let mut ret = if arg_os.starts_with(b"--") {

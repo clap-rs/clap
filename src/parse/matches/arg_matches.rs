@@ -318,7 +318,7 @@ impl ArgMatches {
     pub fn is_present<T: Hash>(&self, name: T) -> bool {
         let id = hash(name);
         if let Some(ref sc) = self.subcommand {
-            if sc.id == id{
+            if sc.id == id {
                 return true;
             }
         }

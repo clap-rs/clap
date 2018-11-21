@@ -133,7 +133,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             }
             if !arg.is_set(ArgSettings::AllowEmptyValues)
                 && val.is_empty()
-                && matcher.contains(&arg.id)
+                && matcher.contains(arg.id)
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
@@ -356,7 +356,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     .expect(INTERNAL_ERROR_MSG);
                 if let Some(ref g_reqs) = grp.requires {
                     if g_reqs.iter().any(|&n| !matcher.contains(n)) {
-                        return self.missing_required_error(matcher, Some(name));
+                        return self.missing_required_error(matcher, Some(*name));
                     }
                 }
             }
@@ -497,7 +497,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     .app
                     .unroll_args_in_group(group.id)
                     .iter()
-                    .any(|a| matcher.contains(a))
+                    .any(|a| matcher.contains(*a))
                 {
                     return self.missing_required_error(matcher, None);
                 }
@@ -543,7 +543,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                             .groups
                             .iter()
                             .find(|g| &g.id == *conf)
-                            .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
+                            .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(*arg)))
                 })
             })
             .unwrap_or(false)

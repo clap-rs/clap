@@ -1689,14 +1689,7 @@ impl<'a, 'help> App<'help> {
             .unroll_args_in_group(g)
             .iter()
             .filter_map(|x| self.find(*x))
-            .map(|x| {
-                if x.index.is_some() {
-                    x.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG).to_owned()
-                } else {
-                    x.to_string()
-                }
-            })
-            .collect::<Vec<_>>()
+            .map(|x| x.to_string()).collect::<Vec<_>>()
             .join("|");
         format!("<{}>", &*g_string)
     }
@@ -1706,7 +1699,7 @@ impl<'a, 'help> App<'help> {
 #[doc(hidden)]
 impl<'help> App<'help> {
     pub(crate) fn find(&self, id: u64) -> Option<&Arg<'help>> {
-        self.args.args.iter().find(|a| a.id == id)
+        self.args.get_by_id(id)
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no

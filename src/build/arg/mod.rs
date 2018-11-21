@@ -3892,33 +3892,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    // Used for positionals when printing
-    #[doc(hidden)]
-    pub fn name_no_brackets(&self) -> Cow<str> {
-        debugln!("PosBuilder::name_no_brackets:{}", self.name);
-        let mut delim = String::new();
-        delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
-            self.val_delim.expect(INTERNAL_ERROR_MSG)
-        } else {
-            ' '
-        });
-        if let Some(ref names) = self.val_names {
-            debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
-            if names.len() > 1 {
-                Cow::Owned(
-                    names
-                        .values()
-                        .map(|n| format!("<{}>", n))
-                        .collect::<Vec<_>>()
-                        .join(&*delim),
-                )
-            } else {
-                Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
-            }
-        } else {
-            debugln!("PosBuilder:name_no_brackets: just name");
-            Cow::Borrowed(self.name)
-        }
+    pub fn name_no_brackets(&self) -> &str {
+        assert!(self.index.is_some());
+        self.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG)
     }
 }
 
@@ -3955,7 +3931,7 @@ impl<'help> Display for Arg<'help> {
                         .join(&*delim)
                 )?;
             } else {
-                write!(f, "<{}>", self.name)?;
+                write!(f, "<{}>", self.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG))?;
             }
             if self.settings.is_set(ArgSettings::MultipleValues)
                 && (self.val_names.is_none()
@@ -4007,7 +3983,7 @@ impl<'help> Display for Arg<'help> {
         } else if let Some(num) = self.num_vals {
             let mut it = (0..num).peekable();
             while let Some(_) = it.next() {
-                write!(f, "<{}>", self.name)?;
+                write!(f, "<{}>", self.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG))?;
                 if it.peek().is_some() {
                     write!(f, "{}", delim)?;
                 }
@@ -4019,7 +3995,7 @@ impl<'help> Display for Arg<'help> {
             write!(
                 f,
                 "<{}>{}",
-                self.name,
+                self.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG),
                 if self.is_set(ArgSettings::MultipleOccurrences) {
                     "..."
                 } else {

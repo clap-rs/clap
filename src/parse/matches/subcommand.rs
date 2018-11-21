@@ -29,7 +29,7 @@ use ArgMatches;
 #[derive(Debug, Clone)]
 pub struct SubCommand {
     #[doc(hidden)]
-    pub name: String,
+    pub id: u64,
     #[doc(hidden)]
     pub matches: ArgMatches,
 }
