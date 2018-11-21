@@ -124,9 +124,9 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .arg("flag")
@@ -143,7 +143,7 @@ impl ArgGroup {
         assert!(
             self.id != n,
             "ArgGroup '{}' can not have same name as arg inside it",
-            &*self.id
+            self.id
         );
         self.args.push(n);
         self
@@ -156,9 +156,9 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"]))
@@ -186,9 +186,9 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -203,9 +203,9 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"]))
@@ -239,9 +239,9 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -272,11 +272,11 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -312,13 +312,13 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short('v'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -350,11 +350,11 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -367,10 +367,11 @@ impl ArgGroup {
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with<T>(mut self, n: T) -> Self where T: Hash {
+        let id = hash(n);
         if let Some(ref mut confs) = self.conflicts {
-            confs.push(n);
+            confs.push(id);
         } else {
-            self.conflicts = Some(vec![n]);
+            self.conflicts = Some(vec![id]);
         }
         self
     }
@@ -386,13 +387,13 @@ impl ArgGroup {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short('v'))
     ///     .group(ArgGroup::with_name("req_flags")
     ///         .args(&["flag", "color"])
@@ -418,13 +419,13 @@ impl Debug for ArgGroup {
         write!(
             f,
             "{{\n\
-             \tname: {:?},\n\
+             \tid: {:?},\n\
              \targs: {:?},\n\
              \trequired: {:?},\n\
              \trequires: {:?},\n\
              \tconflicts: {:?},\n\
              }}",
-            self.name, self.args, self.required, self.requires, self.conflicts
+            self.id, self.args, self.required, self.requires, self.conflicts
         )
     }
 }
@@ -512,31 +513,8 @@ mod test {
     use yaml_rust::YamlLoader;
 
     #[test]
-    fn groups() {
-        let g = ArgGroup::with_name("test")
-            .arg("a1")
-            .arg("a4")
-            .args(&["a2", "a3"])
-            .required(true)
-            .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
-            .conflicts_with("c4")
-            .requires("r1")
-            .requires_all(&["r2", "r3"])
-            .requires("r4");
-
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
-
-        assert_eq!(g.args, args);
-        assert_eq!(g.requires, Some(reqs));
-        assert_eq!(g.conflicts, Some(confs));
-    }
-
-    #[test]
     fn test_debug() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])
@@ -566,30 +544,6 @@ mod test {
             Some(confs)
         );
         assert_eq!(&*format!("{:?}", g), &*debug_str);
-    }
-
-    #[test]
-    fn test_from() {
-        let g = ArgGroup::with_name("test")
-            .arg("a1")
-            .arg("a4")
-            .args(&["a2", "a3"])
-            .required(true)
-            .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
-            .conflicts_with("c4")
-            .requires("r1")
-            .requires_all(&["r2", "r3"])
-            .requires("r4");
-
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
-
-        let g2 = ArgGroup::from(&g);
-        assert_eq!(g2.args, args);
-        assert_eq!(g2.requires, Some(reqs));
-        assert_eq!(g2.conflicts, Some(confs));
     }
 
     #[cfg(feature = "yaml")]

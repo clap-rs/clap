@@ -68,22 +68,22 @@ impl ArgMatcher {
         }
     }
 
-    pub fn get_mut(&mut self, arg: u64) -> Option<&mut MatchedArg> { self.0.args.get_mut(arg) }
+    pub fn get_mut(&mut self, arg: u64) -> Option<&mut MatchedArg> { self.0.args.get_mut(&arg) }
 
-    pub fn get(&self, arg: u64) -> Option<&MatchedArg> { self.0.args.get(arg) }
+    pub fn get(&self, arg: u64) -> Option<&MatchedArg> { self.0.args.get(&arg) }
 
-    pub fn remove(&mut self, arg: u64) { self.0.args.remove(arg); }
+    pub fn remove(&mut self, arg: u64) { self.0.args.remove(&arg); }
 
     #[allow(dead_code)]
-    pub fn remove_all(&mut self, args: &[&str]) {
-        for &arg in args {
+    pub fn remove_all(&mut self, args: &[u64]) {
+        for arg in args {
             self.0.args.remove(arg);
         }
     }
 
     pub fn insert(&mut self, name: u64) { self.0.args.insert(name, MatchedArg::new()); }
 
-    pub fn contains(&self, arg: u64) -> bool { self.0.args.contains_key(arg) }
+    pub fn contains(&self, arg: u64) -> bool { self.0.args.contains_key(&arg) }
 
     pub fn is_empty(&self) -> bool { self.0.args.is_empty() }
 

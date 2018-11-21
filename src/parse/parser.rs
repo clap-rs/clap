@@ -16,7 +16,6 @@ use std::os::unix::ffi::OsStrExt;
 use build::app::Propagation;
 use build::AppSettings as AS;
 use build::{App, Arg, ArgSettings};
-use mkeymap::KeyType;
 use output::Help;
 use output::Usage;
 use parse::errors::Error as ClapError;
@@ -65,7 +64,7 @@ where
             .args
             .iter()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
-            .map(|a| a.name)
+            .map(|a| a.id)
         {
             reqs.insert(a);
         }
@@ -789,7 +788,7 @@ where
         };
         let parser = Parser::new(&mut sc);
         if help_help {
-            let mut pb = Arg::with_name("subcommand")
+            let mut pb = Arg::new("subcommand")
                 .index(1)
                 .setting(ArgSettings::MultipleValues)
                 .help("The subcommand whose help message to display");

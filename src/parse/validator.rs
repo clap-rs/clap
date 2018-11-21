@@ -48,7 +48,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             }
             let o = self.p.app.find(a).expect(INTERNAL_ERROR_MSG);
             reqs_validated = true;
-            let should_err = if let Some(v) = matcher.0.args.get(&*o.name) {
+            let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
                 v.vals.is_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
                 true
@@ -111,16 +111,16 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     p_vals.contains(&&*val_str)
                 };
                 if !ok {
-                    let used: Vec<&str> = matcher
+                    let used: Vec<u64> = matcher
                         .arg_names()
                         .filter(|n| {
                             if let Some(a) = self.p.app.find(**n) {
-                                !(self.p.required.contains(a.name) || a.is_set(ArgSettings::Hidden))
+                                !(self.p.required.contains(a.id) || a.is_set(ArgSettings::Hidden))
                             } else {
                                 true
                             }
                         })
-                        .cloned()
+                        .cloned() // still required?
                         .collect();
                     return Err(Error::invalid_value(
                         val_str,
@@ -133,7 +133,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             }
             if !arg.is_set(ArgSettings::AllowEmptyValues)
                 && val.is_empty()
-                && matcher.contains(&*arg.name)
+                && matcher.contains(&arg.id)
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
@@ -186,8 +186,8 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     }
                 }
             }
-        } else if let Some(g) = self.p.app.groups.iter().find(|x| x.name == name) {
-            let args_in_group = self.p.app.unroll_args_in_group(g.name);
+        } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == name) {
+            let args_in_group = self.p.app.unroll_args_in_group(g.id);
             let first = matcher
                 .arg_names()
                 .find(|x| args_in_group.contains(x))
@@ -220,12 +220,12 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                 .groups
                 .iter()
                 .filter(|g| !g.multiple)
-                .find(|g| &g.name == name)
+                .find(|g| &g.id == name)
             {
                 let conf_with_self = self
                     .p
                     .app
-                    .unroll_args_in_group(g.name)
+                    .unroll_args_in_group(g.id)
                     .iter()
                     .filter(|a| matcher.contains(**a))
                     .count()
@@ -241,10 +241,10 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     .arg_names()
                     .filter_map(|x| self.p.app.find(*x))
                     .filter_map(|x| x.blacklist.as_ref())
-                    .any(|c| c.iter().any(|c| c == &g.name));
+                    .any(|c| c.iter().any(|c| c == &g.id));
 
                 should_err = conf_with_self || conf_with_arg || arg_conf_with_gr;
-            } else if let Some(ma) = matcher.get(name) {
+            } else if let Some(ma) = matcher.get(id) {
                 debugln!(
                     "Validator::validate_conflicts:iter:{}: matcher contains it...",
                     name
@@ -291,11 +291,11 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                         .groups
                         .iter()
                         .filter(|g| !g.multiple)
-                        .find(|g| g.name == grp)
+                        .find(|g| g.id == grp)
                     {
                         // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
                         //     if &g_arg != name {
-                        self.c.insert(g.name);
+                        self.c.insert(g.id);
                         //     }
                         // }
                     }
@@ -306,10 +306,10 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                 .groups
                 .iter()
                 .filter(|g| !g.multiple)
-                .find(|grp| &grp.name == name)
+                .find(|grp| &grp.id == name)
             {
                 debugln!("Validator::gather_conflicts:iter:{}:group;", name);
-                self.c.insert(g.name);
+                self.c.insert(g.id);
             }
         }
     }
@@ -319,10 +319,10 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
         for name in matcher.arg_names() {
             debugln!("Validator::gather_requirements:iter:{};", name);
             if let Some(arg) = self.p.app.find(*name) {
-                for req in self.p.app.unroll_requirements_for_arg(arg.name, matcher) {
+                for req in self.p.app.unroll_requirements_for_arg(arg.id, matcher) {
                     self.p.required.insert(req);
                 }
-            } else if let Some(g) = self.p.app.groups.iter().find(|grp| &grp.name == name) {
+            } else if let Some(g) = self.p.app.groups.iter().find(|grp| &grp.id == name) {
                 debugln!("Validator::gather_conflicts:iter:{}:group;", name);
                 if let Some(ref reqs) = g.requires {
                     for r in reqs {
@@ -352,7 +352,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                     .app
                     .groups
                     .iter()
-                    .find(|g| &g.name == name)
+                    .find(|g| &g.id == name)
                     .expect(INTERNAL_ERROR_MSG);
                 if let Some(ref g_reqs) = grp.requires {
                     if g_reqs.iter().any(|&n| !matcher.contains(n)) {
@@ -466,12 +466,12 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                 let missing_req =
                     |v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name);
                 if ma.vals.iter().any(missing_req) {
-                    return self.missing_required_error(matcher, Some(a.name));
+                    return self.missing_required_error(matcher, Some(a.id));
                 }
             }
             for &(_, name) in a_reqs.iter().filter(|&&(val, _)| val.is_none()) {
                 if !matcher.contains(name) {
-                    return self.missing_required_error(matcher, Some(name));
+                    return self.missing_required_error(matcher, Some(id));
                 }
             }
         }
@@ -485,17 +485,17 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
         );
         self.gather_requirements(matcher);
 
-        for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
+        for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(**r)) {
             debugln!("Validator::validate_required:iter:aog={:?};", arg_or_group);
-            if let Some(arg) = self.p.app.find(arg_or_group) {
+            if let Some(arg) = self.p.app.find(*arg_or_group) {
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, None);
                 }
-            } else if let Some(group) = self.p.app.groups.iter().find(|g| &g.name == arg_or_group) {
+            } else if let Some(group) = self.p.app.groups.iter().find(|g| &g.id == arg_or_group) {
                 if !self
                     .p
                     .app
-                    .unroll_args_in_group(group.name)
+                    .unroll_args_in_group(group.id)
                     .iter()
                     .any(|a| matcher.contains(a))
                 {
@@ -515,9 +515,9 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             .map(|a| (a, a.r_ifs.as_ref().unwrap()))
         {
             for (other, val) in r_ifs.iter() {
-                if let Some(ma) = matcher.get(other) {
-                    if ma.contains_val(val) && !matcher.contains(a.name) {
-                        return self.missing_required_error(matcher, Some(a.name));
+                if let Some(ma) = matcher.get(*other) {
+                    if ma.contains_val(val) && !matcher.contains(a.id) {
+                        return self.missing_required_error(matcher, Some(a.id));
                     }
                 }
             }
@@ -527,7 +527,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
 
     fn is_missing_required_ok(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debugln!("Validator::is_missing_required_ok: {}", a.name);
-        self.validate_arg_conflicts(a, matcher) || self.p.overriden.contains(&a.name)
+        self.validate_arg_conflicts(a, matcher) || self.p.overriden.contains(&a.id)
     }
 
     fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
@@ -536,13 +536,13 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             .as_ref()
             .map(|bl| {
                 bl.iter().any(|ref conf| {
-                    matcher.contains(conf)
+                    matcher.contains(**conf)
                         || self
                             .p
                             .app
                             .groups
                             .iter()
-                            .find(|g| &g.name == *conf)
+                            .find(|g| &g.id == *conf)
                             .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
                 })
             })
@@ -558,11 +558,11 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             .args
             .iter()
             .filter(|a| a.r_unless.is_some())
-            .filter(|a| !matcher.contains(a.name))
+            .filter(|a| !matcher.contains(a.id))
         {
             debugln!("Validator::validate_required_unless:iter:{};", a.name);
             if self.fails_arg_required_unless(a, matcher) {
-                return self.missing_required_error(matcher, Some(a.name));
+                return self.missing_required_error(matcher, Some(a.id));
             }
         }
 
@@ -576,7 +576,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
                 $a.r_unless
                     .as_ref()
-                    .map(|ru| !ru.iter().$how(|n| $m.contains(n)))
+                    .map(|ru| !ru.iter().$how(|n| $m.contains(*n)))
                     .unwrap_or(false)
             }};
         }
@@ -593,7 +593,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
     fn missing_required_error(
         &self,
         matcher: &ArgMatcher,
-        incl: Option<&str>,
+        incl: Option<u64>,
     ) -> ClapResult<()> {
         debugln!("Validator::missing_required_error; incl={:?}", incl);
         let c = Colorizer::new(&ColorizerOption {
@@ -626,12 +626,12 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             .arg_names()
             .filter(|n| {
                 if let Some(a) = self.p.app.find(**n) {
-                    !(self.p.required.contains(a.name) || a.is_set(ArgSettings::Hidden))
+                    !(self.p.required.contains(a.id) || a.is_set(ArgSettings::Hidden))
                 } else {
                     true
                 }
             })
-            .cloned()
+            .cloned() // still required?
             .chain(incl)
             .collect();
         Err(Error::missing_required_argument(

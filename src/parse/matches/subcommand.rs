@@ -19,7 +19,7 @@ use ArgMatches;
 ///     .subcommand(
 ///         App::new("config")
 ///             .about("Used for configuration")
-///             .arg(Arg::with_name("config_file")
+///             .arg(Arg::new("config_file")
 ///                 .help("The configuration file to use")
 ///                 .index(1)))
 /// # ;

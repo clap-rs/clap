@@ -182,7 +182,7 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debugln!("usage::get_args_tag:iter:{}:", pos.name);
-            for grp_s in groups_for_arg!(self.p.app, &pos.name) {
+            for grp_s in groups_for_arg!(self.p.app, &pos.id) {
                 debugln!("usage::get_args_tag:iter:{}:iter:{};", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
                 if self
@@ -190,7 +190,7 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
                     .app
                     .groups
                     .iter()
-                    .any(|g| g.required && (g.name == grp_s))
+                    .any(|g| g.required && (g.id == grp_s))
                 {
                     continue 'outer;
                 }
@@ -278,14 +278,14 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
                     continue;
                 }
             }
-            for grp_s in groups_for_arg!(self.p.app, &f.name) {
+            for grp_s in groups_for_arg!(self.p.app, &f.id) {
                 debugln!("usage::needs_flags_tag:iter:iter: grp_s={};", grp_s);
                 if self
                     .p
                     .app
                     .groups
                     .iter()
-                    .any(|g| g.name == grp_s && g.required)
+                    .any(|g| g.id == grp_s && g.required)
                 {
                     debugln!("usage::needs_flags_tag:iter:iter: Group is required");
                     continue 'outer;
@@ -324,11 +324,11 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
 
         for a in self.p.required.iter() {
             if let Some(ref m) = matcher {
-                for aa in self.p.app.unroll_requirements_for_arg(a, m) {
+                for aa in self.p.app.unroll_requirements_for_arg(*a, m) {
                     unrolled_reqs.push(aa);
                 }
             } else {
-                unrolled_reqs.push(a);
+                unrolled_reqs.push(*a);
             }
         }
 
@@ -337,43 +337,43 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
             .app
             .groups
             .iter()
-            .filter(|gn| self.p.required.contains(&gn.name))
-            .flat_map(|g| self.p.app.unroll_args_in_group(g.name))
+            .filter(|gn| self.p.required.contains(gn.id))
+            .flat_map(|g| self.p.app.unroll_args_in_group(g.id))
             .collect::<Vec<_>>();
 
         let pmap = if let Some(m) = matcher {
             unrolled_reqs
                 .iter()
                 .chain(incls.iter())
-                .filter(|a| positionals!(self.p.app).any(|p| &&p.name == a))
+                .filter(|a| positionals!(self.p.app).any(|p| &&p.id == a))
                 .filter(|&pos| !m.contains(*pos))
                 .filter_map(|pos| self.p.app.find(*pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
-                .filter(|pos| !args_in_groups.contains(&pos.name))
+                .filter(|pos| !args_in_groups.contains(&pos.id))
                 .map(|pos| (pos.index.unwrap(), pos))
                 .collect::<BTreeMap<u64, &Arg>>() // sort by index
         } else {
             unrolled_reqs
                 .iter()
                 .chain(incls.iter())
-                .filter(|a| positionals!(self.p.app).any(|p| &&p.name == a))
-                .filter_map(|pos| self.p.app.find(**pos))
+                .filter(|a| positionals!(self.p.app).any(|p| &&p.id == a))
+                .filter_map(|pos| self.p.app.find(*pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
-                .filter(|pos| !args_in_groups.contains(&pos.name))
+                .filter(|pos| !args_in_groups.contains(&pos.id))
                 .map(|pos| (pos.index.unwrap(), pos))
                 .collect::<BTreeMap<u64, &Arg>>() // sort by index
         };
         for &p in pmap.values() {
             debugln!("Usage::get_required_usage_from:iter:{}", p);
-            if args_in_groups.is_empty() || !args_in_groups.contains(p.id) {
+            if args_in_groups.is_empty() || !args_in_groups.contains(&p.id) {
                 ret_val.push_back(p.to_string());
             }
         }
         for a in unrolled_reqs
             .iter()
             .chain(incls.iter())
-            .filter(|name| !positionals!(self.p.app).any(|p| &&p.name == name))
-            .filter(|name| !self.p.app.groups.iter().any(|g| &&g.name == name))
+            .filter(|name| !positionals!(self.p.app).any(|p| &&p.id == name))
+            .filter(|name| !self.p.app.groups.iter().any(|g| &&g.id == name))
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.unwrap().contains(**name)))
         {
@@ -389,9 +389,9 @@ impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
         let mut g_vec: Vec<String> = vec![];
         for g in unrolled_reqs
             .iter()
-            .filter(|n| self.p.app.groups.iter().any(|g| &&g.name == n))
+            .filter(|n| self.p.app.groups.iter().any(|g| &&g.id == n))
         {
-            let elem = self.p.app.format_group(g);
+            let elem = self.p.app.format_group(*g);
             if !g_vec.contains(&elem) {
                 g_vec.push(elem);
             }

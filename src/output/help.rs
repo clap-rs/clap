@@ -159,7 +159,7 @@ impl<'help, 'c, 'd, 'w> Help<'help, 'c, 'd, 'w> {
                 debugln!("Help::write_args: New Longest...{}", self.longest);
             }
             let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
-            btm.insert(arg.name, arg);
+            btm.insert(arg.id, arg);
         }
         let mut first = true;
         for btm in ord_m.values() {
@@ -253,7 +253,7 @@ impl<'help, 'c, 'd, 'w> Help<'help, 'c, 'd, 'w> {
             } else if let Some(num) = arg.num_vals {
                 let mut it = (0..num).peekable();
                 while let Some(_) = it.next() {
-                    self.color(Format::Good(&*format!("<{}>", arg.name)))?;
+                    self.color(Format::Good(&*format!("<{}>", arg.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG))))?;
                     if it.peek().is_some() {
                         write!(self.writer, "{}", delim)?;
                     }
@@ -262,7 +262,7 @@ impl<'help, 'c, 'd, 'w> Help<'help, 'c, 'd, 'w> {
                     self.color(Format::Good("..."))?;
                 }
             } else if arg.has_switch() {
-                self.color(Format::Good(&*format!("<{}>", arg.name)))?;
+                self.color(Format::Good(&*format!("<{}>", arg.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG))))?;
                 if mult {
                     self.color(Format::Good("..."))?;
                 }

@@ -54,7 +54,7 @@ pub enum Propagation<'a> {
 ///     .version("1.0.2")
 ///     .about("Explains in brief what the program does")
 ///     .arg(
-///         Arg::with_name("in_file").index(1)
+///         Arg::new("in_file").index(1)
 ///     )
 ///     .after_help("Longer explanation to appear after the options when \
 ///                  displaying the help information from --help or -h")
@@ -612,9 +612,9 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     // Adding a single "flag" argument with a short and help text, using Arg::with_name()
+    ///     // Adding a single "flag" argument with a short and help text, using Arg::new()
     ///     .arg(
-    ///         Arg::with_name("debug")
+    ///         Arg::new("debug")
     ///            .short('d')
     ///            .help("turns on debugging mode")
     ///     )
@@ -660,7 +660,7 @@ impl<'help> App<'help> {
     /// App::new("myprog")
     ///     .args(&[
     ///         Arg::from("[debug] -d 'turns on debugging info'"),
-    ///         Arg::with_name("input").index(1).help("the input file to use")
+    ///         Arg::new("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
     /// ```
@@ -715,7 +715,7 @@ impl<'help> App<'help> {
     /// let m = App::new("myprog")
     ///             .subcommand(App::new("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
-    ///                 .arg(Arg::with_name("input")
+    ///                 .arg(Arg::new("input")
     ///                             .help("the file to add")
     ///                             .index(1)
     ///                             .required(false))
@@ -885,7 +885,7 @@ impl<'help> App<'help> {
     /// # App::new("myprog")
     /// .subcommands( vec![
     ///        App::new("config").about("Controls configuration functionality")
-    ///                                 .arg(Arg::with_name("config_file").index(1)),
+    ///                                 .arg(Arg::new("config_file").index(1)),
     ///        App::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
@@ -961,7 +961,7 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg};
     ///
     /// let mut app = App::new("foo")
-    ///     .arg(Arg::with_name("bar")
+    ///     .arg(Arg::new("bar")
     ///         .short('help'))
     ///     .mut_arg("bar", |a| a.short('B'));
     ///
@@ -983,8 +983,8 @@ impl<'help> App<'help> {
     {
         let a = self
             .args
-            .remove_by_name(arg)
-            .unwrap_or_else(|| Arg::with_name(arg));
+            .remove_by_id(hash(arg))
+            .unwrap_or_else(|| Arg::new(arg));
         self.args.push(f(a));
 
         self
@@ -1391,12 +1391,12 @@ impl<'a, 'help> App<'help> {
             parser.get_matches_with(&mut matcher, it)?;
         }
 
-        let global_arg_vec: Vec<&str> = self
+        let global_arg_vec: Vec<u64> = self
             .args
             .args
             .iter()
             .filter(|a| a.is_set(ArgSettings::Global))
-            .map(|ga| ga.name)
+            .map(|ga| ga.id)
             .collect();
         matcher.propagate_globals(&global_arg_vec);
 
@@ -1431,22 +1431,6 @@ impl<'a, 'help> App<'help> {
 
         let mut pos_counter = 1;
         for a in self.args.args.iter_mut() {
-            // Fill in the groups
-            if let Some(ref grps) = a.groups {
-                for g in grps {
-                    let mut found = false;
-                    if let Some(ref mut ag) = self.groups.iter_mut().find(|grp| &grp.name == g) {
-                        ag.args.push(a.name);
-                        found = true;
-                    }
-                    if !found {
-                        let mut ag = ArgGroup::with_name(g);
-                        ag.args.push(a.name);
-                        self.groups.push(ag);
-                    }
-                }
-            }
-
             // Figure out implied settings
             if a.is_set(ArgSettings::Last) {
                 // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
@@ -1469,28 +1453,11 @@ impl<'a, 'help> App<'help> {
     // Perform some expensive assertions on the Parser itself
     fn _app_debug_asserts(&mut self) -> bool {
         debugln!("App::_app_debug_asserts;");
-        for name in self.args.args.iter().map(|x| x.name) {
-            if self.args.args.iter().filter(|x| x.name == name).count() > 1 {
-                panic!(format!(
-                    "Arg names must be unique, found {} more than once",
-                    name
-                ));
+        for id in self.args.args.iter().map(|x| x.id) {
+            if self.args.args.iter().filter(|x| x.id == id).count() > 1 {
+                panic!( "Arg names must be unique");
             }
         }
-        // * Args listed inside groups should exist
-        // * Groups should not have naming conflicts with Args
-
-        // * Will be removed as a part of removing String types
-        // let g = groups!(self).find(|g| {
-        //     g.args
-        //         .iter()
-        //         .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
-        // });
-        // assert!(
-        //     g.is_none(),
-        //     "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
-        //     g.unwrap().name
-        // );
         true
     }
 
@@ -1539,10 +1506,10 @@ impl<'a, 'help> App<'help> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("help") || x.name == "help"))
+            .any(|x| x.long == Some("help") || x.id == hash("help"))) // hardcode common hashes?
         {
             debugln!("App::_create_help_and_version: Building --help");
-            let mut help = Arg::with_name("help")
+            let mut help = Arg::new("help")
                 .long("help")
                 .help("Prints help information");
             if !self.args.args.iter().any(|x| x.short == Some('h')) {
@@ -1555,11 +1522,11 @@ impl<'a, 'help> App<'help> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("version") || x.name == "version")
+            .any(|x| x.long == Some("version") || x.id == hash("version")) // hardcode common hashes?
             || self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
-            let mut version = Arg::with_name("version")
+            let mut version = Arg::new("version")
                 .long("version")
                 .help("Prints version information");
             if !self.args.args.iter().any(|x| x.short == Some('V')) {
@@ -1570,7 +1537,7 @@ impl<'a, 'help> App<'help> {
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !subcommands!(self).any(|s| s.name == "help")
+            && !subcommands!(self).any(|s| s.id == hash("help")) // hardcode common hashes?
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1638,7 +1605,7 @@ impl<'a, 'help> App<'help> {
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
                  positional argument to take multiple values",
-                a.name
+                a.id
             );
         }
         if a.is_set(ArgSettings::Last) {
@@ -1646,20 +1613,20 @@ impl<'a, 'help> App<'help> {
                 a.long.is_none(),
                 "Flags or Options may not have last(true) set. {} has both a long and \
                  last(true) set.",
-                a.name
+                a.id
             );
             assert!(
                 a.short.is_none(),
                 "Flags or Options may not have last(true) set. {} has both a short and \
                  last(true) set.",
-                a.name
+                a.id
             );
         }
         assert!(
             !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
             "Global arguments cannot be required.\n\n\t'{}' is marked as \
              global and required",
-            a.name
+            a.id
         );
 
         true
@@ -1724,7 +1691,7 @@ impl<'a, 'help> App<'help> {
             .filter_map(|x| self.find(*x))
             .map(|x| {
                 if x.index.is_some() {
-                    x.name.to_owned()
+                    x.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG).to_owned()
                 } else {
                     x.to_string()
                 }
@@ -1817,16 +1784,16 @@ impl<'help> App<'help> {
             for n in self
                 .groups
                 .iter()
-                .find(|grp| &grp.name == g)
+                .find(|grp| &grp.id == g)
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
             {
                 if !args.contains(n) {
-                    if self.find(n).is_some() {
-                        args.push(n)
+                    if self.find(*n).is_some() {
+                        args.push(*n)
                     } else {
-                        g_vec.push(n);
+                        g_vec.push(*n);
                     }
                 }
             }
@@ -1837,7 +1804,7 @@ impl<'help> App<'help> {
 
     pub(crate) fn unroll_requirements_for_arg(
         &self,
-        arg: &str,
+        arg: u64,
         matcher: &ArgMatcher,
     ) -> Vec<u64> {
         let requires_if_or_not = |&(val, req_arg)| {
@@ -1860,12 +1827,12 @@ impl<'help> App<'help> {
         let mut args = vec![];
 
         while let Some(ref a) = r_vec.pop() {
-            if let Some(arg) = self.find(a) {
+            if let Some(arg) = self.find(*a) {
                 if let Some(ref reqs) = arg.requires {
                     for r in reqs.iter().filter_map(requires_if_or_not) {
                         if let Some(req) = self.find(r) {
                             if req.requires.is_some() {
-                                r_vec.push(req.name)
+                                r_vec.push(req.id)
                             }
                         }
                         args.push(r);
