@@ -593,11 +593,11 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {}
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {
     /// @TODO @release @docs
-    fn from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> Self;
+    fn from_argmatches(matches: &::parse::ArgMatches) -> Self;
 
     /// @TODO @release @docs
-    fn try_from_argmatches<'a>(
-        matches: &::parse::ArgMatches<'a>,
+    fn try_from_argmatches(
+        matches: &::parse::ArgMatches,
     ) -> StdResult<Self, ::parse::errors::Error> {
         Ok(<Self as FromArgMatches>::from_argmatches(matches))
     }
@@ -606,7 +606,7 @@ pub trait FromArgMatches: Sized {
 /// @TODO @release @docs
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'a, 'b>() -> ::build::App<'a, 'b>;
+    fn into_app<'help>() -> ::build::App<'help>;
 }
 
 /// @TODO @release @docs

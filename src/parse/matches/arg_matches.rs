@@ -3,12 +3,14 @@ use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::iter::{Cloned, Map};
 use std::slice::Iter;
+use std::hash::Hash;
 
 // Third Party
 use indexmap::IndexMap;
 
 // Internal
 use parse::{MatchedArg, SubCommand};
+use util::hash;
 use INVALID_UTF8;
 
 /// Used to get information about the arguments that where supplied to the program at runtime by
@@ -59,14 +61,14 @@ use INVALID_UTF8;
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
-pub struct ArgMatches<'a> {
+pub struct ArgMatches {
     #[doc(hidden)]
-    pub args: IndexMap<&'a str, MatchedArg>,
+    pub args: IndexMap<u64, MatchedArg>,
     #[doc(hidden)]
-    pub subcommand: Option<Box<SubCommand<'a>>>,
+    pub subcommand: Option<Box<SubCommand>>,
 }
 
-impl<'a> Default for ArgMatches<'a> {
+impl Default for ArgMatches {
     fn default() -> Self {
         ArgMatches {
             args: IndexMap::new(),
@@ -75,7 +77,7 @@ impl<'a> Default for ArgMatches<'a> {
     }
 }
 
-impl<'a> ArgMatches<'a> {
+impl ArgMatches {
     #[doc(hidden)]
     pub fn new() -> Self {
         ArgMatches {
@@ -110,8 +112,8 @@ impl<'a> ArgMatches<'a> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    pub fn value_of<S: AsRef<str>>(&self, name: S) -> Option<&str> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn value_of<T: Hash>(&self, name: T) -> Option<&str> {
+        if let Some(arg) = self.args.get(hash(name)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -142,8 +144,8 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
-    pub fn value_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Cow<'a, str>> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn value_of_lossy<T: Hash>(&self, id: T) -> Option<Cow<str>> {
+        if let Some(arg) = self.args.get(&hash(id)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
             }
@@ -178,9 +180,9 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
-    pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
+    pub fn value_of_os<T: Hash>(&self, name: T) -> Option<&OsStr> {
         self.args
-            .get(name.as_ref())
+            .get(&hash(name))
             .and_then(|arg| arg.vals.get(0).map(|v| v.as_os_str()))
     }
 
@@ -209,8 +211,8 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
-    pub fn values_of<S: AsRef<str>>(&'a self, name: S) -> Option<Values<'a>> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn values_of<T: Hash>(&self, name: T) -> Option<Values> {
+        if let Some(arg) = self.args.get(&hash(name)) {
             fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
             return Some(Values {
@@ -244,8 +246,8 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(&itr.next().unwrap()[..], "\u{FFFD}!");
     /// assert_eq!(itr.next(), None);
     /// ```
-    pub fn values_of_lossy<S: AsRef<str>>(&'a self, name: S) -> Option<Vec<String>> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn values_of_lossy<T: Hash>(&self, name: T) -> Option<Vec<String>> {
+        if let Some(arg) = self.args.get(&hash(name)) {
             return Some(
                 arg.vals
                     .iter()
@@ -287,10 +289,10 @@ impl<'a> ArgMatches<'a> {
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    pub fn values_of_os<S: AsRef<str>>(&'a self, name: S) -> Option<OsValues<'a>> {
+    pub fn values_of_os<T: Hash>(&self, id: T) -> Option<OsValues> {
         fn to_str_slice(o: &OsString) -> &OsStr { &*o }
-        let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
-        if let Some(arg) = self.args.get(name.as_ref()) {
+        let to_str_slice: fn(&OsString) -> &OsStr = to_str_slice; // coerce to fn pointer
+        if let Some(arg) = self.args.get(&hash(id)) {
             return Some(OsValues {
                 iter: arg.vals.iter().map(to_str_slice),
             });
@@ -313,13 +315,14 @@ impl<'a> ArgMatches<'a> {
     ///
     /// assert!(m.is_present("debug"));
     /// ```
-    pub fn is_present<S: AsRef<str>>(&self, name: S) -> bool {
+    pub fn is_present<T: Hash>(&self, name: T) -> bool {
+        let id = hash(name);
         if let Some(ref sc) = self.subcommand {
-            if sc.name == name.as_ref() {
+            if sc.id == id{
                 return true;
             }
         }
-        self.args.contains_key(name.as_ref())
+        self.args.contains_key(id)
     }
 
     /// Returns the number of times an argument was used at runtime. If an argument isn't present
@@ -361,8 +364,8 @@ impl<'a> ArgMatches<'a> {
     /// assert_eq!(m.occurrences_of("debug"), 3);
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    pub fn occurrences_of<S: AsRef<str>>(&self, name: S) -> u64 {
-        self.args.get(name.as_ref()).map_or(0, |a| a.occurs)
+    pub fn occurrences_of<T: Hash>(&self, name: T) -> u64 {
+        self.args.get(&hash(name)).map_or(0, |a| a.occurs)
     }
 
     /// Gets the starting index of the argument in respect to all other arguments. Indices are
@@ -495,8 +498,8 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn index_of<S: AsRef<str>>(&self, name: S) -> Option<usize> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn index_of<T: Hash>(&self, name: T) -> Option<usize> {
+        if let Some(arg) = self.args.get(&hash(name)) {
             if let Some(i) = arg.indices.get(0) {
                 return Some(*i);
             }
@@ -577,8 +580,8 @@ impl<'a> ArgMatches<'a> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn indices_of<S: AsRef<str>>(&'a self, name: S) -> Option<Indices<'a>> {
-        if let Some(arg) = self.args.get(name.as_ref()) {
+    pub fn indices_of<T: Hash>(&self, id: T) -> Option<Indices> {
+        if let Some(arg) = self.args.get(&hash(id)) {
             return Some(Indices {
                 iter: arg.indices.iter().cloned(),
             });
@@ -617,9 +620,9 @@ impl<'a> ArgMatches<'a> {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
-    pub fn subcommand_matches<S: AsRef<str>>(&self, name: S) -> Option<&ArgMatches<'a>> {
+    pub fn subcommand_matches<T: Hash>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
-            if s.name == name.as_ref() {
+            if s.id == hash(id) {
                 return Some(&s.matches);
             }
         }
@@ -735,7 +738,7 @@ impl<'a> ArgMatches<'a> {
     /// ```
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
-    pub fn subcommand(&self) -> (&str, Option<&ArgMatches<'a>>) {
+    pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
         self.subcommand
             .as_ref()
             .map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))

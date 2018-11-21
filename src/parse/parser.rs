@@ -25,16 +25,16 @@ use parse::errors::Result as ClapResult;
 use parse::features::suggestions;
 use parse::Validator;
 use parse::{ArgMatcher, SubCommand};
-use util::{ChildGraph, OsStrExt2};
+use util::{hash, ChildGraph, OsStrExt2};
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
-pub enum ParseResult<'a> {
+pub enum ParseResult {
     Flag,
-    Opt(&'a str),
-    Pos(&'a str),
+    Opt(u64),
+    Pos(u64),
     MaybeHyphenValue,
     MaybeNegNum,
     NotFound,
@@ -42,25 +42,23 @@ pub enum ParseResult<'a> {
 }
 
 #[doc(hidden)]
-pub struct Parser<'a, 'b, 'c>
+pub struct Parser<'help, 'c>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
 {
-    pub app: &'c mut App<'a, 'b>,
-    pub required: ChildGraph<&'a str>,
-    pub overriden: Vec<&'a str>,
-    seen: Vec<&'a str>,
+    pub app: &'c mut App<'help>,
+    pub required: ChildGraph<u64>,
+    pub overriden: Vec<u64>,
+    seen: Vec<u64>,
     cur_idx: Cell<usize>,
 }
 
 // Initializing Methods
-impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
+impl<'help, 'c> Parser<'help, 'c>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
 {
-    pub fn new(app: &'c mut App<'a, 'b>) -> Self {
+    pub fn new(app: &'c mut App<'help>) -> Self {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
@@ -350,7 +348,7 @@ where
                 let idx = self.required.insert(group.name);
                 if let Some(ref reqs) = group.requires {
                     for a in reqs {
-                        self.required.insert_child(idx, a);
+                        self.required.insert_child(idx, *a);
                     }
                 }
             }
@@ -359,16 +357,15 @@ where
 }
 
 // Parsing Methods
-impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
+impl<'help, 'c> Parser<'help, 'c>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
 {
     // The actual parsing function
     #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
     pub fn get_matches_with<I, T>(
         &mut self,
-        matcher: &mut ArgMatcher<'a>,
+        matcher: &mut ArgMatcher,
         it: &mut Peekable<I>,
     ) -> ClapResult<()>
     where
@@ -381,8 +378,8 @@ where
 
         let has_args = self.has_args();
 
-        let mut subcmd_name: Option<String> = None;
-        let mut needs_val_of: ParseResult<'a> = ParseResult::NotFound;
+        let mut subcmd_name: Option<u64> = None;
+        let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
         while let Some(arg) = it.next() {
             let arg_os = arg.into();
@@ -420,7 +417,7 @@ where
                             );
                             if is_match {
                                 let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
-                                if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
+                                if sc_name == hash("help") && !self.is_set(AS::NoAutoHelp) {
                                     self.parse_help_subcommand(it)?;
                                 }
                                 subcmd_name = Some(sc_name.to_owned());
@@ -474,7 +471,7 @@ where
                     }
                 } else if let ParseResult::Opt(name) = needs_val_of {
                     // Check to see if parsing a value from a previous arg
-                    let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
+                    let arg = self.app.find(name).expect(INTERNAL_ERROR_MSG);
                     // get the option so we can check the settings
                     needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
                     // get the next value from the iterator
@@ -637,7 +634,7 @@ where
                             self.app.color(),
                         ));
                     }
-                    sc_m.add_val_to("", &a);
+                    sc_m.add_val_to(0, &a);
                 }
 
                 matcher.subcommand(SubCommand {
@@ -715,7 +712,7 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
+    fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<u64>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
             #[cfg(target_os = "windows")]
@@ -748,7 +745,7 @@ where
         (false, None)
     }
 
-    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult<'a>>
+    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult>
     where
         I: Iterator<Item = T>,
         T: Into<OsString>,
@@ -826,11 +823,11 @@ where
         };
         let arg_allows_tac = match needs_val_of {
             ParseResult::Opt(name) => {
-                let o = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
+                let o = self.app.find(name).expect(INTERNAL_ERROR_MSG);
                 (o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
             }
             ParseResult::Pos(name) => {
-                let p = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
+                let p = self.app.find(name).expect(INTERNAL_ERROR_MSG);
                 (p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
             }
             ParseResult::ValuesDone => return true,
@@ -864,8 +861,8 @@ where
 
     fn parse_subcommand<I, T>(
         &mut self,
-        sc_name: &str,
-        matcher: &mut ArgMatcher<'a>,
+        sc_name: u64,
+        matcher: &mut ArgMatcher,
         it: &mut Peekable<I>,
     ) -> ClapResult<()>
     where
@@ -952,7 +949,7 @@ where
         );
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if let Some(help) = self.app.find("help") {
+        if let Some(help) = self.app.find(hash("help")) {
             if let Some(h) = help.short {
                 if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
                     sdebugln!("Help");
@@ -960,7 +957,7 @@ where
                 }
             }
         }
-        if let Some(version) = self.app.find("version") {
+        if let Some(version) = self.app.find(hash("version")) {
             if let Some(v) = version.short {
                 if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
                     sdebugln!("Version");
@@ -991,9 +988,9 @@ where
 
     fn parse_long_arg(
         &mut self,
-        matcher: &mut ArgMatcher<'a>,
+        matcher: &mut ArgMatcher,
         full_arg: &OsStr,
-    ) -> ClapResult<ParseResult<'a>> {
+    ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
 
@@ -1041,9 +1038,9 @@ where
     #[cfg_attr(feature = "lints", allow(len_zero))]
     fn parse_short_arg(
         &mut self,
-        matcher: &mut ArgMatcher<'a>,
+        matcher: &mut ArgMatcher,
         full_arg: &OsStr,
-    ) -> ClapResult<ParseResult<'a>> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_left_matches(b'-');
         let arg = arg_os.to_string_lossy();
@@ -1130,10 +1127,10 @@ where
     fn parse_opt(
         &self,
         val: Option<&OsStr>,
-        opt: &Arg<'a, 'b>,
+        opt: &Arg<'help>,
         had_eq: bool,
-        matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>> {
+        matcher: &mut ArgMatcher,
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
         debugln!("Parser::parse_opt; opt.settings={:?}", opt.settings);
         let mut has_eq = false;
@@ -1194,10 +1191,10 @@ where
 
     fn add_val_to_arg(
         &self,
-        arg: &Arg<'a, 'b>,
+        arg: &Arg<'help>,
         val: &OsStr,
-        matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>> {
+        matcher: &mut ArgMatcher,
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debugln!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
@@ -1231,10 +1228,10 @@ where
 
     fn add_single_val_to_arg(
         &self,
-        arg: &Arg<'a, 'b>,
+        arg: &Arg<'help>,
         v: &OsStr,
-        matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>> {
+        matcher: &mut ArgMatcher,
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_single_val_to_arg;");
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
 
@@ -1264,9 +1261,9 @@ where
 
     fn parse_flag(
         &self,
-        flag: &Arg<'a, 'b>,
-        matcher: &mut ArgMatcher<'a>,
-    ) -> ClapResult<ParseResult<'a>> {
+        flag: &Arg<'help>,
+        matcher: &mut ArgMatcher,
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_flag;");
 
         matcher.inc_occurrence_of(flag.name);
@@ -1279,14 +1276,14 @@ where
         Ok(ParseResult::Flag)
     }
 
-    fn remove_overrides(&mut self, matcher: &mut ArgMatcher<'a>) {
+    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
         debugln!("Parser::remove_overrides;");
-        let mut to_rem: Vec<&str> = Vec::new();
-        let mut self_override: Vec<&str> = Vec::new();
+        let mut to_rem: Vec<u64> = Vec::new();
+        let mut self_override: Vec<u64> = Vec::new();
         let mut arg_overrides = Vec::new();
         for name in matcher.arg_names() {
             debugln!("Parser::remove_overrides:iter:{};", name);
-            if let Some(arg) = self.app.find(name) {
+            if let Some(arg) = self.app.find(*name) {
                 let mut handle_self_override = |o| {
                     if (arg.is_set(ArgSettings::MultipleValues)
                         || arg.is_set(ArgSettings::MultipleOccurrences))
@@ -1325,7 +1322,7 @@ where
         for arg in self.seen.iter().rev() {
             for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
                 if !to_rem.contains(a) {
-                    to_rem.push(overr);
+                    to_rem.push(*overr);
                 }
             }
         }
@@ -1333,7 +1330,7 @@ where
         // Do self overrides
         for name in &self_override {
             debugln!("Parser::remove_overrides:iter:self:{}: resetting;", name);
-            if let Some(ma) = matcher.get_mut(name) {
+            if let Some(ma) = matcher.get_mut(*name) {
                 if ma.occurs < 2 {
                     continue;
                 }
@@ -1349,12 +1346,12 @@ where
         // Finally remove conflicts
         for name in &to_rem {
             debugln!("Parser::remove_overrides:iter:{}: removing;", name);
-            matcher.remove(name);
-            self.overriden.push(name);
+            matcher.remove(*name);
+            self.overriden.push(*name);
         }
     }
 
-    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
@@ -1432,7 +1429,7 @@ where
         Ok(())
     }
 
-    pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         for a in self.app.args.args.iter() {
             if let Some(ref val) = a.env {
                 if let Some(ref val) = val.1 {
@@ -1445,12 +1442,11 @@ where
 }
 
 // Error, Help, and Version Methods
-impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
+impl<'help, 'c> Parser<'help, 'c>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
 {
-    fn did_you_mean_error(&mut self, arg: &str, matcher: &mut ArgMatcher<'a>) -> ClapResult<()> {
+    fn did_you_mean_error(&mut self, arg: u64, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
         let longs = self
@@ -1482,9 +1478,9 @@ where
             }
         }
 
-        let used: Vec<&str> = matcher
+        let used: Vec<u64> = matcher
             .arg_names()
-            .filter(|ref n| {
+            .filter(|n| {
                 if let Some(a) = self.app.find(**n) {
                     !(self.required.contains(a.name) || a.is_set(ArgSettings::Hidden))
                 } else {
@@ -1544,10 +1540,9 @@ where
 }
 
 // Query Methods
-impl<'a, 'b, 'c> Parser<'a, 'b, 'c>
+impl<'help, 'c> Parser<'help, 'c>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
 {
     fn contains_short(&self, s: char) -> bool { self.app.contains_short(s) }
 

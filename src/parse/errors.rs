@@ -444,12 +444,11 @@ impl Error {
         }
     }
     #[doc(hidden)]
-    pub fn argument_conflict<O, U>(arg: &Arg, other: Option<O>, usage: U, color: ColorWhen) -> Self
+    pub fn argument_conflict<T, U>(arg: &Arg, other: Option<T>, usage: U, color: ColorWhen) -> Self
     where
-        O: Into<String>,
         U: Display,
     {
-        let mut v = vec![arg.name.to_owned()];
+        let mut v = vec![arg.id];
         let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: color,
@@ -462,9 +461,9 @@ impl Error {
                 c.error("error:"),
                 c.warning(&*arg.to_string()),
                 match other {
-                    Some(name) => {
-                        let n = name.into();
-                        v.push(n.clone());
+                    Some(id) => {
+                        let n = id;
+                        v.push(n);
                         c.warning(format!("'{}'", n))
                     }
                     None => c.none("one or more of the other specified arguments".to_owned()),
@@ -478,7 +477,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<U, T>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
@@ -503,7 +502,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn invalid_value<B, G, U>(
+    pub fn invalid_value<T, B, G, U>(
         bad_val: B,
         good_vals: &[G],
         arg: &Arg,
@@ -691,7 +690,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<V, U>(val: V, arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<T, V, U>(val: V, arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
         U: Display,
@@ -753,7 +752,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation(arg: Option<&Arg>, err: &str, color: ColorWhen) -> Self {
+    pub fn value_validation<T>(arg: Option<&Arg>, err: &str, color: ColorWhen) -> Self {
         let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: color,
@@ -776,12 +775,12 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: &str) -> Self {
-        let n: Option<&Arg> = None;
+        let n: Option<&Arg<_>> = None;
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<S, U>(
+    pub fn wrong_number_of_values<T, S, U>(
         arg: &Arg,
         num_vals: u64,
         curr_vals: usize,
@@ -817,7 +816,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<T, U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {

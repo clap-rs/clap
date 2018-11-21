@@ -7,21 +7,20 @@ use build::{Arg, ArgSettings};
 use parse::{ArgMatcher, Parser};
 use INTERNAL_ERROR_MSG;
 
-pub struct Usage<'a, 'b, 'c, 'z>
+pub struct Usage<'help, 'c, 'z>
 where
-    'a: 'b,
-    'b: 'c,
+    'help: 'c,
     'c: 'z,
 {
-    p: &'z Parser<'a, 'b, 'c>,
+    p: &'z Parser<'help, 'c>,
 }
 
-impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
-    pub fn new(p: &'z Parser<'a, 'b, 'c>) -> Self { Usage { p } }
+impl<'help, 'c, 'z> Usage<'help, 'c, 'z> {
+    pub fn new(p: &'z Parser<'help, 'c>) -> Self { Usage { p } }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
-    pub fn create_usage_with_title(&self, used: &[&str]) -> String {
+    pub fn create_usage_with_title(&self, used: &[u64]) -> String {
         debugln!("usage::create_usage_with_title;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
@@ -30,7 +29,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
-    pub fn create_usage_no_title(&self, used: &[&str]) -> String {
+    pub fn create_usage_no_title(&self, used: &[u64]) -> String {
         debugln!("usage::create_usage_no_title;");
         if let Some(u) = self.p.app.usage_str {
             String::from(&*u)
@@ -148,7 +147,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
 
     // Creates a context aware usage string, or "smart usage" from currently used
     // args, and requirements
-    fn create_smart_usage(&self, used: &[&str]) -> String {
+    fn create_smart_usage(&self, used: &[u64]) -> String {
         debugln!("usage::smart_usage;");
         let mut usage = String::with_capacity(75);
 
@@ -309,7 +308,7 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
     // `prog [foo] -- [last] <subcommand>` which is totally wrong.
     pub fn get_required_usage_from(
         &self,
-        incls: &[&str],
+        incls: &[u64],
         matcher: Option<&ArgMatcher>,
         incl_last: bool,
     ) -> VecDeque<String> {
@@ -347,8 +346,8 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 .iter()
                 .chain(incls.iter())
                 .filter(|a| positionals!(self.p.app).any(|p| &&p.name == a))
-                .filter(|&pos| !m.contains(pos))
-                .filter_map(|pos| self.p.app.find(pos))
+                .filter(|&pos| !m.contains(*pos))
+                .filter_map(|pos| self.p.app.find(*pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.name))
                 .map(|pos| (pos.index.unwrap(), pos))
@@ -358,17 +357,16 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
                 .iter()
                 .chain(incls.iter())
                 .filter(|a| positionals!(self.p.app).any(|p| &&p.name == a))
-                .filter_map(|pos| self.p.app.find(pos))
+                .filter_map(|pos| self.p.app.find(**pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.name))
                 .map(|pos| (pos.index.unwrap(), pos))
                 .collect::<BTreeMap<u64, &Arg>>() // sort by index
         };
         for &p in pmap.values() {
-            debugln!("Usage::get_required_usage_from:iter:{}", p.to_string());
-            let s = p.to_string();
-            if args_in_groups.is_empty() || !args_in_groups.contains(&&*s) {
-                ret_val.push_back(s);
+            debugln!("Usage::get_required_usage_from:iter:{}", p);
+            if args_in_groups.is_empty() || !args_in_groups.contains(p.id) {
+                ret_val.push_back(p.to_string());
             }
         }
         for a in unrolled_reqs
@@ -377,13 +375,13 @@ impl<'a, 'b, 'c, 'z> Usage<'a, 'b, 'c, 'z> {
             .filter(|name| !positionals!(self.p.app).any(|p| &&p.name == name))
             .filter(|name| !self.p.app.groups.iter().any(|g| &&g.name == name))
             .filter(|name| !args_in_groups.contains(name))
-            .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
+            .filter(|name| !(matcher.is_some() && matcher.unwrap().contains(**name)))
         {
             debugln!("Usage::get_required_usage_from:iter:{}:", a);
             let arg = self
                 .p
                 .app
-                .find(a)
+                .find(*a)
                 .map(|f| f.to_string())
                 .expect(INTERNAL_ERROR_MSG);
             ret_val.push_back(arg);

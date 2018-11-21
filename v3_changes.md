@@ -37,7 +37,14 @@
 
 - `Arg::unset` -> `Arg::unset_setting` 
 - `Arg::set` -> `Arg::setting` 
+- `Arg::from_yaml` -> `Arg::from`
+- `Arg::with_name` -> `Arg::new`
+- `Arg::group` -> Use App::group
+- `Arg::groups` -> Use App::group
 
+### ArgGroup
+
+- `ArgGroup::with_name` -> `ArgGroup::new`
 
 ## Structural Changes
 
