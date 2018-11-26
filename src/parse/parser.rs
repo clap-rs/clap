@@ -24,9 +24,10 @@ use parse::errors::Result as ClapResult;
 use parse::features::suggestions;
 use parse::Validator;
 use parse::{ArgMatcher, SubCommand};
-use util::{hash, ChildGraph, OsStrExt2};
+use util::{hash, OsStrExt2};
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
+use parse::SeenArg;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -34,11 +35,18 @@ pub enum ParserState {
     Initial,
 }
 
+enum HyphenStyle {
+    Single,
+    Double,
+    DoubleOnly,
+    None
+}
+
 fn assert_highest_index_matches_len(positionals: &[(u64, &Arg)]) {
     // Firt we verify that the highest supplied index, is equal to the number of
     // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
     // but no 2)
-    let highest_idx = positionals.iter().max_by(|x| x.0).unwrap();
+    let highest_idx = positionals.iter().max_by(|x, y| x.0.cmp(&y.0)).unwrap();
 
     let num_p = positionals.len();
 
@@ -58,9 +66,9 @@ fn assert_low_index_multiples(positionals: &[(u64, &Arg)]) {
     //  * ArgSettings::Last
     //  * The last arg is Required
 
-    let last = positionals.iter().last().unwrap();
+    let last = positionals.iter().last().unwrap().1;
 
-    let second_to_last = positionals.iter().rev().next().unwrap();
+    let second_to_last = positionals.iter().rev().next().unwrap().1;
 
     // Either the final positional is required
     // Or the second to last has a terminator or .last(true) set
@@ -88,7 +96,7 @@ fn assert_missing_positionals(positionals: &[(u64, &Arg)]) {
                 "Found positional argument which is not required with a lower \
                     index than a required positional argument by two or more: {:?} \
                     index {:?}",
-                p.name,
+                p.id,
                 i
             );
         } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
@@ -110,7 +118,7 @@ fn assert_missing_positionals(positionals: &[(u64, &Arg)]) {
     }
 }
 
-fn asssert_only_one_last(positionals: &[(u64, &Arg)]) {
+fn assert_only_one_last(positionals: &[(u64, &Arg)]) {
     assert!(
         positionals.iter().fold(0, |acc, (_, p)| if p.is_set(ArgSettings::Last) {
             acc + 1
@@ -121,13 +129,27 @@ fn asssert_only_one_last(positionals: &[(u64, &Arg)]) {
     );
 }
 
-fn assert_required_last_and_subcommands(positionals: &[(u64, &Arg)]) {
+fn assert_required_last_and_subcommands(positionals: &[(u64, &Arg)], has_subcmds: bool, subs_negate_reqs: bool) {
     assert!(!(positionals.iter()
         .any(|(_, p)| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
-        && self.has_subcommands()
-        && !self.is_set(AS::SubcommandsNegateReqs)),
+        && has_subcmds
+        && !subs_negate_reqs),
             "Having a required positional argument with .last(true) set *and* child \
                 subcommands without setting SubcommandsNegateReqs isn't compatible.");
+}
+
+fn get_hyphen_style(arg: &OsStr) -> HyphenStyle {
+    if arg.starts_with(b"--") {
+        if arg.len() == 2 {
+            return HyphenStyle::DoubleOnly;
+        } else {
+            return HyphenStyle::Double;
+        }
+    } else if arg.starts_with(b"-") && arg.len() != 1 {
+        return HyphenStyle::Single;
+    }
+
+    HyphenStyle::None
 }
 
 #[doc(hidden)]
@@ -158,8 +180,9 @@ where
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
 
-        let positionals: Vec<_> = *self
+        let positionals: Vec<(u64, &Arg)> = self
             .app
+            .args
             .args
             .iter()
             .filter(|x| x.index.is_some())
@@ -181,7 +204,7 @@ where
 
         assert_only_one_last(&*positionals);
 
-        assert_required_last_and_subcommands(&*positioanls);
+        assert_required_last_and_subcommands(&*positionals, self.has_subcommands(), self.is_set(AS::SubcommandsNegateReqs));
 
         true
     }
@@ -216,7 +239,7 @@ where
         self._build();
 
         let mut subcmd_name: Option<u64> = None;
-        let mut state: ParseResult = ParseState::Initial;
+        let mut state: ParserState = ParserState::Initial;
         let mut pos_counter = 1;
 
         while let Some(arg) = it.next() {
@@ -226,6 +249,18 @@ where
                 arg_os,
                 &*arg_os.as_bytes()
             );
+
+            match state {
+                ParserState::Initial => match get_hyphen_style(&*arg_os) {
+                    HyphenStyle::DoubleOnly => {
+                        self.set(AS::TrailingValues);
+                        continue;
+                    },
+                    HyphenStyle::Double => state = self.parse_double_hyphen_arg(&*arg_os),
+                    HyphenStyle::Single =>,
+                    HyphenStyle::None =>,
+                },
+            }
 
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, state);
