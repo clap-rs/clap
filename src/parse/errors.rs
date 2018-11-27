@@ -374,7 +374,9 @@ pub enum ErrorKind {
 /// Command Line Argument Parser Error
 #[derive(Debug)]
 pub struct Error {
-    /// Formatted error message
+    /// The cause of the error
+    pub cause: String,
+    /// Formatted error message, enhancing the cause message with extra information
     pub message: String,
     /// The type of error
     pub kind: ErrorKind,
@@ -383,6 +385,15 @@ pub struct Error {
 }
 
 impl Error {
+    /// Returns the singular or plural form on the verb to be based on the argument's value.
+    fn singular_or_plural(n: usize) -> String {
+        if n > 1 {
+            String::from("were")
+        } else {
+            String::from("was")
+        }
+    }
+
     /// Should the message be written to `stdout` or not
     pub fn use_stderr(&self) -> bool {
         match self.kind {
@@ -454,21 +465,26 @@ impl Error {
             use_stderr: true,
             when: color,
         });
+        let conflicting_arg = match other {
+            Some(name) => {
+                let n = name.into();
+                v.push(n.clone());
+                c.warning(format!("'{}'", n))
+            }
+            None => c.none("one or more of the other specified arguments".to_owned()),
+        };
         Error {
+            cause: format!(
+                "The argument '{}' cannot be used with {}",
+                arg, conflicting_arg
+            ),
             message: format!(
                 "{} The argument '{}' cannot be used with {}\n\n\
                  {}\n\n\
                  For more information try {}",
                 c.error("error:"),
                 c.warning(&*arg.to_string()),
-                match other {
-                    Some(name) => {
-                        let n = name.into();
-                        v.push(n.clone());
-                        c.warning(format!("'{}'", n))
-                    }
-                    None => c.none("one or more of the other specified arguments".to_owned()),
-                },
+                conflicting_arg,
                 usage,
                 c.good("--help")
             ),
@@ -487,6 +503,10 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "The argument '{}' requires a value but none was supplied",
+                arg
+            ),
             message: format!(
                 "{} The argument '{}' requires a value but none was supplied\
                  \n\n\
@@ -529,6 +549,13 @@ impl Error {
         sorted.sort();
         let valid_values = sorted.join(", ");
         Error {
+            cause: format!(
+                "'{}' isn't a valid value for '{}'\n\t\
+                 [possible values: {}]",
+                bad_val.as_ref(),
+                arg,
+                valid_values
+            ),
             message: format!(
                 "{} '{}' isn't a valid value for '{}'\n\t\
                  [possible values: {}]\n\
@@ -568,6 +595,7 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!("The subcommand '{}' wasn't recognized", s),
             message: format!(
                 "{} The subcommand '{}' wasn't recognized\n\t\
                  Did you mean '{}'?\n\n\
@@ -601,6 +629,7 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!("The subcommand '{}' wasn't recognized", s),
             message: format!(
                 "{} The subcommand '{}' wasn't recognized\n\n\
                  {}\n\t\
@@ -628,6 +657,10 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "The following required arguments were not provided:{}",
+                required
+            ),
             message: format!(
                 "{} The following required arguments were not provided:{}\n\n\
                  {}\n\n\
@@ -653,6 +686,7 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!("'{}' requires a subcommand, but one was not provided", name),
             message: format!(
                 "{} '{}' requires a subcommand, but one was not provided\n\n\
                  {}\n\n\
@@ -677,6 +711,7 @@ impl Error {
             when: color,
         });
         Error {
+            cause: "Invalid UTF-8 was detected in one or more arguments".to_string(),
             message: format!(
                 "{} Invalid UTF-8 was detected in one or more arguments\n\n\
                  {}\n\n\
@@ -702,6 +737,10 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "The value '{}' was provided to '{}', but it wasn't expecting any more values",
+                v, arg
+            ),
             message: format!(
                 "{} The value '{}' was provided to '{}', but it wasn't expecting \
                  any more values\n\n\
@@ -733,9 +772,14 @@ impl Error {
             use_stderr: true,
             when: color,
         });
+        let verb = Error::singular_or_plural(curr_vals);
         Error {
+            cause: format!(
+                "The argument '{}' requires at least {} values, but only {} {} provided",
+                arg, min_vals, curr_vals, verb
+            ),
             message: format!(
-                "{} The argument '{}' requires at least {} values, but only {} w{} \
+                "{} The argument '{}' requires at least {} values, but only {} {} \
                  provided\n\n\
                  {}\n\n\
                  For more information try {}",
@@ -743,7 +787,7 @@ impl Error {
                 c.warning(arg.to_string()),
                 c.warning(min_vals.to_string()),
                 c.warning(curr_vals.to_string()),
-                if curr_vals > 1 { "ere" } else { "as" },
+                verb,
                 usage,
                 c.good("--help")
             ),
@@ -759,6 +803,15 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "Invalid value{}: {}",
+                if let Some(a) = arg {
+                    format!(" for '{}'", a)
+                } else {
+                    String::new()
+                },
+                err
+            ),
             message: format!(
                 "{} Invalid value{}: {}",
                 c.error("error:"),
@@ -781,25 +834,28 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn wrong_number_of_values<S, U>(
+    pub fn wrong_number_of_values<U>(
         arg: &Arg,
         num_vals: u64,
         curr_vals: usize,
-        suffix: S,
         usage: U,
         color: ColorWhen,
     ) -> Self
     where
-        S: Display,
         U: Display,
     {
         let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: color,
         });
+        let verb = Error::singular_or_plural(curr_vals);
         Error {
+            cause: format!(
+                "The argument '{}' requires {} values, but {} {} provided",
+                arg, num_vals, curr_vals, verb
+            ),
             message: format!(
-                "{} The argument '{}' requires {} values, but {} w{} \
+                "{} The argument '{}' requires {} values, but {} {}
                  provided\n\n\
                  {}\n\n\
                  For more information try {}",
@@ -807,7 +863,7 @@ impl Error {
                 c.warning(arg.to_string()),
                 c.warning(num_vals.to_string()),
                 c.warning(curr_vals.to_string()),
-                suffix,
+                verb,
                 usage,
                 c.good("--help")
             ),
@@ -826,6 +882,10 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "The argument '{}' was provided more than once, but cannot be used multiple times",
+                arg
+            ),
             message: format!(
                 "{} The argument '{}' was provided more than once, but cannot \
                  be used multiple times\n\n\
@@ -842,7 +902,12 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unknown_argument<A, U>(arg: A, did_you_mean: Option<String>, usage: U, color: ColorWhen) -> Self
+    pub fn unknown_argument<A, U>(
+        arg: A,
+        did_you_mean: Option<String>,
+        usage: U,
+        color: ColorWhen,
+    ) -> Self
     where
         A: Into<String>,
         U: Display,
@@ -857,10 +922,14 @@ impl Error {
 
         let did_you_mean_message = match did_you_mean {
             Some(s) => format!("{}\n", s),
-            _ => "\n".to_owned()
+            _ => "\n".to_owned(),
         };
 
         Error {
+            cause: format!(
+                "Found argument '{}' which wasn't expected, or isn't valid in this context{}",
+                a, did_you_mean_message
+            ),
             message: format!(
                 "{} Found argument '{}' which wasn't expected, or isn't valid in \
                  this context{}\
@@ -886,6 +955,7 @@ impl Error {
             when: color,
         });
         Error {
+            cause: e.description().to_string(),
             message: format!("{} {}", c.error("error:"), e.description()),
             kind: ErrorKind::Io,
             info: None,
@@ -903,6 +973,7 @@ impl Error {
             when: ColorWhen::Auto,
         });
         Error {
+            cause: format!("The argument '{}' wasn't found", a),
             message: format!(
                 "{} The argument '{}' wasn't found",
                 c.error("error:"),
@@ -923,6 +994,7 @@ impl Error {
             when: ColorWhen::Auto,
         });
         Error {
+            cause: description.to_string(),
             message: format!("{} {}", c.error("error:"), description),
             kind,
             info: None,
