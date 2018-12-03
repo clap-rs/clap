@@ -599,12 +599,15 @@ where
                     self.app.settings.set(AS::TrailingValues);
                 }
                 self.seen.push(p.name);
-                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.name);
                 for grp in groups_for_arg!(self.app, &p.name) {
                     matcher.inc_occurrence_of(&*grp);
                 }
+
+                // Add value after increasing the occurence count to ensure it is associated with
+                // the new occurrence.
+                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1143,6 +1146,7 @@ where
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
 
         debug!("Parser::parse_opt; Checking for val...");
+        let mut parsed_val = None;
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
@@ -1160,7 +1164,7 @@ where
                 fv,
                 fv.starts_with(&[b'='])
             );
-            self.add_val_to_arg(opt, v, matcher)?;
+            parsed_val = Some(v);
         } else if needs_eq && !(empty_vals || min_vals_zero)  {
             sdebugln!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1176,6 +1180,12 @@ where
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, &opt.name) {
             matcher.inc_occurrence_of(&*grp);
+        }
+
+        // Add value after increasing the occurence count to ensure it is associated with the new
+        // occurrence.
+        if let Some(v) = parsed_val {
+            self.add_val_to_arg(opt, v, matcher)?;
         }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
@@ -1337,12 +1347,15 @@ where
                 if ma.occurs < 2 {
                     continue;
                 }
-                ma.occurs = 1;
                 if !ma.vals.is_empty() {
-                    // This avoids a clone
-                    let mut v = vec![ma.vals.pop().expect(INTERNAL_ERROR_MSG)];
-                    mem::swap(&mut v, &mut ma.vals);
+                    // Only keep values for the last occurrence
+                    let occurrence_start = ma.occurrences.pop().expect(INTERNAL_ERROR_MSG);
+                    let keep = ma.vals.len() - occurrence_start;
+                    ma.vals.rotate_left(occurrence_start);
+                    ma.vals.truncate(keep);
                 }
+                ma.occurs = 1;
+                ma.occurrences.clear();
             }
         }
 

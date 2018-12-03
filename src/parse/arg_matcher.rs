@@ -103,6 +103,11 @@ impl<'a> ArgMatcher<'a> {
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);
         if let Some(a) = self.get_mut(arg) {
+            if a.occurs > 0 {
+                // If not the first occurrence, we need to record the position in the vals vector
+                // at which this occurrence starts.
+                a.occurrences.push(a.vals.len());
+            }
             a.occurs += 1;
             return;
         }
@@ -115,6 +120,7 @@ impl<'a> ArgMatcher<'a> {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
+            occurrences: Vec::new(),
         });
         ma.vals.push(val.to_owned());
     }
@@ -124,6 +130,7 @@ impl<'a> ArgMatcher<'a> {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::new(),
+            occurrences: Vec::new(),
         });
         ma.indices.push(idx);
     }
