@@ -4,6 +4,7 @@ use std::os::unix::ffi::OsStrExt;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use INVALID_UTF8;
 
+// @TODO: should probably rename to something less confusing
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 pub trait OsStrExt3 {
     fn from_bytes(b: &[u8]) -> &Self;
@@ -20,6 +21,7 @@ pub trait OsStrExt2 {
     fn split(&self, b: u8) -> OsSplit;
 }
 
+// @TODO: impl for wasm too?
 #[cfg(target_os = "windows")]
 impl OsStrExt3 for OsStr {
     fn from_bytes(b: &[u8]) -> &Self {

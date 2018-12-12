@@ -27,7 +27,7 @@ use parse::{ArgMatcher, SubCommand};
 use util::{hash, OsStrExt2};
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use parse::SeenArg;
+use parse::{SeenArg, Key};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -232,7 +232,7 @@ where
     ) -> ClapResult<()>
     where
         I: Iterator<Item = T>,
-        T: Into<OsString> + Clone,
+        T: AsRef<OsStr>, // + Clone?
     {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
@@ -242,8 +242,8 @@ where
         let mut state: ParserState = ParserState::Initial;
         let mut pos_counter = 1;
 
-        while let Some(arg) = it.next() {
-            let arg_os = arg.into();
+        for arg in it {
+            let arg_os = arg.as_ref();
             debugln!(
                 "Parser::get_matches_with: Begin parsing '{:?}' ({:?})",
                 arg_os,
@@ -256,7 +256,7 @@ where
                         self.set(AS::TrailingValues);
                         continue;
                     },
-                    HyphenStyle::Double => state = self.parse_double_hyphen_arg(&*arg_os),
+                    HyphenStyle::Double => state = self.parse_long(matcher, arg_os.into()),
                     HyphenStyle::Single =>,
                     HyphenStyle::None =>,
                 },
@@ -853,39 +853,26 @@ where
             || subcommands!(self.app).any(|s| s.long_about.is_some())
     }
 
-    fn parse_long_arg(
+    fn parse_long(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &OsStr,
-    ) -> ClapResult<ParseResult> {
+        full_arg: RawArg,
+    ) -> ClapResult<ParseState> {
         // maybe here lifetime should be 'a
-        debugln!("Parser::parse_long_arg;");
+        debugln!("Parser::parse_long;");
 
         // Update the curent index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
-        let mut val = None;
-        debug!("Parser::parse_long_arg: Does it contain '='...");
-        let arg = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = full_arg.trim_left_matches(b'-').split_at_byte(b'=');
-            sdebugln!("Yes '{:?}'", p1);
-            val = Some(p1);
-            p0
-        } else {
-            sdebugln!("No");
-            full_arg.trim_left_matches(b'-')
-        };
-        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.into())) {
-            debugln!(
-                "Parser::parse_long_arg: Found valid opt or flag '{}'",
-                opt.to_string()
-            );
+        let raw_long: RawLong = full_arg.into();
+        if let Some(arg) = self.app.args.get_by_long_with_hyphen(raw_long.long.as_bytes()) {
+            debugln!("Parser::parse_long: Found valid arg '{}'", arg.to_string());
             self.app.settings.set(AS::ValidArgFound);
 
-            self.seen.push(opt.name);
+            self.seen.push(SeenArg::new(arg.id, Key::Long));
 
             if opt.is_set(ArgSettings::TakesValue) {
-                return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
+                return Ok(self.parse_opt(raw_long, matcher)?);
             }
             self.check_for_help_and_version_str(arg)?;
             self.parse_flag(opt, matcher)?;
@@ -993,75 +980,47 @@ where
 
     fn parse_opt(
         &self,
-        val: Option<&OsStr>,
+        raw: RawOpt,
         opt: &Arg<'help>,
-        had_eq: bool,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseResult> {
-        debugln!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
+    ) -> ClapResult<ParseState> {
+        debugln!("Parser::parse_opt; opt={}, val={:?}", opt.id, raw_long.full_value);
         debugln!("Parser::parse_opt; opt.settings={:?}", opt.settings);
-        let mut has_eq = false;
-        let no_val = val.is_none();
-        let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
-        let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
+        let had_eq = raw.value.map_or(false, |v| v.had_eq);
 
-        debug!("Parser::parse_opt; Checking for val...");
-        if let Some(fv) = val {
-            has_eq = fv.starts_with(&[b'=']) || had_eq;
-            let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
-                sdebugln!("Found Empty - Error");
-                return Err(ClapError::empty_value(
-                    opt,
-                    &*Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            }
-            sdebugln!("Found - {:?}, len: {}", v, v.len());
-            debugln!(
-                "Parser::parse_opt: {:?} contains '='...{:?}",
-                fv,
-                fv.starts_with(&[b'='])
-            );
-            self.add_val_to_arg(opt, v, matcher)?;
-        } else if needs_eq && !(empty_vals || min_vals_zero)  {
-            sdebugln!("None, but requires equals...Error");
+        if raw.value.is_some() {
+            self.add_val_to_arg(opt, raw, matcher)?;
+        } else if needs_eq {
             return Err(ClapError::empty_value(
                 opt,
                 &*Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
             ));
-        } else {
-            sdebugln!("None");
         }
 
-        matcher.inc_occurrence_of(opt.name);
+        matcher.inc_occurrence_of(opt.id);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &opt.name) {
+        for grp in groups_for_arg!(self.app, &opt.id) {
             matcher.inc_occurrence_of(&*grp);
         }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::MultipleValues);
-        // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
-        if no_val && min_vals_zero && !has_eq && needs_eq {
-            debugln!("Parser::parse_opt: More arg vals not required...");
-            return Ok(ParseResult::ValuesDone);
-        } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
+        if raw.value.is_none() || (mult && !needs_delim) && !had_eq && matcher.needs_more_vals(opt) {
             debugln!("Parser::parse_opt: More arg vals required...");
-            return Ok(ParseResult::Opt(opt.name));
+            return Ok(ParseState::OptAcceptsValues(opt.id));
         }
         debugln!("Parser::parse_opt: More arg vals not required...");
-        Ok(ParseResult::ValuesDone)
+        Ok(ParseState::Initial)
     }
 
     fn add_val_to_arg(
         &self,
         arg: &Arg<'help>,
-        val: &OsStr,
+        raw: RawValue,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseResult> {
+    ) -> ClapResult<ParseState> {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debugln!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",

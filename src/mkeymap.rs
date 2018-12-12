@@ -105,26 +105,26 @@ impl<'help> MKeyMap<'help> {
         self.args.get(*self.index_map.get(&hash(u64_to_bytes(key)))?)
     }
 
-    pub fn get_mut_by_id(&self, key: u64) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_id(&mut self, key: u64) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&key)?)
     }
-    pub fn get_mut_by_index(&self, key: usize) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_index(&mut self, key: usize) -> Option<&mut Arg<'help>> {
         self.args.get_mut(key)
     }
-    pub fn get_mut_by_short(&self, key: char) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_short(&mut self, key: char) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&hash(short_to_bytes(key)))?)
     }
     // &[u8] better?
-    pub fn get_mut_by_short_with_hyphen(&self, key: [u8; 8]) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_short_with_hyphen(&mut self, key: [u8; 8]) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&hash(&key))?)
     }
-    pub fn get_mut_by_long(&self, key: &str) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_long(&mut self, key: &str) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&hash(key.as_bytes()))?)
     }
-    pub fn get_mut_by_long_with_hyphen(&self, key: &[u8]) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_long_with_hyphen(&mut self, key: &[u8]) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&hash(key))?)
     }
-    pub fn get_mut_by_positional(&self, key: u64) -> Option<&mut Arg<'help>> {
+    pub fn get_mut_by_positional(&mut self, key: u64) -> Option<&mut Arg<'help>> {
         self.args.get_mut(*self.index_map.get(&hash(u64_to_bytes(key)))?)
     }
 
