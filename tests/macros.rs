@@ -250,6 +250,32 @@ fn group_macro_set_not_required() {
 }
 
 #[test]
+fn multiarg() {
+    let app = || clap_app!(
+        claptests =>
+            (@arg flag: --flag "value")
+            (@arg multiarg: --multiarg
+             default_value("flag-unset") default_value_if("flag", None, "flag-set")
+             "multiarg")
+            (@arg multiarg2: --multiarg2
+             default_value("flag-unset") default_value_if("flag", None, "flag-set",)
+             "multiarg2")
+    );
+
+    let matches = app()
+        .get_matches_from_safe(vec!["bin_name"])
+        .expect("match failed");
+    assert_eq!(matches.value_of("multiarg"), Some("flag-unset"));
+    assert_eq!(matches.value_of("multiarg2"), Some("flag-unset"));
+
+    let matches = app()
+        .get_matches_from_safe(vec!["bin_name", "--flag"])
+        .expect("match failed");
+    assert_eq!(matches.value_of("multiarg"), Some("flag-set"));
+    assert_eq!(matches.value_of("multiarg2"), Some("flag-set"));
+}
+
+#[test]
 fn arg_enum() {
     // Helper macros to avoid repetition
     macro_rules! test_greek {
