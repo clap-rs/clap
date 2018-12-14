@@ -1,12 +1,28 @@
+use std::ffi::OsStr;
 use std::mem;
 
-struct RawArg<'a>(&'a OsStr);
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
+use std::os::unix::ffi::OsStrExt;
 
-impl<'a> RawArg<'a> {
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+use osstringext::OsStrExt3;
+use osstringext::OsStrExt2;
 
-}
+use parse::HyphenStyle;
 
+pub(crate) struct RawArg<'a>(pub(crate) &'a OsStr);
+
+impl<'a> RawArg<'a> { }
+
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 impl<'a> OsStrExt3 for RawArg<'a> {
+    fn from_bytes(b: &[u8]) -> &Self {
+        unsafe { mem::transmute(b) }
+    }
+    fn as_bytes(&self) -> &[u8] { self.0.as_bytes() }
+}
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
+impl<'a> OsStrExt for RawArg<'a> {
     fn from_bytes(b: &[u8]) -> &Self {
         unsafe { mem::transmute(b) }
     }

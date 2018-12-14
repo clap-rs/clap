@@ -1,9 +1,4 @@
-pub enum Key {
-    Short,
-    Long,
-    Index,
-    Id,
-}
+use parse::KeyType;
 
 pub struct SeenArg {
     id: u64,

@@ -1,6 +1,10 @@
-struct RawLong<'a> {
+use std::ffi::OsStr;
+
+use parse::{RawValue, RawArg};
+
+pub(crate) struct RawLong<'a> {
     // --foo
-    long: &'a OsStr,
+    pub(crate) long: &'a OsStr,
     value: Option<Value<'a>>,
 }
 
@@ -14,7 +18,7 @@ impl<'a> From<RawArg<'a>> for RawLong<'a> {
             let trimmed = p1.trim_left_matches(b'=');
             RawLong {
                 long: p0,
-                value: if trimmed.is_empty() { None } else { Some(RawValue::from_trimmed(trimmed)) }
+                value: Some(RawValue::from_trimmed(trimmed))
             }
         } else {
             sdebugln!("No");
