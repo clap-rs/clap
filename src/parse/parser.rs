@@ -30,10 +30,11 @@ use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
-pub enum ParseState {
+pub enum ParseResult {
     Initial,
     OptAcceptsVals(u64),
     PosAcceptsVals(u64),
+    PosByIndexAcceptsVals(usize),
     SubCmd(u64),
     NextArg,
     MaybeNegNum,
@@ -41,7 +42,31 @@ pub enum ParseState {
     UnknownShort,
     UnknownLong,
     UnknownPositional,
-    TrailingValues(usize),
+    TrailingValues,
+    LowIndexMultsOrMissingPos,
+}
+
+impl Default for ParseResult {
+    fn default() -> Self {
+        ParseResult::Initial
+    }
+}
+
+#[derive(Copy, Clone, Debug, Default)]
+struct ParseState {
+    prev: ParseResult,
+    cur: ParseResult,
+}
+
+impl ParseSate {
+    fn new() -> Self {
+        ParseState::default()
+    }
+
+    fn advance(&mut self, state: ArgState) {
+        mem::swap(self.cur, self.prev);
+        *self.cur = state;
+    }
 }
 
 fn assert_highest_index_matches_len(positionals: &[(u64, &Arg)]) {
@@ -148,6 +173,7 @@ where
     pub app: &'c mut App<'help>,
     seen: Vec<SeenArg>,
     cur_idx: Cell<usize>,
+    num_pos: usize,
 }
 
 // Initializing Methods
@@ -160,6 +186,7 @@ where
             app,
             seen: Vec::new(),
             cur_idx: Cell::new(0),
+            num_pos: app.args.args.iter().filter(|x| x.index.is_some()).count(),
         }
     }
 
@@ -228,37 +255,85 @@ where
 
         let mut subcmd_name: Option<u64> = None;
         let mut pos_counter: usize = 1;
+        let mut state = ParseState::new();
 
         'outer: for arg in it {
             debugln!("Parser::get_matches_with: Begin parsing '{:?}'", arg_os);
             let arg_os = arg.as_ref();
             let raw: RawArg = arg_os.into();
-            let mut state = ParseState::Initial;
             let mut hs = HyphenStyle::from(arg_os);
 
-            // @TODO @p1 Decide when to handle possible nug num / hyphen values and when to check
-            // number validity
             'inner: loop {
-                match state {
+                match state.cur {
+                    ParseResult::PositionalPrelude => {
+                        let is_second_to_last = idx == (self.num_pos - 1);
+
+                        let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && (self.has_positionals() && is_second_to_last);
+                        let missing_pos = self.is_set(AS::AllowMissingPositional)
+                            && is_second_to_last
+                            && !self.is_set(AS::TrailingValues);
+                        if low_index_mults || missing_pos {
+                            state.advance(ParseResult::LowIndexMultsOrMissingPos(idx));
+                        } else if self.skip_to_last_positional() {
+                            // Came to -- and one postional has .last(true) set, so we go immediately
+                            // to the last (highest index) positional
+                            debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
+                            state.advance(ParseResult::PosByIndexAcceptsVals(self.num_pos));
+                        } else {
+                            state.advance(ParseResult::PosByIndexAcceptsVals(pos_counter));
+                        }
+                    },
+                    ParesResult::PosByIndexAcceptsVals(idx) => {
+                        if let Some(p) = self.app.args.get_by_index(idx) {
+                            state.advance(self.parse_positional(p, matcher, raw));
+                            // Only increment the positional counter if it doesn't allow multiples
+                            if state.cur == ParseResult::NextArg {
+                                pos_counter += 1;
+                            }
+                        } else {
+                            state.advance(ParseResult::UnknownPositional);
+                        }
+                    }
+                    ParseResult::LowIndexMultsOrMissingPos => {
+                        if let Some(na) = it.peek() {
+                            let next_arg = (*na).clone().into();
+                            if pos_counter < self.num_pos {
+                                state.advance(ParseResult::PosByIndexAcceptsVals(pos_counter));
+                            } else {
+                                state.advance(ParseResult::NextArg);
+                            }
+                            // @TODO need to determine if the following arg is a new arg or subcmd
+                            let sc_match = { self.possible_subcommand(&n).0 };
+                            if sc_match
+                                || suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
+                                .is_some()
+                                {
+                                    state.advance(ParseResult::NextArg);
+                                }
+                        } else {
+                            state.advance(ParseResult::NextArg);
+                        }
+                    },
                     ParseSate::NextArg => continue 'outer,
-                    ParseState::Initial => {
-                        state = match hs {
-                            HyphenStyle::DoubleOnly => ParseState::TrailingValues(pos_counter),
+                    ParseResult::Initial => {
+                        let cur_state = match hs {
+                            HyphenStyle::DoubleOnly => ParseResult::TrailingValues(pos_counter),
                             HyphenStyle::Double => self.parse_long(matcher, raw.into())?,
                             HyphenStyle::Single => self.parse_short(matcher, raw.into())?,
                             HyphenStyle::None => self.parse_none(matcher, raw)?,
-                        }
+                        };
+                        state.advance(cur_state);
                     },
-                    ParseState::UnknownLong => {
+                    ParseResult::UnknownLong => {
                         if self.is_set(AS::AllowLeadingHyphen) {
-                            state = ParseState::MaybeHyphenValue;
+                            state = ParseResult::MaybeHyphenValue;
                             continue;
                         }
                         return self.did_you_mean_error(raw.0.to_str().expect(INVALID_UTF8), matcher);
                     },
-                    ParseState::UnknownShort => {
+                    ParseResult::UnknownShort => {
                         if self.is_set(AS::AllowLeadingHyphen) {
-                            state = ParseState::MaybeHyphenValue;
+                            state = ParseResult::MaybeHyphenValue;
                             continue;
                         }
 
@@ -270,7 +345,7 @@ where
                             self.app.color(),
                         ));
                     },
-                    ParseState::MaybeNegNum => {
+                    ParseResult::MaybeNegNum => {
                         if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
                             || arg_os.to_string_lossy().parse::<f64>().is_ok())
                             {
@@ -282,21 +357,91 @@ where
                                 ));
                             }
                     },
-                    ParseState::MaybeHyphenValue => {
+                    ParseResult::MaybeHyphenValue => {
                         state = self.parse_positional(matcher, raw)?;
                     },
-                    ParseState::OptAcceptsVals(id) => {
+                    ParseResult::OptAcceptsVals(id) => {
                         let opt = self.app.args.get_by_id(id).unwrap();
                         state = if (hs == HyphenStyle::Double || hs == HyphenStyle::Single)
                             && !opt.is_set(ArgSettings::AllowHyphenValues) {
-                            ParseState::Initial
+                            ParseResult::Initial
                         } else {
                             self.add_val_to_arg(opt, raw.0.into(), matcher)?
                         };
                     },
-                    ParseState::UnknownPositional,
-                    ParseState::PosAcceptsVals(u64),
-                    ParseState::SubCmd(id) => {
+                    ParseResult::UnknownPositional => {
+                        if self.is_set(AS::AllowExternalSubcommands) {
+                            // Get external subcommand name
+                            let sc_name = match arg_os.to_str() {
+                                Some(s) => s.to_string(),
+                                None => {
+                                    if !self.is_set(AS::StrictUtf8) {
+                                        return Err(ClapError::invalid_utf8(
+                                            &*Usage::new(self).create_usage_with_title(&[]),
+                                            self.app.color(),
+                                        ));
+                                    }
+                                    arg_os.to_string_lossy().into_owned()
+                                }
+                            };
+
+                            // Collect the external subcommand args
+                            let mut sc_m = ArgMatcher::new();
+                            while let Some(v) = it.next() {
+                                let a = v.into();
+                                if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
+                                    return Err(ClapError::invalid_utf8(
+                                        &*Usage::new(self).create_usage_with_title(&[]),
+                                        self.app.color(),
+                                    ));
+                                }
+                                sc_m.add_val_to(0, &a);
+                            }
+
+                            matcher.subcommand(SubCommand {
+                                name: sc_name,
+                                matches: sc_m.into(),
+                            });
+                        } else if !((self.is_set(AS::AllowLeadingHyphen)
+                        || self.is_set(AS::AllowNegativeNumbers))
+                        && arg_os.starts_with(b"-"))
+                        && !self.is_set(AS::InferSubcommands)
+                        {
+                            return Err(ClapError::unknown_argument(
+                                &*arg_os.to_string_lossy(),
+                                "",
+                                &*Usage::new(self).create_usage_with_title(&[]),
+                                self.app.color(),
+                            ));
+                        } else if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
+                            if let Some(cdate) =
+                            suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
+                                {
+                                    return Err(ClapError::invalid_subcommand(
+                                        arg_os.to_string_lossy().into_owned(),
+                                        cdate,
+                                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                                        &*Usage::new(self).create_usage_with_title(&[]),
+                                        self.app.color(),
+                                    ));
+                                } else {
+                                return Err(ClapError::unrecognized_subcommand(
+                                    arg_os.to_string_lossy().into_owned(),
+                                    self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                                    self.app.color(),
+                                ));
+                            }
+                        } else {
+                            return Err(ClapError::unknown_argument(
+                                &*arg_os.to_string_lossy(),
+                                "",
+                                &*Usage::new(self).create_usage_with_title(&[]),
+                                self.app.color(),
+                            ));
+                        }
+                    },
+                    ParseResult::PosAcceptsVals(u64),
+                    ParseResult::SubCmd(id) => {
                         if sc_id == hash("help") && !self.is_set(AS::NoAutoHelp) {
                             self.parse_help_subcommand(it)?;
                         }
@@ -361,191 +506,18 @@ where
         Ok(())
     }
 
-    fn parse_none(&mut self, matcher: &mut ArgMatcher, raw: RawArg) -> ClapResult<ParseState> {
+    fn parse_none(&mut self, matcher: &mut ArgMatcher, raw: RawArg) -> ClapResult<ParseResult> {
         let sc_id = self.possible_subcommand(raw);
         if let Some(id) = sc_id {
-            return Ok(ParseState::SubCmd(id));
+            return Ok(ParseResult::SubCmd(id));
             break;
         }
         state = self.parse_positional(mather, raw.into());
     }
 
-    fn parse_positional(&mut self, matcher: &mut ArgMatcher, raw: RawPos) -> ClapResult<ParseState> {
-        let positional_count = self
-            .app
-            .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
-            .filter(|x| {
-                if let KeyType::Position(_) = x {
-                    true
-                } else {
-                    false
-                }
-            })
-            .count();
-        let is_second_to_last = positional_count > 1 && (pos_counter == (positional_count - 1));
-
-        let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && is_second_to_last;
-        let missing_pos = self.is_set(AS::AllowMissingPositional)
-            && is_second_to_last
-            && !self.is_set(AS::TrailingValues);
-        debugln!(
-                "Parser::get_matches_with: Positional counter...{}",
-                pos_counter
-            );
-        debugln!(
-                "Parser::get_matches_with: Low index multiples...{:?}",
-                low_index_mults
-            );
-        if low_index_mults || missing_pos {
-            if let Some(na) = it.peek() {
-                let n = (*na).clone().into();
-                needs_val_of = if needs_val_of != ParseResult::ValuesDone {
-                    if let Some(p) =
-                    positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
-                        {
-                            ParseResult::Pos(p.name)
-                        } else {
-                        ParseResult::ValuesDone
-                    }
-                } else {
-                    ParseResult::ValuesDone
-                };
-                let sc_match = { self.possible_subcommand(&n).0 };
-                if self.is_new_arg(&n, needs_val_of)
-                    || sc_match
-                    || suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
-                    .is_some()
-                    {
-                        debugln!("Parser::get_matches_with: Bumping the positional counter...");
-                        pos_counter += 1;
-                    }
-            } else {
-                debugln!("Parser::get_matches_with: Bumping the positional counter...");
-                pos_counter += 1;
-            }
-        } else if (self.is_set(AS::AllowMissingPositional) && self.is_set(AS::TrailingValues))
-            || (self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues))
-            {
-                // Came to -- and one postional has .last(true) set, so we go immediately
-                // to the last (highest index) positional
-                debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self
-                    .app
-                    .args
-                    .keys
-                    .iter()
-                    .map(|x| &x.key)
-                    .filter(|x| {
-                        if let KeyType::Position(_) = x {
-                            true
-                        } else {
-                            false
-                        }
-                    })
-                    .count();
-            }
-        if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
-            if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
-                return Err(ClapError::unknown_argument(
-                    &*arg_os.to_string_lossy(),
-                    "",
-                    &*Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            }
-            if !self.is_set(AS::TrailingValues)
-                && (self.is_set(AS::TrailingVarArg)
-                && pos_counter
-                == self
-                .app
-                .args
-                .keys
-                .iter()
-                .map(|x| &x.key)
-                .filter(|x| x.is_position())
-                .count())
-                {
-                    self.app.settings.set(AS::TrailingValues);
-                }
-            self.seen.push(p.name);
-            let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
-
-            matcher.inc_occurrence_of(p.name);
-            for grp in groups_for_arg!(self.app, &p.name) {
-                matcher.inc_occurrence_of(&*grp);
-            }
-
-            self.app.settings.set(AS::ValidArgFound);
-            // Only increment the positional counter if it doesn't allow multiples
-            if !p.settings.is_set(ArgSettings::MultipleValues) {
-                pos_counter += 1;
-            }
-            self.app.settings.set(AS::ValidArgFound);
-        } else if self.is_set(AS::AllowExternalSubcommands) {
-            // Get external subcommand name
-            let sc_name = match arg_os.to_str() {
-                Some(s) => s.to_string(),
-                None => {
-                    if !self.is_set(AS::StrictUtf8) {
-                        return Err(ClapError::invalid_utf8(
-                            &*Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
-                        ));
-                    }
-                    arg_os.to_string_lossy().into_owned()
-                }
-            };
-
-            // Collect the external subcommand args
-            let mut sc_m = ArgMatcher::new();
-            while let Some(v) = it.next() {
-                let a = v.into();
-                if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
-                    return Err(ClapError::invalid_utf8(
-                        &*Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
-                }
-                sc_m.add_val_to(0, &a);
-            }
-
-            matcher.subcommand(SubCommand {
-                name: sc_name,
-                matches: sc_m.into(),
-            });
-        } else if !((self.is_set(AS::AllowLeadingHyphen)
-            || self.is_set(AS::AllowNegativeNumbers))
-            && arg_os.starts_with(b"-"))
-            && !self.is_set(AS::InferSubcommands)
-            {
-                return Err(ClapError::unknown_argument(
-                    &*arg_os.to_string_lossy(),
-                    "",
-                    &*Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            } else if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
-            if let Some(cdate) =
-            suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
-                {
-                    return Err(ClapError::invalid_subcommand(
-                        arg_os.to_string_lossy().into_owned(),
-                        cdate,
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
-                        &*Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
-                } else {
-                return Err(ClapError::unrecognized_subcommand(
-                    arg_os.to_string_lossy().into_owned(),
-                    self.app.bin_name.as_ref().unwrap_or(&self.app.name),
-                    self.app.color(),
-                ));
-            }
-        } else {
+    fn parse_positional(&mut self, p: &Arg, matcher: &mut ArgMatcher, raw: RawPos) -> ClapResult<ParseResult> {
+        let no_trailing_vals = !self.is_set(AS::TrailingValues);
+        if p.is_set(ArgSettings::Last) && no_trailing_vals {
             return Err(ClapError::unknown_argument(
                 &*arg_os.to_string_lossy(),
                 "",
@@ -553,6 +525,21 @@ where
                 self.app.color(),
             ));
         }
+
+        if no_trailing_vals && (self.is_set(AS::TrailingVarArg) && idx == self.num_pos) {
+            self.app.settings.set(AS::TrailingValues);
+        }
+
+        self.seen.push(p.id);
+        let ret = self.add_val_to_arg(p, &arg_os.into(), matcher)?;
+
+        matcher.inc_occurrence_of(p.name);
+        for grp in groups_for_arg!(self.app, &p.name) {
+            matcher.inc_occurrence_of(&*grp);
+        }
+
+        self.app.settings.set(AS::ValidArgFound);
+        Ok(ret)
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
@@ -765,7 +752,7 @@ where
         &mut self,
         matcher: &mut ArgMatcher,
         raw_long: RawLong,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long;");
 
@@ -785,22 +772,22 @@ where
             self.check_for_help_and_version_long(raw.long.trim_left_matches(b'-'))?;
             self.parse_flag(arg.id, matcher)?;
 
-            return Ok(ParseState::NextArg);
+            return Ok(ParseResult::NextArg);
         }
 
-        Ok(ParseState::UnknownLong)
+        Ok(ParseResult::UnknownLong)
     }
 
     fn parse_short(
         &mut self,
         matcher: &mut ArgMatcher,
         full_arg: RawShort,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_left_matches(b'-');
         let arg = arg_os.to_string_lossy();
 
-        let mut ret = ParseState::UnkownShort;
+        let mut ret = ParseResult::UnkownShort;
         for c in arg.chars() {
             debugln!("Parser::parse_short_arg:iter:{}", c);
 
@@ -831,7 +818,7 @@ where
                 };
                 return self.parse_opt(ro, opt, matcher);
             } else {
-                return Ok(ParseState::UnknownShort);
+                return Ok(ParseResult::UnknownShort);
             }
         }
         Ok(ret)
@@ -842,7 +829,7 @@ where
         raw: RawOpt,
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.id, raw.value);
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
         let had_eq = raw.value.map_or(false, |v| v.had_eq);
@@ -866,9 +853,9 @@ where
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::MultipleValues);
         if (raw.value.is_none() && matcher.needs_more_vals(opt)) || (mult && !needs_delim) {
-            return Ok(ParseState::OptAcceptsValues(opt.id));
+            return Ok(ParseResult::OptAcceptsValues(opt.id));
         }
-        Ok(ParseState::NextArg)
+        Ok(ParseResult::NextArg)
     }
 
     fn add_val_to_arg(
@@ -876,21 +863,21 @@ where
         arg: &Arg<'help>,
         raw: RawValue,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         let honor_delims = !(self.is_set(AS::TrailingValues)
             && self.is_set(AS::DontDelimitTrailingValues));
         if honor_delims {
             val.sep = arg.val_delim;
         }
-        let mut ret = ParseState::Initial; // @TODO: valid args found state?
+        let mut ret = ParseResult::Initial; // @TODO: valid args found state?
         for v in val.values() {
             ret = self.add_single_val_to_arg(arg, v, matcher)?;
         }
         // If there was a delimiter used, we're not looking for more values because
         // --foo=bar,baz qux isn't three values. Same with --foo bar,baz qux
         if honor_delims && (val.used_sep() || arg.is_set(ArgSettings::RequireDelimiter)) {
-            ret = ParseState::Initial;
+            ret = ParseResult::Initial;
         }
         Ok(ret)
     }
@@ -900,7 +887,7 @@ where
         arg: &Arg<'help>,
         v: &OsStr,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_single_val_to_arg: adding val...{:?}", v);
 
         // update the current index because each value is a distinct index to clap
@@ -909,7 +896,7 @@ where
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
-                return Ok(ParseState::Initial); // @TODO maybe add, ValueDone state?
+                return Ok(ParseResult::NextArg); // @TODO maybe add, ValueDone state?
             }
         }
 
@@ -922,16 +909,19 @@ where
         }
 
         if matcher.needs_more_vals(arg) {
-            return Ok(ParseState::OptAcceptsVals(arg.id));
+            if arg.index.is_some() {
+               return Ok(ParseResult::PosAcceptsVals(arg.id));
+            }
+            return Ok(ParseResult::OptAcceptsVals(arg.id));
         }
-        Ok(ParseState::Initial)
+        Ok(ParseResult::NextArg)
     }
 
     fn parse_flag(
         &self,
         flag_id: u64,
         matcher: &mut ArgMatcher,
-    ) -> ClapResult<ParseState> {
+    ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_flag;");
 
         matcher.inc_occurrence_of(flag_id);
@@ -941,7 +931,7 @@ where
             matcher.inc_occurrence_of(grp);
         }
 
-        Ok(ParseState::NextArg)
+        Ok(ParseResult::NextArg)
     }
 
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
@@ -1214,6 +1204,10 @@ impl<'help, 'c> Parser<'help, 'c>
 where
     'help: 'c,
 {
+    fn skip_to_last_positional(&self) -> bool {
+        self.is_set(AS::TrailingValues) && (self.is_set(AS::AllowMissingPositional) || self.is_set(AS::ContainsLast))
+    }
+
     fn contains_short(&self, s: char) -> bool { self.app.contains_short(s) }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
