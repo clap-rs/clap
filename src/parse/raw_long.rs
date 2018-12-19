@@ -2,10 +2,10 @@ use std::ffi::OsStr;
 
 use parse::{RawValue, RawArg};
 
-pub(crate) struct RawLong<'a> {
+pub struct RawLong<'a> {
     // --foo
     pub(crate) long: &'a OsStr,
-    value: Option<Value<'a>>,
+    value: Option<RawValue<'a>>,
 }
 
 impl<'a> From<RawArg<'a>> for RawLong<'a> {

@@ -5,12 +5,13 @@ use std::mem;
 use std::os::unix::ffi::OsStrExt;
 
 #[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
-use osstringext::OsStrExt3;
-use osstringext::OsStrExt2;
+use util::OsStrExt3;
+use util::OsStrExt2;
+use util::OsSplit;
 
 use parse::HyphenStyle;
 
-pub(crate) struct RawArg<'a>(pub(crate) &'a OsStr);
+pub struct RawArg<'a>(pub(crate) &'a OsStr);
 
 impl<'a> RawArg<'a> { }
 

@@ -1,9 +1,10 @@
 use std::ffi::OsStr;
 
 use parse::RawValue;
+use parse::KeyType;
 
-pub(crate) struct RawOpt<'a> {
+pub struct RawOpt<'a> {
     pub(crate) raw_key: &'a OsStr,
-    pub(crate) key: Key,
+    pub(crate) key: KeyType,
     pub(crate) value: Option<RawValue<'a>>,
 }

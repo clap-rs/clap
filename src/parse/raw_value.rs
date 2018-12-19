@@ -1,10 +1,11 @@
 use std::ffi::OsStr;
 
 use parse::RawLong;
+use util::OsSplit;
 
-pub(crate) struct RawValue<'a> {
+pub struct RawValue<'a> {
     // value1,value2
-    raw: &'a OsStr,
+    pub(crate) raw: &'a OsStr,
     // if --foo=value1,value2 was used
     pub(crate) had_eq: bool,
     // Some(,)
@@ -16,7 +17,7 @@ pub(crate) struct RawValue<'a> {
 impl<'a> RawValue<'a> {
     // When raw does not contain '='
     pub fn new(oss: &'a OsStr) -> Self {
-        Value {
+        RawValue {
             raw: oss,
             had_eq: false,
             sep: None,
@@ -25,7 +26,7 @@ impl<'a> RawValue<'a> {
     }
     // When raw was =foo but you already trimmed `=`. Implicitly sets had_eq to true.
     pub fn from_trimmed(oss: &'a OsStr) -> Self {
-        Value {
+        RawValue {
             raw: oss,
             had_eq: true,
             sep: None,

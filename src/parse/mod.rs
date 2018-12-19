@@ -16,7 +16,7 @@ mod hyphen_style;
 pub use self::arg_matcher::ArgMatcher;
 pub use self::matches::ArgMatches;
 pub use self::matches::{MatchedArg, OsValues, SubCommand, Values};
-pub use self::parser::{ParserState, Parser};
+pub use self::parser::{ParseState, ParseResult, Parser};
 pub use self::validator::Validator;
 pub use self::seen_arg::SeenArg;
 pub use self::key_type::KeyType;
