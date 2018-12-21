@@ -10,7 +10,6 @@ use output::Usage;
 use parse::errors::Result as ClapResult;
 use parse::errors::{Error, ErrorKind};
 use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
-use util::ChildGraph;
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
 
@@ -20,48 +19,25 @@ where
     'c: 'z,
 {
     p: &'z mut Parser<'help, 'c>,
-    c: ChildGraph<u64>,
+    c: Vec<u64>,
 }
 
 impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
     pub fn new(p: &'z mut Parser<'help, 'c>) -> Self {
         Validator {
             p,
-            c: ChildGraph::with_capacity(5),
+            c: Vec::with_capacity(5),
         }
     }
 
     pub fn validate(
         &mut self,
-        needs_val_of: ParseResult,
         subcmd_name: &Option<u64>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
         debugln!("Validator::validate;");
-        let mut reqs_validated = false;
         self.p.add_env(matcher)?;
         self.p.add_defaults(matcher)?;
-        if let ParseResult::Opt(a) = needs_val_of {
-            debugln!("Validator::validate: needs_val_of={:?}", a);
-            {
-                self.validate_required(matcher)?;
-            }
-            let o = self.p.app.find(a).expect(INTERNAL_ERROR_MSG);
-            reqs_validated = true;
-            let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
-                v.vals.is_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
-            } else {
-                true
-            };
-            if should_err {
-                return Err(Error::empty_value(
-                    o,
-                    &*Usage::new(self.p).create_usage_with_title(&[]),
-                    self.p.app.color(),
-                ));
-            }
-        }
-
         if matcher.is_empty()
             && matcher.subcommand_name().is_none()
             && self.p.is_set(AS::ArgRequiredElseHelp)
@@ -75,7 +51,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
             });
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some() || reqs_validated) {
+        if !(self.p.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) {
             self.validate_required(matcher)?;
             self.validate_required_unless(matcher)?;
         }
@@ -211,7 +187,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
     fn validate_conflicts(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Validator::validate_conflicts;");
         self.gather_conflicts(matcher);
-        for name in self.c.iter() {
+        for id in self.c.iter() {
             debugln!("Validator::validate_conflicts:iter:{};", name);
             let mut should_err = false;
             if let Some(g) = self
@@ -220,7 +196,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                 .groups
                 .iter()
                 .filter(|g| !g.multiple)
-                .find(|g| &g.id == name)
+                .find(|g| &g.id == id)
             {
                 let conf_with_self = self
                     .p
@@ -252,7 +228,7 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
                 should_err = ma.occurs > 0;
             }
             if should_err {
-                return self.build_conflict_err(*name, matcher);
+                return self.build_conflict_err(id, matcher);
             }
         }
         Ok(())
@@ -462,15 +438,15 @@ impl<'help, 'c, 'z> Validator<'help, 'c, 'z> {
     ) -> ClapResult<()> {
         debugln!("Validator::validate_arg_requires:{};", a.name);
         if let Some(ref a_reqs) = a.requires {
-            for &(val, name) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
+            for &(val, id) in a_reqs.iter().filter(|&&(val, _)| val.is_some()) {
                 let missing_req =
-                    |v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(name);
+                    |v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(id);
                 if ma.vals.iter().any(missing_req) {
                     return self.missing_required_error(matcher, Some(a.id));
                 }
             }
-            for &(_, name) in a_reqs.iter().filter(|&&(val, _)| val.is_none()) {
-                if !matcher.contains(name) {
+            for &(_, id) in a_reqs.iter().filter(|&&(val, _)| val.is_none()) {
+                if !matcher.contains(id) {
                     return self.missing_required_error(matcher, Some(id));
                 }
             }

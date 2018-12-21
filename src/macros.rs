@@ -998,14 +998,8 @@ macro_rules! find_subcmd {
 
 macro_rules! longs {
     ($app:expr) => {{
-        use mkeymap::KeyType;
-        $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
-            if let KeyType::Long(v) = a {
-                Some(v)
-            } else {
-                None
-            }
-        })
+        // @TODO @soundness no aliases?
+        $app.args.args.iter().filter_map(|a| a.long)
     }};
 }
 

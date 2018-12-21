@@ -1,6 +1,7 @@
 use std::ffi::OsStr;
 
 use parse::{RawValue, RawArg};
+use util::OsStrExt2;
 
 pub struct RawLong<'a> {
     // --foo
@@ -9,7 +10,7 @@ pub struct RawLong<'a> {
 }
 
 impl<'a> From<RawArg<'a>> for RawLong<'a> {
-    fn from(oss: RawArg) -> Self {
+    fn from(oss: RawArg<'a>) -> Self {
         let had_eq = oss.contains_byte(b'=');
         debug!("Parser::parse_long_arg: Does it contain '='...");
         if had_eq {

@@ -469,7 +469,7 @@ where
 
         self.remove_overrides(matcher);
 
-        Validator::new(self).validate(state, &subcmd_name, matcher)
+        Validator::new(self).validate(&subcmd_name, matcher)
     }
 
     fn find_unknown_arg_error(&self, raw: &OsStr) -> ClapError {
@@ -589,7 +589,7 @@ where
         None
     }
 
-    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseSate>
+    fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult>
     where
         I: Iterator<Item = T>,
         T: Into<OsString>,
@@ -831,7 +831,7 @@ where
                 let ro = RawOpt {
                     raw_key: p[0],
                     key: KeyType::Short,
-                    value: p[1].into(),
+                    value: RawValue::from_maybe_empty_osstr(p[1]),
                 };
                 return self.parse_opt(ro, arg, matcher);
             } else {
@@ -878,10 +878,10 @@ where
     fn add_val_to_arg(
         &self,
         arg: &Arg<'help>,
-        raw: RawValue,
+        mut raw: RawValue,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
-        debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
+        debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.id, val);
         let honor_delims = !(self.is_set(AS::TrailingValues)
             && self.is_set(AS::DontDelimitTrailingValues));
         if honor_delims {
@@ -974,18 +974,18 @@ where
                 if let Some(ref overrides) = arg.overrides {
                     debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
                     for o in overrides {
-                        if o == &arg.name {
+                        if o == &arg.id {
                             if handle_self_override(o) {
                                 continue;
                             }
                         } else {
-                            arg_overrides.push((&arg.name, o));
-                            arg_overrides.push((o, &arg.name));
+                            arg_overrides.push((&arg.id, o));
+                            arg_overrides.push((o, &arg.id));
                         }
                     }
                 }
                 if self.is_set(AS::AllArgsOverrideSelf) {
-                    let _ = handle_self_override(arg.name);
+                    let _ = handle_self_override(arg.id);
                 }
             }
         }

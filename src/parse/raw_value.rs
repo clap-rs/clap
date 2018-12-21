@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 
 use parse::RawLong;
-use util::OsSplit;
+use util::{OsStrExt2, OsSplit};
 
 pub struct RawValue<'a> {
     // value1,value2
@@ -9,7 +9,7 @@ pub struct RawValue<'a> {
     // if --foo=value1,value2 was used
     pub(crate) had_eq: bool,
     // Some(,)
-    sep: Option<char>,
+    pub(crate) sep: Option<char>,
     // [6]
     val_idxs: Option<Vec<usize>>,
 }
@@ -24,6 +24,11 @@ impl<'a> RawValue<'a> {
             val_idxs: None,
         }
     }
+    pub fn from_maybe_empty_osstr(oss: &'a OsStr) -> Option<RawValue<'a>> {
+        if oss.is_empty() { return None; }
+        Some(oss.into())
+    }
+
     // When raw was =foo but you already trimmed `=`. Implicitly sets had_eq to true.
     pub fn from_trimmed(oss: &'a OsStr) -> Self {
         RawValue {
@@ -35,13 +40,13 @@ impl<'a> RawValue<'a> {
     }
 
     pub fn values(&self) -> OsSplit {
-        self.raw.split(self.sep.map_or(0, |c| c as u8).unwrap())
+        self.raw.split(self.sep.map_or(0, |c| c as u8))
     }
 
     pub fn used_sep(&self) -> bool {
         // Defaults to byte value 0 (NULL)...so if the sep *actually* is NULL for delimiter this
         // would be a bug...but I can't imagine anyone using NULL as a valid value delimiter
-        self.raw.contains_byte(self.sep.map_or(0, |c| c as u8).unwrap())
+        self.raw.contains_byte(self.sep.map_or(0, |c| c as u8))
     }
 }
 
@@ -55,9 +60,3 @@ impl<'a> From<&'a OsStr> for RawValue<'a> {
     }
 }
 
-impl<'a> Into<Option<RawValue<'a>>> for &'a OsStr {
-    fn into(&self) -> Option<RawValue<'a>> {
-        if oss.is_empty() { return None; }
-        Some(oss.into())
-    }
-}
