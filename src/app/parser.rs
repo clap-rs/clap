@@ -1413,7 +1413,7 @@ where
     pub fn create_help_and_version(&mut self) {
         debugln!("Parser::create_help_and_version;");
         // name is "hclap_help" because flags are sorted by name
-        if !self.contains_long("help") {
+        if !self.is_set(AS::DisableHelpFlags) && !self.contains_long("help") {
             debugln!("Parser::create_help_and_version: Building --help");
             if self.help_short.is_none() && !self.contains_short('h') {
                 self.help_short = Some('h');

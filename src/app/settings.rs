@@ -47,6 +47,7 @@ bitflags! {
         const INFER_SUBCOMMANDS    = 1 << 38;
         const CONTAINS_LAST        = 1 << 39;
         const ARGS_OVERRIDE_SELF   = 1 << 40;
+        const DISABLE_HELP_FLAGS   = 1 << 41;
     }
 }
 
@@ -89,6 +90,7 @@ impl AppFlags {
         DontDelimitTrailingValues => Flags::DONT_DELIM_TRAIL,
         DontCollapseArgsInUsage => Flags::DONT_COLLAPSE_ARGS,
         DeriveDisplayOrder => Flags::DERIVE_DISP_ORDER,
+        DisableHelpFlags => Flags::DISABLE_HELP_FLAGS,
         DisableHelpSubcommand => Flags::DISABLE_HELP_SC,
         DisableVersion => Flags::DISABLE_VERSION,
         GlobalVersion => Flags::GLOBAL_VERSION,
@@ -511,6 +513,37 @@ pub enum AppSettings {
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
     DontDelimitTrailingValues,
+
+    /// Disables `-h` and `--help` [`App`] without affecting any of the [`SubCommand`]s
+    /// (Defaults to `false`; application *does* have help flags)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .subcommand(SubCommand::with_name("test"))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
+    DisableHelpFlags,
 
     /// Disables the `help` subcommand
     ///
@@ -950,6 +983,7 @@ impl FromStr for AppSettings {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
+            "disablehelpflags" => Ok(AppSettings::DisableHelpFlags),
             "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
             "argsnegatesubcommands" => Ok(AppSettings::ArgsNegateSubcommands),
             "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
@@ -995,6 +1029,10 @@ mod test {
 
     #[test]
     fn app_settings_fromstr() {
+        assert_eq!(
+            "disablehelpflags".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHelpFlags
+        );
         assert_eq!(
             "argsnegatesubcommands".parse::<AppSettings>().unwrap(),
             AppSettings::ArgsNegateSubcommands
