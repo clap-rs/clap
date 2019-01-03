@@ -467,9 +467,9 @@ where
             });
         }
 
-        self.remove_overrides(matcher);
+        let overridden = matcher.remove_overrides(self);
 
-        Validator::new(self).validate(&subcmd_name, matcher)
+        Validator::new(self, overridden).validate(&subcmd_name, matcher)
     }
 
     fn find_unknown_arg_error(&self, raw: &OsStr) -> ClapError {
@@ -948,80 +948,6 @@ where
         Ok(ParseResult::NextArg)
     }
 
-    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
-        debugln!("Parser::remove_overrides;");
-        let mut to_rem: Vec<u64> = Vec::new();
-        let mut self_override: Vec<u64> = Vec::new();
-        let mut arg_overrides = Vec::new();
-        for name in matcher.arg_names() {
-            debugln!("Parser::remove_overrides:iter:{};", name);
-            if let Some(arg) = self.app.find(*name) {
-                let mut handle_self_override = |o| {
-                    if (arg.is_set(ArgSettings::MultipleValues)
-                        || arg.is_set(ArgSettings::MultipleOccurrences))
-                        || !arg.has_switch()
-                    {
-                        return true;
-                    }
-                    debugln!(
-                        "Parser::remove_overrides:iter:{}:iter:{}: self override;",
-                        name,
-                        o
-                    );
-                    self_override.push(o);
-                    false
-                };
-                if let Some(ref overrides) = arg.overrides {
-                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
-                    for o in overrides {
-                        if o == &arg.id {
-                            if handle_self_override(o) {
-                                continue;
-                            }
-                        } else {
-                            arg_overrides.push((&arg.id, o));
-                            arg_overrides.push((o, &arg.id));
-                        }
-                    }
-                }
-                if self.is_set(AS::AllArgsOverrideSelf) {
-                    let _ = handle_self_override(arg.id);
-                }
-            }
-        }
-
-        // remove future overrides in reverse seen order
-        for arg in self.seen.iter().rev() {
-            for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
-                if !to_rem.contains(a) {
-                    to_rem.push(*overr);
-                }
-            }
-        }
-
-        // Do self overrides
-        for name in &self_override {
-            debugln!("Parser::remove_overrides:iter:self:{}: resetting;", name);
-            if let Some(ma) = matcher.get_mut(*name) {
-                if ma.occurs < 2 {
-                    continue;
-                }
-                ma.occurs = 1;
-                if !ma.vals.is_empty() {
-                    // This avoids a clone
-                    let mut v = vec![ma.vals.pop().expect(INTERNAL_ERROR_MSG)];
-                    mem::swap(&mut v, &mut ma.vals);
-                }
-            }
-        }
-
-        // Finally remove conflicts
-        for name in &to_rem {
-            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
-            matcher.remove(*name);
-            self.overriden.push(*name);
-        }
-    }
 
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
@@ -1127,7 +1053,7 @@ where
             .args
             .args
             .iter()
-            .filter_map(|x| &x.long)
+            .filter_map(|x| x.long)
             .collect::<Vec<_>>();
         debugln!("Parser::did_you_mean_error: longs={:?}", longs);
 
@@ -1139,11 +1065,11 @@ where
 
         // Add the arg to the matches to build a proper usage string
         if let Some(ref name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(&KeyType::Long(OsString::from(name))) {
-                for g in groups_for_arg!(self.app, &opt.name) {
+            if let Some(opt) = self.app.args.get_by_long(&*name) {
+                for g in groups_for_arg!(self.app, &opt.id) {
                     matcher.inc_occurrence_of(g);
                 }
-                matcher.insert(&*opt.name);
+                matcher.insert(opt.id);
             }
         }
 
@@ -1228,7 +1154,7 @@ where
     pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys.iter().any(|x| x.key.is_position())
+        self.app.args.args.iter().any(|x| x.index.is_some())
     }
 
     pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }

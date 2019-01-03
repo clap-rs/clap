@@ -8,7 +8,8 @@ use indexmap;
 
 // Internal
 use build::{Arg, ArgSettings};
-use parse::{ArgMatches, MatchedArg, SubCommand};
+use parse::{ArgMatches, MatchedArg, SubCommand, Parser};
+use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
 pub struct ArgMatcher(pub ArgMatches);
@@ -147,6 +148,82 @@ impl ArgMatcher {
             return o.is_set(ArgSettings::MultipleValues);
         }
         true
+    }
+
+    fn remove_overrides(&mut self, parser: &mut Parser) -> Vec<u64> {
+        debugln!("Parser::remove_overrides;");
+        let mut to_rem: Vec<u64> = Vec::new();
+        let mut self_override: Vec<u64> = Vec::new();
+        let mut arg_overrides = Vec::new();
+        for name in self.arg_names() {
+            debugln!("Parser::remove_overrides:iter:{};", name);
+            if let Some(arg) = parser.app.find(*name) {
+                let mut handle_self_override = |o| {
+                    if (arg.is_set(ArgSettings::MultipleValues)
+                        || arg.is_set(ArgSettings::MultipleOccurrences))
+                        || !arg.has_switch()
+                        {
+                            return true;
+                        }
+                    debugln!(
+                        "Parser::remove_overrides:iter:{}:iter:{}: self override;",
+                        name,
+                        o
+                    );
+                    self_override.push(o);
+                    false
+                };
+                if let Some(ref overrides) = arg.overrides {
+                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
+                    for o in overrides {
+                        if o == &arg.id {
+                            if handle_self_override(o) {
+                                continue;
+                            }
+                        } else {
+                            arg_overrides.push((&arg.id, o));
+                            arg_overrides.push((o, &arg.id));
+                        }
+                    }
+                }
+                if parser.is_set(AS::AllArgsOverrideSelf) {
+                    let _ = handle_self_override(arg.id);
+                }
+            }
+        }
+
+        // remove future overrides in reverse seen order
+        for arg in parser.seen.iter().rev() {
+            for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
+                if !to_rem.contains(a) {
+                    to_rem.push(*overr);
+                }
+            }
+        }
+
+        // Do self overrides
+        for name in &parser_override {
+            debugln!("Parser::remove_overrides:iter:parser:{}: resetting;", name);
+            if let Some(ma) = self.get_mut(*name) {
+                if ma.occurs < 2 {
+                    continue;
+                }
+                ma.occurs = 1;
+                if !ma.vals.is_empty() {
+                    // This avoids a clone
+                    let mut v = vec![ma.vals.pop().expect(INTERNAL_ERROR_MSG)];
+                    mem::swap(&mut v, &mut ma.vals);
+                }
+            }
+        }
+
+        // Finally remove conflicts
+        for name in &to_rem {
+            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
+            self.remove(*name);
+        }
+
+        to_rem
     }
 }
 
