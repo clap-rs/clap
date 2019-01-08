@@ -1,5 +1,5 @@
 #[derive(Default)]
-struct HelpMsgMeta<'help> {
+pub struct HelpMsg<'help> {
     // Author string to add to help message
     #[doc(hidden)]
     pub author: Option<&'help str>,
@@ -31,28 +31,10 @@ struct HelpMsgMeta<'help> {
     // Headings to apply for help message sections
     #[doc(hidden)]
     pub help_headings: Vec<Option<&'help str>>,
-    // The terminal width as determined at runtime
-    #[doc(hidden)]
-    pub term_w: Option<usize>,
-    // The overridden terminal width as set by the consumer
-    #[doc(hidden)]
-    pub max_w: Option<usize>,
-
-    //
-    // Might splits these out into a "VersionMsgMeta" or something similar
-    //
-
-    // Version string to be displayed after the `name` when `-V` used, or `--version` is used if
-    // `long_version` isn't defined.
-    #[doc(hidden)]
-    pub version: Option<&'help str>,
-    // Version string to be displayed after the `name` when `--version` is used
-    #[doc(hidden)]
-    pub long_version: Option<&'help str>,
 }
 
-impl<'help> HelpMsgMeta<'help> {
+impl<'help> HelpMsg<'help> {
     pub fn new() -> Self {
-        HelpMsgMeta::default()
+        HelpMsg::default()
     }
 }

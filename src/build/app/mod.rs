@@ -1,4 +1,6 @@
 mod settings;
+mod app_meta;
+mod help_msg;
 pub use self::settings::{AppFlags, AppSettings};
 
 // Std
@@ -17,6 +19,8 @@ use yaml_rust::Yaml;
 
 // Internal
 use build::{Arg, ArgGroup, ArgSettings};
+use self::app_meta::AppMeta;
+use self::help_msg::HelpMsgMeta;
 use mkeymap::MKeyMap;
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
