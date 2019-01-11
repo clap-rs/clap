@@ -1,14 +1,17 @@
-struct Alias<'help> {
+use util::hash;
+
+#[derive(Copy, Clone, Debug)]
+pub struct Alias<'help> {
     id: u64,
     name: &'help str,
     visible: bool
 }
 
-impl<'help> Alias {
-    fn new<S: AsRef<&'help str>>(name: S) -> Self {
+impl<'help> Alias<'help> {
+    fn new<S: AsRef<str> + 'help>(name: S) -> Self {
         let name = name.as_ref();
         Alias {
-            id: hash(s),
+            id: hash(name),
             name,
             visible: false
         }
@@ -41,10 +44,10 @@ impl<'help> Default for Alias<'help> {
 }
 
 #[derive(Default)]
-struct Aliases<'help>(Vec<Alias<'help>>);
+pub struct Aliases<'help>(Vec<Alias<'help>>);
 
 impl<'help> Aliases<'help> {
-    fn add_visible<S: AsRef<&'help str>>(&mut self, name: S) {
+    pub fn add_visible<S: AsRef<&'help str>>(&mut self, name: S) {
         self.0.push(Alias::new(name));
     }
 }

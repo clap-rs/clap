@@ -1,7 +1,9 @@
 use std::collections::HashMap;
-
-use build::Arg;
+use std::collections::hash_map::Keys;
 use std::ffi::{OsStr, OsString};
+use std::slice::{Iter, IterMut};
+
+use build::{ArgSettings, Arg};
 use util::hash;
 
 // LE
@@ -37,14 +39,14 @@ fn u64_to_bytes(u: u64) -> [u8; 8] {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'help> {
+pub struct ArgsMap<'help> {
     pub index_map: HashMap<u64, usize>,
     pub args: Vec<Arg<'help>>,
     built: bool, // mutation isn't possible after being built
 }
 
-impl<'help> MKeyMap<'help> {
-    pub fn new() -> Self { MKeyMap::default() }
+impl<'help> ArgsMap<'help> {
+    pub fn new() -> Self { ArgsMap::default() }
     //TODO ::from(x), ::with_capacity(n) etc
 
     pub fn contains_long(&self, l: &str) -> bool { self.index_map.get(&hash(l.as_bytes())).is_some() }
@@ -188,6 +190,34 @@ impl<'help> MKeyMap<'help> {
     }
 }
 
+
+// Iter getters
+impl<'help> ArgsMap<'help> {
+    pub fn iter_args(&self) -> Iter<Arg<'help>> {
+        self.args.iter()
+    }
+
+    pub fn iter_args_mut(&mut self) -> IterMut<Arg<'help>> {
+        self.args.iter_mut()
+    }
+
+    pub fn flags(&self) -> impl Iterator<Item=&Arg<'help>> {
+        self.args.iter().filter(|x| !x.is_set(ArgSettings::TakesValue) && x.has_switch())
+    }
+
+    pub fn opts(&self) -> impl Iterator<Item=&Arg<'help>> {
+        self.args.iter().filter(|x| x.is_set(ArgSettings::TakesValue) && x.has_switch())
+    }
+
+    pub fn positionals(&self) -> impl Iterator<Item=&Arg<'help>> {
+        self.args.iter().filter(|x| x.index.is_some())
+    }
+
+    pub fn global_args(&self) -> impl Iterator<Item=&Arg<'help>> {
+        self.args.iter().filter(|a| a.is_set(ArgSettings::Global))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -195,7 +225,7 @@ mod tests {
 
     #[test]
     fn get_some_value() {
-        let mut map: MKeyMap = MKeyMap::new();
+        let mut map: ArgsMap = ArgsMap::new();
 
         map.insert(Arg::new("Value1").long("value"));
 
@@ -207,7 +237,7 @@ mod tests {
 
     #[test]
     fn get_none_value() {
-        let mut map: MKeyMap = MKeyMap::new();
+        let mut map: ArgsMap = ArgsMap::new();
 
         map.insert(Arg::new("Value1").long("value"));
 
@@ -216,7 +246,7 @@ mod tests {
 
     #[test]
     fn insert_multiple_keys() {
-        let mut map: MKeyMap = MKeyMap::new();
+        let mut map: ArgsMap = ArgsMap::new();
         let index = map.insert(Arg::new("Value1").long("value"));
 
         map.insert_long_key("other", index);
@@ -230,7 +260,7 @@ mod tests {
 
     #[test]
     fn remove_key() {
-        let mut map: MKeyMap = MKeyMap::new();
+        let mut map: ArgsMap = ArgsMap::new();
         let index = map.insert(Arg::new("Value1").long("value"));
         map.insert_long_key("other", index);
 

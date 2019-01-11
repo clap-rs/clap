@@ -7,8 +7,9 @@ use std::mem;
 use indexmap;
 
 // Internal
+use build::AppSettings as AS;
 use build::{Arg, ArgSettings};
-use parse::{ArgMatches, MatchedArg, SubCommand, Parser};
+use parse::{ArgMatches, MatchedArg, SubCommand, Parser, SeenArg};
 use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
@@ -150,7 +151,7 @@ impl ArgMatcher {
         true
     }
 
-    fn remove_overrides(&mut self, parser: &mut Parser) -> Vec<u64> {
+    pub fn remove_overrides(&mut self, parser: &mut Parser, seen: &[SeenArg]) -> Vec<u64> {
         debugln!("Parser::remove_overrides;");
         let mut to_rem: Vec<u64> = Vec::new();
         let mut self_override: Vec<u64> = Vec::new();
@@ -193,7 +194,7 @@ impl ArgMatcher {
         }
 
         // remove future overrides in reverse seen order
-        for arg in parser.seen.iter().rev() {
+        for arg in seen.iter().rev() {
             for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
                 if !to_rem.contains(a) {
                     to_rem.push(*overr);

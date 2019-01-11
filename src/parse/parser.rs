@@ -30,11 +30,11 @@ use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
-pub enum ParseResult {
+pub enum ParseResult<'help> {
     Initial,
     ArgAcceptsVals(u64),
     PosByIndexAcceptsVals(usize),
-    SubCmd(u64),
+    SubCmd(&'help str),
     NextArg,
     MaybeNegNum,
     MaybeHyphenValue,
@@ -52,9 +52,9 @@ impl Default for ParseResult {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
-pub struct ParseState {
-    prev: ParseResult,
-    cur: ParseResult,
+pub struct ParseState<'help> {
+    prev: ParseResult<'help>,
+    cur: ParseResult<'help>,
 }
 
 impl ParseState {
@@ -443,14 +443,14 @@ where
 
         if let Some(ref pos_sc_name) = subcmd_name {
             let sc_name = {
-                find_subcmd!(self.app, *pos_sc_name)
+                self.app.subcommands.iter().find(|x| x.name == *pos_sc_name)
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone()
             };
             self.parse_subcommand(&*sc_name, matcher, it)?;
         } else if self.is_set(AS::SubcommandRequired) {
-            let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
+            let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name.into());
             return Err(ClapError::missing_subcommand(
                 bn,
                 &Usage::new(self).create_usage_with_title(&[]),
@@ -467,7 +467,7 @@ where
             });
         }
 
-        let overridden = matcher.remove_overrides(self);
+        let overridden = matcher.remove_overrides(self, &*self.seen);
 
         Validator::new(self, overridden).validate(&subcmd_name, matcher)
     }
@@ -485,14 +485,14 @@ where
                 return ClapError::invalid_subcommand(
                     raw.to_string_lossy().into_owned(),
                     cdate,
-                    self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                    self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()),
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 );
             } else {
                 return ClapError::unrecognized_subcommand(
                     raw.to_string_lossy().into_owned(),
-                    self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                    self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()),
                     self.app.color(),
                 );
             }
@@ -517,7 +517,7 @@ where
                         return Err(ClapError::invalid_subcommand(
                             arg_os.to_string_lossy().into_owned(),
                             cdate,
-                            self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                            self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()),
                             &*Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
                         ));
@@ -555,7 +555,7 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
-    fn possible_subcommand(&self, raw: RawArg) -> Option<u64> {
+    fn possible_subcommand(&self, raw: RawArg) -> Option<&str> {
         debugln!("Parser::possible_subcommand: arg={:?}", raw);
         fn starts(h: &str, n: &OsStr) -> bool {
             #[cfg(target_os = "windows")]
@@ -574,7 +574,7 @@ where
         }
         // @TODO @p1 use id and hash raw.0
         if !self.is_set(AS::InferSubcommands) {
-            if let Some(sc) = find_subcmd!(self.app, raw.0) {
+            if let Some(sc) = self.app.subcommands.iter().find(|x| x.name == raw.0) {
                 return Some(&sc.name);
             }
         } else {
@@ -597,7 +597,7 @@ where
         debugln!("Parser::parse_help_subcommand;");
         let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
         let mut help_help = false;
-        let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
+        let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()).clone();
         let mut sc = {
             // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
             // help message there are bigger fish to fry
@@ -608,13 +608,13 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(mut c) = find_subcmd_cloned!(sc, cmd) {
+                if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == cmd) {
                     c._build(Propagation::NextLevel);
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
                     }
-                } else if let Some(mut c) = find_subcmd_cloned!(sc, &*cmd.to_string_lossy()) {
+                } else if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == &*cmd) {
                     c._build(Propagation::NextLevel);
                     sc = c;
                     if i == cmds.len() - 1 {
@@ -623,7 +623,7 @@ where
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
                         cmd.to_string_lossy().into_owned(),
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                        self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()),
                         self.app.color(),
                     ));
                 }
@@ -693,7 +693,7 @@ where
         use std::fmt::Write;
         debugln!("Parser::parse_subcommand;");
 
-        if let Some(ref mut sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
+        if let Some(ref mut sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             // Ensure all args are built and ready to parse
             sc._build(Propagation::NextLevel);
 
@@ -762,7 +762,7 @@ where
 
         self.app.long_about.is_some()
             || self.app.args.args.iter().any(|f| should_long(&f))
-            || subcommands!(self.app).any(|s| s.long_about.is_some())
+            || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
     fn parse_long(
@@ -1016,11 +1016,11 @@ where
             };
         }
 
-        for o in opts!(self.app) {
+        for o in self.app.args.opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             add_val!(self, o, matcher);
         }
-        for p in positionals!(self.app) {
+        for p in self.app.args.positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
             add_val!(self, p, matcher);
         }

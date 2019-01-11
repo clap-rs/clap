@@ -1,27 +1,24 @@
 mod settings;
-mod app_meta;
-mod help_msg;
+
 pub use self::settings::{AppFlags, AppSettings};
 
 // Std
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
+use std::hash::Hash;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::iter::Peekable;
 use std::path::Path;
 use std::process;
-use std::hash::Hash;
 
 // Third Party
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-use build::{Arg, ArgGroup, ArgSettings};
-use self::app_meta::AppMeta;
-use self::help_msg::HelpMsgMeta;
-use mkeymap::MKeyMap;
+use build::{Arg, ArgGroup, ArgSettings, Terminal, HelpMsg, VersionMsg, Aliases};
+use args_map::ArgsMap;
 use output::fmt::ColorWhen;
 use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
@@ -72,19 +69,41 @@ pub struct App<'help> {
     // Used to identify the App in an efficient manner
     #[doc(hidden)]
     pub id: u64,
+    // Used in the Help message title (typically the same as the binary file name used to call
+    // the program). This can also be just a title, "My Awesome App" where the binary name is "maa".
     #[doc(hidden)]
-    pub meta: AppMeta<'help>,
+    pub name: &'help str,
+    // The actual binary file name used to call this program as determined at runtime, OR as
+    // overridden by the consumer. Displayed in usage strings and help message.
     #[doc(hidden)]
-    pub help_msg_meta: HelpMsgMeta<'help>,
+    pub bin_name: Option<String>,
+    // A list of aliases this command could be called by
+    #[doc(hidden)]
+    pub aliases: Aliases<'help>,
+    // Sets a way to manually override the order this App appears in, in the Help message
+    #[doc(hidden)]
+    pub disp_ord: usize,
+    // Settings that change how the args are parsed, or App behaves
+    #[doc(hidden)]
+    pub settings: AppFlags,
+    // Global settings (i.e. all subcommands)
+    #[doc(hidden)]
+    pub g_settings: AppFlags,
     // The list of valid arguments
     #[doc(hidden)]
-    pub args: MKeyMap<'help>,
+    pub args: ArgsMap<'help>,
     // A list of valid subcommands
     #[doc(hidden)]
     pub subcommands: Vec<App<'help>>,
     // A list of Arg Groups
     #[doc(hidden)]
     pub groups: Vec<ArgGroup>,
+    #[doc(hidden)]
+    pub help_msg: HelpMsg<'help>,
+    #[doc(hidden)]
+    pub version_msg: VersionMsg<'help>,
+    #[doc(hidden)]
+    pub term: Terminal,
 }
 
 impl<'help> App<'help> {
@@ -99,21 +118,21 @@ impl<'help> App<'help> {
     /// let prog = App::new("my_prog")
     /// # ;
     /// ```
-    pub fn new<S: Into<String>>(n: S) -> Self {
-        let name = n.into();
+    pub fn new<S: AsRef<str>>(n: S) -> Self where S: 'help {
+        let name = n.as_ref();
         App {
-            id: hash(&*name),
-            meta: AppMeta::new(name),
+            id: hash(name),
+            name,
             ..Default::default()
         }
     }
 
     /// Get the name of the app
-    pub fn get_name(&self) -> &str { &self.meta.get_name() }
+    pub fn get_name(&self) -> &str { &self.name }
 
     // @TODO @docs make a note of subcommands and how they differ
     /// Get the name of the binary file used to execute this program
-    pub fn get_bin_name(&self) -> Option<&str> { self.meta.get_bin_name() }
+    pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.map(|x| &*x) }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -136,7 +155,7 @@ impl<'help> App<'help> {
     /// [`crate_authors!`]: ./macro.crate_authors!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     pub fn author<S: Into<&'help str>>(mut self, author: S) -> Self {
-        self.meta.author = Some(author.into());
+        self.help_msg.author = Some(author.into());
         self
     }
 
@@ -159,7 +178,7 @@ impl<'help> App<'help> {
     /// ```
     /// [``]: ./struct..html
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
-        self.meta.bin_name = Some(name.into());
+        self.bin_name = Some(name.into());
         self
     }
 
@@ -182,7 +201,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::long_about`]: ./struct.App.html#method.long_about
     pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
-        self.help_msg_meta.about = Some(about.into());
+        self.help_msg.about = Some(about.into());
         self
     }
 
@@ -208,7 +227,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
-        self.help_msg_meta.long_about = Some(about.into());
+        self.help_msg.long_about = Some(about.into());
         self
     }
 
@@ -234,8 +253,8 @@ impl<'help> App<'help> {
     ///
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
     /// [`crate_name!`]: ./macro.crate_name.html
-    pub fn name<S: Into<String>>(mut self, name: S) -> Self {
-        self.meta.name = name.into();
+    pub fn name<S: AsRef<str>>(mut self, name: S) -> Self where S: 'help {
+        self.name = name.as_ref();
         self
     }
 
@@ -252,7 +271,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
-        self.help_msg_meta.more_help = Some(help.into());
+        self.help_msg.more_help = Some(help.into());
         self
     }
 
@@ -269,7 +288,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
-        self.help_msg_meta.pre_help = Some(help.into());
+        self.help_msg.pre_help = Some(help.into());
         self
     }
 
@@ -295,7 +314,7 @@ impl<'help> App<'help> {
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::long_version`]: ./struct.App.html#method.long_version
     pub fn version<S: Into<&'help str>>(mut self, ver: S) -> Self {
-        self.help_msg_meta.version = Some(ver.into());
+        self.help_msg.version = Some(ver.into());
         self
     }
 
@@ -326,7 +345,7 @@ impl<'help> App<'help> {
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::version`]: ./struct.App.html#method.version
     pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
-        self.help_msg_meta.long_version = Some(ver.into());
+        self.help_msg.long_version = Some(ver.into());
         self
     }
 
@@ -350,7 +369,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
     pub fn override_usage<S: Into<&'help str>>(mut self, usage: S) -> Self {
-        self.help_msg_meta.usage_str = Some(usage.into());
+        self.help_msg.usage_str = Some(usage.into());
         self
     }
 
@@ -389,7 +408,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`Arg::override_help`]: ./struct.Arg.html#method.override_help
     pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
-        self.help_msg_meta.help_str = Some(help.into());
+        self.help_msg.help_str = Some(help.into());
         self
     }
 
@@ -432,7 +451,7 @@ impl<'help> App<'help> {
     /// [`App::before_help`]: ./struct.App.html#method.before_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
     pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
-        self.help_msg_meta.template = Some(s.into());
+        self.help_msg.template = Some(s.into());
         self
     }
 
@@ -452,7 +471,7 @@ impl<'help> App<'help> {
     /// [``]: ./struct..html
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn setting(mut self, setting: AppSettings) -> Self {
-        self.meta.settings.set(setting);
+        self.settings.set(setting);
         self
     }
 
@@ -472,8 +491,8 @@ impl<'help> App<'help> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
-        self.meta.settings.unset(setting);
-        self.meta.g_settings.unset(setting);
+        self.settings.unset(setting);
+        self.g_settings.unset(setting);
         self
     }
 
@@ -493,8 +512,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`AppSettings`]: ./enum.AppSettings.html
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
-        self.meta.settings.set(setting);
-        self.meta.g_settings.set(setting);
+        self.settings.set(setting);
+        self.g_settings.set(setting);
         self
     }
 
@@ -515,8 +534,8 @@ impl<'help> App<'help> {
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
     pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
-        self.meta.settings.unset(setting);
-        self.meta.g_settings.unset(setting);
+        self.settings.unset(setting);
+        self.g_settings.unset(setting);
         self
     }
 
@@ -546,7 +565,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     pub fn set_term_width(mut self, width: usize) -> Self {
-        self.help_msg_meta.term_w = Some(width);
+        self.term.width = Some(width);
         self
     }
 
@@ -574,7 +593,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     pub fn max_term_width(mut self, w: usize) -> Self {
-        self.help_msg_meta.max_w = Some(w);
+        self.term.max_width = Some(w);
         self
     }
 
@@ -601,11 +620,12 @@ impl<'help> App<'help> {
     /// [argument]: ./struct.Arg.html
     pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         // @TODO @perf @p1 perhaps use a heading index instead of the actual heading itself
-        let help_heading: Option<&'help str> = if let Some(option_str) = self.help_msg_meta.help_headings.last() {
-            *option_str
-        } else {
-            None
-        };
+        let help_heading: Option<&'help str> =
+            if let Some(option_str) = self.help_msg.help_headings.last() {
+                *option_str
+            } else {
+                None
+            };
         let arg = a.into().help_heading(help_heading);
         self.args.push(arg);
         self
@@ -616,7 +636,7 @@ impl<'help> App<'help> {
     /// have this header (instead of its default header) until a subsequent
     /// call to `App::help_heading` or `App::stop_help_heading`
     pub fn help_heading(mut self, heading: &'help str) -> Self {
-        self.help_msg_meta.help_headings.push(Some(heading));
+        self.help_msg.help_headings.push(Some(heading));
         self
     }
 
@@ -641,9 +661,9 @@ impl<'help> App<'help> {
     /// ```
     /// [arguments]: ./struct.Arg.html
     pub fn args<I, T>(mut self, args: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<Arg<'help>>,
+        where
+            I: IntoIterator<Item=T>,
+            T: Into<Arg<'help>>,
     {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
@@ -851,8 +871,8 @@ impl<'help> App<'help> {
     /// [``]: ./struct..html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
-    where
-        I: IntoIterator<Item = App<'help>>,
+        where
+            I: IntoIterator<Item=App<'help>>,
     {
         for subcmd in subcmds {
             self.subcommands.push(subcmd);
@@ -908,7 +928,7 @@ impl<'help> App<'help> {
     /// ```
     /// [``]: ./struct..html
     pub fn display_order(mut self, ord: usize) -> Self {
-        self.help_msg_meta.disp_ord = ord;
+        self.help_msg.disp_ord = ord;
         self
     }
 
@@ -936,9 +956,9 @@ impl<'help> App<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn mut_arg<T, F>(mut self, arg: T, f: F) -> Self
-    where
-        F: FnOnce(Arg<'help>) -> Arg<'help>,
-        T: Hash
+        where
+            F: FnOnce(Arg<'help>) -> Arg<'help>,
+            T: Hash,
     {
         let a = self
             .args
@@ -1209,9 +1229,9 @@ impl<'help> App<'help> {
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        where
+            I: IntoIterator<Item=T>,
+            T: Into<OsString> + Clone,
     {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
@@ -1266,9 +1286,9 @@ impl<'help> App<'help> {
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        where
+            I: IntoIterator<Item=T>,
+            T: Into<OsString> + Clone,
     {
         self.try_get_matches_from_mut(itr)
     }
@@ -1295,9 +1315,9 @@ impl<'help> App<'help> {
     /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        where
+            I: IntoIterator<Item=T>,
+            T: Into<OsString> + Clone,
     {
         let mut it = itr.into_iter();
         // Get the name of the program (argument 1 of env::args()) and determine the
@@ -1313,8 +1333,8 @@ impl<'help> App<'help> {
                 let p = Path::new(&*bn_os);
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_os_string().to_str() {
-                        if self.meta.bin_name.is_none() {
-                            self.meta.bin_name = Some(s.to_owned());
+                        if self.bin_name.is_none() {
+                            self.bin_name = Some(s.to_owned());
                         }
                     }
                 }
@@ -1330,9 +1350,9 @@ impl<'help> App<'help> {
 impl<'a, 'help> App<'help> {
     #[doc(hidden)]
     fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
-    where
-        I: Iterator<Item = T>,
-        T: Into<OsString> + Clone,
+        where
+            I: Iterator<Item=T>,
+            T: Into<OsString> + Clone,
     {
         debugln!("App::_do_parse;");
         let mut matcher = ArgMatcher::new();
@@ -1367,7 +1387,7 @@ impl<'a, 'help> App<'help> {
     pub fn _build(&mut self, prop: Propagation) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
-        self.meta.settings = self.settings | self.g_settings;
+        self.settings = self.settings | self.g_settings;
 
         // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
         // the help and version flags, otherwise help message orders get screwed up
@@ -1414,7 +1434,7 @@ impl<'a, 'help> App<'help> {
         debugln!("App::_app_debug_asserts;");
         for id in self.args.args.iter().map(|x| x.id) {
             if self.args.args.iter().filter(|x| x.id == id).count() > 1 {
-                panic!( "Arg names must be unique");
+                panic!("Arg names must be unique");
             }
         }
         true
@@ -1433,23 +1453,19 @@ impl<'a, 'help> App<'help> {
                 if vsc {
                     sc.set(AppSettings::DisableVersion);
                 }
-                if gv && sc.help_msg_meta.version.is_none() && self.help_msg_meta.version.is_some() {
+                if gv && sc.help_msg.version.is_none() && self.help_msg.version.is_some()
+                {
                     sc.set(AppSettings::GlobalVersion);
-                    sc.help_msg_meta.version = Some(self.help_msg_meta.version.unwrap());
+                    sc.help_msg.version = Some(self.help_msg.version.unwrap());
                 }
-                sc.meta.settings = sc.settings | self.meta.g_settings;
-                sc.meta.g_settings = sc.g_settings | self.meta.g_settings;
-                sc.help_msg_meta.term_w = self.help_msg_meta.term_w;
-                sc.help_msg_meta.max_w = self.help_msg_meta.max_w;
+                sc.settings = sc.settings | self.g_settings;
+                sc.g_settings = sc.g_settings | self.g_settings;
+                sc.term.width = self.term.width;
+                sc.term.max_width = self.term.max_width;
             }
             {
-                for a in self
-                    .args
-                    .args
-                    .iter()
-                    .filter(|a| a.is_set(ArgSettings::Global))
-                {
-                    sc.args.push(a.clone());
+                for a in self.args.global_args().cloned() {
+                    sc.args.push(a);
                 }
             }
             // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
@@ -1461,11 +1477,8 @@ impl<'a, 'help> App<'help> {
 
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
-        if !(self
-            .args
-            .args
-            .iter()
-            .any(|x| x.long == Some("help") || x.id == hash("help"))) // hardcode common hashes?
+        // @TODO @perf hardcode common hashes?
+        if !(self.args.get_by_long("help").is_some() || self.args.get_by_id(hash("help")).is_some())
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
@@ -1477,12 +1490,9 @@ impl<'a, 'help> App<'help> {
 
             self.args.push(help);
         }
-        if !(self
-            .args
-            .args
-            .iter()
-            .any(|x| x.long == Some("version") || x.id == hash("version")) // hardcode common hashes?
-            || self.is_set(AppSettings::DisableVersion))
+        if !((self.args.get_by_long("version").is_some() ||
+            self.args.get_by_id(hash("version")).is_some()) ||
+            self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
@@ -1496,7 +1506,8 @@ impl<'a, 'help> App<'help> {
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !subcommands!(self).any(|s| s.id == hash("help")) // hardcode common hashes?
+            && !self.subcommands.iter().any(|s| s.id == hash("help"))
+        // hardcode common hashes?
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1509,24 +1520,25 @@ impl<'a, 'help> App<'help> {
     pub(crate) fn _derive_display_order(&mut self) {
         debugln!("App::_derive_display_order:{}", self.name);
         if self.is_set(AppSettings::DeriveDisplayOrder) {
-            for (i, a) in self
+            for (i, ref mut a) in self
                 .args
-                .args
-                .iter_mut()
+                .iter_args_mut()
                 .filter(|a| a.has_switch())
                 .filter(|a| a.disp_ord == 999)
                 .enumerate()
-            {
-                a.disp_ord = i;
-            }
-            for (i, sc) in &mut subcommands_mut!(self)
+                {
+                    a.disp_ord = i;
+                }
+            for (i, sc) in self
+                .subcommands
+                .iter_mut()
                 .enumerate()
                 .filter(|&(_, ref sc)| sc.disp_ord == 999)
-            {
-                sc.disp_ord = i;
-            }
+                {
+                    sc.disp_ord = i;
+                }
         }
-        for sc in subcommands_mut!(self) {
+        for sc in self.subcommands.iter_mut() {
             sc._derive_display_order();
         }
     }
@@ -1556,7 +1568,7 @@ impl<'a, 'help> App<'help> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).fold(0, |acc, p| if p.index == Some(idx as u64) {
+                self.args.positionals().fold(0, |acc, p| if p.index == Some(idx as u64) {
                     acc + 1
                 } else {
                     acc
@@ -1595,28 +1607,34 @@ impl<'a, 'help> App<'help> {
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
-        for sc in subcommands_mut!(self) {
+        for sc in &mut self.subcommands {
             debug!("Parser::build_bin_names:iter: bin_name set...");
-            if sc.meta.bin_name.is_none() {
+            if sc.bin_name.is_none() {
                 sdebugln!("No");
                 let bin_name = format!(
                     "{}{}{}",
-                    self.meta.bin_name.as_ref().unwrap_or(&self.meta.name.clone()),
-                    if self.meta.bin_name.is_some() { " " } else { "" },
-                    &*sc.meta.name
+                    self.bin_name
+                        .as_ref()
+                        .unwrap_or(&self.name.clone()),
+                    if self.bin_name.is_some() {
+                        " "
+                    } else {
+                        ""
+                    },
+                    &*sc.name
                 );
                 debugln!(
                     "Parser::build_bin_names:iter: Setting bin_name of {} to {}",
-                    self.meta.name,
+                    self.name,
                     bin_name
                 );
-                sc.meta.bin_name = Some(bin_name);
+                sc.bin_name = Some(bin_name);
             } else {
                 sdebugln!("yes ({:?})", sc.bin_name);
             }
             debugln!(
                 "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
-                sc.meta.name
+                sc.name
             );
             sc._build_bin_names();
         }
@@ -1625,21 +1643,23 @@ impl<'a, 'help> App<'help> {
     pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
         debugln!("App::_write_version;");
         let ver = if use_long {
-            self.help_msg_meta.long_version
-                .unwrap_or_else(|| self.help_msg_meta.version.unwrap_or(""))
+            self.help_msg
+                .long_version
+                .unwrap_or_else(|| self.help_msg.version.unwrap_or(""))
         } else {
-            self.help_msg_meta.version
-                .unwrap_or_else(|| self.help_msg_meta.long_version.unwrap_or(""))
+            self.help_msg
+                .version
+                .unwrap_or_else(|| self.help_msg.long_version.unwrap_or(""))
         };
-        if let Some(bn) = self.meta.bin_name.as_ref() {
+        if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
                 write!(w, "{} {}", bn.replace(" ", "-"), ver)
             } else {
-                write!(w, "{} {}", &self.meta.name[..], ver)
+                write!(w, "{} {}", &self.name[..], ver)
             }
         } else {
-            write!(w, "{} {}", &self.meta.name[..], ver)
+            write!(w, "{} {}", &self.name[..], ver)
         }
     }
 
@@ -1648,7 +1668,8 @@ impl<'a, 'help> App<'help> {
             .unroll_args_in_group(g)
             .iter()
             .filter_map(|x| self.find(*x))
-            .map(|x| x.to_string()).collect::<Vec<_>>()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
             .join("|");
         format!("<{}>", &*g_string)
     }
@@ -1657,9 +1678,7 @@ impl<'a, 'help> App<'help> {
 // Internal Query Methods
 #[doc(hidden)]
 impl<'help> App<'help> {
-    pub(crate) fn find(&self, id: u64) -> Option<&Arg<'help>> {
-        self.args.get_by_id(id)
-    }
+    pub(crate) fn find(&self, id: u64) -> Option<&Arg<'help>> { self.args.get_by_id(id) }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
     #[doc(hidden)]
@@ -1693,38 +1712,38 @@ impl<'help> App<'help> {
     }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
-        self.meta.settings.is_set(s) || self.meta.g_settings.is_set(s)
+        self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
-    pub fn set(&mut self, s: AppSettings) { self.meta.settings.set(s) }
+    pub fn set(&mut self, s: AppSettings) { self.settings.set(s) }
 
-    pub fn set_global(&mut self, s: AppSettings) { self.meta.g_settings.set(s) }
+    pub fn set_global(&mut self, s: AppSettings) { self.g_settings.set(s) }
 
-    pub fn unset_global(&mut self, s: AppSettings) { self.meta.g_settings.unset(s) }
+    pub fn unset_global(&mut self, s: AppSettings) { self.g_settings.unset(s) }
 
-    pub fn unset(&mut self, s: AppSettings) { self.meta.settings.unset(s) }
+    pub fn unset(&mut self, s: AppSettings) { self.settings.unset(s) }
 
     pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
 
     pub fn has_args(&self) -> bool { !self.args.is_empty() }
 
-    pub fn has_opts(&self) -> bool { opts!(self).count() > 0 }
+    pub fn has_opts(&self) -> bool { self.args.has_opts() }
 
-    pub fn has_flags(&self) -> bool { flags!(self).count() > 0 }
+    pub fn has_flags(&self) -> bool { self.args.has_flags() }
 
-    pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
+    pub fn has_positionals(&self) -> bool { self.args.has_positionals() }
 
-    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_opts(&self) -> bool { self.args.opts().any(|o| !o.is_set(ArgSettings::Hidden)) }
 
-    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_flags(&self) -> bool { self.args.flags().any(|o| !o.is_set(ArgSettings::Hidden)) }
 
     pub fn has_visible_positionals(&self) -> bool {
-        positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
+        self.args.positionals().any(|o| !o.is_set(ArgSettings::Hidden))
     }
 
     pub fn has_visible_subcommands(&self) -> bool {
-        subcommands!(self)
-            .filter(|sc| sc.meta.name != "help")
+        self.subcommands.iter()
+            .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
@@ -1740,25 +1759,21 @@ impl<'help> App<'help> {
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
-            {
-                if !args.contains(n) {
-                    if self.find(*n).is_some() {
-                        args.push(*n)
-                    } else {
-                        g_vec.push(*n);
+                {
+                    if !args.contains(n) {
+                        if self.find(*n).is_some() {
+                            args.push(*n)
+                        } else {
+                            g_vec.push(*n);
+                        }
                     }
                 }
-            }
         }
 
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(
-        &self,
-        arg: u64,
-        matcher: &ArgMatcher,
-    ) -> Vec<u64> {
+    pub(crate) fn unroll_requirements_for_arg(&self, arg: u64, matcher: &ArgMatcher) -> Vec<u64> {
         let requires_if_or_not = |&(val, req_arg)| {
             if let Some(v) = val {
                 if matcher

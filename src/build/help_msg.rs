@@ -1,4 +1,4 @@
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct HelpMsg<'help> {
     // Author string to add to help message
     #[doc(hidden)]

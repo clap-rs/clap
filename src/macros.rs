@@ -885,92 +885,9 @@ macro_rules! write_nspaces {
     }};
 }
 
-macro_rules! flags {
-    ($app:expr, $how:ident) => {{
-        $app.args
-            .args
-            .$how()
-            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
-            .filter(|a| !a.help_heading.is_some())
-    }};
-    ($app:expr) => {
-        flags!($app, iter)
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! flags_mut {
-    ($app:expr) => {
-        flags!($app, iter_mut)
-    };
-}
-
-macro_rules! opts {
-    ($app:expr, $how:ident) => {{
-        $app.args
-            .args
-            .$how()
-            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
-            .filter(|a| !a.help_heading.is_some())
-    }};
-    ($app:expr) => {
-        opts!($app, iter)
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! opts_mut {
-    ($app:expr) => {
-        opts!($app, iter_mut)
-    };
-}
-
-macro_rules! positionals {
-    ($app:expr) => {
-        $app.args
-            .args
-            .iter()
-            .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! positionals_mut {
-    ($app:expr) => {
-        $app.args
-            .values_mut()
-            .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
-}
-
-#[allow(unused_macros)]
 macro_rules! custom_headings_mut {
     ($app:expr) => {
         custom_headings!($app, values_mut)
-    };
-}
-
-macro_rules! subcommands_cloned {
-    ($app:expr, $how:ident) => {
-        $app.subcommands.$how().cloned()
-    };
-    ($app:expr) => {
-        subcommands_cloned!($app, iter)
-    };
-}
-
-macro_rules! subcommands {
-    ($app:expr, $how:ident) => {
-        $app.subcommands.$how()
-    };
-    ($app:expr) => {
-        subcommands!($app, iter)
-    };
-}
-
-macro_rules! subcommands_mut {
-    ($app:expr) => {
-        subcommands!($app, iter_mut)
     };
 }
 
@@ -981,18 +898,6 @@ macro_rules! groups_for_arg {
             .iter()
             .filter(|grp| grp.args.iter().any(|a| a == $grp))
             .map(|grp| grp.name)
-    }};
-}
-
-macro_rules! find_subcmd_cloned {
-    ($_self:expr, $sc:expr) => {{
-        subcommands_cloned!($_self).find(|a| match_alias!(a, $sc, &*a.name))
-    }};
-}
-
-macro_rules! find_subcmd {
-    ($app:expr, $sc:expr) => {{
-        subcommands!($app).find(|a| match_alias!(a, $sc, &*a.name))
     }};
 }
 
