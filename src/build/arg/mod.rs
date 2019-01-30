@@ -1,4 +1,7 @@
 // @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) isntead
+
+// @TODO @p1 distinguish between total values and values per occurrence
+
 mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 

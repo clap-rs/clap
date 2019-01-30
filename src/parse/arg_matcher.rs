@@ -136,35 +136,66 @@ impl ArgMatcher {
         ma.indices.push(idx);
     }
 
-    pub fn value_state(&self, a: &Arg, raw: RawOpt) -> ValueState {
-        if raw.has_value() && a.is_set(ArgSettings::MultipleOccurrences) {
-
-        } else if matcher.needs_more_vals(opt))
-            || (opt.is_set(ArgSettings::MultipleValues)
-            && !opt.is_set(ArgSettings::RequireDelimiter)) {
-            return Ok(ParseResult::ArgAcceptsValues(opt.id));
+    pub fn value_state_after_opt(&self, a: &Arg, raw: RawOpt) -> ValueState {
+        if raw.had_equals() {
+            // '--opt=val' was used
+            return ValueState::Done;
         }
+
+        if let Some(ma) = self.get(a.id) {
+            // '--opt' was used so far, we don't know whats next
+            if let Some(num) = a.num_vals {
+                if ma.vals.len() < num {
+                    ValueState::RequiresValue(a.id)
+                } else {
+                    ValueState::Done
+                }
+            } else if let Some(num) = a.max_vals {
+                if ma.vals.len() < num {
+                    ValueState::AcceptsValue(a.id)
+                } else {
+                    ValueState::Done
+                }
+            } else if let Some(num) = a.min_vals {
+                if ma.vals.len() < num {
+                    ValueState::AcceptsValue(a.id)
+                } else {
+                    ValueState::Done
+                }
+            } else {
+                unreachable!()
+            }
+        }
+
+        ValueState::AcceptsValue(a.id)
     }
-    pub fn accepts_more_vals(&self, o: &Arg) -> bool {
-        debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
+
+    pub fn value_state_after_val(&self, a: &Arg) -> ValueState {
+        if !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences)) {
+            return ValueState::Done;
+        }
+
         if let Some(ma) = self.get(o.id) {
             if let Some(num) = o.num_vals {
-                debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
-                return if o.is_set(ArgSettings::MultipleValues) {
-                    ((ma.vals.len() as u64) % num) != 0
+                if ma.vals.len() < num {
+                    ValueState::RequiresValue(o.id)
                 } else {
-                    num != (ma.vals.len() as u64)
-                };
+                    ValueState::Done
+                }
             } else if let Some(num) = o.max_vals {
-                debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return (ma.vals.len() as u64) <= num;
-            } else if o.min_vals.is_some() {
-                debugln!("ArgMatcher::needs_more_vals: min_vals...true");
-                return true;
+                if ma.vals.len() < num {
+                    ValueState::AcceptsValue(o.id)
+                } else {
+                    ValueState::Done
+                }
+            } else if let Some(num) = o.min_vals {
+                if ma.vals.len() < num {
+                    ValueState::AcceptsValue(o.id)
+                } else {
+                    ValueState::Done
+                }
             }
-            return o.is_set(ArgSettings::MultipleValues);
         }
-        true
     }
 
     pub fn remove_overrides(&mut self, parser: &mut Parser, seen: &[SeenArg]) -> Vec<u64> {
