@@ -12,6 +12,13 @@ use build::{Arg, ArgSettings};
 use parse::{ArgMatches, MatchedArg, SubCommand, Parser, SeenArg};
 use INTERNAL_ERROR_MSG;
 
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+pub enum ValueState {
+    RequiresValue(u64),
+    AcceptsValue(u64),
+    Done
+}
+
 #[doc(hidden)]
 pub struct ArgMatcher(pub ArgMatches);
 
@@ -129,6 +136,15 @@ impl ArgMatcher {
         ma.indices.push(idx);
     }
 
+    pub fn value_state(&self, a: &Arg, raw: RawOpt) -> ValueState {
+        if raw.has_value() && a.is_set(ArgSettings::MultipleOccurrences) {
+
+        } else if matcher.needs_more_vals(opt))
+            || (opt.is_set(ArgSettings::MultipleValues)
+            && !opt.is_set(ArgSettings::RequireDelimiter)) {
+            return Ok(ParseResult::ArgAcceptsValues(opt.id));
+        }
+    }
     pub fn accepts_more_vals(&self, o: &Arg) -> bool {
         debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(o.id) {

@@ -12,6 +12,7 @@ mod raw_long;
 mod raw_opt;
 mod raw_value;
 mod hyphen_style;
+mod positional_asserts;
 
 pub use self::arg_matcher::ArgMatcher;
 pub use self::matches::ArgMatches;

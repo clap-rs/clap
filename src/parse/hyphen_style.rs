@@ -1,5 +1,7 @@
 use std::ffi::OsStr;
 
+use parse::RawArg;
+
 pub enum HyphenStyle {
     Single,
     Double,
@@ -7,8 +9,8 @@ pub enum HyphenStyle {
     None
 }
 
-impl<'a> From<&'a OsStr> for HyphenStyle {
-    fn from(oss: &'a OsStr) -> Self {
+impl<'a> From<&'a RawArg> for HyphenStyle {
+    fn from(oss: &'a RawArg) -> Self {
         use util::OsStrExt2;
         if oss.starts_with(b"--") {
             if oss.len() == 2 {

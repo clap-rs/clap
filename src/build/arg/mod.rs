@@ -1,3 +1,4 @@
+// @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) isntead
 mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
@@ -3047,11 +3048,55 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta"
-    )]
+    /// Allows an argument to accept explicitly empty values. An empty value must be specified at
+    /// the command line with an explicit `""`, `''`, or `--option=`
+    ///
+    /// **NOTE:** By default empty values are *not* allowed
+    ///
+    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// Arg::new("file")
+    ///     .long("file")
+    ///     .setting(ArgSettings::AllowEmptyValues)
+    /// # ;
+    /// ```
+    /// The default is to *not* allow empty values.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .short('v')
+    ///         .setting(ArgSettings::TakesValue))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--config="
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// ```
+    /// By adding this setting, we can allow empty values
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .short('v')
+    ///         .setting(ArgSettings::AllowEmptyValues)) // implies TakesValue
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--config="
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// assert_eq!(res.unwrap().value_of("config"), None);
+    /// ```
+    /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
     pub fn empty_values(mut self, ev: bool) -> Self {
         if ev {
             self.setting(ArgSettings::AllowEmptyValues)
@@ -3261,7 +3306,7 @@ impl<'help> Arg<'help> {
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
     ///
     /// **NOTE:** To apply this setting to all arguments consider using
-    /// [`AppSettings::NextLineHelp`]
+    /// [`AppSettings::NextLineHelp`] on the entire `App`
     ///
     /// # Examples
     ///
@@ -3309,33 +3354,48 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies that the argument may have an unknown number of multiple values. Without any other
-    /// settings, this argument may appear only *once*.
+    /// A convienience method for setting both `Arg::multiple_occurrences(true)` and
+    /// `Arg::multiple_values(true)`
+    pub fn multiple(mut self, multi: bool) -> Self {
+        if multi {
+            self.setb(ArgSettings::MultipleOccurrences);
+            self.setting(ArgSettings::MultipleValues)
+        } else {
+            self.unsetb(ArgSettings::MultipleOccurrences);
+            self.unset_setting(ArgSettings::MultipleValues)
+        }
+    }
+
+    /// Specifies that an argument accepts multiple values in a single occurrence. However, without
+    /// any additional settings, this argument may not be used more than once.
     ///
     /// For example, `--opt val1 val2` is allowed, but `--opt val1 val2 --opt val3` is not.
     ///
-    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
+    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`]
     ///
-    /// **WARNING:**
+    /// By default, with no other settings being used, `clap` will stop parsing values if any of the
+    /// following are true:
     ///
-    /// Setting `MultipleValues` for an argument that takes a value, but with no other details can
-    /// be dangerous in some circumstances. Because multiple values are allowed,
-    /// `--option val1 val2 val3` is perfectly valid. Be careful when designing a CLI where
-    /// positional arguments are *also* expected as `clap` will continue parsing *values* until one
-    /// of the following happens:
-    ///
-    /// * It reaches the [maximum number of values]
-    /// * It reaches a [specific number of values]
     /// * It finds another flag or option (i.e. something that starts with a `-`)
+    ///   * This has the exception of if the current argument accepts values that start with a hyphen
+    /// * It finds a valid [subcommand]
+    /// * The equals sign was used (`$ prog --option=value`)
+    /// * A [delimiter] was used (`$ prog --option value1,value2`
     ///
     /// **WARNING:**
     ///
-    /// When using args with `MultipleValues` and [subcommands], one needs to consider the
-    /// posibility of an argument value being the same as a valid subcommand. By default `clap` will
-    /// parse the argument in question as a value *only if* a value is possible at that moment.
-    /// Otherwise it will be parsed as a subcommand. In effect, this means using `MultipleValues` with no
-    /// additional parameters and a value that coincides with a subcommand name, the subcommand
-    /// cannot be called unless another argument is passed between them.
+    /// Setting `Arg::multiple_values(true)` for an argument with no other details can be dangerous
+    /// in some circumstances. Because multiple values are allowed, `--option val1 val2 val3` is
+    /// perfectly valid yet imagine `val3` was supposed to be a positional argument, or subcommand.
+    /// Be careful when designing a CLI where positional arguments or subcommands are *also*
+    /// expected.
+    ///
+    /// **WARNING:**
+    ///
+    /// When using args with `Arg::multiple_values(true)` *and* [subcommands], one should consider
+    /// the posibility of an argument value being the same as a valid subcommand.
+    ///
+    /// By default `clap` will parse the value/subcommand as a value.
     ///
     /// As an example, consider a CLI with an option `--ui-paths=<paths>...` and subcommand `signer`
     ///
@@ -3345,13 +3405,17 @@ impl<'help> Arg<'help> {
     /// $ program --ui-paths path1 path2 signer
     /// ```
     ///
-    /// This is because `--ui-paths` accepts multiple values. `clap` will continue parsing values
-    /// until another argument is reached and it knows `--ui-paths` is done parsing.
+    /// However, `clap` will parse `signer` as a subcommand in all of these cases:
     ///
-    /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
+    /// ```notrust
+    /// $ program --ui-paths=path1,path2 signer
+    /// $ program --ui-paths=path1 signer
+    /// $ program --ui-paths path1,path2 signer
+    /// ```
+    ///
+    /// We could also add additional parameters to `--ui-paths` to solve this issue. Consider adding
     /// [`Arg::number_of_values(1)`] or using *only* [`MultipleOccurrences`]. The following are all
-    /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
-    /// case.
+    /// valid, and `signer` is parsed as a subcommand.
     ///
     /// ```notrust
     /// $ program --ui-paths path1 signer
@@ -3367,21 +3431,6 @@ impl<'help> Arg<'help> {
     ///     .setting(ArgSettings::MultipleValues)
     /// # ;
     /// ```
-    /// An example with flags
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::new("verbose")
-    ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .short('v'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
-    ///     ]);
-    ///
-    /// assert!(m.is_present("verbose"));
-    /// assert_eq!(m.occurrences_of("verbose"), 3);
-    /// ```
     ///
     /// An example with options
     ///
@@ -3389,28 +3438,32 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .multiple_values(true) // implies TakesValue
     ///         .short('F'))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
     ///     ]);
     ///
     /// assert!(m.is_present("file"));
+    ///
     /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    ///
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
-    /// Although `MultipleVlaues` has been specified, we cannot use the argument more than once.
+    /// Although `Arg::multiple_values(true)` has been specified, we cannot use the argument more
+    /// than once.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .multiple_values(true) // implies TakesValue
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
     ///     ]);
+    ///
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage)
     /// ```
@@ -3422,7 +3475,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .multiple_values(true) // implies TakesValue
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -3431,22 +3484,27 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(m.is_present("file"));
+    ///
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
+    ///
     /// assert!(!m.is_present("word")); // but we clearly used word!
     /// ```
+    ///
     /// The problem is `clap` doesn't know when to stop parsing values for "files". This is further
     /// compounded by if we'd said `word -F file1 file2` it would have worked fine, so it would
     /// appear to only fail sometimes...not good!
     ///
     /// A solution for the example above is to limit how many values with a [maxium], or [specific]
-    /// number, or to say [`MultipleOccurrences`] is ok, but multiple values is not.
+    /// number, or to say **only** [`Arg::multiple_occurrences(true)`] but multiple values per
+    /// occurrence is not.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+    ///         .multiple_occurrences(true) // *does not* imply takes_value(true)
+    ///         .takes_value(true)
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -3460,13 +3518,14 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("word"));
     /// assert_eq!(m.value_of("word"), Some("word"));
     /// ```
-    /// As a final example, let's fix the above error and get a pretty message to the user :)
+    /// For completeness sake let's fix the above error and get a pretty message to the user :)
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+    ///         .multiple_occurrences(true) // *does not* imply takes_value(true)
+    ///         .takes_value(true)
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -3477,9 +3536,11 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
+    ///
     /// [option]: ./enum.ArgSettings.html#variant.TakesValue
     /// [options]: ./enum.ArgSettings.html#variant.TakesValue
     /// [subcommands]: ./struct.App.html#method.subcommand
+    /// [subcommand]: ./struct.App.html#method.subcommand
     /// [positionals]: ./struct.Arg.html#method.index
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
     /// [`MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
@@ -3488,65 +3549,7 @@ impl<'help> Arg<'help> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
-    pub fn multiple(mut self, multi: bool) -> Self {
-        if multi {
-            self.setb(ArgSettings::MultipleOccurrences);
-            self.setting(ArgSettings::MultipleValues)
-        } else {
-            self.unsetb(ArgSettings::MultipleOccurrences);
-            self.unset_setting(ArgSettings::MultipleValues)
-        }
-    }
-
-    /// Allows an argument to accept explicitly empty values. An empty value must be specified at
-    /// the command line with an explicit `""`, `''`, or `--option=`
-    ///
-    /// **NOTE:** By default empty values are *not* allowed
-    ///
-    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// Arg::new("file")
-    ///     .long("file")
-    ///     .setting(ArgSettings::AllowEmptyValues)
-    /// # ;
-    /// ```
-    /// The default is to *not* allow empty values.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .setting(ArgSettings::TakesValue))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
-    /// ```
-    /// By adding this setting, we can allow empty values
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .setting(ArgSettings::AllowEmptyValues)) // implies TakesValue
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("config"), None);
-    /// ```
-    /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    /// [value terminator]: ./struct.Arg.html#method.value_terminator
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleValues)
@@ -3624,6 +3627,7 @@ impl<'help> Arg<'help> {
         }
     }
 
+    // @TODO remove?
     /// Indicates that all parameters passed after this should not be parsed
     /// individually, but rather passed in their entirety. It is worth noting
     /// that setting this requires all values to come after a `--` to indicate they

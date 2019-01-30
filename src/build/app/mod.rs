@@ -4,7 +4,7 @@ pub use self::settings::{AppFlags, AppSettings};
 
 // Std
 use std::env;
-use std::ffi::OsString;
+use std::ffi::OsStr;
 use std::fmt;
 use std::hash::Hash;
 use std::io::{self, BufRead, BufWriter, Write};
@@ -1231,7 +1231,7 @@ impl<'help> App<'help> {
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches
         where
             I: IntoIterator<Item=T>,
-            T: Into<OsString> + Clone,
+            T: AsRef<OsStr> // + Clone,
     {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
@@ -1288,7 +1288,7 @@ impl<'help> App<'help> {
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
         where
             I: IntoIterator<Item=T>,
-            T: Into<OsString> + Clone,
+            T: AsRef<OsStr> //+ Clone,
     {
         self.try_get_matches_from_mut(itr)
     }
@@ -1317,16 +1317,10 @@ impl<'help> App<'help> {
     pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
         where
             I: IntoIterator<Item=T>,
-            T: Into<OsString> + Clone,
+            T: AsRef<OsStr> // + Clone?,
     {
         let mut it = itr.into_iter();
-        // Get the name of the program (argument 1 of env::args()) and determine the
-        // actual file
-        // that was used to execute the program. This is because a program called
-        // ./target/release/my_prog -a
-        // will have two arguments, './target/release/my_prog', '-a' but we don't want
-        // to display
-        // the full path when displaying help messages and such
+        // Get the name of the program (argument 1 of env::args())
         if !self.is_set(AppSettings::NoBinaryName) {
             if let Some(name) = it.next() {
                 let bn_os = name.into();
@@ -1352,23 +1346,22 @@ impl<'a, 'help> App<'help> {
     fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
         where
             I: Iterator<Item=T>,
-            T: Into<OsString> + Clone,
+            T: AsRef<OsStr> // + Clone,
     {
         debugln!("App::_do_parse;");
-        let mut matcher = ArgMatcher::new();
 
         // If there are global arguments, or settings we need to propgate them down to subcommands
-        // before parsing incase we run into a subcommand
+        // before parsing in case we run into a subcommand
         if !self.is_set(AppSettings::Propagated) {
             self._build(Propagation::NextLevel);
         }
 
-        {
+        let mut matcher = {
             let mut parser = Parser::new(self);
 
             // do the real parsing
-            parser.get_matches_with(&mut matcher, it)?;
-        }
+            parser.get_matches_with(it)?
+        };
 
         let global_arg_vec: Vec<u64> = self
             .args

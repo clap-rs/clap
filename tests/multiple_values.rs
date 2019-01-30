@@ -1203,3 +1203,149 @@ fn multiple_vals_with_hyphen() {
     assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     assert_eq!(m.value_of("location"), Some("/home/clap"));
 }
+
+#[test]
+fn use_delimiter_short() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .short('F').multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "-F",
+            "val1,val2",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1", "val2"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_equals_short() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .short('F').multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "-F=val1",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_no_space_short() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .short('F').multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "-Fval1",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_no_space_short_with_delim() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .short('F').multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "-Fval1,val2",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1", "val2"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_equals_short_with_delim() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .short('F').multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "-F=val1,val2",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1", "val2"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_delimiter_long() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .long("F").multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "--F",
+            "val1,val2",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1", "val2"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_equals_long() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .long("F").multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "--F=val1",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}
+
+#[test]
+fn use_equals_long_with_delim() {
+    let res = App::new("do")
+        .arg( Arg::new("cmds") .long("F").multiple_values(true) )
+        .arg(Arg::new("location"))
+        .try_get_matches_from(vec![
+            "do",
+            "--F=val1,val2",
+            "world"
+        ]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+
+    let m = res.unwrap();
+    let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
+    assert_eq!(&cmds, &["val1", "val2"]);
+    assert_eq!(m.value_of("location"), Some("world"));
+}

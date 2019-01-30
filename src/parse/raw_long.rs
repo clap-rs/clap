@@ -5,8 +5,14 @@ use util::OsStrExt2;
 
 pub struct RawLong<'a> {
     // --foo
-    pub(crate) long: &'a OsStr,
+    long: &'a OsStr,
     value: Option<RawValue<'a>>,
+}
+
+impl<'a> RawLong<'a> {
+    pub(crate) fn key_as_bytes(&self) -> &[u8] {
+        self.long.as_bytes()
+    }
 }
 
 impl<'a> From<RawArg<'a>> for RawLong<'a> {

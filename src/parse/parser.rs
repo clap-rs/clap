@@ -23,6 +23,7 @@ use parse::errors::ErrorKind;
 use parse::errors::Result as ClapResult;
 use parse::features::suggestions;
 use parse::Validator;
+use parse::positional_asserts::*;
 use parse::{KeyType, HyphenStyle, RawValue, RawArg, RawLong, RawOpt, SeenArg, ArgMatcher, SubCommand};
 use util::{hash, OsStrExt2};
 use INTERNAL_ERROR_MSG;
@@ -41,7 +42,7 @@ pub enum ParseResult<'help> {
     UnknownShort,
     UnknownLong,
     UnknownPositional,
-    TrailingValues,
+    TrailingValues(usize),
     LowIndexMultsOrMissingPos,
 }
 
@@ -49,119 +50,6 @@ impl Default for ParseResult {
     fn default() -> Self {
         ParseResult::Initial
     }
-}
-
-#[derive(Copy, Clone, Debug, Default)]
-pub struct ParseState<'help> {
-    prev: ParseResult<'help>,
-    cur: ParseResult<'help>,
-}
-
-impl ParseState {
-    fn new() -> Self {
-        ParseState::default()
-    }
-
-    fn advance(&mut self, state: ParseResult) {
-        mem::swap(self.cur, self.prev);
-        *self.cur = state;
-    }
-}
-
-fn assert_highest_index_matches_len(positionals: &[(u64, &Arg)]) {
-    // Firt we verify that the highest supplied index, is equal to the number of
-    // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
-    // but no 2)
-    let highest_idx = positionals.iter().max_by(|x, y| x.0.cmp(&y.0)).unwrap();
-
-    let num_p = positionals.len();
-
-    assert!(
-        highest_idx.0 == num_p as u64,
-        "Found positional argument whose index is {} but there \
-            are only {} positional arguments defined",
-        highest_idx.0,
-        num_p
-    );
-}
-
-fn assert_low_index_multiples(positionals: &[(u64, &Arg)]) {
-    // First we make sure if there is a positional that allows multiple values
-    // the one before it (second to last) has one of these:
-    //  * a value terminator
-    //  * ArgSettings::Last
-    //  * The last arg is Required
-
-    let last = positionals.iter().last().unwrap().1;
-
-    let second_to_last = positionals.iter().rev().next().unwrap().1;
-
-    // Either the final positional is required
-    // Or the second to last has a terminator or .last(true) set
-    let ok = (last.is_set(ArgSettings::Required) || last.is_set(ArgSettings::Last))
-        || (second_to_last.terminator.is_some()
-            || second_to_last.is_set(ArgSettings::Last));
-    assert!(
-        ok,
-        "When using a positional argument with .multiple(true) that is *not the \
-            last* positional argument, the last positional argument (i.e the one \
-            with the highest index) *must* have .required(true) or .last(true) set."
-    );
-}
-
-fn assert_missing_positionals(positionals: &[(u64, &Arg)]) {
-    // Check that if a required positional argument is found, all positions with a lower
-    // index are also required.
-    let mut found = false;
-    let mut foundx2 = false;
-
-    for (i, p) in positionals.iter().rev() {
-        if foundx2 && !p.is_set(ArgSettings::Required) {
-            assert!(
-                p.is_set(ArgSettings::Required),
-                "Found positional argument which is not required with a lower \
-                    index than a required positional argument by two or more: {:?} \
-                    index {:?}",
-                p.id,
-                i
-            );
-        } else if p.is_set(ArgSettings::Required) && !p.is_set(ArgSettings::Last) {
-            // Args that .last(true) don't count since they can be required and have
-            // positionals with a lower index that aren't required
-            // Imagine: prog <req1> [opt1] -- <req2>
-            // Both of these are valid invocations:
-            //      $ prog r1 -- r2
-            //      $ prog r1 o1 -- r2
-            if found {
-                foundx2 = true;
-                continue;
-            }
-            found = true;
-            continue;
-        } else {
-            found = false;
-        }
-    }
-}
-
-fn assert_only_one_last(positionals: &[(u64, &Arg)]) {
-    assert!(
-        positionals.iter().fold(0, |acc, (_, p)| if p.is_set(ArgSettings::Last) {
-            acc + 1
-        } else {
-            acc
-        }) < 2,
-        "Only one positional argument may have last(true) set. Found two."
-    );
-}
-
-fn assert_required_last_and_subcommands(positionals: &[(u64, &Arg)], has_subcmds: bool, subs_negate_reqs: bool) {
-    assert!(!(positionals.iter()
-        .any(|(_, p)| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
-        && has_subcmds
-        && !subs_negate_reqs),
-            "Having a required positional argument with .last(true) set *and* child \
-                subcommands without setting SubcommandsNegateReqs isn't compatible.");
 }
 
 #[doc(hidden)]
@@ -172,7 +60,8 @@ where
     pub app: &'c mut App<'help>,
     seen: Vec<SeenArg>,
     cur_idx: Cell<usize>,
-    num_pos: usize,
+    cur_pos: usize,
+    cache: u64,
 }
 
 // Initializing Methods
@@ -185,25 +74,22 @@ where
             app,
             seen: Vec::new(),
             cur_idx: Cell::new(0),
-            num_pos: app.args.args.iter().filter(|x| x.index.is_some()).count(),
+            cur_pos: app.args.args.iter().filter(|x| x.index.is_some()).count(),
+            cache: 0,
         }
     }
 
-    fn _setup_positionals(&mut self) -> bool {
-        debugln!("Parser::_setup_positionals;");
-        // Because you must wait until all arguments have been supplied, this is the first chance
-        // to make assertions on positional argument indexes
+    // Does all the initializing and prepares the parser
+    pub(crate) fn _build(&mut self) {
+        debugln!("Parser::_build;");
 
-        let positionals: Vec<(u64, &Arg)> = self
-            .app
-            .args
-            .args
-            .iter()
-            .filter(|x| x.index.is_some())
+        self.app.args._build();
+
+        let positionals: Vec<(u64, &Arg)> = self.app.args.positionals()
             .map(|x| (x.index.unwrap(), x))
             .collect();
-        
-        if positionals.is_empty() { return true; }
+
+        if positionals.is_empty() { return; }
 
         assert_highest_index_matches_len(&*positionals);
 
@@ -219,17 +105,6 @@ where
         assert_only_one_last(&*positionals);
 
         assert_required_last_and_subcommands(&*positionals, self.has_subcommands(), self.is_set(AS::SubcommandsNegateReqs));
-
-        true
-    }
-
-    // Does all the initializing and prepares the parser
-    pub(crate) fn _build(&mut self) {
-        debugln!("Parser::_build;");
-
-        self.app.args._build();
-
-        self._setup_positionals();
     }
 }
 
@@ -241,7 +116,6 @@ where
     // The actual parsing function
     pub fn get_matches_with<I, T>(
         &mut self,
-        matcher: &mut ArgMatcher,
         it: &mut Peekable<I>,
     ) -> ClapResult<()>
     where
@@ -249,60 +123,47 @@ where
         T: AsRef<OsStr>, // + Clone?
     {
         debugln!("Parser::get_matches_with;");
+        let mut matcher = ArgMatcher::new();
+
         // Verify all positional assertions pass
         self._build();
 
         let mut subcmd_name: Option<u64> = None;
         let mut pos_counter: usize = 1;
-        let mut state = ParseState::new();
+        let mut state = ParseResult::Initial;
 
         'outer: for arg in it {
             debugln!("Parser::get_matches_with: Begin parsing '{:?}'", arg_os);
             let arg_os = arg.as_ref();
             let raw: RawArg = arg_os.into();
-            state.advance(ParseResult::Initial);
-            let mut hs = HyphenStyle::from(arg_os);
+            state = ParseResult::Initial;
 
             'inner: loop {
-                match state.cur {
-                    ParseResult::NextArg => {
-                        // We don't want to lose the context we had
-                        mem::swap(state.cur, state.prev);
-                        continue 'outer;
-                    },
+                match state {
                     ParseResult::Initial => {
+                        // First make sure this isn't coming after a `--` only
                         if self.is_set(AS::TrailingValues) {
-                            mem::replace(state.cur, ParseResult::PosPrelude);
+                            state = ParseResult::PosByIndexAcceptsVals(self.cur_pos);
                             continue;
                         }
-                        let next_state = match hs {
-                            HyphenStyle::DoubleOnly => ParseResult::TrailingValues,
-                            HyphenStyle::Double => self.parse_long(matcher, raw.into())?,
-                            HyphenStyle::Single => self.parse_short(matcher, raw.into())?,
-                            HyphenStyle::None => {
-                                if let Some(id) = self.possible_subcommand(raw) {
-                                    ParseResult::SubCmd(id)
-                                } else {
-                                    ParseResult::PosByIndex(pos_counter)
-                                }
+
+                        // Next determine which type of hyphen (if any) was used
+                        state = match HyphenStyle::from(&raw) {
+                            HyphenStyle::DoubleOnly => {
+                                self.set(AS::TrailingValues);
+                                ParseResult::NextArg
                             },
-
+                            HyphenStyle::Double => self.parse_long(&mut matcher, raw.into())?,
+                            HyphenStyle::Single => self.parse_short(&mut matcher, raw.into())?,
+                            HyphenStyle::None => self.possible_subcommand(&raw),
                         };
-                        if let ParseResult::ArgAcceptsVals(id) = next_state {
-                            mem::swap(state.cur, state.prev);
-                            mem::replace(state.cur, ParseResult::NextArg);
-                            continue;
-                        }
-                        state.advance(next_state);
                     }
-                    ParseResult::TrailingValues => {
-                        self.set(AS::TrailingValues);
-                        state.advance(ParseResult::NextArg);
-                    }
+                    ParseResult::NextArg => continue 'outer,
                     ParseResult::PosPrelude => {
-                        let is_second_to_last = pos_counter == (self.num_pos - 1);
+                        let is_second_to_last = pos_counter == (self.cur_pos - 1);
 
-                        let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && (self.has_positionals() && is_second_to_last);
+                        let low_index_mults = self.is_set(AS::LowIndexMultiplePositional)
+                            && (self.has_positionals() && is_second_to_last);
                         let missing_pos = self.is_set(AS::AllowMissingPositional)
                             && is_second_to_last
                             && !self.is_set(AS::TrailingValues);
@@ -312,13 +173,13 @@ where
                             // Came to -- and one postional has .last(true) set, so we go immediately
                             // to the last (highest index) positional
                             debugln!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                            state.advance(ParseResult::PosByIndexAcceptsVals(self.num_pos));
+                            state.advance(ParseResult::PosByIndexAcceptsVals(self.cur_pos));
                         } else {
                             state.advance(ParseResult::PosByIndexAcceptsVals(pos_counter));
                         }
                     },
                     ParseResult::LowIndexMultsOrMissingPos => {
-                        if it.peek().is_some() && (pos_counter < self.num_pos) {
+                        if it.peek().is_some() && (pos_counter < self.cur_pos) {
                             state.advance(ParseResult::PosByIndexAcceptsVals(pos_counter));
                         } else {
                             state.advance(ParseResult::NextArg);
@@ -326,7 +187,7 @@ where
                     },
                     ParseResult::PosByIndexAcceptsVals(idx) => {
                         if let Some(p) = self.app.args.get_by_index(idx) {
-                            state.advance(self.parse_positional(p, matcher, raw.into(), pos_counter)?);
+                            state.advance(self.parse_positional(p, &mut matcher, raw.into(), pos_counter)?);
                             // Only increment the positional counter if it doesn't allow multiples
                             if state.cur == ParseResult::NextArg {
                                 pos_counter += 1;
@@ -538,7 +399,7 @@ where
             ));
         }
 
-        if no_trailing_vals && (self.is_set(AS::TrailingVarArg) && idx == self.num_pos) {
+        if no_trailing_vals && (self.is_set(AS::TrailingVarArg) && idx == self.cur_pos) {
             self.app.settings.set(AS::TrailingValues);
         }
 
@@ -555,7 +416,7 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
-    fn possible_subcommand(&self, raw: RawArg) -> Option<&str> {
+    fn possible_subcommand(&self, raw: &RawArg) -> ParseResult {
         debugln!("Parser::possible_subcommand: arg={:?}", raw);
         fn starts(h: &str, n: &OsStr) -> bool {
             #[cfg(target_os = "windows")]
@@ -575,7 +436,7 @@ where
         // @TODO @p1 use id and hash raw.0
         if !self.is_set(AS::InferSubcommands) {
             if let Some(sc) = self.app.subcommands.iter().find(|x| x.name == raw.0) {
-                return Some(&sc.name);
+                return ParseResult::SubCmd(&sc.name);
             }
         } else {
             let v = sc_names!(self.app)
@@ -583,10 +444,10 @@ where
                 .collect::<Vec<_>>();
 
             if v.len() == 1 {
-                return Some(v[0]);
+                return ParseResult::SubCmd(v[0]);
             }
         }
-        None
+        ParseResult::PosByIndex(self.cur_pos)
     }
 
     fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult>
@@ -776,7 +637,7 @@ where
         // Update the curent index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
-        if let Some(arg) = self.app.args.get_by_long_with_hyphen(raw_long.long.as_bytes()) {
+        if let Some(arg) = self.app.args.get_by_long_with_hyphen(raw_long.key_as_bytes()) {
             self.app.settings.set(AS::ValidArgFound);
 
             self.seen.push(SeenArg::new(arg.id, KeyType::Long));
@@ -848,12 +709,11 @@ where
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.id, raw.value);
-        let needs_eq = opt.is_set(ArgSettings::RequireEquals);
-        let had_eq = raw.value.map_or(false, |v| v.had_eq);
+        let had_eq = raw.had_eq();
 
-        if raw.value.is_some() {
-            self.add_val_to_arg(opt, raw.value.unwrap(), matcher)?;
-        } else if needs_eq {
+        if raw.has_value() {
+            self.add_val_to_arg(opt, raw.value_unchecked(), matcher)?;
+        } else if opt.is_set(ArgSettings::RequireEquals) {
             return Err(ClapError::empty_value(
                 opt,
                 &*Usage::new(self).create_usage_with_title(&[]),
@@ -862,15 +722,13 @@ where
         }
 
         matcher.inc_occurrence_of(opt.id);
-        // Increment or create the group "args"
+        // Increment or create the group
         for grp in groups_for_arg!(self.app, &opt.id) {
             matcher.inc_occurrence_of(&*grp);
         }
 
-        let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
-        let mult = opt.is_set(ArgSettings::MultipleValues);
-        if (raw.value.is_none() && matcher.needs_more_vals(opt)) || (mult && !needs_delim) {
-            return Ok(ParseResult::ArgAcceptsValues(opt.id));
+        match matcher.value_state(opt, raw) {
+
         }
         Ok(ParseResult::NextArg)
     }
