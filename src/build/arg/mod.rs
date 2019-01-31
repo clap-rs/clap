@@ -1,7 +1,5 @@
 // @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) isntead
 
-// @TODO @p1 distinguish between total values and values per occurrence
-
 mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
@@ -89,6 +87,8 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub num_vals: Option<u64>,
     #[doc(hidden)]
+    pub num_vals_per_occ: Option<u64>,
+    #[doc(hidden)]
     pub max_vals: Option<u64>,
     #[doc(hidden)]
     pub min_vals: Option<u64>,
@@ -150,6 +150,7 @@ impl<'help> Arg<'help> {
             possible_vals: None,
             val_names: None,
             num_vals: None,
+            num_vals_per_occ: None,
             max_vals: None,
             min_vals: None,
             validator: None,
@@ -1663,6 +1664,47 @@ impl<'help> Arg<'help> {
     pub fn number_of_values(mut self, qty: u64) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
+        self
+    }
+
+    /// Specifies how many values are required to be present pre occurrence of this argument.
+    ///
+    /// **NOTE:** Does *not* require [`Arg::multiple(true)`] to be set. Setting
+    /// [`Arg::multiple(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
+    /// as *not* setting [`Arg::multiple(true)`] would only allow one occurrence of this argument.
+    ///
+    /// **NOTE:** Implies `Arg::multiple_occurrences(true)`
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::new("file")
+    ///     .short('f')
+    ///     .number_of_values(3)
+    /// # ;
+    /// ```
+    ///
+    /// Not supplying the correct number of values is an error
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .takes_value(true)
+    ///         .number_of_values_per_occurrence(2)
+    ///         .short('F'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-F", "file1"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    /// ```
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    pub fn number_of_values_per_occurrence(mut self, qty: u64) -> Self {
+        self.setb(ArgSettings::TakesValue);
+        self.num_vals_per_occ = Some(qty);
         self
     }
 

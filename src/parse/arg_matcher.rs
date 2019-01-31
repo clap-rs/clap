@@ -8,6 +8,7 @@ use indexmap;
 
 // Internal
 use build::AppSettings as AS;
+use parse::RawOpt;
 use build::{Arg, ArgSettings};
 use parse::{ArgMatches, MatchedArg, SubCommand, Parser, SeenArg};
 use INTERNAL_ERROR_MSG;
@@ -144,11 +145,17 @@ impl ArgMatcher {
 
         if let Some(ma) = self.get(a.id) {
             // '--opt' was used so far, we don't know whats next
-            if let Some(num) = a.num_vals {
+            if let Some(num) = a.num_vals_per_occ {
+                return ValueState::RequiresValue(a.id);
+            } else if let Some(num) = a.num_vals {
                 if ma.vals.len() < num {
-                    ValueState::RequiresValue(a.id)
+                    if a.is_set(ArgSettings::MultipleOccurrences) && a.is_set(ArgSettings::AllowEmptyValues) {
+                        return ValueState::AcceptsValue(a.id);
+                    } else {
+                        return ValueState::RequiresValue(a.id);
+                    }
                 } else {
-                    ValueState::Done
+                    return ValueState::Done;
                 }
             } else if let Some(num) = a.max_vals {
                 if ma.vals.len() < num {
@@ -158,16 +165,21 @@ impl ArgMatcher {
                 }
             } else if let Some(num) = a.min_vals {
                 if ma.vals.len() < num {
-                    ValueState::AcceptsValue(a.id)
+                    if a.is_set(ArgSettings::MultipleOccurrences) && a.is_set(ArgSettings::AllowEmptyValues) {
+                        return ValueState::AcceptsValue(a.id);
+                    } else {
+                        return ValueState::RequiresValue(a.id);
+                    }
                 } else {
                     ValueState::Done
                 }
-            } else {
-                unreachable!()
             }
         }
 
-        ValueState::AcceptsValue(a.id)
+        if a.is_set(ArgSettings::MultipleOccurrences) && a.is_set(ArgSettings::AllowEmptyValues) {
+            return ValueState::AcceptsValue(a.id);
+        }
+        ValueState::RequiresValue(a.id)
     }
 
     pub fn value_state_after_val(&self, a: &Arg) -> ValueState {
@@ -175,27 +187,43 @@ impl ArgMatcher {
             return ValueState::Done;
         }
 
-        if let Some(ma) = self.get(o.id) {
-            if let Some(num) = o.num_vals {
-                if ma.vals.len() < num {
-                    ValueState::RequiresValue(o.id)
+        if let Some(ma) = self.get(a.id) {
+            if let Some(num) = a.num_vals_per_occ {
+                if (ma.vals.len() % num) != 0 {
+                    return ValueState::RequiresValue(a.id);
                 } else {
-                    ValueState::Done
+                    return ValueState::Done;
+                }
+            } else if let Some(num) = a.num_vals {
+                if ma.vals.len() < num {
+                    if a.is_set(ArgSettings::MultipleOccurrences) {
+                        return ValueState::AcceptsValue(a.id);
+                    } else {
+                        return ValueState::RequiresValue(a.id);
+                    }
+                } else {
+                    return ValueState::Done;
                 }
             } else if let Some(num) = o.max_vals {
                 if ma.vals.len() < num {
-                    ValueState::AcceptsValue(o.id)
+                    return ValueState::AcceptsValue(o.id);
                 } else {
-                    ValueState::Done
+                    return ValueState::Done;
                 }
             } else if let Some(num) = o.min_vals {
                 if ma.vals.len() < num {
-                    ValueState::AcceptsValue(o.id)
+                    if a.is_set(ArgSettings::MultipleOccurrences) {
+                        return ValueState::AcceptsValue(a.id);
+                    } else {
+                        return ValueState::RequiresValue(a.id);
+                    }
                 } else {
-                    ValueState::Done
+                    return ValueState::Done;
                 }
             }
         }
+
+        ValueState::Done
     }
 
     pub fn remove_overrides(&mut self, parser: &mut Parser, seen: &[SeenArg]) -> Vec<u64> {

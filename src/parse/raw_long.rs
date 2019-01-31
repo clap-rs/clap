@@ -13,6 +13,10 @@ impl<'a> RawLong<'a> {
     pub(crate) fn key_as_bytes(&self) -> &[u8] {
         self.long.as_bytes()
     }
+
+    pub(crate) fn key(&self) -> &OsStr {
+        self.long.trim_left_matches(b'-')
+    }
 }
 
 impl<'a> From<RawArg<'a>> for RawLong<'a> {

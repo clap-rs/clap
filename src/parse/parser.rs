@@ -647,7 +647,7 @@ where
             }
 
             // Check for help/version *after* opt so we avoid needlessly checking every time
-            self.check_for_help_and_version_long(raw_long.long.trim_left_matches(b'-'))?;
+            self.check_for_help_and_version_long(raw_long.key())?;
             self.parse_flag(arg.id, matcher)?;
 
             return Ok(ParseResult::NextArg);
@@ -710,9 +710,10 @@ where
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_opt; opt={}, val={:?}", opt.id, raw.value);
         let had_eq = raw.had_eq();
+        let mut ret = ParseResult::Initial; // @TODO: valid args found state?
 
         if raw.has_value() {
-            self.add_val_to_arg(opt, raw.value_unchecked(), matcher)?;
+            ret = self.add_val_to_arg(opt, raw.value_unchecked(), matcher)?;
         } else if opt.is_set(ArgSettings::RequireEquals) {
             return Err(ClapError::empty_value(
                 opt,
@@ -727,9 +728,6 @@ where
             matcher.inc_occurrence_of(&*grp);
         }
 
-        match matcher.value_state(opt, raw) {
-
-        }
         Ok(ParseResult::NextArg)
     }
 
@@ -751,8 +749,12 @@ where
         }
         // If there was a delimiter used, we're not looking for more values because
         // --foo=bar,baz qux isn't three values. Same with --foo bar,baz qux
-        if honor_delims && (raw.used_sep() || arg.is_set(ArgSettings::RequireDelimiter)) {
-            ret = ParseResult::Initial;
+        if honor_delims && raw.used_sep() { //|| arg.is_set(ArgSettings::RequireDelimiter)) {
+            ret = ParseResult::NextArg;
+        } else {
+            ret = match matcher.value_state_after_val(arg) {
+                ValueState::Done
+            };
         }
         Ok(ret)
     }
