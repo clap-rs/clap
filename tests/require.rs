@@ -367,7 +367,7 @@ fn required_unless_one_2() {
 
 #[test]
 fn required_unless_one_works_with_short() {
-    // GitHub issue: https://github.com/kbknapp/clap-rs/issues/1135
+    // GitHub issue: https://github.com/clap-rs/clap/issues/1135
     let res = App::new("unlessone")
         .arg(Arg::with_name("a").conflicts_with("b").short("a"))
         .arg(Arg::with_name("b").short("b"))

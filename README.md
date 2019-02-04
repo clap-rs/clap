@@ -1,7 +1,7 @@
 clap
 ====
 
-[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kbknapp/clap-rs/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/kbknapp/clap-rs/badge.svg?branch=master&service=github)](https://coveralls.io/github/kbknapp/clap-rs?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/kbknapp/clap-rs/badge.svg?branch=master&service=github)](https://coveralls.io/github/kbknapp/clap-rs?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Linux: [![Build Status](https://travis-ci.org/clap-rs/clap.svg?branch=master)](https://travis-ci.org/clap-rs/clap)
 Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn31nhv36/branch/master?svg=true)](https://ci.appveyor.com/project/kbknapp/clap-rs/branch/master)
@@ -45,12 +45,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 Here's whats new in 2.32.0:
 
 * `clap` requires `rustc 1.30.0` or greater.
-* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
-* **ArgGroup and macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
-* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
-* **arg_enum!:**  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/kbknapp/clap-rs/commit/7023184fca04e852c270341548d6a16207d13862))
-* **help messages:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/kbknapp/clap-rs/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
-* **Docs:** Refer to macOS rather than OSX. ([ab0d767f](https://github.com/kbknapp/clap-rs/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
+* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/clap-rs/clap/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
+* **ArgGroup and macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/clap-rs/clap/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
+* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/clap-rs/clap/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
+* **arg_enum!:**  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/clap-rs/clap/commit/7023184fca04e852c270341548d6a16207d13862))
+* **help messages:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/clap-rs/clap/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
+* **Docs:** Refer to macOS rather than OSX. ([ab0d767f](https://github.com/clap-rs/clap/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
 
 Here's whats new in 2.31.x:
 
@@ -70,7 +70,7 @@ Here's whats new in 2.31.x:
 * Use `codegen-units = 1` in release and bench profiles to improve bench performance
 * Fix some typos and markdown issues in the docs
 
-For full details, see [CHANGELOG.md](https://github.com/kbknapp/clap-rs/blob/master/CHANGELOG.md)
+For full details, see [CHANGELOG.md](https://github.com/clap-rs/clap/blob/master/CHANGELOG.md)
 
 ## About
 
@@ -82,7 +82,7 @@ Once `clap` parses the user provided string of arguments, it returns the matches
 
 ## FAQ
 
-For a full FAQ and more in depth details, see [the wiki page](https://github.com/kbknapp/clap-rs/wiki/FAQ)
+For a full FAQ and more in depth details, see [the wiki page](https://github.com/clap-rs/clap/wiki/FAQ)
 
 ### Comparisons
 
@@ -343,7 +343,7 @@ Examples of each method can be found in the [examples/](examples) directory of t
 
 To try out the pre-built examples, use the following steps:
 
-* Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/`
+* Clone the repository `$ git clone https://github.com/clap-rs/clap && cd clap-rs/`
 * Compile the example `$ cargo build --example <EXAMPLE>`
 * Run the help info `$ ./target/debug/examples/<EXAMPLE> --help`
 * Play with the arguments!

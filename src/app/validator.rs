@@ -401,8 +401,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         } else {
             false
         };
-        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        // Issue 1105 (https://github.com/kbknapp/clap-rs/issues/1105)
+        // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+        // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
         if a.takes_value() && !min_vals_zero && ma.vals.is_empty() {
             return Err(Error::empty_value(
                 a,
