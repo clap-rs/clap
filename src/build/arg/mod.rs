@@ -1,6 +1,9 @@
 // @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) isntead
 
 mod settings;
+mod key;
+mod short;
+mod long;
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
@@ -25,6 +28,7 @@ use yaml_rust;
 use build::UsageParser;
 use INTERNAL_ERROR_MSG;
 use util::hash;
+use self::key::Key;
 
 type Validator = Rc<Fn(String) -> Result<(), String>>;
 type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
@@ -57,61 +61,11 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub id: u64,
     #[doc(hidden)]
-    pub help: Option<&'help str>,
-    #[doc(hidden)]
-    pub long_help: Option<&'help str>,
-    #[doc(hidden)]
-    pub blacklist: Option<Vec<u64>>,
+    key: Key<'help>,
     #[doc(hidden)]
     pub settings: ArgFlags,
     #[doc(hidden)]
-    pub r_unless: Option<Vec<u64>>,
-    #[doc(hidden)]
-    pub overrides: Option<Vec<u64>>,
-    #[doc(hidden)]
-    pub requires: Option<Vec<(Option<&'help str>, u64)>>,
-    #[doc(hidden)]
-    pub short: Option<char>,
-    #[doc(hidden)]
-    pub long: Option<&'help str>,
-    #[doc(hidden)]
-    pub aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub unified_ord: usize,
-    #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
-    #[doc(hidden)]
-    pub val_names: Option<VecMap<&'help str>>,
-    #[doc(hidden)]
-    pub num_vals: Option<u64>,
-    #[doc(hidden)]
-    pub num_vals_per_occ: Option<u64>,
-    #[doc(hidden)]
-    pub max_vals: Option<u64>,
-    #[doc(hidden)]
-    pub min_vals: Option<u64>,
-    #[doc(hidden)]
-    pub validator: Option<Validator>,
-    #[doc(hidden)]
-    pub validator_os: Option<ValidatorOs>,
-    #[doc(hidden)]
-    pub val_delim: Option<char>,
-    #[doc(hidden)]
-    pub default_val: Option<&'help OsStr>,
-    #[doc(hidden)]
-    pub default_vals_ifs: Option<VecMap<(u64, Option<&'help OsStr>, &'help OsStr)>>,
-    #[doc(hidden)]
     pub env: Option<(&'help OsStr, Option<OsString>)>,
-    #[doc(hidden)]
-    pub terminator: Option<&'help str>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    #[doc(hidden)]
-    pub r_ifs: Option<Vec<(u64, &'help str)>>,
-    #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
 }
 
 impl<'help> Arg<'help> {
@@ -144,9 +98,7 @@ impl<'help> Arg<'help> {
             r_unless: None,
             overrides: None,
             requires: None,
-            short: None,
-            long: None,
-            aliases: None,
+            key: Key::new(),
             possible_vals: None,
             val_names: None,
             num_vals: None,
@@ -200,7 +152,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short(mut self, s: char) -> Self {
-        self.short = Some(s);
+        self.key.short(s);
         self
     }
 
@@ -240,7 +192,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.key.long(l);
         self
     }
 
@@ -266,11 +218,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), false));
-        } else {
-            self.aliases = Some(vec![(name.into(), false)]);
-        }
+        self.key.hidden_long(s.into());
         self
     }
 
@@ -296,12 +244,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for &n in names {
-                als.push((n, false));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
+        for &n in names {
+            self.key.hidden_long(n);
         }
         self
     }
@@ -327,11 +271,7 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::alias`]: ./struct.Arg.html#method.alias
     pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), true));
-        } else {
-            self.aliases = Some(vec![(name.into(), true)]);
-        }
+        self.key.long(s.into());
         self
     }
 
@@ -354,12 +294,8 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for &n in names {
-                als.push((n, true));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+        for &n in names {
+            self.key.long(n);
         }
         self
     }
@@ -3883,15 +3819,19 @@ impl<'help> Arg<'help> {
         self
     }
 
-    #[doc(hidden)]
-    pub fn _build(&mut self) {
+    fn set_default_delimiter(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
             || self.is_set(ArgSettings::RequireDelimiter))
             && self.val_delim.is_none()
         {
             self.val_delim = Some(',');
         }
-        if self.index.is_some() || (self.short.is_none() && self.long.is_none()) {
+    }
+
+    #[doc(hidden)]
+    pub fn _build(&mut self) {
+        self.set_default_delimiter();
+        if self.key.is_positional() {
             if self.max_vals.is_some()
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
@@ -3917,12 +3857,14 @@ impl<'help> Arg<'help> {
     pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
 
     #[doc(hidden)]
-    pub fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
+    pub fn has_switch(&self) -> bool { self.key.has_switch() }
 
-    #[doc(hidden)]
-    pub fn longest_filter(&self) -> bool {
-        self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
-    }
+    // We should probably figure out this the hard way in the help display, or find a better way
+    // to encapsulate this.
+//    #[doc(hidden)]
+//    pub fn longest_filter(&self) -> bool {
+//        self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
+//    }
 
     // Used for positionals when printing
     #[doc(hidden)]
@@ -3961,7 +3903,7 @@ impl<'help> PartialEq for Arg<'help> {
 
 impl<'help> Display for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
+        if self.key.is_positional() {
             // Positional
             let mut delim = String::new();
             delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
@@ -4063,13 +4005,32 @@ impl<'help> fmt::Debug for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         write!(
             f,
-            "Arg {{ id: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
-             settings: {:?}, required_unless: {:?}, overrides_with: {:?},  \
-             requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-             aliases: {:?}, possible_values: {:?}, value_names: {:?}, number_of_values: {:?}, \
-             max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
-             value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
-             default_value: {:?}, validator: {}, validator_os: {} \
+            "Arg {{ \
+                id: {:?}, \
+                help: {:?}, \
+                long_help: {:?}, \
+                conflicts_with: {:?}, \
+                settings: {:?}, \
+                required_unless: {:?}, \
+                overrides_with: {:?},  \
+                requires: {:?}, \
+                requires_ifs: {:?}, \
+                key: {:?}, \
+                index: {:?}, \
+                possible_values: {:?}, \
+                value_names: {:?}, \
+                number_of_values: {:?}, \
+                max_values: {:?}, \
+                min_values: {:?}, \
+                value_delimiter: {:?}, \
+                default_value_ifs: {:?}, \
+                value_terminator: {:?}, \
+                display_order: {:?}, \
+                env: {:?}, \
+                unified_ord: {:?}, \
+                default_value: {:?}, \
+                validator: {}, \
+                validator_os: {} \
              }}",
             self.id,
             self.help,
@@ -4080,10 +4041,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.overrides,
             self.requires,
             self.r_ifs,
-            self.short,
+            self.key,
             self.index,
-            self.long,
-            self.aliases,
             self.possible_vals,
             self.val_names,
             self.num_vals,

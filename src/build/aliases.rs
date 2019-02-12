@@ -50,4 +50,7 @@ impl<'help> Aliases<'help> {
     pub fn add_visible<S: AsRef<&'help str>>(&mut self, name: S) {
         self.0.push(Alias::new(name));
     }
+    pub fn add_hidden<S: AsRef<&'help str>>(&mut self, name: S) {
+        self.0.push(Alias::new(name).hidden());
+    }
 }
