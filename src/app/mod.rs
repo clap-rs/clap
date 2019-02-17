@@ -89,6 +89,15 @@ impl<'a, 'b> App<'a, 'b> {
     /// Get the name of the binary
     pub fn get_bin_name(&self) -> Option<&str> { self.p.meta.bin_name.as_ref().map(|s| s.as_str()) }
 
+    /// Get the version of the app
+    pub fn get_version(&self) -> Option<&str> { self.p.meta.version }
+
+    /// Get the about of the app
+    pub fn get_about(&self) -> Option<&str> { self.p.meta.about }
+
+    /// Get the author of the app
+    pub fn get_author(&self) -> Option<&str> { self.p.meta.author }
+
     /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
     /// and [`crate_version!`] macros to fill in the [`App::author`] and [`App::version`] fields.
     ///
