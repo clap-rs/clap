@@ -578,7 +578,6 @@ use std::result::Result as StdResult;
 mod macros;
 
 mod build;
-mod args_map;
 mod output;
 mod parse;
 mod util;

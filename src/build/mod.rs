@@ -7,6 +7,7 @@ mod aliases;
 
 pub mod app;
 pub mod arg;
+pub mod args;
 
 mod arg_group;
 mod usage_parser;

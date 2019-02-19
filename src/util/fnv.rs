@@ -1,7 +1,12 @@
 use std::hash::{Hash, Hasher};
 
+const MAGIC_INIT: u64 = 0x811C9DC5;
+
 #[inline]
-pub(crate) fn hash<T>(t: T) -> u64 where T:  Hash {
+pub(crate) fn hash<T>(t: T) -> u64
+    where
+        T: Hash,
+{
     let mut hasher = FnvHasher::new();
     t.hash(&mut hasher);
     hasher.finish()
@@ -10,9 +15,7 @@ pub(crate) fn hash<T>(t: T) -> u64 where T:  Hash {
 pub(crate) struct FnvHasher(u64);
 
 impl FnvHasher {
-    pub(crate) fn new() -> Self {
-        FnvHasher(0x811C9DC5)
-    }
+    pub(crate) fn new() -> Self { FnvHasher(MAGIC_INIT) }
 }
 
 impl Hasher for FnvHasher {

@@ -1,2 +1,4 @@
+type_punctuation_density = "Compressed"
 format_strings = false
 fn_single_line = true
+where_pred_indent = "Visual"

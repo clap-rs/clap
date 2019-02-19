@@ -1,37 +1,31 @@
-// @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) isntead
-
+// @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) instead
 mod settings;
 mod key;
-mod short;
-mod long;
-pub use self::settings::{ArgFlags, ArgSettings};
 
-// Std
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use osstringext::OsStrExt3;
 use std::borrow::Cow;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{self, Display, Formatter};
+use std::hash::Hash;
 #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 use std::rc::Rc;
 use std::str;
-use std::hash::Hash;
 
-// Third Party
-use util::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust;
 
-// Internal
 use build::UsageParser;
 use INTERNAL_ERROR_MSG;
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+use osstringext::OsStrExt3;
 use util::hash;
-use self::key::Key;
+use util::VecMap;
 
-type Validator = Rc<Fn(String) -> Result<(), String>>;
-type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
+pub use self::key::{Key, Position, Short, Long};
+pub use self::settings::{ArgFlags, ArgSettings};
+
+pub type ArgId = u64;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -59,13 +53,16 @@ type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     #[doc(hidden)]
-    pub id: u64,
+    pub id: ArgId,
     #[doc(hidden)]
     key: Key<'help>,
     #[doc(hidden)]
-    pub settings: ArgFlags,
-    #[doc(hidden)]
-    pub env: Option<(&'help OsStr, Option<OsString>)>,
+    settings: ArgFlags,
+    value: Option<Value>,
+    help: HelpMessage,
+    occurrence: Occurrence,
+    validation: ValidationRules<'help>,
+
 }
 
 impl<'help> Arg<'help> {
@@ -86,35 +83,15 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn new<T>(id: T) -> Self where T: Hash {
+    pub fn new<T>(id: T) -> Self where T: Hash{
         Arg {
             id: hash(id),
-            disp_ord: 999,
-            unified_ord: 999,
-            help: None,
-            long_help: None,
-            blacklist: None,
             settings: ArgFlags::default(),
-            r_unless: None,
-            overrides: None,
-            requires: None,
             key: Key::new(),
-            possible_vals: None,
-            val_names: None,
-            num_vals: None,
-            num_vals_per_occ: None,
-            max_vals: None,
-            min_vals: None,
-            validator: None,
-            validator_os: None,
-            val_delim: None,
-            default_val: None,
-            default_vals_ifs: None,
-            env: None,
-            terminator: None,
-            index: None,
-            r_ifs: None,
-            help_heading: None,
+            value: None,
+            help: HelpMessage::new(),
+            occurrence: Occurrence::new(),
+            validation: ValidationRules::new(),
         }
     }
 
@@ -351,7 +328,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     pub fn help(mut self, h: &'help str) -> Self {
-        self.help = Some(h);
+        self.help.short_message(h);
         self
     }
 
@@ -422,7 +399,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
     pub fn long_help(mut self, h: &'help str) -> Self {
-        self.long_help = Some(h);
+        self.help.long_message(h);
         self
     }
 
@@ -484,11 +461,10 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
     pub fn required_unless<T>(mut self, other: T) -> Self where T: Hash {
         let id = hash(other);
-        if let Some(ref mut vec) = self.r_unless {
-            vec.push(id);
-        } else {
-            self.r_unless = Some(vec![id]);
-        }
+        self.validation.self_required_rule(
+            Rule::new()
+                .rule_modifier(RuleModifier::Unless)
+                .condition(Condition::new(id)));
         self
     }
 
@@ -556,14 +532,13 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_one`]: ./struct.Arg.html#method.required_unless_one
     /// [`Arg::required_unless_all(names)`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_all<T>(mut self, others: &[T]) -> Self where T: Hash {
-        if let Some(ref mut vec) = self.r_unless {
-            for s in others {
-                vec.push(hash(s));
-            }
-        } else {
-            self.r_unless = Some(others.iter().map(hash).collect());
-        }
-        self.setting(ArgSettings::RequiredUnlessAll)
+        self.validation.self_required_rule(
+            Rule::new()
+                .rule_modifier(RuleModifier::Unless)
+                .conditions_modifier(ConditionsModifier::All)
+                .conditions(
+                    others.iter().map(|x| Condition::new(hash(x)))));
+        self
     }
 
     /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
@@ -631,13 +606,11 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_one(names)`]: ./struct.Arg.html#method.required_unless_one
     /// [`Arg::required_unless_all`]: ./struct.Arg.html#method.required_unless_all
     pub fn required_unless_one<T>(mut self, others: &[T]) -> Self where T: Hash {
-        if let Some(ref mut vec) = self.r_unless {
-            for s in others {
-                vec.push(hash(s));
-            }
-        } else {
-            self.r_unless = Some(others.iter().map(hash).collect());
-        }
+        self.validation.self_required_rule(
+            Rule::new()
+                .rule_modifier(RuleModifier::Unless)
+                .conditions(
+                    others.iter().map(|x| Condition::new(hash(x)))));
         self
     }
 
@@ -680,11 +653,9 @@ impl<'help> Arg<'help> {
     /// ```
     pub fn conflicts_with<T>(mut self, other: T) -> Self where T: Hash {
         let id = hash(other);
-        if let Some(ref mut vec) = self.blacklist {
-            vec.push(id);
-        } else {
-            self.blacklist = Some(vec![id]);
-        }
+        self.validation.conflicts_rule(
+            Rule::new()
+                .condition(Condition::new(id)));
         self
     }
 
@@ -730,13 +701,10 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with_all<T>(mut self, others: &[T]) -> Self where T: Hash {
-        if let Some(ref mut vec) = self.blacklist {
-            for s in others {
-                vec.push(hash(s));
-            }
-        } else {
-            self.blacklist = Some(others.iter().map(hash).collect());
-        }
+        self.validation.conflicts_rule(
+            Rule::new()
+                .conditions_modifier(ConditionsModifier::All)
+                .conditions(otheres.iter().map(|x| Condition::new(hash(x)))));
         self
     }
 
@@ -842,12 +810,9 @@ impl<'help> Arg<'help> {
     /// [`Multiple*`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     pub fn overrides_with<T>(mut self, other: T) -> Self where T: Hash {
-        let id = hash(other);
-        if let Some(ref mut vec) = self.overrides {
-            vec.push(id);
-        } else {
-            self.overrides = Some(vec![id]);
-        }
+        self.validation.overrides_rule(
+            Rule::new()
+                .condition(Condition::new(hash(other))));
         self
     }
 
@@ -878,14 +843,11 @@ impl<'help> Arg<'help> {
     /// assert!(!m.is_present("debug"));
     /// assert!(!m.is_present("flag"));
     /// ```
-    pub fn overrides_with_all<T>(mut self, others: &[T]) -> Self where T: Hash{
-        if let Some(ref mut vec) = self.overrides {
-            for s in others {
-                vec.push(hash(s));
-            }
-        } else {
-            self.overrides = Some(others.iter().map(hash).collect());
-        }
+    pub fn overrides_with_all<T>(mut self, others: &[T]) -> Self where T: Hash {
+        self.validation.overrides_rule(
+            Rule::new()
+                .conditions_modifier(ConditionsModifier::All)
+                .conditions(others.iter().map(|x| Condition::new(hash(x)))));
         self
     }
 
@@ -945,14 +907,9 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires<T>(mut self, other: T) -> Self where T: Hash {
-        let id = hash(other);
-        if let Some(ref mut vec) = self.requires {
-            vec.push((None, id));
-        } else {
-            let mut vec = vec![];
-            vec.push((None, id));
-            self.requires = Some(vec);
-        }
+        self.validation.requirements_rule(
+            Rule::new()
+                .condition(Condition::new(hash(other))));
         self
     }
 
@@ -1016,12 +973,10 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires_if<T>(mut self, val: &'help str, other: T) -> Self where T: Hash {
-        let id = hash(other);
-        if let Some(ref mut vec) = self.requires {
-            vec.push((Some(val), id));
-        } else {
-            self.requires = Some(vec![(Some(val), id)]);
-        }
+        // need self val and other val...have to re-think
+        self.validation.requirements_rule(
+            Rule::new()
+                .condition(Condition::new(hash(other))));
         self
     }
 
@@ -1384,7 +1339,7 @@ impl<'help> Arg<'help> {
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn index(mut self, idx: u64) -> Self {
-        self.index = Some(idx);
+        self.key.index(idx);
         self
     }
 
@@ -1434,8 +1389,7 @@ impl<'help> Arg<'help> {
     /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     pub fn value_terminator(mut self, term: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.terminator = Some(term);
+        self.value.terminator(term);
         self
     }
 
@@ -1487,7 +1441,6 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_values(mut self, values: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in values {
                 vec.push(s);
@@ -1552,7 +1505,6 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_value(mut self, value: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             vec.push(value);
         } else {
@@ -1598,7 +1550,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
         self
     }
@@ -1639,7 +1590,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn number_of_values_per_occurrence(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
         self.num_vals_per_occ = Some(qty);
         self
     }
@@ -1681,9 +1631,9 @@ impl<'help> Arg<'help> {
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator<F, O, E>(mut self, f: F) -> Self
-    where
-        F: Fn(String) -> Result<O, E> + 'static,
-        E: ToString,
+        where
+            F: Fn(String) -> Result<O, E> + 'static,
+            E: ToString,
     {
         self.validator = Some(Rc::new(move |s| {
             f(s).map(|_| ()).map_err(|e| e.to_string())
@@ -1722,8 +1672,8 @@ impl<'help> Arg<'help> {
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F, O>(mut self, f: F) -> Self
-    where
-        F: Fn(&OsStr) -> Result<O, String> + 'static,
+        where
+            F: Fn(&OsStr) -> Result<O, String> + 'static,
     {
         self.validator_os = Some(Rc::new(move |s| f(s).map(|_| ())));
         self
@@ -1786,8 +1736,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn max_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::MultipleValues);
         self.max_vals = Some(qty);
         self
     }
@@ -1851,7 +1799,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
-        self.setting(ArgSettings::TakesValue)
+        self
     }
 
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
@@ -1878,9 +1826,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unsetb(ArgSettings::ValueDelimiterNotSet);
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
                 .nth(0)
@@ -1949,11 +1894,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
-        }
         if let Some(ref mut vals) = self.val_names {
             let mut l = vals.len();
             for s in names {
@@ -2017,7 +1957,6 @@ impl<'help> Arg<'help> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_name(mut self, name: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
             vals.insert(l, name);
@@ -2101,7 +2040,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_os(mut self, val: &'help OsStr) -> Self {
-        self.setb(ArgSettings::TakesValue);
         self.default_val = Some(val);
         self
     }
@@ -2221,7 +2159,6 @@ impl<'help> Arg<'help> {
         default: &'help OsStr,
     ) -> Self where T: Hash {
         let id = hash(arg);
-        self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
             vm.insert(l, (id, val, default));
@@ -2333,7 +2270,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
-    pub fn default_value_ifs_os<T>(mut self, ifs: &[(T, Option<&'help OsStr>, &'help OsStr)]) -> Self where T: Hash{
+    pub fn default_value_ifs_os<T>(mut self, ifs: &[(T, Option<&'help OsStr>, &'help OsStr)]) -> Self where T: Hash {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);
         }
@@ -2445,8 +2382,6 @@ impl<'help> Arg<'help> {
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
-        self.setb(ArgSettings::TakesValue);
-
         self.env = Some((name, env::var_os(name)));
         self
     }
@@ -3831,7 +3766,7 @@ impl<'help> Arg<'help> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         self.set_default_delimiter();
-        if self.key.is_positional() {
+        if self.is_positional() {
             if self.max_vals.is_some()
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
@@ -3926,7 +3861,7 @@ impl<'help> Display for Arg<'help> {
             }
             if self.settings.is_set(ArgSettings::MultipleValues)
                 && (self.val_names.is_none()
-                    || (self.val_names.is_some() && self.val_names.as_ref().unwrap().len() == 1))
+                || (self.val_names.is_some() && self.val_names.as_ref().unwrap().len() == 1))
             {
                 write!(f, "...")?;
             }
@@ -4137,15 +4072,15 @@ impl<'help> From<&'help yaml_rust::Yaml> for Arg<'help> {
 
         a
     }
-
 }
 
 // Flags
 #[cfg(test)]
 mod test {
-    use super::Arg;
     use build::ArgSettings;
     use util::VecMap;
+
+    use super::Arg;
 
     #[test]
     fn flag_display() {

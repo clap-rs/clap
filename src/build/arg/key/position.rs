@@ -7,7 +7,11 @@ impl Default for Position {
 }
 
 impl Position {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Position(1)
+    }
+    pub fn at(i: u64) -> Self {
+        assert!(i>0, "Positional Index cannot be less than 1");
+        Position(i)
     }
 }

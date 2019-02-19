@@ -1,3 +1,1 @@
-pub struct Short {
-    short: char
-}
+pub struct Short(char);

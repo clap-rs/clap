@@ -17,13 +17,14 @@ use std::process;
 use yaml_rust::Yaml;
 
 // Internal
-use build::{Arg, ArgGroup, ArgSettings, Terminal, HelpMsg, VersionMsg, Aliases};
-use args_map::ArgsMap;
-use output::fmt::ColorWhen;
-use output::{Help, Usage};
-use parse::errors::Result as ClapResult;
-use parse::{ArgMatcher, ArgMatches, Parser};
-use util::hash;
+use crate::build::{Arg, ArgGroup, ArgSettings, Terminal, HelpMsg, VersionMsg, Aliases};
+use crate::build::args::Args;
+use crate::output::fmt::ColorWhen;
+use crate::output::{Help, Usage};
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::{ArgMatcher, ArgMatches, Parser};
+use crate::util::hash;
+use crate::build::args::Find;
 use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
@@ -91,7 +92,7 @@ pub struct App<'help> {
     pub g_settings: AppFlags,
     // The list of valid arguments
     #[doc(hidden)]
-    pub args: ArgsMap<'help>,
+    pub args: Args<'help>,
     // A list of valid subcommands
     #[doc(hidden)]
     pub subcommands: Vec<App<'help>>,
@@ -123,6 +124,40 @@ impl<'help> App<'help> {
         App {
             id: hash(name),
             name,
+            ..Default::default()
+        }
+    }
+
+    /// Preallocate `args` number of Arguments
+    pub fn with_args<S: AsRef<str>>(n: S, args: usize) -> Self where S: 'help {
+        let name = n.as_ref();
+        App {
+            id: hash(name),
+            name,
+            args: Args::with_capacity(args),
+            ..Default::default()
+        }
+    }
+
+    /// Preallocate `scs` number of SubCommands
+    pub fn with_subcommands<S: AsRef<str>>(n: S, scs: usize) -> Self where S: 'help {
+        let name = n.as_ref();
+        App {
+            id: hash(name),
+            name,
+            subcommands: Vec::with_capacity(scs),
+            ..Default::default()
+        }
+    }
+
+    /// Preallocate `args` number of Arguments and `scs` number of SubCommands (not recursive)
+    pub fn with_args_and_subcommands<S: AsRef<str>>(n: S, args: usize, scs: usize) -> Self where S: 'help {
+        let name = n.as_ref();
+        App {
+            id: hash(name),
+            name,
+            args: Args::with_capacity(args),
+            subcommands: Vec::with_capacity(scs),
             ..Default::default()
         }
     }
@@ -962,7 +997,7 @@ impl<'help> App<'help> {
     {
         let a = self
             .args
-            .remove_by_id(hash(arg))
+            .remove(hash(arg))
             .unwrap_or_else(|| Arg::new(arg));
         self.args.push(f(a));
 
@@ -1365,8 +1400,7 @@ impl<'a, 'help> App<'help> {
 
         let global_arg_vec: Vec<u64> = self
             .args
-            .args
-            .iter()
+            .args()
             .filter(|a| a.is_set(ArgSettings::Global))
             .map(|ga| ga.id)
             .collect();
@@ -1401,8 +1435,7 @@ impl<'a, 'help> App<'help> {
             true
         });
 
-        let mut pos_counter = 1;
-        for a in self.args.args.iter_mut() {
+        for a in self.args.args_mut() {
             // Figure out implied settings
             if a.is_set(ArgSettings::Last) {
                 // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
@@ -1411,10 +1444,6 @@ impl<'a, 'help> App<'help> {
                 self.set(AppSettings::ContainsLast);
             }
             a._build();
-            if a.short.is_none() && a.long.is_none() && a.index.is_none() {
-                a.index = Some(pos_counter);
-                pos_counter += 1;
-            }
         }
 
         debug_assert!(self._app_debug_asserts());
@@ -1425,8 +1454,8 @@ impl<'a, 'help> App<'help> {
     // Perform some expensive assertions on the Parser itself
     fn _app_debug_asserts(&mut self) -> bool {
         debugln!("App::_app_debug_asserts;");
-        for id in self.args.args.iter().map(|x| x.id) {
-            if self.args.args.iter().filter(|x| x.id == id).count() > 1 {
+        for id in self.args.args.args().map(|x| x.id) {
+            if self.args.args.args().filter(|x| x.id == id).count() > 1 {
                 panic!("Arg names must be unique");
             }
         }
@@ -1471,7 +1500,7 @@ impl<'a, 'help> App<'help> {
     pub(crate) fn _create_help_and_version(&mut self) {
         debugln!("App::_create_help_and_version;");
         // @TODO @perf hardcode common hashes?
-        if !(self.args.get_by_long("help").is_some() || self.args.get_by_id(hash("help")).is_some())
+        if !(self.args.find("help").is_some() || self.args.get_by_id(hash("help")).is_some())
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
@@ -1541,31 +1570,27 @@ impl<'a, 'help> App<'help> {
         debugln!("App::_arg_debug_asserts:{}", a.name);
 
         // Long conflicts
-        if let Some(l) = a.long {
+        for l in a.longs() {
             assert!(
-                self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
+                self.args.args().filter(|x| x.uses_long(l)).count() < 2,
                 "Argument long must be unique\n\n\t--{} is already in use",
                 l
             );
         }
 
         // Short conflicts
-        if let Some(s) = a.short {
+        if let Some(s) = a.get_short() {
             assert!(
-                self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
+                self.args.args().filter(|x| x.uses_short(s)).count() < 2,
                 "Argument short must be unique\n\n\t-{} is already in use",
                 s
             );
         }
 
-        if let Some(idx) = a.index {
+        if let Some(idx) = a.get_position() {
             // No index conflicts
             assert!(
-                self.args.positionals().fold(0, |acc, p| if p.index == Some(idx as u64) {
-                    acc + 1
-                } else {
-                    acc
-                }) < 2,
+                self.args.positionals().filter(|x| x.uses_position(idx)).count() < 2,
                 "Argument '{}' has the same index as another positional \
                  argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
                  positional argument to take multiple values",
@@ -1574,14 +1599,8 @@ impl<'a, 'help> App<'help> {
         }
         if a.is_set(ArgSettings::Last) {
             assert!(
-                a.long.is_none(),
-                "Flags or Options may not have last(true) set. {} has both a long and \
-                 last(true) set.",
-                a.id
-            );
-            assert!(
-                a.short.is_none(),
-                "Flags or Options may not have last(true) set. {} has both a short and \
+                a.has_switch(),
+                "Flags or Options may not have last(true) set. {} has either a long or short and \
                  last(true) set.",
                 a.id
             );
@@ -1690,20 +1709,6 @@ impl<'help> App<'help> {
         }
     }
 
-    pub(crate) fn contains_long(&self, l: &str) -> bool {
-        if !self.is_set(AppSettings::Propagated) {
-            panic!("If App::_build hasn't been called, manually search through Arg longs");
-        }
-        self.args.contains_long(l)
-    }
-
-    pub(crate) fn contains_short(&self, s: char) -> bool {
-        if !self.is_set(AppSettings::Propagated) {
-            panic!("If App::_build hasn't been called, manually search through Arg shorts");
-        }
-        self.args.contains_short(s)
-    }
-
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
@@ -1717,28 +1722,6 @@ impl<'help> App<'help> {
     pub fn unset(&mut self, s: AppSettings) { self.settings.unset(s) }
 
     pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
-
-    pub fn has_args(&self) -> bool { !self.args.is_empty() }
-
-    pub fn has_opts(&self) -> bool { self.args.has_opts() }
-
-    pub fn has_flags(&self) -> bool { self.args.has_flags() }
-
-    pub fn has_positionals(&self) -> bool { self.args.has_positionals() }
-
-    pub fn has_visible_opts(&self) -> bool { self.args.opts().any(|o| !o.is_set(ArgSettings::Hidden)) }
-
-    pub fn has_visible_flags(&self) -> bool { self.args.flags().any(|o| !o.is_set(ArgSettings::Hidden)) }
-
-    pub fn has_visible_positionals(&self) -> bool {
-        self.args.positionals().any(|o| !o.is_set(ArgSettings::Hidden))
-    }
-
-    pub fn has_visible_subcommands(&self) -> bool {
-        self.subcommands.iter()
-            .filter(|sc| sc.name != "help")
-            .any(|sc| !sc.is_set(AppSettings::Hidden))
-    }
 
     pub(crate) fn unroll_args_in_group(&self, group: u64) -> Vec<u64> {
         let mut g_vec = vec![group];
@@ -1754,7 +1737,7 @@ impl<'help> App<'help> {
                 .iter()
                 {
                     if !args.contains(n) {
-                        if self.find(*n).is_some() {
+                        if self.args.find(*n).is_some() {
                             args.push(*n)
                         } else {
                             g_vec.push(*n);
