@@ -57,7 +57,7 @@ impl<'help> ArgsVec<'help> {
 
 // Iterator Getters
 impl<'help> ArgsVec<'help> {
-    pub fn args(&self) -> Args<'help>{
+    pub fn args(&self) -> Args<'help> {
         self.inner.iter()
     }
     pub fn flags(&self) -> Flags<'help> {
