@@ -1,4 +1,4 @@
-use build::Aliases;
+use crate::build::Aliases;
 
 pub struct Long<'help> {
     aliases: Aliases<'help>

@@ -5,15 +5,14 @@ mod version_msg;
 mod terminal;
 mod aliases;
 
-pub mod app;
-pub mod arg;
 pub mod args;
+pub mod app;
 
 mod arg_group;
 mod usage_parser;
 
 pub use self::app::{App, AppFlags, AppSettings, Propagation};
-pub use self::arg::{Arg, ArgFlags, ArgSettings};
+pub use self::args::{Arg, ArgFlags, ArgSettings, Args, Flags, Options, Positionals};
 pub use self::arg_group::ArgGroup;
 pub use self::usage_parser::UsageParser;
 pub use self::help_msg::HelpMsg;

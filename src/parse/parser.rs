@@ -13,21 +13,20 @@ use std::mem;
 use std::os::unix::ffi::OsStrExt;
 
 // Internal
-use build::app::Propagation;
-use build::AppSettings as AS;
-use build::{App, Arg, ArgSettings};
-use output::Help;
-use output::Usage;
-use parse::errors::Error as ClapError;
-use parse::errors::ErrorKind;
-use parse::errors::Result as ClapResult;
-use parse::features::suggestions;
-use parse::Validator;
-use parse::positional_asserts::*;
-use parse::{KeyType, HyphenStyle, RawValue, RawArg, RawLong, RawOpt, SeenArg, ArgMatcher, SubCommand};
-use util::{hash, OsStrExt2};
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
+use crate::build::app::Propagation;
+use crate::build::AppSettings as AS;
+use crate::build::{App, Arg, ArgSettings};
+use crate::output::{Usage, Help};
+use crate::parse::errors::Error as ClapError;
+use crate::parse::errors::ErrorKind;
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::features::suggestions;
+use crate::parse::Validator;
+use crate::parse::positional_asserts::*;
+use crate::parse::{KeyType, HyphenStyle, RawValue, RawArg, RawLong, RawOpt, SeenArg, ArgMatcher, SubCommand};
+use crate::util::{hash, OsStrExt2};
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]

@@ -1,6 +1,11 @@
 // @TODO @p2 @docs remove Arg::setting(foo) in examples, we are sticking with Arg::foo(true) instead
 mod settings;
 mod key;
+mod value;
+mod validation_rules;
+mod occurrence;
+mod help_message;
+mod display_order;
 
 use std::borrow::Cow;
 use std::env;
@@ -15,15 +20,16 @@ use std::str;
 #[cfg(feature = "yaml")]
 use yaml_rust;
 
-use build::UsageParser;
-use INTERNAL_ERROR_MSG;
+use crate::build::UsageParser;
+use crate::INTERNAL_ERROR_MSG;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use osstringext::OsStrExt3;
-use util::hash;
-use util::VecMap;
+use crate::osstringext::OsStrExt3;
+use crate::util::hash;
+use crate::util::VecMap;
 
 pub use self::key::{Key, Position, Short, Long};
 pub use self::settings::{ArgFlags, ArgSettings};
+pub use self::occurrence::Occurrence;
 
 pub type ArgId = u64;
 
@@ -3821,6 +3827,15 @@ impl<'help> Arg<'help> {
     pub fn name_no_brackets(&self) -> &str {
         assert!(self.index.is_some());
         self.val_names.as_ref().expect(INTERNAL_ERROR_MSG).get(0).expect(INTERNAL_ERROR_MSG)
+    }
+    pub fn is_flag(&self) -> bool {
+        self.value.is_none() && self.key.has_switch()
+    }
+    pub fn is_option(&self) -> bool {
+        self.value.is_some() && self.key.has_switch()
+    }
+    pub fn is_positional(&self) -> bool {
+        self.value.is_some() && !self.key.has_switch()
     }
 }
 

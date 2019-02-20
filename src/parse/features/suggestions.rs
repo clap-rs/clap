@@ -3,8 +3,8 @@
 use strsim;
 
 // Internal
-use build::{App, Propagation};
-use output::fmt::Format;
+use crate::build::{App, Propagation};
+use crate::output::fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.

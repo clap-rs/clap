@@ -3,15 +3,15 @@
 use std::ascii::AsciiExt;
 
 // Internal
-use build::app::AppSettings as AS;
-use build::{Arg, ArgSettings};
-use output::fmt::{Colorizer, ColorizerOption};
-use output::Usage;
-use parse::errors::Result as ClapResult;
-use parse::errors::{Error, ErrorKind};
-use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
+use crate::AppSettings as AS;
+use crate::{Arg, ArgSettings};
+use crate::output::fmt::{Colorizer, ColorizerOption};
+use crate::output::Usage;
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::errors::{Error, ErrorKind};
+use crate::parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
 
 pub struct Validator<'help, 'c, 'z>
 where
