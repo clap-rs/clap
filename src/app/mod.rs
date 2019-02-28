@@ -560,8 +560,9 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
-    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to written
-    /// in the lowercase and without spacing.
+    /// **NOTE:** The template system is, on purpose, very simple. Therefore the tags have to be
+    /// written in lowercase and without spacing.
+    ///
     /// [`App::about`]: ./struct.App.html#method.about
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
