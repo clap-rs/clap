@@ -29,7 +29,9 @@ pub fn create_error_usage<'a, 'b>(
         .iter()
         .filter(|n| {
             if let Some(o) = find_by_name!(p, **n, opts, iter) {
-                !o.b.is_set(ArgSettings::Required) && !o.b.is_set(ArgSettings::Hidden)
+                !o.b.is_set(ArgSettings::Required) &&
+                    !o.b.is_set(ArgSettings::Hidden) &&
+                    matcher.0.occurrences_of(n) != 0
             } else if let Some(p) = find_by_name!(p, **n, positionals, values) {
                 !p.b.is_set(ArgSettings::Required) && p.b.is_set(ArgSettings::Hidden)
             } else {
