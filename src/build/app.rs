@@ -4,7 +4,7 @@ pub use self::settings::{AppFlags, AppSettings};
 
 // Std
 use std::env;
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::hash::Hash;
 use std::io::{self, BufRead, BufWriter, Write};
@@ -25,6 +25,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
 use crate::util::hash;
 use crate::build::args::Find;
+use crate::ErrorKind;
 use INTERNAL_ERROR_MSG;
 
 #[doc(hidden)]
@@ -1392,10 +1393,10 @@ impl<'a, 'help> App<'help> {
         }
 
         let mut matcher = {
-            let mut parser = Parser::new(self);
+            let mut parser = Parser::new();
 
             // do the real parsing
-            parser.get_matches_with(it)?
+            parser.get_matches_with(it, self)?
         };
 
         let global_arg_vec: Vec<u64> = self
@@ -1449,6 +1450,27 @@ impl<'a, 'help> App<'help> {
         debug_assert!(self._app_debug_asserts());
         self.args._build();
         self.set(AppSettings::Propagated);
+
+        let positionals: Vec<(u64, &Arg)> = self.app.args.positionals()
+            .map(|x| (x.index.unwrap(), x))
+            .collect();
+
+        if positionals.is_empty() { return; }
+
+        assert_highest_index_matches_len(&*positionals);
+
+        if positionals.iter().filter(|(_, p)| p.is_set(ArgSettings::MultipleValues)).count() > 1 {
+            assert_low_index_multiples(&*positionals);
+            self.set(AS::LowIndexMultiplePositional);
+        }
+
+        if !self.is_set(AS::AllowMissingPositional) {
+            assert_missing_positionals(&*positionals);
+        }
+
+        assert_only_one_last(&*positionals);
+
+        assert_required_last_and_subcommands(&*positionals, self.has_subcommands(), self.is_set(AS::SubcommandsNegateReqs));
     }
 
     // Perform some expensive assertions on the Parser itself
@@ -1494,6 +1516,48 @@ impl<'a, 'help> App<'help> {
             if prop == Propagation::Full {
                 sc._build(Propagation::Full);
             }
+        }
+
+    }
+
+    pub(crate) fn help_err(&self, mut use_long: bool) -> ClapError {
+        debugln!(
+            "App::help_err: use_long={:?}",
+            use_long && self.use_long_help()
+        );
+        use_long = use_long && self.use_long_help();
+        let mut buf = vec![];
+        match Help::new(&mut buf, self, use_long, false).write_help() {
+            Err(e) => e,
+            _ => ClapError {
+                message: String::from_utf8(buf).unwrap_or_default(),
+                kind: ErrorKind::HelpDisplayed,
+                info: None,
+            },
+        }
+    }
+
+    // Prints the version to the user and exits if quit=true
+    pub(crate) fn print_version<W: Write>(&self, w: &mut W, use_long: bool) -> ClapResult<()> {
+        self.._write_version(w, use_long)?;
+        w.flush().map_err(ClapError::from)
+    }
+
+    pub(crate) fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        Help::new(w, self, false, true).write_help()
+    }
+
+    pub(crate) fn version_err(&self, use_long: bool) -> ClapError {
+        debugln!("Parser::version_err: ");
+        let out = io::stdout();
+        let mut buf_w = BufWriter::new(out.lock());
+        match self.print_version(&mut buf_w, use_long) {
+            Err(e) => e,
+            _ => ClapError {
+                message: String::new(),
+                kind: ErrorKind::VersionDisplayed,
+                info: None,
+            },
         }
     }
 
@@ -1685,6 +1749,61 @@ impl<'a, 'help> App<'help> {
             .join("|");
         format!("<{}>", &*g_string)
     }
+
+    fn handle_help_subcommand<I, T>(&mut self, it: &mut I) -> ClapResult<ParseCtx>
+        where
+            I: Iterator<Item = T>,
+            T: Into<OsString>,
+    {
+        debugln!("Parser::parse_help_subcommand;");
+        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+        let mut help_help = false;
+        let mut bin_name = self.bin_name.as_ref().unwrap_or(&self.name.into()).clone();
+        let mut sc = {
+            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
+            // help message there are bigger fish to fry
+            let mut sc = self.clone();
+            for (i, cmd) in cmds.iter().enumerate() {
+                if &*cmd.to_string_lossy() == "help" {
+                    // cmd help help
+                    help_help = true;
+                    break; // Maybe?
+                }
+                if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == cmd) {
+                    c._build(Propagation::NextLevel);
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == &*cmd) {
+                    c._build(Propagation::NextLevel);
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else {
+                    return Err(ClapError::unrecognized_subcommand(
+                        cmd.to_string_lossy().into_owned(),
+                        self.bin_name.as_ref().unwrap_or(&app.name.into()),
+                        self.color(),
+                    ));
+                }
+                bin_name = format!("{} {}", bin_name, &*sc.name);
+            }
+            sc
+        };
+        if help_help {
+            let mut pb = Arg::new("subcommand")
+                .index(1)
+                .setting(ArgSettings::MultipleValues)
+                .help("The subcommand whose help message to display");
+            pb._build();
+        }
+        if self.bin_name != self.bin_name {
+            self.bin_name = Some(format!("{} {}", bin_name, self.name));
+        }
+        Err(self.help_err(false))
+    }
 }
 
 // Internal Query Methods
@@ -1786,6 +1905,24 @@ impl<'help> App<'help> {
 
         args
     }
+
+    pub(crate) fn use_long_help(&self) -> bool {
+        debugln!("App::use_long_help;");
+        // In this case, both must be checked. This allows the retention of
+        // original formatting, but also ensures that the actual -h or --help
+        // specified by the user is sent through. If HiddenShortHelp is not included,
+        // then items specified with hidden_short_help will also be hidden.
+        let should_long = |v: &Arg| {
+            v.long_help.is_some()
+                || v.is_set(ArgSettings::HiddenLongHelp)
+                || v.is_set(ArgSettings::HiddenShortHelp)
+        };
+
+        self.long_about.is_some()
+            || self.args.args.iter().any(|f| should_long(&f))
+            || self.subcommands.iter().any(|s| s.long_about.is_some())
+    }
+
 }
 
 #[cfg(feature = "yaml")]

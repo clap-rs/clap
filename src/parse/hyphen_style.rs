@@ -4,6 +4,7 @@ use parse::RawArg;
 
 pub enum HyphenStyle {
     Single,
+    SignleOnly,
     Double,
     DoubleOnly,
     None
@@ -18,7 +19,10 @@ impl<'a> From<&'a RawArg> for HyphenStyle {
             } else {
                 return HyphenStyle::Double;
             }
-        } else if oss.starts_with(b"-") && oss.len() != 1 {
+        } else if oss.starts_with(b"-") {
+            if oss.len() == 1 {
+                return HyphenStyle::SingleOnly;
+            }
             return HyphenStyle::Single;
         }
         HyphenStyle::None

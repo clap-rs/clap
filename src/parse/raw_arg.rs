@@ -1,3 +1,4 @@
+use std::hint::unreachable_unchecked;
 use std::ffi::OsStr;
 use std::mem;
 
@@ -9,11 +10,33 @@ use util::OsStrExt3;
 use util::OsStrExt2;
 use util::OsSplit;
 
-use parse::HyphenStyle;
+use crate::parse::{ArgPrediction, HyphenStyle, ParseCtx};
+
+pub enum RawArgKind {
+    Key,
+    Value,
+    Unknown,
+}
 
 pub struct RawArg<'a>(pub(crate) &'a OsStr);
 
-impl<'a> RawArg<'a> { }
+impl<'a> RawArg<'a> {
+    pub fn make_prediction(&self, ctx: &ParseCtx) -> ArgPrediction {
+        let hs = HyphenStyle::from(self);
+        match ctx {
+            ParseCtx::Initial | ParseCtx::ArgAcceptsVal => {
+                match hs {
+                    HyphenStyle::Single | HyphenStyle::Double => ArgPrediction::Key,
+                    HyphenStyle::SingleOnly | HyphenStyle::None => ArgPrediction::PossibleValue,
+                    HyphenStyle::DoubleOnly => ArgPrediction::TrailingValuesSignal,
+                }
+            },
+            ParseCtx::TrailingValues | ParseCtx::ArgRequiresValue => { ArgPrediction::Value },
+
+            _ => unreachable!(),
+        }
+    }
+}
 
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 impl<'a> OsStrExt3 for RawArg<'a> {

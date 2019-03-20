@@ -25,6 +25,39 @@ mod term_size {
     pub fn dimensions() -> Option<(usize, usize)> { None }
 }
 
+//    fn build_sc_usage() -> String {
+//        let mut mid_string = String::new();
+//        if !self.is_set(AS::SubcommandsNegateReqs) {
+//            let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
+//
+//            for s in &reqs {
+//                write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
+//            }
+//        }
+//        mid_string.push_str(" ");
+//        if let Some(ref mut sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
+//            let mut sc_matcher = ArgMatcher::new();
+//            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
+//            // a space
+//            sc.usage = Some(format!(
+//                "{}{}{}",
+//                self.app.bin_name.as_ref().unwrap_or(&String::new()),
+//                if self.app.bin_name.is_some() {
+//                    &*mid_string
+//                } else {
+//                    ""
+//                },
+//                &*sc.name
+//            ));
+//            sc.bin_name = Some(format!(
+//                "{}{}{}",
+//                self.app.bin_name.as_ref().unwrap_or(&String::new()),
+//                if self.app.bin_name.is_some() { " " } else { "" },
+//                &*sc.name
+//            ));
+//    }
+
+
 fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
 
 const TAB: &str = "    ";

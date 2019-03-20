@@ -12,9 +12,8 @@ mod raw_long;
 mod raw_opt;
 mod raw_value;
 mod hyphen_style;
-mod positional_asserts;
 
-pub use self::arg_matcher::ArgMatcher;
+pub use self::arg_matcher::{ArgMatcher, ValueState};
 pub use self::matches::ArgMatches;
 pub use self::matches::{MatchedArg, OsValues, SubCommand, Values};
 pub use self::parser::{ParseState, ParseResult, Parser};
