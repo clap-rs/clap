@@ -600,7 +600,8 @@ macro_rules! app_from_crate {
 ///         (author: "Someone E. <someone_else@other.com>")
 ///         (@arg verbose: -v --verbose "Print test information verbosely")
 ///     )
-/// );
+/// )
+/// .get_matches();
 /// # }
 /// ```
 /// # Shorthand Syntax for Args
