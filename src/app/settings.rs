@@ -1,120 +1,122 @@
 // Std
+use std::collections::HashSet;
 #[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
-use std::ops::BitOr;
 
-bitflags! {
-    struct Flags: u64 {
-        const SC_NEGATE_REQS       = 1;
-        const SC_REQUIRED          = 1 << 1;
-        const A_REQUIRED_ELSE_HELP = 1 << 2;
-        const GLOBAL_VERSION       = 1 << 3;
-        const VERSIONLESS_SC       = 1 << 4;
-        const UNIFIED_HELP         = 1 << 5;
-        const WAIT_ON_ERROR        = 1 << 6;
-        const SC_REQUIRED_ELSE_HELP= 1 << 7;
-        const NEEDS_LONG_HELP      = 1 << 8;
-        const NEEDS_LONG_VERSION   = 1 << 9;
-        const NEEDS_SC_HELP        = 1 << 10;
-        const DISABLE_VERSION      = 1 << 11;
-        const HIDDEN               = 1 << 12;
-        const TRAILING_VARARG      = 1 << 13;
-        const NO_BIN_NAME          = 1 << 14;
-        const ALLOW_UNK_SC         = 1 << 15;
-        const UTF8_STRICT          = 1 << 16;
-        const UTF8_NONE            = 1 << 17;
-        const LEADING_HYPHEN       = 1 << 18;
-        const NO_POS_VALUES        = 1 << 19;
-        const NEXT_LINE_HELP       = 1 << 20;
-        const DERIVE_DISP_ORDER    = 1 << 21;
-        const COLORED_HELP         = 1 << 22;
-        const COLOR_ALWAYS         = 1 << 23;
-        const COLOR_AUTO           = 1 << 24;
-        const COLOR_NEVER          = 1 << 25;
-        const DONT_DELIM_TRAIL     = 1 << 26;
-        const ALLOW_NEG_NUMS       = 1 << 27;
-        const LOW_INDEX_MUL_POS    = 1 << 28;
-        const DISABLE_HELP_SC      = 1 << 29;
-        const DONT_COLLAPSE_ARGS   = 1 << 30;
-        const ARGS_NEGATE_SCS      = 1 << 31;
-        const PROPAGATE_VALS_DOWN  = 1 << 32;
-        const ALLOW_MISSING_POS    = 1 << 33;
-        const TRAILING_VALUES      = 1 << 34;
-        const VALID_NEG_NUM_FOUND  = 1 << 35;
-        const PROPAGATED           = 1 << 36;
-        const VALID_ARG_FOUND      = 1 << 37;
-        const INFER_SUBCOMMANDS    = 1 << 38;
-        const CONTAINS_LAST        = 1 << 39;
-        const ARGS_OVERRIDE_SELF   = 1 << 40;
-    }
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+enum Flags {
+    ScNegateReqs,
+    ScRequired,
+    ARequiredElseHelp,
+    GlobalVersion,
+    VersionlessSc,
+    UnifiedHelp,
+    WaitOnError,
+    ScRequiredElseHelp,
+    NeedsLongHelp,
+    NeedsLongVersion,
+    NeedsScHelp,
+    DisableVersion,
+    Hidden,
+    TrailingVararg,
+    NoBinName,
+    AllowUnkSc,
+    Utf8Strict,
+    Utf8None,
+    LeadingHyphen,
+    NoPosValues,
+    NextLineHelp,
+    DeriveDispOrder,
+    ColoredHelp,
+    ColorAlways,
+    ColorAuto,
+    ColorNever,
+    DontDelimTrail,
+    AllowNegNums,
+    LowIndexMulPos,
+    DisableHelpSc,
+    DontCollapseArgs,
+    ArgsNegateScs,
+    PropagateValsDown,
+    AllowMissingPos,
+    TrailingValues,
+    ValidNegNumFound,
+    Propagated,
+    ValidArgFound,
+    InferSubcommands,
+    ContainsLast,
+    ArgsOverrideSelf,
 }
 
 #[doc(hidden)]
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct AppFlags(Flags);
-
-impl BitOr for AppFlags {
-    type Output = Self;
-    fn bitor(self, rhs: Self) -> Self { AppFlags(self.0 | rhs.0) }
-}
+#[derive(Debug, Clone, PartialEq)]
+pub struct AppFlags(HashSet<Flags>);
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(
-            Flags::NEEDS_LONG_VERSION | Flags::NEEDS_LONG_HELP | Flags::NEEDS_SC_HELP
-                | Flags::UTF8_NONE | Flags::COLOR_AUTO,
-        )
+        let mut set = HashSet::new();
+        set.insert(Flags::NeedsLongVersion);
+        set.insert(Flags::NeedsLongHelp);
+        set.insert(Flags::NeedsScHelp);
+        set.insert(Flags::Utf8None);
+        set.insert(Flags::ColorAuto);
+        AppFlags(set)
     }
 }
 
 #[allow(deprecated)]
 impl AppFlags {
     pub fn new() -> Self { AppFlags::default() }
-    pub fn zeroed() -> Self { AppFlags(Flags::empty()) }
+    pub fn zeroed() -> Self { AppFlags(HashSet::new()) }
+    pub fn update(&mut self, other: &Self) {
+        for flag in other.0.iter() {
+            self.0.insert(*flag);
+        }
+    }
 
     impl_settings! { AppSettings,
-        ArgRequiredElseHelp => Flags::A_REQUIRED_ELSE_HELP,
-        ArgsNegateSubcommands => Flags::ARGS_NEGATE_SCS,
-        AllArgsOverrideSelf => Flags::ARGS_OVERRIDE_SELF,
-        AllowExternalSubcommands => Flags::ALLOW_UNK_SC,
-        AllowInvalidUtf8 => Flags::UTF8_NONE,
-        AllowLeadingHyphen => Flags::LEADING_HYPHEN,
-        AllowNegativeNumbers => Flags::ALLOW_NEG_NUMS,
-        AllowMissingPositional => Flags::ALLOW_MISSING_POS,
-        ColoredHelp => Flags::COLORED_HELP,
-        ColorAlways => Flags::COLOR_ALWAYS,
-        ColorAuto => Flags::COLOR_AUTO,
-        ColorNever => Flags::COLOR_NEVER,
-        DontDelimitTrailingValues => Flags::DONT_DELIM_TRAIL,
-        DontCollapseArgsInUsage => Flags::DONT_COLLAPSE_ARGS,
-        DeriveDisplayOrder => Flags::DERIVE_DISP_ORDER,
-        DisableHelpSubcommand => Flags::DISABLE_HELP_SC,
-        DisableVersion => Flags::DISABLE_VERSION,
-        GlobalVersion => Flags::GLOBAL_VERSION,
-        HidePossibleValuesInHelp => Flags::NO_POS_VALUES,
-        Hidden => Flags::HIDDEN,
-        LowIndexMultiplePositional => Flags::LOW_INDEX_MUL_POS,
-        NeedsLongHelp => Flags::NEEDS_LONG_HELP,
-        NeedsLongVersion => Flags::NEEDS_LONG_VERSION,
-        NeedsSubcommandHelp => Flags::NEEDS_SC_HELP,
-        NoBinaryName => Flags::NO_BIN_NAME,
-        PropagateGlobalValuesDown=> Flags::PROPAGATE_VALS_DOWN,
-        StrictUtf8 => Flags::UTF8_STRICT,
-        SubcommandsNegateReqs => Flags::SC_NEGATE_REQS,
-        SubcommandRequired => Flags::SC_REQUIRED,
-        SubcommandRequiredElseHelp => Flags::SC_REQUIRED_ELSE_HELP,
-        TrailingVarArg => Flags::TRAILING_VARARG,
-        UnifiedHelpMessage => Flags::UNIFIED_HELP,
-        NextLineHelp => Flags::NEXT_LINE_HELP,
-        VersionlessSubcommands => Flags::VERSIONLESS_SC,
-        WaitOnError => Flags::WAIT_ON_ERROR,
-        TrailingValues => Flags::TRAILING_VALUES,
-        ValidNegNumFound => Flags::VALID_NEG_NUM_FOUND,
-        Propagated => Flags::PROPAGATED,
-        ValidArgFound => Flags::VALID_ARG_FOUND,
-        InferSubcommands => Flags::INFER_SUBCOMMANDS,
-        ContainsLast => Flags::CONTAINS_LAST
+        ArgRequiredElseHelp => Flags::ARequiredElseHelp,
+        ArgsNegateSubcommands => Flags::ArgsNegateScs,
+        AllArgsOverrideSelf => Flags::ArgsOverrideSelf,
+        AllowExternalSubcommands => Flags::AllowUnkSc,
+        AllowInvalidUtf8 => Flags::Utf8None,
+        AllowLeadingHyphen => Flags::LeadingHyphen,
+        AllowNegativeNumbers => Flags::AllowNegNums,
+        AllowMissingPositional => Flags::AllowMissingPos,
+        ColoredHelp => Flags::ColoredHelp,
+        ColorAlways => Flags::ColorAlways,
+        ColorAuto => Flags::ColorAuto,
+        ColorNever => Flags::ColorNever,
+        DontDelimitTrailingValues => Flags::DontDelimTrail,
+        DontCollapseArgsInUsage => Flags::DontCollapseArgs,
+        DeriveDisplayOrder => Flags::DeriveDispOrder,
+        DisableHelpSubcommand => Flags::DisableHelpSc,
+        DisableVersion => Flags::DisableVersion,
+        GlobalVersion => Flags::GlobalVersion,
+        HidePossibleValuesInHelp => Flags::NoPosValues,
+        Hidden => Flags::Hidden,
+        LowIndexMultiplePositional => Flags::LowIndexMulPos,
+        NeedsLongHelp => Flags::NeedsLongHelp,
+        NeedsLongVersion => Flags::NeedsLongVersion,
+        NeedsSubcommandHelp => Flags::NeedsScHelp,
+        NoBinaryName => Flags::NoBinName,
+        PropagateGlobalValuesDown=> Flags::PropagateValsDown,
+        StrictUtf8 => Flags::Utf8Strict,
+        SubcommandsNegateReqs => Flags::ScNegateReqs,
+        SubcommandRequired => Flags::ScRequired,
+        SubcommandRequiredElseHelp => Flags::ScRequiredElseHelp,
+        TrailingVarArg => Flags::TrailingVararg,
+        UnifiedHelpMessage => Flags::UnifiedHelp,
+        NextLineHelp => Flags::NextLineHelp,
+        VersionlessSubcommands => Flags::VersionlessSc,
+        WaitOnError => Flags::WaitOnError,
+        TrailingValues => Flags::TrailingValues,
+        ValidNegNumFound => Flags::ValidNegNumFound,
+        Propagated => Flags::Propagated,
+        ValidArgFound => Flags::ValidArgFound,
+        InferSubcommands => Flags::InferSubcommands,
+        ContainsLast => Flags::ContainsLast
     }
 }
 

@@ -519,10 +519,9 @@
 #![crate_type = "lib"]
 #![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
-        unused_import_braces, unused_allocation)]
+        unused_import_braces, unused_allocation, trivial_numeric_casts)]
 // Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (bitflags, clippy)
-//      trivial_numeric_casts       (bitflags)
+//      unused_qualifications       (clippy)
 #![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
@@ -536,8 +535,6 @@
 extern crate ansi_term;
 #[cfg(feature = "color")]
 extern crate atty;
-#[macro_use]
-extern crate bitflags;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "wrap_help")]
