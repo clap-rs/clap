@@ -1,11 +1,15 @@
 use std::hash::{Hash, Hasher};
 
+// precompute some common values
+pub const HELP_HASH: u64 = hash("help");
+pub const VERSION_HASH: u64 = hash("version");
+
 const MAGIC_INIT: u64 = 0x811C9DC5;
 
 #[inline]
 pub(crate) fn hash<T>(t: T) -> u64
-    where
-        T: Hash,
+where
+    T: Hash,
 {
     let mut hasher = FnvHasher::new();
     t.hash(&mut hasher);

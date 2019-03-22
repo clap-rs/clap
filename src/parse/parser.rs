@@ -16,7 +16,7 @@ use std::os::unix::ffi::OsStrExt;
 use crate::build::app::Propagation;
 use crate::build::AppSettings as AS;
 use crate::build::{App, Arg, ArgSettings};
-use crate::output::{Usage, Help};
+use crate::output::{usage, Help};
 use crate::parse::errors::Error as ClapError;
 use crate::parse::errors::ErrorKind;
 use crate::parse::errors::Result as ClapResult;
@@ -86,14 +86,13 @@ impl<'help> Parser<'help> {
 
             // First make sure this isn't coming after a `--` only
             if self.trailing_vals {
-                ctx = ParseCtx::PosPrelude;
+                ctx = self.handle_low_index_multiples(&mut ctx, is_second_to_last),
             } else {
                 ctx = self.try_parse_arg(&mut matcher, ctx, &raw)?;
             }
 
             'inner: loop {
                 match ctx {
-                    ParseCtx::PosPrelude => ctx = self.handle_low_index_multiples(&mut ctx, is_second_to_last),
                     ParseCtx::LowIndexMultsOrMissingPos => {
                         if it.peek().is_some() && (self.cur_pos < self.num_pos) {
                             ctx = ParseCtx::PosAcceptsVal;
@@ -103,7 +102,7 @@ impl<'help> Parser<'help> {
                     },
                     ParseCtx::PosAcceptsVals => {
                         if let Some(p) = app.args.get_by_index(self.cur_pos) {
-                            ctx = self.parse_positional(p, &mut matcher, raw.into())?;
+                            ctx = self.parse_positional(app, p, &mut matcher, raw.into())?;
                             // Only increment the positional counter if it doesn't allow multiples
                             if ctx == ParseCtx::NextArg {
                                 self.cur_pos += 1;
@@ -179,14 +178,6 @@ impl<'help> Parser<'help> {
                         }
                         ctx = ParseCtx::UnknownArgError;
                     },
-                    ParseCtx::UknownArgError => {
-                        return Err(ClapError::unknown_argument(
-                            &*raw.0.to_string_lossy(),
-                            "",
-                            &*Usage::new(self).create_usage_with_title(&[]),
-                            app.color(),
-                        ));
-                    },
                     ParseCtx::ArgAcceptsVals(id) => {
                         let opt = app.args.get_by_id(id).unwrap();
                         ctx = self.add_val_to_arg(opt, raw.0.into(), &mut matcher)?;
@@ -200,16 +191,24 @@ impl<'help> Parser<'help> {
                         }
                         break;
                     },
+                    ParseCtx::UknownArgError => {
+                        return Err(ClapError::unknown_argument(
+                            &*raw.0.to_string_lossy(),
+                            "",
+                            &*usage::with_title(app, &[]),
+                            app.color(),
+                        ));
+                    },
                     ParseCtx::InvalidUtf8 => {
                         return Err(ClapError::invalid_utf8(
-                            &*Usage::new(self).create_usage_with_title(&[]),
+                            &*Usage::new(app).create_usage_with_title(&[]),
                             app.color(),
                         ));
                     }
                 }
             }
 
-            self.maybe_misspelled_subcmd(raw.0)?;
+            self.maybe_misspelled_subcmd(app, raw.0)?;
         }
 
         self.check_subcommand(it, app, &mut matcher, pos_sc)?;
@@ -286,21 +285,21 @@ impl<'help> Parser<'help> {
         }
     }
 
-    fn find_unknown_arg_error(&self, raw: &OsStr) -> ClapError {
-        if !((self.is_set(AS::AllowLeadingHyphen) || self.is_set(AS::AllowNegativeNumbers)) && raw.starts_with(b"-")) && !self.is_set(AS::InferSubcommands) {
+    fn find_unknown_arg_error(&self, app: &App, raw: &OsStr) -> ClapError {
+        if !((app.is_set(AS::AllowLeadingHyphen) || app.is_set(AS::AllowNegativeNumbers)) && raw.starts_with(b"-")) && !self.is_set(AS::InferSubcommands) {
             return ClapError::unknown_argument(
                 &*raw.to_string_lossy(),
                 "",
-                &*Usage::new(self).create_usage_with_title(&[]),
+                &*usage::with_title(app, &[]),
                 app.color(),
             );
-        } else if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
+        } else if !app.has_args() || self.is_set(AS::InferSubcommands) && app.has_subcommands() {
             if let Some(cdate) = suggestions::did_you_mean(&*raw.to_string_lossy(), sc_names!(app)) {
                 return ClapError::invalid_subcommand(
                     raw.to_string_lossy().into_owned(),
                     cdate,
                     app.bin_name.as_ref().unwrap_or(&app.name.into()),
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    &*usage::with_title(app, &[]),
                     app.color(),
                 );
             } else {
@@ -314,16 +313,17 @@ impl<'help> Parser<'help> {
             return ClapError::unknown_argument(
                 &*raw.to_string_lossy(),
                 "",
-                &*Usage::new(self).create_usage_with_title(&[]),
+                &*usage::with_title(app, &[]),
                 app.color(),
             );
         }
     }
 
-    fn maybe_misspelled_subcmd(&self, arg_os: &OsStr) -> ClapResult<()> {
-        if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
-            || self.is_set(AS::AllowExternalSubcommands)
-            || self.is_set(AS::InferSubcommands))
+    fn maybe_misspelled_subcmd(&self, app: &App, arg_os: &OsStr) -> ClapResult<()> {
+        // @TODO @p2 Use Flags directly for BitOr instead of this...
+        if !(app.is_set(AS::ArgsNegateSubcommands) && app.is_set(AS::ValidArgFound)
+            || app.is_set(AS::AllowExternalSubcommands)
+            || app.is_set(AS::InferSubcommands))
             {
                 if let Some(cdate) =
                 suggestions::did_you_mean(arg_os.to_string_lossy(), sc_names!(app))
@@ -331,9 +331,9 @@ impl<'help> Parser<'help> {
                         return Err(ClapError::invalid_subcommand(
                             arg_os.to_string_lossy().into_owned(),
                             cdate,
-                            self.app.bin_name.as_ref().unwrap_or(&self.app.name.into()),
-                            &*Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
+                            app.bin_name.as_ref().unwrap_or(&app.name.into()),
+                            &*usage::with_title(app, &[]),
+                            app.color(),
                         ));
                     }
             }
@@ -341,13 +341,13 @@ impl<'help> Parser<'help> {
         Ok(())
     }
 
-    fn parse_positional(&mut self, p: &Arg, matcher: &mut ArgMatcher, raw: RawValue) -> ClapResult<ParseCtx> {
+    fn parse_positional(&mut self, app: &mut App, p: &Arg, matcher: &mut ArgMatcher, raw: RawValue) -> ClapResult<ParseCtx> {
         let no_trailing_vals = !self.is_set(AS::TrailingValues);
         if p.is_set(ArgSettings::Last) && no_trailing_vals {
             return Err(ClapError::unknown_argument(
                 &*raw.raw.to_string_lossy(),
                 "",
-                &*Usage::new(self).create_usage_with_title(&[]),
+                &*usage::with_title(app, &[]),
                 self.app.color(),
             ));
         }
@@ -486,7 +486,7 @@ impl<'help> Parser<'help> {
             self.seen.push(SeenArg::new(arg.id, KeyType::Long));
 
             if arg.is_set(ArgSettings::TakesValue) {
-                return self.parse_opt(raw_long.into(), arg, matcher);
+                return self.parse_opt(app, raw_long.into(), arg, matcher);
             }
 
             // Check for help/version *after* opt so we avoid needlessly checking every time
@@ -537,7 +537,7 @@ impl<'help> Parser<'help> {
                     key: KeyType::Short,
                     value: RawValue::from_maybe_empty_osstr(p[1]),
                 };
-                return self.parse_opt(ro, arg, matcher);
+                return self.parse_opt(app, ro, arg, matcher);
             } else {
                 return Ok(ParseResult::UnknownShort);
             }
@@ -547,6 +547,7 @@ impl<'help> Parser<'help> {
 
     fn parse_opt(
         &self,
+        app: &mut App,
         raw: RawOpt,
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
@@ -560,8 +561,8 @@ impl<'help> Parser<'help> {
         } else if opt.is_set(ArgSettings::RequireEquals) {
             return Err(ClapError::empty_value(
                 opt,
-                &*Usage::new(self).create_usage_with_title(&[]),
-                self.app.color(),
+                &*usage::with_title(app, &[]),
+                app.color(),
             ));
         }
 
@@ -790,8 +791,8 @@ impl Parser {
         Err(ClapError::unknown_argument(
             &*format!("--{}", arg),
             &*suffix.0,
-            &*Usage::new(self).create_usage_with_title(&*used),
-            self.app.color(),
+            &*usage::with_title(app, &*used),
+            app.color(),
         ))
     }
 

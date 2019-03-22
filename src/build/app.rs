@@ -17,14 +17,15 @@ use std::process;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{Arg, ArgGroup, ArgSettings, Terminal, HelpMsg, VersionMsg, Aliases};
+use crate::build::app::settings::AppSettings::Propagated;
 use crate::build::args::Args;
+use crate::build::args::Find;
+use crate::build::{Aliases, Arg, ArgGroup, ArgSettings, HelpMsg, Terminal, VersionMsg};
 use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
-use crate::util::hash;
-use crate::build::args::Find;
+use crate::util::{hash, HELP_HASH, VERSION_HASH};
 use crate::ErrorKind;
 use INTERNAL_ERROR_MSG;
 
@@ -32,7 +33,7 @@ use INTERNAL_ERROR_MSG;
 #[allow(dead_code)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Propagation<'a> {
-    To(&'a str),
+    To(id),
     Full,
     NextLevel,
     None,
@@ -120,7 +121,10 @@ impl<'help> App<'help> {
     /// let prog = App::new("my_prog")
     /// # ;
     /// ```
-    pub fn new<S: AsRef<str>>(n: S) -> Self where S: 'help {
+    pub fn new<S: AsRef<str>>(n: S) -> Self
+    where
+        S: 'help,
+    {
         let name = n.as_ref();
         App {
             id: hash(name),
@@ -130,7 +134,10 @@ impl<'help> App<'help> {
     }
 
     /// Preallocate `args` number of Arguments
-    pub fn with_args<S: AsRef<str>>(n: S, args: usize) -> Self where S: 'help {
+    pub fn with_args<S: AsRef<str>>(n: S, args: usize) -> Self
+    where
+        S: 'help,
+    {
         let name = n.as_ref();
         App {
             id: hash(name),
@@ -141,7 +148,10 @@ impl<'help> App<'help> {
     }
 
     /// Preallocate `scs` number of SubCommands
-    pub fn with_subcommands<S: AsRef<str>>(n: S, scs: usize) -> Self where S: 'help {
+    pub fn with_subcommands<S: AsRef<str>>(n: S, scs: usize) -> Self
+    where
+        S: 'help,
+    {
         let name = n.as_ref();
         App {
             id: hash(name),
@@ -152,7 +162,10 @@ impl<'help> App<'help> {
     }
 
     /// Preallocate `args` number of Arguments and `scs` number of SubCommands (not recursive)
-    pub fn with_args_and_subcommands<S: AsRef<str>>(n: S, args: usize, scs: usize) -> Self where S: 'help {
+    pub fn with_args_and_subcommands<S: AsRef<str>>(n: S, args: usize, scs: usize) -> Self
+    where
+        S: 'help,
+    {
         let name = n.as_ref();
         App {
             id: hash(name),
@@ -289,7 +302,10 @@ impl<'help> App<'help> {
     ///
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
     /// [`crate_name!`]: ./macro.crate_name.html
-    pub fn name<S: AsRef<str>>(mut self, name: S) -> Self where S: 'help {
+    pub fn name<S: AsRef<str>>(mut self, name: S) -> Self
+    where
+        S: 'help,
+    {
         self.name = name.as_ref();
         self
     }
@@ -697,9 +713,9 @@ impl<'help> App<'help> {
     /// ```
     /// [arguments]: ./struct.Arg.html
     pub fn args<I, T>(mut self, args: I) -> Self
-        where
-            I: IntoIterator<Item=T>,
-            T: Into<Arg<'help>>,
+    where
+        I: IntoIterator<Item=T>,
+        T: Into<Arg<'help>>,
     {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
@@ -907,8 +923,8 @@ impl<'help> App<'help> {
     /// [``]: ./struct..html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
-        where
-            I: IntoIterator<Item=App<'help>>,
+    where
+        I: IntoIterator<Item=App<'help>>,
     {
         for subcmd in subcmds {
             self.subcommands.push(subcmd);
@@ -977,7 +993,7 @@ impl<'help> App<'help> {
     ///
     /// let mut app = App::new("foo")
     ///     .arg(Arg::new("bar")
-    ///         .short('help'))
+    ///         .short('h'))
     ///     .mut_arg("bar", |a| a.short('B'));
     ///
     /// let res = app.try_get_matches_from_mut(vec!["foo", "-b"]);
@@ -992,14 +1008,11 @@ impl<'help> App<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     pub fn mut_arg<T, F>(mut self, arg: T, f: F) -> Self
-        where
-            F: FnOnce(Arg<'help>) -> Arg<'help>,
-            T: Hash,
+    where
+        F: FnOnce(Arg<'help>) -> Arg<'help>,
+        T: Hash,
     {
-        let a = self
-            .args
-            .remove(hash(arg))
-            .unwrap_or_else(|| Arg::new(arg));
+        let a = self.args.remove(hash(arg)).unwrap_or_else(|| Arg::new(arg));
         self.args.push(f(a));
 
         self
@@ -1265,9 +1278,9 @@ impl<'help> App<'help> {
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches
-        where
-            I: IntoIterator<Item=T>,
-            T: AsRef<OsStr> // + Clone,
+    where
+        I: IntoIterator<Item=T>,
+        T: AsRef<OsStr>, // + Clone
     {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
@@ -1322,9 +1335,9 @@ impl<'help> App<'help> {
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
-        where
-            I: IntoIterator<Item=T>,
-            T: AsRef<OsStr> //+ Clone,
+    where
+        I: IntoIterator<Item=T>,
+        T: AsRef<OsStr>, //+ Clone
     {
         self.try_get_matches_from_mut(itr)
     }
@@ -1351,9 +1364,9 @@ impl<'help> App<'help> {
     /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
     pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
-        where
-            I: IntoIterator<Item=T>,
-            T: AsRef<OsStr> // + Clone?,
+    where
+        I: IntoIterator<Item=T>,
+        T: AsRef<OsStr>, // + Clone?
     {
         let mut it = itr.into_iter();
         // Get the name of the program (argument 1 of env::args())
@@ -1371,18 +1384,388 @@ impl<'help> App<'help> {
             }
         }
 
-        self._do_parse(&mut it.peekable())
+        self.build(Propagation::None);
+        self.parse(&mut it.peekable())
     }
 }
 
-// Internally used only
+// Preparing for Parsing
 #[doc(hidden)]
-impl<'a, 'help> App<'help> {
+impl<'help> App<'help> {
+    // @TODO re-evaluate use in clap_generate (https://github.com/clap-rs/clap_generate)
+    // used as App::_build
+    pub fn build(&mut self, prop: Propagation) {
+        debugln!("PreParsedApp::build;");
+        // Make sure all the globally set flags apply to us as well
+        self.settings = self.settings | self.g_settings;
+
+        // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
+        // the help and version flags, otherwise help message orders get screwed up
+        if self.is_set(AppSettings::DeriveDisplayOrder) {
+            self.derive_display_order();
+        }
+        self.create_help_and_version();
+        self.propagate(prop);
+
+        // Perform expensive debug assertions
+        debug_assert!({
+            self.args.args().for_each(|a| self.arg_debug_asserts(a));
+            true
+        });
+
+        for a in self.args.args_mut() {
+            // Figure out implied settings
+            if a.is_set(ArgSettings::Last) {
+                // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
+                // in the usage string don't get confused or left out.
+                self.a.set(AppSettings::DontCollapseArgsInUsage);
+                self.a.set(AppSettings::ContainsLast);
+            }
+            a.build();
+        }
+
+        self.app_debug_asserts();
+
+        self.args.build();
+
+        self.set(AppSettings::Propagated);
+
+        self.positional_asserts();
+    }
+
+    fn positional_asserts(&mut self) {
+        let positionals: Vec<(u64, &Arg)> = self
+            .args
+            .positionals()
+            .map(|x| (x.index.unwrap(), x))
+            .collect();
+
+        if positionals.is_empty() {
+            return;
+        }
+
+        positional_asserts::assert_highest_index_matches_len(&*positionals);
+
+        if positionals
+            .iter()
+            .filter(|(_, p)| p.is_set(ArgSettings::MultipleValues))
+            .count()
+            > 1
+        {
+            assert_low_index_multiples(&*positionals);
+            self.set(AS::LowIndexMultiplePositional);
+        }
+
+        if !self.is_set(AS::AllowMissingPositional) {
+            assert_missing_positionals(&*positionals);
+        }
+
+        positional_asserts::assert_only_one_last(&*positionals);
+
+        positional_asserts::assert_required_last_and_subcommands(
+            &*positionals,
+            self.has_subcommands(),
+            self.is_set(AS::SubcommandsNegateReqs),
+        );
+    }
+
+    // Perform some expensive assertions on the Parser itself
+    fn app_debug_asserts(&mut self) {
+        debugln!("App::_app_debug_asserts;");
+        debug_assert!(
+            self.args
+                .args()
+                .map(|x| x.id)
+                .map(|x| self.a.args().map(|x| x.id).filter(|y| x == y).count())
+                .any(|x| x > 1),
+            "Arg names must be unique"
+        );
+    }
+
+    pub fn propagate(&mut self, prop: Propagation) {
+        debugln!("App::propagate:{}", self.name);
+        match prop {
+            Propagation::None => {
+                return;
+            }
+            Propagation::Full | Propagation::NextLevel => {
+                for sc in &mut self.subcommands {
+                    // We have to create a new scope in order to tell rustc the borrow of `sc` is
+                    // done and to recursively call this method
+                    {
+                        let vsc = self.a.is_set(AppSettings::VersionlessSubcommands);
+                        let gv = self.a.is_set(AppSettings::GlobalVersion);
+
+                        if vsc {
+                            sc.set(AppSettings::DisableVersion);
+                        }
+                        if gv && sc.help_msg.version.is_none() && self.help_msg.version.is_some() {
+                            sc.set(AppSettings::GlobalVersion);
+                            sc.help_msg.version = Some(self.help_msg.version.unwrap());
+                        }
+                        sc.settings = sc.settings | self.g_settings;
+                        sc.g_settings = sc.g_settings | self.g_settings;
+                        sc.term.width = self.term.width;
+                        sc.term.max_width = self.term.max_width;
+                    }
+                    {
+                        for a in self.args.global_args().cloned() {
+                            sc.args.push(a);
+                        }
+                        if prop == Propagation::Full {
+                            sc._build(Propagation::Full);
+                        }
+                    }
+                }
+            }
+            Propagation::To(id) => unimplemented!(),
+        }
+    }
+
+    pub(crate) fn create_help_and_version(&mut self) {
+        debugln!("App::_create_help_and_version;");
+        // @TODO @perf hardcode common hashes?
+        if !(self.args.find("help").is_some() || self.args.get_by_id(HELP_HASH).is_some()) {
+            debugln!("App::_create_help_and_version: Building --help");
+            let mut help = Arg::new("help")
+                .long("help")
+                .help("Prints help information");
+            if !self.args.args().any(|x| x.short == Some('h')) {
+                help = help.short('h');
+            }
+
+            self.args.push(help);
+        }
+        if !((self.args.get_by_long("version").is_some()
+            || self.args.get_by_id(VERSION_HASH).is_some())
+            || self.is_set(AppSettings::DisableVersion))
+        {
+            debugln!("App::_create_help_and_version: Building --version");
+            let mut version = Arg::new("version")
+                .long("version")
+                .help("Prints version information");
+            if !self.args.args().any(|x| x.short == Some('V')) {
+                version = version.short('V');
+            }
+
+            self.args.push(version);
+        }
+        if self.has_subcommands()
+            && !self.is_set(AppSettings::DisableHelpSubcommand)
+            && !self.subcommands.iter().any(|s| s.id == HELP_HASH)
+        // hardcode common hashes?
+        {
+            debugln!("App::_create_help_and_version: Building help");
+            self.subcommands.push(
+                App::new("help")
+                    .about("Prints this message or the help of the given subcommand(s)"),
+            );
+        }
+    }
+
+    pub(crate) fn derive_display_order(&mut self) {
+        debugln!("App::derive_display_order:{}", self.name);
+        self.args
+            .args_mut()
+            .filter(|a| a.has_switch())
+            .filter(|a| a.disp_ord == 999)
+            .enumerate()
+            .for_each(|(i, mut x)| x.disp_ord = i);
+
+        self.subcommands
+            .iter_mut()
+            .enumerate()
+            .filter(|&(_, sc)| sc.disp_ord == 999)
+            .for_each(|(i, mut sc)| sc.disp_ord = i);
+
+        for sc in self.subcommands.iter_mut() {
+            sc._derive_display_order();
+        }
+    }
+
+    // Perform expensive assertions on the Arg instance
+    fn arg_debug_asserts(&self, a: &Arg) -> bool {
+        debugln!("App::arg_debug_asserts:{}", a.name);
+
+        // Long conflicts
+        for l in a.longs() {
+            assert!(
+                self.args.args().filter(|x| x.uses_long(l)).count() < 2,
+                "Argument long must be unique\n\n\t--{} is already in use",
+                l
+            );
+        }
+
+        // Short conflicts
+        if let Some(s) = a.get_short() {
+            assert!(
+                self.args.args().filter(|x| x.uses_short(s)).count() < 2,
+                "Argument short must be unique\n\n\t-{} is already in use",
+                s
+            );
+        }
+
+        if let Some(idx) = a.get_position() {
+            // No index conflicts
+            assert!(
+                self.args
+                    .positionals()
+                    .filter(|x| x.uses_position(idx))
+                    .count()
+                    < 2,
+                "Argument '{}' has the same index as another positional \
+                 argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
+                 positional argument to take multiple values",
+                a.id
+            );
+        }
+        if a.is_set(ArgSettings::Last) {
+            assert!(
+                a.has_switch(),
+                "Flags or Options may not have last(true) set. {} has either a long or short and \
+                 last(true) set.",
+                a.id
+            );
+        }
+        assert!(
+            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+            "Global arguments cannot be required.\n\n\t'{}' is marked as \
+             global and required",
+            a.id
+        );
+
+        true
+    }
+
+    // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
-    fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
-        where
-            I: Iterator<Item=T>,
-            T: AsRef<OsStr> // + Clone,
+    pub fn build_bin_names(&mut self) {
+        debugln!("App::_build_bin_names;");
+        for sc in &mut self.subcommands {
+            debug!("Parser::build_bin_names:iter: bin_name set...");
+            if sc.bin_name.is_none() {
+                sdebugln!("No");
+                let bin_name = format!(
+                    "{}{}{}",
+                    self.bin_name.as_ref().unwrap_or(&self.name.into()),
+                    if self.bin_name.is_some() { " " } else { "" },
+                    &*sc.name
+                );
+                debugln!(
+                    "Parser::build_bin_names:iter: Setting bin_name of {} to {}",
+                    self.name,
+                    bin_name
+                );
+                sc.bin_name = Some(bin_name);
+            } else {
+                sdebugln!("yes ({:?})", sc.bin_name);
+            }
+            debugln!(
+                "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
+                sc.name
+            );
+            sc._build_bin_names();
+        }
+    }
+
+    pub(crate) fn write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
+        debugln!("App::_write_version;");
+        let ver = if use_long {
+            self.help_msg
+                .long_version
+                .unwrap_or_else(|| self.help_msg.version.unwrap_or(""))
+        } else {
+            self.help_msg
+                .version
+                .unwrap_or_else(|| self.help_msg.long_version.unwrap_or(""))
+        };
+        if let Some(bn) = self.bin_name.as_ref() {
+            if bn.contains(' ') {
+                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
+                write!(w, "{} {}", bn.replace(" ", "-"), ver)
+            } else {
+                write!(w, "{} {}", &self.name[..], ver)
+            }
+        } else {
+            write!(w, "{} {}", &self.name[..], ver)
+        }
+    }
+
+    pub(crate) fn format_group(&self, g: u64) -> String {
+        let g_string = self
+            .unroll_args_in_group(g)
+            .iter()
+            .filter_map(|x| self.find(*x))
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join("|");
+        format!("<{}>", &*g_string)
+    }
+
+    fn handle_help_subcommand<I, T>(&mut self, it: &mut I) -> ClapResult<ParseCtx>
+    where
+        I: Iterator<Item=T>,
+        T: Into<OsString>,
+    {
+        debugln!("Parser::parse_help_subcommand;");
+        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+        let mut help_help = false;
+        let mut bin_name = self.bin_name.as_ref().unwrap_or(&self.name.into()).clone();
+        let mut sc = {
+            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
+            // help message there are bigger fish to fry
+            let mut sc = self.clone();
+            for (i, cmd) in cmds.iter().enumerate() {
+                if &*cmd.to_string_lossy() == "help" {
+                    // cmd help help
+                    help_help = true;
+                    break; // Maybe?
+                }
+                if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == cmd) {
+                    c._build(Propagation::NextLevel);
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == &*cmd)
+                {
+                    c._build(Propagation::NextLevel);
+                    sc = c;
+                    if i == cmds.len() - 1 {
+                        break;
+                    }
+                } else {
+                    return Err(ClapError::unrecognized_subcommand(
+                        cmd.to_string_lossy().into_owned(),
+                        self.bin_name.as_ref().unwrap_or(&app.name.into()),
+                        self.color(),
+                    ));
+                }
+                bin_name = format!("{} {}", bin_name, &*sc.name);
+            }
+            sc
+        };
+        if help_help {
+            let mut pb = Arg::new("subcommand")
+                .index(1)
+                .setting(ArgSettings::MultipleValues)
+                .help("The subcommand whose help message to display");
+            pb._build();
+        }
+        if self.bin_name != self.bin_name {
+            self.bin_name = Some(format!("{} {}", bin_name, self.name));
+        }
+        Err(self.help_err(false))
+    }
+}
+
+// Internal use only
+#[doc(hidden)]
+impl<'help> App<'help> {
+    fn parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
+    where
+        I: Iterator<Item=T>,
+        T: AsRef<OsStr>, // + Clone
     {
         debugln!("App::_do_parse;");
 
@@ -1408,116 +1791,6 @@ impl<'a, 'help> App<'help> {
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into())
-    }
-
-    // used in clap_generate (https://github.com/clap-rs/clap_generate)
-    #[doc(hidden)]
-    pub fn _build(&mut self, prop: Propagation) {
-        debugln!("App::_build;");
-        // Make sure all the globally set flags apply to us as well
-        self.settings = self.settings | self.g_settings;
-
-        // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
-        // the help and version flags, otherwise help message orders get screwed up
-        if self.is_set(AppSettings::DeriveDisplayOrder) {
-            self._derive_display_order();
-            self._create_help_and_version();
-            self._propagate(prop);
-        } else {
-            self._create_help_and_version();
-            self._propagate(prop);
-            self._derive_display_order();
-        }
-        // Perform expensive debug assertions
-        debug_assert!({
-            for a in self.args.args.iter() {
-                self._arg_debug_asserts(a);
-            }
-            true
-        });
-
-        for a in self.args.args_mut() {
-            // Figure out implied settings
-            if a.is_set(ArgSettings::Last) {
-                // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
-                // in the usage string don't get confused or left out.
-                self.set(AppSettings::DontCollapseArgsInUsage);
-                self.set(AppSettings::ContainsLast);
-            }
-            a._build();
-        }
-
-        debug_assert!(self._app_debug_asserts());
-        self.args._build();
-        self.set(AppSettings::Propagated);
-
-        let positionals: Vec<(u64, &Arg)> = self.app.args.positionals()
-            .map(|x| (x.index.unwrap(), x))
-            .collect();
-
-        if positionals.is_empty() { return; }
-
-        assert_highest_index_matches_len(&*positionals);
-
-        if positionals.iter().filter(|(_, p)| p.is_set(ArgSettings::MultipleValues)).count() > 1 {
-            assert_low_index_multiples(&*positionals);
-            self.set(AS::LowIndexMultiplePositional);
-        }
-
-        if !self.is_set(AS::AllowMissingPositional) {
-            assert_missing_positionals(&*positionals);
-        }
-
-        assert_only_one_last(&*positionals);
-
-        assert_required_last_and_subcommands(&*positionals, self.has_subcommands(), self.is_set(AS::SubcommandsNegateReqs));
-    }
-
-    // Perform some expensive assertions on the Parser itself
-    fn _app_debug_asserts(&mut self) -> bool {
-        debugln!("App::_app_debug_asserts;");
-        for id in self.args.args.args().map(|x| x.id) {
-            if self.args.args.args().filter(|x| x.id == id).count() > 1 {
-                panic!("Arg names must be unique");
-            }
-        }
-        true
-    }
-
-    // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
-    pub fn _propagate(&mut self, prop: Propagation) {
-        debugln!("App::_propagate:{}", self.name);
-        for sc in &mut self.subcommands {
-            // We have to create a new scope in order to tell rustc the borrow of `sc` is
-            // done and to recursively call this method
-            {
-                let vsc = self.is_set(AppSettings::VersionlessSubcommands);
-                let gv = self.is_set(AppSettings::GlobalVersion);
-
-                if vsc {
-                    sc.set(AppSettings::DisableVersion);
-                }
-                if gv && sc.help_msg.version.is_none() && self.help_msg.version.is_some()
-                {
-                    sc.set(AppSettings::GlobalVersion);
-                    sc.help_msg.version = Some(self.help_msg.version.unwrap());
-                }
-                sc.settings = sc.settings | self.g_settings;
-                sc.g_settings = sc.g_settings | self.g_settings;
-                sc.term.width = self.term.width;
-                sc.term.max_width = self.term.max_width;
-            }
-            {
-                for a in self.args.global_args().cloned() {
-                    sc.args.push(a);
-                }
-            }
-            // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
-            if prop == Propagation::Full {
-                sc._build(Propagation::Full);
-            }
-        }
-
     }
 
     pub(crate) fn help_err(&self, mut use_long: bool) -> ClapError {
@@ -1561,254 +1834,6 @@ impl<'a, 'help> App<'help> {
         }
     }
 
-    pub(crate) fn _create_help_and_version(&mut self) {
-        debugln!("App::_create_help_and_version;");
-        // @TODO @perf hardcode common hashes?
-        if !(self.args.find("help").is_some() || self.args.get_by_id(hash("help")).is_some())
-        {
-            debugln!("App::_create_help_and_version: Building --help");
-            let mut help = Arg::new("help")
-                .long("help")
-                .help("Prints help information");
-            if !self.args.args.iter().any(|x| x.short == Some('h')) {
-                help = help.short('h');
-            }
-
-            self.args.push(help);
-        }
-        if !((self.args.get_by_long("version").is_some() ||
-            self.args.get_by_id(hash("version")).is_some()) ||
-            self.is_set(AppSettings::DisableVersion))
-        {
-            debugln!("App::_create_help_and_version: Building --version");
-            let mut version = Arg::new("version")
-                .long("version")
-                .help("Prints version information");
-            if !self.args.args.iter().any(|x| x.short == Some('V')) {
-                version = version.short('V');
-            }
-
-            self.args.push(version);
-        }
-        if self.has_subcommands()
-            && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !self.subcommands.iter().any(|s| s.id == hash("help"))
-        // hardcode common hashes?
-        {
-            debugln!("App::_create_help_and_version: Building help");
-            self.subcommands.push(
-                App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"),
-            );
-        }
-    }
-
-    pub(crate) fn _derive_display_order(&mut self) {
-        debugln!("App::_derive_display_order:{}", self.name);
-        if self.is_set(AppSettings::DeriveDisplayOrder) {
-            for (i, ref mut a) in self
-                .args
-                .iter_args_mut()
-                .filter(|a| a.has_switch())
-                .filter(|a| a.disp_ord == 999)
-                .enumerate()
-                {
-                    a.disp_ord = i;
-                }
-            for (i, sc) in self
-                .subcommands
-                .iter_mut()
-                .enumerate()
-                .filter(|&(_, ref sc)| sc.disp_ord == 999)
-                {
-                    sc.disp_ord = i;
-                }
-        }
-        for sc in self.subcommands.iter_mut() {
-            sc._derive_display_order();
-        }
-    }
-
-    // Perform expensive assertions on the Arg instance
-    fn _arg_debug_asserts(&self, a: &Arg) -> bool {
-        debugln!("App::_arg_debug_asserts:{}", a.name);
-
-        // Long conflicts
-        for l in a.longs() {
-            assert!(
-                self.args.args().filter(|x| x.uses_long(l)).count() < 2,
-                "Argument long must be unique\n\n\t--{} is already in use",
-                l
-            );
-        }
-
-        // Short conflicts
-        if let Some(s) = a.get_short() {
-            assert!(
-                self.args.args().filter(|x| x.uses_short(s)).count() < 2,
-                "Argument short must be unique\n\n\t-{} is already in use",
-                s
-            );
-        }
-
-        if let Some(idx) = a.get_position() {
-            // No index conflicts
-            assert!(
-                self.args.positionals().filter(|x| x.uses_position(idx)).count() < 2,
-                "Argument '{}' has the same index as another positional \
-                 argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
-                 positional argument to take multiple values",
-                a.id
-            );
-        }
-        if a.is_set(ArgSettings::Last) {
-            assert!(
-                a.has_switch(),
-                "Flags or Options may not have last(true) set. {} has either a long or short and \
-                 last(true) set.",
-                a.id
-            );
-        }
-        assert!(
-            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
-            "Global arguments cannot be required.\n\n\t'{}' is marked as \
-             global and required",
-            a.id
-        );
-
-        true
-    }
-
-    // used in clap_generate (https://github.com/clap-rs/clap_generate)
-    #[doc(hidden)]
-    pub fn _build_bin_names(&mut self) {
-        debugln!("App::_build_bin_names;");
-        for sc in &mut self.subcommands {
-            debug!("Parser::build_bin_names:iter: bin_name set...");
-            if sc.bin_name.is_none() {
-                sdebugln!("No");
-                let bin_name = format!(
-                    "{}{}{}",
-                    self.bin_name
-                        .as_ref()
-                        .unwrap_or(&self.name.clone()),
-                    if self.bin_name.is_some() {
-                        " "
-                    } else {
-                        ""
-                    },
-                    &*sc.name
-                );
-                debugln!(
-                    "Parser::build_bin_names:iter: Setting bin_name of {} to {}",
-                    self.name,
-                    bin_name
-                );
-                sc.bin_name = Some(bin_name);
-            } else {
-                sdebugln!("yes ({:?})", sc.bin_name);
-            }
-            debugln!(
-                "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
-                sc.name
-            );
-            sc._build_bin_names();
-        }
-    }
-
-    pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
-        debugln!("App::_write_version;");
-        let ver = if use_long {
-            self.help_msg
-                .long_version
-                .unwrap_or_else(|| self.help_msg.version.unwrap_or(""))
-        } else {
-            self.help_msg
-                .version
-                .unwrap_or_else(|| self.help_msg.long_version.unwrap_or(""))
-        };
-        if let Some(bn) = self.bin_name.as_ref() {
-            if bn.contains(' ') {
-                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
-                write!(w, "{} {}", bn.replace(" ", "-"), ver)
-            } else {
-                write!(w, "{} {}", &self.name[..], ver)
-            }
-        } else {
-            write!(w, "{} {}", &self.name[..], ver)
-        }
-    }
-
-    pub(crate) fn format_group(&self, g: u64) -> String {
-        let g_string = self
-            .unroll_args_in_group(g)
-            .iter()
-            .filter_map(|x| self.find(*x))
-            .map(|x| x.to_string())
-            .collect::<Vec<_>>()
-            .join("|");
-        format!("<{}>", &*g_string)
-    }
-
-    fn handle_help_subcommand<I, T>(&mut self, it: &mut I) -> ClapResult<ParseCtx>
-        where
-            I: Iterator<Item = T>,
-            T: Into<OsString>,
-    {
-        debugln!("Parser::parse_help_subcommand;");
-        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
-        let mut help_help = false;
-        let mut bin_name = self.bin_name.as_ref().unwrap_or(&self.name.into()).clone();
-        let mut sc = {
-            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
-            // help message there are bigger fish to fry
-            let mut sc = self.clone();
-            for (i, cmd) in cmds.iter().enumerate() {
-                if &*cmd.to_string_lossy() == "help" {
-                    // cmd help help
-                    help_help = true;
-                    break; // Maybe?
-                }
-                if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == cmd) {
-                    c._build(Propagation::NextLevel);
-                    sc = c;
-                    if i == cmds.len() - 1 {
-                        break;
-                    }
-                } else if let Some(mut c) = sc.subcommands.iter().cloned().find(|x| x.name == &*cmd) {
-                    c._build(Propagation::NextLevel);
-                    sc = c;
-                    if i == cmds.len() - 1 {
-                        break;
-                    }
-                } else {
-                    return Err(ClapError::unrecognized_subcommand(
-                        cmd.to_string_lossy().into_owned(),
-                        self.bin_name.as_ref().unwrap_or(&app.name.into()),
-                        self.color(),
-                    ));
-                }
-                bin_name = format!("{} {}", bin_name, &*sc.name);
-            }
-            sc
-        };
-        if help_help {
-            let mut pb = Arg::new("subcommand")
-                .index(1)
-                .setting(ArgSettings::MultipleValues)
-                .help("The subcommand whose help message to display");
-            pb._build();
-        }
-        if self.bin_name != self.bin_name {
-            self.bin_name = Some(format!("{} {}", bin_name, self.name));
-        }
-        Err(self.help_err(false))
-    }
-}
-
-// Internal Query Methods
-#[doc(hidden)]
-impl<'help> App<'help> {
     pub(crate) fn find(&self, id: u64) -> Option<&Arg<'help>> { self.args.get_by_id(id) }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
@@ -1854,15 +1879,15 @@ impl<'help> App<'help> {
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
-                {
-                    if !args.contains(n) {
-                        if self.args.find(*n).is_some() {
-                            args.push(*n)
-                        } else {
-                            g_vec.push(*n);
-                        }
+            {
+                if !args.contains(n) {
+                    if self.args.find(*n).is_some() {
+                        args.push(*n)
+                    } else {
+                        g_vec.push(*n);
                     }
                 }
+            }
         }
 
         args
@@ -1922,7 +1947,6 @@ impl<'help> App<'help> {
             || self.args.args.iter().any(|f| should_long(&f))
             || self.subcommands.iter().any(|s| s.long_about.is_some())
     }
-
 }
 
 #[cfg(feature = "yaml")]
