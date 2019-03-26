@@ -44,7 +44,7 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 Here's whats new in 2.32.0:
 
-* `clap` requires `rustc 1.21.0` or greater.
+* `clap` requires `rustc 1.30.0` or greater.
 * **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
 * **ArgGroup and macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
 * **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
@@ -488,9 +488,9 @@ This is inherently an unresolvable crate graph in Cargo right now. Cargo require
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.21.0, meaning `clap` is guaranteed to compile with 1.19.0 and beyond.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.32.0, meaning `clap` is guaranteed to compile with 1.30.0 and beyond.
 
-At the 1.22.0 stable release, `clap` will be guaranteed to compile with 1.20.0 and beyond, etc.
+At the 1.33.0 stable release, `clap` will be guaranteed to compile with 1.31.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
