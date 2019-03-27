@@ -1,69 +1,73 @@
 // Std
+use std::collections::HashSet;
 #[allow(unused_imports)]
 use std::ascii::AsciiExt;
 use std::str::FromStr;
 
-bitflags! {
-    struct Flags: u32 {
-        const REQUIRED         = 1;
-        const MULTIPLE_OCC     = 1 << 1;
-        const EMPTY_VALS       = 1 << 2 | Self::TAKES_VAL.bits;
-        const GLOBAL           = 1 << 3;
-        const HIDDEN           = 1 << 4;
-        const TAKES_VAL        = 1 << 5;
-        const USE_DELIM        = 1 << 6;
-        const NEXT_LINE_HELP   = 1 << 7;
-        const R_UNLESS_ALL     = 1 << 8;
-        const REQ_DELIM        = 1 << 9 | Self::TAKES_VAL.bits | Self::USE_DELIM.bits;
-        const DELIM_NOT_SET    = 1 << 10;
-        const HIDE_POS_VALS    = 1 << 11 | Self::TAKES_VAL.bits;
-        const ALLOW_TAC_VALS   = 1 << 12 | Self::TAKES_VAL.bits;
-        const REQUIRE_EQUALS   = 1 << 13 | Self::TAKES_VAL.bits;
-        const LAST             = 1 << 14 | Self::TAKES_VAL.bits;
-        const HIDE_DEFAULT_VAL = 1 << 15 | Self::TAKES_VAL.bits;
-        const CASE_INSENSITIVE = 1 << 16;
-        const HIDE_ENV_VALS    = 1 << 17;
-        const HIDDEN_SHORT_H   = 1 << 18;
-        const HIDDEN_LONG_H    = 1 << 19;
-        const MULTIPLE_VALS    = 1 << 20 | Self::TAKES_VAL.bits;
-    }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum Flags {
+    Required,
+    MultipleOcc,
+    EmptyVals,
+    Global,
+    Hidden,
+    TakesVal,
+    UseDelim,
+    NextLineHelp,
+    RUnlessAll,
+    ReqDelim,
+    DelimNotSet,
+    HidePosVals,
+    AllowTacVals,
+    RequireEquals,
+    Last,
+    HideDefaultVal,
+    CaseInsensitive,
+    HideEnvVals,
+    HiddenShortH,
+    HiddenLongH,
+    MultipleVals,
 }
 
 #[doc(hidden)]
-#[derive(Debug, Clone, Copy)]
-pub struct ArgFlags(Flags);
+#[derive(Debug, Clone)]
+pub struct ArgFlags(HashSet<Flags>);
 
 impl ArgFlags {
     pub fn new() -> Self { ArgFlags::default() }
 
     // @TODO @p6 @internal: Reorder alphabetically
     impl_settings!{ArgSettings,
-        Required => Flags::REQUIRED,
-        MultipleOccurrences => Flags::MULTIPLE_OCC,
-        MultipleValues => Flags::MULTIPLE_VALS,
-        AllowEmptyValues => Flags::EMPTY_VALS,
-        Global => Flags::GLOBAL,
-        Hidden => Flags::HIDDEN,
-        TakesValue => Flags::TAKES_VAL,
-        UseValueDelimiter => Flags::USE_DELIM,
-        NextLineHelp => Flags::NEXT_LINE_HELP,
-        RequiredUnlessAll => Flags::R_UNLESS_ALL,
-        RequireDelimiter => Flags::REQ_DELIM,
-        ValueDelimiterNotSet => Flags::DELIM_NOT_SET,
-        HidePossibleValues => Flags::HIDE_POS_VALS,
-        AllowHyphenValues => Flags::ALLOW_TAC_VALS,
-        RequireEquals => Flags::REQUIRE_EQUALS,
-        Last => Flags::LAST,
-        IgnoreCase => Flags::CASE_INSENSITIVE,
-        HideEnvValues => Flags::HIDE_ENV_VALS,
-        HideDefaultValue => Flags::HIDE_DEFAULT_VAL,
-        HiddenShortHelp => Flags::HIDDEN_SHORT_H,
-        HiddenLongHelp => Flags::HIDDEN_LONG_H
+        Required => Flags::Required,
+        MultipleOccurrences => Flags::MultipleOcc,
+        MultipleValues => Flags::MultipleVals | Flags::TakesVal,
+        AllowEmptyValues => Flags::EmptyVals | Flags::TakesVal,
+        Global => Flags::Global,
+        Hidden => Flags::Hidden,
+        TakesValue => Flags::TakesVal,
+        UseValueDelimiter => Flags::UseDelim,
+        NextLineHelp => Flags::NextLineHelp,
+        RequiredUnlessAll => Flags::RUnlessAll,
+        RequireDelimiter => Flags::ReqDelim | Flags::TakesVal | Flags::UseDelim,
+        ValueDelimiterNotSet => Flags::DelimNotSet,
+        HidePossibleValues => Flags::HidePosVals | Flags::TakesVal,
+        AllowHyphenValues => Flags::AllowTacVals | Flags::TakesVal,
+        RequireEquals => Flags::RequireEquals | Flags::TakesVal,
+        Last => Flags::Last | Flags::TakesVal,
+        IgnoreCase => Flags::CaseInsensitive,
+        HideEnvValues => Flags::HideEnvVals,
+        HideDefaultValue => Flags::HideDefaultVal | Flags::TakesVal,
+        HiddenShortHelp => Flags::HiddenShortH,
+        HiddenLongHelp => Flags::HiddenLongH
     }
 }
 
 impl Default for ArgFlags {
-    fn default() -> Self { ArgFlags(Flags::DELIM_NOT_SET) }
+    fn default() -> Self {
+        let mut set = HashSet::new();
+        set.insert(Flags::DelimNotSet);
+        ArgFlags(set)
+    }
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter

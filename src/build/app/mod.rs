@@ -1404,7 +1404,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn _build(&mut self, prop: Propagation) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
-        self.settings = self.settings | self.g_settings;
+        self.settings.update(&self.g_settings);
 
         // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
         // the help and version flags, otherwise help message orders get screwed up
@@ -1507,8 +1507,8 @@ impl<'a, 'b> App<'a, 'b> {
                     sc.set(AppSettings::GlobalVersion);
                     sc.version = Some(self.version.unwrap());
                 }
-                sc.settings = sc.settings | self.g_settings;
-                sc.g_settings = sc.g_settings | self.g_settings;
+                sc.settings.update(&self.g_settings);
+                sc.g_settings.update(&self.g_settings);
                 sc.term_w = self.term_w;
                 sc.max_w = self.max_w;
             }

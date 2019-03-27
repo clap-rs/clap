@@ -798,8 +798,8 @@ where
                 .help("The subcommand whose help message to display");
             pb._build();
             //parser.positionals.insert(1, pb.name);
-            parser.app.settings = parser.app.settings | self.app.g_settings;
-            parser.app.g_settings = self.app.g_settings;
+            parser.app.settings.update(&self.app.g_settings);
+            parser.app.g_settings = self.app.g_settings.clone();
         }
         if parser.app.bin_name != self.app.bin_name {
             parser.app.bin_name = Some(format!("{} {}", bin_name, parser.app.name));
