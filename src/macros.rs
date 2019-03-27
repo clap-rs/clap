@@ -254,7 +254,7 @@ macro_rules! values_t_or_exit {
 macro_rules! _clap_count_exprs {
     () => { 0 };
     ($e:expr) => { 1 };
-    ($e:expr, $($es:expr),+) => { 1 + _clap_count_exprs!($($es),*) };
+    ($e:expr, $($es:expr),+) => { 1 + $crate::_clap_count_exprs!($($es),*) };
 }
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
@@ -338,7 +338,7 @@ macro_rules! arg_enum {
         }
         impl $e {
             #[allow(dead_code)]
-            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+            pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
                 [
                     $(stringify!($v),)+
                 ]
@@ -600,7 +600,8 @@ macro_rules! app_from_crate {
 ///         (author: "Someone E. <someone_else@other.com>")
 ///         (@arg verbose: -v --verbose "Print test information verbosely")
 ///     )
-/// );
+/// )
+/// .get_matches();
 /// # }
 /// ```
 /// # Shorthand Syntax for Args

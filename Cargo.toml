@@ -12,7 +12,7 @@ license = "MIT"
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
 description = """
-A simple to use, efficient, and full featured  Command Line Argument Parser
+A simple to use, efficient, and full-featured Command Line Argument Parser
 """
 
 [badges]
@@ -26,12 +26,13 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 unicode-width         = "0.1.4"
 textwrap              = "0.10.0"
-strsim    = { version = "0.8",  optional = true }
-yaml-rust = { version = "0.3.5",  optional = true }
-clippy    = { version = "~0.0.166", optional = true }
-atty      = { version = "0.2.2",  optional = true }
-vec_map   = { version = "0.8", optional = true }
-term_size = { version = "0.3.0", optional = true }
+strsim                = { version = "0.8",  optional = true }
+yaml-rust             = { version = "0.4.2",  optional = true }
+linked-hash-map       = { version = ">=0.0.9, <0.6", optional = true }
+clippy                = { version = "~0.0.166", optional = true }
+atty                  = { version = "0.2.2",  optional = true }
+vec_map               = { version = "0.8", optional = true }
+term_size             = { version = "0.3.0", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 ansi_term = { version = "0.11",  optional = true }
@@ -47,7 +48,7 @@ default     = ["suggestions", "color", "vec_map"]
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
-yaml        = ["yaml-rust"]
+yaml        = ["yaml-rust", "linked-hash-map"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
 lints       = ["clippy"] # Requires nightly Rust
