@@ -562,6 +562,8 @@ extern crate vec_map;
 extern crate yaml_rust;
 
 pub use build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+// Maybe hide later
+pub use build::{Positionals, PositionalsMut, Flags, FlagsMut, Args, ArgsMut, Options, OptionsMut};
 pub use output::fmt::Format;
 pub use parse::errors::{Error, ErrorKind, Result};
 pub use parse::{ArgMatches, OsValues, Values};

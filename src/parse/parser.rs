@@ -85,11 +85,11 @@ impl<'help> Parser<'help> {
             let raw = arg_os.into();
 
             // First make sure this isn't coming after a `--` only
-            if self.trailing_vals {
-                ctx = self.handle_low_index_multiples(&mut ctx, is_second_to_last),
+            ctx = if self.trailing_vals {
+                self.handle_low_index_multiples(&mut ctx, is_second_to_last)
             } else {
-                ctx = self.try_parse_arg(&mut matcher, ctx, &raw)?;
-            }
+                self.try_parse_arg(&mut matcher, ctx, &raw)?
+            };
 
             'inner: loop {
                 match ctx {
@@ -114,7 +114,7 @@ impl<'help> Parser<'help> {
                     }
                     ParseCtx::ExternalSubCmd => {
                         if !self.is_set(AS::AllowExternalSubcommands) {
-                            return Err(self.find_unknown_arg_error(raw.0));
+                            return Err(self.find_unknown_arg_error(app, raw.0));
                         }
                         // Get external subcommand name
                         // @TODO @perf @p3 probably don't need to convert to a String anymore

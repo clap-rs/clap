@@ -18,8 +18,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::build::app::settings::AppSettings::Propagated;
-use crate::build::args::Args;
-use crate::build::args::Find;
+use crate::build::args::ArgsVec;
 use crate::build::{Aliases, Arg, ArgGroup, ArgSettings, HelpMsg, Terminal, VersionMsg};
 use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
@@ -94,7 +93,7 @@ pub struct App<'help> {
     pub g_settings: AppFlags,
     // The list of valid arguments
     #[doc(hidden)]
-    pub args: Args<'help>,
+    pub args: ArgsVec<'help>,
     // A list of valid subcommands
     #[doc(hidden)]
     pub subcommands: Vec<App<'help>>,
@@ -142,7 +141,7 @@ impl<'help> App<'help> {
         App {
             id: hash(name),
             name,
-            args: Args::with_capacity(args),
+            args: ArgsVec::with_capacity(args),
             ..Default::default()
         }
     }
@@ -170,7 +169,7 @@ impl<'help> App<'help> {
         App {
             id: hash(name),
             name,
-            args: Args::with_capacity(args),
+            args: ArgsVec::with_capacity(args),
             subcommands: Vec::with_capacity(scs),
             ..Default::default()
         }

@@ -12,7 +12,8 @@ mod arg_group;
 mod usage_parser;
 
 pub use self::app::{App, AppFlags, AppSettings, Propagation};
-pub use self::args::{Arg, ArgFlags, ArgSettings, Args, Flags, Options, Positionals};
+pub use self::args::{Arg, ArgFlags, ArgSettings};
+pub use self::args::{Positionals, PositionalsMut, Flags, FlagsMut, Args, ArgsMut, Options, OptionsMut};
 pub use self::arg_group::ArgGroup;
 pub use self::usage_parser::UsageParser;
 pub use self::help_msg::HelpMsg;

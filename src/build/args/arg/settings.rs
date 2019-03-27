@@ -1,6 +1,4 @@
 // Std
-#[allow(unused_imports)]
-use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {
@@ -85,8 +83,6 @@ pub enum ArgSettings {
     /// Allows an arg accept empty values such as `""`
     AllowEmptyValues,
     /// Sets an arg to be global (i.e. exist in all subcommands)
-    /// **DEPRECATED**
-    #[deprecated(since = "2.32.0", note = "Use `App::global_arg` instead")]
     Global,
     /// Hides an arg from the help message
     Hidden,
@@ -105,7 +101,7 @@ pub enum ArgSettings {
     AllowHyphenValues,
     /// Requires that an equals be used to provide a value to an option such as `--option=value`
     RequireEquals,
-    /// Says that a positional arg will be the last positional, and reuqires `--` to be accessed.
+    /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
     /// It can also be accessed early (i.e. before other positionals) by providing `--`
     Last,
     /// Hides the default value from the help message

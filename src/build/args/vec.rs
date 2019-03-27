@@ -2,7 +2,7 @@ use std::ops::Index;
 
 use crate::Arg;
 use crate::build::args::{ArgId, Position};
-use crate::{Flags, Args, Positionals, Options};
+use crate::{Flags, Args, Positionals, Options, FlagsMut, ArgsMut, OptionsMut,PositionalsMut};
 
 pub struct ArgsVec<'help> {
     inner: Vec<Arg<'help>>,
@@ -69,16 +69,16 @@ impl<'help> ArgsVec<'help> {
     pub fn positionals(&self) -> Positionals<'help> {
         self.args().positionals()
     }
-    pub fn args_mut(&mut self) -> impl Iterator<Item=&mut Arg> {
+    pub fn args_mut(&mut self) -> ArgsMut<'help>{
         self.inner.iter_mut()
     }
-    pub fn flags_mut(&mut self) -> impl Iterator<Item=&mut Arg> {
+    pub fn flags_mut(&mut self) -> FlagsMut<'help> {
         self.args_mut().filter(|x| x.is_flat())
     }
-    pub fn options_mut(&mut self) -> impl Iterator<Item=&mut Arg> {
+    pub fn options_mut(&mut self) -> OptsionMut<'help> {
         self.args_mut().filter(|x| x.is_option())
     }
-    pub fn positionals_mut(&mut self) -> impl Iterator<Item=&mut Arg> {
+    pub fn positionals_mut(&mut self) -> PositionalsMut<'help> {
         self.args_mut().filter(|x| x.is_positional())
     }
 }
@@ -87,6 +87,8 @@ impl<'a, 'help> Index<usize> for ArgsVec<'help> {
     type Output = &'a Arg<'help>;
 
     fn index(&'a self, index: usize) -> &'a Arg<'help> {
-        self.inner[index]
+        &self.inner[index]
     }
 }
+
+
