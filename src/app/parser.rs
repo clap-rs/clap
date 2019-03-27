@@ -407,8 +407,8 @@ where
                     sc.p.set(AS::GlobalVersion);
                     sc.p.meta.version = Some(self.meta.version.unwrap());
                 }
-                sc.p.settings = sc.p.settings | self.g_settings;
-                sc.p.g_settings = sc.p.g_settings | self.g_settings;
+                sc.p.settings.update(&self.g_settings);
+                sc.p.g_settings.update(&self.g_settings);
                 sc.p.meta.term_w = self.meta.term_w;
                 sc.p.meta.max_w = self.meta.max_w;
             }
@@ -767,7 +767,7 @@ where
             pb.b.help = Some("The subcommand whose help message to display");
             pb.set(ArgSettings::Multiple);
             sc.positionals.insert(1, pb);
-            sc.settings = sc.settings | self.g_settings;
+            sc.settings.update(&self.g_settings);
         } else {
             sc.create_help_and_version();
         }

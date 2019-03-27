@@ -800,18 +800,18 @@ macro_rules! impl_settings {
         pub fn set(&mut self, s: $n) {
             match s {
                 $($n::$v => self.0.insert($c)),+
-            }
+            };
         }
 
         pub fn unset(&mut self, s: $n) {
             match s {
-                $($n::$v => self.0.remove($c)),+
-            }
+                $($n::$v => self.0.remove(&$c)),+
+            };
         }
 
         pub fn is_set(&self, s: $n) -> bool {
             match s {
-                $($n::$v => self.0.contains($c)),+
+                $($n::$v => self.0.contains(&$c)),+
             }
         }
     };
