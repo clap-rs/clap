@@ -804,22 +804,24 @@ macro_rules! clap_app {
 }
 
 macro_rules! impl_settings {
-    ($n:ident, $($v:ident => $c:path),+) => {
-        pub fn set(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.insert($c)),+
+    ($FLAGS:ident, $SETTING:ident, $($v:ident => $c:path),+) => {
+        impl $FLAGS {
+            pub fn set(&mut self, s: $SETTING) {
+                match s {
+                    $($SETTING::$v => self.insert($c)),+
+                }
             }
-        }
 
-        pub fn unset(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.remove($c)),+
+            pub fn unset(&mut self, s: $SETTING) {
+                match s {
+                    $($SETTING::$v => self.remove($c)),+
+                }
             }
-        }
 
-        pub fn is_set(&self, s: $n) -> bool {
-            match s {
-                $($n::$v => self.0.contains($c)),+
+            pub fn is_set(&self, s: $SETTING) -> bool {
+                match s {
+                    $($SETTING::$v => self.contains($c)),+
+                }
             }
         }
     };
