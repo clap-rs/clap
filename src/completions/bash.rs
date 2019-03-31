@@ -44,7 +44,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
         {name})
             opts="{name_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
-                COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
                 return 0
             fi
             case "${{prev}}" in
@@ -53,7 +53,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
             return 0
             ;;
         {subcmd_details}
@@ -105,7 +105,7 @@ complete -F _{name} -o bashdefault -o default {name}
         {subcmd})
             opts="{sc_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
-                COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
                 return 0
             fi
             case "${{prev}}" in
@@ -114,7 +114,7 @@ complete -F _{name} -o bashdefault -o default {name}
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
             return 0
             ;;"#,
                 subcmd_dets,
@@ -169,9 +169,9 @@ complete -F _{name} -o bashdefault -o default {name}
         debugln!("BashGen::vals_for: o={}", o.b.name);
         use args::AnyArg;
         if let Some(vals) = o.possible_vals() {
-            format!(r#"$(compgen -W "{}" -- ${{cur}})"#, vals.join(" "))
+            format!(r#"$(compgen -W "{}" -- "${{cur}}")"#, vals.join(" "))
         } else {
-            String::from("$(compgen -f ${cur})")
+            String::from(r#"$(compgen -f "${cur}")"#)
         }
     }
 
