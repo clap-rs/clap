@@ -520,11 +520,6 @@
 #![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation, trivial_numeric_casts)]
-// Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (clippy)
-#![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
-#![cfg_attr(feature = "lints", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]

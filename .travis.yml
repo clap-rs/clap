@@ -3,13 +3,15 @@ language: rust
 cache: cargo
 rust:
   - nightly
-  - nightly-2018-08-06
+  - nightly-2019-03-23
   - beta
   - stable
   - 1.30.0
 matrix:
     allow_failures:
         - rust: nightly
+    nightly-2019-03-23:
+        - script: cargo clippy
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
@@ -56,5 +58,4 @@ after_success:
     echo "Uploaded code coverage"
 env:
   global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
     - secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
