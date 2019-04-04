@@ -36,7 +36,7 @@ keywords = [
 ]
 categories = ["command-line-interface"]
 description = """
-A simple to use, efficient, and full featured Command Line Argument Parser
+A simple to use, efficient, and full-featured Command Line Argument Parser
 """
 
 [badges]
