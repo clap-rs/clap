@@ -516,21 +516,9 @@
 //! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.1")]
-#![deny(
-    missing_docs,
-    missing_debug_implementations,
-    missing_copy_implementations,
-    trivial_casts,
-    unused_import_braces,
-    unused_allocation
-)]
-// @TODO @v3-beta: remove me!
-#![allow(deprecated)]
-#![cfg_attr(
-    not(any(feature = "lints", feature = "nightly")),
-    forbid(unstable_features)
-)]
+#![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
+#![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
+        unused_import_braces, unused_allocation, trivial_numeric_casts)]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(feature = "lints", feature(plugin))]
