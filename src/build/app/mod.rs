@@ -22,6 +22,9 @@ use output::{Help, Usage};
 use parse::errors::Result as ClapResult;
 use parse::{ArgMatcher, ArgMatches, Parser};
 use INTERNAL_ERROR_MSG;
+use util::{Key, VERSION_HASH, HELP_HASH};
+
+type Id = u64;
 
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -62,10 +65,9 @@ pub enum Propagation<'a> {
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Default, Debug, Clone)]
-pub struct App<'a, 'b>
-where
-    'a: 'b,
-{
+pub struct App<'b> {
+    #[doc(hidden)]
+    pub id: Id,
     #[doc(hidden)]
     pub name: String,
     #[doc(hidden)]
@@ -105,16 +107,16 @@ where
     #[doc(hidden)]
     pub g_settings: AppFlags,
     #[doc(hidden)]
-    pub args: MKeyMap<'a, 'b>,
+    pub args: MKeyMap<'b>,
     #[doc(hidden)]
-    pub subcommands: Vec<App<'a, 'b>>,
+    pub subcommands: Vec<App<'b>>,
     #[doc(hidden)]
-    pub groups: Vec<ArgGroup<'a>>,
+    pub groups: Vec<ArgGroup<'b>>,
     #[doc(hidden)]
-    pub help_headings: Vec<Option<&'a str>>,
+    pub help_headings: Vec<Option<&'b str>>,
 }
 
-impl<'a, 'b> App<'a, 'b> {
+impl<'b> App<'b> {
     /// Creates a new instance of an application requiring a name. The name may be, but doesn't
     /// have to be same as the binary. The name will be displayed to the user when they request to
     /// print version or help and usage information.
@@ -127,8 +129,11 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn new<S: Into<String>>(n: S) -> Self {
+        let name = n.into();
+        let id = name.key();
         App {
-            name: n.into(),
+            id,
+            name,
             ..Default::default()
         }
     }
@@ -623,8 +628,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [argument]: ./struct.Arg.html
-    pub fn arg<A: Into<Arg<'a, 'b>>>(mut self, a: A) -> Self {
-        let help_heading: Option<&'a str> = if let Some(option_str) = self.help_headings.last() {
+    pub fn arg<A: Into<Arg<'b>>>(mut self, a: A) -> Self {
+        let help_heading: Option<&'b str> = if let Some(option_str) = self.help_headings.last() {
             *option_str
         } else {
             None
@@ -637,7 +642,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// Set a custom section heading for future args. Every call to arg will
     /// have this header (instead of its default header) until a subsequent
     /// call to help_heading
-    pub fn help_heading(mut self, heading: &'a str) -> Self {
+    pub fn help_heading(mut self, heading: &'b str) -> Self {
         self.help_headings.push(Some(heading));
         self
     }
@@ -665,7 +670,7 @@ impl<'a, 'b> App<'a, 'b> {
     pub fn args<I, T>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        T: Into<Arg<'a, 'b>>,
+        T: Into<Arg<'b>>,
     {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
@@ -814,7 +819,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
-    pub fn group(mut self, group: ArgGroup<'a>) -> Self {
+    pub fn group(mut self, group: ArgGroup<'b>) -> Self {
         self.groups.push(group);
         self
     }
@@ -843,7 +848,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     /// [`App`]: ./struct.App.html
-    pub fn groups(mut self, groups: &[ArgGroup<'a>]) -> Self {
+    pub fn groups(mut self, groups: &[ArgGroup<'b>]) -> Self {
         for g in groups {
             self = self.group(g.into());
         }
@@ -867,7 +872,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
-    pub fn subcommand(mut self, subcmd: App<'a, 'b>) -> Self {
+    pub fn subcommand(mut self, subcmd: App<'b>) -> Self {
         self.subcommands.push(subcmd);
         self
     }
@@ -890,7 +895,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
     where
-        I: IntoIterator<Item = App<'a, 'b>>,
+        I: IntoIterator<Item = App<'b>>,
     {
         for subcmd in subcmds {
             self.subcommands.push(subcmd);
@@ -973,14 +978,16 @@ impl<'a, 'b> App<'a, 'b> {
     /// assert!(res.is_ok());
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn mut_arg<F>(mut self, arg: &'a str, f: F) -> Self
+    pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
     where
-        F: FnOnce(Arg<'a, 'b>) -> Arg<'a, 'b>,
+        F: FnOnce(Arg<'b>) -> Arg<'b>,
+        T: Key + Into<&'b str>,
     {
+        let id = arg_id.key();
         let a = self
             .args
-            .remove_by_name(arg)
-            .unwrap_or_else(|| Arg::with_name(arg));
+            .remove_by_name(id)
+            .unwrap_or_else(|| Arg{ id, name: arg_id.into(),..Arg::default()});
         self.args.push(f(a));
 
         self
@@ -1159,7 +1166,7 @@ impl<'a, 'b> App<'a, 'b> {
     ///     .get_matches();
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
-    pub fn get_matches(self) -> ArgMatches<'a> { self.get_matches_from(&mut env::args_os()) }
+    pub fn get_matches(self) -> ArgMatches { self.get_matches_from(&mut env::args_os()) }
 
     /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
     ///
@@ -1174,7 +1181,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     /// [`App::get_matches`]: ./struct.App.html#method.get_matches
-    pub fn get_matches_mut(&mut self) -> ArgMatches<'a> {
+    pub fn get_matches_mut(&mut self) -> ArgMatches {
         self.try_get_matches_from_mut(&mut env::args_os())
             .unwrap_or_else(|e| {
                 // Otherwise, write to stderr and exit
@@ -1219,7 +1226,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`clap::Result`]: ./type.Result.html
     /// [`clap::Error`]: ./struct.Error.html
     /// [`kind`]: ./struct.Error.html
-    pub fn try_get_matches(self) -> ClapResult<ArgMatches<'a>> {
+    pub fn try_get_matches(self) -> ClapResult<ArgMatches> {
         // Start the parsing
         self.try_get_matches_from(&mut env::args_os())
     }
@@ -1245,7 +1252,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`clap::Result`]: ./type.Result.html
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches<'a>
+    pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -1302,7 +1309,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`Error::exit`]: ./struct.Error.html#method.exit
     /// [`kind`]: ./struct.Error.html
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -1331,7 +1338,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// [`App`]: ./struct.App.html
     /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
     /// [`AppSettings::NoBinaryName`]: ./enum.AppSettings.html#variant.NoBinaryName
-    pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches<'a>>
+    pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -1364,9 +1371,9 @@ impl<'a, 'b> App<'a, 'b> {
 
 // Internally used only
 #[doc(hidden)]
-impl<'a, 'b> App<'a, 'b> {
+impl<'b> App<'b> {
     #[doc(hidden)]
-    fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches<'a>>
+    fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
     where
         I: Iterator<Item = T>,
         T: Into<OsString> + Clone,
@@ -1387,16 +1394,17 @@ impl<'a, 'b> App<'a, 'b> {
             parser.get_matches_with(&mut matcher, it)?;
         }
 
-        let global_arg_vec: Vec<&str> = self
+        let global_arg_vec: Vec<Id> = self
             .args
             .args
             .iter()
             .filter(|a| a.is_set(ArgSettings::Global))
-            .map(|ga| ga.name)
+            .map(|ga| ga.id)
             .collect();
+
         matcher.propagate_globals(&global_arg_vec);
 
-        Ok(matcher.into())
+        Ok(matcher.into_inner())
     }
 
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
@@ -1429,15 +1437,15 @@ impl<'a, 'b> App<'a, 'b> {
         for a in self.args.args.iter_mut() {
             // Fill in the groups
             if let Some(ref grps) = a.groups {
-                for g in grps {
+                for &g in grps {
                     let mut found = false;
-                    if let Some(ref mut ag) = self.groups.iter_mut().find(|grp| &grp.name == g) {
-                        ag.args.push(a.name);
+                    if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == g) {
+                        ag.args.push(a.id);
                         found = true;
                     }
                     if !found {
-                        let mut ag = ArgGroup::with_name(g);
-                        ag.args.push(a.name);
+                        let mut ag = ArgGroup::_with_id(g);
+                        ag.args.push(a.id);
                         self.groups.push(ag);
                     }
                 }
@@ -1465,8 +1473,8 @@ impl<'a, 'b> App<'a, 'b> {
     // Perform some expensive assertions on the Parser itself
     fn _app_debug_asserts(&mut self) -> bool {
         debugln!("App::_app_debug_asserts;");
-        for name in self.args.args.iter().map(|x| x.name) {
-            if self.args.args.iter().filter(|x| x.name == name).count() > 1 {
+        for name in self.args.args.iter().map(|x| x.id) {
+            if self.args.args.iter().filter(|x| x.id == name).count() > 1 {
                 panic!(format!(
                     "Arg names must be unique, found {} more than once",
                     name
@@ -1535,7 +1543,7 @@ impl<'a, 'b> App<'a, 'b> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("help") || x.name == "help"))
+            .any(|x| x.long == Some("help") || x.id == HELP_HASH))
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
@@ -1551,7 +1559,7 @@ impl<'a, 'b> App<'a, 'b> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("version") || x.name == "version")
+            .any(|x| x.long == Some("version") || x.id == VERSION_HASH)
             || self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
@@ -1566,7 +1574,7 @@ impl<'a, 'b> App<'a, 'b> {
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !subcommands!(self).any(|s| s.name == "help")
+            && !subcommands!(self).any(|s| s.id == HELP_HASH)
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1589,7 +1597,7 @@ impl<'a, 'b> App<'a, 'b> {
             {
                 a.disp_ord = i;
             }
-            for (i, sc) in &mut subcommands_mut!(self)
+            for (i, mut sc) in &mut subcommands_mut!(self)
                 .enumerate()
                 .filter(|&(_, ref sc)| sc.disp_ord == 999)
             {
@@ -1626,7 +1634,7 @@ impl<'a, 'b> App<'a, 'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).fold(0, |acc, p| if p.index == Some(idx as u64) {
+                positionals!(self).fold(0, |acc, p| if p.index == Some(idx ) {
                     acc + 1
                 } else {
                     acc
@@ -1665,7 +1673,7 @@ impl<'a, 'b> App<'a, 'b> {
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
-        for sc in subcommands_mut!(self) {
+        for mut sc in subcommands_mut!(self) {
             debug!("Parser::build_bin_names:iter: bin_name set...");
             if sc.bin_name.is_none() {
                 sdebugln!("No");
@@ -1713,11 +1721,11 @@ impl<'a, 'b> App<'a, 'b> {
         }
     }
 
-    pub(crate) fn format_group(&self, g: &str) -> String {
+    pub(crate) fn format_group(&self, g: Id) -> String {
         let g_string = self
             .unroll_args_in_group(g)
             .iter()
-            .filter_map(|x| self.find(x))
+            .filter_map(|&x| self.find(x))
             .map(|x| {
                 if x.index.is_some() {
                     x.name.to_owned()
@@ -1733,9 +1741,9 @@ impl<'a, 'b> App<'a, 'b> {
 
 // Internal Query Methods
 #[doc(hidden)]
-impl<'a, 'b> App<'a, 'b> {
-    pub(crate) fn find(&self, name: &str) -> Option<&Arg<'a, 'b>> {
-        self.args.args.iter().find(|a| a.name == name)
+impl<'b> App<'b> {
+    pub(crate) fn find(&self, arg_id: Id) -> Option<&Arg<'b>> {
+        self.args.args.iter().find(|a| a.id == arg_id)
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
@@ -1805,20 +1813,20 @@ impl<'a, 'b> App<'a, 'b> {
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
-    pub(crate) fn unroll_args_in_group(&self, group: &'a str) -> Vec<&'a str> {
+    pub(crate) fn unroll_args_in_group(&self, group: Id) -> Vec<Id> {
         let mut g_vec = vec![group];
         let mut args = vec![];
 
         while let Some(ref g) = g_vec.pop() {
-            for n in self
+            for &n in self
                 .groups
                 .iter()
-                .find(|grp| &grp.name == g)
+                .find(|grp| &grp.id == g)
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
             {
-                if !args.contains(n) {
+                if !args.contains(&n) {
                     if self.find(n).is_some() {
                         args.push(n)
                     } else {
@@ -1831,11 +1839,7 @@ impl<'a, 'b> App<'a, 'b> {
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(
-        &self,
-        arg: &str,
-        matcher: &ArgMatcher<'a>,
-    ) -> Vec<&'a str> {
+    pub(crate) fn unroll_requirements_for_arg(&self, arg: Id, matcher: &ArgMatcher) -> Vec<Id> {
         let requires_if_or_not = |&(val, req_arg)| {
             if let Some(v) = val {
                 if matcher
@@ -1855,13 +1859,13 @@ impl<'a, 'b> App<'a, 'b> {
         let mut r_vec = vec![arg];
         let mut args = vec![];
 
-        while let Some(ref a) = r_vec.pop() {
+        while let Some(a) = r_vec.pop() {
             if let Some(arg) = self.find(a) {
                 if let Some(ref reqs) = arg.requires {
                     for r in reqs.iter().filter_map(requires_if_or_not) {
                         if let Some(req) = self.find(r) {
                             if req.requires.is_some() {
-                                r_vec.push(req.name)
+                                r_vec.push(req.id)
                             }
                         }
                         args.push(r);
@@ -1875,7 +1879,7 @@ impl<'a, 'b> App<'a, 'b> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a Yaml> for App<'a, 'a> {
+impl<'a> From<&'a Yaml> for App<'a> {
     fn from(mut yaml: &'a Yaml) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
@@ -2017,6 +2021,6 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
     }
 }
 
-impl<'n, 'e> fmt::Display for App<'n, 'e> {
+impl<'e> fmt::Display for App<'e> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.name) }
 }

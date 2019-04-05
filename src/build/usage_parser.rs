@@ -1,6 +1,6 @@
 // Internal
 use build::{Arg, ArgSettings};
-use util::VecMap;
+use util::{Key, VecMap};
 use INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
@@ -41,7 +41,7 @@ impl<'a> UsageParser<'a> {
         UsageParser::new(usage)
     }
 
-    pub fn parse(mut self) -> Arg<'a, 'a> {
+    pub fn parse(mut self) -> Arg<'a> {
         debugln!("UsageParser::parse;");
         let mut arg = Arg::default();
         arg.disp_ord = 999;
@@ -72,7 +72,7 @@ impl<'a> UsageParser<'a> {
         arg
     }
 
-    fn name(&mut self, arg: &mut Arg<'a, 'a>) {
+    fn name(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::name;");
         if *self
             .usage
@@ -89,6 +89,7 @@ impl<'a> UsageParser<'a> {
         let name = &self.usage[self.start..self.pos];
         if self.prev == UsageToken::Unknown {
             debugln!("UsageParser::name: setting name...{}", name);
+            arg.id = name.key();
             arg.name = name;
             if arg.long.is_none() && arg.short.is_none() {
                 debugln!("UsageParser::name: explicit name set...");
@@ -122,7 +123,7 @@ impl<'a> UsageParser<'a> {
             .count();
     }
 
-    fn short_or_long(&mut self, arg: &mut Arg<'a, 'a>) {
+    fn short_or_long(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::short_or_long;");
         self.pos += 1;
         if *self
@@ -139,12 +140,13 @@ impl<'a> UsageParser<'a> {
         self.short(arg)
     }
 
-    fn long(&mut self, arg: &mut Arg<'a, 'a>) {
+    fn long(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::long;");
         self.stop_at(long_end);
         let name = &self.usage[self.start..self.pos];
         if !self.explicit_name_set {
             debugln!("UsageParser::long: setting name...{}", name);
+            arg.id = name.key();
             arg.name = name;
         }
         debugln!("UsageParser::long: setting long...{}", name);
@@ -152,7 +154,7 @@ impl<'a> UsageParser<'a> {
         self.prev = UsageToken::Long;
     }
 
-    fn short(&mut self, arg: &mut Arg<'a, 'a>) {
+    fn short(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::short;");
         let start = &self.usage[self.pos..];
         let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
@@ -162,6 +164,7 @@ impl<'a> UsageParser<'a> {
             // --long takes precedence but doesn't set self.explicit_name_set
             let name = &start[..short.len_utf8()];
             debugln!("UsageParser::short: setting name...{}", name);
+            arg.id = name.key();
             arg.name = name;
         }
         self.prev = UsageToken::Short;
@@ -189,7 +192,7 @@ impl<'a> UsageParser<'a> {
         }
     }
 
-    fn help(&mut self, arg: &mut Arg<'a, 'a>) {
+    fn help(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::help;");
         self.stop_at(help_start);
         self.start = self.pos + 1;

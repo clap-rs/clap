@@ -6,7 +6,7 @@ mod tests {
     include!("../clap-test.rs");
     use clap::{App, Arg, ArgMatches, ArgSettings};
 
-    fn get_app() -> App<'static, 'static> {
+    fn get_app() -> App<'static> {
         App::new("myprog")
             .arg(
                 Arg::with_name("GLOBAL_ARG")
@@ -26,49 +26,49 @@ mod tests {
             .subcommand(App::new("outer").subcommand(App::new("inner")))
     }
 
-    fn get_matches(app: App<'static, 'static>, argv: &'static str) -> ArgMatches<'static> {
+    fn get_matches(app: App<'static>, argv: &'static str) -> ArgMatches {
         app.get_matches_from(argv.split(" ").collect::<Vec<_>>())
     }
 
-    fn get_outer_matches<'a>(m: &'a ArgMatches<'static>) -> &'a ArgMatches<'static> {
+    fn get_outer_matches<'a>(m: &'a ArgMatches) -> &'a ArgMatches {
         m.subcommand_matches("outer")
             .expect("could not access outer subcommand")
     }
 
-    fn get_inner_matches<'a>(m: &'a ArgMatches<'static>) -> &'a ArgMatches<'static> {
+    fn get_inner_matches<'a>(m: &'a ArgMatches) -> &'a ArgMatches {
         get_outer_matches(m)
             .subcommand_matches("inner")
             .expect("could not access inner subcommand")
     }
 
-    fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches<'static>, val: T) -> bool {
+    fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         m.value_of("GLOBAL_ARG") == val.into()
     }
 
     fn inner_can_access_arg<T: Into<Option<&'static str>>>(
-        m: &ArgMatches<'static>,
+        m: &ArgMatches,
         val: T,
     ) -> bool {
         get_inner_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 
     fn outer_can_access_arg<T: Into<Option<&'static str>>>(
-        m: &ArgMatches<'static>,
+        m: &ArgMatches,
         val: T,
     ) -> bool {
         get_outer_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn top_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }
 
-    fn inner_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         let m = get_inner_matches(m);
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }
 
-    fn outer_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         let m = get_outer_matches(m);
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }

@@ -54,7 +54,7 @@ mod test {
 
     // Legacy tests from the pyhton script days
 
-    pub fn complex_app() -> App<'static, 'static> {
+    pub fn complex_app() -> App<'static> {
         let opt3_vals = ["fast", "slow"];
         let pos3_vals = ["vi", "emacs"];
         App::new("clap-test")

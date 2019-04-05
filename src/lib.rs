@@ -516,7 +516,7 @@
 //! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
+#![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.1")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation, trivial_numeric_casts)]
 // Need to disable deny(warnings) while deprecations are active
@@ -581,11 +581,11 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {}
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {
     /// @TODO @release @docs
-    fn from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> Self;
+    fn from_argmatches(matches: &::parse::ArgMatches) -> Self;
 
     /// @TODO @release @docs
-    fn try_from_argmatches<'a>(
-        matches: &::parse::ArgMatches<'a>,
+    fn try_from_argmatches(
+        matches: &::parse::ArgMatches,
     ) -> StdResult<Self, ::parse::errors::Error> {
         Ok(<Self as FromArgMatches>::from_argmatches(matches))
     }
@@ -594,7 +594,7 @@ pub trait FromArgMatches: Sized {
 /// @TODO @release @docs
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'a, 'b>() -> ::build::App<'a, 'b>;
+    fn into_app<'a, 'b>() -> ::build::App<'b>;
 }
 
 /// @TODO @release @docs

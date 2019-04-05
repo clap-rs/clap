@@ -979,8 +979,8 @@ macro_rules! groups_for_arg {
         debugln!("Parser::groups_for_arg: name={}", $grp);
         $app.groups
             .iter()
-            .filter(|grp| grp.args.iter().any(|a| a == $grp))
-            .map(|grp| grp.name)
+            .filter(|grp| grp.args.iter().any(|&a| a == $grp))
+            .map(|grp| grp.id)
     }};
 }
 

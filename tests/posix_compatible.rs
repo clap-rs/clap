@@ -4,7 +4,8 @@ use clap::{App, Arg, ErrorKind};
 #[test]
 fn flag_overrides_itself() {
     let res = App::new("posix")
-        .arg(Arg::from("--flag  'some flag'").overrides_with("flag"))
+        .arg(Arg::from("--flag  'some flag'")
+            .overrides_with("flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag"]);
     assert!(res.is_ok());
     let m = res.unwrap();

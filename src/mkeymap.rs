@@ -1,6 +1,8 @@
 use build::Arg;
 use std::ffi::{OsStr, OsString};
 
+type Id = u64;
+
 #[derive(PartialEq, Debug, Clone)]
 pub struct Key {
     pub key: KeyType,
@@ -8,9 +10,9 @@ pub struct Key {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'a, 'b> {
+pub struct MKeyMap<'b> {
     pub keys: Vec<Key>,
-    pub args: Vec<Arg<'a, 'b>>,
+    pub args: Vec<Arg<'b>>,
     built: bool, // mutation isn't possible after being built
 }
 
@@ -60,7 +62,7 @@ impl PartialEq<char> for KeyType {
     }
 }
 
-impl<'a, 'b> MKeyMap<'a, 'b> {
+impl<'b> MKeyMap<'b> {
     pub fn new() -> Self { MKeyMap::default() }
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
@@ -69,13 +71,13 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
 
     pub fn contains_short(&self, c: char) -> bool { self.keys.iter().any(|x| x.key == c) }
 
-    pub fn insert(&mut self, key: KeyType, value: Arg<'a, 'b>) -> usize {
+    pub fn insert(&mut self, key: KeyType, value: Arg<'b>) -> usize {
         let index = self.push(value);
         self.keys.push(Key { key, index });
         index
     }
 
-    pub fn push(&mut self, value: Arg<'a, 'b>) -> usize {
+    pub fn push(&mut self, value: Arg<'b>) -> usize {
         if self.built {
             panic!("Cannot add Args to the map after the map is built");
         }
@@ -98,7 +100,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
 
     // ! Arg mutation functionality
 
-    pub fn get(&self, key: &KeyType) -> Option<&Arg<'a, 'b>> {
+    pub fn get(&self, key: &KeyType) -> Option<&Arg<'b>> {
         for k in &self.keys {
             if &k.key == key {
                 return Some(&self.args[k.index]);
@@ -108,7 +110,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
     }
     //TODO ::get_first([KeyA, KeyB])
 
-    pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'a, 'b>> {
+    pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'b>> {
         for k in &self.keys {
             if &k.key == key {
                 return self.args.get_mut(k.index);
@@ -186,7 +188,7 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
             .expect("No such name found")
     }
 
-    pub fn remove(&mut self, key: &KeyType) -> Option<Arg<'a, 'b>> {
+    pub fn remove(&mut self, key: &KeyType) -> Option<Arg<'b>> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
@@ -211,13 +213,13 @@ impl<'a, 'b> MKeyMap<'a, 'b> {
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub fn remove_by_name(&mut self, _name: &str) -> Option<Arg<'a, 'b>> {
+    pub fn remove_by_name(&mut self, _name: Id) -> Option<Arg<'b>> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
         let mut index = None;
         for (i, arg) in self.args.iter().enumerate() {
-            if arg.name == _name {
+            if arg.id == _name {
                 index = Some(i);
                 break;
             }

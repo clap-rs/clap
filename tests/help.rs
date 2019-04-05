@@ -532,7 +532,7 @@ OPTIONS:
 NETWORKING:
     -n, --no-proxy    Do not use system proxy settings";
 
-fn setup() -> App<'static, 'static> {
+fn setup() -> App<'static> {
     App::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1224,7 +1224,7 @@ fn hidden_default_val() {
     ));
 }
 
-fn issue_1112_setup() -> App<'static, 'static> {
+fn issue_1112_setup() -> App<'static> {
     App::new("test")
         .author("Kevin K.")
         .about("tests stuff")
