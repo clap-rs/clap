@@ -18,7 +18,7 @@ use clap::{App, Arg};
 // Using arg_enum! is more like traditional enum declarations
 //
 // **NOTE:** Only bare variants are supported
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     pub enum Oof {
         Rab,
@@ -27,7 +27,7 @@ arg_enum!{
     }
 }
 
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     enum Foo {
         Bar,

@@ -219,14 +219,8 @@ fn group_multiple_args_error() {
 #[test]
 fn group_acts_like_arg() {
     let m = App::new("prog")
-         .arg(Arg::with_name("debug")
-             .long("debug")
-             .group("mode"))
-         .arg(Arg::with_name("verbose")
-             .long("verbose")
-             .group("mode"))
-         .get_matches_from(vec![
-             "prog", "--debug"
-         ]);
+        .arg(Arg::with_name("debug").long("debug").group("mode"))
+        .arg(Arg::with_name("verbose").long("verbose").group("mode"))
+        .get_matches_from(vec!["prog", "--debug"]);
     assert!(m.is_present("mode"));
 }

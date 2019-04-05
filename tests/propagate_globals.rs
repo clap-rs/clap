@@ -45,17 +45,11 @@ mod tests {
         m.value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn inner_can_access_arg<T: Into<Option<&'static str>>>(
-        m: &ArgMatches,
-        val: T,
-    ) -> bool {
+    fn inner_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         get_inner_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn outer_can_access_arg<T: Into<Option<&'static str>>>(
-        m: &ArgMatches,
-        val: T,
-    ) -> bool {
+    fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         get_outer_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 

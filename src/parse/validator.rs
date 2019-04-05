@@ -367,7 +367,11 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     }
 
     fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
-        debugln!("Validator::validate_arg_num_occurs: {}={};", a.name, ma.occurs);
+        debugln!(
+            "Validator::validate_arg_num_occurs: {}={};",
+            a.name,
+            ma.occurs
+        );
         if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
@@ -537,14 +541,14 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         a.blacklist
             .as_ref()
             .map(|bl| {
-                bl.iter().any(| &conf| {
+                bl.iter().any(|&conf| {
                     matcher.contains(conf)
                         || self
                             .p
                             .app
                             .groups
                             .iter()
-                            .find(|g| g.id== conf)
+                            .find(|g| g.id == conf)
                             .map_or(false, |g| g.args.iter().any(|&arg| matcher.contains(arg)))
                 })
             })
@@ -592,11 +596,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     }
 
     // `incl`: an arg to include in the error even if not used
-    fn missing_required_error(
-        &self,
-        matcher: &ArgMatcher,
-        incl: Option<Id>,
-    ) -> ClapResult<()> {
+    fn missing_required_error(&self, matcher: &ArgMatcher, incl: Option<Id>) -> ClapResult<()> {
         debugln!("Validator::missing_required_error; incl={:?}", incl);
         let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,

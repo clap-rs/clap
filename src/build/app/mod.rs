@@ -21,8 +21,8 @@ use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
+use crate::util::{Key, HELP_HASH, VERSION_HASH};
 use crate::INTERNAL_ERROR_MSG;
-use crate::util::{Key, VERSION_HASH, HELP_HASH};
 
 type Id = u64;
 
@@ -984,10 +984,11 @@ impl<'b> App<'b> {
         T: Key + Into<&'b str>,
     {
         let id = arg_id.key();
-        let a = self
-            .args
-            .remove_by_name(id)
-            .unwrap_or_else(|| Arg{ id, name: arg_id.into(),..Arg::default()});
+        let a = self.args.remove_by_name(id).unwrap_or_else(|| Arg {
+            id,
+            name: arg_id.into(),
+            ..Arg::default()
+        });
         self.args.push(f(a));
 
         self
@@ -1634,7 +1635,7 @@ impl<'b> App<'b> {
         if let Some(idx) = a.index {
             // No index conflicts
             assert!(
-                positionals!(self).fold(0, |acc, p| if p.index == Some(idx ) {
+                positionals!(self).fold(0, |acc, p| if p.index == Some(idx) {
                     acc + 1
                 } else {
                     acc

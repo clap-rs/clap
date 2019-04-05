@@ -254,7 +254,7 @@ fn group_macro_set_not_required() {
 
 #[test]
 fn arg_enum() {
-    arg_enum!{
+    arg_enum! {
         #[derive(Debug, PartialEq, Copy, Clone)]
         pub enum Greek {
             Alpha,
@@ -266,7 +266,7 @@ fn arg_enum() {
 
 #[test]
 fn arg_enum_trailing_comma() {
-    arg_enum!{
+    arg_enum! {
         #[derive(Debug, PartialEq, Copy, Clone)]
         pub enum Greek {
             Alpha,

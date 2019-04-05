@@ -48,12 +48,7 @@ pub struct Help<'b, 'c, 'd, 'w> {
 // Public Functions
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(
-        w: &'w mut Write,
-        parser: &'d Parser<'b, 'c>,
-        use_long: bool,
-        stderr: bool,
-    ) -> Self {
+    pub fn new(w: &'w mut Write, parser: &'d Parser<'b, 'c>, use_long: bool, stderr: bool) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,
@@ -105,16 +100,33 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn color(&mut self, f: Format<&str>) -> io::Result<()> {
         match f {
-            Format::Good(g) => if self.color { write!(self.writer, "{}", self.cizer.good(g)) } else { write!(self.writer, "{}", g) },
-            Format::Warning(w) => if self.color { write!(self.writer, "{}", self.cizer.warning(w))} else { write!(self.writer, "{}", w) },
-            Format::Error(e) => if self.color { write!(self.writer, "{}", self.cizer.error(e)) } else { write!(self.writer, "{}", e) },
-            _ => unreachable!()
+            Format::Good(g) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.good(g))
+                } else {
+                    write!(self.writer, "{}", g)
+                }
+            }
+            Format::Warning(w) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.warning(w))
+                } else {
+                    write!(self.writer, "{}", w)
+                }
+            }
+            Format::Error(e) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.error(e))
+                } else {
+                    write!(self.writer, "{}", e)
+                }
+            }
+            _ => unreachable!(),
         }
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
-    fn write_args_unsorted(&mut self, args: &[&Arg<'b>]) -> io::Result<()>
-    {
+    fn write_args_unsorted(&mut self, args: &[&Arg<'b>]) -> io::Result<()> {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -360,12 +372,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help(
-        &mut self,
-        arg: &Arg<'c>,
-        spec_vals: &str,
-        prevent_nlh: bool,
-    ) -> io::Result<()> {
+    fn help(&mut self, arg: &Arg<'c>, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
             arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
@@ -651,7 +658,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
 
         if unified_help && (flags || opts) {
-            let opts_flags = self.parser.app.args.args.iter().filter(|a| a.has_switch()).collect::<Vec<_>>();
+            let opts_flags = self
+                .parser
+                .app
+                .args
+                .args
+                .iter()
+                .filter(|a| a.has_switch())
+                .collect::<Vec<_>>();
             if !first {
                 self.writer.write_all(b"\n\n")?;
             }
@@ -677,7 +691,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 first = false;
             }
             if custom_headings {
-                for heading in self.parser
+                for heading in self
+                    .parser
                     .app
                     .help_headings
                     .iter()
@@ -688,9 +703,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                         self.writer.write_all(b"\n\n")?;
                     }
                     self.color(Format::Warning(&*format!("{}:\n", heading)))?;
-                    let args = self.parser.app.args.args.iter().filter(|a| {
-                        a.help_heading.is_some() && a.help_heading.unwrap() == heading
-                    }).collect::<Vec<_>>();
+                    let args = self
+                        .parser
+                        .app
+                        .args
+                        .args
+                        .iter()
+                        .filter(|a| a.help_heading.is_some() && a.help_heading.unwrap() == heading)
+                        .collect::<Vec<_>>();
                     self.write_args(&*args)?;
                     first = false
                 }
@@ -747,7 +767,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let term_w = self.term_w.clone();
         macro_rules! write_name {
             () => {{
-                self.color(Format::Good(&*wrap_help(&self.parser.app.name.replace("{n}", "\n"), term_w)))?;
+                self.color(Format::Good(&*wrap_help(
+                    &self.parser.app.name.replace("{n}", "\n"),
+                    term_w,
+                )))?;
             }};
         }
         if let Some(bn) = self.parser.app.bin_name.as_ref() {
@@ -773,7 +796,11 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         macro_rules! write_thing {
             ($thing:expr) => {{
-                write!(self.writer, "{}\n", wrap_help(&$thing.replace("{n}", "\n"), self.term_w))?
+                write!(
+                    self.writer,
+                    "{}\n",
+                    wrap_help(&$thing.replace("{n}", "\n"), self.term_w)
+                )?
             }};
         }
         // Print the version
@@ -1012,7 +1039,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     self.write_all_args()?;
                 }
                 b"unified" => {
-                    let opts_flags = self.parser.app.args.args.iter().filter(|a| a.has_switch()).collect::<Vec<_>>();
+                    let opts_flags = self
+                        .parser
+                        .app
+                        .args
+                        .args
+                        .iter()
+                        .filter(|a| a.has_switch())
+                        .collect::<Vec<_>>();
                     self.write_args(&*opts_flags)?;
                 }
                 b"flags" => {

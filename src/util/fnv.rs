@@ -1,4 +1,3 @@
-
 use std::hash::{Hash, Hasher};
 
 // precompute some common values
@@ -12,7 +11,10 @@ pub trait Key: Hash {
     fn key(&self) -> u64;
 }
 
-impl<T> Key for T where T: Hash {
+impl<T> Key for T
+where
+    T: Hash,
+{
     fn key(&self) -> u64 {
         let mut hasher = FnvHasher::new();
         self.hash(&mut hasher);

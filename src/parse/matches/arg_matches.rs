@@ -9,8 +9,8 @@ use indexmap::IndexMap;
 
 // Internal
 use crate::parse::{MatchedArg, SubCommand};
-use crate::INVALID_UTF8;
 use crate::util::Key;
+use crate::INVALID_UTF8;
 
 type Id = u64;
 
@@ -316,9 +316,7 @@ impl ArgMatches {
     ///
     /// assert!(m.is_present("debug"));
     /// ```
-    pub fn is_present<T: Key>(&self, id: T) -> bool {
-        self._id_is_present(id.key())
-    }
+    pub fn is_present<T: Key>(&self, id: T) -> bool { self._id_is_present(id.key()) }
 
     #[doc(hidden)]
     pub fn _id_is_present(&self, arg_id: Id) -> bool {
@@ -692,9 +690,7 @@ impl ArgMatches {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
-    pub fn subcommand_name(&self) -> Option<&str> {
-        self.subcommand.as_ref().map(|sc| &*sc.name)
-    }
+    pub fn subcommand_name(&self) -> Option<&str> { self.subcommand.as_ref().map(|sc| &*sc.name) }
 
     /// This brings together [`ArgMatches::subcommand_matches`] and [`ArgMatches::subcommand_name`]
     /// by returning a tuple with both pieces of information.

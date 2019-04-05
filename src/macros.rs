@@ -890,7 +890,9 @@ macro_rules! flags {
         $app.args
             .args
             .$how()
-            .filter(|a| !a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| {
+                !a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
+            })
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -910,7 +912,9 @@ macro_rules! opts {
         $app.args
             .args
             .$how()
-            .filter(|a| a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| {
+                a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
+            })
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {

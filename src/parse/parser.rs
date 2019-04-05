@@ -25,7 +25,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-use crate::util::{self, EMPTY_HASH, Key, ChildGraph, OsStrExt2};
+use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -140,7 +140,7 @@ where
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
         let only_highest = |a: &Arg| {
-            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx )
+            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx)
         };
         if positionals!(self.app).any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
