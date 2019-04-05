@@ -3,16 +3,16 @@
 use std::ascii::AsciiExt;
 
 // Internal
-use build::app::AppSettings as AS;
-use build::{Arg, ArgSettings};
-use output::fmt::{Colorizer, ColorizerOption};
-use output::Usage;
-use parse::errors::Result as ClapResult;
-use parse::errors::{Error, ErrorKind};
-use parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
-use util::ChildGraph;
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
+use crate::build::app::AppSettings as AS;
+use crate::build::{Arg, ArgSettings};
+use crate::output::fmt::{Colorizer, ColorizerOption};
+use crate::output::Usage;
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::errors::{Error, ErrorKind};
+use crate::parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
+use crate::util::ChildGraph;
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
 
 type Id = u64;
 

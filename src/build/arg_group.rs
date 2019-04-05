@@ -6,7 +6,7 @@ use std::fmt::{Debug, Formatter, Result};
 use yaml_rust;
 
 // Internal
-use util::Key;
+use crate::util::Key;
 
 type Id = u64;
 

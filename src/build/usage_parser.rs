@@ -1,7 +1,7 @@
 // Internal
-use build::{Arg, ArgSettings};
-use util::{Key, VecMap};
-use INTERNAL_ERROR_MSG;
+use crate::build::{Arg, ArgSettings};
+use crate::util::{Key, VecMap};
+use crate::INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -223,7 +223,7 @@ fn help_start(b: u8) -> bool { b != b'\'' }
 
 #[cfg(test)]
 mod test {
-    use build::{Arg, ArgSettings};
+    use crate::build::{Arg, ArgSettings};
 
     #[test]
     fn create_flag_usage() {

@@ -890,7 +890,7 @@ macro_rules! flags {
         $app.args
             .args
             .$how()
-            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| !a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -910,7 +910,7 @@ macro_rules! opts {
         $app.args
             .args
             .$how()
-            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -998,7 +998,7 @@ macro_rules! find_subcmd {
 
 macro_rules! longs {
     ($app:expr) => {{
-        use mkeymap::KeyType;
+        use crate::mkeymap::KeyType;
         $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
             if let KeyType::Long(v) = a {
                 Some(v)

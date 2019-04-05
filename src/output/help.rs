@@ -6,13 +6,13 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use build::{App, AppSettings, Arg, ArgSettings};
-use output::fmt::{Colorizer, ColorizerOption, Format};
-use output::Usage;
-use parse::errors::{Error, Result as ClapResult};
-use parse::Parser;
-use util::VecMap;
-use INTERNAL_ERROR_MSG;
+use crate::build::{App, AppSettings, Arg, ArgSettings};
+use crate::output::fmt::{Colorizer, ColorizerOption, Format};
+use crate::output::Usage;
+use crate::parse::errors::{Error, Result as ClapResult};
+use crate::parse::Parser;
+use crate::util::VecMap;
+use crate::INTERNAL_ERROR_MSG;
 
 // Third Party
 #[cfg(feature = "wrap_help")]

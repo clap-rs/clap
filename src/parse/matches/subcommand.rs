@@ -3,7 +3,7 @@
 use yaml_rust::Yaml;
 
 // Internal
-use ArgMatches;
+use crate::ArgMatches;
 
 type Id = u64;
 

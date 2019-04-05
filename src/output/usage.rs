@@ -2,10 +2,10 @@
 use std::collections::{BTreeMap, VecDeque};
 
 // Internal
-use build::AppSettings as AS;
-use build::{Arg, ArgSettings};
-use parse::{ArgMatcher, Parser};
-use INTERNAL_ERROR_MSG;
+use crate::build::AppSettings as AS;
+use crate::build::{Arg, ArgSettings};
+use crate::parse::{ArgMatcher, Parser};
+use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
 

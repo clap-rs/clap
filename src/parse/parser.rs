@@ -13,21 +13,21 @@ use std::mem;
 use std::os::unix::ffi::OsStrExt;
 
 // Internal
-use build::app::Propagation;
-use build::AppSettings as AS;
-use build::{App, Arg, ArgSettings};
-use mkeymap::KeyType;
-use output::Help;
-use output::Usage;
-use parse::errors::Error as ClapError;
-use parse::errors::ErrorKind;
-use parse::errors::Result as ClapResult;
-use parse::features::suggestions;
-use parse::Validator;
-use parse::{ArgMatcher, SubCommand};
-use util::{self, EMPTY_HASH, Key, ChildGraph, OsStrExt2};
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
+use crate::build::app::Propagation;
+use crate::build::AppSettings as AS;
+use crate::build::{App, Arg, ArgSettings};
+use crate::mkeymap::KeyType;
+use crate::output::Help;
+use crate::output::Usage;
+use crate::parse::errors::Error as ClapError;
+use crate::parse::errors::ErrorKind;
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::features::suggestions;
+use crate::parse::Validator;
+use crate::parse::{ArgMatcher, SubCommand};
+use crate::util::{self, EMPTY_HASH, Key, ChildGraph, OsStrExt2};
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
 
 type Id = u64;
 

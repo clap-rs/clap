@@ -15,14 +15,14 @@ use std::rc::Rc;
 use std::str;
 
 // Third Party
-use util::VecMap;
+use crate::util::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust;
 
 // Internal
-use build::UsageParser;
-use util::Key;
-use INTERNAL_ERROR_MSG;
+use crate::build::UsageParser;
+use crate::util::Key;
+use crate::INTERNAL_ERROR_MSG;
 
 type Validator = Rc<Fn(String) -> Result<(), String>>;
 type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
@@ -4254,8 +4254,8 @@ impl<'help> fmt::Debug for Arg<'help> {
 #[cfg(test)]
 mod test {
     use super::Arg;
-    use build::ArgSettings;
-    use util::VecMap;
+    use crate::build::ArgSettings;
+    use crate::util::VecMap;
 
     #[test]
     fn flag_display() {

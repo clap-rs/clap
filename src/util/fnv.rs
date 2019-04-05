@@ -1,4 +1,4 @@
-use std::ops::Deref;
+
 use std::hash::{Hash, Hasher};
 
 // precompute some common values

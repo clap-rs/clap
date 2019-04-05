@@ -275,7 +275,7 @@ fn build_help(app: &mut App) -> String {
 ///
 /// This is an intentionally stand-alone module so that it can be used easily
 /// in a `build.rs` script to build shell completion files.
-fn app<F>(next_line_help: bool, doc: F) -> App<'static>
+fn app<F>(_next_line_help: bool, doc: F) -> App<'static>
 where
     F: Fn(&'static str) -> &'static str,
 {

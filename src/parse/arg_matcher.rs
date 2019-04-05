@@ -7,8 +7,8 @@ use std::mem;
 use indexmap;
 
 // Internal
-use build::{Arg, ArgSettings};
-use parse::{ArgMatches, MatchedArg, SubCommand};
+use crate::build::{Arg, ArgSettings};
+use crate::parse::{ArgMatches, MatchedArg, SubCommand};
 
 type Id = u64;
 

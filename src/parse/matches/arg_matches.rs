@@ -8,9 +8,9 @@ use std::slice::Iter;
 use indexmap::IndexMap;
 
 // Internal
-use parse::{MatchedArg, SubCommand};
-use INVALID_UTF8;
-use util::Key;
+use crate::parse::{MatchedArg, SubCommand};
+use crate::INVALID_UTF8;
+use crate::util::Key;
 
 type Id = u64;
 

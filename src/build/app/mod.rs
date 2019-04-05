@@ -15,14 +15,14 @@ use std::process;
 use yaml_rust::Yaml;
 
 // Internal
-use build::{Arg, ArgGroup, ArgSettings};
-use mkeymap::MKeyMap;
-use output::fmt::ColorWhen;
-use output::{Help, Usage};
-use parse::errors::Result as ClapResult;
-use parse::{ArgMatcher, ArgMatches, Parser};
-use INTERNAL_ERROR_MSG;
-use util::{Key, VERSION_HASH, HELP_HASH};
+use crate::build::{Arg, ArgGroup, ArgSettings};
+use crate::mkeymap::MKeyMap;
+use crate::output::fmt::ColorWhen;
+use crate::output::{Help, Usage};
+use crate::parse::errors::Result as ClapResult;
+use crate::parse::{ArgMatcher, ArgMatches, Parser};
+use crate::INTERNAL_ERROR_MSG;
+use crate::util::{Key, VERSION_HASH, HELP_HASH};
 
 type Id = u64;
 
