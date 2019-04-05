@@ -27,10 +27,9 @@ use crate::INTERNAL_ERROR_MSG;
 type Id = u64;
 
 #[doc(hidden)]
-#[allow(dead_code)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Propagation<'a> {
-    To(&'a str),
+pub enum Propagation {
+    To(Id),
     Full,
     NextLevel,
     None,
@@ -1014,7 +1013,7 @@ impl<'b> App<'b> {
     pub fn print_help(&mut self) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build(Propagation::NextLevel);
+        self._build();
 
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
@@ -1041,7 +1040,7 @@ impl<'b> App<'b> {
     pub fn print_long_help(&mut self) -> ClapResult<()> {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
-        self._build(Propagation::NextLevel);
+        self._build();
 
         let out = io::stdout();
         let mut buf_w = BufWriter::new(out.lock());
@@ -1067,7 +1066,7 @@ impl<'b> App<'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
-        self._build(Propagation::NextLevel);
+        self._build();
 
         let p = Parser::new(self);
         Help::new(w, &p, false, false).write_help()
@@ -1092,7 +1091,7 @@ impl<'b> App<'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
-        self._build(Propagation::NextLevel);
+        self._build();
 
         let p = Parser::new(self);
         Help::new(w, &p, true, false).write_help()
@@ -1144,8 +1143,8 @@ impl<'b> App<'b> {
     pub fn generate_usage(&mut self) -> String {
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        if !self.settings.is_set(AppSettings::Propagated) {
-            self._build(Propagation::NextLevel);
+        if !self.settings.is_set(AppSettings::Built) {
+            self._build();
         }
 
         let mut parser = Parser::new(self);
@@ -1384,8 +1383,8 @@ impl<'b> App<'b> {
 
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand
-        if !self.settings.is_set(AppSettings::Propagated) {
-            self._build(Propagation::NextLevel);
+        if !self.settings.is_set(AppSettings::Built) {
+            self._build();
         }
 
         {
@@ -1410,22 +1409,13 @@ impl<'b> App<'b> {
 
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
-    pub fn _build(&mut self, prop: Propagation) {
+    pub fn _build(&mut self) {
         debugln!("App::_build;");
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
 
-        // Depending on if DeriveDisplayOrder is set or not, we need to determine when we build
-        // the help and version flags, otherwise help message orders get screwed up
-        if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            self._derive_display_order();
-            self._create_help_and_version();
-            self._propagate(prop);
-        } else {
-            self._create_help_and_version();
-            self._propagate(prop);
-            self._derive_display_order();
-        }
+        self._derive_display_order();
+        self._create_help_and_version();
         // Perform expensive debug assertions
         debug_assert!({
             for a in self.args.args.iter() {
@@ -1468,7 +1458,7 @@ impl<'b> App<'b> {
 
         debug_assert!(self._app_debug_asserts());
         self.args._build();
-        self.settings.set(AppSettings::Propagated);
+        self.settings.set(AppSettings::Built);
     }
 
     // Perform some expensive assertions on the Parser itself
@@ -1499,42 +1489,57 @@ impl<'b> App<'b> {
         true
     }
 
-    // @TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
     pub fn _propagate(&mut self, prop: Propagation) {
-        debugln!("App::_propagate:{}", self.name);
-        for sc in &mut self.subcommands {
-            // We have to create a new scope in order to tell rustc the borrow of `sc` is
-            // done and to recursively call this method
-            {
-                let vsc = self.settings.is_set(AppSettings::VersionlessSubcommands);
-                let gv = self.settings.is_set(AppSettings::GlobalVersion);
-
-                if vsc {
-                    sc.set(AppSettings::DisableVersion);
-                }
-                if gv && sc.version.is_none() && self.version.is_some() {
-                    sc.set(AppSettings::GlobalVersion);
-                    sc.version = Some(self.version.unwrap());
-                }
-                sc.settings = sc.settings | self.g_settings;
-                sc.g_settings = sc.g_settings | self.g_settings;
-                sc.term_w = self.term_w;
-                sc.max_w = self.max_w;
-            }
-            {
-                for a in self
-                    .args
-                    .args
-                    .iter()
-                    .filter(|a| a.is_set(ArgSettings::Global))
+        macro_rules! propagate_subcmd {
+            ($_self:ident, $sc:expr) => {{
+                // We have to create a new scope in order to tell rustc the borrow of `sc` is
+                // done and to recursively call this method
                 {
-                    sc.args.push(a.clone());
+                    let vsc = $_self.settings.is_set(AppSettings::VersionlessSubcommands);
+                    let gv = $_self.settings.is_set(AppSettings::GlobalVersion);
+
+                    if vsc {
+                        $sc.set(AppSettings::DisableVersion);
+                    }
+                    if gv && $sc.version.is_none() && $_self.version.is_some() {
+                        $sc.set(AppSettings::GlobalVersion);
+                        $sc.version = Some($_self.version.unwrap());
+                    }
+                    $sc.settings = $sc.settings | $_self.g_settings;
+                    $sc.g_settings = $sc.g_settings | $_self.g_settings;
+                    $sc.term_w = $_self.term_w;
+                    $sc.max_w = $_self.max_w;
                 }
-            }
-            // @TODO @deadcode @perf @v3-alpha: Currently we're not propagating
-            if prop == Propagation::Full {
-                sc._build(Propagation::Full);
-            }
+                {
+                    for a in $_self
+                        .args
+                        .args
+                        .iter()
+                        .filter(|a| a.is_set(ArgSettings::Global))
+                        {
+                            $sc.args.push(a.clone());
+                        }
+                }
+            }}
+        }
+
+        debugln!("App::_propagate:{}", self.name);
+        match prop {
+            Propagation::NextLevel | Propagation::Full => {
+                for sc in &mut self.subcommands {
+                    propagate_subcmd!(self, sc);
+                    if prop == Propagation::Full {
+                        sc._propagate(prop);
+                    }
+                }
+            },
+            Propagation::To(id) => {
+                let mut sc = self.subcommands.iter_mut().find(|sc| sc.id == id).expect(INTERNAL_ERROR_MSG);
+                propagate_subcmd!(self, sc);
+            },
+            Propagation::None => {
+                return;
+            },
         }
     }
 
@@ -1765,14 +1770,14 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn contains_long(&self, l: &str) -> bool {
-        if !self.is_set(AppSettings::Propagated) {
+        if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg longs");
         }
         self.args.contains_long(l)
     }
 
     pub(crate) fn contains_short(&self, s: char) -> bool {
-        if !self.is_set(AppSettings::Propagated) {
+        if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");
         }
         self.args.contains_short(s)

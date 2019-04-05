@@ -62,7 +62,7 @@ where
         }
         None => {
             for subcommand in subcommands {
-                subcommand._build(Propagation::NextLevel);
+                subcommand._build();
                 if let Some(ref candidate) = did_you_mean(
                     arg,
                     longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),

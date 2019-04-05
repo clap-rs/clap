@@ -768,14 +768,17 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
+                if let Some(id) = find_subcmd!(sc, cmd).map(|x| x.id) {
+                    sc._propagate(Propagation::To(id));
+                }
                 if let Some(mut c) = find_subcmd_cloned!(sc, cmd) {
-                    c._build(Propagation::NextLevel);
+                    c._build();
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
                     }
                 } else if let Some(mut c) = find_subcmd_cloned!(sc, &*cmd.to_string_lossy()) {
-                    c._build(Propagation::NextLevel);
+                    c._build();
                     sc = c;
                     if i == cmds.len() - 1 {
                         break;
@@ -884,6 +887,9 @@ where
             }
         }
         mid_string.push_str(" ");
+        if let Some(id) = find_subcmd!(self.app, sc_name).map(|x| x.id) {
+            self.app._propagate(Propagation::To(id));
+        }
         if let Some(sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::new();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
@@ -906,7 +912,7 @@ where
             ));
 
             // Ensure all args are built and ready to parse
-            sc._build(Propagation::NextLevel);
+            sc._build();
 
             debugln!("Parser::parse_subcommand: About to parse sc={}", sc.name);
 
