@@ -255,10 +255,10 @@ OPTIONS:
 {unified}";
 
 /// Build a clap application with short help strings.
-pub fn app_short() -> App<'static, 'static> { app(false, |k| USAGES[k].short) }
+pub fn app_short() -> App<'static> { app(false, |k| USAGES[k].short) }
 
 /// Build a clap application with long help strings.
-pub fn app_long() -> App<'static, 'static> { app(true, |k| USAGES[k].long) }
+pub fn app_long() -> App<'static> { app(true, |k| USAGES[k].long) }
 
 /// Build the help text of an application.
 fn build_help(app: &mut App) -> String {
@@ -275,7 +275,7 @@ fn build_help(app: &mut App) -> String {
 ///
 /// This is an intentionally stand-alone module so that it can be used easily
 /// in a `build.rs` script to build shell completion files.
-fn app<F>(next_line_help: bool, doc: F) -> App<'static, 'static>
+fn app<F>(next_line_help: bool, doc: F) -> App<'static>
 where
     F: Fn(&'static str) -> &'static str,
 {
