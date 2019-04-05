@@ -601,7 +601,7 @@ pub trait FromArgMatches: Sized {
 /// @TODO @release @docs
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'a, 'b>() -> crate::build::App<'b>;
+    fn into_app<'b>() -> crate::build::App<'b>;
 }
 
 /// @TODO @release @docs

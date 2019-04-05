@@ -364,7 +364,7 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
+    #[allow(clippy::cyclomatic_complexity)]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -755,7 +755,7 @@ where
         T: Into<OsString>,
     {
         debugln!("Parser::parse_help_subcommand;");
-        let cmds: Vec<OsString> = it.map(|c| c.into()).collect();
+        let cmds: Vec<OsString> = it.map(Into::into).collect();
         let mut help_help = false;
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
         let mut sc = {
@@ -809,7 +809,7 @@ where
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
-    #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
+    #[allow(clippy::wrong_self_convention)]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
         debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {

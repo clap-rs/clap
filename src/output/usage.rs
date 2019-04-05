@@ -385,7 +385,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                 .p
                 .app
                 .find(a)
-                .map(|f| f.to_string())
+                .map(ToString::to_string)
                 .expect(INTERNAL_ERROR_MSG);
             ret_val.push_back(arg);
         }

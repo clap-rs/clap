@@ -1,11 +1,10 @@
 use std::hash::{Hash, Hasher};
 
 // precompute some common values
-pub static HELP_HASH: u64 = 0x59636393CFFBFE5F;
-pub static VERSION_HASH: u64 = 0x30FF0B7C4D079478;
-pub static EMPTY_HASH: u64 = 0x1C9D3ADB639F298E;
-
-const MAGIC_INIT: u64 = 0x811C9DC5;
+pub static HELP_HASH: u64 = 0x5963_6393_CFFB_FE5F;
+pub static VERSION_HASH: u64 = 0x30FF_0B7C_4D07_9478;
+pub static EMPTY_HASH: u64 = 0x1C9D_3ADB_639F_298E;
+const MAGIC_INIT: u64 = 0x811C_9DC5;
 
 pub trait Key: Hash {
     fn key(&self) -> u64;
@@ -34,7 +33,7 @@ impl Hasher for FnvHasher {
         let FnvHasher(mut hash) = *self;
 
         for byte in bytes.iter() {
-            hash = hash ^ (*byte as u64);
+            hash ^= u64::from(*byte);
             hash = hash.wrapping_mul(0x100000001b3);
         }
 

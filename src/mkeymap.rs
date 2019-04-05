@@ -202,7 +202,7 @@ impl<'b> MKeyMap<'b> {
         if let Some(idx) = idx {
             let arg = self.args.swap_remove(idx);
             for key in _get_keys(&arg) {
-                let _ = self.remove_key(&key);
+                self.remove_key(&key);
             }
             return Some(arg);
         }

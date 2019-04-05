@@ -1,7 +1,3 @@
-// std
-#[allow(unused_imports)]
-use std::ascii::AsciiExt;
-
 // Internal
 use crate::build::app::AppSettings as AS;
 use crate::build::{Arg, ArgSettings};

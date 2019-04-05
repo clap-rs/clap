@@ -142,7 +142,7 @@ impl<'b> App<'b> {
     pub fn get_name(&self) -> &str { &self.name }
 
     /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.as_ref().map(|s| s.as_str()) }
+    pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.as_ref().map(String::as_str) }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.

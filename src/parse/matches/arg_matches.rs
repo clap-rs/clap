@@ -145,7 +145,7 @@ impl ArgMatches {
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
-    pub fn value_of_lossy<'a, T: Key>(&'a self, id: T) -> Option<Cow<'a, str>> {
+    pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         if let Some(arg) = self.args.get(&id.key()) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
@@ -184,7 +184,7 @@ impl ArgMatches {
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
             .get(&id.key())
-            .and_then(|arg| arg.vals.get(0).map(|v| v.as_os_str()))
+            .and_then(|arg| arg.vals.get(0).map(OsString::as_os_str))
     }
 
     /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument
@@ -212,7 +212,7 @@ impl ArgMatches {
     /// ```
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
-    pub fn values_of<'a, T: Key>(&'a self, id: T) -> Option<Values<'a>> {
+    pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
         if let Some(arg) = self.args.get(&id.key()) {
             fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
@@ -583,7 +583,7 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn indices_of<'a, T: Key>(&'a self, id: T) -> Option<Indices<'a>> {
+    pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
         if let Some(arg) = self.args.get(&id.key()) {
             return Some(Indices {
                 iter: arg.indices.iter().cloned(),

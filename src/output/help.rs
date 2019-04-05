@@ -764,7 +764,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self) -> io::Result<()> {
         debugln!("Help::write_bin_name;");
-        let term_w = self.term_w.clone();
+        let term_w = self.term_w;
         macro_rules! write_name {
             () => {{
                 self.color(Format::Good(&*wrap_help(
