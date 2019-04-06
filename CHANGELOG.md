@@ -1,3 +1,9 @@
+## Unreleased
+
+#### Minimum Required Rust
+
+* As of this release, `clap` requires `rustc 1.30.0` or greater.
+
 <a name="v2.32.0"></a>
 ## v2.32.0 (2018-06-26)
 
