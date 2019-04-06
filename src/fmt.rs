@@ -62,11 +62,11 @@ impl Colorizer {
         let is_a_tty = is_a_tty(option.use_stderr);
         let is_term_dumb = is_term_dumb();
         Colorizer {
-            when: if is_a_tty && !is_term_dumb {
-                option.when
-            } else {
-                ColorWhen::Never
-            },
+            when: match option.when {
+                ColorWhen::Auto if is_a_tty && !is_term_dumb => ColorWhen::Auto,
+                ColorWhen::Auto => ColorWhen::Never,
+                when => when,
+            }
         }
     }
 
