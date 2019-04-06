@@ -871,6 +871,7 @@ where
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: ParseResult<'a> = ParseResult::NotFound;
         let mut pos_counter = 1;
+        let mut sc_is_external = false;
         while let Some(arg) = it.next() {
             let arg_os = arg.into();
             debugln!(
@@ -1115,6 +1116,7 @@ where
                     name: sc_name,
                     matches: sc_m.into(),
                 });
+                sc_is_external = true;
             } else if !((self.is_set(AS::AllowLeadingHyphen)
                 || self.is_set(AS::AllowNegativeNumbers))
                 && arg_os.starts_with(b"-"))
@@ -1154,32 +1156,34 @@ where
             }
         }
 
-        if let Some(ref pos_sc_name) = subcmd_name {
-            let sc_name = {
-                find_subcmd!(self, pos_sc_name)
-                    .expect(INTERNAL_ERROR_MSG)
-                    .p
-                    .meta
-                    .name
-                    .clone()
-            };
-            self.parse_subcommand(&*sc_name, matcher, it)?;
-        } else if self.is_set(AS::SubcommandRequired) {
-            let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
-            return Err(Error::missing_subcommand(
-                bn,
-                &usage::create_error_usage(self, matcher, None),
-                self.color(),
-            ));
-        } else if self.is_set(AS::SubcommandRequiredElseHelp) {
-            debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
-            let mut out = vec![];
-            self.write_help_err(&mut out)?;
-            return Err(Error {
-                message: String::from_utf8_lossy(&*out).into_owned(),
-                kind: ErrorKind::MissingArgumentOrSubcommand,
-                info: None,
-            });
+        if !sc_is_external {
+            if let Some(ref pos_sc_name) = subcmd_name {
+                let sc_name = {
+                    find_subcmd!(self, pos_sc_name)
+                        .expect(INTERNAL_ERROR_MSG)
+                        .p
+                        .meta
+                        .name
+                        .clone()
+                };
+                self.parse_subcommand(&*sc_name, matcher, it)?;
+            } else if self.is_set(AS::SubcommandRequired) {
+                let bn = self.meta.bin_name.as_ref().unwrap_or(&self.meta.name);
+                return Err(Error::missing_subcommand(
+                    bn,
+                    &usage::create_error_usage(self, matcher, None),
+                    self.color(),
+                ));
+            } else if self.is_set(AS::SubcommandRequiredElseHelp) {
+                debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
+                let mut out = vec![];
+                self.write_help_err(&mut out)?;
+                return Err(Error {
+                    message: String::from_utf8_lossy(&*out).into_owned(),
+                    kind: ErrorKind::MissingArgumentOrSubcommand,
+                    info: None,
+                });
+            }
         }
 
         // In case the last arg was new, we  need to process it's overrides

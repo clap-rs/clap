@@ -768,6 +768,25 @@ fn issue_1093_allow_ext_sc() {
     assert!(test::compare_output(app, "clap-test --help", ALLOW_EXT_SC, false));
 }
 
+
+#[test]
+fn allow_ext_sc_when_sc_required() {
+    let res = App::new("clap-test")
+        .version("v1.4.8")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .get_matches_from_safe(vec!["clap-test", "external-cmd", "foo"]);
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    match m.subcommand() {
+        (name, Some(args)) => {
+            assert_eq!(name, "external-cmd");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => assert!(false),
+    }
+}
+
 #[test]
 fn external_subcommand_looks_like_built_in() {
     let res = App::new("cargo")
