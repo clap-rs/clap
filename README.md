@@ -246,7 +246,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.32"` to `clap = {version = "2.32", features = ["yaml"]}`.
+Simply change your `clap = "2.33"` to `clap = {version = "2.33", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -370,7 +370,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.32"
+version = "2.33"
 default-features = false
 ```
 
@@ -378,7 +378,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.32"
+version = "2.33"
 default-features = false
 
 # Cherry-pick the features you'd like to use
