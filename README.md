@@ -17,7 +17,6 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 Table of Contents
 =================
 
-* [What's New](#whats-new)
 * [About](#about)
 * [FAQ](#faq)
 * [Features](#features)
@@ -39,38 +38,6 @@ Table of Contents
   * [Deprecations](#deprecations)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
-
-## What's New
-
-Here's whats new in 2.32.0:
-
-* `clap` requires `rustc 1.30.0` or greater.
-* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/clap-rs/clap/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
-* **ArgGroup and macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/clap-rs/clap/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
-* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/clap-rs/clap/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
-* **arg_enum!:**  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/clap-rs/clap/commit/7023184fca04e852c270341548d6a16207d13862))
-* **help messages:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/clap-rs/clap/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
-* **Docs:** Refer to macOS rather than OSX. ([ab0d767f](https://github.com/clap-rs/clap/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
-
-Here's whats new in 2.31.x:
-
-* **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell
-* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcommand
-* Fixes some typos in the `README.md`
-* **AllowMissingPositional:**  improves the ability of `AppSetting::AllowMissingPositional` to allow "skipping" to the last positional arg with the `--` operator
-* **Arg Indices:**  adds the ability to query argument value indices
-  * implements an `Indices<Item=usize>` iterator
-  * adds the documentation for the arg index querying methods
-* **Improves PowerShell completions** - Uses the short help tool-tip for PowerShell completion scripts
-* Adds WASM support (clap now compiles on WASM!)
-* **Raw Args** adds a convenience function to `Arg` that allows implying all of `Arg::last` `Arg::allow_hyphen_values` and `Arg::multiple(true)`
-* **CONTRIBUTING.md:**  fix url to clippy upstream repo
-* **Values Documentation:**  improves the docs example of the Values iterator
-* Updates README.md to hint that the `wrap_help` feature is a thing
-* Use `codegen-units = 1` in release and bench profiles to improve bench performance
-* Fix some typos and markdown issues in the docs
-
-For full details, see [CHANGELOG.md](https://github.com/clap-rs/clap/blob/master/CHANGELOG.md)
 
 ## About
 
@@ -279,7 +246,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.32"` to `clap = {version = "2.32", features = ["yaml"]}`.
+Simply change your `clap = "2.33"` to `clap = {version = "2.33", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -380,7 +347,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.32"
+clap = "~2.33"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -403,7 +370,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.32"
+version = "2.33"
 default-features = false
 ```
 
@@ -411,7 +378,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.32"
+version = "2.33"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -460,7 +427,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.32"
+clap = "~2.33"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -477,11 +444,11 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.32.0"
+clap = "~2.33.0"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.31.0"
+clap = "2.33.0"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.

@@ -517,7 +517,7 @@
 //! [license]: https://raw.githubusercontent.com/clap-rs/clap/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.32.0")]
+#![doc(html_root_url = "https://docs.rs/clap/2.33.0")]
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
         unused_import_braces, unused_allocation)]
 // Lints we'd like to deny but are currently failing for upstream crates
