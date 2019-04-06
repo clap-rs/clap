@@ -135,7 +135,7 @@ where
     }
 
     #[inline]
-    fn app_debug_asserts(&mut self) -> bool {
+    fn app_debug_asserts(&self) -> bool {
         assert!(self.verify_positionals());
         let should_err = self.groups.iter().all(|g| {
             g.args.iter().all(|arg| {
@@ -512,7 +512,7 @@ where
     pub fn unset(&mut self, s: AS) { self.settings.unset(s) }
 
     #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
-    pub fn verify_positionals(&mut self) -> bool {
+    pub fn verify_positionals(&self) -> bool {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
         //
@@ -1366,6 +1366,8 @@ where
     }
 
     pub fn args_in_group(&self, group: &str) -> Vec<String> {
+        debug_assert!(self.app_debug_asserts());
+
         let mut g_vec = vec![];
         let mut args = vec![];
 
