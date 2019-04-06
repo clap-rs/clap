@@ -173,19 +173,19 @@ where
     fn debug_asserts(&self, a: &Arg) -> bool {
         assert!(
             !arg_names!(self).any(|name| name == a.b.name),
-            format!("Non-unique argument name: {} is already in use", a.b.name)
+            format!("Non-unique argument name: '{}' is already in use", a.b.name)
         );
         if let Some(l) = a.s.long {
             assert!(
                 !self.contains_long(l),
-                "Argument long must be unique\n\n\t--{} is already in use",
+                "Argument long must be unique\n\n\t'--{}' is already in use",
                 l
             );
         }
         if let Some(s) = a.s.short {
             assert!(
                 !self.contains_short(s),
-                "Argument short must be unique\n\n\t-{} is already in use",
+                "Argument short must be unique\n\n\t'-{}' is already in use",
                 s
             );
         }
@@ -196,7 +196,7 @@ where
         };
         assert!(
             !self.positionals.contains_key(i),
-            "Argument \"{}\" has the same index as another positional \
+            "Argument '{}' has the same index as another positional \
              argument\n\n\tPerhaps try .multiple(true) to allow one positional argument \
              to take multiple values",
             a.b.name
@@ -215,10 +215,10 @@ where
                 "Only one positional argument may have last(true) set. Found two."
             );
             assert!(a.s.long.is_none(),
-                    "Flags or Options may not have last(true) set. {} has both a long and last(true) set.",
+                    "Flags or Options may not have last(true) set. '{}' has both a long and last(true) set.",
                     a.b.name);
             assert!(a.s.short.is_none(),
-                    "Flags or Options may not have last(true) set. {} has both a short and last(true) set.",
+                    "Flags or Options may not have last(true) set. '{}' has both a short and last(true) set.",
                     a.b.name);
         }
         true
