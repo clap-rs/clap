@@ -20,19 +20,19 @@ impl<'a, 'b> BashGen<'a, 'b> {
         w!(
             buf,
             format!(
-                "_{name}() {{
+                r#"_{name}() {{
     local i cur prev opts cmds
     COMPREPLY=()
-    cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
-    prev=\"${{COMP_WORDS[COMP_CWORD-1]}}\"
-    cmd=\"\"
-    opts=\"\"
+    cur="${{COMP_WORDS[COMP_CWORD]}}"
+    prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+    cmd=""
+    opts=""
 
     for i in ${{COMP_WORDS[@]}}
     do
-        case \"${{i}}\" in
+        case "${{i}}" in
             {name})
-                cmd=\"{name}\"
+                cmd="{name}"
                 ;;
             {subcmds}
             *)
@@ -40,20 +40,20 @@ impl<'a, 'b> BashGen<'a, 'b> {
         esac
     done
 
-    case \"${{cmd}}\" in
+    case "${{cmd}}" in
         {name})
-            opts=\"{name_opts}\"
+            opts="{name_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
-                COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
                 return 0
             fi
-            case \"${{prev}}\" in
+            case "${{prev}}" in
                 {name_opts_details}
                 *)
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
             return 0
             ;;
         {subcmd_details}
@@ -61,7 +61,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
 }}
 
 complete -F _{name} -o bashdefault -o default {name}
-",
+"#,
                 name = self.p.meta.bin_name.as_ref().unwrap(),
                 name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
                 name_opts_details =
@@ -79,10 +79,10 @@ complete -F _{name} -o bashdefault -o default {name}
 
         for sc in &scs {
             subcmds = format!(
-                "{}
+                r#"{}
             {name})
-                cmd+=\"__{fn_name}\"
-                ;;",
+                cmd+="__{fn_name}"
+                ;;"#,
                 subcmds,
                 name = sc,
                 fn_name = sc.replace("-", "__")
@@ -101,22 +101,22 @@ complete -F _{name} -o bashdefault -o default {name}
 
         for sc in &scs {
             subcmd_dets = format!(
-                "{}
+                r#"{}
         {subcmd})
-            opts=\"{sc_opts}\"
+            opts="{sc_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
-                COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
                 return 0
             fi
-            case \"${{prev}}\" in
+            case "${{prev}}" in
                 {opts_details}
                 *)
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
             return 0
-            ;;",
+            ;;"#,
                 subcmd_dets,
                 subcmd = sc.replace("-", "__"),
                 sc_opts = self.all_options_for_path(&*sc),
@@ -169,9 +169,9 @@ complete -F _{name} -o bashdefault -o default {name}
         debugln!("BashGen::vals_for: o={}", o.b.name);
         use args::AnyArg;
         if let Some(vals) = o.possible_vals() {
-            format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))
+            format!(r#"$(compgen -W "{}" -- "${{cur}}")"#, vals.join(" "))
         } else {
-            String::from("$(compgen -f ${cur})")
+            String::from(r#"$(compgen -f "${cur}")"#)
         }
     }
 
