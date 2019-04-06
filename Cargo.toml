@@ -39,9 +39,8 @@ ansi_term = { version = "0.11",  optional = true }
 
 [dev-dependencies]
 regex = "1"
-# lazy_static 1.2 requires Rust 1.24.1+
-lazy_static = "~1.1"
-version-sync = "0.5"
+lazy_static = "1.3"
+version-sync = "0.8"
 
 [features]
 default     = ["suggestions", "color", "vec_map"]
