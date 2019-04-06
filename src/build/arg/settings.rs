@@ -37,7 +37,7 @@ impl ArgFlags {
     pub fn new() -> Self { ArgFlags::default() }
 
     // @TODO @p6 @internal: Reorder alphabetically
-    impl_settings!{ArgSettings,
+    impl_settings! {ArgSettings,
         Required => Flags::REQUIRED,
         MultipleOccurrences => Flags::MULTIPLE_OCC,
         MultipleValues => Flags::MULTIPLE_VALS,

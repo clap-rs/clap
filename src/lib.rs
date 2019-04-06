@@ -523,13 +523,8 @@
     missing_copy_implementations,
     trivial_casts,
     unused_import_braces,
-    unused_allocation
-)]
-// @TODO @v3-beta: remove me!
-#![allow(deprecated)]
-#![cfg_attr(
-    not(any(feature = "lints", feature = "nightly")),
-    forbid(unstable_features)
+    unused_allocation,
+    trivial_numeric_casts
 )]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
@@ -561,10 +556,10 @@ extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
-pub use build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
-pub use output::fmt::Format;
-pub use parse::errors::{Error, ErrorKind, Result};
-pub use parse::{ArgMatches, OsValues, Values};
+pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+pub use crate::output::fmt::Format;
+pub use crate::parse::errors::{Error, ErrorKind, Result};
+pub use crate::parse::{ArgMatches, OsValues, Values};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 
@@ -593,12 +588,12 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {}
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {
     /// @TODO @release @docs
-    fn from_argmatches<'a>(matches: &::parse::ArgMatches<'a>) -> Self;
+    fn from_argmatches(matches: &crate::parse::ArgMatches) -> Self;
 
     /// @TODO @release @docs
-    fn try_from_argmatches<'a>(
-        matches: &::parse::ArgMatches<'a>,
-    ) -> StdResult<Self, ::parse::errors::Error> {
+    fn try_from_argmatches(
+        matches: &crate::parse::ArgMatches,
+    ) -> StdResult<Self, crate::parse::errors::Error> {
         Ok(<Self as FromArgMatches>::from_argmatches(matches))
     }
 }
@@ -606,7 +601,7 @@ pub trait FromArgMatches: Sized {
 /// @TODO @release @docs
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'a, 'b>() -> ::build::App<'a, 'b>;
+    fn into_app<'b>() -> crate::build::App<'b>;
 }
 
 /// @TODO @release @docs

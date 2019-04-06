@@ -264,7 +264,7 @@ macro_rules! values_t_or_exit {
 macro_rules! _clap_count_exprs {
     () => { 0 };
     ($e:expr) => { 1 };
-    ($e:expr, $($es:expr),+) => { 1 + _clap_count_exprs!($($es),*) };
+    ($e:expr, $($es:expr),+) => { 1 + $crate::_clap_count_exprs!($($es),*) };
 }
 
 /// Convenience macro to generate more complete enums with variants to be used as a type when
@@ -348,7 +348,7 @@ macro_rules! arg_enum {
         }
         impl $e {
             #[allow(dead_code)]
-            pub fn variants() -> [&'static str; _clap_count_exprs!($(stringify!($v)),+)] {
+            pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
                 [
                     $(stringify!($v),)+
                 ]
@@ -890,7 +890,9 @@ macro_rules! flags {
         $app.args
             .args
             .$how()
-            .filter(|a| !a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| {
+                !a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
+            })
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -910,7 +912,9 @@ macro_rules! opts {
         $app.args
             .args
             .$how()
-            .filter(|a| a.settings.is_set(::build::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| {
+                a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
+            })
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -979,8 +983,8 @@ macro_rules! groups_for_arg {
         debugln!("Parser::groups_for_arg: name={}", $grp);
         $app.groups
             .iter()
-            .filter(|grp| grp.args.iter().any(|a| a == $grp))
-            .map(|grp| grp.name)
+            .filter(|grp| grp.args.iter().any(|&a| a == $grp))
+            .map(|grp| grp.id)
     }};
 }
 
@@ -998,7 +1002,7 @@ macro_rules! find_subcmd {
 
 macro_rules! longs {
     ($app:expr) => {{
-        use mkeymap::KeyType;
+        use crate::mkeymap::KeyType;
         $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
             if let KeyType::Long(v) = a {
                 Some(v)

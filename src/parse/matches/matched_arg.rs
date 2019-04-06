@@ -27,7 +27,7 @@ impl MatchedArg {
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals
             .iter()
-            .map(|v| v.as_os_str())
+            .map(OsString::as_os_str)
             .any(|v| v == OsStr::new(val))
     }
 }

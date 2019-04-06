@@ -6,7 +6,7 @@ mod tests {
     include!("../clap-test.rs");
     use clap::{App, Arg};
 
-    fn get_app() -> App<'static, 'static> {
+    fn get_app() -> App<'static> {
         App::new("myprog")
             .arg(
                 Arg::with_name("GLOBAL_ARG")

@@ -671,7 +671,7 @@ USAGE:
 
 For more information try --help";
 
-fn issue_1158_app() -> App<'static, 'static> {
+fn issue_1158_app() -> App<'static> {
     App::new("example")
         .arg(
             Arg::from("-c, --config [FILE] 'Custom config file.'")

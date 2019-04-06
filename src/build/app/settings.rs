@@ -41,7 +41,7 @@ bitflags! {
         const ALLOW_MISSING_POS    = 1 << 32;
         const TRAILING_VALUES      = 1 << 33;
         const VALID_NEG_NUM_FOUND  = 1 << 34;
-        const PROPAGATED           = 1 << 35;
+        const BUILT                = 1 << 35;
         const VALID_ARG_FOUND      = 1 << 36;
         const INFER_SUBCOMMANDS    = 1 << 37;
         const CONTAINS_LAST        = 1 << 38;
@@ -103,7 +103,7 @@ impl AppFlags {
         WaitOnError => Flags::WAIT_ON_ERROR,
         TrailingValues => Flags::TRAILING_VALUES,
         ValidNegNumFound => Flags::VALID_NEG_NUM_FOUND,
-        Propagated => Flags::PROPAGATED,
+        Built => Flags::BUILT,
         ValidArgFound => Flags::VALID_ARG_FOUND,
         InferSubcommands => Flags::INFER_SUBCOMMANDS,
         AllArgsOverrideSelf => Flags::ARGS_OVERRIDE_SELF,
@@ -934,7 +934,7 @@ pub enum AppSettings {
     ValidNegNumFound,
 
     #[doc(hidden)]
-    Propagated,
+    Built,
 
     #[doc(hidden)]
     ValidArgFound,
@@ -979,7 +979,7 @@ impl FromStr for AppSettings {
             "waitonerror" => Ok(AppSettings::WaitOnError),
             "validnegnumfound" => Ok(AppSettings::ValidNegNumFound),
             "validargfound" => Ok(AppSettings::ValidArgFound),
-            "propagated" => Ok(AppSettings::Propagated),
+            "built" => Ok(AppSettings::Built),
             "trailingvalues" => Ok(AppSettings::TrailingValues),
             _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
         }
@@ -1117,8 +1117,8 @@ mod test {
             AppSettings::ValidArgFound
         );
         assert_eq!(
-            "propagated".parse::<AppSettings>().unwrap(),
-            AppSettings::Propagated
+            "built".parse::<AppSettings>().unwrap(),
+            AppSettings::Built
         );
         assert_eq!(
             "trailingvalues".parse::<AppSettings>().unwrap(),

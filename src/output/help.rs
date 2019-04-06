@@ -6,13 +6,13 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use build::{App, AppSettings, Arg, ArgSettings};
-use output::fmt::{Colorizer, ColorizerOption, Format};
-use output::Usage;
-use parse::errors::{Error, Result as ClapResult};
-use parse::Parser;
-use util::VecMap;
-use INTERNAL_ERROR_MSG;
+use crate::build::{App, AppSettings, Arg, ArgSettings};
+use crate::output::fmt::{Colorizer, ColorizerOption, Format};
+use crate::output::Usage;
+use crate::parse::errors::{Error, Result as ClapResult};
+use crate::parse::Parser;
+use crate::util::VecMap;
+use crate::INTERNAL_ERROR_MSG;
 
 // Third Party
 #[cfg(feature = "wrap_help")]
@@ -32,9 +32,9 @@ const TAB: &str = "    ";
 /// `clap` Help Writer.
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
-pub struct Help<'a, 'b, 'c, 'd, 'w> {
+pub struct Help<'b, 'c, 'd, 'w> {
     writer: &'w mut Write,
-    parser: &'d Parser<'a, 'b, 'c>,
+    parser: &'d Parser<'b, 'c>,
     next_line_help: bool,
     hide_pv: bool,
     term_w: usize,
@@ -46,14 +46,9 @@ pub struct Help<'a, 'b, 'c, 'd, 'w> {
 }
 
 // Public Functions
-impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(
-        w: &'w mut Write,
-        parser: &'d Parser<'a, 'b, 'c>,
-        use_long: bool,
-        stderr: bool,
-    ) -> Self {
+    pub fn new(w: &'w mut Write, parser: &'d Parser<'b, 'c>, use_long: bool, stderr: bool) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,
@@ -102,19 +97,36 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
 }
 
 // Methods to write Arg help.
-impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn color(&mut self, f: Format<&str>) -> io::Result<()> {
         match f {
-            Format::Good(g) => if self.color { write!(self.writer, "{}", self.cizer.good(g)) } else { write!(self.writer, "{}", g) },
-            Format::Warning(w) => if self.color { write!(self.writer, "{}", self.cizer.warning(w))} else { write!(self.writer, "{}", w) },
-            Format::Error(e) => if self.color { write!(self.writer, "{}", self.cizer.error(e)) } else { write!(self.writer, "{}", e) },
-            _ => unreachable!()
+            Format::Good(g) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.good(g))
+                } else {
+                    write!(self.writer, "{}", g)
+                }
+            }
+            Format::Warning(w) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.warning(w))
+                } else {
+                    write!(self.writer, "{}", w)
+                }
+            }
+            Format::Error(e) => {
+                if self.color {
+                    write!(self.writer, "{}", self.cizer.error(e))
+                } else {
+                    write!(self.writer, "{}", e)
+                }
+            }
+            _ => unreachable!(),
         }
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
-    fn write_args_unsorted(&mut self, args: &[&Arg<'a, 'b>]) -> io::Result<()>
-    {
+    fn write_args_unsorted(&mut self, args: &[&Arg<'b>]) -> io::Result<()> {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -140,7 +152,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg<'a, 'b>]) -> io::Result<()> {
+    fn write_args(&mut self, args: &[&Arg<'b>]) -> io::Result<()> {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -159,6 +171,8 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
                 debugln!("Help::write_args: New Longest...{}", self.longest);
             }
             let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
+            // We use name here for alphabetic sorting
+            // @TODO @maybe perhaps we could do some sort of ordering off of keys?
             btm.insert(arg.name, arg);
         }
         let mut first = true;
@@ -176,7 +190,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg<'b, 'c>, prevent_nlh: bool) -> io::Result<()> {
+    fn write_arg(&mut self, arg: &Arg<'c>, prevent_nlh: bool) -> io::Result<()> {
         debugln!("Help::write_arg;");
         self.short(arg)?;
         self.long(arg)?;
@@ -186,7 +200,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's short command to the wrapped stream.
-    fn short(&mut self, arg: &Arg<'b, 'c>) -> io::Result<()> {
+    fn short(&mut self, arg: &Arg<'c>) -> io::Result<()> {
         debugln!("Help::short;");
         write!(self.writer, "{}", TAB)?;
         if let Some(s) = arg.short {
@@ -199,7 +213,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's long command to the wrapped stream.
-    fn long(&mut self, arg: &Arg<'b, 'c>) -> io::Result<()> {
+    fn long(&mut self, arg: &Arg<'c>) -> io::Result<()> {
         debugln!("Help::long;");
         if !arg.has_switch() {
             return Ok(());
@@ -228,7 +242,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg<'b, 'c>) -> Result<String, io::Error> {
+    fn val(&mut self, arg: &Arg<'c>) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg.name);
         let mult =
             arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
@@ -358,12 +372,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help(
-        &mut self,
-        arg: &Arg<'b, 'c>,
-        spec_vals: &str,
-        prevent_nlh: bool,
-    ) -> io::Result<()> {
+    fn help(&mut self, arg: &Arg<'c>, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
             arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
@@ -496,8 +505,8 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
 }
 
 /// Methods to write a single subcommand
-impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
-    fn write_subcommand(&mut self, app: &App<'a, 'b>) -> io::Result<()> {
+impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
+    fn write_subcommand(&mut self, app: &App<'b>) -> io::Result<()> {
         debugln!("Help::write_subcommand;");
         write!(self.writer, "{}", TAB)?;
         self.color(Format::Good(&*app.name))?;
@@ -506,7 +515,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
         Ok(())
     }
 
-    fn sc_val(&mut self, app: &App<'a, 'b>) -> Result<String, io::Error> {
+    fn sc_val(&mut self, app: &App<'b>) -> Result<String, io::Error> {
         debugln!("Help::sc_val: app={}", app.name);
         let spec_vals = self.sc_spec_vals(app);
         let h = app.about.unwrap_or("");
@@ -554,7 +563,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
         spec_vals.join(" ")
     }
 
-    fn sc_help(&mut self, app: &App<'a, 'b>, spec_vals: &str) -> io::Result<()> {
+    fn sc_help(&mut self, app: &App<'b>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::sc_help;");
         let h = if self.use_long {
             app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
@@ -610,7 +619,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
 }
 
 // Methods to write Parser help.
-impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
     pub fn write_all_args(&mut self) -> ClapResult<()> {
@@ -649,7 +658,14 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
 
         if unified_help && (flags || opts) {
-            let opts_flags = self.parser.app.args.args.iter().filter(|a| a.has_switch()).collect::<Vec<_>>();
+            let opts_flags = self
+                .parser
+                .app
+                .args
+                .args
+                .iter()
+                .filter(|a| a.has_switch())
+                .collect::<Vec<_>>();
             if !first {
                 self.writer.write_all(b"\n\n")?;
             }
@@ -662,7 +678,8 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
                     self.writer.write_all(b"\n\n")?;
                 }
                 self.color(Format::Warning("FLAGS:\n"))?;
-                self.write_args(&*flags!(self.parser.app).collect::<Vec<_>>())?;
+                let flags_v: Vec<_> = flags!(self.parser.app).collect();
+                self.write_args(&*flags_v)?;
                 first = false;
             }
             if opts {
@@ -674,7 +691,8 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
                 first = false;
             }
             if custom_headings {
-                for heading in self.parser
+                for heading in self
+                    .parser
                     .app
                     .help_headings
                     .iter()
@@ -685,9 +703,14 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
                         self.writer.write_all(b"\n\n")?;
                     }
                     self.color(Format::Warning(&*format!("{}:\n", heading)))?;
-                    let args = self.parser.app.args.args.iter().filter(|a| {
-                        a.help_heading.is_some() && a.help_heading.unwrap() == heading
-                    }).collect::<Vec<_>>();
+                    let args = self
+                        .parser
+                        .app
+                        .args
+                        .args
+                        .iter()
+                        .filter(|a| a.help_heading.is_some() && a.help_heading.unwrap() == heading)
+                        .collect::<Vec<_>>();
                     self.write_args(&*args)?;
                     first = false
                 }
@@ -706,7 +729,7 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     }
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
-    fn write_subcommands(&mut self, app: &App<'a, 'b>) -> io::Result<()> {
+    fn write_subcommands(&mut self, app: &App<'b>) -> io::Result<()> {
         debugln!("Help::write_subcommands;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -741,10 +764,13 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
     /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self) -> io::Result<()> {
         debugln!("Help::write_bin_name;");
-        let term_w = self.term_w.clone();
+        let term_w = self.term_w;
         macro_rules! write_name {
             () => {{
-                self.color(Format::Good(&*wrap_help(&self.parser.app.name.replace("{n}", "\n"), term_w)))?;
+                self.color(Format::Good(&*wrap_help(
+                    &self.parser.app.name.replace("{n}", "\n"),
+                    term_w,
+                )))?;
             }};
         }
         if let Some(bn) = self.parser.app.bin_name.as_ref() {
@@ -770,7 +796,11 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
 
         macro_rules! write_thing {
             ($thing:expr) => {{
-                write!(self.writer, "{}\n", wrap_help(&$thing.replace("{n}", "\n"), self.term_w))?
+                write!(
+                    self.writer,
+                    "{}\n",
+                    wrap_help(&$thing.replace("{n}", "\n"), self.term_w)
+                )?
             }};
         }
         // Print the version
@@ -915,7 +945,7 @@ fn copy_and_capture<R: Read, W: Write>(
 }
 
 // Methods to write Parser help using templates.
-impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Write help to stream for the parser in the format defined by the template.
     ///
     /// Tags arg given inside curly brackets:
@@ -1009,7 +1039,14 @@ impl<'a, 'b, 'c, 'd, 'w> Help<'a, 'b, 'c, 'd, 'w> {
                     self.write_all_args()?;
                 }
                 b"unified" => {
-                    let opts_flags = self.parser.app.args.args.iter().filter(|a| a.has_switch()).collect::<Vec<_>>();
+                    let opts_flags = self
+                        .parser
+                        .app
+                        .args
+                        .args
+                        .iter()
+                        .filter(|a| a.has_switch())
+                        .collect::<Vec<_>>();
                     self.write_args(&*opts_flags)?;
                 }
                 b"flags" => {

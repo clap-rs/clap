@@ -5,6 +5,11 @@ use std::fmt::{Debug, Formatter, Result};
 #[cfg(feature = "yaml")]
 use yaml_rust;
 
+// Internal
+use crate::util::Key;
+
+type Id = u64;
+
 /// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
 /// arguments". By placing arguments in a logical group, you can create easier requirement and
 /// exclusion rules instead of having to list each argument individually, or when you want a rule
@@ -78,20 +83,31 @@ use yaml_rust;
 #[derive(Default)]
 pub struct ArgGroup<'a> {
     #[doc(hidden)]
+    pub id: Id,
+    #[doc(hidden)]
     pub name: &'a str,
     #[doc(hidden)]
-    pub args: Vec<&'a str>,
+    pub args: Vec<Id>,
     #[doc(hidden)]
     pub required: bool,
     #[doc(hidden)]
-    pub requires: Option<Vec<&'a str>>,
+    pub requires: Option<Vec<Id>>,
     #[doc(hidden)]
-    pub conflicts: Option<Vec<&'a str>>,
+    pub conflicts: Option<Vec<Id>>,
     #[doc(hidden)]
     pub multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {
+    #[doc(hidden)]
+    pub fn _with_id(id: Id) -> Self {
+        ArgGroup {
+            id,
+            ..ArgGroup::default()
+        }
+    }
+    /// @TODO @p2 @docs @v3-beta1: Write Docs
+    pub fn new<T: Key>(id: T) -> Self { ArgGroup::_with_id(id.key()) }
     /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
     /// get values from the group or refer to the group inside of conflict and requirement rules.
     ///
@@ -104,12 +120,9 @@ impl<'a> ArgGroup<'a> {
     /// ```
     pub fn with_name(n: &'a str) -> Self {
         ArgGroup {
+            id: n.key(),
             name: n,
-            required: false,
-            args: vec![],
-            requires: None,
-            conflicts: None,
-            multiple: false,
+            ..ArgGroup::default()
         }
     }
 
@@ -153,13 +166,8 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [argument]: ./struct.Arg.html
     #[cfg_attr(feature = "lints", allow(should_assert_eq))]
-    pub fn arg(mut self, n: &'a str) -> Self {
-        assert!(
-            self.name != n,
-            "ArgGroup '{}' can not have same name as arg inside it",
-            &*self.name
-        );
-        self.args.push(n);
+    pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
+        self.args.push(arg_id.key());
         self
     }
 
@@ -183,7 +191,7 @@ impl<'a> ArgGroup<'a> {
     /// assert!(m.is_present("flag"));
     /// ```
     /// [arguments]: ./struct.Arg.html
-    pub fn args(mut self, ns: &[&'a str]) -> Self {
+    pub fn args<T: Key>(mut self, ns: &[T]) -> Self {
         for n in ns {
             self = self.arg(n);
         }
@@ -304,11 +312,12 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [required group]: ./struct.ArgGroup.html#method.required
     /// [argument requirement rules]: ./struct.Arg.html#method.requires
-    pub fn requires(mut self, n: &'a str) -> Self {
+    pub fn requires<T: Key>(mut self, id: T) -> Self {
+        let arg_id = id.key();
         if let Some(ref mut reqs) = self.requires {
-            reqs.push(n);
+            reqs.push(arg_id);
         } else {
-            self.requires = Some(vec![n]);
+            self.requires = Some(vec![arg_id]);
         }
         self
     }
@@ -379,11 +388,12 @@ impl<'a> ArgGroup<'a> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
-    pub fn conflicts_with(mut self, n: &'a str) -> Self {
+    pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
+        let arg_id = id.key();
         if let Some(ref mut confs) = self.conflicts {
-            confs.push(n);
+            confs.push(arg_id);
         } else {
-            self.conflicts = Some(vec![n]);
+            self.conflicts = Some(vec![arg_id]);
         }
         self
     }
@@ -445,6 +455,7 @@ impl<'a> Debug for ArgGroup<'a> {
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
+            id: g.id,
             name: g.name,
             required: g.required,
             args: g.args.clone(),
@@ -508,6 +519,7 @@ impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
 #[cfg(test)]
 mod test {
     use super::ArgGroup;
+    use super::Key;
     #[cfg(feature = "yaml")]
     use yaml_rust::YamlLoader;
 
@@ -525,9 +537,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
+        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
+        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
+        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
 
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
@@ -548,9 +560,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
+        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
+        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
+        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
 
         let debug_str = format!(
             "{{\n\
@@ -582,9 +594,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
+        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
+        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
+        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);
@@ -625,6 +637,7 @@ requires:
 impl<'a> Clone for ArgGroup<'a> {
     fn clone(&self) -> Self {
         ArgGroup {
+            id: self.id,
             name: self.name,
             required: self.required,
             args: self.args.clone(),

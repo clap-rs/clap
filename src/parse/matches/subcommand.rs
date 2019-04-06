@@ -3,7 +3,9 @@
 use yaml_rust::Yaml;
 
 // Internal
-use ArgMatches;
+use crate::ArgMatches;
+
+type Id = u64;
 
 /// The abstract representation of a command line subcommand.
 ///
@@ -27,9 +29,11 @@ use ArgMatches;
 /// [`App`]: ./struct.App.html
 /// [arguments]: ./struct.Arg.html
 #[derive(Debug, Clone)]
-pub struct SubCommand<'a> {
+pub struct SubCommand {
+    #[doc(hidden)]
+    pub id: Id,
     #[doc(hidden)]
     pub name: String,
     #[doc(hidden)]
-    pub matches: ArgMatches<'a>,
+    pub matches: ArgMatches,
 }

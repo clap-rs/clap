@@ -4,7 +4,7 @@ clap
 [![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](http://img.shields.io/badge/license-Apache 2.0-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/clap-rs/clap/badge.svg?branch=master&service=github)](https://coveralls.io/github/clap-rs/clap?branch=master) [![Join the chat at https://gitter.im/clap-rs/clap](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clap-rs/clap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Linux: [![Build Status](https://travis-ci.org/clap-rs/clap.svg?branch=master)](https://travis-ci.org/clap-rs/clap)
-Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn31nhv36/branch/master?svg=true)](https://ci.appveyor.com/project/clap-rs/clap/branch/master)
+Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn31nhv36/branch/master?svg=true)](https://ci.appveyor.com/project/kbknapp/clap-rs/branch/master)
 
 Command Line Argument Parser for Rust
 

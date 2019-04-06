@@ -224,27 +224,27 @@ pub fn check_complex_output(args: &str, out: &str) {
     assert_eq!(res, out);
 }
 
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     enum Val1 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     pub enum Val2 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     enum Val3 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     pub enum Val4 {
         ValOne,
         ValTwo
