@@ -1,8 +1,43 @@
-## Unreleased
+<a name="v2.33.0"></a>
+## v2.33.0 (2019-04-06)
+
+#### New Sponsor
+
+*   Stephen Oats is now a sponsor \o/ ([823457c0](https://github.com/kbknapp/clap-rs/commit/823457c0ef5e994ed7080cf62addbfe1aa3b1833))
+* **SPONSORS.md:**  fixes Josh Triplett's info in the sponsor document ([24cb5740](https://github.com/kbknapp/clap-rs/commit/24cb574090a11159b48bba105d5ec2dfb0a20e4e))
+
+#### Features
+
+* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
+* There is a new setting to disable automatic building of `--help` and `-h` flags (`AppSettings::DisableAutoHelp`)
+
+#### Improvements
+
+* **arg_matches.rs:**  add Debug implementations ([47192b7a](https://github.com/kbknapp/clap-rs/commit/47192b7a2d84ec716b81ae4af621e008a8762dc9))
+* **macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
+
+#### Documentation
+
+*   Refer to macOS rather than OSX. ([ab0d767f](https://github.com/kbknapp/clap-rs/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
+* **README.md:**  use https for all links ([96a7639a](https://github.com/kbknapp/clap-rs/commit/96a7639a36bcb184c3f45348986883115ef1ab3a))
+
+#### Bug Fixes
+
+*   add debug assertion for missing args in subcommand ArgGroup ([2699d9e5](https://github.com/kbknapp/clap-rs/commit/2699d9e51e7eadc258ba64c4e347c5d1fef61343))
+*   Restore compat with Rust 1.21 ([6b263de1](https://github.com/kbknapp/clap-rs/commit/6b263de1d42ede692ec5ee55019ad2fc6386f92e))
+*   Dont mention unused subcommands ([ef92e2b6](https://github.com/kbknapp/clap-rs/commit/ef92e2b639ed305bdade4741f60fa85cb0101c5a))
+* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
+* **arg_enum!:**
+  *  Fix comma position for valid values. ([1f1f9ff3](https://github.com/kbknapp/clap-rs/commit/1f1f9ff3fa38a43231ef8be9cfea89a32e53f518))
+  *  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/kbknapp/clap-rs/commit/7023184fca04e852c270341548d6a16207d13862))
+* **completions:**  improve correctness of completions when whitespace is involved ([5a08ff29](https://github.com/kbknapp/clap-rs/commit/5a08ff295b2aa6ce29420df6252a0e3ff4441bdc))
+* **help message:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/kbknapp/clap-rs/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
+* **macros:**  fixes broken pattern which prevented calling multi-argument Arg methods ([9e7a352e](https://github.com/kbknapp/clap-rs/commit/9e7a352e13aaf8025d80f2bac5c47fb32528672b))
+* **parser:**  Better interaction between AllowExternalSubcommands and SubcommandRequired ([9601c95a](https://github.com/kbknapp/clap-rs/commit/9601c95a03d2b82bf265c328b4769238f1b79002))
 
 #### Minimum Required Rust
 
-* As of this release, `clap` requires `rustc 1.30.0` or greater.
+* As of this release, `clap` requires `rustc 1.31.0` or greater.
 
 <a name="v2.32.0"></a>
 ## v2.32.0 (2018-06-26)
