@@ -93,6 +93,14 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
+    - env:
+        help: Test env
+        env: "TEST_ENV_VAR"
+    - env_hide_values:
+        help: Test env
+        env: "TEST_ENV_VAR"
+        hide_env_values: true
+
 arg_groups:
     - test:
         args:

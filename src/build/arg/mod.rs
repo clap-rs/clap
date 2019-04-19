@@ -209,6 +209,7 @@ impl<'help> Arg<'help> {
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
                 "env" => yaml_to_str!(a, v, env),
+                "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
                 "requires" => yaml_vec_or_str!(v, a, requires),
