@@ -222,7 +222,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// This is set by placing a word (no spaces) after a leading `--`.
     ///
-    /// Shorts may be followed by
+    /// Longs may be followed by
     ///  * The multiple denotation `...`
     ///  * Value notation
     ///
