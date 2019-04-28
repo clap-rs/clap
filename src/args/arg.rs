@@ -167,7 +167,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Syntax
     ///
-    /// Usage strings typically following the form:
+    /// Usage strings typically follow the form:
     ///
     /// ```notrust
     /// [explicit name] [short] [long] [value names] [help string]
@@ -179,7 +179,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ### Explicit Name
     ///
-    /// This is an optional field, if it's omitted the argument will use one of the additional
+    /// This is an optional field; if it's omitted, the argument will use one of the additional
     /// fields as the name using the following priority order:
     ///
     ///  * Explicit Name (This always takes precedence when present)
@@ -241,11 +241,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Values may be followed by
     ///  * The multiple denotation `...`
-    ///  * More Value notation
+    ///  * More value notation
     ///
-    /// More than one value will also implicitly set the arguments number of values, i.e. having
-    /// two values, `--option [val1] [val2]` specifies that in order for option to be satisified it
-    /// must receive exactly two values
+    /// More than one value will also implicitly set the argument's number of values, i.e. having
+    /// two values, `--option [val1] [val2]` specifies that in order for the option to be satisified
+    /// it must receive exactly two values
     ///
     /// Example values are as follows (`FILE`, and `SPEED`):
     ///
@@ -373,8 +373,8 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// Allows adding an [`Arg`] alias, which functions as a "hidden" argument that automatically
+    /// dispatches as if the aliased argument were used. This is more efficient and easier
     /// than creating multiple hidden arguments as one only needs to check for the existence of
     /// this command, and not all variants.
     ///
@@ -403,10 +403,10 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that automatically
+    /// dispatch as if the aliased argument were used. This is more efficient and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// this command and not all variants.
     ///
     /// # Examples
     ///
@@ -435,8 +435,8 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
-    /// [`Arg::alias`], except that they are visible inside the help message.
+    /// Allows adding an [`Arg`] alias that functions exactly like those defined with
+    /// [`Arg::alias`], except that it is visible inside the help message.
     ///
     /// # Examples
     ///
@@ -464,7 +464,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
+    /// Allows adding multiple [`Arg`] aliases that function exactly like those defined
     /// with [`Arg::aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
@@ -497,7 +497,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// the help information with `-h`. Typically, this is a short (one line) description of the
     /// arg.
     ///
-    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
+    /// **NOTE:** If only `Arg::help` is provided and not [`Arg::long_help`], when the user requests
     /// `--help` clap will still display the contents of `help` appropriately
     ///
     /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
@@ -549,10 +549,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Sets the long help text of the argument that will be displayed to the user when they print
-    /// the help information with `--help`. Typically this a more detailed (multi-line) message
+    /// the help information with `--help`. Typically this is a more detailed (multi-line) message
     /// that describes the arg.
     ///
-    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
+    /// **NOTE:** If only `long_help` is provided and not [`Arg::help`], when the user requests `-h`
     /// clap will still display the contents of `long_help` appropriately
     ///
     /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
@@ -621,10 +621,10 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Specifies that this arg is the last, or final, positional argument (i.e. has the highest
     /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
-    /// last_arg`). Even, if no other arguments are left to parse, if the user omits the `--` syntax
+    /// last_arg`). Even if no other arguments are left to parse, if the user omits the `--` syntax
     /// they will receive an [`UnknownArgument`] error. Setting an argument to `.last(true)` also
-    /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
-    /// the `--` syntax is otherwise not possible.
+    /// allows one to access this arg early using the `--` syntax. Accessing an arg early (even with
+    /// the `--` syntax) is otherwise not possible.
     ///
     /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
@@ -632,11 +632,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** This setting will imply [`AppSettings::DontCollapseArgsInUsage`] because failing
     /// to set this can make the usage string very confusing.
     ///
-    /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS /
+    /// **NOTE:** This setting only applies to positional arguments and has no effect on FLAGS /
     /// OPTIONS
     ///
     /// **CAUTION:** Setting an argument to `.last(true)` *and* having child subcommands is not
-    /// recommended with the exception of *also* using [`AppSettings::ArgsNegateSubcommands`]
+    /// recommended unless *also* using [`AppSettings::ArgsNegateSubcommands`]
     /// (or [`AppSettings::SubcommandsNegateReqs`] if the argument marked `.last(true)` is also
     /// marked [`.required(true)`])
     ///
@@ -700,13 +700,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Sets whether or not the argument is required by default. Required by default means it is
-    /// required, when no other conflicting rules have been evaluated. Conflicting rules take
+    /// required when no other conflicting rules have been evaluated. Conflicting rules take
     /// precedence over being required. **Default:** `false`
     ///
     /// **NOTE:** Flags (i.e. not positional, or arguments that take values) cannot be required by
     /// default. This is simply because if a flag should be required, it should simply be implied
-    /// as no additional information is required from user. Flags by their very nature are simply
-    /// yes/no, or true/false.
+    /// as no additional information is required from the user. Flags by their very nature are
+    /// simply yes/no or true/false.
     ///
     /// # Examples
     ///
@@ -759,7 +759,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Requires that options use the `--option=val` syntax (i.e. an equals between the option and
-    /// associated value) **Default:** `false`
+    /// associated value). **Default:** `false`
     ///
     /// **NOTE:** This setting also removes the default of allowing empty values and implies
     /// [`Arg::empty_values(false)`].
@@ -826,7 +826,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **WARNING**: Take caution when using this setting combined with [`Arg::multiple(true)`], as
     /// this becomes ambiguous `$ prog --arg -- -- val`. All three `--, --, val` will be values
     /// when the user may have thought the second `--` would constitute the normal, "Only
-    /// positional args follow" idiom. To fix this, consider using [`Arg::number_of_values(1)`]
+    /// positional args follow" idiom. To fix this, consider using [`Arg::number_of_values(1)`].
     ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
     /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
@@ -884,11 +884,11 @@ impl<'a, 'b> Arg<'a, 'b> {
             self.unset(ArgSettings::AllowLeadingHyphen)
         }
     }
-    /// Sets an arg that override this arg's required setting. (i.e. this arg will be required
+    /// Sets an arg that overrides this arg's required setting. (I.e., this arg will be required
     /// unless this other argument is present).
     ///
-    /// **Pro Tip:** Using [`Arg::required_unless`] implies [`Arg::required`] and is therefore not
-    /// mandatory to also set.
+    /// **Pro Tip:** Using [`Arg::required_unless`] implies [`Arg::required`], so it's not
+    /// mandatory to also set the latter.
     ///
     /// # Examples
     ///
@@ -949,11 +949,11 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.required(true)
     }
 
-    /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
+    /// Sets args that override this arg's required setting. (I.e., this arg will be required unless
     /// all these other arguments are present).
     ///
     /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
-    /// present see [`Arg::required_unless_one`]
+    /// present, see [`Arg::required_unless_one`].
     ///
     /// # Examples
     ///
@@ -1024,7 +1024,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.required(true)
     }
 
-    /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
+    /// Sets args that override this arg's [required] setting. (I.e., this arg will be required
     /// unless *at least one of* these other arguments are present).
     ///
     /// **NOTE:** If you wish for this argument to only be required if *all of* these args are
@@ -1041,7 +1041,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Setting [`Arg::required_unless_one(names)`] requires that the argument be used at runtime
     /// *unless* *at least one of* the args in `names` are present. In the following example, the
-    /// required argument is *not* provided, but it's not an error because one the `unless` args
+    /// required argument is *not* provided, but it's not an error because one of the `unless` args
     /// have been supplied.
     ///
     /// ```rust
@@ -1099,15 +1099,15 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.required(true)
     }
 
-    /// Sets a conflicting argument by name. I.e. when using this argument,
+    /// Sets a conflicting argument by name. I.e., when using this argument,
     /// the following argument can't be present and vice versa.
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
-    /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
-    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
-    /// need to also do B.conflicts_with(A))
+    /// **NOTE:** Defining a conflict is two-way; it does *not* need to defined for both arguments.
+    /// (I.e., if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not
+    /// need to also do B.conflicts_with(A)).
     ///
     /// # Examples
     ///
@@ -1118,7 +1118,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting conflicting argument, and having both arguments present at runtime is an error.
+    /// Setting a conflicting argument and having both arguments present at runtime is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -1145,15 +1145,15 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conlicts per
+    /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conflicts per
     /// argument.
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
-    /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
-    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
-    /// need to also do B.conflicts_with(A))
+    /// **NOTE:** Defining a conflict is two-way; it does *not* need to defined for both arguments.
+    /// (I.e., if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not
+    /// need to also do B.conflicts_with(A)).
     ///
     /// # Examples
     ///
@@ -1164,7 +1164,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting conflicting argument, and having any of the arguments present at runtime with a
+    /// Setting a conflicting argument and having any of the arguments present at runtime with a
     /// conflicting argument is an error.
     ///
     /// ```rust
@@ -1197,15 +1197,15 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets a overridable argument by name. I.e. this argument and the following argument
+    /// Sets an overridable argument by name. I.e., this argument and the following argument
     /// will override each other in POSIX style (whichever argument was specified at runtime
-    /// **last** "wins")
+    /// **last** "wins").
     ///
-    /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
-    /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
+    /// **NOTE:** When an argument is overridden, it is essentially as if it were never used. Any
+    /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed.
     ///
     /// **WARNING:** Positional arguments cannot override themselves (or we would never be able
-    /// to advance to the next positional). If a positional agument lists itself as an override,
+    /// to advance to the next positional). If a positional argument lists itself as an override,
     /// it is simply ignored.
     ///
     /// # Examples
@@ -1224,16 +1224,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// assert!(m.is_present("color"));
     /// assert!(m.is_present("debug")); // even though flag conflicts with debug, it's as if flag
-    ///                                 // was never used because it was overridden with color
+    ///                                 // were never used because it was overridden with color
     /// assert!(!m.is_present("flag"));
     /// ```
-    /// Care must be taken when using this setting, and having an arg override with itself. This
+    /// Care must be taken when using this setting and having an arg override itself. This
     /// is common practice when supporting things like shell aliases, config files, etc.
-    /// However, when combined with multiple values, it can get dicy.
+    /// However, when combined with multiple values, it can get dicey.
     /// Here is how clap handles such situations:
     ///
     /// When a flag overrides itself, it's as if the flag was only ever used once (essentially
-    /// preventing a "Unexpected multiple usage" error):
+    /// preventing an "Unexpected multiple usage" error):
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1243,7 +1243,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    /// Making a arg `multiple(true)` and override itself is essentially meaningless. Therefore
+    /// Making an arg `multiple(true)` and overriding itself is essentially meaningless. Therefore
     /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
@@ -1267,7 +1267,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
-    /// Just like flags, options with `multiple(true)` set, will ignore the "override self" setting.
+    /// Just like flags, options with `multiple(true)` set will ignore the "override self" setting.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1280,9 +1280,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
     ///
-    /// A safe thing to do if you'd like to support an option which supports multiple values, but
-    /// also is "overridable" by itself, is to use `use_delimiter(false)` and *not* use
-    /// `multiple(true)` while telling users to seperate values with a comma (i.e. `val1,val2`)
+    /// If you want an option that supports multiple values and is also "overridable" by itself, a
+    /// safe thing to do is to use `use_delimiter(false)` and *not* use `multiple(true)` while
+    /// telling users to separate values with a comma (i.e., `val1,val2`):
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1304,12 +1304,12 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets multiple mutually overridable arguments by name. I.e. this argument and the following
+    /// Sets multiple mutually overridable arguments by name. I.e., this argument and the following
     /// argument will override each other in POSIX style (whichever argument was specified at
-    /// runtime **last** "wins")
+    /// runtime **last** "wins").
     ///
-    /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
-    /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
+    /// **NOTE:** When an argument is overridden, it is essentially as if it were never used. Any
+    /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed.
     ///
     /// # Examples
     ///
@@ -1342,10 +1342,10 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets an argument by name that is required when this one is present I.e. when
+    /// Sets an argument by name that is required when this one is present. I.e., when
     /// using this argument, the following argument *must* be present.
     ///
-    /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
+    /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required.
     ///
     /// # Examples
     ///
@@ -1358,7 +1358,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Setting [`Arg::requires(name)`] requires that the argument be used at runtime if the
     /// defining argument is used. If the defining argument isn't used, the other argument isn't
-    /// required
+    /// required.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1521,7 +1521,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--config", "special.conf"
     ///     ]);
     ///
-    /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
+    /// assert!(res.is_err()); // We used --config=special.conf so --option <val> is required
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
@@ -1562,7 +1562,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     ///
     /// Setting [`Arg::required_if(arg, val)`] makes this arg required if the `arg` is used at
-    /// runtime and it's value is equal to `val`. If the `arg`'s value is anything other than `val`,
+    /// runtime and its value is equal to `val`. If the `arg`'s value is anything other than `val`,
     /// this argument isn't required.
     ///
     /// ```rust
@@ -1615,8 +1615,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Allows specifying that an argument is [required] based on multiple conditions. The
-    /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
-    /// if one of the specified `arg`'s value equals it's corresponding `val`.
+    /// conditions are set up in an `(arg, val)`-style tuple. The requirement will only become valid
+    /// if the value of one of the specified `arg`s equals its corresponding `val`.
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
@@ -1638,9 +1638,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_ifs(&[(arg, val)])`] makes this arg required if any of the `arg`s
-    /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
-    /// anything other than `val`, this argument isn't required.
+    /// Setting [`Arg::required_ifs(&[(arg, val)])`] makes this arg required if at least one of the
+    /// `arg`s is used at runtime and its corresponding value is equal to `val`. If none of the
+    /// `arg`s match their specified value, this argument isn't required.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1662,11 +1662,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--option", "other"
     ///     ]);
     ///
-    /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
+    /// assert!(res.is_ok()); // We didn't use --option=spec or --extra=val, so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with it's
-    /// value of `val` but *not* using this arg is an error.
+    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the watched `arg`s match
+    /// their specified value but *not* using this argument is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -1709,7 +1709,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Sets multiple arguments by names that are required when this one is present I.e. when
+    /// Sets multiple arguments by name that are required when this one is present. I.e., when
     /// using this argument, the following arguments *must* be present.
     ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
@@ -1726,7 +1726,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// Setting [`Arg::requires_all(&[arg, arg2])`] requires that all the arguments be used at
     /// runtime if the defining argument is used. If the defining argument isn't used, the other
-    /// argument isn't required
+    /// arguments aren't required.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -1790,14 +1790,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// **NOTE:** values for arguments may be specified in any of the following methods
     ///
-    /// * Using a space such as `-o value` or `--option value`
-    /// * Using an equals and no space such as `-o=value` or `--option=value`
-    /// * Use a short and no space such as `-ovalue`
+    /// * Using a space, such as `-o value` or `--option value`
+    /// * Using an equals and no space, such as `-o=value` or `--option=value`
+    /// * Using a short and no space, such as `-ovalue`
     ///
-    /// **NOTE:** By default, args which allow [multiple values] are delimited by commas, meaning
+    /// **NOTE:** By default, args that allow [multiple values] are delimited by commas, meaning
     /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
-    /// change the delimiter to another character you can use [`Arg::value_delimiter(char)`],
-    /// alternatively you can turn delimiting values **OFF** by using [`Arg::use_delimiter(false)`]
+    /// change the delimiter to another character, you can use [`Arg::value_delimiter(char)`];
+    /// alternatively, you can turn delimited values **OFF** by using [`Arg::use_delimiter(false)`].
     ///
     /// # Examples
     ///
@@ -1833,9 +1833,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies if the possible values of an argument should be displayed in the help text or
-    /// not. Defaults to `false` (i.e. show possible values)
+    /// not. Defaults to `false` (i.e., show possible values).
     ///
-    /// This is useful for args with many values, or ones which are explained elsewhere in the
+    /// This is useful for args with many values or ones that are explained elsewhere in the
     /// help text.
     ///
     /// # Examples
@@ -1858,7 +1858,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```
     ///
-    /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
+    /// If we were to run the above program with `--help`, the `[values: fast, slow]` portion of
     /// the help text would be omitted.
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
@@ -1869,9 +1869,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies if the default value of an argument should be displayed in the help text or
-    /// not. Defaults to `false` (i.e. show default value)
+    /// not. Defaults to `false` (i.e., show default value).
     ///
-    /// This is useful when default behavior of an arg is explained elsewhere in the help text.
+    /// This is useful when the default behavior of an arg is explained elsewhere in the help text.
     ///
     /// # Examples
     ///
@@ -1892,7 +1892,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// ```
     ///
-    /// If we were to run the above program with `--help` the `[default: localhost]` portion of
+    /// If we were to run the above program with `--help`, the `[default: localhost]` portion of
     /// the help text would be omitted.
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
@@ -1904,21 +1904,22 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Specifies the index of a positional argument **starting at** 1.
     ///
-    /// **NOTE:** The index refers to position according to **other positional argument**. It does
-    /// not define position in the argument list as a whole.
+    /// **NOTE:** The index refers to position relative to **other positional arguments**. It does
+    /// not define the argument's position in the argument list as a whole (including non-positional
+    /// arguments).
     ///
     /// **NOTE:** If no [`Arg::short`], or [`Arg::long`] have been defined, you can optionally
     /// leave off the `index` method, and the index will be assigned in order of evaluation.
-    /// Utilizing the `index` method allows for setting indexes out of order
+    /// Utilizing the `index` method allows for setting indexes out of order.
     ///
     /// **NOTE:** When utilized with [`Arg::multiple(true)`], only the **last** positional argument
-    /// may be defined as multiple (i.e. with the highest index)
+    /// may be defined as multiple (i.e., the positional argument with the highest index).
     ///
     /// # Panics
     ///
     /// Although not in this method directly, [`App`] will [`panic!`] if indexes are skipped (such
-    /// as defining `index(1)` and `index(3)` but not `index(2)`, or a positional argument is
-    /// defined as multiple and is not the highest index
+    /// as defining `index(1)` and `index(3)` but not `index(2)`) or if a positional argument is
+    /// defined as multiple and is not the positional argument with the highest index.
     ///
     /// # Examples
     ///
@@ -1957,35 +1958,35 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Specifies that the argument may appear more than once. For flags, this results
     /// in the number of occurrences of the flag being recorded. For example `-ddd` or `-d -d -d`
     /// would count as three occurrences. For options there is a distinct difference in multiple
-    /// occurrences vs multiple values.
+    /// occurrences vs. multiple values.
     ///
-    /// For example, `--opt val1 val2` is one occurrence, but two values. Whereas
+    /// For example, `--opt val1 val2` is one occurrence but two values. Whereas
     /// `--opt val1 --opt val2` is two occurrences.
     ///
     /// **WARNING:**
     ///
-    /// Setting `multiple(true)` for an [option] with no other details, allows multiple values
+    /// Setting `multiple(true)` for an [option] with no other details allows multiple values
     /// **and** multiple occurrences because it isn't possible to have more occurrences than values
     /// for options. Because multiple values are allowed, `--option val1 val2 val3` is perfectly
-    /// valid, be careful when designing a CLI where positional arguments are expected after a
-    /// option which accepts multiple values, as `clap` will continue parsing *values* until it
-    /// reaches the max or specific number of values defined, or another flag or option.
+    /// valid. Be careful when designing a CLI where positional arguments are expected after an
+    /// option that accepts multiple values, as `clap` will continue parsing *values* until it
+    /// reaches the max, a specific number of values defined, or another flag or option.
     ///
     /// **Pro Tip**:
     ///
-    /// It's possible to define an option which allows multiple occurrences, but only one value per
+    /// It's possible to define an option that allows multiple occurrences but only one value per
     /// occurrence. To do this use [`Arg::number_of_values(1)`] in coordination with
     /// [`Arg::multiple(true)`].
     ///
     /// **WARNING:**
     ///
-    /// When using args with `multiple(true)` on [options] or [positionals] (i.e. those args that
+    /// When using args with `multiple(true)` on [options] or [positionals] (i.e., args that
     /// accept values) and [subcommands], one needs to consider the possibility of an argument value
-    /// being the same as a valid subcommand. By default `clap` will parse the argument in question
-    /// as a value *only if* a value is possible at that moment. Otherwise it will be parsed as a
-    /// subcommand. In effect, this means using `multiple(true)` with no additional parameters and
-    /// a possible value that coincides with a subcommand name, the subcommand cannot be called
-    /// unless another argument is passed first.
+    /// being the same as a valid subcommand. By default, `clap` will parse the argument in question
+    /// as a value *only if* a value is possible at that moment. Otherwise, it will be parsed as a
+    /// subcommand. In effect, this means that when using `multiple(true)` with no additional
+    /// parameters and a possible value that coincides with a subcommand name, the subcommand cannot
+    /// be called unless another argument is passed first.
     ///
     /// As an example, consider a CLI with an option `--ui-paths=<paths>...` and subcommand `signer`
     ///
@@ -1999,7 +2000,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// until another argument is reached and it knows `--ui-paths` is done.
     ///
     /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
-    /// [`Arg::number_of_values(1)`] as discussed above. The following are all valid, and `signer`
+    /// [`Arg::number_of_values(1)`] as discussed above. The following are both valid, and `signer`
     /// is parsed as both a subcommand and a value in the second case.
     ///
     /// ```notrust
@@ -2071,7 +2072,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
-    /// A common mistake is to define an option which allows multiples, and a positional argument
+    /// A common mistake is to define an option that allows multiples and a positional argument
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2091,12 +2092,12 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
     /// assert!(!m.is_present("word")); // but we clearly used word!
     /// ```
-    /// The problem is clap doesn't know when to stop parsing values for "files". This is further
-    /// compounded by if we'd said `word -F file1 file2` it would have worked fine, so it would
-    /// appear to only fail sometimes...not good!
+    /// The problem is clap doesn't know when to stop parsing values for "files". If we'd said
+    /// `word -F file1 file2` it would have worked fine, so it would appear to only fail
+    /// sometimes... not good!
     ///
-    /// A solution for the example above is to specify that `-F` only accepts one value, but is
-    /// allowed to appear multiple times
+    /// A solution for the example above is to specify that `-F` only accepts one value but is
+    /// allowed to appear multiple times:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2120,7 +2121,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// As a final example, notice if we define [`Arg::number_of_values(1)`] and try to run the
     /// problem example above, it would have been a runtime error with a pretty message to the
-    /// user :)
+    /// user:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2153,16 +2154,16 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
+    /// Specifies a value that *stops* parsing multiple values of a given argument. By default when
     /// one sets [`multiple(true)`] on an argument, clap will continue parsing values for that
-    /// argument until it reaches another valid argument, or one of the other more specific settings
+    /// argument until it reaches another valid argument or one of the other more specific settings
     /// for multiple values is used (such as [`min_values`], [`max_values`] or
     /// [`number_of_values`]).
     ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
+    /// **NOTE:** This setting only applies to [options] and [positional arguments].
     ///
     /// **NOTE:** When the terminator is passed in on the command line, it is **not** stored as one
-    /// of the values
+    /// of the values.
     ///
     /// # Examples
     ///
@@ -2175,7 +2176,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     /// The following example uses two arguments, a sequence of commands, and the location in which
-    /// to perform them
+    /// to perform them:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2206,9 +2207,9 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Specifies that an argument can be matched to all child [`SubCommand`]s.
     ///
-    /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands), however
+    /// **NOTE:** Global arguments *only* propagate down; **not** up (to parent commands). However,
     /// their values once a user uses them will be propagated back up to parents. In effect, this
-    /// means one should *define* all global arguments at the top level, however it doesn't matter
+    /// means one should *define* all global arguments at the top level, but it doesn't matter
     /// where the user *uses* the global argument.
     ///
     /// # Examples
@@ -2221,9 +2222,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// For example, assume an application with two subcommands, and you'd like to define a
-    /// `--verbose` flag that can be called on any of the subcommands and parent, but you don't
-    /// want to clutter the source with three duplicate [`Arg`] definitions.
+    /// For example, assume an application has two subcommands. You'd like to define a
+    /// `--verbose` flag that can be called on either of the subcommands and the parent, but you
+    /// don't want to clutter the source with three duplicate [`Arg`] definitions.
     ///
     /// ```rust
     /// # use clap::{App, Arg, SubCommand};
@@ -2256,11 +2257,11 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Allows an argument to accept explicitly empty values. An empty value must be specified at
-    /// the command line with an explicit `""`, or `''`
+    /// the command line with an explicit `""`, or `''`.
     ///
-    /// **NOTE:** Defaults to `true` (Explicitly empty values are allowed)
+    /// **NOTE:** Defaults to `true` (explicitly empty values are allowed).
     ///
-    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] when set to `false`
+    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] when set to `false`.
     ///
     /// # Examples
     ///
@@ -2271,8 +2272,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .empty_values(false)
     /// # ;
     /// ```
-    /// The default is to allow empty values, such as `--option ""` would be an empty value. But
-    /// we can change to make empty values become an error.
+    /// The default is to allow empty values, such as `--option ""`. But we can change that to make
+    /// empty values become an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2301,9 +2302,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Hides an argument from help message output.
     ///
     /// **NOTE:** Implicitly sets [`Arg::hidden_short_help(true)`] and [`Arg::hidden_long_help(true)`]
-    /// when set to true
+    /// when set to true.
     ///
-    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    /// **NOTE:** This does **not** hide the argument from usage strings on error.
     ///
     /// # Examples
     ///
@@ -2313,7 +2314,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .hidden(true)
     /// # ;
     /// ```
-    /// Setting `hidden(true)` will hide the argument when displaying help text
+    /// Setting `hidden(true)` will hide the argument when displaying help text:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2350,9 +2351,9 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that
-    /// only one of the specified values was used, or fails with an error message.
+    /// only one of the specified values was used or fails with an error message.
     ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
+    /// **NOTE:** This setting only applies to [options] and [positional arguments].
     ///
     /// # Examples
     ///
@@ -2378,7 +2379,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
     ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
+    /// The next example shows a failed parse from using a value that wasn't defined as one of the
     /// possible values.
     ///
     /// ```rust
@@ -2407,10 +2408,10 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies a possible value for this argument, one at a time. At runtime, `clap` verifies
-    /// that only one of the specified values was used, or fails with error message.
+    /// Specifies possible values for this argument one at a time. At runtime, `clap` verifies
+    /// that only one of the specified values was used or fails with error message.
     ///
-    /// **NOTE:** This setting only applies to [options] and [positional arguments]
+    /// **NOTE:** This setting only applies to [options] and [positional arguments].
     ///
     /// # Examples
     ///
@@ -2440,8 +2441,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
     ///
-    /// The next example shows a failed parse from using a value which wasn't defined as one of the
-    /// possible values.
+    /// The next example shows a failed parse from using a value that wasn't defined as one of the
+    /// possible values:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2472,7 +2473,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even if
     /// the case differs from that of the specified `possible_value`.
     ///
-    /// **Pro Tip:** Use this setting with [`arg_enum!`]
+    /// **Pro Tip:** Use this setting with [`arg_enum!`].
     ///
     /// # Examples
     ///
@@ -2534,8 +2535,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Multiple arguments can be a member of a single group and then the group checked as if it
-    /// was one of said arguments.
+    /// Multiple arguments can be members of a single group and then the group checked as if it
+    /// were one of said arguments.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2573,8 +2574,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Arguments can be members of multiple groups and then the group checked as if it
-    /// was one of said arguments.
+    /// Arguments can be members of multiple groups and then the groups checked as if they
+    /// were among said arguments.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2604,13 +2605,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies how many values are required to satisfy this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted exactly 3 'files' you would set
-    /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
-    /// 3 and only 3 values.
+    /// `-f <file>` argument where you wanted exactly 3 'files', you would set
+    /// `.number_of_values(3)`, and the argument wouldn't be satisfied unless the user provided
+    /// exactly 3 values.
     ///
     /// **NOTE:** Does *not* require [`Arg::multiple(true)`] to be set. Setting
-    /// [`Arg::multiple(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
-    /// as *not* setting [`Arg::multiple(true)`] would only allow one occurrence of this argument.
+    /// [`Arg::multiple(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>`,
+    /// whereas *not* setting it would only allow one occurrence of this argument.
     ///
     /// # Examples
     ///
@@ -2622,7 +2623,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Not supplying the correct number of values is an error
+    /// Not supplying the correct number of values is an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2646,17 +2647,17 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Allows one to perform a custom validation on the argument value. You provide a closure
-    /// which accepts a [`String`] value, and return a [`Result`] where the [`Err(String)`] is a
+    /// that accepts a [`String`] value and returns a [`Result`] where the [`Err(String)`] is a
     /// message displayed to the user.
     ///
-    /// **NOTE:** The error message does *not* need to contain the `error:` portion, only the
-    /// message as all errors will appear as
-    /// `error: Invalid value for '<arg>': <YOUR MESSAGE>` where `<arg>` is replaced by the actual
-    /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
+    /// **NOTE:** The error message does *not* need to contain the `error:` portion. It only needs
+    /// the message, as all errors will appear as `error: Invalid value for '<arg>': <YOUR MESSAGE>`
+    /// where `<arg>` is replaced by the actual arg and `<YOUR MESSAGE>` is the `String` you return
+    /// as the error.
     ///
     /// **NOTE:** There is a small performance hit for using validators, as they are implemented
-    /// with [`Rc`] pointers. And the value to be checked will be allocated an extra time in order
-    /// to to be passed to the closure. This performance hit is extremely minimal in the grand
+    /// with [`Rc`] pointers. In addition, the value to be checked will be allocated an extra time
+    /// in order to be passed to the closure. This performance hit is extremely minimal in the grand
     /// scheme of things.
     ///
     /// # Examples
@@ -2727,9 +2728,9 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies the *maximum* number of values are for this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
-    /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
+    /// Specifies the *maximum* number of values for this argument. For example, if you had a
+    /// `-f <file>` argument where you wanted up to 3 'files', you would set `.max_values(3)`, and
+    /// the argument would be satisfied if the user provided 1, 2, or 3 values.
     ///
     /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
@@ -2747,7 +2748,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Supplying less than the maximum number of values is allowed
+    /// Supplying fewer than the maximum number of values is allowed:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2766,7 +2767,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(files, ["file1", "file2"]);
     /// ```
     ///
-    /// Supplying more than the maximum number of values is an error
+    /// Supplying more than the maximum number of values is an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2790,13 +2791,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies the *minimum* number of values for this argument. For example, if you had a
-    /// `-f <file>` argument where you wanted at least 2 'files' you would set
-    /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
+    /// `-f <file>` argument where you wanted at least 2 'files', you would set
+    /// `.min_values(2)`, and the argument would be satisfied if the user provided 2 or more
     /// values.
     ///
     /// **NOTE:** This does not implicitly set [`Arg::multiple(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
-    /// occurrence with multiple values. For positional arguments this **does** set
+    /// occurrence with multiple values. For positional arguments, this **does** set
     /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
     /// occurrences and multiple values.
     ///
@@ -2810,7 +2811,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # ;
     /// ```
     ///
-    /// Supplying more than the minimum number of values is allowed
+    /// Supplying more than the minimum number of values is allowed:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2829,7 +2830,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
-    /// Supplying less than the minimum number of values is an error
+    /// Supplying fewer than the minimum number of values is an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2852,16 +2853,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies whether or not an argument should allow grouping of multiple values via a
-    /// delimiter. I.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// delimiter. I.e., should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
     /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
-    /// value delimiter for all arguments that accept values (options and positional arguments)
+    /// value delimiter for all arguments that accept values (options and positional arguments).
     ///
-    /// **NOTE:** The default is `false`. When set to `true` the default [`Arg::value_delimiter`]
+    /// **NOTE:** The default is `false`. When set to `true`, the default [`Arg::value_delimiter`]
     /// is the comma `,`.
     ///
     /// # Examples
     ///
-    /// The following example shows the default behavior.
+    /// The following example shows the default behavior:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2879,7 +2880,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(delims.values_of("option").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     /// The next example shows the difference when turning delimiters off. This is the default
-    /// behavior
+    /// behavior:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2913,13 +2914,13 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter. This means if an
-    /// if an option is encountered, and no delimiter is found, it automatically assumed that no
+    /// option is encountered and no delimiter is found, it's automatically assumed that no
     /// additional values for that option follow. This is unlike the default, where it is generally
     /// assumed that more values will follow regardless of whether or not a delimiter is used.
     ///
     /// **NOTE:** The default is `false`.
     ///
-    /// **NOTE:** Setting this to true implies [`Arg::use_delimiter(true)`]
+    /// **NOTE:** Setting this to true implies [`Arg::use_delimiter(true)`].
     ///
     /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
     /// through help text or other means.
@@ -2927,7 +2928,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # Examples
     ///
     /// These examples demonstrate what happens when `require_delimiter(true)` is used. Notice
-    /// everything works in this first example, as we use a delimiter, as expected.
+    /// everything works in this first example as we use a delimiter, as expected:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2944,7 +2945,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(delims.is_present("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
-    /// In this next example, we will *not* use a delimiter. Notice it's now an error.
+    /// In this next example, we will *not* use a delimiter. Notice it's now an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -2964,10 +2965,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
     /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
-    /// positional arguments have been defined, it's an error of an unexpected argument.
+    /// positional arguments have been defined, it's an unexpected argument error.
     ///
-    /// In this final example, we contrast the above with `clap`'s default behavior where the above
-    /// is *not* an error.
+    /// In this final example, we contrast the above with `clap`'s default behavior, where the above
+    /// is *not* an error:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2997,11 +2998,11 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
+    /// Specifies the separator to use when values are clumped together. Defaults to `,` (comma).
     ///
-    /// **NOTE:** implicitly sets [`Arg::use_delimiter(true)`]
+    /// **NOTE:** implicitly sets [`Arg::use_delimiter(true)`].
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
     ///
     /// # Examples
     ///
@@ -3032,23 +3033,23 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specify multiple names for values of option arguments. These names are cosmetic only, used
-    /// for help and usage strings only. The names are **not** used to access arguments. The values
-    /// of the arguments are accessed in numeric order (i.e. if you specify two names `one` and
-    /// `two` `one` will be the first matched value, `two` will be the second).
+    /// Specify multiple names for values of option arguments. These names are cosmetic, used
+    /// only for help and usage strings. The names are **not** used to access arguments. The values
+    /// of the arguments are accessed in numeric order (i.e., if you specify two names, `one` and
+    /// `two`, `one` will be the first matched value and `two` will be the second).
     ///
     /// This setting can be very helpful when describing the type of input the user should be
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
     ///
-    /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
+    /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
     /// **NOTE:** This implicitly sets [`Arg::number_of_values`] if the number of value names is
-    /// greater than one. I.e. be aware that the number of "names" you set for the values, will be
-    /// the *exact* number of values required to satisfy this argument
+    /// greater than one. I.e., be aware that the number of "names" you set for the values will be
+    /// the *exact* number of values required to satisfy this argument.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
     ///
     /// **NOTE:** Does *not* require or imply [`Arg::multiple(true)`].
     ///
@@ -3072,7 +3073,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
-    /// Running the above program produces the following output
+    /// Running the above program produces the following output:
     ///
     /// ```notrust
     /// valnames
@@ -3113,13 +3114,13 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies the name for value of [option] or [positional] arguments inside of help
-    /// documentation. This name is cosmetic only, the name is **not** used to access arguments.
+    /// Specifies the name for the value of [option] or [positional] arguments inside of help
+    /// documentation. This name is cosmetic only; it is **not** used to access arguments.
     /// This setting can be very helpful when describing the type of input the user should be
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
     ///
     /// # Examples
     ///
@@ -3141,7 +3142,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
-    /// Running the above program produces the following output
+    /// Running the above program produces the following output:
     ///
     /// ```notrust
     /// valnames
@@ -3177,17 +3178,17 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
-    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
+    /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::is_present`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
-    /// not, consider [`ArgMatches::occurrences_of`] which will return `0` if the argument was *not*
+    /// not, consider [`ArgMatches::occurrences_of`], which will return `0` if the argument was *not*
     /// used at runtime.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
-    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
-    /// at runtime. `Arg::default_value_if` however only takes affect when the user has not provided
-    /// a value at runtime **and** these other conditions are met as well. If you have set
-    /// `Arg::default_value` and `Arg::default_value_if`, and the user **did not** provide a this
-    /// arg at runtime, nor did were the conditions met for `Arg::default_value_if`, the
+    /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
+    /// at runtime. `Arg::default_value_if`, however, only takes effect when the user has not provided
+    /// a value at runtime **and** these other conditions are met as well. If you set
+    /// `Arg::default_value` and `Arg::default_value_if`, the user **did not** provide this
+    /// arg at runtime, and the conditions were not met for `Arg::default_value_if`,
     /// `Arg::default_value` will be applied.
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
@@ -3197,7 +3198,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// First we use the default value without providing any value at runtime.
+    /// First, we fall back to the default value by not providing a value at runtime:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3214,7 +3215,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.occurrences_of("opt"), 0);
     /// ```
     ///
-    /// Next we provide a value at runtime to override the default.
+    /// Next, we provide a value at runtime to override the default:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3254,17 +3255,16 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// present at runtime **and** have the value `val`.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
-    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
-    /// at runtime. This setting however only takes affect when the user has not provided a value at
-    /// runtime **and** these other conditions are met as well. If you have set `Arg::default_value`
-    /// and `Arg::default_value_if`, and the user **did not** provide a this arg at runtime, nor did
-    /// were the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be
-    /// applied.
+    /// different. `Arg::default_value` *only* takes effect when the user has not provided the arg
+    /// at runtime. This setting, however, only takes effect when the user has not provided a value at
+    /// runtime **and** these other conditions are met as well. If you set `Arg::default_value` and
+    /// `Arg::default_value_if`, the user **did not** provide this arg at runtime, and the conditions
+    /// were not met for `Arg::default_value_if`, `Arg::default_value` will be applied.
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows (`None` can be represented
-    /// as `null` in YAML)
+    /// as `null` in YAML):
     ///
     /// ```yaml
     /// default_value_if:
@@ -3273,7 +3273,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// First we use the default value only if another arg is present at runtime.
+    /// First, we use the default value only if another arg is present at runtime:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3290,7 +3290,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     ///
-    /// Next we run the same test, but without providing `--flag`.
+    /// Next, we run the same test, but without providing `--flag`:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3307,7 +3307,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("other"), None);
     /// ```
     ///
-    /// Now lets only use the default value if `--opt` contains the value `special`.
+    /// Now let's only use the default value if `--opt` contains the value `special`:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3325,8 +3325,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     ///
-    /// We can run the same test and provide any value *other than* `special` and we won't get a
-    /// default value.
+    /// We can run the same test and provide any value *other than* `special`, and we won't get a
+    /// default value:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3378,10 +3378,10 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
     /// The method takes a slice of tuples in the `(arg, Option<val>, default)` format.
     ///
-    /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
-    /// if multiple conditions are true, the first one found will be applied and the ultimate value.
+    /// **NOTE**: The conditions are stored and evaluated in the same order. I.e., if multiple
+    /// conditions are true, the first one found will be applied as the ultimate value.
     ///
-    /// **NOTE:** If using YAML the values should be laid out as follows
+    /// **NOTE:** If using YAML the values should be laid out as follows:
     ///
     /// ```yaml
     /// default_value_if:
@@ -3391,7 +3391,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// # Examples
     ///
-    /// First we use the default value only if another arg is present at runtime.
+    /// First, we use the default value only if another arg is present at runtime:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3414,7 +3414,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("other"), Some("chan"));
     /// ```
     ///
-    /// Next we run the same test, but without providing `--flag`.
+    /// Next, we run the same test, but without providing `--flag`:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3434,8 +3434,8 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert_eq!(m.value_of("other"), None);
     /// ```
     ///
-    /// We can also see that these values are applied in order, and if more than one condition is
-    /// true, only the first evaluated "wins"
+    /// We can also see that these values are applied in order, and, if more than one condition is
+    /// true, only the first evaluated "wins":
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3482,23 +3482,23 @@ impl<'a, 'b> Arg<'a, 'b> {
         self
     }
 
-    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// Specifies that if the value is not passed in as an argument, it should be retrieved
     /// from the environment, if available. If it is not present in the environment, then default
     /// rules will apply.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
     ///
-    /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::is_present`] will
-    /// return `true` if the variable is present in the environment . If you wish to determine whether
-    /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`] which will
+    /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::is_present`] will
+    /// return `true` if the variable is present in the environment. If you wish to determine whether
+    /// the argument was used at runtime or not, consider [`ArgMatches::occurrences_of`], which will
     /// return `0` if the argument was *not* used at runtime.
     ///
     /// **NOTE:** This implicitly sets [`Arg::takes_value(true)`].
     ///
     /// **NOTE:** If [`Arg::multiple(true)`] is set then [`Arg::use_delimiter(true)`] should also be
     /// set. Otherwise, only a single argument will be returned from the environment variable. The
-    /// default delimiter is `,` and follows all the other delimiter rules.
+    /// default delimiter is `,` and follows all the other delimitation rules.
     ///
     /// # Examples
     ///
@@ -3591,7 +3591,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.env_os(OsStr::new(name))
     }
 
-    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
+    /// Specifies that if the value is not passed in as an argument, it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
     pub fn env_os(mut self, name: &'a OsStr) -> Self {
@@ -3610,12 +3610,12 @@ impl<'a, 'b> Arg<'a, 'b> {
         }
     }
 
-    /// When set to `true` the help string will be displayed on the line after the argument and
+    /// When set to `true`, the help string will be displayed on the line after the argument and
     /// indented once. This can be helpful for arguments with very long or complex help messages.
-    /// This can also be helpful for arguments with very long flag names, or many/long value names.
+    /// This can also be helpful for arguments with very long flag names or many/long value names.
     ///
-    /// **NOTE:** To apply this setting to all arguments consider using
-    /// [`AppSettings::NextLineHelp`]
+    /// **NOTE:** To apply this setting to all arguments, consider using
+    /// [`AppSettings::NextLineHelp`].
     ///
     /// # Examples
     ///
@@ -3636,7 +3636,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     ]);
     /// ```
     ///
-    /// The above example displays the following help message
+    /// The above example displays the following help message:
     ///
     /// ```notrust
     /// nlh
@@ -3665,14 +3665,14 @@ impl<'a, 'b> Arg<'a, 'b> {
     }
 
     /// Allows custom ordering of args within the help message. Args with a lower value will be
-    /// displayed first in the help message. This is helpful when one would like to emphasise
-    /// frequently used args, or prioritize those towards the top of the list. Duplicate values
+    /// displayed first in the help message. This is helpful when one would like to emphasize
+    /// frequently used args or prioritize those towards the top of the list. Duplicate values
     /// **are** allowed. Args with duplicate display orders will be displayed in alphabetical
     /// order.
     ///
     /// **NOTE:** The default is 999 for all arguments.
     ///
-    /// **NOTE:** This setting is ignored for [positional arguments] which are always displayed in
+    /// **NOTE:** This setting is ignored for [positional arguments], which are always displayed in
     /// [index] order.
     ///
     /// # Examples
@@ -3694,14 +3694,15 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///         .display_order(1)   // In order to force this arg to appear *first*
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other args with a value of 1 will be displayed
-    ///                             // alphabetically with this one...then 2 values, then 3, etc.
+    ///                             // alphabetically with this one, then args with a value
+    ///                             // of 2, then 3, and so on.
     ///         .help("I should be first!"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
     /// ```
     ///
-    /// The above example displays the following help message
+    /// The above example displays the following help message:
     ///
     /// ```notrust
     /// cust-ord
@@ -3737,7 +3738,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// may be more appropriate.
     ///
     /// **NOTE:** Implicitly sets [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
-    /// [`Arg::last(true)`] when set to `true`
+    /// [`Arg::last(true)`] when set to `true`.
     ///
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
@@ -3749,7 +3750,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Hides an argument from short help message output.
     ///
-    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    /// **NOTE:** This does **not** hide the argument from usage strings on error.
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
@@ -3762,7 +3763,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .hidden_short_help(true)
     /// # ;
     /// ```
-    /// Setting `hidden_short_help(true)` will hide the argument when displaying short help text
+    /// Setting `hidden_short_help(true)` will hide the argument when displaying short help text:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3776,7 +3777,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     ]);
     /// ```
     ///
-    /// The above example displays
+    /// The above example displays:
     ///
     /// ```notrust
     /// helptest
@@ -3789,7 +3790,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -V, --version    Prints version information
     /// ```
     ///
-    /// However, when --help is called
+    /// However, when --help is called:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3803,7 +3804,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     ]);
     /// ```
     ///
-    /// Then the following would be displayed
+    /// Then the following would be displayed:
     ///
     /// ```notrust
     /// helptest
@@ -3826,7 +3827,7 @@ impl<'a, 'b> Arg<'a, 'b> {
 
     /// Hides an argument from long help message output.
     ///
-    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    /// **NOTE:** This does **not** hide the argument from usage strings on error.
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
@@ -3839,7 +3840,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .hidden_long_help(true)
     /// # ;
     /// ```
-    /// Setting `hidden_long_help(true)` will hide the argument when displaying long help text
+    /// Setting `hidden_long_help(true)` will hide the argument when displaying long help text:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3853,7 +3854,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     ]);
     /// ```
     ///
-    /// The above example displays
+    /// The above example displays:
     ///
     /// ```notrust
     /// helptest
@@ -3866,7 +3867,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// -V, --version    Prints version information
     /// ```
     ///
-    /// However, when -h is called
+    /// However, when -h is called:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -3880,7 +3881,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     ]);
     /// ```
     ///
-    /// Then the following would be displayed
+    /// Then the following would be displayed:
     ///
     /// ```notrust
     /// helptest
