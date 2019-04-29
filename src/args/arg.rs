@@ -511,7 +511,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
-    ///     .help("The config file used by the myprog")
+    ///     .help("The config file used by myprog")
     /// # ;
     /// ```
     ///
@@ -567,7 +567,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
     ///     .long_help(
-    /// "The config file used by the myprog must be in JSON format
+    /// "The config file used by myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
     /// and on, so I'll stop now.")
@@ -583,7 +583,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
     ///         .long_help(
-    /// "The config file used by the myprog must be in JSON format
+    /// "The config file used by myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
     /// and on, so I'll stop now."))
@@ -602,7 +602,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///
     /// FLAGS:
     ///    --config
-    ///         The config file used by the myprog must be in JSON format
+    ///         The config file used by myprog must be in JSON format
     ///         with only valid keys and may not contain other nonsense
     ///         that cannot be read by this program. Obviously I'm going on
     ///         and on, so I'll stop now.
