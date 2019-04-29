@@ -1102,8 +1102,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// Sets a conflicting argument by name. I.e., when using this argument,
     /// the following argument can't be present and vice versa.
     ///
-    /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
-    /// only need to be set for one of the two arguments, they do not need to be set for each.
+    /// **NOTE:** Conflicting rules take precedence over being required by default.
     ///
     /// **NOTE:** Defining a conflict is two-way; it does *not* need to defined for both arguments.
     /// (I.e., if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not
@@ -1148,8 +1147,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conflicts per
     /// argument.
     ///
-    /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
-    /// only need to be set for one of the two arguments, they do not need to be set for each.
+    /// **NOTE:** Conflicting rules take precedence over being required by default.
     ///
     /// **NOTE:** Defining a conflict is two-way; it does *not* need to defined for both arguments.
     /// (I.e., if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not
