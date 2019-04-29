@@ -1731,7 +1731,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .takes_value(true)
-    ///         .requires("input")
+    ///         .requires_all(&["input", "output"])
     ///         .long("config"))
     ///     .arg(Arg::with_name("input")
     ///         .index(1))
