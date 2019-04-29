@@ -1035,7 +1035,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::with_name("config")
-    ///     .required_unless_all(&["cfg", "dbg"])
+    ///     .required_unless_one(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
