@@ -244,7 +244,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     ///  * More value notation
     ///
     /// More than one value will also implicitly set the argument's number of values, i.e. having
-    /// two values, `--option [val1] [val2]` specifies that in order for the option to be satisified
+    /// two values, `--option [val1] [val2]` specifies that in order for the option to be satisfied
     /// it must receive exactly two values
     ///
     /// Example values are as follows (`FILE`, and `SPEED`):
