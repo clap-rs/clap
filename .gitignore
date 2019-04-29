@@ -29,3 +29,6 @@ clap-rs.iml
 
 # Auxiliary files
 test-results.test
+
+# Tags Files
+rusty-tags.vi
