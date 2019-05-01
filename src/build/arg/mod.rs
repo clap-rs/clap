@@ -29,6 +29,13 @@ type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
 
 type Id = u64;
 
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+enum ArgKind {
+    Pos,
+    Opt,
+    Flag,
+}
+
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
 ///
@@ -59,35 +66,23 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub name: &'help str,
     #[doc(hidden)]
-    pub help: Option<&'help str>,
-    #[doc(hidden)]
-    pub long_help: Option<&'help str>,
-    #[doc(hidden)]
     pub blacklist: Option<Vec<Id>>,
     #[doc(hidden)]
     pub settings: ArgFlags,
     #[doc(hidden)]
-    pub r_unless: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub overrides: Option<Vec<Id>>,
-    #[doc(hidden)]
     pub groups: Option<Vec<Id>>,
+
+    // position
     #[doc(hidden)]
-    pub requires: Option<Vec<(Option<&'help str>, Id)>>,
+    pub index: Option<u64>,
+
+    // validation
     #[doc(hidden)]
-    pub short: Option<char>,
+    pub r_ifs: Option<Vec<(Id, &'help str)>>,
     #[doc(hidden)]
-    pub long: Option<&'help str>,
+    pub validator: Option<Validator>,
     #[doc(hidden)]
-    pub aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub unified_ord: usize,
-    #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
-    #[doc(hidden)]
-    pub val_names: Option<VecMap<&'help str>>,
+    pub validator_os: Option<ValidatorOs>,
     #[doc(hidden)]
     pub num_vals: Option<u64>,
     #[doc(hidden)]
@@ -95,25 +90,42 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub min_vals: Option<u64>,
     #[doc(hidden)]
-    pub validator: Option<Validator>,
+    pub r_unless: Option<Vec<Id>>,
     #[doc(hidden)]
-    pub validator_os: Option<ValidatorOs>,
+    pub overrides: Option<Vec<Id>>,
+    #[doc(hidden)]
+    pub requires: Option<Vec<(Option<&'help str>, Id)>>,
+
+    // value
+    #[doc(hidden)]
+    pub possible_vals: Option<Vec<&'help str>>,
+    #[doc(hidden)]
+    pub terminator: Option<&'help str>,
+    #[doc(hidden)]
+    pub env: Option<(&'help OsStr, Option<OsString>)>,
     #[doc(hidden)]
     pub val_delim: Option<char>,
     #[doc(hidden)]
     pub default_val: Option<&'help OsStr>,
     #[doc(hidden)]
     pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
+
+    // help message
     #[doc(hidden)]
-    pub env: Option<(&'help OsStr, Option<OsString>)>,
+    pub help: Option<&'help str>,
     #[doc(hidden)]
-    pub terminator: Option<&'help str>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    #[doc(hidden)]
-    pub r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub long_help: Option<&'help str>,
     #[doc(hidden)]
     pub help_heading: Option<&'help str>,
+    #[doc(hidden)]
+    pub disp_ord: usize,
+    #[doc(hidden)]
+    pub unified_ord: usize,
+    #[doc(hidden)]
+    pub val_names: Option<VecMap<&'help str>>,
+
+    // switch
+    pub key: Key<'help>,
 }
 
 impl<'help> Arg<'help> {
@@ -305,7 +317,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.key.long(l);
         self
     }
 
@@ -4005,7 +4017,7 @@ impl<'help> Arg<'help> {
         {
             self.val_delim = Some(',');
         }
-        if self.index.is_some() || (self.short.is_none() && self.long.is_none()) {
+        if self.kind() == ArgKind::Pos {
             if self.max_vals.is_some()
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
@@ -4022,6 +4034,17 @@ impl<'help> Arg<'help> {
         }
     }
 
+    #[doc(hidden)]
+    fn kind(&self) -> ArgKind {
+        if !self.key.has_switch() {
+            ArgKind::Pos
+        } else if self.is_set(ArgSettings::TakesValue) {
+            ArgKind::Opt
+        } else {
+            ArgKind::Flag
+        }
+    }
+
     // @TODO @p6 @naming @internal: rename to set_mut
     #[doc(hidden)]
     pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
@@ -4031,11 +4054,11 @@ impl<'help> Arg<'help> {
     pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
 
     #[doc(hidden)]
-    pub fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
+    pub fn has_switch(&self) -> bool { self.key.has_switch() }
 
     #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {
-        self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
+        self.kind() == ArgKind::Opt || self.long.is_some() || self.short.is_none()
     }
 
     // Used for positionals when printing
@@ -4099,7 +4122,7 @@ impl<'help> PartialEq for Arg<'help> {
 
 impl<'help> Display for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
+        if self.index.is_some() || !self.has_switch() {
             // Positional
             let mut delim = String::new();
             delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
@@ -4211,8 +4234,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             f,
             "Arg {{ id: {:X?}, name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
              settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
-             requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-             aliases: {:?}, possible_values: {:?}, value_names: {:?}, number_of_values: {:?}, \
+             requires: {:?}, requires_ifs: {:?}, key: {:?}, possible_values: {:?}, \
+             value_names: {:?}, number_of_values: {:?}, \
              max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
              value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
              default_value: {:?}, validator: {}, validator_os: {} \
@@ -4228,10 +4251,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.groups,
             self.requires,
             self.r_ifs,
-            self.short,
-            self.index,
-            self.long,
-            self.aliases,
+            self.key,
             self.possible_vals,
             self.val_names,
             self.num_vals,
