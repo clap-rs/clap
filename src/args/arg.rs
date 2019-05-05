@@ -3239,6 +3239,16 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.default_value_os(OsStr::from_bytes(val.as_bytes()))
     }
 
+    /// ... docs ...
+    pub fn default_missing_value(self, val: &'a str) -> Self {
+        self.default_missing_value_os(OsStr::from_bytes(val.as_bytes()))
+    }
+    /// ... docs ...
+    pub fn default_missing_value_os(mut self, val: &'a OsStr) -> Self {
+        self.v.default_missing_val = Some(val);
+        self
+    }
+
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value

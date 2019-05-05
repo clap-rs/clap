@@ -21,6 +21,7 @@ where
     pub val_delim: Option<char>,
     pub default_val: Option<&'b OsStr>,
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
+    pub default_missing_val: Option<&'b OsStr>,
     pub env: Option<(&'a OsStr, Option<OsString>)>,
     pub terminator: Option<&'b str>,
 }
@@ -38,6 +39,7 @@ impl<'n, 'e> Default for Valued<'n, 'e> {
             val_delim: None,
             default_val: None,
             default_vals_ifs: None,
+            default_missing_val: None,
             env: None,
             terminator: None,
         }
