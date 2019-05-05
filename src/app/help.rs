@@ -100,7 +100,7 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub fn new(
         w: &'a mut Write,
         next_line_help: bool,
@@ -588,8 +588,8 @@ fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
 impl<'a> Help<'a> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
-    #[cfg_attr(feature = "lints", allow(useless_let_if_seq))]
-    #[cfg_attr(feature = "cargo-clippy", allow(useless_let_if_seq))]
+    #[cfg_attr(feature = "lints", allow(clippy::useless_let_if_seq))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::useless_let_if_seq))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();

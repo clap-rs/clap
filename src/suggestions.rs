@@ -11,7 +11,7 @@ use fmt::Format;
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
-#[cfg_attr(feature = "lints", allow(needless_lifetimes))]
+#[cfg_attr(feature = "lints", allow(clippy::needless_lifetimes))]
 pub fn did_you_mean<'a, T: ?Sized, I>(v: &str, possible_values: I) -> Option<&'a str>
 where
     T: AsRef<str> + 'a,
@@ -41,7 +41,7 @@ where
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-#[cfg_attr(feature = "lints", allow(needless_lifetimes))]
+#[cfg_attr(feature = "lints", allow(clippy::needless_lifetimes))]
 pub fn did_you_mean_flag_suffix<'z, T, I>(
     arg: &str,
     args_rest: &'z [&str],

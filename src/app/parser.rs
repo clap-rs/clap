@@ -416,7 +416,7 @@ where
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
+    #[cfg_attr(feature = "lints", allow(clippy::needless_borrow))]
     pub fn derive_display_order(&mut self) {
         if self.is_set(AS::DeriveDisplayOrder) {
             let unified = self.is_set(AS::UnifiedHelpMessage);
@@ -449,7 +449,7 @@ where
 
     pub fn required(&self) -> Iter<&str> { self.required.iter() }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
+    #[cfg_attr(feature = "lints", allow(clippy::needless_borrow))]
     #[inline]
     pub fn has_args(&self) -> bool {
         !(self.flags.is_empty() && self.opts.is_empty() && self.positionals.is_empty())
@@ -511,7 +511,7 @@ where
     #[inline]
     pub fn unset(&mut self, s: AS) { self.settings.unset(s) }
 
-    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
+    #[cfg_attr(feature = "lints", allow(clippy::block_in_if_condition_stmt))]
     pub fn verify_positionals(&self) -> bool {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -778,7 +778,7 @@ where
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
-    #[cfg_attr(feature = "lints", allow(wrong_self_convention))]
+    #[cfg_attr(feature = "lints", allow(clippy::wrong_self_convention))]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
         debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
@@ -839,7 +839,7 @@ where
     }
 
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
+    #[cfg_attr(feature = "lints", allow(clippy::while_let_on_iterator, clippy::collapsible_if))]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1635,7 +1635,7 @@ where
         ).map(|_| ParseResult::NotFound)
     }
 
-    #[cfg_attr(feature = "lints", allow(len_zero))]
+    #[cfg_attr(feature = "lints", allow(clippy::len_zero))]
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -2134,7 +2134,7 @@ where
     }
 
     // Only used for completion scripts due to bin_name messiness
-    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
+    #[cfg_attr(feature = "lints", allow(clippy::block_in_if_condition_stmt))]
     pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
         debugln!("Parser::find_subcommand: sc={}", sc);
         debugln!(

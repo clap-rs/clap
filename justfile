@@ -30,7 +30,7 @@ remove-nightly:
 	rustup override remove
 
 @lint: nightly
-	cargo build --features lints && just remove-nightly
+	cargo clippy --features lints && just remove-nightly
 
 clean:
 	cargo clean

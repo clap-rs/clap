@@ -3474,7 +3474,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
+    #[cfg_attr(feature = "lints", allow(clippy::explicit_counter_loop))]
     pub fn default_value_ifs_os(mut self, ifs: &[(&'a str, Option<&'b OsStr>, &'b OsStr)]) -> Self {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);
