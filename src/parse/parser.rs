@@ -1543,12 +1543,11 @@ where
 
     fn version_err(&self, use_long: bool) -> ClapError {
         debugln!("Parser::version_err: ");
-        let out = io::stdout();
-        let mut buf_w = BufWriter::new(out.lock());
-        match self.print_version(&mut buf_w, use_long) {
+        let mut buf = vec![];
+        match self.print_version(&mut buf, use_long) {
             Err(e) => e,
             _ => ClapError {
-                message: String::new(),
+                message: String::from_utf8(buf).unwrap_or_default(),
                 kind: ErrorKind::VersionDisplayed,
                 info: None,
             },
