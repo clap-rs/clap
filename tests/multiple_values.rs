@@ -1089,7 +1089,7 @@ fn multiple_value_terminator_option_other_arg() {
             .short("-F"))
         .get_matches_from_safe(vec![
             "lip",
-            "-f", "val1", "val2", 
+            "-f", "val1", "val2",
             "-F",
             "otherval"
         ]);
@@ -1119,4 +1119,56 @@ fn multiple_vals_with_hyphen() {
     let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
     assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     assert_eq!(m.value_of("location"), Some("/home/clap"));
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_1() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .arg(
+            Arg::with_name("positional")
+                .required(true)
+                .index(1),
+        )
+        .get_matches_from_safe(vec!["prog", "--field", "1", "file"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_2() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .get_matches_from_safe(vec!["prog", "--field", "1", "2"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_3() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .get_matches_from_safe(vec!["prog", "--field", "1", "2", "3"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
