@@ -173,7 +173,7 @@ impl ArgMatcher {
                 };
             } else if let Some(num) = o.max_vals {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return (ma.vals.len() as u64) <= num;
+                return (ma.vals.len() as u64) < num;
             } else if o.min_vals.is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
