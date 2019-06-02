@@ -14,7 +14,6 @@ use std::cell::Cell;
 
 // Internal
 use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
 use SubCommand;
 use app::App;
 use app::help::Help;
@@ -1626,10 +1625,10 @@ where
 
         debugln!("Parser::parse_long_arg: Didn't match anything");
 
-        let args_rest: Vec<_> = it.map(|x| x.clone().into()).collect();
-        let args_rest2: Vec<_> = args_rest.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect();
+        let args_rest: Vec<_> = it.map(|x| x.into().to_string_lossy().to_string()).collect();
+        let args_rest2: Vec<_> = args_rest.iter().map(|x| x.as_str()).collect();
         self.did_you_mean_error(
-            arg.to_str().expect(INVALID_UTF8),
+            &arg.to_string_lossy(),
             matcher,
             &args_rest2[..]
         ).map(|_| ParseResult::NotFound)
