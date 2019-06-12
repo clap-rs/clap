@@ -877,25 +877,32 @@ fn req_delimiter_complex() {
           "val20", "val23", "val26"]);
 }
 
-// ### TEST FAIL ###
-// #[test]
-// #[should_panic]
-// fn low_index_positional_not_required() {
-//     let _ = App::new("lip")
-//         .arg(Arg::with_name("files")
-//             .index(1)
-//             .required(true)
-//             .multiple(true))
-//         .arg(Arg::with_name("target")
-//             .index(2))
-//         .get_matches_from_safe(vec![
-//             "lip",
-//             "file1", "file2",
-//             "file3", "target",
-//         ]);
-// }
+// ### WTF ###
+// This tests a programmer error and will only succeed with debug_assertions enabled
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic]
+fn low_index_positional_not_required() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2));
+// Release passes (panics) just building App,
+// however Debug only passes if .get_matches... is called
+// wtf?
+        // .get_matches_from_safe(vec![
+        //     "lip",
+        //     "file1", "file2",
+        //     "file3", "target",
+        // ]);
+}
 
-// ### TEST FAIL ###
+// ### WTF ###
+// // This tests a programmer error and will only succeed with debug_assertions enabled
+// #[cfg(debug_assertions)]
 // #[test]
 // #[should_panic]
 // fn low_index_positional_last_multiple_too() {
@@ -907,7 +914,7 @@ fn req_delimiter_complex() {
 //         .arg(Arg::with_name("target")
 //             .index(2)
 //             .required(true)
-//             .multiple(true))
+//             .multiple(true));
 //         .get_matches_from_safe(vec![
 //             "lip",
 //             "file1", "file2",
@@ -915,7 +922,9 @@ fn req_delimiter_complex() {
 //         ]);
 // }
 
-// ### TEST FAIL ###
+// ### WTF ###
+// // This tests a programmer error and will only succeed with debug_assertions enabled
+// #[cfg(debug_assertions)]
 // #[test]
 // #[should_panic]
 // fn low_index_positional_too_far_back() {
@@ -929,7 +938,7 @@ fn req_delimiter_complex() {
 //             .index(2))
 //         .arg(Arg::with_name("target2")
 //             .required(true)
-//             .index(3))
+//             .index(3));
 //         .get_matches_from_safe(vec![
 //             "lip",
 //             "file1", "file2",

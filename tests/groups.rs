@@ -53,20 +53,21 @@ fn non_existing_arg() {
         .get_matches_from_safe(vec![""]);
 }
 
-// ### TEST FAIL ###
-// #[test]
-// #[should_panic(expected = "The group 'c' contains the arg 'd' that doesn't actually exist.")]
-// fn non_existing_arg_in_subcommand_help() {
-//     let _ = App::new("a")
-//         .subcommand(
-//             SubCommand::with_name("b")
-//                 .group(
-//                     ArgGroup::with_name("c")
-//                         .args(&["d"])
-//                         .required(true),
-//                 )
-//         ).get_matches_from_safe(vec!["a", "help", "b"]);
-// }
+// This tests a programmer error and will only succeed with debug_assertions enabled
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic(expected = "The group 'c' contains the arg 'd' that doesn't actually exist.")]
+fn non_existing_arg_in_subcommand_help() {
+    let _ = App::new("a")
+        .subcommand(
+            SubCommand::with_name("b")
+                .group(
+                    ArgGroup::with_name("c")
+                        .args(&["d"])
+                        .required(true),
+                )
+        ).get_matches_from_safe(vec!["a", "help", "b"]);
+}
 
 #[test]
 fn group_single_value() {

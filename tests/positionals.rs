@@ -219,16 +219,15 @@ fn single_positional_required_usage_string() {
     assert_eq!(m.usage(), "USAGE:\n    test <FILE>");
 }
 
-// ### TEST FAIL ###
+// ### WTF ###
+// // This tests a programmer error and will only succeed with debug_assertions enabled
+// #[cfg(debug_assertions)]
 // #[test]
 // #[should_panic]
 // fn missing_required() {
 //     let r = App::new("test")
 //         .arg_from_usage("[FILE1] 'some file'")
-//         .arg_from_usage("<FILE2> 'some file'")
-//         .get_matches_from_safe(vec!["test", "file"]);
-//     assert!(r.is_err());
-//     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+//         .arg_from_usage("<FILE2> 'some file'");
 // }
 
 #[test]
