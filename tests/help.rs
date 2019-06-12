@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, SubCommand, ErrorKind, Arg};
+use clap::{App, AppSettings, SubCommand, ErrorKind, Arg, ArgGroup};
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -516,6 +516,20 @@ FLAGS:
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -p, --pos <VAL>      Some vals [possible values: fast, slow]";
+
+static ISSUE_1487: &'static str = "test 
+
+USAGE:
+    ctest <arg1|arg2>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+ARGS:
+    <arg1>    
+    <arg2>    
+";
 
 fn setup() -> App<'static, 'static> {
     App::new("test")
@@ -1202,4 +1216,17 @@ fn show_short_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"));
     assert!(test::compare_output(app, "ctest foo -h", ISSUE_897_SHORT, false));
+}
+
+#[test]
+fn issue_1487() {
+    let app = App::new("test")
+        .arg(Arg::with_name("arg1")
+            .group("group1"))
+        .arg(Arg::with_name("arg2")
+            .group("group1"))
+        .group(ArgGroup::with_name("group1")
+            .args(&["arg1", "arg2"])
+            .required(true));
+    assert!(test::compare_output(app, "ctest -h", ISSUE_1487, false));
 }

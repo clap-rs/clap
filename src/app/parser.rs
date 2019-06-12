@@ -239,7 +239,9 @@ where
             for g in grps {
                 let mut found = false;
                 if let Some(ref mut ag) = self.groups.iter_mut().find(|grp| &grp.name == g) {
-                    ag.args.push(a.b.name);
+                    if !ag.args.contains(&a.b.name) {
+                        ag.args.push(a.b.name);
+                    }
                     found = true;
                 }
                 if !found {
@@ -353,18 +355,19 @@ where
             //                self.blacklist.extend_from_slice(bl);
             //            }
         }
-        if self.groups.iter().any(|g| g.name == group.name) {
-            let grp = self.groups
-                .iter_mut()
-                .find(|g| g.name == group.name)
-                .expect(INTERNAL_ERROR_MSG);
-            grp.args.extend_from_slice(&group.args);
+        if let Some(grp) = self.groups.iter_mut().find(|g| g.name == group.name) {
+            for arg in &group.args {
+                if !grp.args.contains(arg) {
+                    grp.args.push(arg);
+                }
+            }
             grp.requires = group.requires.clone();
             grp.conflicts = group.conflicts.clone();
             grp.required = group.required;
-        } else {
+            return
+        } // else {
             self.groups.push(group);
-        }
+        // }
     }
 
     pub fn add_subcommand(&mut self, mut subcmd: App<'a, 'b>) {
