@@ -219,16 +219,17 @@ fn single_positional_required_usage_string() {
     assert_eq!(m.usage(), "USAGE:\n    test <FILE>");
 }
 
-// ### WTF ###
-// // This tests a programmer error and will only succeed with debug_assertions enabled
-// #[cfg(debug_assertions)]
-// #[test]
-// #[should_panic]
-// fn missing_required() {
-//     let r = App::new("test")
-//         .arg_from_usage("[FILE1] 'some file'")
-//         .arg_from_usage("<FILE2> 'some file'");
-// }
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic(expected = "Found positional argument which is not required \
+with a lower index than a required positional argument")]
+fn missing_required() {
+    let _ = App::new("test")
+        .arg_from_usage("[FILE1] 'some file'")
+        .arg_from_usage("<FILE2> 'some file'")
+        .get_matches_from_safe(vec![""]);
+}
 
 #[test]
 fn missing_required_2() {

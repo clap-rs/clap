@@ -877,11 +877,13 @@ fn req_delimiter_complex() {
           "val20", "val23", "val26"]);
 }
 
-// ### WTF ###
-// This tests a programmer error and will only succeed with debug_assertions enabled
+// This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "When using a positional argument with \
+.multiple(true) that is *not the last* positional argument, the last \
+positional argument (i.e the one with the highest index) *must* have \
+.required(true) or .last(true) set.")]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")
         .arg(Arg::with_name("files")
@@ -889,62 +891,47 @@ fn low_index_positional_not_required() {
             .required(true)
             .multiple(true))
         .arg(Arg::with_name("target")
-            .index(2));
-// Release passes (panics) just building App,
-// however Debug only passes if .get_matches... is called
-// wtf?
-        // .get_matches_from_safe(vec![
-        //     "lip",
-        //     "file1", "file2",
-        //     "file3", "target",
-        // ]);
+            .index(2))
+        .get_matches_from_safe(vec![""]);
 }
 
-// ### WTF ###
-// // This tests a programmer error and will only succeed with debug_assertions enabled
-// #[cfg(debug_assertions)]
-// #[test]
-// #[should_panic]
-// fn low_index_positional_last_multiple_too() {
-//     let _ = App::new("lip")
-//         .arg(Arg::with_name("files")
-//             .index(1)
-//             .required(true)
-//             .multiple(true))
-//         .arg(Arg::with_name("target")
-//             .index(2)
-//             .required(true)
-//             .multiple(true));
-//         .get_matches_from_safe(vec![
-//             "lip",
-//             "file1", "file2",
-//             "file3", "target",
-//         ]);
-// }
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic(expected = "Only one positional argument with .multiple(true) \
+set is allowed per command, unless the second one also has .last(true) set")]
+fn low_index_positional_last_multiple_too() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .index(2)
+            .required(true)
+            .multiple(true))
+        .get_matches_from_safe(vec![""]);
+}
 
-// ### WTF ###
-// // This tests a programmer error and will only succeed with debug_assertions enabled
-// #[cfg(debug_assertions)]
-// #[test]
-// #[should_panic]
-// fn low_index_positional_too_far_back() {
-//     let _ = App::new("lip")
-//         .arg(Arg::with_name("files")
-//             .index(1)
-//             .required(true)
-//             .multiple(true))
-//         .arg(Arg::with_name("target")
-//             .required(true)
-//             .index(2))
-//         .arg(Arg::with_name("target2")
-//             .required(true)
-//             .index(3));
-//         .get_matches_from_safe(vec![
-//             "lip",
-//             "file1", "file2",
-//             "file3", "target",
-//         ]);
-// }
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic(expected = "Only the last positional argument, or second to \
+last positional argument may be set to .multiple(true)")]
+fn low_index_positional_too_far_back() {
+    let _ = App::new("lip")
+        .arg(Arg::with_name("files")
+            .index(1)
+            .required(true)
+            .multiple(true))
+        .arg(Arg::with_name("target")
+            .required(true)
+            .index(2))
+        .arg(Arg::with_name("target2")
+            .required(true)
+            .index(3))
+        .get_matches_from_safe(vec![""]);
+}
 
 #[test]
 fn low_index_positional() {

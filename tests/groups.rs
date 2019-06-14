@@ -41,8 +41,10 @@ fn required_group_missing_arg() {
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "The group 'req' contains the arg 'flg' that doesn't actually exist.")]
 fn non_existing_arg() {
     let _ = App::new("group")
         .args_from_usage("-f, --flag 'some flag'
@@ -53,7 +55,7 @@ fn non_existing_arg() {
         .get_matches_from_safe(vec![""]);
 }
 
-// This tests a programmer error and will only succeed with debug_assertions enabled
+// This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "The group 'c' contains the arg 'd' that doesn't actually exist.")]
@@ -66,7 +68,8 @@ fn non_existing_arg_in_subcommand_help() {
                         .args(&["d"])
                         .required(true),
                 )
-        ).get_matches_from_safe(vec!["a", "help", "b"]);
+        // Error is only caught if subcommand is provided
+        ).get_matches_from_safe(vec!["a", "b"]);
 }
 
 #[test]
