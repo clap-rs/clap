@@ -247,17 +247,18 @@ impl<'b> App<'b> {
     /// name from its `Cargo.toml`.
     ///
     /// # Examples
-    /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// ```no_run
+    /// # #[cfg(feature = "yaml")]
     /// # fn main() {
+    /// # use clap::{App, crate_name, load_yaml};
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml)
     ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// # }
+    /// # #[cfg(not(feature = "yaml"))]
+    /// # fn main() {}
     /// ```
     ///
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml

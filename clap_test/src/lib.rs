@@ -1,7 +1,6 @@
 use std::str;
 use std::io::Cursor;
 
-extern crate clap;
 extern crate regex;
 
 use regex::Regex;

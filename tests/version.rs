@@ -1,6 +1,3 @@
-extern crate clap;
-extern crate regex;
-
 use std::str;
 
 use clap::{App, AppSettings, ErrorKind};

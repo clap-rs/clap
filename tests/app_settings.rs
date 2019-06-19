@@ -1,4 +1,3 @@
-extern crate clap;
 extern crate regex;
 
 use clap::{App, AppSettings, Arg, ErrorKind, Propagation};

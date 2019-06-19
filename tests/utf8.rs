@@ -1,7 +1,5 @@
 #![cfg(not(windows))]
 
-extern crate clap;
-
 use clap::{App, AppSettings, Arg, ErrorKind};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;

@@ -37,6 +37,7 @@ categories = ["command-line-interface"]
 description = """
 A simple to use, efficient, and full-featured Command Line Argument Parser
 """
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "clap-rs/clap" }

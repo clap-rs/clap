@@ -12,19 +12,20 @@
 /// The following example shows how to load a properly formatted YAML file to build an instance
 /// of an `App` struct.
 ///
-/// ```ignore
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// ```no_run
+/// # #![cfg(feature = "yaml")]
 /// # fn main() {
+/// # use clap::{App, load_yaml};
 /// let yml = load_yaml!("app.yml");
 /// let app = App::from_yaml(yml);
 ///
 /// // continued logic goes here, such as `app.get_matches()` etc.
 /// # }
+/// # #![cfg(not(feature = "yaml"))]
+/// fn main() {}
 /// ```
 #[cfg(feature = "yaml")]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! load_yaml {
     ($yml:expr) => {
         &::clap::YamlLoader::load_from_str(include_str!($yml)).expect("failed to load YAML file")[0]
@@ -40,9 +41,7 @@ macro_rules! load_yaml {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, value_t};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -57,7 +56,7 @@ macro_rules! load_yaml {
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
 /// [`Result<T,String>`]: https://doc.rust-lang.org/std/result/enum.Result.html
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! value_t {
     ($m:ident, $v:expr, $t:ty) => {
         value_t!($m.value_of($v), $t)
@@ -86,9 +85,7 @@ macro_rules! value_t {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, value_t_or_exit};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -103,7 +100,7 @@ macro_rules! value_t {
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
 /// [`value_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.value_t!.html
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! value_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
         value_t_or_exit!($m.value_of($v), $t)
@@ -131,9 +128,7 @@ macro_rules! value_t_or_exit {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, values_t};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -153,7 +148,7 @@ macro_rules! value_t_or_exit {
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`Vec<T>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
 /// [`clap::Result<Vec<T>>`]: ./type.Result.html
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! values_t {
     ($m:ident, $v:expr, $t:ty) => {
         values_t!($m.values_of($v), $t)
@@ -193,9 +188,7 @@ macro_rules! values_t {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, values_t_or_exit};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -216,7 +209,7 @@ macro_rules! values_t {
 /// [`values_t!(/* ... */).unwrap_or_else(|e| e.exit())`]: ./macro.values_t!.html
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`Vec<T>`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! values_t_or_exit {
     ($m:ident, $v:expr, $t:ty) => {
         values_t_or_exit!($m.values_of($v), $t)
@@ -254,13 +247,13 @@ macro_rules! values_t_or_exit {
 /// # Examples
 ///
 /// ```
-/// # #[macro_use] extern crate clap;
+/// # use clap::_clap_count_exprs;
 /// # fn main() {
 /// const COUNT: usize = _clap_count_exprs!(a, 5+1, "hi there!".into_string());
 /// assert_eq!(COUNT, 3);
 /// # }
 /// ```
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! _clap_count_exprs {
     () => { 0 };
     ($e:expr) => { 1 };
@@ -282,9 +275,7 @@ macro_rules! _clap_count_exprs {
 /// # Examples
 ///
 /// ```rust
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::{App, Arg};
+/// # use clap::{App, Arg, arg_enum, value_t};
 /// arg_enum!{
 ///     #[derive(PartialEq, Debug)]
 ///     pub enum Foo {
@@ -313,7 +304,7 @@ macro_rules! _clap_count_exprs {
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`std::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`Arg::case_insensitive(true)`]: ./struct.Arg.html#method.case_insensitive
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! arg_enum {
     (@as_item $($i:item)*) => ($($i)*);
     (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
@@ -416,9 +407,7 @@ macro_rules! arg_enum {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_version};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .version(crate_version!())
@@ -426,7 +415,7 @@ macro_rules! arg_enum {
 /// # }
 /// ```
 #[cfg(not(feature = "no_cargo"))]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! crate_version {
     () => {
         env!("CARGO_PKG_VERSION")
@@ -445,9 +434,7 @@ macro_rules! crate_version {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_authors};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .author(crate_authors!("\n"))
@@ -455,7 +442,7 @@ macro_rules! crate_version {
 /// # }
 /// ```
 #[cfg(not(feature = "no_cargo"))]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! crate_authors {
     ($sep:expr) => {{
         use std::ops::Deref;
@@ -500,9 +487,8 @@ macro_rules! crate_authors {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # #![cfg(not(feature = "no_cargo"))]
+/// # use clap::{App, crate_description};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .about(crate_description!())
@@ -510,7 +496,7 @@ macro_rules! crate_authors {
 /// # }
 /// ```
 #[cfg(not(feature = "no_cargo"))]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! crate_description {
     () => {
         env!("CARGO_PKG_DESCRIPTION")
@@ -522,16 +508,14 @@ macro_rules! crate_description {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_name};
 /// # fn main() {
 /// let m = App::new(crate_name!())
 ///             .get_matches();
 /// # }
 /// ```
 #[cfg(not(feature = "no_cargo"))]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! crate_name {
     () => {
         env!("CARGO_PKG_NAME")
@@ -555,26 +539,28 @@ macro_rules! crate_name {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # #[cfg(not(feature = "no_cargo"))]
 /// # fn main() {
+/// # use clap::app_from_crate;
 /// let m = app_from_crate!().get_matches();
 /// # }
+/// # #[cfg(feature = "no_cargo")]
+/// # fn main() {}
 /// ```
 #[cfg(not(feature = "no_cargo"))]
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! app_from_crate {
     () => {
-        $crate::App::new(crate_name!())
-            .version(crate_version!())
-            .author(crate_authors!())
-            .about(crate_description!())
+        $crate::App::new($crate::crate_name!())
+            .version($crate::crate_version!())
+            .author($crate::crate_authors!())
+            .about($crate::crate_description!())
     };
     ($sep:expr) => {
-        $crate::App::new(crate_name!())
-            .version(crate_version!())
-            .author(crate_authors!($sep))
-            .about(crate_description!())
+        $crate::App::new($crate::crate_name!())
+            .version($crate::crate_version!())
+            .author($crate::crate_authors!($sep))
+            .about($crate::crate_description!())
     };
 }
 
@@ -586,8 +572,7 @@ macro_rules! app_from_crate {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap::clap_app;
 /// # fn main() {
 /// let matches = clap_app!(myapp =>
 ///     (version: "1.0")
@@ -652,7 +637,7 @@ macro_rules! app_from_crate {
 /// [`Arg::max_values(max)`]: ./struct.Arg.html#method.max_values
 /// [`Arg::validator`]: ./struct.Arg.html#method.validator
 /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
-#[macro_export]
+#[macro_export(local_interior_macros)]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
     (@app ($builder:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {

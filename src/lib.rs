@@ -45,7 +45,6 @@
 //! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 //! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 //! // to generate arguments dynamically.
-//! extern crate clap;
 //! use clap::{Arg, App, };
 //!
 //! fn main() {
@@ -116,8 +115,7 @@
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
-//! extern crate clap;
-//! use clap::{Arg, App, };
+//! use clap::{Arg, App};
 //!
 //! fn main() {
 //!     let matches = App::new("myapp")
@@ -183,30 +181,30 @@
 //!
 //! At last we create our `main.rs` file just like we would have with the previous two examples:
 //!
-//! ```ignore
+//! ```no_run
+//! # #[cfg(feature = "yaml")]
+//! # fn main() {
+//! # use clap::{App, load_yaml};
 //! // (Full example with detailed comments in examples/17_yaml.rs)
 //! //
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
 //! // more clean, but takes a very small performance hit compared to the other two methods.
-//! #[macro_use]
-//! extern crate clap;
-//! use clap::App;
+//! //
+//! // The YAML file is found relative to the current file, similar to how modules are found
+//! let yaml = load_yaml!("cli.yml");
+//! let matches = App::from_yaml(yaml).get_matches();
 //!
-//! fn main() {
-//!     // The YAML file is found relative to the current file, similar to how modules are found
-//!     let yaml = load_yaml!("cli.yml");
-//!     let matches = App::from_yaml(yaml).get_matches();
-//!
-//!     // Same as previous examples...
-//! }
+//! // Same as previous examples...
+//! # }
+//! # #[cfg(not(feature = "yaml"))]
+//! # fn main() {}
 //! ```
 //!
 //! Finally there is a macro version, which is like a hybrid approach offering the speed of the
 //! builder pattern (the first example), but without all the verbosity.
 //!
 //! ```no_run
-//! #[macro_use]
-//! extern crate clap;
+//! use clap::clap_app;
 //!
 //! fn main() {
 //!     let matches = clap_app!(myapp =>
@@ -285,7 +283,6 @@
 //! * Add the following to your `src/main.rs`
 //!
 //! ```no_run
-//! extern crate clap;
 //! use clap::App;
 //!
 //! fn main() {
@@ -314,8 +311,6 @@
 //! [dependencies.clap]
 //! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
-//!
-//! Add `extern crate clap;` to your crate root.
 //!
 //! Define a list of valid arguments for your program (see the
 //! [documentation](https://docs.rs/clap/) or [examples/] directory of this repo)

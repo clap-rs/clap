@@ -1,13 +1,9 @@
-#[macro_use]
-extern crate clap;
-extern crate regex;
-
 use std::io::Write;
 use std::str;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg};
+use clap::{App, Arg, arg_enum};
 
 static SCF2OP: &'static str = "flag present 2 times
 option NOT present

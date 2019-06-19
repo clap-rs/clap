@@ -1,10 +1,8 @@
 #![feature(test)]
 
-#[macro_use]
-extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, ArgSettings};
+use clap::{App, AppSettings, Arg, ArgSettings, clap_app};
 
 use test::Bencher;
 

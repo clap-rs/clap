@@ -1,9 +1,7 @@
-#[macro_use]
-extern crate clap;
-
-use clap::App;
-
+#[cfg(not(feature = "no_cargo"))]
 fn main() {
+    use clap::{App, crate_version};
+
     // You can have clap pull the application version directly from your Cargo.toml starting with
     // clap v0.4.14 on crates.io (or master#a81f915 on github). Using Rust's env! macro like this:
     //
@@ -26,4 +24,11 @@ fn main() {
 
     // running this app with the -V or --version will display whatever version is in your
     // Cargo.toml, the default being: myapp 0.0.1
+}
+
+#[cfg(feature = "no_cargo")]
+fn main() {
+    // As stated above, if clap is compiled with the no_cargo feature, it is disabled.
+    println!("no_cargo feature is enabled.");
+    println!("Remove --features no_Cargo to cargo when trying this example.");
 }

@@ -1,5 +1,3 @@
-extern crate clap;
-
 use clap::{App, Arg, ErrorKind};
 
 #[test]

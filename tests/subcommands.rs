@@ -1,6 +1,3 @@
-extern crate clap;
-extern crate regex;
-
 include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind};

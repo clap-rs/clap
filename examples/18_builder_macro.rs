@@ -1,5 +1,4 @@
-#[macro_use]
-extern crate clap;
+use clap::clap_app;
 
 // Note, there isn't a need for "use clap::{ ... };" Because the clap_app! macro uses
 // $crate:: internally

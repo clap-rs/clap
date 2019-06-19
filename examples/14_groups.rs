@@ -20,7 +20,6 @@
 /// of the three numbers. So you create three flags `--major`, `--minor`, and `--patch`. All of
 /// these arguments shouldn't be used at one time but you want to specify that *at least one* of
 /// them is used. For this, you can create a group.
-extern crate clap;
 
 use clap::{App, Arg, ArgGroup};
 

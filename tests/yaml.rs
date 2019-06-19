@@ -1,9 +1,6 @@
 #![cfg(feature = "yaml")]
 
-#[macro_use]
-extern crate clap;
-
-use clap::App;
+use clap::{App, load_yaml};
 
 #[test]
 fn create_app_from_yaml() {

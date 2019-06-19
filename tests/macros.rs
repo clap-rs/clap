@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate clap;
-
-use clap::ErrorKind;
+use clap::{ErrorKind, clap_app, arg_enum};
 
 #[test]
 fn basic() {
