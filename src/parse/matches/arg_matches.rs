@@ -744,14 +744,6 @@ impl ArgMatches {
             .as_ref()
             .map_or(("", None), |sc| (&sc.name[..], Some(&sc.matches)))
     }
-
-    // @TODO @v3-beta: remove
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.32.0",
-        note = "Use App::usage instead. Will be removed in v3-beta"
-    )]
-    pub fn usage(&self) -> &str { panic!("Use App::usage instead. Will be removed in v3-beta") }
 }
 
 // The following were taken and adapated from vec_map source

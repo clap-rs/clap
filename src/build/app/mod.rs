@@ -1398,7 +1398,7 @@ impl<'b> App<'b> {
             .args
             .args
             .iter()
-            .filter(|a| a.is_set(ArgSettings::Global))
+            .filter(|a| a.global)
             .map(|ga| ga.id)
             .collect();
 
@@ -1515,7 +1515,7 @@ impl<'b> App<'b> {
                         .args
                         .args
                         .iter()
-                        .filter(|a| a.is_set(ArgSettings::Global))
+                        .filter(|a| a.global)
                         {
                             $sc.args.push(a.clone());
                         }
@@ -1666,7 +1666,7 @@ impl<'b> App<'b> {
             );
         }
         assert!(
-            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+            !(a.is_set(ArgSettings::Required) && a.global),
             "Global arguments cannot be required.\n\n\t'{}' is marked as \
              global and required",
             a.name

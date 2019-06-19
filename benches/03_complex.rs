@@ -19,7 +19,7 @@ macro_rules! create_app {
             .author("Kevin K. <kbknapp@gmail.com>")
             .arg("-o --option=[opt]... 'tests options'")
             .arg("[positional] 'tests positionals'")
-            .arg(Arg::from("-f --flag... 'tests flags'").setting(ArgSettings::Global))
+            .arg(Arg::from("-f --flag... 'tests flags'").global(true))
             .args(&[
                 Arg::from("[flag2] -F 'tests flags with exclusions'")
                     .conflicts_with("flag")
@@ -76,7 +76,8 @@ fn create_app_builder(b: &mut Bencher) {
                     .short('f')
                     .help("tests flags")
                     .long("flag")
-                    .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::Global]),
+                    .global(true)
+                    .settings(&[ArgSettings::MultipleOccurrences]),
             )
             .arg(
                 Arg::with_name("flag2")
