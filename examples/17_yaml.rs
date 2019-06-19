@@ -11,7 +11,6 @@
 // [dependencies]
 // clap = { features = ["yaml"] }
 
-
 // Using yaml requires calling a clap macro `load_yaml!()` so we must use the '#[macro_use]'
 // directive
 extern crate clap;
@@ -37,7 +36,7 @@ fn main() {
         match mode {
             "vi" => println!("You are using vi"),
             "emacs" => println!("You are using emacs..."),
-            _      => unreachable!()
+            _ => unreachable!(),
         }
     } else {
         println!("--mode <MODE> wasn't used...");

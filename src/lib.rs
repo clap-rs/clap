@@ -518,12 +518,21 @@
 
 #![crate_type = "lib"]
 #![doc(html_root_url = "https://docs.rs/clap/2.33.0")]
-#![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
-        unused_import_braces, unused_allocation)]
+#![deny(
+    missing_docs,
+    missing_debug_implementations,
+    missing_copy_implementations,
+    trivial_casts,
+    unused_import_braces,
+    unused_allocation
+)]
 // Lints we'd like to deny but are currently failing for upstream crates
 //      unused_qualifications       (bitflags, clippy)
 //      trivial_numeric_casts       (bitflags)
-#![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
+#![cfg_attr(
+    not(any(feature = "lints", feature = "nightly")),
+    forbid(unstable_features)
+)]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(feature = "lints", allow(clippy::cognitive_complexity))]
@@ -547,26 +556,26 @@ extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
+pub use crate::app::{App, AppSettings};
+pub use crate::args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
+pub use crate::completions::Shell;
+pub use crate::errors::{Error, ErrorKind, Result};
+pub use crate::fmt::Format;
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
-pub use crate::args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use crate::app::{App, AppSettings};
-pub use crate::fmt::Format;
-pub use crate::errors::{Error, ErrorKind, Result};
-pub use crate::completions::Shell;
 
 #[macro_use]
 mod macros;
 mod app;
 mod args;
-mod usage_parser;
-mod fmt;
-mod suggestions;
+mod completions;
 mod errors;
+mod fmt;
+mod map;
 mod osstringext;
 mod strext;
-mod completions;
-mod map;
+mod suggestions;
+mod usage_parser;
 
 const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
                                           report at https://github.com/clap-rs/clap/issues";
@@ -580,7 +589,9 @@ mod derive {
     /// @TODO @release @docs
     pub trait ClapApp: IntoApp + FromArgMatches + Sized {
         /// @TODO @release @docs
-        fn parse() -> Self { Self::from_argmatches(Self::into_app().get_matches()) }
+        fn parse() -> Self {
+            Self::from_argmatches(Self::into_app().get_matches())
+        }
 
         /// @TODO @release @docs
         fn parse_from<I, T>(argv: I) -> Self
@@ -595,7 +606,6 @@ mod derive {
         fn try_parse() -> Result<Self, clap::Error> {
             Self::try_from_argmatches(Self::into_app().get_matches_safe()?)
         }
-
 
         /// @TODO @release @docs
         fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error>

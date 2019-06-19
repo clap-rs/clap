@@ -12,7 +12,9 @@ where
 }
 
 impl<'a, 'b> FishGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { FishGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
+        FishGen { p: p }
+    }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let command = self.p.meta.bin_name.as_ref().unwrap();
@@ -23,7 +25,9 @@ impl<'a, 'b> FishGen<'a, 'b> {
 }
 
 // Escape string inside single quotes
-fn escape_string(string: &str) -> String { string.replace("\\", "\\\\").replace("'", "\\'") }
+fn escape_string(string: &str) -> String {
+    string.replace("\\", "\\\\").replace("'", "\\'")
+}
 
 fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buffer: &mut String) {
     debugln!("FishGen::gen_fish_inner;");

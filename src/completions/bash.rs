@@ -14,7 +14,9 @@ where
 }
 
 impl<'a, 'b> BashGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { BashGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
+        BashGen { p: p }
+    }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         w!(
@@ -68,7 +70,8 @@ complete -F _{name} -o bashdefault -o default {name}
                     self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
                 subcmds = self.all_subcommands(),
                 subcmd_details = self.subcommand_details()
-            ).as_bytes()
+            )
+            .as_bytes()
         );
     }
 

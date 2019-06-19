@@ -3,7 +3,6 @@ extern crate clap;
 use clap::{App, Arg, SubCommand};
 
 fn main() {
-
     // SubCommands function exactly like sub-Apps, because that's exactly what they are. Each
     // instance of a SubCommand can have it's own version, author(s), Args, and even it's own
     // subcommands.
@@ -19,21 +18,24 @@ fn main() {
     // Just like arg() and args(), subcommands can be specified one at a time via subcommand() or
     // multiple ones at once with a Vec<SubCommand> provided to subcommands().
     let matches = App::new("MyApp")
-                        // Normal App and Arg configuration goes here...
-
-                        // In the following example assume we wanted an application which
-                        // supported an "add" subcommand, this "add" subcommand also took
-                        // one positional argument of a file to add:
-                        .subcommand(SubCommand::with_name("add")                        // The name we call argument with
-                                                .about("Adds files to myapp")           // The message displayed in "myapp -h"
-                                                                                        // or "myapp help"
-                                                .version("0.1")                         // Subcommands can have independent version
-                                                .author("Kevin K.")                     // And authors
-                                                .arg(Arg::with_name("input")            // And their own arguments
-                                                            .help("the file to add")
-                                                            .index(1)
-                                                            .required(true)))
-                        .get_matches();
+        // Normal App and Arg configuration goes here...
+        // In the following example assume we wanted an application which
+        // supported an "add" subcommand, this "add" subcommand also took
+        // one positional argument of a file to add:
+        .subcommand(
+            SubCommand::with_name("add") // The name we call argument with
+                .about("Adds files to myapp") // The message displayed in "myapp -h"
+                // or "myapp help"
+                .version("0.1") // Subcommands can have independent version
+                .author("Kevin K.") // And authors
+                .arg(
+                    Arg::with_name("input") // And their own arguments
+                        .help("the file to add")
+                        .index(1)
+                        .required(true),
+                ),
+        )
+        .get_matches();
 
     // You can check if a subcommand was used like normal
     if matches.is_present("add") {
@@ -49,8 +51,8 @@ fn main() {
     // You can also match on a subcommand's name
     match matches.subcommand_name() {
         Some("add") => println!("'myapp add' was used"),
-        None        => println!("No subcommand was used"),
-        _           => println!("Some other subcommand was used"),
+        None => println!("No subcommand was used"),
+        _ => println!("Some other subcommand was used"),
     }
 
     // Continued program logic goes here...

@@ -5,8 +5,10 @@ use clap::{App, Arg, ErrorKind};
 #[test]
 fn only_pos_follow() {
     let r = App::new("onlypos")
-        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg] 'some arg'")])
+        .args(&[
+            Arg::from_usage("-f [flag] 'some opt'"),
+            Arg::from_usage("[arg] 'some arg'"),
+        ])
         .get_matches_from_safe(vec!["", "--", "-f"]);
     assert!(r.is_ok());
     let m = r.unwrap();
@@ -20,11 +22,13 @@ fn issue_946() {
     let r = App::new("compiletest")
         .setting(clap::AppSettings::AllowLeadingHyphen)
         .args_from_usage("--exact    'filters match exactly'")
-        .arg(clap::Arg::with_name("filter")
-            .index(1)
-            .takes_value(true)
-            .help("filters to apply to output"))
-    .get_matches_from_safe(vec!["compiletest", "--exact"]);
+        .arg(
+            clap::Arg::with_name("filter")
+                .index(1)
+                .takes_value(true)
+                .help("filters to apply to output"),
+        )
+        .get_matches_from_safe(vec!["compiletest", "--exact"]);
     assert!(r.is_ok(), "{:#?}", r);
     let matches = r.unwrap();
 
@@ -37,9 +41,8 @@ fn positional() {
     let r = App::new("positional")
         .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
+            Arg::with_name("positional").index(1),
+        ])
         .get_matches_from_safe(vec!["", "-f", "test"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
@@ -50,9 +53,8 @@ fn positional() {
     let m = App::new("positional")
         .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
+            Arg::with_name("positional").index(1),
+        ])
         .get_matches_from(vec!["", "test", "--flag"]);
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
@@ -62,10 +64,9 @@ fn positional() {
 #[test]
 fn lots_o_vals() {
     let r = App::new("opts")
-        .arg(
-            Arg::from_usage("[opt]... 'some pos'"),
-            )
-        .get_matches_from_safe(vec!["",
+        .arg(Arg::from_usage("[opt]... 'some pos'"))
+        .get_matches_from_safe(vec![
+            "", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -92,8 +93,8 @@ fn lots_o_vals() {
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            ]);
+            "some",
+        ]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
@@ -105,16 +106,17 @@ fn positional_multiple() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .multiple(true)
-            ])
+            Arg::with_name("positional").index(1).multiple(true),
+        ])
         .get_matches_from_safe(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test1", "test2", "test3"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test1", "test2", "test3"]
+    );
 }
 
 #[test]
@@ -122,16 +124,17 @@ fn positional_multiple_3() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .multiple(true)
-            ])
+            Arg::with_name("positional").index(1).multiple(true),
+        ])
         .get_matches_from_safe(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test1", "test2", "test3"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test1", "test2", "test3"]
+    );
 }
 
 #[test]
@@ -139,9 +142,8 @@ fn positional_multiple_2() {
     let result = App::new("positional_multiple")
         .args(&[
             Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
+            Arg::with_name("positional").index(1),
+        ])
         .get_matches_from_safe(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -155,23 +157,24 @@ fn positional_possible_values() {
             Arg::from_usage("-f, --flag 'some flag'"),
             Arg::with_name("positional")
                 .index(1)
-                .possible_value("test123")
-            ])
+                .possible_value("test123"),
+        ])
         .get_matches_from_safe(vec!["", "-f", "test123"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test123"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test123"]
+    );
 }
 
 #[test]
 fn create_positional() {
     let _ = App::new("test")
-                .arg(Arg::with_name("test")
-                            .index(1)
-                            .help("testing testing"))
-                .get_matches_from(vec![""]);
+        .arg(Arg::with_name("test").index(1).help("testing testing"))
+        .get_matches_from(vec![""]);
 }
 
 #[test]
@@ -183,13 +186,17 @@ fn positional_hyphen_does_not_panic() {
 
 #[test]
 fn single_positional_usage_string() {
-    let m = App::new("test").arg_from_usage("[FILE] 'some file'").get_matches_from(vec!["test"]);
+    let m = App::new("test")
+        .arg_from_usage("[FILE] 'some file'")
+        .get_matches_from(vec!["test"]);
     assert_eq!(m.usage(), "USAGE:\n    test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
-    let m = App::new("test").arg_from_usage("[FILE]... 'some file'").get_matches_from(vec!["test"]);
+    let m = App::new("test")
+        .arg_from_usage("[FILE]... 'some file'")
+        .get_matches_from(vec!["test"]);
     assert_eq!(m.usage(), "USAGE:\n    test [FILE]...");
 }
 

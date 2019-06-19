@@ -79,12 +79,18 @@ use yaml_rust::Yaml;
 /// [requirement]: ./struct.Arg.html#method.requires
 #[derive(Default)]
 pub struct ArgGroup<'a> {
-    #[doc(hidden)] pub name: &'a str,
-    #[doc(hidden)] pub args: Vec<&'a str>,
-    #[doc(hidden)] pub required: bool,
-    #[doc(hidden)] pub requires: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub conflicts: Option<Vec<&'a str>>,
-    #[doc(hidden)] pub multiple: bool,
+    #[doc(hidden)]
+    pub name: &'a str,
+    #[doc(hidden)]
+    pub args: Vec<&'a str>,
+    #[doc(hidden)]
+    pub required: bool,
+    #[doc(hidden)]
+    pub requires: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub conflicts: Option<Vec<&'a str>>,
+    #[doc(hidden)]
+    pub multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {
@@ -123,7 +129,9 @@ impl<'a> ArgGroup<'a> {
     /// # }
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &'a Yaml) -> ArgGroup<'a> { ArgGroup::from(y.as_hash().unwrap()) }
+    pub fn from_yaml(y: &'a Yaml) -> ArgGroup<'a> {
+        ArgGroup::from(y.as_hash().unwrap())
+    }
 
     /// Adds an [argument] to this group by name
     ///
@@ -431,11 +439,7 @@ impl<'a> Debug for ArgGroup<'a> {
              \trequires: {:?},\n\
              \tconflicts: {:?},\n\
              }}",
-            self.name,
-            self.args,
-            self.required,
-            self.requires,
-            self.conflicts
+            self.name, self.args, self.required, self.requires, self.conflicts
         )
     }
 }
@@ -494,8 +498,7 @@ impl<'a> From<&'a BTreeMap<Yaml, Yaml>> for ArgGroup<'a> {
                 s => panic!(
                     "Unknown ArgGroup setting '{}' in YAML file for \
                      ArgGroup '{}'",
-                    s,
-                    a.name
+                    s, a.name
                 ),
             }
         }

@@ -37,11 +37,7 @@ const TAB: &'static str = "    ";
 
 // These are just convenient traits to make the code easier to read.
 trait ArgWithDisplay<'b, 'c>: AnyArg<'b, 'c> + Display {}
-impl<'b, 'c, T> ArgWithDisplay<'b, 'c> for T
-where
-    T: AnyArg<'b, 'c> + Display,
-{
-}
+impl<'b, 'c, T> ArgWithDisplay<'b, 'c> for T where T: AnyArg<'b, 'c> + Display {}
 
 trait ArgWithOrder<'b, 'c>: ArgWithDisplay<'b, 'c> + DispOrder {
     fn as_base(&self) -> &dyn ArgWithDisplay<'b, 'c>;
@@ -117,11 +113,13 @@ impl<'a> Help<'a> {
             next_line_help: next_line_help,
             hide_pv: hide_pv,
             term_w: match term_w {
-                Some(width) => if width == 0 {
-                    usize::MAX
-                } else {
-                    width
-                },
+                Some(width) => {
+                    if width == 0 {
+                        usize::MAX
+                    } else {
+                        width
+                    }
+                }
                 None => cmp::min(
                     term_size::dimensions().map_or(120, |(w, _)| w),
                     match max_w {
@@ -147,7 +145,11 @@ impl<'a> Help<'a> {
 
     /// Reads help settings from a Parser
     /// and write its help to the wrapped stream.
-    pub fn write_parser_help(w: &'a mut dyn Write, parser: &Parser, use_long: bool) -> ClapResult<()> {
+    pub fn write_parser_help(
+        w: &'a mut dyn Write,
+        parser: &Parser,
+        use_long: bool,
+    ) -> ClapResult<()> {
         debugln!("Help::write_parser_help;");
         Self::_write_parser_help(w, parser, false, use_long)
     }
@@ -184,7 +186,8 @@ impl<'a> Help<'a> {
             parser.meta.term_w,
             parser.meta.max_w,
             use_long,
-        ).write_help(parser)
+        )
+        .write_help(parser)
     }
 
     /// Writes the parser help to the wrapped stream.
@@ -369,7 +372,8 @@ impl<'a> Help<'a> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
-        self.force_next_line = !nlh && self.term_w >= taken
+        self.force_next_line = !nlh
+            && self.term_w >= taken
             && (taken as f32 / self.term_w as f32) > 0.40
             && h_w > (self.term_w - taken);
 
@@ -450,7 +454,11 @@ impl<'a> Help<'a> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
+    fn help<'b, 'c>(
+        &mut self,
+        arg: &dyn ArgWithDisplay<'b, 'c>,
+        spec_vals: &str,
+    ) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long && arg.name() != "" {
             arg.long_help().unwrap_or_else(|| arg.help().unwrap_or(""))
@@ -458,7 +466,9 @@ impl<'a> Help<'a> {
             arg.help().unwrap_or_else(|| arg.long_help().unwrap_or(""))
         };
         let mut help = String::from(h) + spec_vals;
-        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || (self.use_long && arg.name() != "");
+        let nlh = self.next_line_help
+            || arg.is_set(ArgSettings::NextLineHelp)
+            || (self.use_long && arg.name() != "");
         debugln!("Help::help: Next Line...{:?}", nlh);
 
         let spcs = if nlh || self.force_next_line {
@@ -596,7 +606,8 @@ impl<'a> Help<'a> {
         let pos = parser
             .positionals()
             .filter(|arg| !arg.is_set(ArgSettings::Hidden))
-            .count() > 0;
+            .count()
+            > 0;
         let opts = parser.has_opts();
         let subcmds = parser.has_visible_subcommands();
 
