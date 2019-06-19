@@ -25,8 +25,8 @@ before_script:
 script:
   - |
     travis-cargo test -- --verbose --no-default-features &&
-    travis-cargo --skip nightly test -- --verbose --features "unstable" &&
-    travis-cargo --only nightly test -- --verbose --features "unstable nightly" &&
+    travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
+    travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
     travis-cargo --only nightly bench
 addons:
   apt:
@@ -50,7 +50,7 @@ after_success:
     cd ../.. &&
     rm -rf kcov-master &&
     cargo clean &&
-    cargo test --no-run --features "unstable" &&
+    cargo test --no-run --features "yaml unstable" &&
     for file in target/debug/*-*; do mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo --verify "target/cov/$(basename $file)" "$file"; done &&
     kcov --coveralls-id=$TRAVIS_JOB_ID --merge target/cov target/cov/* &&
     echo "Uploaded code coverage"

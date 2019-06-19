@@ -32,7 +32,7 @@ fn main() {
     // Finally we call get_matches() to start the parsing process. We use the matches just as we
     // normally would
     let yml = load_yaml!("17_yaml.yml");
-    let m = App::from_yaml(yml).get_matches();
+    let m = App::from(yml).get_matches();
 
     // Because the example 17_yaml.yml is rather large we'll just look a single arg so you can
     // see that it works...
