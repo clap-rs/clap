@@ -4,16 +4,16 @@ use std::fmt::Display;
 use std::ascii::AsciiExt;
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
-use args::{AnyArg, ArgMatcher, MatchedArg};
-use args::settings::ArgSettings;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use app::settings::AppSettings as AS;
-use app::parser::{ParseResult, Parser};
-use fmt::{Colorizer, ColorizerOption};
-use app::usage;
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
+use crate::args::{AnyArg, ArgMatcher, MatchedArg};
+use crate::args::settings::ArgSettings;
+use crate::errors::{Error, ErrorKind};
+use crate::errors::Result as ClapResult;
+use crate::app::settings::AppSettings as AS;
+use crate::app::parser::{ParseResult, Parser};
+use crate::fmt::{Colorizer, ColorizerOption};
+use crate::app::usage;
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
 where
@@ -496,7 +496,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         Ok(())
     }
 
-    fn validate_arg_conflicts(&self, a: &AnyArg, matcher: &ArgMatcher) -> Option<bool> {
+    fn validate_arg_conflicts(&self, a: &dyn AnyArg, matcher: &ArgMatcher) -> Option<bool> {
         debugln!("Validator::validate_arg_conflicts: a={:?};", a.name());
         a.blacklist().map(|bl| {
             bl.iter().any(|conf| {
@@ -510,7 +510,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         })
     }
 
-    fn validate_required_unless(&self, a: &AnyArg, matcher: &ArgMatcher) -> Option<bool> {
+    fn validate_required_unless(&self, a: &dyn AnyArg, matcher: &ArgMatcher) -> Option<bool> {
         debugln!("Validator::validate_required_unless: a={:?};", a.name());
         macro_rules! check {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
@@ -565,7 +565,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     }
 
     #[inline]
-    fn is_missing_required_ok(&self, a: &AnyArg, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(&self, a: &dyn AnyArg, matcher: &ArgMatcher) -> bool {
         debugln!("Validator::is_missing_required_ok: a={}", a.name());
         self.validate_arg_conflicts(a, matcher).unwrap_or(false)
             || self.validate_required_unless(a, matcher).unwrap_or(false)

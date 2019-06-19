@@ -4,11 +4,11 @@ use std::io::Write;
 use std::ascii::AsciiExt;
 
 // Internal
-use app::App;
-use app::parser::Parser;
-use args::{AnyArg, ArgSettings};
-use completions;
-use INTERNAL_ERROR_MSG;
+use crate::app::App;
+use crate::app::parser::Parser;
+use crate::args::{AnyArg, ArgSettings};
+use crate::completions;
+use crate::INTERNAL_ERROR_MSG;
 
 pub struct ZshGen<'a, 'b>
 where

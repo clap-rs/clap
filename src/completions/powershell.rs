@@ -2,8 +2,8 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
-use INTERNAL_ERROR_MSG;
+use crate::app::parser::Parser;
+use crate::INTERNAL_ERROR_MSG;
 
 pub struct PowerShellGen<'a, 'b>
 where

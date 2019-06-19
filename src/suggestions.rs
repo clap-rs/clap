@@ -1,10 +1,10 @@
-use app::App;
+use crate::app::App;
 // Third Party
 #[cfg(feature = "suggestions")]
 use strsim;
 
 // Internal
-use fmt::Format;
+use crate::fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to
 /// the passed in value `v` with a certain confidence.

@@ -7,9 +7,9 @@ use std::ffi::{OsStr, OsString};
 use std::mem;
 
 // Internal
-use Arg;
-use args::{AnyArg, ArgSettings, Base, DispOrder, Switched};
-use map::{self, VecMap};
+use crate::Arg;
+use crate::args::{AnyArg, ArgSettings, Base, DispOrder, Switched};
+use crate::map::{self, VecMap};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
@@ -76,8 +76,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn val_names(&self) -> Option<&VecMap<&'e str>> { None }
     fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> { None }
+    fn validator(&self) -> Option<&Rc<dyn Fn(String) -> StdResult<(), String>>> { None }
+    fn validator_os(&self) -> Option<&Rc<dyn Fn(&OsStr) -> StdResult<(), OsString>>> { None }
     fn min_vals(&self) -> Option<u64> { None }
     fn short(&self) -> Option<char> { self.s.short }
     fn long(&self) -> Option<&'e str> { self.s.long }
@@ -118,7 +118,7 @@ impl<'n, 'e> PartialEq for FlagBuilder<'n, 'e> {
 
 #[cfg(test)]
 mod test {
-    use args::settings::ArgSettings;
+    use crate::args::settings::ArgSettings;
     use super::FlagBuilder;
 
     #[test]

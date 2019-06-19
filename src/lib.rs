@@ -549,11 +549,11 @@ extern crate yaml_rust;
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
-pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use app::{App, AppSettings};
-pub use fmt::Format;
-pub use errors::{Error, ErrorKind, Result};
-pub use completions::Shell;
+pub use crate::args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
+pub use crate::app::{App, AppSettings};
+pub use crate::fmt::Format;
+pub use crate::errors::{Error, ErrorKind, Result};
+pub use crate::completions::Shell;
 
 #[macro_use]
 mod macros;

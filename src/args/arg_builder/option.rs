@@ -6,9 +6,9 @@ use std::ffi::{OsStr, OsString};
 use std::mem;
 
 // Internal
-use args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued};
-use map::{self, VecMap};
-use INTERNAL_ERROR_MSG;
+use crate::args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued};
+use crate::map::{self, VecMap};
+use crate::INTERNAL_ERROR_MSG;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -129,10 +129,10 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn val_terminator(&self) -> Option<&'e str> { self.v.terminator }
     fn num_vals(&self) -> Option<u64> { self.v.num_vals }
     fn possible_vals(&self) -> Option<&[&'e str]> { self.v.possible_vals.as_ref().map(|o| &o[..]) }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
+    fn validator(&self) -> Option<&Rc<dyn Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
     }
-    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
+    fn validator_os(&self) -> Option<&Rc<dyn Fn(&OsStr) -> StdResult<(), OsString>>> {
         self.v.validator_os.as_ref()
     }
     fn min_vals(&self) -> Option<u64> { self.v.min_vals }
@@ -180,9 +180,9 @@ impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
 
 #[cfg(test)]
 mod test {
-    use args::settings::ArgSettings;
+    use crate::args::settings::ArgSettings;
     use super::OptBuilder;
-    use map::VecMap;
+    use crate::map::VecMap;
 
     #[test]
     fn optbuilder_display1() {

@@ -20,13 +20,13 @@ use std::result::Result as StdResult;
 use yaml_rust::Yaml;
 
 // Internal
-use app::help::Help;
-use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use errors::Result as ClapResult;
+use crate::app::help::Help;
+use crate::app::parser::Parser;
+use crate::args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
+use crate::errors::Result as ClapResult;
 pub use self::settings::AppSettings;
-use completions::Shell;
-use map::{self, VecMap};
+use crate::completions::Shell;
+use crate::map::{self, VecMap};
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -1640,7 +1640,7 @@ impl<'a, 'b> App<'a, 'b> {
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a, 'a> {
     fn from(mut yaml: &'a Yaml) -> Self {
-        use args::SubCommand;
+        use crate::args::SubCommand;
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
@@ -1802,8 +1802,8 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn max_vals(&self) -> Option<u64> { None }
     fn num_vals(&self) -> Option<u64> { None }
     fn possible_vals(&self) -> Option<&[&'e str]> { None }
-    fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> { None }
-    fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> { None }
+    fn validator(&self) -> Option<&Rc<dyn Fn(String) -> StdResult<(), String>>> { None }
+    fn validator_os(&self) -> Option<&Rc<dyn Fn(&OsStr) -> StdResult<(), OsString>>> { None }
     fn min_vals(&self) -> Option<u64> { None }
     fn short(&self) -> Option<char> { None }
     fn long(&self) -> Option<&'e str> { None }
