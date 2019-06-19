@@ -2,9 +2,9 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
-use args::OptBuilder;
-use completions;
+use crate::app::parser::Parser;
+use crate::args::OptBuilder;
+use crate::completions;
 
 pub struct BashGen<'a, 'b>
 where
@@ -167,7 +167,7 @@ complete -F _{name} -o bashdefault -o default {name}
 
     fn vals_for(&self, o: &OptBuilder) -> String {
         debugln!("BashGen::vals_for: o={}", o.b.name);
-        use args::AnyArg;
+        use crate::args::AnyArg;
         if let Some(vals) = o.possible_vals() {
             format!(r#"$(compgen -W "{}" -- "${{cur}}")"#, vals.join(" "))
         } else {

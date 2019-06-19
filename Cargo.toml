@@ -1,5 +1,5 @@
 [package]
-
+edition = "2018"
 name = "clap"
 version = "2.33.0"
 authors = ["Kevin K. <kbknapp@gmail.com>"]

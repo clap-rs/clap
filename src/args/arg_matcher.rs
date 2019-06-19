@@ -6,9 +6,9 @@ use std::ops::Deref;
 use std::mem;
 
 // Internal
-use args::{ArgMatches, MatchedArg, SubCommand};
-use args::AnyArg;
-use args::settings::ArgSettings;
+use crate::args::{ArgMatches, MatchedArg, SubCommand};
+use crate::args::AnyArg;
+use crate::args::settings::ArgSettings;
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]
@@ -21,7 +21,7 @@ impl<'a> Default for ArgMatcher<'a> {
 impl<'a> ArgMatcher<'a> {
     pub fn new() -> Self { ArgMatcher::default() }
 
-    pub fn process_arg_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>, check_all: bool) {
+    pub fn process_arg_overrides<'b>(&mut self, a: Option<&dyn AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>, check_all: bool) {
         debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
         if let Some(aa) = a {
             let mut self_done = false;
@@ -53,7 +53,7 @@ impl<'a> ArgMatcher<'a> {
         }
     }
 
-    pub fn handle_self_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>) {
+    pub fn handle_self_overrides<'b>(&mut self, a: Option<&dyn AnyArg<'a, 'b>>) {
         debugln!("ArgMatcher::handle_self_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
         if let Some(aa) = a {
             if !aa.has_switch() || aa.is_set(ArgSettings::Multiple) {

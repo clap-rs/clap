@@ -13,26 +13,26 @@ use std::iter::Peekable;
 use std::cell::Cell;
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
-use SubCommand;
-use app::App;
-use app::help::Help;
-use app::meta::AppMeta;
-use app::settings::AppFlags;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, Base, FlagBuilder, OptBuilder, PosBuilder, Switched};
-use args::settings::ArgSettings;
-use completions::ComplGen;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use fmt::ColorWhen;
-use osstringext::OsStrExt2;
-use completions::Shell;
-use suggestions;
-use app::settings::AppSettings as AS;
-use app::validator::Validator;
-use app::usage;
-use map::{self, VecMap};
+use crate::INTERNAL_ERROR_MSG;
+use crate::INVALID_UTF8;
+use crate::SubCommand;
+use crate::app::App;
+use crate::app::help::Help;
+use crate::app::meta::AppMeta;
+use crate::app::settings::AppFlags;
+use crate::args::{AnyArg, Arg, ArgGroup, ArgMatcher, Base, FlagBuilder, OptBuilder, PosBuilder, Switched};
+use crate::args::settings::ArgSettings;
+use crate::completions::ComplGen;
+use crate::errors::{Error, ErrorKind};
+use crate::errors::Result as ClapResult;
+use crate::fmt::ColorWhen;
+use crate::osstringext::OsStrExt2;
+use crate::completions::Shell;
+use crate::suggestions;
+use crate::app::settings::AppSettings as AS;
+use crate::app::validator::Validator;
+use crate::app::usage;
+use crate::map::{self, VecMap};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -87,7 +87,7 @@ where
     }
 
     pub fn help_short(&mut self, s: &str) {
-        let c = s.trim_left_matches(|c| c == '-')
+        let c = s.trim_start_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('h');
@@ -95,7 +95,7 @@ where
     }
 
     pub fn version_short(&mut self, s: &str) {
-        let c = s.trim_left_matches(|c| c == '-')
+        let c = s.trim_start_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('V');
@@ -2095,7 +2095,7 @@ where
         }
     }
 
-    pub fn find_any_arg(&self, name: &str) -> Option<&AnyArg<'a, 'b>> {
+    pub fn find_any_arg(&self, name: &str) -> Option<&dyn AnyArg<'a, 'b>> {
         if let Some(f) = find_by_name!(self, name, flags, iter) {
             return Some(f);
         }

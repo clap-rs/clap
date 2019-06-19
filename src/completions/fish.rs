@@ -2,7 +2,7 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
+use crate::app::parser::Parser;
 
 pub struct FishGen<'a, 'b>
 where

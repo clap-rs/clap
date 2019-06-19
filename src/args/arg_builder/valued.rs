@@ -1,9 +1,9 @@
 use std::rc::Rc;
 use std::ffi::{OsStr, OsString};
 
-use map::VecMap;
+use crate::map::VecMap;
 
-use Arg;
+use crate::Arg;
 
 #[allow(missing_debug_implementations)]
 #[derive(Clone)]
@@ -16,8 +16,8 @@ where
     pub num_vals: Option<u64>,
     pub max_vals: Option<u64>,
     pub min_vals: Option<u64>,
-    pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
-    pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
+    pub validator: Option<Rc<dyn Fn(String) -> Result<(), String>>>,
+    pub validator_os: Option<Rc<dyn Fn(&OsStr) -> Result<(), OsString>>>,
     pub val_delim: Option<char>,
     pub default_val: Option<&'b OsStr>,
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,

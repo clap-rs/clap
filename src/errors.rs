@@ -8,9 +8,9 @@ use std::process;
 use std::result::Result as StdResult;
 
 // Internal
-use args::AnyArg;
-use fmt::{ColorWhen, Colorizer, ColorizerOption};
-use suggestions;
+use crate::args::AnyArg;
+use crate::fmt::{ColorWhen, Colorizer, ColorizerOption};
+use crate::suggestions;
 
 /// Short hand for [`Result`] type
 ///
@@ -407,7 +407,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn argument_conflict<O, U>(
-        arg: &AnyArg,
+        arg: &dyn AnyArg,
         other: Option<O>,
         usage: U,
         color: ColorWhen,
@@ -445,7 +445,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn empty_value<U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn empty_value<U>(arg: &dyn AnyArg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {
@@ -473,7 +473,7 @@ impl Error {
     pub fn invalid_value<B, G, U>(
         bad_val: B,
         good_vals: &[G],
-        arg: &AnyArg,
+        arg: &dyn AnyArg,
         usage: U,
         color: ColorWhen,
     ) -> Self
@@ -659,7 +659,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn too_many_values<V, U>(val: V, arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn too_many_values<V, U>(val: V, arg: &dyn AnyArg, usage: U, color: ColorWhen) -> Self
     where
         V: AsRef<str> + Display + ToOwned,
         U: Display,
@@ -688,7 +688,7 @@ impl Error {
 
     #[doc(hidden)]
     pub fn too_few_values<U>(
-        arg: &AnyArg,
+        arg: &dyn AnyArg,
         min_vals: u64,
         curr_vals: usize,
         usage: U,
@@ -721,7 +721,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn value_validation(arg: Option<&AnyArg>, err: String, color: ColorWhen) -> Self
+    pub fn value_validation(arg: Option<&dyn AnyArg>, err: String, color: ColorWhen) -> Self
     {
         let c = Colorizer::new(ColorizerOption {
             use_stderr: true,
@@ -745,13 +745,13 @@ impl Error {
 
     #[doc(hidden)]
     pub fn value_validation_auto(err: String) -> Self {
-        let n: Option<&AnyArg> = None;
+        let n: Option<&dyn AnyArg> = None;
         Error::value_validation(n, err, ColorWhen::Auto)
     }
 
     #[doc(hidden)]
     pub fn wrong_number_of_values<S, U>(
-        arg: &AnyArg,
+        arg: &dyn AnyArg,
         num_vals: u64,
         curr_vals: usize,
         suffix: S,
@@ -786,7 +786,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unexpected_multiple_usage<U>(arg: &AnyArg, usage: U, color: ColorWhen) -> Self
+    pub fn unexpected_multiple_usage<U>(arg: &dyn AnyArg, usage: U, color: ColorWhen) -> Self
     where
         U: Display,
     {

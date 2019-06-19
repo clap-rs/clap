@@ -1,8 +1,8 @@
 // Internal
-use INTERNAL_ERROR_MSG;
-use args::Arg;
-use args::settings::ArgSettings;
-use map::VecMap;
+use crate::INTERNAL_ERROR_MSG;
+use crate::args::Arg;
+use crate::args::settings::ArgSettings;
+use crate::map::VecMap;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -221,8 +221,8 @@ fn help_start(b: u8) -> bool { b != b'\'' }
 
 #[cfg(test)]
 mod test {
-    use args::Arg;
-    use args::ArgSettings;
+    use crate::args::Arg;
+    use crate::args::ArgSettings;
 
     #[test]
     fn create_flag_usage() {

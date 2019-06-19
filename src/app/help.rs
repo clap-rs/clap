@@ -7,14 +7,14 @@ use std::io::{self, Cursor, Read, Write};
 use std::usize;
 
 // Internal
-use app::parser::Parser;
-use app::usage;
-use app::{App, AppSettings};
-use args::{AnyArg, ArgSettings, DispOrder};
-use errors::{Error, Result as ClapResult};
-use fmt::{Colorizer, ColorizerOption, Format};
-use map::VecMap;
-use INTERNAL_ERROR_MSG;
+use crate::app::parser::Parser;
+use crate::app::usage;
+use crate::app::{App, AppSettings};
+use crate::args::{AnyArg, ArgSettings, DispOrder};
+use crate::errors::{Error, Result as ClapResult};
+use crate::fmt::{Colorizer, ColorizerOption, Format};
+use crate::map::VecMap;
+use crate::INTERNAL_ERROR_MSG;
 
 // Third Party
 #[cfg(feature = "wrap_help")]
@@ -44,18 +44,18 @@ where
 }
 
 trait ArgWithOrder<'b, 'c>: ArgWithDisplay<'b, 'c> + DispOrder {
-    fn as_base(&self) -> &ArgWithDisplay<'b, 'c>;
+    fn as_base(&self) -> &dyn ArgWithDisplay<'b, 'c>;
 }
 impl<'b, 'c, T> ArgWithOrder<'b, 'c> for T
 where
     T: ArgWithDisplay<'b, 'c> + DispOrder,
 {
-    fn as_base(&self) -> &ArgWithDisplay<'b, 'c> {
+    fn as_base(&self) -> &dyn ArgWithDisplay<'b, 'c> {
         self
     }
 }
 
-fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &ArgWithOrder<'a, 'b> {
+fn as_arg_trait<'a, 'b, T: ArgWithOrder<'a, 'b>>(x: &T) -> &dyn ArgWithOrder<'a, 'b> {
     x
 }
 
@@ -86,7 +86,7 @@ macro_rules! color {
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub struct Help<'a> {
-    writer: &'a mut Write,
+    writer: &'a mut dyn Write,
     next_line_help: bool,
     hide_pv: bool,
     term_w: usize,
@@ -102,7 +102,7 @@ impl<'a> Help<'a> {
     /// Create a new `Help` instance.
     #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub fn new(
-        w: &'a mut Write,
+        w: &'a mut dyn Write,
         next_line_help: bool,
         hide_pv: bool,
         color: bool,
@@ -140,14 +140,14 @@ impl<'a> Help<'a> {
 
     /// Reads help settings from an App
     /// and write its help to the wrapped stream.
-    pub fn write_app_help(w: &'a mut Write, app: &App, use_long: bool) -> ClapResult<()> {
+    pub fn write_app_help(w: &'a mut dyn Write, app: &App, use_long: bool) -> ClapResult<()> {
         debugln!("Help::write_app_help;");
         Self::write_parser_help(w, &app.p, use_long)
     }
 
     /// Reads help settings from a Parser
     /// and write its help to the wrapped stream.
-    pub fn write_parser_help(w: &'a mut Write, parser: &Parser, use_long: bool) -> ClapResult<()> {
+    pub fn write_parser_help(w: &'a mut dyn Write, parser: &Parser, use_long: bool) -> ClapResult<()> {
         debugln!("Help::write_parser_help;");
         Self::_write_parser_help(w, parser, false, use_long)
     }
@@ -155,14 +155,14 @@ impl<'a> Help<'a> {
     /// Reads help settings from a Parser
     /// and write its help to the wrapped stream which will be stderr. This method prevents
     /// formatting when required.
-    pub fn write_parser_help_to_stderr(w: &'a mut Write, parser: &Parser) -> ClapResult<()> {
+    pub fn write_parser_help_to_stderr(w: &'a mut dyn Write, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_parser_help;");
         Self::_write_parser_help(w, parser, true, false)
     }
 
     #[doc(hidden)]
     pub fn _write_parser_help(
-        w: &'a mut Write,
+        w: &'a mut dyn Write,
         parser: &Parser,
         stderr: bool,
         use_long: bool,
@@ -206,7 +206,7 @@ impl<'a> Help<'a> {
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
     where
-        I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>,
+        I: Iterator<Item = &'d dyn ArgWithOrder<'b, 'c>>,
     {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
@@ -234,7 +234,7 @@ impl<'a> Help<'a> {
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args<'b: 'd, 'c: 'd, 'd, I: 'd>(&mut self, args: I) -> io::Result<()>
     where
-        I: Iterator<Item = &'d ArgWithOrder<'b, 'c>>,
+        I: Iterator<Item = &'d dyn ArgWithOrder<'b, 'c>>,
     {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
@@ -271,7 +271,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> io::Result<()> {
+    fn write_arg<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>) -> io::Result<()> {
         debugln!("Help::write_arg;");
         self.short(arg)?;
         self.long(arg)?;
@@ -281,7 +281,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes argument's short command to the wrapped stream.
-    fn short<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> io::Result<()> {
+    fn short<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>) -> io::Result<()> {
         debugln!("Help::short;");
         write!(self.writer, "{}", TAB)?;
         if let Some(s) = arg.short() {
@@ -294,7 +294,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes argument's long command to the wrapped stream.
-    fn long<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> io::Result<()> {
+    fn long<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>) -> io::Result<()> {
         debugln!("Help::long;");
         if !arg.has_switch() {
             return Ok(());
@@ -323,7 +323,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes argument's possible values to the wrapped stream.
-    fn val<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>) -> Result<String, io::Error> {
+    fn val<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg);
         if arg.takes_value() {
             let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
@@ -450,7 +450,7 @@ impl<'a> Help<'a> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help<'b, 'c>(&mut self, arg: &ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
+    fn help<'b, 'c>(&mut self, arg: &dyn ArgWithDisplay<'b, 'c>, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long && arg.name() != "" {
             arg.long_help().unwrap_or_else(|| arg.help().unwrap_or(""))
@@ -506,7 +506,7 @@ impl<'a> Help<'a> {
         Ok(())
     }
 
-    fn spec_vals(&self, a: &ArgWithDisplay) -> String {
+    fn spec_vals(&self, a: &dyn ArgWithDisplay) -> String {
         debugln!("Help::spec_vals: a={}", a);
         let mut spec_vals = vec![];
         if let Some(ref env) = a.env() {
@@ -574,7 +574,7 @@ impl<'a> Help<'a> {
     }
 }
 
-fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
+fn should_show_arg(use_long: bool, arg: &dyn ArgWithOrder) -> bool {
     if arg.is_set(ArgSettings::Hidden) {
         return false;
     }

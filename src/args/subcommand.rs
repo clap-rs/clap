@@ -3,8 +3,8 @@
 use yaml_rust::Yaml;
 
 // Internal
-use App;
-use ArgMatches;
+use crate::App;
+use crate::ArgMatches;
 
 /// The abstract representation of a command line subcommand.
 ///

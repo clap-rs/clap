@@ -10,11 +10,11 @@ use std::env;
 
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use map::VecMap;
+use crate::map::VecMap;
 
-use usage_parser::UsageParser;
-use args::settings::ArgSettings;
-use args::arg_builder::{Base, Switched, Valued};
+use crate::usage_parser::UsageParser;
+use crate::args::settings::ArgSettings;
+use crate::args::arg_builder::{Base, Switched, Valued};
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -329,7 +329,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.s.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
+        self.s.short = s.as_ref().trim_start_matches(|c| c == '-').chars().nth(0);
         self
     }
 
@@ -369,7 +369,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'b str) -> Self {
-        self.s.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.s.long = Some(l.trim_start_matches(|c| c == '-'));
         self
     }
 
