@@ -1,6 +1,4 @@
 // Std
-#[allow(unused_imports)]
-use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {

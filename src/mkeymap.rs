@@ -30,18 +30,6 @@ impl KeyType {
             _ => false,
         }
     }
-    pub(crate) fn is_short(&self) -> bool {
-        match *self {
-            KeyType::Short(_) => true,
-            _ => false,
-        }
-    }
-    pub(crate) fn is_long(&self) -> bool {
-        match *self {
-            KeyType::Long(_) => true,
-            _ => false,
-        }
-    }
 }
 
 impl PartialEq<&str> for KeyType {

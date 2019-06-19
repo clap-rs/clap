@@ -1769,13 +1769,6 @@ impl<'b> App<'b> {
         }
     }
 
-    pub(crate) fn contains_long(&self, l: &str) -> bool {
-        if !self.is_set(AppSettings::Built) {
-            panic!("If App::_build hasn't been called, manually search through Arg longs");
-        }
-        self.args.contains_long(l)
-    }
-
     pub(crate) fn contains_short(&self, s: char) -> bool {
         if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");

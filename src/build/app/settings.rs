@@ -1,6 +1,5 @@
 // Std
 #[allow(unused_imports)]
-use std::ascii::AsciiExt;
 use std::ops::BitOr;
 use std::str::FromStr;
 

@@ -3,7 +3,7 @@
 use strsim;
 
 // Internal
-use crate::build::{App, Propagation};
+use crate::build::App;
 use crate::output::fmt::Format;
 
 /// Produces a string from a given list of possible values which is similar to
