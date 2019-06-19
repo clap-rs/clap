@@ -1116,10 +1116,7 @@ mod test {
             "validargfound".parse::<AppSettings>().unwrap(),
             AppSettings::ValidArgFound
         );
-        assert_eq!(
-            "built".parse::<AppSettings>().unwrap(),
-            AppSettings::Built
-        );
+        assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
         assert_eq!(
             "trailingvalues".parse::<AppSettings>().unwrap(),
             AppSettings::TrailingValues

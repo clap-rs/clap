@@ -1516,11 +1516,11 @@ impl<'b> App<'b> {
                         .args
                         .iter()
                         .filter(|a| a.is_set(ArgSettings::Global))
-                        {
-                            $sc.args.push(a.clone());
-                        }
+                    {
+                        $sc.args.push(a.clone());
+                    }
                 }
-            }}
+            }};
         }
 
         debugln!("App::_propagate:{}", self.name);
@@ -1532,14 +1532,18 @@ impl<'b> App<'b> {
                         sc._propagate(prop);
                     }
                 }
-            },
+            }
             Propagation::To(id) => {
-                let mut sc = self.subcommands.iter_mut().find(|sc| sc.id == id).expect(INTERNAL_ERROR_MSG);
+                let mut sc = self
+                    .subcommands
+                    .iter_mut()
+                    .find(|sc| sc.id == id)
+                    .expect(INTERNAL_ERROR_MSG);
                 propagate_subcmd!(self, sc);
-            },
+            }
             Propagation::None => {
                 return;
-            },
+            }
         }
     }
 
