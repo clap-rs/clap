@@ -2,8 +2,6 @@ mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use osstringext::OsStrExt3;
 use std::borrow::Cow;
 use std::cmp::{Ord, Ordering};
 use std::env;
@@ -22,6 +20,8 @@ use yaml_rust;
 // Internal
 use crate::build::UsageParser;
 use crate::util::Key;
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+use crate::util::OsStrExt3;
 use crate::INTERNAL_ERROR_MSG;
 
 type Validator = Rc<Fn(String) -> Result<(), String>>;
