@@ -1,6 +1,4 @@
 // Std
-#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
-use osstringext::OsStrExt3;
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
@@ -26,6 +24,8 @@ use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+use crate::util::OsStrExt3;
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -720,7 +720,7 @@ where
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
             #[cfg(target_os = "windows")]
-            use osstringext::OsStrExt3;
+            use crate::util::OsStrExt3;
             #[cfg(not(target_os = "windows"))]
             use std::os::unix::ffi::OsStrExt;
 
