@@ -24,8 +24,8 @@ use crate::build::UsageParser;
 use crate::util::Key;
 use crate::INTERNAL_ERROR_MSG;
 
-type Validator = Rc<Fn(String) -> Result<(), String>>;
-type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
+type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
+type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 
 type Id = u64;
 
@@ -305,7 +305,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
     }
 
