@@ -1640,7 +1640,7 @@ impl<'a, 'b> App<'a, 'b> {
             return Err(e);
         }
 
-        let global_arg_vec: Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
+        let global_arg_vec: Vec<&str> = self.p.global_args.iter().map(|ga| ga.b.name).collect();
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into())

@@ -183,7 +183,7 @@ impl<'a> ArgMatches<'a> {
     pub fn value_of_os<S: AsRef<str>>(&self, name: S) -> Option<&OsStr> {
         self.args
             .get(name.as_ref())
-            .and_then(|arg| arg.vals.get(0).map(|v| v.as_os_str()))
+            .and_then(|arg| arg.vals.get(0).map(OsString::as_os_str))
     }
 
     /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument
@@ -585,12 +585,8 @@ impl<'a> ArgMatches<'a> {
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn indices_of<S: AsRef<str>>(&'a self, name: S) -> Option<Indices<'a>> {
         if let Some(arg) = self.args.get(name.as_ref()) {
-            fn to_usize(i: &usize) -> usize {
-                *i
-            }
-            let to_usize: fn(&usize) -> usize = to_usize; // coerce to fn pointer
             return Some(Indices {
-                iter: arg.indices.iter().map(to_usize),
+                iter: arg.indices.iter(),
             });
         }
         None
@@ -916,15 +912,15 @@ impl<'a> Default for OsValues<'a> {
 /// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
 #[derive(Debug, Clone)]
 pub struct Indices<'a> {
-    // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
-    iter: Map<Iter<'a, usize>, fn(&'a usize) -> usize>,
+    iter: Iter<'a, usize>,
 }
 
 impl<'a> Iterator for Indices<'a> {
     type Item = usize;
 
     fn next(&mut self) -> Option<usize> {
-        self.iter.next()
+        // FIXME once 1.36.0 lands, this would be better with .copied()
+        self.iter.next().cloned()
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
@@ -933,7 +929,8 @@ impl<'a> Iterator for Indices<'a> {
 
 impl<'a> DoubleEndedIterator for Indices<'a> {
     fn next_back(&mut self) -> Option<usize> {
-        self.iter.next_back()
+        // FIXME once 1.36.0 lands, this would be better with .copied()
+        self.iter.next_back().cloned()
     }
 }
 
@@ -944,11 +941,8 @@ impl<'a> Default for Indices<'a> {
     fn default() -> Self {
         static EMPTY: [usize; 0] = [];
         // This is never called because the iterator is empty:
-        fn to_usize(_: &usize) -> usize {
-            unreachable!()
-        };
         Indices {
-            iter: EMPTY[..].iter().map(to_usize),
+            iter: EMPTY[..].iter(),
         }
     }
 }

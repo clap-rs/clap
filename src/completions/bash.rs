@@ -15,7 +15,7 @@ where
 
 impl<'a, 'b> BashGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        BashGen { p: p }
+        BashGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
@@ -123,7 +123,7 @@ complete -F _{name} -o bashdefault -o default {name}
                 subcmd_dets,
                 subcmd = sc.replace("-", "__"),
                 sc_opts = self.all_options_for_path(&*sc),
-                level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
+                level = sc.split("__").map(|_| 1).sum::<u32>(),
                 opts_details = self.option_details_for_path(&*sc)
             );
         }

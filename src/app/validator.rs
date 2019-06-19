@@ -162,13 +162,14 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     fn build_err(&self, name: &str, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0, &name, blacklist, matcher);
-        c_with = c_with.or(self
-            .0
-            .find_any_arg(name)
-            .map_or(None, |aa| aa.blacklist())
-            .map_or(None, |bl| bl.iter().find(|arg| matcher.contains(arg)))
-            .map_or(None, |an| self.0.find_any_arg(an))
-            .map_or(None, |aa| Some(format!("{}", aa))));
+        c_with = c_with.or_else(|| {
+            self.0
+                .find_any_arg(name)
+                .and_then(|aa| aa.blacklist())
+                .and_then(|bl| bl.iter().find(|arg| matcher.contains(arg)))
+                .and_then(|an| self.0.find_any_arg(an))
+                .and_then(|aa| Some(format!("{}", aa)))
+        });
         debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
         //        matcher.remove(&name);
         let usg = usage::create_error_usage(self.0, matcher, None);

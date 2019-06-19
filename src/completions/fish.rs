@@ -13,7 +13,7 @@ where
 
 impl<'a, 'b> FishGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        FishGen { p: p }
+        FishGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {

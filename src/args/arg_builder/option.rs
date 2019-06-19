@@ -184,7 +184,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
         self.v.default_val
     }
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
-        self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
+        self.v.default_vals_ifs.as_ref().map(VecMap::values)
     }
     fn env<'s>(&'s self) -> Option<(&'n OsStr, Option<&'s OsString>)> {
         self.v

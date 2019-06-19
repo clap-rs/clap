@@ -526,18 +526,15 @@
     unused_import_braces,
     unused_allocation
 )]
-// Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (bitflags, clippy)
-//      trivial_numeric_casts       (bitflags)
 #![cfg_attr(
-    not(any(feature = "lints", feature = "nightly")),
-    forbid(unstable_features)
+    feature = "cargo-clippy",
+    allow(
+        clippy::cyclomatic_complexity,
+        clippy::doc_markdown,
+        clippy::nonminimal_bool,
+        clippy::type_complexity,
+    )
 )]
-// Need to disable deny(warnings) while deprecations are active
-// #![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(feature = "lints", allow(clippy::cognitive_complexity))]
-#![cfg_attr(feature = "lints", allow(clippy::doc_markdown))]
-#![cfg_attr(feature = "lints", allow(clippy::explicit_iter_loop))]
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 extern crate ansi_term;
@@ -577,9 +574,9 @@ mod strext;
 mod suggestions;
 mod usage_parser;
 
-const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
-                                          report at https://github.com/clap-rs/clap/issues";
-const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
+                                  report at https://github.com/clap-rs/clap/issues";
+const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 #[cfg(unstable)]
 pub use derive::{ArgEnum, ClapApp, FromArgMatches, IntoApp};

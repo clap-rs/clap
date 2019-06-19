@@ -33,7 +33,7 @@ fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)
 }
 
-const TAB: &'static str = "    ";
+const TAB: &str = "    ";
 
 // These are just convenient traits to make the code easier to read.
 trait ArgWithDisplay<'b, 'c>: AnyArg<'b, 'c> + Display {}
@@ -110,8 +110,8 @@ impl<'a> Help<'a> {
         debugln!("Help::new;");
         Help {
             writer: w,
-            next_line_help: next_line_help,
-            hide_pv: hide_pv,
+            next_line_help,
+            hide_pv,
             term_w: match term_w {
                 Some(width) => {
                     if width == 0 {
@@ -128,11 +128,11 @@ impl<'a> Help<'a> {
                     },
                 ),
             },
-            color: color,
-            cizer: cizer,
+            color,
+            cizer,
             longest: 0,
             force_next_line: false,
-            use_long: use_long,
+            use_long,
         }
     }
 
@@ -500,7 +500,7 @@ impl<'a> Help<'a> {
             write!(self.writer, "{}", part)?;
         }
         for part in help.lines().skip(1) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
             if nlh || self.force_next_line {
                 write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
             } else if arg.has_switch() {
@@ -511,7 +511,7 @@ impl<'a> Help<'a> {
             write!(self.writer, "{}", part)?;
         }
         if !help.contains('\n') && (nlh || self.force_next_line) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
         }
         Ok(())
     }
@@ -598,7 +598,6 @@ fn should_show_arg(use_long: bool, arg: &dyn ArgWithOrder) -> bool {
 impl<'a> Help<'a> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
-    #[cfg_attr(feature = "lints", allow(clippy::useless_let_if_seq))]
     #[cfg_attr(feature = "cargo-clippy", allow(clippy::useless_let_if_seq))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");

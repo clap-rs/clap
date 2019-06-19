@@ -202,7 +202,7 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
         self.b.long_help
     }
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
-        self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
+        self.v.default_vals_ifs.as_ref().map(VecMap::values)
     }
     fn default_val(&self) -> Option<&'e OsStr> {
         self.v.default_val

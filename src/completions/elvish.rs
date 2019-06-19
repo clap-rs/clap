@@ -14,7 +14,7 @@ where
 
 impl<'a, 'b> ElvishGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        ElvishGen { p: p }
+        ElvishGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {

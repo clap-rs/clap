@@ -425,7 +425,6 @@ where
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(clippy::needless_borrow))]
     pub fn derive_display_order(&mut self) {
         if self.is_set(AS::DeriveDisplayOrder) {
             let unified = self.is_set(AS::UnifiedHelpMessage);
@@ -463,7 +462,6 @@ where
         self.required.iter()
     }
 
-    #[cfg_attr(feature = "lints", allow(clippy::needless_borrow))]
     #[inline]
     pub fn has_args(&self) -> bool {
         !(self.flags.is_empty() && self.opts.is_empty() && self.positionals.is_empty())
@@ -540,7 +538,6 @@ where
         self.settings.unset(s)
     }
 
-    #[cfg_attr(feature = "lints", allow(clippy::block_in_if_condition_stmt))]
     pub fn verify_positionals(&self) -> bool {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -560,9 +557,10 @@ where
         }
 
         // Next we verify that only the highest index has a .multiple(true) (if any)
-        if self.positionals.values().any(|a| {
+        let is_multiple = self.positionals.values().any(|a| {
             a.b.is_set(ArgSettings::Multiple) && (a.index as usize != self.positionals.len())
-        }) {
+        });
+        if is_multiple {
             let mut it = self.positionals.values().rev();
             let last = it.next().unwrap();
             let second_to_last = it.next().unwrap();
@@ -816,7 +814,7 @@ where
     }
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
-    #[cfg_attr(feature = "lints", allow(clippy::wrong_self_convention))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::wrong_self_convention))]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
         debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
@@ -866,7 +864,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len() == 1)
+            arg_os.len() != 1
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -879,10 +877,6 @@ where
     }
 
     // The actual parsing function
-    #[cfg_attr(
-        feature = "lints",
-        allow(clippy::while_let_on_iterator, clippy::collapsible_if)
-    )]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -895,13 +889,15 @@ where
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
         debug_assert!(self.app_debug_asserts());
-        if self.positionals.values().any(|a| {
+        let is_multiple = self.positionals.values().any(|a| {
             a.b.is_set(ArgSettings::Multiple) && (a.index as usize != self.positionals.len())
-        }) && self
-            .positionals
-            .values()
-            .last()
-            .map_or(false, |p| !p.is_set(ArgSettings::Last))
+        });
+        if is_multiple
+            && self
+                .positionals
+                .values()
+                .last()
+                .map_or(false, |p| !p.is_set(ArgSettings::Last))
         {
             self.settings.set(AS::LowIndexMultiplePositional);
         }
@@ -1014,19 +1010,17 @@ where
                             _ => (),
                         }
                     }
-                } else {
-                    if let ParseResult::Opt(name) = needs_val_of {
-                        // Check to see if parsing a value from a previous arg
-                        let arg = self
-                            .opts
-                            .iter()
-                            .find(|o| o.b.name == name)
-                            .expect(INTERNAL_ERROR_MSG);
-                        // get the OptBuilder so we can check the settings
-                        needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
-                        // get the next value from the iterator
-                        continue;
-                    }
+                } else if let ParseResult::Opt(name) = needs_val_of {
+                    // Check to see if parsing a value from a previous arg
+                    let arg = self
+                        .opts
+                        .iter()
+                        .find(|o| o.b.name == name)
+                        .expect(INTERNAL_ERROR_MSG);
+                    // get the OptBuilder so we can check the settings
+                    needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
+                    // get the next value from the iterator
+                    continue;
                 }
             }
 
@@ -1123,9 +1117,9 @@ where
                 let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(p.b.name);
-                let _ = self
-                    .groups_for_arg(p.b.name)
-                    .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+                if let Some(vec) = self.groups_for_arg(p.b.name) {
+                    matcher.inc_occurrences_of(&*vec);
+                }
 
                 self.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1465,7 +1459,7 @@ where
             }
         }
 
-        args.iter().map(|s| *s).collect()
+        args
     }
 
     pub fn create_help_and_version(&mut self) {
@@ -1689,7 +1683,6 @@ where
             .map(|_| ParseResult::NotFound)
     }
 
-    #[cfg_attr(feature = "lints", allow(clippy::len_zero))]
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1739,7 +1732,7 @@ where
                     p[1].as_bytes()
                 );
                 let i = p[0].as_bytes().len() + 1;
-                let val = if p[1].as_bytes().len() > 0 {
+                let val = if !p[1].as_bytes().is_empty() {
                     debugln!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
@@ -1803,7 +1796,7 @@ where
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.len() == 0 || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(
                     opt,
@@ -1831,8 +1824,9 @@ where
 
         matcher.inc_occurrence_of(opt.b.name);
         // Increment or create the group "args"
-        self.groups_for_arg(opt.b.name)
-            .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        if let Some(vec) = self.groups_for_arg(opt.b.name) {
+            matcher.inc_occurrences_of(&*vec);
+        }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::Multiple);
@@ -1937,8 +1931,9 @@ where
         matcher.add_index_to(flag.b.name, self.cur_idx.get());
 
         // Increment or create the group "args"
-        self.groups_for_arg(flag.b.name)
-            .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        if let Some(vec) = self.groups_for_arg(flag.b.name) {
+            matcher.inc_occurrences_of(&*vec);
+        }
 
         Ok(ParseResult::Flag)
     }
@@ -1956,12 +1951,14 @@ where
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
             if let Some(opt) = find_opt_by_long!(self, name) {
-                self.groups_for_arg(&*opt.b.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*opt.b.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
                 matcher.insert(&*opt.b.name);
             } else if let Some(flg) = find_flag_by_long!(self, name) {
-                self.groups_for_arg(&*flg.b.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*flg.b.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
                 matcher.insert(&*flg.b.name);
             }
         }
@@ -2207,7 +2204,6 @@ where
     }
 
     // Only used for completion scripts due to bin_name messiness
-    #[cfg_attr(feature = "lints", allow(clippy::block_in_if_condition_stmt))]
     pub fn find_subcommand(&'b self, sc: &str) -> Option<&'b App<'a, 'b>> {
         debugln!("Parser::find_subcommand: sc={}", sc);
         debugln!(

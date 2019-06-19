@@ -36,7 +36,7 @@ pub fn create_error_usage<'a, 'b>(
                 true // flags can't be required, so they're always true
             }
         })
-        .map(|&n| n)
+        .cloned()
         .collect();
     if let Some(r) = extra {
         args.push(r);

@@ -1023,7 +1023,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.r_unless = Some(names.to_vec());
         }
         self.setb(ArgSettings::RequiredUnlessAll);
         self.required(true)
@@ -1099,7 +1099,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.r_unless = Some(names.to_vec());
         }
         self.required(true)
     }
@@ -1197,7 +1197,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.blacklist = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.blacklist = Some(names.to_vec());
         }
         self
     }
@@ -1342,7 +1342,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.overrides = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.overrides = Some(names.to_vec());
         }
         self
     }
@@ -2407,7 +2407,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.v.possible_vals = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.v.possible_vals = Some(names.to_vec());
         }
         self
     }
@@ -2603,7 +2603,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.groups = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.groups = Some(names.to_vec());
         }
         self
     }
@@ -3479,7 +3479,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    #[cfg_attr(feature = "lints", allow(clippy::explicit_counter_loop))]
     pub fn default_value_ifs_os(mut self, ifs: &[(&'a str, Option<&'b OsStr>, &'b OsStr)]) -> Self {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);
