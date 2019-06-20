@@ -8,6 +8,10 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn3
 
 Command Line Argument Parser for Rust
 
+# IMPORTANT:
+Clap 3.0 is under development and available on the [v3-master](https://github.com/clap-rs/clap/tree/v3-master). When sending a pull request, ensure that it is against v3-master branch and not already covered by the 3.0 refactor. Thanks
+
+
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
 * [documentation](https://docs.rs/clap/)
