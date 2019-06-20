@@ -37,12 +37,7 @@ impl OsStrExt2 for OsStr {
     }
 
     fn contains_byte(&self, byte: u8) -> bool {
-        for b in self.as_bytes() {
-            if b == &byte {
-                return true;
-            }
-        }
-        false
+        self.as_bytes().iter().any(|b| b == &byte)
     }
 
     fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
