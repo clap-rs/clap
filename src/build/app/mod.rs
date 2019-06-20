@@ -1,5 +1,6 @@
 mod settings;
-pub use self::settings::{AppFlags, AppSettings};
+pub use self::settings::AppSettings;
+pub(crate) use self::settings::AppFlags;
 
 // Std
 use std::env;
@@ -65,54 +66,30 @@ pub enum Propagation {
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Default, Debug, Clone)]
 pub struct App<'b> {
-    #[doc(hidden)]
-    pub id: Id,
-    #[doc(hidden)]
-    pub name: String,
-    #[doc(hidden)]
-    pub bin_name: Option<String>,
-    #[doc(hidden)]
-    pub author: Option<&'b str>,
-    #[doc(hidden)]
-    pub version: Option<&'b str>,
-    #[doc(hidden)]
-    pub long_version: Option<&'b str>,
-    #[doc(hidden)]
-    pub about: Option<&'b str>,
-    #[doc(hidden)]
-    pub long_about: Option<&'b str>,
-    #[doc(hidden)]
-    pub more_help: Option<&'b str>,
-    #[doc(hidden)]
-    pub pre_help: Option<&'b str>,
-    #[doc(hidden)]
-    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub usage_str: Option<&'b str>,
-    #[doc(hidden)]
-    pub usage: Option<String>,
-    #[doc(hidden)]
-    pub help_str: Option<&'b str>,
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub term_w: Option<usize>,
-    #[doc(hidden)]
-    pub max_w: Option<usize>,
-    #[doc(hidden)]
-    pub template: Option<&'b str>,
-    #[doc(hidden)]
-    pub settings: AppFlags,
-    #[doc(hidden)]
-    pub g_settings: AppFlags,
-    #[doc(hidden)]
-    pub args: MKeyMap<'b>,
-    #[doc(hidden)]
-    pub subcommands: Vec<App<'b>>,
-    #[doc(hidden)]
-    pub groups: Vec<ArgGroup<'b>>,
-    #[doc(hidden)]
-    pub help_headings: Vec<Option<&'b str>>,
+    pub(crate) id: Id,
+    pub(crate) name: String,
+    pub(crate) bin_name: Option<String>,
+    pub(crate) author: Option<&'b str>,
+    pub(crate) version: Option<&'b str>,
+    pub(crate) long_version: Option<&'b str>,
+    pub(crate) about: Option<&'b str>,
+    pub(crate) long_about: Option<&'b str>,
+    pub(crate) more_help: Option<&'b str>,
+    pub(crate) pre_help: Option<&'b str>,
+    pub(crate) aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    pub(crate) usage_str: Option<&'b str>,
+    pub(crate) usage: Option<String>,
+    pub(crate) help_str: Option<&'b str>,
+    pub(crate) disp_ord: usize,
+    pub(crate) term_w: Option<usize>,
+    pub(crate) max_w: Option<usize>,
+    pub(crate) template: Option<&'b str>,
+    pub(crate) settings: AppFlags,
+    pub(crate) g_settings: AppFlags,
+    pub(crate) args: MKeyMap<'b>,
+    pub(crate) subcommands: Vec<App<'b>>,
+    pub(crate) groups: Vec<ArgGroup<'b>>,
+    pub(crate) help_headings: Vec<Option<&'b str>>,
 }
 
 impl<'b> App<'b> {
@@ -2017,4 +1994,75 @@ impl<'a> From<&'a Yaml> for App<'a> {
 
 impl<'e> fmt::Display for App<'e> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.name) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn global_version() {
+        let mut app = App::new("global_version")
+            .setting(AppSettings::GlobalVersion)
+            .version("1.1")
+            .subcommand(App::new("sub1"));
+        app._propagate(Propagation::NextLevel);
+        assert_eq!(app.subcommands[0].version, Some("1.1"));
+    }
+
+    #[test]
+    fn global_setting() {
+        let mut app = App::new("test")
+            .global_setting(AppSettings::ColoredHelp)
+            .subcommand(App::new("subcmd"));
+        app._propagate(Propagation::NextLevel);
+        assert!(app
+            .subcommands
+            .iter()
+            .filter(|s| s.name == "subcmd")
+            .next()
+            .unwrap()
+            .is_set(AppSettings::ColoredHelp));
+    }
+
+    #[test]
+    fn global_settings() {
+        let mut app = App::new("test")
+            .global_setting(AppSettings::ColoredHelp)
+            .global_setting(AppSettings::TrailingVarArg)
+            .subcommand(App::new("subcmd"));
+        app._propagate(Propagation::NextLevel);
+        assert!(app
+            .subcommands
+            .iter()
+            .filter(|s| s.name == "subcmd")
+            .next()
+            .unwrap()
+            .is_set(AppSettings::ColoredHelp));
+        assert!(app
+            .subcommands
+            .iter()
+            .filter(|s| s.name == "subcmd")
+            .next()
+            .unwrap()
+            .is_set(AppSettings::TrailingVarArg));
+    }
+
+    #[test]
+    fn unset_settings() {
+        let m = App::new("unset_settings");
+        assert!(&m.is_set(AppSettings::AllowInvalidUtf8));
+        assert!(&m.is_set(AppSettings::ColorAuto));
+
+        let m = m
+            .unset_setting(AppSettings::AllowInvalidUtf8)
+            .unset_setting(AppSettings::ColorAuto);
+        assert!(
+            !m.is_set(AppSettings::AllowInvalidUtf8),
+            "l: {:?}\ng:{:?}",
+            m.settings,
+            m.g_settings
+        );
+        assert!(!m.is_set(AppSettings::ColorAuto));
+    }
 }

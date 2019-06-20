@@ -68,7 +68,7 @@ fn quoted_app_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.name, "app name with spaces-and-hyphens");
+    assert_eq!(app.get_name(), "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
     app.write_help(&mut help_text)

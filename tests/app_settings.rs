@@ -1,7 +1,7 @@
 extern crate clap;
 extern crate regex;
 
-use clap::{App, AppSettings, Arg, ErrorKind, Propagation};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 include!("../clap-test.rs");
 
@@ -80,16 +80,6 @@ fn sub_command_negate_required() {
         .arg(Arg::with_name("test").required(true).index(1))
         .subcommand(App::new("sub1"))
         .get_matches_from(vec!["myprog", "sub1"]);
-}
-
-#[test]
-fn global_version() {
-    let mut app = App::new("global_version")
-        .setting(AppSettings::GlobalVersion)
-        .version("1.1")
-        .subcommand(App::new("sub1"));
-    app._propagate(Propagation::NextLevel);
-    assert_eq!(app.subcommands[0].version, Some("1.1"));
 }
 
 #[test]
@@ -280,44 +270,6 @@ fn skip_possible_values() {
 }
 
 #[test]
-fn global_setting() {
-    let mut app = App::new("test")
-        .global_setting(AppSettings::ColoredHelp)
-        .subcommand(App::new("subcmd"));
-    app._propagate(Propagation::NextLevel);
-    assert!(app
-        .subcommands
-        .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
-        .unwrap()
-        .is_set(AppSettings::ColoredHelp));
-}
-
-#[test]
-fn global_settings() {
-    let mut app = App::new("test")
-        .global_setting(AppSettings::ColoredHelp)
-        .global_setting(AppSettings::TrailingVarArg)
-        .subcommand(App::new("subcmd"));
-    app._propagate(Propagation::NextLevel);
-    assert!(app
-        .subcommands
-        .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
-        .unwrap()
-        .is_set(AppSettings::ColoredHelp));
-    assert!(app
-        .subcommands
-        .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
-        .unwrap()
-        .is_set(AppSettings::TrailingVarArg));
-}
-
-#[test]
 fn stop_delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .setting(AppSettings::DontDelimitTrailingValues)
@@ -499,24 +451,6 @@ fn unset_setting() {
 
     let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
     assert!(!m.is_set(AppSettings::AllArgsOverrideSelf));
-}
-
-#[test]
-fn unset_settings() {
-    let m = App::new("unset_settings");
-    assert!(&m.is_set(AppSettings::AllowInvalidUtf8));
-    assert!(&m.is_set(AppSettings::ColorAuto));
-
-    let m = m
-        .unset_setting(AppSettings::AllowInvalidUtf8)
-        .unset_setting(AppSettings::ColorAuto);
-    assert!(
-        !m.is_set(AppSettings::AllowInvalidUtf8),
-        "l: {:?}\ng:{:?}",
-        m.settings,
-        m.g_settings
-    );
-    assert!(!m.is_set(AppSettings::ColorAuto));
 }
 
 #[test]

@@ -54,68 +54,37 @@ type Id = u64;
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
-    #[doc(hidden)]
-    pub id: Id,
-    #[doc(hidden)]
-    pub name: &'help str,
-    #[doc(hidden)]
-    pub help: Option<&'help str>,
-    #[doc(hidden)]
-    pub long_help: Option<&'help str>,
-    #[doc(hidden)]
-    pub blacklist: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub settings: ArgFlags,
-    #[doc(hidden)]
-    pub r_unless: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub overrides: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub groups: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub requires: Option<Vec<(Option<&'help str>, Id)>>,
-    #[doc(hidden)]
-    pub short: Option<char>,
-    #[doc(hidden)]
-    pub long: Option<&'help str>,
-    #[doc(hidden)]
-    pub aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub unified_ord: usize,
-    #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
-    #[doc(hidden)]
-    pub val_names: Option<VecMap<&'help str>>,
-    #[doc(hidden)]
-    pub num_vals: Option<u64>,
-    #[doc(hidden)]
-    pub max_vals: Option<u64>,
-    #[doc(hidden)]
-    pub min_vals: Option<u64>,
-    #[doc(hidden)]
-    pub validator: Option<Validator>,
-    #[doc(hidden)]
-    pub validator_os: Option<ValidatorOs>,
-    #[doc(hidden)]
-    pub val_delim: Option<char>,
-    #[doc(hidden)]
-    pub default_val: Option<&'help OsStr>,
-    #[doc(hidden)]
-    pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
-    #[doc(hidden)]
-    pub env: Option<(&'help OsStr, Option<OsString>)>,
-    #[doc(hidden)]
-    pub terminator: Option<&'help str>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    #[doc(hidden)]
-    pub r_ifs: Option<Vec<(Id, &'help str)>>,
-    #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
-    #[doc(hidden)]
-    pub global: bool,
+    pub(crate) id: Id,
+    pub(crate) name: &'help str,
+    pub(crate) help: Option<&'help str>,
+    pub(crate) long_help: Option<&'help str>,
+    pub(crate) blacklist: Option<Vec<Id>>,
+    pub(crate) settings: ArgFlags,
+    pub(crate) r_unless: Option<Vec<Id>>,
+    pub(crate) overrides: Option<Vec<Id>>,
+    pub(crate) groups: Option<Vec<Id>>,
+    pub(crate) requires: Option<Vec<(Option<&'help str>, Id)>>,
+    pub(crate) short: Option<char>,
+    pub(crate) long: Option<&'help str>,
+    pub(crate) aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
+    pub(crate) disp_ord: usize,
+    pub(crate) unified_ord: usize,
+    pub(crate) possible_vals: Option<Vec<&'help str>>,
+    pub(crate) val_names: Option<VecMap<&'help str>>,
+    pub(crate) num_vals: Option<u64>,
+    pub(crate) max_vals: Option<u64>,
+    pub(crate) min_vals: Option<u64>,
+    pub(crate) validator: Option<Validator>,
+    pub(crate) validator_os: Option<ValidatorOs>,
+    pub(crate) val_delim: Option<char>,
+    pub(crate) default_val: Option<&'help OsStr>,
+    pub(crate) default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
+    pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
+    pub(crate) terminator: Option<&'help str>,
+    pub(crate) index: Option<u64>,
+    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub(crate) help_heading: Option<&'help str>,
+    pub(crate) global: bool,
 }
 
 impl<'help> Arg<'help> {
@@ -4367,5 +4336,29 @@ mod test {
         p2.val_names = Some(vm);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
+    }
+
+    #[test]
+    fn short_flag_misspel() {
+        let a = Arg::from("-f1, --flag 'some flag'");
+        assert_eq!(a.name, "flag");
+        assert_eq!(a.short.unwrap(), 'f');
+        assert_eq!(a.long.unwrap(), "flag");
+        assert_eq!(a.help.unwrap(), "some flag");
+        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.val_names.is_none());
+        assert!(a.num_vals.is_none());
+    }
+
+    #[test]
+    fn short_flag_name_missing() {
+        let a = Arg::from("-f 'some flag'");
+        assert_eq!(a.name, "f");
+        assert_eq!(a.short.unwrap(), 'f');
+        assert!(a.long.is_none());
+        assert_eq!(a.help.unwrap(), "some flag");
+        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.val_names.is_none());
+        assert!(a.num_vals.is_none());
     }
 }

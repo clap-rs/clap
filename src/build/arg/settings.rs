@@ -32,8 +32,6 @@ bitflags! {
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
-    pub fn new() -> Self { ArgFlags::default() }
-
     // @TODO @p6 @internal: Reorder alphabetically
     impl_settings! {ArgSettings,
         Required => Flags::REQUIRED,
