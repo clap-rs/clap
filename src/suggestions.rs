@@ -25,10 +25,8 @@ where
             candidate = Some((confidence, pv.as_ref()));
         }
     }
-    match candidate {
-        None => None,
-        Some((_, candidate)) => Some(candidate),
-    }
+
+    candidate.map(|(_, candidate)| candidate)
 }
 
 #[cfg(not(feature = "suggestions"))]
