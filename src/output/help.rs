@@ -736,8 +736,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let mut ord_m = VecMap::new();
         for sc in subcommands!(app).filter(|s| !s.is_set(AppSettings::Hidden)) {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
-            self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
-            btm.insert(sc.name.clone(), sc.clone());
+            self.longest = cmp::max(self.longest, str_width(&sc.name));
+            btm.insert(&sc.name, sc);
         }
 
         let mut first = true;
