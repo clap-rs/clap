@@ -618,10 +618,10 @@ mod derive {
     /// @TODO @release @docs
     pub trait FromArgMatches: Sized {
         /// @TODO @release @docs
-        fn from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Self;
+        fn from_argmatches(matches: clap::ArgMatches) -> Self;
 
         /// @TODO @release @docs
-        fn try_from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Result<Self, clap::Error>;
+        fn try_from_argmatches(matches: clap::ArgMatches) -> Result<Self, clap::Error>;
     }
 
     /// @TODO @release @docs
