@@ -8,7 +8,7 @@ use clap::App;
 #[test]
 fn create_app_from_yaml() {
     let yml = load_yaml!("app.yml");
-    App::from_yaml(yml);
+    App::from(yml);
 }
 
 // TODO: Uncomment to test yaml with 2 spaces https://github.com/chyh1990/yaml-rust/issues/101
@@ -21,7 +21,7 @@ fn create_app_from_yaml() {
 #[test]
 fn help_message() {
     let yml = load_yaml!("app.yml");
-    let mut app = App::from_yaml(yml);
+    let mut app = App::from(yml);
     // Generate the full help message!
     let _ = app.try_get_matches_from_mut(Vec::<String>::new());
 
@@ -36,7 +36,7 @@ fn help_message() {
 #[test]
 fn author() {
     let yml = load_yaml!("app.yml");
-    let mut app = App::from_yaml(yml);
+    let mut app = App::from(yml);
     // Generate the full help message!
     let _ = app.try_get_matches_from_mut(Vec::<String>::new());
 

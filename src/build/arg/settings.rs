@@ -1,6 +1,4 @@
 // Std
-#[allow(unused_imports)]
-use std::ascii::AsciiExt;
 use std::str::FromStr;
 
 bitflags! {
@@ -42,7 +40,6 @@ impl ArgFlags {
         MultipleOccurrences => Flags::MULTIPLE_OCC,
         MultipleValues => Flags::MULTIPLE_VALS,
         AllowEmptyValues => Flags::EMPTY_VALS,
-        Global => Flags::GLOBAL,
         Hidden => Flags::HIDDEN,
         TakesValue => Flags::TAKES_VAL,
         UseValueDelimiter => Flags::USE_DELIM,
@@ -84,10 +81,6 @@ pub enum ArgSettings {
     MultipleOccurrences,
     /// Allows an arg accept empty values such as `""`
     AllowEmptyValues,
-    /// Sets an arg to be global (i.e. exist in all subcommands)
-    /// **DEPRECATED**
-    #[deprecated(since = "2.32.0", note = "Use `App::global_arg` instead")]
-    Global,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)
@@ -130,7 +123,6 @@ impl FromStr for ArgSettings {
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         match &*s.to_ascii_lowercase() {
             "required" => Ok(ArgSettings::Required),
-            "global" => Ok(ArgSettings::Global),
             "allowemptyvalues" => Ok(ArgSettings::AllowEmptyValues),
             "hidden" => Ok(ArgSettings::Hidden),
             "takesvalue" => Ok(ArgSettings::TakesValue),
@@ -166,10 +158,6 @@ mod test {
         assert_eq!(
             "allowemptyvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::AllowEmptyValues
-        );
-        assert_eq!(
-            "global".parse::<ArgSettings>().unwrap(),
-            ArgSettings::Global
         );
         assert_eq!(
             "hidepossiblevalues".parse::<ArgSettings>().unwrap(),

@@ -1398,7 +1398,7 @@ impl<'b> App<'b> {
             .args
             .args
             .iter()
-            .filter(|a| a.is_set(ArgSettings::Global))
+            .filter(|a| a.global)
             .map(|ga| ga.id)
             .collect();
 
@@ -1515,7 +1515,7 @@ impl<'b> App<'b> {
                         .args
                         .args
                         .iter()
-                        .filter(|a| a.is_set(ArgSettings::Global))
+                        .filter(|a| a.global)
                         {
                             $sc.args.push(a.clone());
                         }
@@ -1666,7 +1666,7 @@ impl<'b> App<'b> {
             );
         }
         assert!(
-            !(a.is_set(ArgSettings::Required) && a.is_set(ArgSettings::Global)),
+            !(a.is_set(ArgSettings::Required) && a.global),
             "Global arguments cannot be required.\n\n\t'{}' is marked as \
              global and required",
             a.name
@@ -1767,13 +1767,6 @@ impl<'b> App<'b> {
             sdebugln!("Auto");
             ColorWhen::Auto
         }
-    }
-
-    pub(crate) fn contains_long(&self, l: &str) -> bool {
-        if !self.is_set(AppSettings::Built) {
-            panic!("If App::_build hasn't been called, manually search through Arg longs");
-        }
-        self.args.contains_long(l)
     }
 
     pub(crate) fn contains_short(&self, s: char) -> bool {
@@ -1918,11 +1911,6 @@ impl<'a> From<&'a Yaml> for App<'a> {
         yaml_str!(a, yaml, about);
         yaml_str!(a, yaml, before_help);
         yaml_str!(a, yaml, after_help);
-        yaml_str!(a, yaml, template);
-        yaml_str!(a, yaml, usage);
-        yaml_str!(a, yaml, help);
-        yaml_str!(a, yaml, help_message);
-        yaml_str!(a, yaml, version_message);
         yaml_str!(a, yaml, alias);
         yaml_str!(a, yaml, visible_alias);
 
@@ -2014,7 +2002,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
         }
         if let Some(v) = yaml["subcommands"].as_vec() {
             for sc_yaml in v {
-                a = a.subcommand(::from_yaml(sc_yaml));
+                a = a.subcommand(App::from(sc_yaml));
             }
         }
         if let Some(v) = yaml["groups"].as_vec() {

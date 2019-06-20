@@ -2,8 +2,6 @@ mod settings;
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use osstringext::OsStrExt3;
 use std::borrow::Cow;
 use std::cmp::{Ord, Ordering};
 use std::env;
@@ -22,10 +20,12 @@ use yaml_rust;
 // Internal
 use crate::build::UsageParser;
 use crate::util::Key;
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+use crate::util::OsStrExt3;
 use crate::INTERNAL_ERROR_MSG;
 
-type Validator = Rc<Fn(String) -> Result<(), String>>;
-type ValidatorOs = Rc<Fn(&OsStr) -> Result<(), String>>;
+type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
+type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 
 type Id = u64;
 
@@ -114,6 +114,8 @@ pub struct Arg<'help> {
     pub r_ifs: Option<Vec<(Id, &'help str)>>,
     #[doc(hidden)]
     pub help_heading: Option<&'help str>,
+    #[doc(hidden)]
+    pub global: bool,
 }
 
 impl<'help> Arg<'help> {
@@ -191,7 +193,6 @@ impl<'help> Arg<'help> {
                 "multiple" => yaml_to_bool!(a, v, multiple),
                 "hidden" => yaml_to_bool!(a, v, hidden),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
-                "empty_values" => yaml_to_bool!(a, v, empty_values),
                 "group" => yaml_to_str!(a, v, group),
                 "number_of_values" => yaml_to_u64!(a, v, number_of_values),
                 "max_values" => yaml_to_u64!(a, v, max_values),
@@ -305,7 +306,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'help str) -> Self {
-        self.long = Some(l.trim_left_matches(|c| c == '-'));
+        self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
     }
 
@@ -3020,7 +3021,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::with_name("debug")
     ///     .short('d')
-    ///     .setting(ArgSettings::Global)
+    ///     .global(true)
     /// # ;
     /// ```
     ///
@@ -3034,7 +3035,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::with_name("verb")
     ///         .long("verbose")
     ///         .short('v')
-    ///         .setting(ArgSettings::Global))
+    ///         .global(true))
     ///     .subcommand(App::new("test"))
     ///     .subcommand(App::new("do-stuff"))
     ///     .get_matches_from(vec![
@@ -3050,12 +3051,9 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::is_present("flag")`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg`]: ./struct.Arg.html
-    pub fn global(self, g: bool) -> Self {
-        if g {
-            self.setting(ArgSettings::Global)
-        } else {
-            self.unset_setting(ArgSettings::Global)
-        }
+    pub fn global(mut self, g: bool) -> Self {
+        self.global = g;
+        self
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter. This means if an
@@ -3210,20 +3208,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// **Deprecated**
-    #[deprecated(
-        since = "2.30.0",
-        note = "Use `Arg::setting(ArgSettings::AllowEmptyValues)` instead. Will be removed in v3.0-beta"
-    )]
-    pub fn empty_values(mut self, ev: bool) -> Self {
-        if ev {
-            self.setting(ArgSettings::AllowEmptyValues)
-        } else {
-            self = self.setting(ArgSettings::TakesValue);
-            self.unset_setting(ArgSettings::AllowEmptyValues)
-        }
-    }
-
     /// Hides an argument from help message output.
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
@@ -3281,7 +3265,6 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
-    /// # use std::ascii::AsciiExt;
     /// let m = App::new("pv")
     ///     .arg(Arg::with_name("option")
     ///         .long("--option")
