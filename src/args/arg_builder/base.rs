@@ -19,7 +19,7 @@ where
 impl<'n, 'e> Base<'n, 'e> {
     pub fn new(name: &'n str) -> Self {
         Base {
-            name: name,
+            name,
             ..Default::default()
         }
     }

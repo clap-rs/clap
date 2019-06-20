@@ -12,7 +12,7 @@ where
 }
 
 impl<'a, 'b> FishGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { FishGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { FishGen { p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let command = self.p.meta.bin_name.as_ref().unwrap();

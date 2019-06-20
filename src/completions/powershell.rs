@@ -13,7 +13,7 @@ where
 }
 
 impl<'a, 'b> PowerShellGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { PowerShellGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self { PowerShellGen { p } }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let bin_name = self.p.meta.bin_name.as_ref().unwrap();
