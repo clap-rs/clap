@@ -74,10 +74,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             next_line_help: nlh,
             hide_pv,
             term_w,
-            color: color,
+            color,
             longest: 0,
             force_next_line: false,
-            cizer: cizer,
+            cizer,
             use_long,
         }
     }
