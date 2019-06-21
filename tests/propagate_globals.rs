@@ -30,12 +30,12 @@ mod tests {
         app.get_matches_from(argv.split(" ").collect::<Vec<_>>())
     }
 
-    fn get_outer_matches<'a>(m: &'a ArgMatches) -> &'a ArgMatches {
+    fn get_outer_matches(m: &ArgMatches) -> &ArgMatches {
         m.subcommand_matches("outer")
             .expect("could not access outer subcommand")
     }
 
-    fn get_inner_matches<'a>(m: &'a ArgMatches) -> &'a ArgMatches {
+    fn get_inner_matches(m: &ArgMatches) -> &ArgMatches {
         get_outer_matches(m)
             .subcommand_matches("inner")
             .expect("could not access inner subcommand")
