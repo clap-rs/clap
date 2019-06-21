@@ -213,14 +213,14 @@ impl ArgMatches {
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
-        if let Some(arg) = self.args.get(&id.key()) {
+        self.args.get(&id.key()).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
-            return Some(Values {
+
+            Values {
                 iter: arg.vals.iter().map(to_str_slice),
-            });
-        }
-        None
+            }
+        })
     }
 
     /// Gets the lossy values of a specific argument. If the option wasn't present at runtime
@@ -248,15 +248,12 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        if let Some(arg) = self.args.get(&id.key()) {
-            return Some(
-                arg.vals
-                    .iter()
-                    .map(|v| v.to_string_lossy().into_owned())
-                    .collect(),
-            );
-        }
-        None
+        self.args.get(&id.key()).map(|arg| {
+            arg.vals
+                .iter()
+                .map(|v| v.to_string_lossy().into_owned())
+                .collect()
+        })
     }
 
     /// Gets a [`OsValues`] struct which is implements [`Iterator`] for [`OsString`] values of a
@@ -293,12 +290,10 @@ impl ArgMatches {
     pub fn values_of_os<'a, T: Key>(&'a self, id: T) -> Option<OsValues<'a>> {
         fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
-        if let Some(arg) = self.args.get(&id.key()) {
-            return Some(OsValues {
-                iter: arg.vals.iter().map(to_str_slice),
-            });
-        }
-        None
+
+        self.args.get(&id.key()).map(|arg| OsValues {
+            iter: arg.vals.iter().map(to_str_slice),
+        })
     }
 
     /// Returns `true` if an argument was present at runtime, otherwise `false`.
@@ -584,12 +579,9 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        if let Some(arg) = self.args.get(&id.key()) {
-            return Some(Indices {
-                iter: arg.indices.iter().cloned(),
-            });
-        }
-        None
+        self.args.get(&id.key()).map(|arg| Indices {
+            iter: arg.indices.iter().cloned(),
+        })
     }
 
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
