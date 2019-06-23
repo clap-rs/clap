@@ -1181,6 +1181,15 @@ where
             ));
         } else {
             sdebugln!("None");
+            if needs_eq && min_vals_zero {
+                // OPTION with missing optional value?
+                let default_missing_value = opt.default_missing_value;
+                debugln!("default_missing_value = {:?}", default_missing_value);
+                if let Some(ref value) = default_missing_value {
+                    debugln!("setting value from default_missing_value = {:?}", value);
+                    self.add_val_to_arg(opt, value, matcher)?;
+                };
+            }
         }
 
         matcher.inc_occurrence_of(opt.id);

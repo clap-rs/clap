@@ -105,6 +105,8 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
     #[doc(hidden)]
+    pub default_missing_value: Option<&'help OsStr>,
+    #[doc(hidden)]
     pub env: Option<(&'help OsStr, Option<OsString>)>,
     #[doc(hidden)]
     pub terminator: Option<&'help str>,
@@ -207,6 +209,7 @@ impl<'help> Arg<'help> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
                 "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
@@ -2267,6 +2270,16 @@ impl<'help> Arg<'help> {
         self.default_value_os(OsStr::from_bytes(val.as_bytes()))
     }
 
+    /// ... docs ...
+    pub fn default_missing_value(self, val: &'help str) -> Self {
+        self.default_missing_value_os(OsStr::from_bytes(val.as_bytes()))
+    }
+    /// ... docs ...
+    pub fn default_missing_value_os(mut self, val: &'help OsStr) -> Self {
+        self.default_missing_value = Some(val);
+        self
+    }
+
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
@@ -4199,6 +4212,7 @@ impl<'help> fmt::Debug for Arg<'help> {
              max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
              value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
              default_value: {:?}, validator: {}, validator_os: {} \
+             default_missing_value: {:?}, \
              }}",
             self.id,
             self.name,
@@ -4228,7 +4242,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.unified_ord,
             self.default_val,
             self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
+            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)"),
+            self.default_missing_value
         )
     }
 }
