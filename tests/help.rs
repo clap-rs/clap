@@ -543,8 +543,7 @@ ARGS:
 
 FLAGS:
     -h, --help       Prints help information
-    -V, --version    Prints version information
-";
+    -V, --version    Prints version information";
 
 
 
