@@ -5,6 +5,7 @@ author: Kevin K. <kbknapp@gmail.com>
 settings:
     - ArgRequiredElseHelp
 help_message: prints help with a nonstandard description
+about_subcommand_help: prints this help or help for sucommand(s) with a nonstandard description
 args:
     - opt:
         short: o

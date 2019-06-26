@@ -346,11 +346,15 @@ Nobody <odysseus@example.com>
 You can customize the version and help text
 
 USAGE:
-    customize
+    customize [SUBCOMMAND]
 
 FLAGS:
     -H, --help       Print help information
-    -v, --version    Print version information";
+    -v, --version    Print version information
+
+SUBCOMMANDS:
+    help      Print this message or the help of the given subcommand(s)
+    subcmd    tests subcommands";
 
 static LAST_ARG: &'static str = "last 0.1
 
@@ -980,8 +984,10 @@ fn customize_version_and_help() {
         .about("You can customize the version and help text")
         .help_short("H")
         .help_message("Print help information")
+        .about_subcommand_help("Print this message or the help of the given subcommand(s)")
         .version_short("v")
-        .version_message("Print version information");
+        .version_message("Print version information")
+        .subcommand(SubCommand::with_name("subcmd").about("tests subcommands"));
     assert!(test::compare_output(app, "customize --help", CUSTOM_VERSION_AND_HELP, false));
 }
 

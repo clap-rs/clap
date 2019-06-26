@@ -70,6 +70,7 @@ where
     cache: Option<&'a str>,
     pub help_message: Option<&'a str>,
     pub version_message: Option<&'a str>,
+    pub about_subcommand_help: Option<&'a str>,
     cur_idx: Cell<usize>,
 }
 
@@ -1464,7 +1465,7 @@ where
             debugln!("Parser::create_help_and_version: Building help");
             self.subcommands.push(
                 App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"),
+                    .about(self.about_subcommand_help.unwrap_or("Prints this message or the help of the given subcommand(s)")),
             );
         }
     }

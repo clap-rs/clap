@@ -510,6 +510,26 @@ impl<'a, 'b> App<'a, 'b> {
         self
     }
 
+    /// Sets the about text for the auto-generated `help` subcommand.
+    ///
+    /// By default `clap` sets this to `"Prints this message or the help of the given subcommand(s)"`, but if you're using a
+    /// different convention for your help messages and would prefer a different phrasing you can
+    /// override it.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .about_subcommand_help("Print this message or the help of the given subcommand(s)") // Perhaps you want imperative help messages
+    ///
+    /// # ;
+    /// ```
+    pub fn about_subcommand_help<S: Into<&'a str>>(mut self, s: S) -> Self {
+        self.p.about_subcommand_help = Some(s.into());
+        self
+    }
+
     /// Sets the help text for the auto-generated `version` argument.
     ///
     /// By default `clap` sets this to `"Prints version information"`, but if you're using a
@@ -1677,6 +1697,7 @@ impl<'a> From<&'a Yaml> for App<'a, 'a> {
         yaml_str!(a, yaml, help_short);
         yaml_str!(a, yaml, version_short);
         yaml_str!(a, yaml, help_message);
+        yaml_str!(a, yaml, about_subcommand_help);
         yaml_str!(a, yaml, version_message);
         yaml_str!(a, yaml, alias);
         yaml_str!(a, yaml, visible_alias);
