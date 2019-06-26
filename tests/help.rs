@@ -4,7 +4,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, Arg, ArgSettings, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &'static str = "test 1.3
 Kevin K.
@@ -531,6 +531,21 @@ OPTIONS:
 
 NETWORKING:
     -n, --no-proxy    Do not use system proxy settings";
+
+static ISSUE_1487: &'static str = "test 
+
+USAGE:
+    ctest <arg1|arg2>
+
+ARGS:
+    <arg1>    
+    <arg2>    
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
+
 
 fn setup() -> App<'static> {
     App::new("test")
@@ -1505,3 +1520,16 @@ fn show_short_about_issue_897() {
         false
     ));
 }
+
+#[test]
+fn issue_1487() {
+    let app = App::new("test")
+        .arg(Arg::with_name("arg1")
+            .group("group1"))
+        .arg(Arg::with_name("arg2")
+            .group("group1"))
+        .group(ArgGroup::with_name("group1")
+            .args(&["arg1", "arg2"])
+            .required(true));
+    assert!(test::compare_output(app, "ctest -h", ISSUE_1487, false));
+} 

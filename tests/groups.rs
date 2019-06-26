@@ -45,8 +45,13 @@ fn required_group_missing_arg() {
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+// #[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+// This used to provide a nice, programmer-friendly error.
+// Now the error directs the programmer to file a bug report with clap.
+// #[should_panic(expected = "The group 'req' contains the arg 'flg' that doesn't actually exist.")]
+#[should_panic(expected = "internal error")]
 fn non_existing_arg() {
     let _ = App::new("group")
         .arg("-f, --flag 'some flag'")

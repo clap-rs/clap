@@ -218,15 +218,16 @@ fn single_positional_required_usage_string() {
     assert_eq!(app.generate_usage(), "USAGE:\n    test <FILE>");
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "Found positional argument which is not required \
+with a lower index than a required positional argument")]
 fn missing_required() {
-    let r = App::new("test")
+    let _ = App::new("test")
         .arg("[FILE1] 'some file'")
         .arg("<FILE2> 'some file'")
-        .try_get_matches_from(vec!["test", "file"]);
-    assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+        .try_get_matches_from(vec![""]);
 }
 
 #[test]

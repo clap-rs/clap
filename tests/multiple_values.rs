@@ -963,8 +963,13 @@ fn req_delimiter_complex() {
     );
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "When using a positional argument with \
+.multiple(true) that is *not the last* positional argument, the last \
+positional argument (i.e the one with the highest index) *must* have \
+.required(true) or .last(true) set.")]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")
         .arg(
@@ -974,11 +979,14 @@ fn low_index_positional_not_required() {
                 .multiple(true),
         )
         .arg(Arg::with_name("target").index(2))
-        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec![""]);
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "Only one positional argument with .multiple(true) \
+set is allowed per command, unless the second one also has .last(true) set")]
 fn low_index_positional_last_multiple_too() {
     let _ = App::new("lip")
         .arg(
@@ -993,11 +1001,14 @@ fn low_index_positional_last_multiple_too() {
                 .required(true)
                 .multiple(true),
         )
-        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec![""]);
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "Only the last positional argument, or second to \
+last positional argument may be set to .multiple(true)")]
 fn low_index_positional_too_far_back() {
     let _ = App::new("lip")
         .arg(
@@ -1008,7 +1019,7 @@ fn low_index_positional_too_far_back() {
         )
         .arg(Arg::with_name("target").required(true).index(2))
         .arg(Arg::with_name("target2").required(true).index(3))
-        .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
+        .try_get_matches_from(vec![""]);
 }
 
 #[test]
