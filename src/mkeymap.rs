@@ -30,18 +30,6 @@ impl KeyType {
             _ => false,
         }
     }
-    pub(crate) fn is_short(&self) -> bool {
-        match *self {
-            KeyType::Short(_) => true,
-            _ => false,
-        }
-    }
-    pub(crate) fn is_long(&self) -> bool {
-        match *self {
-            KeyType::Long(_) => true,
-            _ => false,
-        }
-    }
 }
 
 impl PartialEq<&str> for KeyType {
@@ -304,7 +292,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    // #[should_panic(expected = "Len changed")]
     fn insert_duplicate_value() {
         let mut map: MKeyMap = MKeyMap::new();
 
@@ -314,11 +302,11 @@ mod tests {
 
         map.insert(Long(OsString::from("Two")), Arg::with_name("Value1"));
 
-        assert_eq!(map.args.len(), orig_len);
-        assert_eq!(
-            map.get(&Long(OsString::from("One"))),
-            map.get(&Long(OsString::from("Two")))
-        );
+        assert_eq!(map.args.len(), orig_len + 1/* , "Len changed" */);
+        // assert_eq!(
+        //     map.get(&Long(OsString::from("One"))),
+        //     map.get(&Long(OsString::from("Two")))
+        // );
     }
 
     //    #[test]

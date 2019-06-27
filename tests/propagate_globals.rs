@@ -12,7 +12,7 @@ mod tests {
                 Arg::with_name("GLOBAL_ARG")
                     .long("global-arg")
                     .help("Specifies something needed by the subcommands")
-                    .setting(ArgSettings::Global)
+                    .global(true)
                     .setting(ArgSettings::TakesValue)
                     .default_value("default_value"),
             )
@@ -20,8 +20,8 @@ mod tests {
                 Arg::with_name("GLOBAL_FLAG")
                     .long("global-flag")
                     .help("Specifies something needed by the subcommands")
-                    .setting(ArgSettings::MultipleOccurrences)
-                    .setting(ArgSettings::Global),
+                    .global(true)
+                    .setting(ArgSettings::MultipleOccurrences),
             )
             .subcommand(App::new("outer").subcommand(App::new("inner")))
     }

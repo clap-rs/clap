@@ -625,9 +625,9 @@ requires:
 - r4";
         let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
         let g = ArgGroup::from_yaml(yml);
-        let args = vec!["a1", "a4", "a2", "a3"];
-        let reqs = vec!["r1", "r2", "r3", "r4"];
-        let confs = vec!["c1", "c2", "c3", "c4"];
+        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
+        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
+        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
         assert_eq!(g.conflicts, Some(confs));

@@ -1,6 +1,5 @@
 // Std
 #[allow(unused_imports)]
-use std::ascii::AsciiExt;
 use std::ops::BitOr;
 use std::str::FromStr;
 
@@ -62,7 +61,6 @@ impl Default for AppFlags {
     fn default() -> Self { AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO) }
 }
 
-#[allow(deprecated)]
 impl AppFlags {
     pub fn new() -> Self { AppFlags::default() }
     pub fn zeroed() -> Self { AppFlags(Flags::empty()) }
@@ -91,7 +89,6 @@ impl AppFlags {
         NoAutoHelp => Flags::NO_AUTO_HELP,
         NoAutoVersion => Flags::NO_AUTO_VERSION,
         NoBinaryName => Flags::NO_BIN_NAME,
-        PropagateGlobalValuesDown=> Flags::PROPAGATE_VALS_DOWN,
         StrictUtf8 => Flags::UTF8_STRICT,
         SubcommandsNegateReqs => Flags::SC_NEGATE_REQS,
         SubcommandRequired => Flags::SC_REQUIRED,
@@ -669,45 +666,6 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     NextLineHelp,
-
-    /// **DEPRECATED**: This setting is no longer required in order to propagate values up or down
-    ///
-    /// Specifies that the parser should propagate global arg's values down or up through any *used*
-    /// child subcommands. Meaning, if a subcommand wasn't used, the values won't be propagated to
-    /// said subcommand.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, };
-    /// let m = App::new("myprog")
-    ///     .arg(Arg::from("[cmd] 'command to run'")
-    ///         .global(true))
-    ///     .subcommand(App::new("foo"))
-    ///     .get_matches_from(vec!["myprog", "set", "foo"]);
-    ///
-    /// assert_eq!(m.value_of("cmd"), Some("set"));
-    ///
-    /// let sub_m = m.subcommand_matches("foo").unwrap();
-    /// assert_eq!(sub_m.value_of("cmd"), Some("set"));
-    /// ```
-    /// Now doing the same thing, but *not* using any subcommands will result in the value not being
-    /// propagated down.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, };
-    /// let m = App::new("myprog")
-    ///     .arg(Arg::from("[cmd] 'command to run'")
-    ///         .global(true))
-    ///     .subcommand(App::new("foo"))
-    ///     .get_matches_from(vec!["myprog", "set"]);
-    ///
-    /// assert_eq!(m.value_of("cmd"), Some("set"));
-    ///
-    /// assert!(m.subcommand_matches("foo").is_none());
-    /// ```
-    #[deprecated(since = "2.27.0", note = "No longer required to propagate values")]
-    PropagateGlobalValuesDown,
 
     /// Allows [``]s to override all requirements of the parent command.
     /// For example if you had a subcommand or top level application with a required argument
