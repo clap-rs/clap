@@ -555,6 +555,12 @@ extern crate unicode_width;
 extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
+#[cfg(test)]
+#[macro_use]
+extern crate doc_comment;
+
+#[cfg(test)]
+doctest!("../README.md");
 
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
