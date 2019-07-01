@@ -46,6 +46,7 @@ For more information try --help";
 static DYM_ARG: &'static str =
     "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+If you tried to supply `--subcm` as a PATTERN use `-- --subcm`
 
 USAGE:
     dym [SUBCOMMAND]

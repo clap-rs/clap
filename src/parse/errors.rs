@@ -852,19 +852,26 @@ impl Error {
             use_stderr: true,
             when: color,
         });
+
+        let suggest_pattern = format!("If you tried to supply `{}` as a PATTERN use `-- {}`", a, a);
+
+        let did_you_mean_message = if did_you_mean.is_empty() {
+            "\n".to_owned()
+        } else {
+            format!("{}\n", did_you_mean)
+        };
+
         Error {
             message: format!(
                 "{} Found argument '{}' which wasn't expected, or isn't valid in \
-                 this context{}\n\
+                 this context{}\
+                 {}\n\n\
                  {}\n\n\
                  For more information try {}",
                 c.error("error:"),
                 c.warning(&*a),
-                if did_you_mean.is_empty() {
-                    "\n".to_owned()
-                } else {
-                    format!("{}\n", did_you_mean)
-                },
+                did_you_mean_message,
+                suggest_pattern,
                 usage,
                 c.good("--help")
             ),
