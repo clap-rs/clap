@@ -8,9 +8,9 @@ impl _StrExt for str {
         if index == self.len() {
             return true;
         }
-        match self.as_bytes().get(index) {
-            None => false,
-            Some(&b) => b < 128 || b >= 192,
-        }
+
+        self.as_bytes()
+            .get(index)
+            .map_or(false, |&b| b < 128 || b >= 192)
     }
 }
