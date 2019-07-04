@@ -459,7 +459,7 @@ where
                                 {
                                     return Err(ClapError::unknown_argument(
                                         &*arg_os.to_string_lossy(),
-                                        "",
+                                        None,
                                         &*Usage::new(self).create_usage_with_title(&[]),
                                         self.app.color(),
                                     ));
@@ -578,7 +578,7 @@ where
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
                         &*arg_os.to_string_lossy(),
-                        "",
+                        None,
                         &*Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
                     ));
@@ -652,7 +652,7 @@ where
             {
                 return Err(ClapError::unknown_argument(
                     &*arg_os.to_string_lossy(),
-                    "",
+                    None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 ));
@@ -677,7 +677,7 @@ where
             } else {
                 return Err(ClapError::unknown_argument(
                     &*arg_os.to_string_lossy(),
-                    "",
+                    None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 ));
@@ -1129,7 +1129,7 @@ where
                 let arg = format!("-{}", c);
                 return Err(ClapError::unknown_argument(
                     &*arg,
-                    "",
+                    None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 ));
@@ -1499,9 +1499,16 @@ where
             })
             .cloned()
             .collect();
+
+        let did_you_mean_msg = if suffix.0.is_empty() {
+            None
+        } else {
+            Some(suffix.0)
+        };
+
         Err(ClapError::unknown_argument(
             &*format!("--{}", arg),
-            &*suffix.0,
+            did_you_mean_msg,
             &*Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
         ))

@@ -842,7 +842,7 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn unknown_argument<A, U>(arg: A, did_you_mean: &str, usage: U, color: ColorWhen) -> Self
+    pub fn unknown_argument<A, U>(arg: A, did_you_mean: Option<String>, usage: U, color: ColorWhen) -> Self
     where
         A: Into<String>,
         U: Display,
@@ -852,19 +852,25 @@ impl Error {
             use_stderr: true,
             when: color,
         });
+
+        let suggest_pattern = format!("If you tried to supply `{}` as a PATTERN use `-- {}`", a, a);
+
+        let did_you_mean_message = match did_you_mean {
+            Some(s) => format!("{}\n", s),
+            _ => "\n".to_owned()
+        };
+
         Error {
             message: format!(
                 "{} Found argument '{}' which wasn't expected, or isn't valid in \
-                 this context{}\n\
+                 this context{}\
+                 {}\n\n\
                  {}\n\n\
                  For more information try {}",
                 c.error("error:"),
                 c.warning(&*a),
-                if did_you_mean.is_empty() {
-                    "\n".to_owned()
-                } else {
-                    format!("{}\n", did_you_mean)
-                },
+                did_you_mean_message,
+                suggest_pattern,
                 usage,
                 c.good("--help")
             ),
