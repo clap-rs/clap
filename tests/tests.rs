@@ -1,7 +1,10 @@
 #[macro_use]
 extern crate clap;
 extern crate regex;
+#[macro_use]
+extern crate serde;
 
+use serde::Serialize;
 use std::io::Write;
 use std::str;
 
@@ -218,6 +221,42 @@ arg_enum!{
         ValTwo
     }
 }
+// Test enums with derive macro helper attributes.
+// We use serde to test, as it is the most common dependency. We could also define our own test macro,
+// but we can't really use procedural macros from the same crate that define them, so we would have
+// to change the organization quite a bit.
+arg_enum!{
+    #[derive(Serialize)]
+    pub enum ValAttr1a {
+        #[serde(rename = "RenamedValOne")]
+        ValOne,
+        ValTwo
+    }
+}
+arg_enum!{
+    #[derive(Serialize)]
+    pub enum ValAttr1b {
+        ValOne,
+        #[serde(rename = "RenamedValTwo")]
+        ValTwo
+    }
+}
+arg_enum!{
+    #[derive(Serialize)]
+    enum ValAttr2a {
+        #[serde(rename = "RenamedValOne")]
+        ValOne,
+        ValTwo
+    }
+}
+arg_enum!{
+    #[derive(Serialize)]
+    enum ValAttr2b {
+        ValOne,
+        #[serde(rename = "RenamedValTwo")]
+        ValTwo
+    }
+}
 
 #[test]
 fn test_enums() {
@@ -264,26 +303,72 @@ fn test_enums() {
         Val4::ValOne => (),
         _ => panic!("Val1 didn't parse correctly"),
     }
+    // Helper attributes
+    let v1_lp = v1_lower.parse::<ValAttr1a>().unwrap();
+    let v1_cp = v1_camel.parse::<ValAttr1a>().unwrap();
+    match v1_lp {
+        ValAttr1a::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    match v1_cp {
+        ValAttr1a::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    let v1_lp = v1_lower.parse::<ValAttr1b>().unwrap();
+    let v1_cp = v1_camel.parse::<ValAttr1b>().unwrap();
+    match v1_lp {
+        ValAttr1b::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    match v1_cp {
+        ValAttr1b::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    let v1_lp = v1_lower.parse::<ValAttr2a>().unwrap();
+    let v1_cp = v1_camel.parse::<ValAttr2a>().unwrap();
+    match v1_lp {
+        ValAttr2a::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    match v1_cp {
+        ValAttr2a::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+        let v1_lp = v1_lower.parse::<ValAttr2b>().unwrap();
+    let v1_cp = v1_camel.parse::<ValAttr2b>().unwrap();
+    match v1_lp {
+        ValAttr2b::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
+    match v1_cp {
+        ValAttr2b::ValOne => (),
+        _ => panic!("Val1 didn't parse correctly"),
+    }
 }
 
 #[test]
 fn create_app() {
-    let _ =
-        App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches_from(vec![""]);
+    let _ = App::new("test")
+        .version("1.0")
+        .author("kevin")
+        .about("does awesome things")
+        .get_matches_from(vec![""]);
 }
 
 #[test]
 fn add_multiple_arg() {
     let _ = App::new("test")
-                .args(&[
-                    Arg::with_name("test").short("s"),
-                    Arg::with_name("test2").short("l")])
-                .get_matches_from(vec![""]);
+        .args(&[
+            Arg::with_name("test").short("s"),
+            Arg::with_name("test2").short("l"),
+        ])
+        .get_matches_from(vec![""]);
 }
 #[test]
 fn flag_x2_opt() {
-    check_complex_output("clap-test value -f -f -o some",
-"flag present 2 times
+    check_complex_output(
+        "clap-test value -f -f -o some",
+        "flag present 2 times
 option present 1 times with value: some
 An option: some
 positional present with value: value

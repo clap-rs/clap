@@ -345,63 +345,43 @@ macro_rules! arg_enum {
             }
         });
     };
-    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+    // The following matches only when the last enum variant has no trailing comma
+    ($(#[$($m:meta),+])* pub enum $e:ident { $($(#[$($helper_m:meta),+])* $v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
-            ($(#[$($m),+])+
+            ($(#[$($m),+])*
             pub enum $e {
-                $($v$(=$val)*),+
+                $($(#[$($helper_m),+])*
+                $v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+    // The following matches also when the last enum variant has a trailing comma
+    ($(#[$($m:meta),+])* pub enum $e:ident { $($(#[$($helper_m:meta),+])* $v:ident $(=$val:expr)*,)+ } ) => {
         arg_enum!(@impls
-            ($(#[$($m),+])+
+            ($(#[$($m),+])*
             pub enum $e {
-                $($v$(=$val)*),+
+                $($(#[$($helper_m),+])*
+                $v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+    // The following matches only when the last enum variant has no trailing comma
+    ($(#[$($m:meta),+])* enum $e:ident { $($(#[$($helper_m:meta),+])* $v:ident $(=$val:expr)*),+ } ) => {
         arg_enum!(@impls
-            ($(#[$($m),+])+
-             enum $e {
-                 $($v$(=$val)*),+
-             }) -> ($e, $($v),+)
-        );
-    };
-    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
-        arg_enum!(@impls
-            ($(#[$($m),+])+
-            enum $e {
-                $($v$(=$val)*),+
+            ($(#[$($m),+])*
+            pub enum $e {
+                $($(#[$($helper_m),+])*
+                $v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };
-    (pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+    // The following matches also when the last enum variant has a trailing comma
+    ($(#[$($m:meta),+])* enum $e:ident { $($(#[$($helper_m:meta),+])* $v:ident $(=$val:expr)*,)+ } ) => {
         arg_enum!(@impls
-            (pub enum $e {
-                $($v$(=$val)*),+
-            }) -> ($e, $($v),+)
-        );
-    };
-    (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
-        arg_enum!(@impls
-            (pub enum $e {
-                $($v$(=$val)*),+
-            }) -> ($e, $($v),+)
-        );
-    };
-    (enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
-        arg_enum!(@impls
-            (enum $e {
-                $($v$(=$val)*),+
-            }) -> ($e, $($v),+)
-        );
-    };
-    (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
-        arg_enum!(@impls
-            (enum $e {
-                $($v$(=$val)*),+
+            ($(#[$($m),+])*
+            pub enum $e {
+                $($(#[$($helper_m),+])*
+                $v$(=$val)*),+
             }) -> ($e, $($v),+)
         );
     };

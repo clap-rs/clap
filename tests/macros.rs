@@ -388,4 +388,15 @@ fn arg_enum() {
             }
         }
     };
+    // meta YES, pub YES, trailing comma YES, multiple attributes
+    test_greek_meta! {
+        arg_enum!{
+            #[derive(Debug, PartialEq)]
+            #[derive(Copy, Clone)]
+            pub enum Greek {
+                Alpha,
+                Bravo,
+            }
+        }
+    };
 }
