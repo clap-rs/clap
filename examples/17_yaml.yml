@@ -82,7 +82,7 @@ subcommands:
                 help: example subcommand positional
                 index: 1
 
-# ArgGroups are supported as well, and must be sepcified in the 'groups:'
+# ArgGroups are supported as well, and must be specified in the 'groups:'
 # object of this file
 groups:
     # the name of the ArgGoup is specified here
