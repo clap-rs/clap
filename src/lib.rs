@@ -544,6 +544,7 @@ extern crate bitflags;
 #[cfg_attr(feature = "derive", allow(unused_imports))]
 #[cfg_attr(feature = "derive", macro_use)]
 extern crate clap_derive;
+extern crate nom;
 extern crate indexmap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
