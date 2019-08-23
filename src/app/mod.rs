@@ -16,6 +16,7 @@ use std::rc::Rc;
 use std::result::Result as StdResult;
 
 // Third Party
+use ansi_term;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -78,6 +79,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     pub fn new<S: Into<String>>(n: S) -> Self {
+        ansi_term::enable_ansi_support();
         App {
             p: Parser::with_name(n.into()),
         }

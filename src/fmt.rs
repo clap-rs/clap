@@ -1,7 +1,7 @@
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 use ansi_term::ANSIString;
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 use ansi_term::Colour::{Green, Red, Yellow};
 
 #[cfg(feature = "color")]
@@ -127,7 +127,7 @@ pub enum Format<T> {
     None(T),
 }
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 impl<T: AsRef<str>> Format<T> {
     fn format(&self) -> ANSIString {
         match *self {
@@ -139,31 +139,31 @@ impl<T: AsRef<str>> Format<T> {
     }
 }
 
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
-#[cfg_attr(feature = "lints", allow(match_same_arms))]
-impl<T: fmt::Display> Format<T> {
-    fn format(&self) -> &T {
-        match *self {
-            Format::Error(ref e) => e,
-            Format::Warning(ref e) => e,
-            Format::Good(ref e) => e,
-            Format::None(ref e) => e,
-        }
-    }
-}
+// #[cfg(any(not(feature = "color"), target_os = "windows"))]
+// #[cfg_attr(feature = "lints", allow(match_same_arms))]
+// impl<T: fmt::Display> Format<T> {
+//     fn format(&self) -> &T {
+//         match *self {
+//             Format::Error(ref e) => e,
+//             Format::Warning(ref e) => e,
+//             Format::Good(ref e) => e,
+//             Format::None(ref e) => e,
+//         }
+//     }
+// }
 
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", &self.format()) }
 }
 
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
-impl<T: fmt::Display> fmt::Display for Format<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", &self.format()) }
-}
+// #[cfg(any(not(feature = "color"), target_os = "windows"))]
+// impl<T: fmt::Display> fmt::Display for Format<T> {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", &self.format()) }
+// }
 
-#[cfg(all(test, feature = "color", not(target_os = "windows")))]
+#[cfg(all(test, feature = "color"))]
 mod test {
     use ansi_term::ANSIString;
     use ansi_term::Colour::{Green, Red, Yellow};
