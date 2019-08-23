@@ -87,7 +87,7 @@ where
     }
 
     pub fn help_short(&mut self, s: &str) {
-        let c = s.trim_left_matches(|c| c == '-')
+        let c = s.trim_start_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('h');
@@ -95,7 +95,7 @@ where
     }
 
     pub fn version_short(&mut self, s: &str) {
-        let c = s.trim_left_matches(|c| c == '-')
+        let c = s.trim_start_matches(|c| c == '-')
             .chars()
             .nth(0)
             .unwrap_or('V');
