@@ -28,7 +28,7 @@ bitflags              = "1.0"
 unicode-width         = "0.1.4"
 textwrap              = "0.11.0"
 strsim    = { version = "0.8",  optional = true }
-yaml-rust = { version = "0.3.5",  optional = true }
+yaml-rust = { version = "0.4.3",  optional = true }
 clippy    = { version = "~0.0.166", optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
