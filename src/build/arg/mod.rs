@@ -18,6 +18,7 @@ use crate::util::VecMap;
 use yaml_rust;
 
 // Internal
+use crate::build::arg::{ArgKey, SwitchData};
 use crate::build::UsageParser;
 use crate::util::Key;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
@@ -120,15 +121,13 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub disp_ord: usize,
     #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
-    #[doc(hidden)]
     pub global: bool,
     pub unified_ord: usize,
     #[doc(hidden)]
     pub val_names: Option<VecMap<&'help str>>,
 
     // switch
-    pub key: Key<'help>,
+    pub key: ArgKey<'help>,
 }
 
 impl<'help> Arg<'help> {
@@ -281,7 +280,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short(mut self, s: char) -> Self {
-        self.short = Some(s);
+        self.key.short(s);
         self
     }
 
@@ -325,10 +324,35 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
+    /// Allows adding multiple [`Arg`] longs at once. In the help message each long will be
+    /// displayed normally, with all of it's "aliases" listed in parenthesis.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .longs(&["test", "something", "awesome", "cool"]))
+    ///        .get_matches_from(vec![
+    ///             "prog", "--awesome"
+    ///         ]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::aliases`]: ./struct.Arg.html#method.aliases
+    pub fn longs(mut self, names: &[&'help str]) -> Self {
+        self.key.longs(names);
+        self
+    }
+
+    /// Allows adding an [`Arg`] hidden [long], which function as "hidden" arguments that
     /// automatically dispatch as if this argument was used. This is more efficient, and easier
     /// than creating multiple hidden arguments as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// this command, and not all dummy variants.
+    ///
+    /// These hidden longs will not be displayed or mentioned in the help message as the name
+    /// implies.
     ///
     /// # Examples
     ///
@@ -337,7 +361,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///             .long("test")
-    ///             .alias("alias")
+    ///             .hidden_long("alias")
     ///             .takes_value(true))
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
@@ -346,19 +370,13 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), false));
-        } else {
-            self.aliases = Some(vec![(name.into(), false)]);
-        }
+    /// [long]: ./struct.Arg.html#method.long
+    pub fn hidden_long<S: Into<&'help str>>(mut self, name: S) -> Self {
+        self.key.hidden_long(name);
         self
     }
 
-    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Allows adding [`Arg`] multiple [hidden longs] at once.
     ///
     /// # Examples
     ///
@@ -367,7 +385,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::with_name("test")
     ///                     .long("test")
-    ///                     .aliases(&["do-stuff", "do-tests", "tests"])
+    ///                     .hidden_longs(&["do-stuff", "do-tests", "tests"])
     ///                     .help("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
@@ -376,73 +394,9 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn aliases(mut self, names: &[&'help str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for n in names {
-                als.push((n, false));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|&x| (x, false)).collect());
-        }
-        self
-    }
-
-    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
-    /// [`Arg::alias`], except that they are visible inside the help message.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let m = App::new("prog")
-    ///             .arg(Arg::with_name("test")
-    ///                 .visible_alias("something-awesome")
-    ///                 .long("test")
-    ///                 .takes_value(true))
-    ///        .get_matches_from(vec![
-    ///             "prog", "--something-awesome", "coffee"
-    ///         ]);
-    /// assert!(m.is_present("test"));
-    /// assert_eq!(m.value_of("test"), Some("coffee"));
-    /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::alias`]: ./struct.Arg.html#method.alias
-    pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), true));
-        } else {
-            self.aliases = Some(vec![(name.into(), true)]);
-        }
-        self
-    }
-
-    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
-    /// with [`Arg::aliases`], except that they are visible inside the help message.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let m = App::new("prog")
-    ///             .arg(Arg::with_name("test")
-    ///                 .long("test")
-    ///                 .visible_aliases(&["something", "awesome", "cool"]))
-    ///        .get_matches_from(vec![
-    ///             "prog", "--awesome"
-    ///         ]);
-    /// assert!(m.is_present("test"));
-    /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::aliases`]: ./struct.Arg.html#method.aliases
-    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for n in names {
-                als.push((n, true));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
-        }
-        self
+    /// [hidden longs]: ./struct.Arg.html#method.hidden_long
+    pub fn hidden_longs(mut self, names: &[&'help str]) -> Self {
+        self.key.hidden_longs(names): self
     }
 
     /// Sets the short help text of the argument that will be displayed to the user when they print
@@ -1529,7 +1483,7 @@ impl<'help> Arg<'help> {
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn index(mut self, idx: u64) -> Self {
-        self.index = Some(idx);
+        self.key.index = ArgKey::Index(idx);
         self
     }
 
@@ -4044,6 +3998,8 @@ impl<'help> Arg<'help> {
 
     #[doc(hidden)]
     pub fn has_switch(&self) -> bool { self.key.has_switch() }
+
+    pub fn switch(&self) -> &SwitchData { self.key.switch() }
 
     #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {

@@ -540,6 +540,7 @@ extern crate ansi_term;
 extern crate atty;
 #[macro_use]
 extern crate bitflags;
+extern crate bstr;
 #[cfg(feature = "derive")]
 #[cfg_attr(feature = "derive", allow(unused_imports))]
 #[cfg_attr(feature = "derive", macro_use)]

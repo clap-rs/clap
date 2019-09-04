@@ -1,119 +1,121 @@
+// Third Party
+use bstr::{BStr, BString};
+
+// Internal
 use crate::build::Arg;
-use std::ffi::{OsStr, OsString};
+use crate::util::Key;
 
 type Id = u64;
 
+#[derive(Default, PartialEq, Debug, Clone)]
+pub struct MKeyMap<'b> {
+    pub keys: Vec<MapKey>,
+    pub args: Vec<Arg<'b>>,
+}
+
 #[derive(PartialEq, Debug, Clone)]
-pub struct Key {
-    pub key: KeyType,
+pub struct MapKey {
+    pub key: MapKeyType,
     pub index: usize,
 }
 
-#[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'b> {
-    pub keys: Vec<Key>,
-    pub args: Vec<Arg<'b>>,
-    built: bool, // mutation isn't possible after being built
-}
-
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub enum KeyType {
+pub enum MapKeyType {
+    Id(Id),
     Short(char),
-    Long(OsString),
-    Position(u64),
+    Long(BString),
+    Position(usize),
 }
 
-impl KeyType {
+impl MapKeyType {
     pub(crate) fn is_position(&self) -> bool {
         match *self {
-            KeyType::Position(_) => true,
+            MapKeyType::Position(_) => true,
             _ => false,
         }
     }
 }
 
-impl PartialEq<&str> for KeyType {
-    fn eq(&self, rhs: &&str) -> bool {
+impl PartialEq<usize> for MapKeyType {
+    fn eq(&self, rhs: &usize) -> bool {
         match self {
-            KeyType::Long(ref l) => l == OsStr::new(rhs),
+            MapKeyType::Position(i) => i == rhs,
             _ => false,
         }
     }
 }
 
-impl PartialEq<char> for KeyType {
+impl PartialEq<Id> for MapKeyType {
+    fn eq(&self, rhs: &Id) -> bool {
+        match self {
+            MapKeyType::Id(i) => i == rhs,
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<str> for MapKeyType {
+    fn eq(&self, rhs: &str) -> bool {
+        match self {
+            MapKeyType::Long(ref l) => l == rhs,
+            MapKeyType::Id(i) => i == rhs.key(),
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<char> for MapKeyType {
     fn eq(&self, rhs: &char) -> bool {
         match self {
-            KeyType::Short(c) => c == rhs,
+            MapKeyType::Short(c) => c == rhs,
             _ => false,
         }
     }
+}
+
+impl From<usize> for MapKeyType {
+    fn from(us: usize) -> Self { MapKeyType::Position(us) }
+}
+
+impl From<char> for MapKeyType {
+    fn from(c: char) -> Self { MapKeyType::Short(c) }
+}
+
+impl From<Id> for MapKeyType {
+    fn from(i: Id) -> Self { MapKeyType::Id(i) }
 }
 
 impl<'b> MKeyMap<'b> {
     pub fn new() -> Self { MKeyMap::default() }
-    //TODO ::from(x), ::with_capacity(n) etc
-    //? set theory ops?
 
-    pub fn contains_long(&self, l: &str) -> bool { self.keys.iter().any(|x| x.key == l) }
-
-    pub fn contains_short(&self, c: char) -> bool { self.keys.iter().any(|x| x.key == c) }
-
-    pub fn insert(&mut self, key: KeyType, value: Arg<'b>) -> usize {
-        let index = self.push(value);
-        self.keys.push(Key { key, index });
-        index
-    }
+    pub fn is_empty(&self) -> bool { self.args.is_empty() }
 
     pub fn push(&mut self, value: Arg<'b>) -> usize {
-        if self.built {
-            panic!("Cannot add Args to the map after the map is built");
-        }
-
         let index = self.args.len();
         self.args.push(value);
 
         index
     }
-    //TODO ::push_many([x, y])
 
-    pub fn insert_key(&mut self, key: KeyType, index: usize) {
-        if index >= self.args.len() {
-            panic!("Index out of bounds");
-        }
-
-        self.keys.push(Key { key, index });
-    }
-    //TODO ::insert_keyset([Long, Key2])
-
-    // ! Arg mutation functionality
-
-    pub fn get(&self, key: &KeyType) -> Option<&Arg<'b>> {
-        for k in &self.keys {
-            if &k.key == key {
-                return Some(&self.args[k.index]);
-            }
-        }
-        None
-    }
-    //TODO ::get_first([KeyA, KeyB])
-
-    pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'b>> {
-        for k in &self.keys {
-            if &k.key == key {
-                return self.args.get_mut(k.index);
-            }
-        }
-        None
+    pub fn contains<K: Into<MapKeyType>>(&self, k: K) -> bool {
+        let key = k.into();
+        self.keys.iter().any(|x| x.key == key)
     }
 
-    pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
+    pub fn find<K: Into<MapKeyType>>(&self, k: K) -> Option<&Arg<'b>> {
+        let key = k.into();
+        self.keys
+            .iter()
+            .find(|x| x.key == key)
+            .map(|mk| self.args.get(mk.index))
+    }
 
-    pub fn remove_key(&mut self, key: &KeyType) {
+    pub fn remove_key<K: Into<MapKeyType>>(&mut self, k: K) {
+        let key = k.into();
         let mut idx = None;
-        for (i, k) in self.keys.iter().enumerate() {
+        for k in self.keys.iter() {
             if &k.key == key {
-                idx = Some(i);
+                idx = Some(k.index);
                 break;
             }
         }
@@ -121,65 +123,9 @@ impl<'b> MKeyMap<'b> {
             self.keys.swap_remove(idx);
         }
     }
-    //TODO ::remove_keys([KeyA, KeyB])
 
-    pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
-        let index = self.find_by_name(name);
-
-        self.keys.push(Key { key, index });
-    }
-
-    pub fn _build(&mut self) {
-        self.built = true;
-
-        for (i, arg) in self.args.iter_mut().enumerate() {
-            for k in _get_keys(arg) {
-                self.keys.push(Key { key: k, index: i });
-            }
-        }
-    }
-
-    pub fn make_entries_by_index(&mut self, index: usize) {
-        let short;
-        let positional;
-        let mut longs: Vec<_>;
-
-        {
-            let arg = &self.args[index];
-            short = arg.short.map(KeyType::Short);
-            positional = arg.index.map(KeyType::Position);
-
-            longs = arg
-                .aliases
-                .clone()
-                .map(|v| {
-                    v.iter()
-                        .map(|(n, _)| KeyType::Long(OsString::from(n)))
-                        .collect()
-                })
-                .unwrap_or_default();
-            longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
-        }
-
-        if let Some(s) = short {
-            self.insert_key(s, index)
-        }
-        if let Some(p) = positional {
-            self.insert_key(p, index)
-        }
-    }
-
-    pub fn find_by_name(&mut self, name: &str) -> usize {
-        self.args
-            .iter()
-            .position(|x| x.name == name)
-            .expect("No such name found")
-    }
-
-    pub fn remove(&mut self, key: &KeyType) -> Option<Arg<'b>> {
-        if self.built {
-            panic!("Cannot remove args after being built");
-        }
+    pub fn remove<K: Into<MapKeyType>>(&mut self, k: K) -> Option<Arg<'b>> {
+        let key = k.into();
         let mut idx = None;
         for k in self.keys.iter() {
             if &k.key == key {
@@ -189,7 +135,7 @@ impl<'b> MKeyMap<'b> {
         }
         if let Some(idx) = idx {
             let arg = self.args.swap_remove(idx);
-            for key in _get_keys(&arg) {
+            for key in get_keys(&arg) {
                 self.remove_key(&key);
             }
             return Some(arg);
@@ -197,22 +143,40 @@ impl<'b> MKeyMap<'b> {
         None
     }
 
-    //TODO ::remove_many([KeyA, KeyB])
-    //? probably shouldn't add a possibility for removal?
-    //? or remove by replacement by some dummy object, so the order is preserved
-
-    pub fn remove_by_name(&mut self, _name: Id) -> Option<Arg<'b>> {
-        if self.built {
-            panic!("Cannot remove args after being built");
+    pub fn _build(&mut self) {
+        let mut counter = 0;
+        for (i, arg) in self.args.iter_mut().enumerate() {
+            for k in get_keys(arg) {
+                self.keys.push(MapKey { key: k, index: i });
+            }
+            if arg.arg_key() == ArgKey::Unset {
+                a.index(counter);
+                counter += 1;
+            }
         }
+    }
+
+    pub fn find_by_name(&self, name: &str) -> Option<&Arg<'b>> {
+        let key: MapKeyType = name.key().into();
+        self.keys
+            .iter()
+            .find(|x| x.key == key)
+            .map(|mk| self.args.get(mk.index))
+    }
+
+    pub fn remove_by_name(&mut self, name: &str) -> Option<Arg<'b>> {
+        let key: MapKeyType = name.key().into();
         let mut index = None;
-        for (i, arg) in self.args.iter().enumerate() {
-            if arg.id == _name {
-                index = Some(i);
+        for k in self.keys.iter() {
+            if k.key == key {
+                index = Some(k.index);
                 break;
             }
         }
         if let Some(i) = index {
+            for key in get_keys(&arg) {
+                self.remove_key(&key);
+            }
             Some(self.args.swap_remove(i))
         } else {
             None
@@ -220,43 +184,36 @@ impl<'b> MKeyMap<'b> {
     }
 }
 
-fn _get_keys(arg: &Arg) -> Vec<KeyType> {
+fn get_keys(arg: &Arg) -> Vec<MapKeyType> {
+    let mut keys = vec![arg.id.into()];
     if let Some(index) = arg.index {
-        return vec![KeyType::Position(index)];
+        keys.push(index.into());
+        return keys;
     }
 
-    let mut keys = vec![];
-    if let Some(c) = arg.short {
-        keys.push(KeyType::Short(c));
+    let sd = arg.switch();
+    if let Some(s) = sd.short() {
+        keys.push(s.into());
     }
-    if let Some(ref aliases) = arg.aliases {
-        for long in aliases
-            .iter()
-            .map(|(a, _)| KeyType::Long(OsString::from(a)))
-        {
-            keys.push(long);
-        }
+    for l in sd.all_longs() {
+        keys.push(l.into());
     }
-    if let Some(long) = arg.long {
-        keys.push(KeyType::Long(OsString::from(long)));
-    }
-
     keys
 }
 
 #[cfg(test)]
 mod tests {
-    use self::KeyType::*;
+    use self::MapKeyType::*;
     use super::*;
 
     #[test]
     fn get_some_value() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
         assert_eq!(
-            map.get(&Long(OsString::from("One"))),
+            map.get(&Long(BString::from("One"))),
             Some(&Arg::with_name("Value1"))
         );
     }
@@ -265,10 +222,10 @@ mod tests {
     fn get_none_value() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
-        map.get(&Long(OsString::from("Two")));
+        map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
+        map.get(&Long(BString::from("Two")));
 
-        assert_eq!(map.get(&Long(OsString::from("Two"))), None);
+        assert_eq!(map.get(&Long(BString::from("Two"))), None);
     }
 
     //    #[test]
@@ -283,10 +240,10 @@ mod tests {
     fn insert_duplicate_key() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
         assert_eq!(
-            map.insert(Long(OsString::from("One")), Arg::with_name("Value2")),
+            map.insert(Long(BString::from("One")), Arg::with_name("Value2")),
             1
         );
     }
@@ -296,16 +253,16 @@ mod tests {
     fn insert_duplicate_value() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
         let orig_len = map.args.len();
 
-        map.insert(Long(OsString::from("Two")), Arg::with_name("Value1"));
+        map.insert(Long(BString::from("Two")), Arg::with_name("Value1"));
 
-        assert_eq!(map.args.len(), orig_len + 1/* , "Len changed" */);
+        assert_eq!(map.args.len(), orig_len + 1 /* , "Len changed" */);
         // assert_eq!(
-        //     map.get(&Long(OsString::from("One"))),
-        //     map.get(&Long(OsString::from("Two")))
+        //     map.get(&Long(BString::from("One"))),
+        //     map.get(&Long(BString::from("Two")))
         // );
     }
 
@@ -321,13 +278,13 @@ mod tests {
     #[test]
     fn insert_multiple_keys() {
         let mut map: MKeyMap = MKeyMap::new();
-        let index = map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        let index = map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
-        map.insert_key(Long(OsString::from("Two")), index);
+        map.insert_key(Long(BString::from("Two")), index);
 
         assert_eq!(
-            map.get(&Long(OsString::from("One"))),
-            map.get(&Long(OsString::from("Two")))
+            map.get(&Long(BString::from("One"))),
+            map.get(&Long(BString::from("Two")))
         );
         assert_eq!(map.args.len(), 1);
     }
@@ -335,13 +292,13 @@ mod tests {
     // #[test]
     // fn insert_by_name() {
     //     let mut map: MKeyMap<Arg> = MKeyMap::new();
-    //     let index = map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+    //     let index = map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
-    //     map.insert_key_by_name(Long(OsString::from("Two")), "Value1");
+    //     map.insert_key_by_name(Long(BString::from("Two")), "Value1");
 
     //     assert_eq!(
-    //         map.get(Long(OsString::from("One"))),
-    //         map.get(Long(OsString::from("Two")))
+    //         map.get(Long(BString::from("One"))),
+    //         map.get(Long(BString::from("Two")))
     //     );
     //     assert_eq!(map.values.len(), 1);
     // }
@@ -350,10 +307,10 @@ mod tests {
     fn get_mutable() {
         let mut map: MKeyMap = MKeyMap::new();
 
-        map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
         assert_eq!(
-            map.get_mut(&Long(OsString::from("One"))),
+            map.get_mut(&Long(BString::from("One"))),
             Some(&mut Arg::with_name("Value1"))
         );
     }
@@ -361,10 +318,10 @@ mod tests {
     #[test]
     fn remove_key() {
         let mut map: MKeyMap = MKeyMap::new();
-        let index = map.insert(Long(OsString::from("One")), Arg::with_name("Value1"));
+        let index = map.insert(Long(BString::from("One")), Arg::with_name("Value1"));
 
-        map.insert_key(Long(OsString::from("Two")), index);
-        map.remove_key(&Long(OsString::from("One")));
+        map.insert_key(Long(BString::from("Two")), index);
+        map.remove_key(&Long(BString::from("One")));
 
         assert_eq!(map.keys.len(), 1);
         assert_eq!(map.args.len(), 1);

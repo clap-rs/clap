@@ -48,6 +48,7 @@ is-it-maintained-open-issues = { repository = "clap-rs/clap" }
 maintenance = {status = "actively-developed"}
 
 [dependencies]
+bstr                  = "0.2.8"
 bitflags              = "1.0"
 unicode-width         = "0.1.4"
 textwrap              = "0.11"

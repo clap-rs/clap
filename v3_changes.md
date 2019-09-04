@@ -14,6 +14,8 @@
 * Instead of adding arg with long `--help` or `--version` you can use `App::mut_arg` to override things
   * Caution, must fully override
   * No longer forces auto-handle of help/ver however if still desired `AppSettings::NoAuto{Help,Version}`
+* `Arg::alias` -> `Arg::hidden_long`
+* `Arg::visible_alias` -> `Arg::long`
 
 # How to Upgrade
 

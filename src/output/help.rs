@@ -48,7 +48,12 @@ pub struct Help<'b, 'c, 'd, 'w> {
 // Public Functions
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(w: &'w mut dyn Write, parser: &'d Parser<'b, 'c>, use_long: bool, stderr: bool) -> Self {
+    pub fn new(
+        w: &'w mut dyn Write,
+        parser: &'d Parser<'b, 'c>,
+        use_long: bool,
+        stderr: bool,
+    ) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,

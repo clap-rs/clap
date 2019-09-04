@@ -1,14 +1,11 @@
 // Std
 use std::cell::Cell;
-use std::ffi::{OsStr, OsString};
 use std::io::{self, BufWriter, Write};
 use std::iter::Peekable;
 use std::mem;
-#[cfg(all(
-    feature = "debug",
-    not(any(target_os = "windows", target_arch = "wasm32"))
-))]
-use std::os::unix::ffi::OsStrExt;
+
+// Third Party
+use bstr::{BStr, BString};
 
 // Internal
 use crate::build::app::Propagation;
@@ -23,9 +20,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
-#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
-use crate::util::OsStrExt3;
+use crate::util::{self, ChildGraph, Key, EMPTY_HASH};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -151,16 +146,12 @@ where
 
             // We can't pass the closure (it.next()) to the macro directly because each call to
             // find() (iterator, not macro) gets called repeatedly.
-            let last = self
-                .app
-                .args
-                .get(&KeyType::Position(highest_idx))
-                .expect(INTERNAL_ERROR_MSG);
+            let last = self.app.args.find(highest_idx).expect(INTERNAL_ERROR_MSG);
 
             let second_to_last = self
                 .app
                 .args
-                .get(&KeyType::Position(highest_idx - 1))
+                .find(highest_idx - 1)
                 .expect(INTERNAL_ERROR_MSG);
 
             // Either the final positional is required
@@ -364,7 +355,7 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[allow(clippy::cyclomatic_complexity)]
+    #[allow(clippy::cognitive_complexity)]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -372,7 +363,7 @@ where
     ) -> ClapResult<()>
     where
         I: Iterator<Item = T>,
-        T: Into<OsString> + Clone,
+        T: Into<BString> + Clone,
     {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
@@ -437,9 +428,7 @@ where
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
@@ -465,9 +454,7 @@ where
                                     ));
                                 }
                             }
-                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     }
@@ -716,16 +703,11 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
+    fn possible_subcommand(&self, arg_os: &BStr) -> (bool, Option<&str>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
-        fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(target_os = "windows")]
-            use crate::util::OsStrExt3;
-            #[cfg(not(target_os = "windows"))]
-            use std::os::unix::ffi::OsStrExt;
-
+        fn starts(h: &str, n: &BStr) -> bool {
             let n_bytes = n.as_bytes();
-            let h_bytes = OsStr::new(h).as_bytes();
+            let h_bytes = BStr::from(h).as_bytes();
 
             h_bytes.starts_with(n_bytes)
         }
@@ -752,10 +734,10 @@ where
     fn parse_help_subcommand<I, T>(&self, it: &mut I) -> ClapResult<ParseResult>
     where
         I: Iterator<Item = T>,
-        T: Into<OsString>,
+        T: Into<BString>,
     {
         debugln!("Parser::parse_help_subcommand;");
-        let cmds: Vec<OsString> = it.map(Into::into).collect();
+        let cmds: Vec<BString> = it.map(Into::into).collect();
         let mut help_help = false;
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
         let mut sc = {
@@ -813,7 +795,7 @@ where
 
     // allow wrong self convention due to self.valid_neg_num = true and it's a private method
     #[allow(clippy::wrong_self_convention)]
-    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
+    fn is_new_arg(&mut self, arg_os: &BStr, needs_val_of: ParseResult) -> bool {
         debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
             true
@@ -874,7 +856,7 @@ where
     ) -> ClapResult<()>
     where
         I: Iterator<Item = T>,
-        T: Into<OsString> + Clone,
+        T: Into<BString> + Clone,
     {
         use std::fmt::Write;
         debugln!("Parser::parse_subcommand;");
@@ -933,7 +915,7 @@ where
 
     // Retrieves the names of all args the user has supplied thus far, except required ones
     // because those will be listed in self.required
-    fn check_for_help_and_version_str(&self, arg: &OsStr) -> ClapResult<()> {
+    fn check_for_help_and_version_str(&self, arg: &BStr) -> ClapResult<()> {
         debugln!("Parser::check_for_help_and_version_str;");
         debug!(
             "Parser::check_for_help_and_version_str: Checking if --{} is help or version...",
@@ -964,7 +946,7 @@ where
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
         if let Some(help) = self.app.find(util::HELP_HASH) {
-            if let Some(h) = help.short {
+            if let Some(h) = help.switch().short() {
                 if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
                     sdebugln!("Help");
                     return Err(self.help_err(false));
@@ -972,7 +954,7 @@ where
             }
         }
         if let Some(version) = self.app.find(util::VERSION_HASH) {
-            if let Some(v) = version.short {
+            if let Some(v) = version.switch().short() {
                 if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
                     sdebugln!("Version");
                     return Err(self.version_err(false));
@@ -1003,7 +985,7 @@ where
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &OsStr,
+        full_arg: &BStr,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debugln!("Parser::parse_long_arg;");
@@ -1053,7 +1035,7 @@ where
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &OsStr,
+        full_arg: &BStr,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_left_matches(b'-');
@@ -1140,7 +1122,7 @@ where
 
     fn parse_opt(
         &self,
-        val: Option<&OsStr>,
+        val: Option<&BStr>,
         opt: &Arg<'b>,
         had_eq: bool,
         matcher: &mut ArgMatcher,
@@ -1206,7 +1188,7 @@ where
     fn add_val_to_arg(
         &self,
         arg: &Arg<'b>,
-        val: &OsStr,
+        val: &BStr,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
@@ -1243,7 +1225,7 @@ where
     fn add_single_val_to_arg(
         &self,
         arg: &Arg<'b>,
-        v: &OsStr,
+        v: &BStr,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::add_single_val_to_arg;");
@@ -1377,7 +1359,7 @@ where
                             "Parser::add_defaults:iter:{}: has no user defined vals",
                             $a.name
                         );
-                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+                        $_self.add_val_to_arg($a, BStr::from(val), $m)?;
                     } else if $m.get($a.id).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
@@ -1386,7 +1368,7 @@ where
                     } else {
                         debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
 
-                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+                        $_self.add_val_to_arg($a, BStr::from(val), $m)?;
                     }
                 } else {
                     debugln!(
@@ -1411,7 +1393,7 @@ where
                                 false
                             };
                             if add {
-                                $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
+                                $_self.add_val_to_arg($a, BStr::from(default), $m)?;
                                 done = true;
                                 break;
                             }
@@ -1443,7 +1425,7 @@ where
         for a in self.app.args.args.iter() {
             if let Some(ref val) = a.env {
                 if let Some(ref val) = val.1 {
-                    self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+                    self.add_val_to_arg(a, BStr::from(val), matcher)?;
                 }
             }
         }
@@ -1480,7 +1462,7 @@ where
 
         // Add the arg to the matches to build a proper usage string
         if let Some(ref name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(&KeyType::Long(OsString::from(name))) {
+            if let Some(opt) = self.app.args.get(&KeyType::Long(BString::from(name))) {
                 for g in groups_for_arg!(self.app, opt.id) {
                     matcher.inc_occurrence_of(g);
                 }
