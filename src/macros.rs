@@ -1000,9 +1000,9 @@ macro_rules! find_subcmd {
 
 macro_rules! longs {
     ($app:expr) => {{
-        use crate::mkeymap::KeyType;
+        use crate::mkeymap::MapKeyKind;
         $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
-            if let KeyType::Long(v) = a {
+            if let MapKeyKind::Long(v) = a {
                 Some(v)
             } else {
                 None

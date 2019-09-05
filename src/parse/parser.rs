@@ -11,7 +11,7 @@ use bstr::{BStr, BString};
 use crate::build::app::Propagation;
 use crate::build::AppSettings as AS;
 use crate::build::{App, Arg, ArgSettings};
-use crate::mkeymap::KeyType;
+use crate::mkeymap::MapKeyKind;
 use crate::output::Help;
 use crate::output::Usage;
 use crate::parse::errors::Error as ClapError;
@@ -20,7 +20,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-use crate::util::{self, ChildGraph, Key, EMPTY_HASH};
+use crate::util::{self, ChildGraph, FnvHash, EMPTY_HASH};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -99,7 +99,7 @@ where
             .iter()
             .map(|x| &x.key)
             .filter_map(|x| {
-                if let KeyType::Position(n) = x {
+                if let MapKeyKind::Position(n) = x {
                     Some(n)
                 } else {
                     None
@@ -117,7 +117,7 @@ where
             .iter()
             .map(|x| &x.key)
             .filter(|x| {
-                if let KeyType::Position(_) = x {
+                if let MapKeyKind::Position(_) = x {
                     true
                 } else {
                     false
@@ -235,7 +235,7 @@ where
             let mut found = false;
             for p in (1..=num_p)
                 .rev()
-                .filter_map(|n| self.app.args.get(&KeyType::Position(n as u64)))
+                .filter_map(|n| self.app.args.get(&MapKeyKind::Position(n as u64)))
             {
                 if found {
                     assert!(
@@ -284,13 +284,13 @@ where
         debugln!("Parser::_build;");
 
         //I wonder whether this part is even needed if we insert all Args using make_entries
-        let mut key: Vec<(KeyType, usize)> = Vec::new();
+        let mut key: Vec<(MapKeyKind, usize)> = Vec::new();
         let mut counter = 0;
         for (i, a) in self.app.args.args.iter_mut().enumerate() {
             if a.index == None && a.short == None && a.long == None {
                 counter += 1;
                 a.index = Some(counter);
-                key.push((KeyType::Position(counter), i));
+                key.push((MapKeyKind::Position(counter), i));
             }
 
             // Add args with default requirements
@@ -492,7 +492,7 @@ where
                 .iter()
                 .map(|x| &x.key)
                 .filter(|x| {
-                    if let KeyType::Position(_) = x {
+                    if let MapKeyKind::Position(_) = x {
                         true
                     } else {
                         false
@@ -553,7 +553,7 @@ where
                     .iter()
                     .map(|x| &x.key)
                     .filter(|x| {
-                        if let KeyType::Position(_) = x {
+                        if let MapKeyKind::Position(_) = x {
                             true
                         } else {
                             false
@@ -625,7 +625,7 @@ where
                     }
                     sc_m.add_val_to(EMPTY_HASH, &a);
                 }
-                let id = sc_name.key();
+                let id = sc_name.fnv_hash();
                 matcher.subcommand(SubCommand {
                     name: sc_name,
                     id,
@@ -903,7 +903,7 @@ where
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
             let name = sc.name.clone();
-            let sc_id = name.key();
+            let sc_id = name.fnv_hash();
             matcher.subcommand(SubCommand {
                 id: sc_id, // @TODO @maybe: should be sc.id?
                 name,
@@ -1004,7 +1004,7 @@ where
             sdebugln!("No");
             full_arg.trim_left_matches(b'-')
         };
-        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.into())) {
+        if let Some(opt) = self.app.args.get(&MapKeyKind::Long(arg.into())) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1069,7 +1069,7 @@ where
             // concatenated value: -oval
             // Option: -o
             // Value: val
-            if let Some(opt) = self.app.args.get(&KeyType::Short(c)) {
+            if let Some(opt) = self.app.args.get(&MapKeyKind::Short(c)) {
                 debugln!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
@@ -1448,7 +1448,7 @@ where
             .iter()
             .map(|x| &x.key)
             .filter_map(|x| match x {
-                KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
+                MapKeyKind::Long(l) => Some(l.to_string_lossy().into_owned()),
                 _ => None,
             })
             .collect::<Vec<_>>();
@@ -1462,7 +1462,7 @@ where
 
         // Add the arg to the matches to build a proper usage string
         if let Some(ref name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(&KeyType::Long(BString::from(name))) {
+            if let Some(opt) = self.app.args.get(&MapKeyKind::Long(BString::from(name))) {
                 for g in groups_for_arg!(self.app, opt.id) {
                     matcher.inc_occurrence_of(g);
                 }

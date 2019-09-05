@@ -21,7 +21,7 @@ use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Parser};
-use crate::util::{Key, HELP_HASH, VERSION_HASH};
+use crate::util::{FnvHash, HELP_HASH, VERSION_HASH};
 use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
@@ -980,7 +980,7 @@ impl<'b> App<'b> {
     pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
     where
         F: FnOnce(Arg<'b>) -> Arg<'b>,
-        T: Key + Into<&'b str>,
+        T: FnvHash + Into<&'b str>,
     {
         let id = arg_id.key();
         let a = self.args.remove_by_name(id).unwrap_or_else(|| Arg {
@@ -1511,16 +1511,11 @@ impl<'b> App<'b> {
                     $sc.max_w = $_self.max_w;
                 }
                 {
-                    for a in $_self
-                        .args
-                        .args
-                        .iter()
-                        .filter(|a| a.global)
-                        {
-                            $sc.args.push(a.clone());
-                        }
+                    for a in $_self.args.args.iter().filter(|a| a.global) {
+                        $sc.args.push(a.clone());
+                    }
                 }
-            }}
+            }};
         }
 
         debugln!("App::_propagate:{}", self.name);
@@ -1532,14 +1527,18 @@ impl<'b> App<'b> {
                         sc._propagate(prop);
                     }
                 }
-            },
+            }
             Propagation::To(id) => {
-                let mut sc = self.subcommands.iter_mut().find(|sc| sc.id == id).expect(INTERNAL_ERROR_MSG);
+                let mut sc = self
+                    .subcommands
+                    .iter_mut()
+                    .find(|sc| sc.id == id)
+                    .expect(INTERNAL_ERROR_MSG);
                 propagate_subcmd!(self, sc);
-            },
+            }
             Propagation::None => {
                 return;
-            },
+            }
         }
     }
 

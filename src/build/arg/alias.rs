@@ -1,4 +1,4 @@
-pub(crate) struct Alias<'help> {
+pub struct Alias<'help> {
     name: &'help str,
     vis: bool,
 }

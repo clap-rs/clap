@@ -9,7 +9,7 @@ use indexmap::IndexMap;
 
 // Internal
 use crate::parse::{MatchedArg, SubCommand};
-use crate::util::Key;
+use crate::util::FnvHash;
 use crate::INVALID_UTF8;
 
 type Id = u64;
@@ -113,8 +113,8 @@ impl ArgMatches {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        if let Some(arg) = self.args.get(&id.key()) {
+    pub fn value_of<T: FnvHash>(&self, id: T) -> Option<&str> {
+        if let Some(arg) = self.args.get(&id.fnv_hash()) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -145,8 +145,8 @@ impl ArgMatches {
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
-    pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        if let Some(arg) = self.args.get(&id.key()) {
+    pub fn value_of_lossy<T: FnvHash>(&self, id: T) -> Option<Cow<'_, str>> {
+        if let Some(arg) = self.args.get(&id.fnv_hash()) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
             }
@@ -181,9 +181,9 @@ impl ArgMatches {
     /// ```
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
-    pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
+    pub fn value_of_os<T: FnvHash>(&self, id: T) -> Option<&OsStr> {
         self.args
-            .get(&id.key())
+            .get(&id.fnv_hash())
             .and_then(|arg| arg.vals.get(0).map(OsString::as_os_str))
     }
 
@@ -212,8 +212,8 @@ impl ArgMatches {
     /// ```
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
-    pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
-        self.args.get(&id.key()).map(|arg| {
+    pub fn values_of<T: FnvHash>(&self, id: T) -> Option<Values<'_>> {
+        self.args.get(&id.fnv_hash()).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
 
@@ -247,8 +247,8 @@ impl ArgMatches {
     /// assert_eq!(&itr.next().unwrap()[..], "\u{FFFD}!");
     /// assert_eq!(itr.next(), None);
     /// ```
-    pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        self.args.get(&id.key()).map(|arg| {
+    pub fn values_of_lossy<T: FnvHash>(&self, id: T) -> Option<Vec<String>> {
+        self.args.get(&id.fnv_hash()).map(|arg| {
             arg.vals
                 .iter()
                 .map(|v| v.to_string_lossy().into_owned())
@@ -287,11 +287,11 @@ impl ArgMatches {
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    pub fn values_of_os<'a, T: Key>(&'a self, id: T) -> Option<OsValues<'a>> {
+    pub fn values_of_os<'a, T: FnvHash>(&'a self, id: T) -> Option<OsValues<'a>> {
         fn to_str_slice(o: &OsString) -> &OsStr { &*o }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
 
-        self.args.get(&id.key()).map(|arg| OsValues {
+        self.args.get(&id.fnv_hash()).map(|arg| OsValues {
             iter: arg.vals.iter().map(to_str_slice),
         })
     }
@@ -311,7 +311,7 @@ impl ArgMatches {
     ///
     /// assert!(m.is_present("debug"));
     /// ```
-    pub fn is_present<T: Key>(&self, id: T) -> bool { self._id_is_present(id.key()) }
+    pub fn is_present<T: FnvHash>(&self, id: T) -> bool { self._id_is_present(id.fnv_hash()) }
 
     #[doc(hidden)]
     pub fn _id_is_present(&self, arg_id: Id) -> bool {
@@ -362,8 +362,8 @@ impl ArgMatches {
     /// assert_eq!(m.occurrences_of("debug"), 3);
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        self.args.get(&id.key()).map_or(0, |a| a.occurs)
+    pub fn occurrences_of<T: FnvHash>(&self, id: T) -> u64 {
+        self.args.get(&id.fnv_hash()).map_or(0, |a| a.occurs)
     }
 
     /// Gets the starting index of the argument in respect to all other arguments. Indices are
@@ -496,8 +496,8 @@ impl ArgMatches {
     /// ```
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
-        if let Some(arg) = self.args.get(&name.key()) {
+    pub fn index_of<T: FnvHash>(&self, name: T) -> Option<usize> {
+        if let Some(arg) = self.args.get(&name.fnv_hash()) {
             if let Some(i) = arg.indices.get(0) {
                 return Some(*i);
             }
@@ -578,8 +578,8 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
-    pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        self.args.get(&id.key()).map(|arg| Indices {
+    pub fn indices_of<T: FnvHash>(&self, id: T) -> Option<Indices<'_>> {
+        self.args.get(&id.fnv_hash()).map(|arg| Indices {
             iter: arg.indices.iter().cloned(),
         })
     }
@@ -615,9 +615,9 @@ impl ArgMatches {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
-    pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
+    pub fn subcommand_matches<T: FnvHash>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
-            if s.id == id.key() {
+            if s.id == id.fnv_hash() {
                 return Some(&s.matches);
             }
         }

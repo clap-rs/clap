@@ -6,15 +6,15 @@ pub static VERSION_HASH: u64 = 0x30FF_0B7C_4D07_9478;
 pub static EMPTY_HASH: u64 = 0x1C9D_3ADB_639F_298E;
 const MAGIC_INIT: u64 = 0x811C_9DC5;
 
-pub trait Key: Hash {
-    fn key(&self) -> u64;
+pub trait FnvHash: Hash {
+    fn fnv_hash(&self) -> u64;
 }
 
-impl<T> Key for T
+impl<T> FnvHash for T
 where
     T: Hash,
 {
-    fn key(&self) -> u64 {
+    fn fnv_hash(&self) -> u64 {
         let mut hasher = FnvHasher::new();
         self.hash(&mut hasher);
         hasher.finish()

@@ -4,7 +4,7 @@ mod map;
 mod osstringext;
 mod strext;
 
-pub use self::fnv::{Key, EMPTY_HASH, HELP_HASH, VERSION_HASH};
+pub use self::fnv::{FnvHash, EMPTY_HASH, HELP_HASH, VERSION_HASH};
 pub use self::graph::ChildGraph;
 pub use self::map::{Values, VecMap};
 pub use self::osstringext::OsStrExt2;

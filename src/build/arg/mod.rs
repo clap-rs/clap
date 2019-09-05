@@ -1,4 +1,10 @@
+mod alias;
+mod key;
+mod long;
 mod settings;
+
+pub use self::alias::Alias;
+pub use self::key::{Key, SwitchData};
 pub use self::settings::{ArgFlags, ArgSettings};
 
 // Std
@@ -18,9 +24,8 @@ use crate::util::VecMap;
 use yaml_rust;
 
 // Internal
-use crate::build::arg::{ArgKey, SwitchData};
 use crate::build::UsageParser;
-use crate::util::Key;
+use crate::util::FnvHash;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
 use crate::INTERNAL_ERROR_MSG;
@@ -127,14 +132,14 @@ pub struct Arg<'help> {
     pub val_names: Option<VecMap<&'help str>>,
 
     // switch
-    pub key: ArgKey<'help>,
+    pub key: Key<'help>,
 }
 
 impl<'help> Arg<'help> {
     /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(t: T) -> Self {
+    pub fn new<T: FnvHash>(t: T) -> Self {
         Arg {
-            id: t.key(),
+            id: t.fnv_hash(),
             disp_ord: 999,
             unified_ord: 999,
             ..Default::default()
@@ -159,7 +164,7 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     pub fn with_name(n: &'help str) -> Self {
         Arg {
-            id: n.key(),
+            id: n.fnv_hash(),
             name: n,
             disp_ord: 999,
             unified_ord: 999,
@@ -280,7 +285,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short(mut self, s: char) -> Self {
-        self.key.short(s);
+        self.key.set_short(s);
         self
     }
 
@@ -320,7 +325,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long(mut self, l: &'help str) -> Self {
-        self.key.long(l);
+        self.key.add_long(l);
         self
     }
 
@@ -342,7 +347,7 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
     pub fn longs(mut self, names: &[&'help str]) -> Self {
-        self.key.longs(names);
+        self.key.add_longs(names);
         self
     }
 
@@ -372,7 +377,7 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     /// [long]: ./struct.Arg.html#method.long
     pub fn hidden_long<S: Into<&'help str>>(mut self, name: S) -> Self {
-        self.key.hidden_long(name);
+        self.key.add_hidden_long(name);
         self
     }
 
@@ -396,7 +401,8 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     /// [hidden longs]: ./struct.Arg.html#method.hidden_long
     pub fn hidden_longs(mut self, names: &[&'help str]) -> Self {
-        self.key.hidden_longs(names): self
+        self.key.add_hidden_longs(names);
+        self
     }
 
     /// Sets the short help text of the argument that will be displayed to the user when they print
@@ -581,8 +587,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless`]: ./struct.Arg.html#method.required_unless
     /// [`Arg::required`]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
-    pub fn required_unless<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+    pub fn required_unless<T: FnvHash>(mut self, arg_id: T) -> Self {
+        let name = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.r_unless {
             vec.push(name);
         } else {
@@ -657,10 +663,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.fnv_hash());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(FnvHash::id).collect());
         }
         self.setting(ArgSettings::RequiredUnlessAll)
     }
@@ -732,10 +738,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_one(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.fnv_hash());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(FnvHash::id).collect());
         }
         self
     }
@@ -777,8 +783,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+    pub fn conflicts_with<T: FnvHash>(mut self, arg_id: T) -> Self {
+        let name = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -831,10 +837,10 @@ impl<'help> Arg<'help> {
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.blacklist {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.fnv_hash());
             }
         } else {
-            self.blacklist = Some(names.iter().map(Key::key).collect());
+            self.blacklist = Some(names.iter().map(FnvHash::id).collect());
         }
         self
     }
@@ -940,8 +946,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Multiple*`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
-    pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+    pub fn overrides_with<T: FnvHash>(mut self, arg_id: T) -> Self {
+        let name = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.overrides {
             vec.push(name);
         } else {
@@ -977,13 +983,13 @@ impl<'help> Arg<'help> {
     /// assert!(!m.is_present("debug"));
     /// assert!(!m.is_present("flag"));
     /// ```
-    pub fn overrides_with_all<T: Key>(mut self, names: &[T]) -> Self {
+    pub fn overrides_with_all<T: FnvHash>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.overrides {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.fnv_hash());
             }
         } else {
-            self.overrides = Some(names.iter().map(Key::key).collect());
+            self.overrides = Some(names.iter().map(FnvHash::id).collect());
         }
         self
     }
@@ -1043,8 +1049,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+    pub fn requires<T: FnvHash>(mut self, arg_id: T) -> Self {
+        let name = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.requires {
             vec.push((None, name));
         } else {
@@ -1114,8 +1120,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
-        let arg = arg_id.key();
+    pub fn requires_if<T: FnvHash>(mut self, val: &'help str, arg_id: T) -> Self {
+        let arg = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.requires {
             vec.push((Some(val), arg));
         } else {
@@ -1175,15 +1181,15 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
+    pub fn requires_ifs<T: FnvHash>(mut self, ifs: &[(&'help str, T)]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for (val, arg) in ifs {
-                vec.push((Some(val), arg.key()));
+                vec.push((Some(val), arg.fnv_hash()));
             }
         } else {
             let mut vec = vec![];
             for (val, arg) in ifs {
-                vec.push((Some(*val), arg.key()));
+                vec.push((Some(*val), arg.fnv_hash()));
             }
             self.requires = Some(vec);
         }
@@ -1253,8 +1259,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_if<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
-        let arg = arg_id.key();
+    pub fn required_if<T: FnvHash>(mut self, arg_id: T, val: &'help str) -> Self {
+        let arg = arg_id.fnv_hash();
         if let Some(ref mut vec) = self.r_ifs {
             vec.push((arg, val));
         } else {
@@ -1343,15 +1349,15 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_ifs<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+    pub fn required_ifs<T: FnvHash>(mut self, ifs: &[(T, &'help str)]) -> Self {
         if let Some(ref mut vec) = self.r_ifs {
             for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+                vec.push((r_if.0.fnv_hash(), r_if.1));
             }
         } else {
             let mut vec = vec![];
             for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+                vec.push((r_if.0.fnv_hash(), r_if.1));
             }
             self.r_ifs = Some(vec);
         }
@@ -1420,15 +1426,15 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     /// [`Arg::requires_all(&[arg, arg2])`]: ./struct.Arg.html#method.requires_all
-    pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
+    pub fn requires_all<T: FnvHash>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for s in names {
-                vec.push((None, s.key()));
+                vec.push((None, s.fnv_hash()));
             }
         } else {
             let mut vec = vec![];
             for s in names {
-                vec.push((None, s.key()));
+                vec.push((None, s.fnv_hash()));
             }
             self.requires = Some(vec);
         }
@@ -1483,7 +1489,7 @@ impl<'help> Arg<'help> {
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn index(mut self, idx: u64) -> Self {
-        self.key.index = ArgKey::Index(idx);
+        self.key.set_index(idx);
         self
     }
 
@@ -1690,8 +1696,8 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("mode"));
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
-    pub fn group<T: Key>(mut self, group_id: T) -> Self {
-        let name = group_id.key();
+    pub fn group<T: FnvHash>(mut self, group_id: T) -> Self {
+        let name = group_id.fnv_hash();
         if let Some(ref mut vec) = self.groups {
             vec.push(name);
         } else {
@@ -1731,13 +1737,13 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("verbosity"));
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
-    pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
+    pub fn groups<T: FnvHash>(mut self, group_ids: &[T]) -> Self {
         if let Some(ref mut vec) = self.groups {
             for s in group_ids {
-                vec.push(s.key());
+                vec.push(s.fnv_hash());
             }
         } else {
-            self.groups = Some(group_ids.iter().map(Key::key).collect());
+            self.groups = Some(group_ids.iter().map(FnvHash::id).collect());
         }
         self
     }
@@ -2342,7 +2348,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if<T: Key>(
+    pub fn default_value_if<T: FnvHash>(
         self,
         arg_id: T,
         val: Option<&'help str>,
@@ -2359,13 +2365,13 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_if_os<T: Key>(
+    pub fn default_value_if_os<T: FnvHash>(
         mut self,
         arg_id: T,
         val: Option<&'help OsStr>,
         default: &'help OsStr,
     ) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.fnv_hash();
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
@@ -2462,7 +2468,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_ifs<T: Key>(
+    pub fn default_value_ifs<T: FnvHash>(
         mut self,
         ifs: &[(T, Option<&'help str>, &'help str)],
     ) -> Self {
@@ -2481,12 +2487,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
-    pub fn default_value_ifs_os<T: Key>(
+    pub fn default_value_ifs_os<T: FnvHash>(
         mut self,
         ifs: &[(T, Option<&'help OsStr>, &'help OsStr)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg.key(), *val, default);
+            self = self.default_value_if_os(arg.fnv_hash(), *val, default);
         }
         self
     }

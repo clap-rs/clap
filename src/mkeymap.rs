@@ -2,8 +2,8 @@
 use bstr::{BStr, BString};
 
 // Internal
-use crate::build::Arg;
-use crate::util::Key;
+use crate::build::arg::{Arg, Key};
+use crate::util::FnvHash;
 
 type Id = u64;
 
@@ -15,74 +15,74 @@ pub struct MKeyMap<'b> {
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct MapKey {
-    pub key: MapKeyType,
+    pub key: MapKeyKind,
     pub index: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub enum MapKeyType {
+pub enum MapKeyKind {
     Id(Id),
     Short(char),
     Long(BString),
     Position(usize),
 }
 
-impl MapKeyType {
+impl MapKeyKind {
     pub(crate) fn is_position(&self) -> bool {
         match *self {
-            MapKeyType::Position(_) => true,
+            MapKeyKind::Position(_) => true,
             _ => false,
         }
     }
 }
 
-impl PartialEq<usize> for MapKeyType {
+impl PartialEq<usize> for MapKeyKind {
     fn eq(&self, rhs: &usize) -> bool {
         match self {
-            MapKeyType::Position(i) => i == rhs,
+            MapKeyKind::Position(i) => i == rhs,
             _ => false,
         }
     }
 }
 
-impl PartialEq<Id> for MapKeyType {
+impl PartialEq<Id> for MapKeyKind {
     fn eq(&self, rhs: &Id) -> bool {
         match self {
-            MapKeyType::Id(i) => i == rhs,
+            MapKeyKind::Id(i) => i == rhs,
             _ => false,
         }
     }
 }
 
-impl PartialEq<str> for MapKeyType {
+impl PartialEq<str> for MapKeyKind {
     fn eq(&self, rhs: &str) -> bool {
         match self {
-            MapKeyType::Long(ref l) => l == rhs,
-            MapKeyType::Id(i) => i == rhs.key(),
+            MapKeyKind::Long(ref l) => l == rhs,
+            MapKeyKind::Id(i) => i == rhs.fnv_hash(),
             _ => false,
         }
     }
 }
 
-impl PartialEq<char> for MapKeyType {
+impl PartialEq<char> for MapKeyKind {
     fn eq(&self, rhs: &char) -> bool {
         match self {
-            MapKeyType::Short(c) => c == rhs,
+            MapKeyKind::Short(c) => c == rhs,
             _ => false,
         }
     }
 }
 
-impl From<usize> for MapKeyType {
-    fn from(us: usize) -> Self { MapKeyType::Position(us) }
+impl From<usize> for MapKeyKind {
+    fn from(us: usize) -> Self { MapKeyKind::Position(us) }
 }
 
-impl From<char> for MapKeyType {
-    fn from(c: char) -> Self { MapKeyType::Short(c) }
+impl From<char> for MapKeyKind {
+    fn from(c: char) -> Self { MapKeyKind::Short(c) }
 }
 
-impl From<Id> for MapKeyType {
-    fn from(i: Id) -> Self { MapKeyType::Id(i) }
+impl From<Id> for MapKeyKind {
+    fn from(i: Id) -> Self { MapKeyKind::Id(i) }
 }
 
 impl<'b> MKeyMap<'b> {
@@ -97,12 +97,12 @@ impl<'b> MKeyMap<'b> {
         index
     }
 
-    pub fn contains<K: Into<MapKeyType>>(&self, k: K) -> bool {
+    pub fn contains<K: Into<MapKeyKind>>(&self, k: K) -> bool {
         let key = k.into();
         self.keys.iter().any(|x| x.key == key)
     }
 
-    pub fn find<K: Into<MapKeyType>>(&self, k: K) -> Option<&Arg<'b>> {
+    pub fn find<K: Into<MapKeyKind>>(&self, k: K) -> Option<&Arg<'b>> {
         let key = k.into();
         self.keys
             .iter()
@@ -110,7 +110,7 @@ impl<'b> MKeyMap<'b> {
             .map(|mk| self.args.get(mk.index))
     }
 
-    pub fn remove_key<K: Into<MapKeyType>>(&mut self, k: K) {
+    pub fn remove_key<K: Into<MapKeyKind>>(&mut self, k: K) {
         let key = k.into();
         let mut idx = None;
         for k in self.keys.iter() {
@@ -124,7 +124,7 @@ impl<'b> MKeyMap<'b> {
         }
     }
 
-    pub fn remove<K: Into<MapKeyType>>(&mut self, k: K) -> Option<Arg<'b>> {
+    pub fn remove<K: Into<MapKeyKind>>(&mut self, k: K) -> Option<Arg<'b>> {
         let key = k.into();
         let mut idx = None;
         for k in self.keys.iter() {
@@ -149,15 +149,15 @@ impl<'b> MKeyMap<'b> {
             for k in get_keys(arg) {
                 self.keys.push(MapKey { key: k, index: i });
             }
-            if arg.arg_key() == ArgKey::Unset {
-                a.index(counter);
+            if arg.key() == Key::Unset {
+                arg.index(counter);
                 counter += 1;
             }
         }
     }
 
     pub fn find_by_name(&self, name: &str) -> Option<&Arg<'b>> {
-        let key: MapKeyType = name.key().into();
+        let key: MapKeyKind = name.key().into();
         self.keys
             .iter()
             .find(|x| x.key == key)
@@ -165,7 +165,7 @@ impl<'b> MKeyMap<'b> {
     }
 
     pub fn remove_by_name(&mut self, name: &str) -> Option<Arg<'b>> {
-        let key: MapKeyType = name.key().into();
+        let key: MapKeyKind = name.key().into();
         let mut index = None;
         for k in self.keys.iter() {
             if k.key == key {
@@ -184,7 +184,7 @@ impl<'b> MKeyMap<'b> {
     }
 }
 
-fn get_keys(arg: &Arg) -> Vec<MapKeyType> {
+fn get_keys(arg: &Arg) -> Vec<MapKeyKind> {
     let mut keys = vec![arg.id.into()];
     if let Some(index) = arg.index {
         keys.push(index.into());
@@ -203,7 +203,7 @@ fn get_keys(arg: &Arg) -> Vec<MapKeyType> {
 
 #[cfg(test)]
 mod tests {
-    use self::MapKeyType::*;
+    use self::MapKeyKind::*;
     use super::*;
 
     #[test]

@@ -6,7 +6,7 @@ use std::fmt::{Debug, Formatter, Result};
 use yaml_rust;
 
 // Internal
-use crate::util::Key;
+use crate::util::FnvHash;
 
 type Id = u64;
 
@@ -107,7 +107,7 @@ impl<'a> ArgGroup<'a> {
         }
     }
     /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(id: T) -> Self { ArgGroup::_with_id(id.key()) }
+    pub fn new<T: FnvHash>(id: T) -> Self { ArgGroup::_with_id(id.fnv_hash()) }
     /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
     /// get values from the group or refer to the group inside of conflict and requirement rules.
     ///
@@ -120,7 +120,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     pub fn with_name(n: &'a str) -> Self {
         ArgGroup {
-            id: n.key(),
+            id: n.fnv_hash(),
             name: n,
             ..ArgGroup::default()
         }
@@ -166,8 +166,8 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [argument]: ./struct.Arg.html
     #[cfg_attr(feature = "lints", allow(should_assert_eq))]
-    pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
-        self.args.push(arg_id.key());
+    pub fn arg<T: FnvHash>(mut self, arg_id: T) -> Self {
+        self.args.push(arg_id.fnv_hash());
         self
     }
 
@@ -191,7 +191,7 @@ impl<'a> ArgGroup<'a> {
     /// assert!(m.is_present("flag"));
     /// ```
     /// [arguments]: ./struct.Arg.html
-    pub fn args<T: Key>(mut self, ns: &[T]) -> Self {
+    pub fn args<T: FnvHash>(mut self, ns: &[T]) -> Self {
         for n in ns {
             self = self.arg(n);
         }
@@ -312,8 +312,8 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [required group]: ./struct.ArgGroup.html#method.required
     /// [argument requirement rules]: ./struct.Arg.html#method.requires
-    pub fn requires<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.key();
+    pub fn requires<T: FnvHash>(mut self, id: T) -> Self {
+        let arg_id = id.fnv_hash();
         if let Some(ref mut reqs) = self.requires {
             reqs.push(arg_id);
         } else {
@@ -388,8 +388,8 @@ impl<'a> ArgGroup<'a> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
-    pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.key();
+    pub fn conflicts_with<T: FnvHash>(mut self, id: T) -> Self {
+        let arg_id = id.fnv_hash();
         if let Some(ref mut confs) = self.conflicts {
             confs.push(arg_id);
         } else {
@@ -519,7 +519,7 @@ impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
 #[cfg(test)]
 mod test {
     use super::ArgGroup;
-    use super::Key;
+    use super::FnvHash;
     #[cfg(feature = "yaml")]
     use yaml_rust::YamlLoader;
 
@@ -537,9 +537,24 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec![
+            "a1".fnv_hash(),
+            "a4".fnv_hash(),
+            "a2".fnv_hash(),
+            "a3".fnv_hash(),
+        ];
+        let reqs = vec![
+            "r1".fnv_hash(),
+            "r2".fnv_hash(),
+            "r3".fnv_hash(),
+            "r4".fnv_hash(),
+        ];
+        let confs = vec![
+            "c1".fnv_hash(),
+            "c2".fnv_hash(),
+            "c3".fnv_hash(),
+            "c4".fnv_hash(),
+        ];
 
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
@@ -560,9 +575,24 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec![
+            "a1".fnv_hash(),
+            "a4".fnv_hash(),
+            "a2".fnv_hash(),
+            "a3".fnv_hash(),
+        ];
+        let reqs = vec![
+            "r1".fnv_hash(),
+            "r2".fnv_hash(),
+            "r3".fnv_hash(),
+            "r4".fnv_hash(),
+        ];
+        let confs = vec![
+            "c1".fnv_hash(),
+            "c2".fnv_hash(),
+            "c3".fnv_hash(),
+            "c4".fnv_hash(),
+        ];
 
         let debug_str = format!(
             "{{\n\
@@ -594,9 +624,24 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec![
+            "a1".fnv_hash(),
+            "a4".fnv_hash(),
+            "a2".fnv_hash(),
+            "a3".fnv_hash(),
+        ];
+        let reqs = vec![
+            "r1".fnv_hash(),
+            "r2".fnv_hash(),
+            "r3".fnv_hash(),
+            "r4".fnv_hash(),
+        ];
+        let confs = vec![
+            "c1".fnv_hash(),
+            "c2".fnv_hash(),
+            "c3".fnv_hash(),
+            "c4".fnv_hash(),
+        ];
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);
@@ -625,9 +670,24 @@ requires:
 - r4";
         let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
         let g = ArgGroup::from_yaml(yml);
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec![
+            "a1".fnv_hash(),
+            "a4".fnv_hash(),
+            "a2".fnv_hash(),
+            "a3".fnv_hash(),
+        ];
+        let reqs = vec![
+            "r1".fnv_hash(),
+            "r2".fnv_hash(),
+            "r3".fnv_hash(),
+            "r4".fnv_hash(),
+        ];
+        let confs = vec![
+            "c1".fnv_hash(),
+            "c2".fnv_hash(),
+            "c3".fnv_hash(),
+            "c4".fnv_hash(),
+        ];
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
         assert_eq!(g.conflicts, Some(confs));
