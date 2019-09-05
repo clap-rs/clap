@@ -1,3 +1,7 @@
+// Third party
+use bstr::{ByteSlice, B};
+
+// Internal
 use crate::build::Alias;
 
 #[derive(Default)]
@@ -7,8 +11,14 @@ pub struct Key<'help> {
 
 #[derive(Default)]
 pub struct SwitchData<'help> {
-    longs: Vec<Alias<'help>>,
-    short: Option<char>,
+    l: Vec<Alias<'help>>,
+    s: Option<char>,
+}
+
+impl<'help> SwitchData<'help> {
+    pub fn short(&self) -> Option<char> { self.s }
+    pub fn all_longs(&self) -> impl Iterator<Item = &str> { self.l.iter().map(|a| a.name) }
+    pub fn has_longs(&self) -> bool { !self.l.is_empty() }
 }
 
 pub(crate) enum KeyKind<'help> {
@@ -22,38 +32,40 @@ impl<'help> Default for KeyKind<'help> {
 }
 
 impl<'help> Key<'help> {
-    fn set_short(&mut self, c: char) { self.switch_mut().short = Some(c); }
-    fn add_long(&mut self, l: &'help str) {
+    pub fn has_long(&self) -> bool { self.has_switch() && self.switch().has_longs() }
+    pub fn has_short(&self) -> bool { self.has_switch() && self.switch().short().is_some() }
+    pub fn set_short(&mut self, c: char) { self.switch_mut().s = Some(c); }
+    pub fn add_long(&mut self, l: &'help str) {
         self.switch_mut()
-            .longs
-            .push(Alias::visible(l.trim_left_matches(|c| c == '-')));
+            .l
+            .push(Alias::visible(B(l).trim_start_with(|c| c == '-')));
     }
-    fn add_longs(&mut self, longs: &[&'help str]) {
+    pub fn add_longs(&mut self, longs: &[&'help str]) {
         for l in longs {
             self.long(l);
         }
     }
-    fn add_hidden_long(&mut self, l: &'help str) {
+    pub fn add_hidden_long(&mut self, l: &'help str) {
         self.switch_mut()
-            .longs
+            .l
             .push(Alias::hidden(l.trim_left_matches(|c| c == '-')));
     }
-    fn add_hidden_longs(&mut self, longs: &[&'help str]) {
+    pub fn add_hidden_longs(&mut self, longs: &[&'help str]) {
         for l in longs {
             self.switch_mut()
-                .longs
+                .l
                 .push(Alias::hidden(l.trim_left_matches(|c| c == '-')));
         }
     }
-    fn set_index(&mut self, i: usize) {
+    pub fn set_index(&mut self, i: usize) {
         assert!(i > 0, "Argument index cannot be zero (0)");
         self.kind = KeyKind::Index(i);
     }
-    fn has_index(&self) -> bool { self.index().is_some() }
+    pub fn has_index(&self) -> bool { self.index().is_some() }
     /// # Panics
     ///
     /// Panics if `*self != KeyKind::Index`
-    fn index(&self) -> usize {
+    pub fn index(&self) -> usize {
         use KeyKind::*;
         match self.kind {
             Index(i) => i,
@@ -63,14 +75,14 @@ impl<'help> Key<'help> {
     /// # Panics
     ///
     /// Panics if `*self != KeyKind::Index`
-    fn index_mut(&mut self) -> usize {
+    pub fn index_mut(&mut self) -> usize {
         use KeyKind::*;
         match *self {
             Index(i) => i,
             _ => panic!("Argument is not positional"),
         }
     }
-    fn has_switch(&self) -> bool {
+    pub fn has_switch(&self) -> bool {
         use KeyKind::*;
         match *self {
             Switch(_) => true,
@@ -80,7 +92,7 @@ impl<'help> Key<'help> {
     /// # Panics
     ///
     /// Panics if `*self != KeyKind::Switch`
-    fn switch(&self) -> &SwitchData<'help> {
+    pub fn switch(&self) -> &SwitchData<'help> {
         use KeyKind::*;
         match *self {
             Switch(s) => s,
@@ -90,7 +102,7 @@ impl<'help> Key<'help> {
     /// # Panics
     ///
     /// Panics if `*self != KeyKind::Switch`
-    fn switch_mut(&mut self) -> &mut SwitchData<'help> {
+    pub fn switch_mut(&mut self) -> &mut SwitchData<'help> {
         use KeyKind::*;
         match *self {
             Switch(s) => s,

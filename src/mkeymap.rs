@@ -4,6 +4,7 @@ use bstr::{BStr, BString};
 // Internal
 use crate::build::arg::{Arg, Key};
 use crate::util::FnvHash;
+use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
 
@@ -58,7 +59,7 @@ impl PartialEq<str> for MapKeyKind {
     fn eq(&self, rhs: &str) -> bool {
         match self {
             MapKeyKind::Long(ref l) => l == rhs,
-            MapKeyKind::Id(i) => i == rhs.fnv_hash(),
+            MapKeyKind::Id(i) => *i == rhs.fnv_hash(),
             _ => false,
         }
     }
@@ -107,14 +108,14 @@ impl<'b> MKeyMap<'b> {
         self.keys
             .iter()
             .find(|x| x.key == key)
-            .map(|mk| self.args.get(mk.index))
+            .map(|mk| self.args.get(mk.index).expect(INTERNAL_ERROR_MSG))
     }
 
     pub fn remove_key<K: Into<MapKeyKind>>(&mut self, k: K) {
         let key = k.into();
         let mut idx = None;
         for k in self.keys.iter() {
-            if &k.key == key {
+            if k.key == key {
                 idx = Some(k.index);
                 break;
             }
@@ -128,7 +129,7 @@ impl<'b> MKeyMap<'b> {
         let key = k.into();
         let mut idx = None;
         for k in self.keys.iter() {
-            if &k.key == key {
+            if k.key == key {
                 idx = Some(k.index);
                 break;
             }
@@ -136,7 +137,7 @@ impl<'b> MKeyMap<'b> {
         if let Some(idx) = idx {
             let arg = self.args.swap_remove(idx);
             for key in get_keys(&arg) {
-                self.remove_key(&key);
+                self.remove_key(key);
             }
             return Some(arg);
         }
@@ -149,7 +150,7 @@ impl<'b> MKeyMap<'b> {
             for k in get_keys(arg) {
                 self.keys.push(MapKey { key: k, index: i });
             }
-            if arg.key() == Key::Unset {
+            if arg.key().kind == Key::Unset {
                 arg.index(counter);
                 counter += 1;
             }
@@ -157,7 +158,7 @@ impl<'b> MKeyMap<'b> {
     }
 
     pub fn find_by_name(&self, name: &str) -> Option<&Arg<'b>> {
-        let key: MapKeyKind = name.key().into();
+        let key: MapKeyKind = name.fnv_hash().into();
         self.keys
             .iter()
             .find(|x| x.key == key)
@@ -165,7 +166,7 @@ impl<'b> MKeyMap<'b> {
     }
 
     pub fn remove_by_name(&mut self, name: &str) -> Option<Arg<'b>> {
-        let key: MapKeyKind = name.key().into();
+        let key: MapKeyKind = name.fnv_hash().into();
         let mut index = None;
         for k in self.keys.iter() {
             if k.key == key {
@@ -186,7 +187,7 @@ impl<'b> MKeyMap<'b> {
 
 fn get_keys(arg: &Arg) -> Vec<MapKeyKind> {
     let mut keys = vec![arg.id.into()];
-    if let Some(index) = arg.index {
+    if let Some(index) = arg.get_index() {
         keys.push(index.into());
         return keys;
     }

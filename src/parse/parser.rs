@@ -5,7 +5,7 @@ use std::iter::Peekable;
 use std::mem;
 
 // Third Party
-use bstr::{BStr, BString};
+use bstr::{BStr, BString, ByteSlice, B};
 
 // Internal
 use crate::build::app::Propagation;
@@ -126,7 +126,7 @@ where
             .count();
 
         assert!(
-            highest_idx == num_p as u64,
+            highest_idx == num_p,
             "Found positional argument whose index is {} but there \
              are only {} positional arguments defined",
             highest_idx,
@@ -707,7 +707,7 @@ where
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &BStr) -> bool {
             let n_bytes = n.as_bytes();
-            let h_bytes = BStr::from(h).as_bytes();
+            let h_bytes = B(h);
 
             h_bytes.starts_with(n_bytes)
         }
@@ -995,16 +995,17 @@ where
 
         let mut val = None;
         debug!("Parser::parse_long_arg: Does it contain '='...");
-        let arg = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = full_arg.trim_left_matches(b'-').split_at_byte(b'=');
-            sdebugln!("Yes '{:?}'", p1);
-            val = Some(p1);
-            p0
+        let arg = if full_arg.contains_str(b"=") {
+            let p = full_arg.trim_start_with(|c| c == '-').split_str(b"=");
+            sdebugln!("Yes '{:?}'", p);
+            let arg = p.next().expect(INTERNAL_ERROR_MSG);
+            val = p.next();
+            arg
         } else {
             sdebugln!("No");
-            full_arg.trim_left_matches(b'-')
+            full_arg.trim_start_with(|c| c == '-')
         };
-        if let Some(opt) = self.app.args.get(&MapKeyKind::Long(arg.into())) {
+        if let Some(opt) = self.app.args.find(arg) {
             debugln!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1038,7 +1039,7 @@ where
         full_arg: &BStr,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
-        let arg_os = full_arg.trim_left_matches(b'-');
+        let arg_os = full_arg.trim_start_with(|c| c == '-');
         let arg = arg_os.to_string_lossy();
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
@@ -1138,7 +1139,7 @@ where
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
-            let v = fv.trim_left_matches(b'=');
+            let v = fv.trim_start_with(|c| c == '=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(ClapError::empty_value(
@@ -1203,11 +1204,11 @@ where
                     Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone;
-                    for v in val.split(delim as u32 as u8) {
+                    for v in val.split_str(B(delim)) {
                         iret = self.add_single_val_to_arg(arg, v, matcher)?;
                     }
                     // If there was a delimiter used, we're not looking for more values
-                    if val.contains_byte(delim as u32 as u8)
+                    if val.contains_str([delim as u32 as u8])
                         || arg.is_set(ArgSettings::RequireDelimiter)
                     {
                         iret = ParseResult::ValuesDone;

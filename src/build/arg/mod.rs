@@ -78,10 +78,6 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub groups: Option<Vec<Id>>,
 
-    // position
-    #[doc(hidden)]
-    pub index: Option<u64>,
-
     // validation
     #[doc(hidden)]
     pub r_ifs: Option<Vec<(Id, &'help str)>>,
@@ -4005,11 +4001,15 @@ impl<'help> Arg<'help> {
     #[doc(hidden)]
     pub fn has_switch(&self) -> bool { self.key.has_switch() }
 
+    #[doc(hidden)]
     pub fn switch(&self) -> &SwitchData { self.key.switch() }
 
     #[doc(hidden)]
+    pub fn key(&self) -> &Key { &self.key }
+
+    #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {
-        self.kind() == ArgKind::Opt || self.long.is_some() || self.short.is_none()
+        self.kind() == ArgKind::Opt || self.key.has_long() || !self.key.has_short()
     }
 
     // Used for positionals when printing
