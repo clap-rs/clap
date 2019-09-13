@@ -225,32 +225,32 @@ arg_enum!{
 // We use serde to test, as it is the most common dependency. We could also define our own test macro,
 // but we can't really use procedural macros from the same crate that define them, so we would have
 // to change the organization quite a bit.
-arg_enum!{
-    #[derive(Serialize)]
+arg_enum! {
+    #[derive(Serialize, Deserialize, Debug, PartialEq)]
     pub enum ValAttr1a {
         #[serde(rename = "RenamedValOne")]
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
-    #[derive(Serialize)]
+arg_enum! {
+    #[derive(Serialize, Deserialize, Debug, PartialEq)]
     pub enum ValAttr1b {
         ValOne,
         #[serde(rename = "RenamedValTwo")]
         ValTwo
     }
 }
-arg_enum!{
-    #[derive(Serialize)]
+arg_enum! {
+    #[derive(Serialize, Deserialize, Debug, PartialEq)]
     enum ValAttr2a {
         #[serde(rename = "RenamedValOne")]
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
-    #[derive(Serialize)]
+arg_enum! {
+    #[derive(Serialize, Deserialize, Debug, PartialEq)]
     enum ValAttr2b {
         ValOne,
         #[serde(rename = "RenamedValTwo")]
@@ -344,6 +344,31 @@ fn test_enums() {
         ValAttr2b::ValOne => (),
         _ => panic!("Val1 didn't parse correctly"),
     }
+}
+
+/// Tests that enums with derive macro helper attributes
+/// are parsed correctly.
+#[test]
+fn test_derive_macro_helper_attributes() {
+    let serialized = serde_json::to_string(&ValAttr1a::ValOne).unwrap();
+    assert_eq!("\"RenamedValOne\"", serialized);
+    let deserialized: ValAttr1a = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(ValAttr1a::ValOne, deserialized);
+
+    let serialized = serde_json::to_string(&ValAttr2a::ValOne).unwrap();
+    assert_eq!("\"RenamedValOne\"", serialized);
+    let deserialized: ValAttr2a = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(ValAttr2a::ValOne, deserialized);
+
+    let serialized = serde_json::to_string(&ValAttr1b::ValTwo).unwrap();
+    assert_eq!("\"RenamedValTwo\"", serialized);
+    let deserialized: ValAttr1b = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(ValAttr1b::ValTwo, deserialized);
+
+    let serialized = serde_json::to_string(&ValAttr2b::ValTwo).unwrap();
+    assert_eq!("\"RenamedValTwo\"", serialized);
+    let deserialized: ValAttr2b = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(ValAttr2b::ValTwo, deserialized);
 }
 
 #[test]
