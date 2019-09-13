@@ -8,6 +8,11 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn3
 
 Command Line Argument Parser for Rust
 
+# Important note on clap 3.0
+
+Clap 3.0 is under development and available on the [v3-master](https://github.com/clap-rs/clap/tree/v3-master). When sending a pull request, ensure that it is against v3-master branch and not already covered by the 3.0 refactor. Thanks!
+
+
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
 * [documentation](https://docs.rs/clap/)
@@ -483,7 +488,7 @@ covering this specific target.
 There are several excellent crates which can be used with `clap`, I recommend checking them all out! If you've got a crate that would be a good fit to be used with `clap` open an issue and let me know, I'd love to add it!
 
 * [`structopt`](https://github.com/TeXitoi/structopt) - This crate allows you to define a struct, and build a CLI from it! No more "stringly typed" and it uses `clap` behind the scenes! (*Note*: There is work underway to pull this crate into mainline `clap`).
-* [`assert_cli`](https://github.com/assert-rs/assert_cli) - This crate allows you test your CLIs in a very intuitive and functional way!
+* [`assert_cmd`](https://github.com/assert-rs/assert_cmd) - This crate allows you test your CLIs in a very intuitive and functional way!
 
 ## Recent Breaking Changes
 
