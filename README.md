@@ -3,14 +3,14 @@
 This crate is currently a work in progress and not meant to be used. Please use [`structopt`](https://github.com/TeXitoi/structopt)
 while this crate is being built.
 
-# clap_derive[![Build status](https://travis-ci.org/kbknapp/clap_derive.svg?branch=master)](https://travis-ci.org/kbknapp/clap_derive) [![](https://img.shields.io/crates/v/clap_derive.svg)](https://crates.io/crates/clap_derive) [![](https://docs.rs/clap_derive/badge.svg)](https://docs.rs/clap_derive)
+# clap_derive[![Build status](https://travis-ci.org/clap-rs/clap_derive.svg?branch=master)](https://travis-ci.org/clap-rs/clap_derive) [![](https://img.shields.io/crates/v/clap_derive.svg)](https://crates.io/crates/clap_derive) [![](https://docs.rs/clap_derive/badge.svg)](https://docs.rs/clap_derive)
 
 Parse command line argument by defining a struct.  It combines [structopt](https://github.com/TeXitoi/structopt) and [clap](https://crates.io/crates/clap) into a single experience. This crate is used by clap, and not meant to be used directly by
 consumers.
 
 ## Documentation
 
-Find it on [Docs.rs](https://docs.rs/clap_derive).  You can also check the [examples](https://github.com/kbknapp/clap_derive/tree/master/examples) and the [changelog](https://github.com/kbknapp/clap_derive/blob/master/CHANGELOG.md).
+Find it on [Docs.rs](https://docs.rs/clap_derive).  You can also check the [examples](https://github.com/clap-rs/clap_derive/tree/master/examples) and the [changelog](https://github.com/clap-rs/clap_derive/blob/master/CHANGELOG.md).
 
 ## Example
 
@@ -111,7 +111,7 @@ Opt { debug: true, verbose: 3, speed: 1337, output: "foo.txt", nb_cars: Some(4),
 
 ## clap_derive rustc version policy
 
-- Minimum rustc version modification must be specified in the [changelog](https://github.com/kbknapp/clap_derive/blob/master/CHANGELOG.md) and in the [travis configuration](https://github.com/kbknapp/clap_derive/blob/master/.travis.yml).
+- Minimum rustc version modification must be specified in the [changelog](https://github.com/clap-rs/clap_derive/blob/master/CHANGELOG.md) and in the [travis configuration](https://github.com/clap-rs/clap_derive/blob/master/.travis.yml).
 - Contributors can increment minimum rustc version without any justification if the new version is required by the latest version of one of clap_derive's depedencies (`cargo update` will not fail on clap_derive).
 - Contributors can increment minimum rustc version if the library user experience is improved.
 

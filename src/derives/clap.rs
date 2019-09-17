@@ -46,7 +46,7 @@ fn gen_app_augmentation(
                     }
                 };
 
-                Some(quote!{
+                Some(quote! {
                     let #app_var = <#subcmd_type>::augment_app( #app_var );
                     #required
                 })
@@ -111,7 +111,7 @@ fn gen_app_augmentation(
                 };
                 let methods = attrs.methods();
                 let name = attrs.name();
-                Some(quote!{
+                Some(quote! {
                     let #app_var = #app_var.arg(
                         ::clap::Arg::with_name(#name)
                             #modifier
@@ -135,9 +135,9 @@ fn gen_augment_app_fn(
     let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var);
     quote! {
-        pub fn augment_app<'a, 'b>(
-            #app_var: ::clap::App<'a, 'b>
-        ) -> ::clap::App<'a, 'b> {
+        pub fn augment_app<'b>(
+            #app_var: ::clap::App<'b>
+        ) -> ::clap::App<'b> {
             #augmentation
         }
     }
@@ -177,7 +177,7 @@ fn gen_augment_app_for_enum(
         let from_attrs = attrs.methods();
         quote! {
             .subcommand({
-                let #app_var = ::clap::SubCommand::with_name(#name);
+                let #app_var = ::clap::App::new(#name);
                 let #app_var = #arg_block;
                 #app_var#from_attrs
             })
@@ -185,9 +185,9 @@ fn gen_augment_app_for_enum(
     });
 
     quote! {
-        pub fn augment_app<'a, 'b>(
-            app: ::clap::App<'a, 'b>
-        ) -> ::clap::App<'a, 'b> {
+        pub fn augment_app<'b>(
+            app: ::clap::App<'b>
+        ) -> ::clap::App<'b> {
             app #( #subcommands )*
         }
     }
@@ -220,8 +220,8 @@ fn gen_from_subcommand(
     });
 
     quote! {
-        pub fn from_subcommand<'a, 'b>(
-            sub: (&'b str, Option<&'b ::clap::ArgMatches<'a>>)
+        pub fn from_subcommand<'b>(
+            sub: (&'b str, Option<&'b ::clap::ArgMatches>)
         ) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
@@ -319,7 +319,7 @@ fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
 
         fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
             use ::clap::{FromArgMatches, IntoApp};
-            Ok(#name::from_argmatches(&#name::into_app().get_matches_safe()?))
+            Ok(#name::from_argmatches(&#name::into_app().try_get_matches()?))
         }
 
         fn parse_from<I, T>(itr: I) -> #name
@@ -335,7 +335,7 @@ fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
             I: ::std::iter::IntoIterator<Item = T>,
             T: Into<::std::ffi::OsString> + Clone {
             use ::clap::{FromArgMatches, IntoApp};
-            Ok(#name::from_argmatches(&#name::into_app().get_matches_from_safe(itr)?))
+            Ok(#name::from_argmatches(&#name::into_app().try_get_matches_from(itr)?))
         }
     }
 }

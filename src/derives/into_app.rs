@@ -43,8 +43,8 @@ pub fn gen_into_app_impl_for_struct(
             #into_app_fn
         }
 
-        impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
-            fn into(self) -> ::clap::App<'a, 'b> {
+        impl<'b> Into<::clap::App<'b>> for #name {
+            fn into(self) -> ::clap::App<'b> {
                 use ::clap::IntoApp;
                 <#name as ::clap::IntoApp>::into_app()
             }
@@ -55,7 +55,7 @@ pub fn gen_into_app_impl_for_struct(
 pub fn gen_into_app_fn_for_struct(struct_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
     let app = gen_app_builder(struct_attrs);
     quote! {
-        fn into_app<'a, 'b>() -> ::clap::App<'a, 'b> {
+        fn into_app<'b>() -> ::clap::App<'b> {
             Self::augment_app(#app)
         }
     }
@@ -82,8 +82,8 @@ pub fn gen_into_app_impl_for_enum(
             #into_app_fn
         }
 
-        impl<'a, 'b> Into<::clap::App<'a, 'b>> for #name {
-            fn into(self) -> ::clap::App<'a, 'b> {
+        impl<'b> Into<::clap::App<'b>> for #name {
+            fn into(self) -> ::clap::App<'b> {
                 use ::clap::IntoApp;
                 <#name as ::clap::IntoApp>::into_app()
             }
@@ -94,7 +94,7 @@ pub fn gen_into_app_impl_for_enum(
 pub fn gen_into_app_fn_for_enum(enum_attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
     let gen = gen_app_builder(enum_attrs);
     quote! {
-        fn into_app<'a, 'b>() -> ::clap::App<'a, 'b> {
+        fn into_app<'b>() -> ::clap::App<'b> {
             let app = #gen
                 .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
             Self::augment_app(app)

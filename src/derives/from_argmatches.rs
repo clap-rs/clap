@@ -46,7 +46,7 @@ pub fn gen_from_argmatches_impl_for_struct(
             #from_argmatches_fn
         }
 
-        impl<'a> From<::clap::ArgMatches<'a>> for #name {
+        impl From<::clap::ArgMatches> for #name {
             fn from(m: ::clap::ArgMatches) -> Self {
                 use ::clap::FromArgMatches;
                 <Self as ::clap::FromArgMatches>::from_argmatches(&m)
@@ -152,7 +152,7 @@ pub fn gen_from_argmatches_impl_for_enum(name: &syn::Ident) -> proc_macro2::Toke
             }
         }
 
-        impl<'a> From<::clap::ArgMatches<'a>> for #name {
+        impl From<::clap::ArgMatches> for #name {
             fn from(m: ::clap::ArgMatches) -> Self {
                 use ::clap::FromArgMatches;
                 <Self as ::clap::FromArgMatches>::from_argmatches(&m)

@@ -2,13 +2,13 @@
 name = "clap_derive"
 version = "0.3.0"
 authors = [
-    "Guillaume Pinot <texitoi@texitoi.eu>", 
-    "Kevin K. <kbknapp@gmail.com>", 
+    "Guillaume Pinot <texitoi@texitoi.eu>",
+    "Kevin K. <kbknapp@gmail.com>",
     "hoverbear <andrew@hoverbear.org>"
 ]
 description = "Parse command line argument by defining a struct, derive crate."
 documentation = "https://docs.rs/clap_derive"
-repository = "https://github.com/kbknapp/clap_derive"
+repository = "https://github.com/clap-rs/clap_derive"
 keywords = ["clap", "cli", "derive", "proc_macro", "parse"]
 categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
 license = "Apache-2.0/MIT"
@@ -18,17 +18,17 @@ readme = "README.md"
 proc-macro = true
 
 [badges]
-travis-ci = { repository = "kbknapp/clap_derive" }
-appveyor = { repository = "https://github.com/kbknapp/clap_derive", service = "github" }
+travis-ci = { repository = "clap-rs/clap_derive" }
+appveyor = { repository = "https://github.com/clap-rs/clap_derive", service = "github" }
 
 [dependencies]
-syn = "0.14"
+syn = "0.15.39"
 quote = "0.6"
 proc-macro2 = "0.4"
 clippy = {version = "0.0.174", optional = true }
 
 [dev-dependencies]
-clap = {git = "https://github.com/kbknapp/clap-rs", branch = "v3-master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
+clap = { git = "https://github.com/clap-rs/clap", branch = "v3-master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
 
 [features]
 default = []

@@ -189,7 +189,7 @@ fn sub_sub_cmd_with_option() {
         use clap::{FromArgMatches, IntoApp};
 
         SubSubCmdWithOption::into_app()
-            .get_matches_from_safe(args)
+            .try_get_matches_from(args)
             .ok()
             .map(|m| SubSubCmdWithOption::from_argmatches(&m))
     }

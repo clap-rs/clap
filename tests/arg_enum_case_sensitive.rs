@@ -29,7 +29,7 @@
 //                 .takes_value(true)
 //                 .possible_values(&ArgChoice::variants()),
 //         )
-//         .get_matches_from_safe(vec!["", "foo"]); // We expect this to fail.
+//         .try_get_matches_from(vec!["", "foo"]); // We expect this to fail.
 //     assert!(matches.is_err());
 //     assert_eq!(matches.unwrap_err().kind, clap::ErrorKind::InvalidValue);
 // }
@@ -43,7 +43,7 @@
 //                 .takes_value(true)
 //                 .possible_values(&ArgChoice::variants()),
 //         )
-//         .get_matches_from_safe(vec!["", "Foo"])
+//         .try_get_matches_from(vec!["", "Foo"])
 //         .unwrap();
 //     let t = value_t!(matches.value_of("arg"), ArgChoice);
 //     assert!(t.is_ok());
