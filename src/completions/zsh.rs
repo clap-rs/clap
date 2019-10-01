@@ -457,7 +457,8 @@ fn write_positionals_of(p: &Parser) -> String {
                 .help
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
-                .replace("]", "\\]"),
+                .replace("]", "\\]")
+                .replace(":", "\\:"),
             action = arg.possible_vals().map_or("_files".to_owned(), |values| {
                 format!("({})",
                     values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
