@@ -5,7 +5,7 @@ use clap::{App, AppSettings, Arg, ErrorKind, Propagation};
 
 include!("../clap-test.rs");
 
-static ALLOW_EXT_SC: &'static str = "clap-test v1.4.8
+static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
 USAGE:
     clap-test [SUBCOMMAND]
@@ -14,7 +14,7 @@ FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
-static DONT_COLLAPSE_ARGS: &'static str = "clap-test v1.4.8
+static DONT_COLLAPSE_ARGS: &str = "clap-test v1.4.8
 
 USAGE:
     clap-test [arg1] [arg2] [arg3]
@@ -28,7 +28,7 @@ FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
-static REQUIRE_EQUALS: &'static str = "clap-test v1.4.8
+static REQUIRE_EQUALS: &str = "clap-test v1.4.8
 
 USAGE:
     clap-test --opt=<FILE>
@@ -40,7 +40,7 @@ FLAGS:
 OPTIONS:
     -o, --opt=<FILE>    some";
 
-static UNIFIED_HELP: &'static str = "test 1.3
+static UNIFIED_HELP: &str = "test 1.3
 Kevin K.
 tests stuff
 
@@ -56,7 +56,7 @@ OPTIONS:
         --option <opt>    some option
     -V, --version         Prints version information";
 
-static SKIP_POS_VALS: &'static str = "test 1.3
+static SKIP_POS_VALS: &str = "test 1.3
 Kevin K.
 tests stuff
 

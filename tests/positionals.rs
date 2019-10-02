@@ -98,7 +98,7 @@ fn lots_o_vals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
-    assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>().len(), 297); // i.e. more than u8
+    assert_eq!(m.values_of("opt").unwrap().count(), 297); // i.e. more than u8
 }
 
 #[test]

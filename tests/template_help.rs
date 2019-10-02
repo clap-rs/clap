@@ -5,10 +5,10 @@ use clap::App;
 
 include!("../clap-test.rs");
 
-static EXAMPLE1_TMPL_S: &'static str = include_str!("example1_tmpl_simple.txt");
-static EXAMPLE1_TMPS_F: &'static str = include_str!("example1_tmpl_full.txt");
+static EXAMPLE1_TMPL_S: &str = include_str!("example1_tmpl_simple.txt");
+static EXAMPLE1_TMPS_F: &str = include_str!("example1_tmpl_full.txt");
 
-static CUSTOM_TEMPL_HELP: &'static str = "MyApp 1.0
+static CUSTOM_TEMPL_HELP: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
@@ -27,7 +27,7 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    does testing things";
 
-static SIMPLE_TEMPLATE: &'static str = "MyApp 1.0
+static SIMPLE_TEMPLATE: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
