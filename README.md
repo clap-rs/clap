@@ -64,7 +64,7 @@ First, let me say that these comparisons are highly subjective, and not meant in
 
 #### How does `clap` compare to [structopt](https://github.com/TeXitoi/structopt)?
 
-Simple! `clap` *is* `stuctopt`. With the 3.0 release, `clap` imported the `structopt` code into it's own codebase as the [`clap_derive`](https://github.com/clap-rs/clap_derive) crate. Since `structopt` already used `clap` under the hood, the transition was nearly painless, and is 100% feature compatible. 
+Simple! `clap` *is* `structopt`. With the 3.0 release, `clap` imported the `structopt` code into it's own codebase as the [`clap_derive`](https://github.com/clap-rs/clap_derive) crate. Since `structopt` already used `clap` under the hood, the transition was nearly painless, and is 100% feature compatible. 
 
 If you were using `structopt` before, the only thing you should have to do is change the attributes from `#[structopt(...)]` to `#[clap(...)]`.
 
