@@ -1,6 +1,11 @@
 sudo: true
 language: rust
-cache: cargo
+cache:
+  directories:
+    - $HOME/.cargo
+    - $HOME/.rustup
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
 rust:
   - nightly
   - nightly-2019-06-18
