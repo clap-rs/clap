@@ -4,8 +4,11 @@ about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
 settings:
     - ArgRequiredElseHelp
-help_message: prints help with a nonstandard description
 args:
+    - help:
+        short: h
+        long: help
+        help: prints help with a nonstandard description
     - opt:
         short: o
         long: option
@@ -56,18 +59,18 @@ args:
         possible_values: [ vi, emacs ]
     - multvals:
         long: multvals
-        help: Tests multiple values, not mult occs
+        help: Tests mutliple values, not mult occs
         value_names:
             - one
             - two
     - multvalsmo:
         long: multvalsmo
         multiple: true
-        help: Tests multiple values, not mult occs
+        help: Tests mutliple values, not mult occs
         value_names: [one, two]
     - multvalsdelim:
         long: multvalsdelim
-        help: Tests multiple values with required delimiter
+        help: Tests mutliple values with required delimiter
         multiple: true
         require_delimiter: true
     - singlealias:
@@ -78,7 +81,7 @@ args:
             - [multvalsmo, two]
     - multaliases:
         long: multaliases
-        help: Tests multiple aliases
+        help: Tests mutliple aliases
         aliases: [als1, als2, als3]
     - minvals2:
         long: minvals2
@@ -90,11 +93,6 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
-    - case_insensitive:
-        help: Test case_insensitive
-        possible_values: [test123, test321]
-        case_insensitive: true
-
 arg_groups:
     - test:
         args:

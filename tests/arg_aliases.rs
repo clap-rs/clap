@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
 Some help
@@ -36,14 +36,14 @@ OPTIONS:
 #[test]
 fn single_alias_of_option() {
     let a = App::new("single_alias")
-        .arg(Arg::with_name("alias")
-            .long("alias")
-            .takes_value(true)
-            .help("single alias")
-            .alias("new-opt"))
-        .get_matches_from_safe(vec![
-            "", "--new-opt", "cool"
-        ]);
+        .arg(
+            Arg::with_name("alias")
+                .long("alias")
+                .takes_value(true)
+                .help("single alias")
+                .alias("new-opt"),
+        )
+        .try_get_matches_from(vec!["", "--new-opt", "cool"]);
     assert!(a.is_ok());
     let a = a.unwrap();
     assert!(a.is_present("alias"));
@@ -52,37 +52,34 @@ fn single_alias_of_option() {
 
 #[test]
 fn multiple_aliases_of_option() {
-    let a = App::new("multiple_aliases")
-        .arg(Arg::with_name("aliases")
+    let a = App::new("multiple_aliases").arg(
+        Arg::with_name("aliases")
             .long("aliases")
             .takes_value(true)
             .help("multiple aliases")
-            .aliases(&[
-                "alias1",
-                "alias2",
-                "alias3"
-        ]));
-    let long = a.clone().get_matches_from_safe(vec![
-        "", "--aliases", "value"
-    ]);
+            .aliases(&vec!["alias1", "alias2", "alias3"]),
+    );
+    let long = a
+        .clone()
+        .try_get_matches_from(vec!["", "--aliases", "value"]);
     assert!(long.is_ok());
     let long = long.unwrap();
 
-    let als1 = a.clone().get_matches_from_safe(vec![
-        "", "--alias1", "value"
-    ]);
+    let als1 = a
+        .clone()
+        .try_get_matches_from(vec!["", "--alias1", "value"]);
     assert!(als1.is_ok());
     let als1 = als1.unwrap();
 
-    let als2 = a.clone().get_matches_from_safe(vec![
-        "", "--alias2", "value"
-    ]);
+    let als2 = a
+        .clone()
+        .try_get_matches_from(vec!["", "--alias2", "value"]);
     assert!(als2.is_ok());
     let als2 = als2.unwrap();
 
-    let als3 = a.clone().get_matches_from_safe(vec![
-        "", "--alias3", "value"
-    ]);
+    let als3 = a
+        .clone()
+        .try_get_matches_from(vec!["", "--alias3", "value"]);
     assert!(als3.is_ok());
     let als3 = als3.unwrap();
 
@@ -99,10 +96,8 @@ fn multiple_aliases_of_option() {
 #[test]
 fn single_alias_of_flag() {
     let a = App::new("test")
-                .arg(Arg::with_name("flag")
-                    .long("flag")
-                    .alias("alias"))
-                .get_matches_from_safe(vec!["", "--alias"]);
+        .arg(Arg::with_name("flag").long("flag").alias("alias"))
+        .try_get_matches_from(vec!["", "--alias"]);
     assert!(a.is_ok());
     let a = a.unwrap();
     assert!(a.is_present("flag"));
@@ -110,26 +105,27 @@ fn single_alias_of_flag() {
 
 #[test]
 fn multiple_aliases_of_flag() {
-    let a = App::new("test")
-                .arg(Arg::with_name("flag")
-                    .long("flag")
-                    .aliases(&["invisible",
-                        "set", "of",
-                        "cool", "aliases"]));
+    let a = App::new("test").arg(Arg::with_name("flag").long("flag").aliases(&[
+        "invisible",
+        "set",
+        "of",
+        "cool",
+        "aliases",
+    ]));
 
-    let flag = a.clone().get_matches_from_safe(vec!["", "--flag"]);
+    let flag = a.clone().try_get_matches_from(vec!["", "--flag"]);
     assert!(flag.is_ok());
     let flag = flag.unwrap();
 
-    let inv = a.clone().get_matches_from_safe(vec!["", "--invisible"]);
+    let inv = a.clone().try_get_matches_from(vec!["", "--invisible"]);
     assert!(inv.is_ok());
     let inv = inv.unwrap();
 
-    let cool = a.clone().get_matches_from_safe(vec!["", "--cool"]);
+    let cool = a.clone().try_get_matches_from(vec!["", "--cool"]);
     assert!(cool.is_ok());
     let cool = cool.unwrap();
 
-    let als = a.clone().get_matches_from_safe(vec!["", "--aliases"]);
+    let als = a.clone().try_get_matches_from(vec!["", "--aliases"]);
     assert!(als.is_ok());
     let als = als.unwrap();
 
@@ -142,19 +138,22 @@ fn multiple_aliases_of_flag() {
 #[test]
 fn alias_on_a_subcommand_option() {
     let m = App::new("test")
-        .subcommand(SubCommand::with_name("some")
-            .arg(Arg::with_name("test")
-                .short("t")
-                .long("test")
-                .takes_value(true)
-                .alias("opt")
-                .help("testing testing")))
-        .arg(Arg::with_name("other")
-            .long("other")
-            .aliases(&["o1", "o2", "o3"]))
-        .get_matches_from(vec![
-            "test", "some", "--opt", "awesome"
-        ]);
+        .subcommand(
+            App::new("some").arg(
+                Arg::with_name("test")
+                    .short('t')
+                    .long("test")
+                    .takes_value(true)
+                    .alias("opt")
+                    .help("testing testing"),
+            ),
+        )
+        .arg(
+            Arg::with_name("other")
+                .long("other")
+                .aliases(&vec!["o1", "o2", "o3"]),
+        )
+        .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
 
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();
@@ -164,37 +163,52 @@ fn alias_on_a_subcommand_option() {
 
 #[test]
 fn invisible_arg_aliases_help_output() {
-    let app = App::new("ct")
-    .author("Salim Afiune")
-        .subcommand(SubCommand::with_name("test")
+    let app = App::new("ct").author("Salim Afiune").subcommand(
+        App::new("test")
             .about("Some help")
             .version("1.2")
-            .arg(Arg::with_name("opt")
-                .long("opt")
-                .short("o")
-                .takes_value(true)
-                .aliases(&["invisible", "als1", "more"]))
-            .arg(Arg::from_usage("-f, --flag")
-                .aliases(&["invisible", "flg1", "anyway"])));
-    assert!(test::compare_output(app, "ct test --help", SC_INVISIBLE_ALIAS_HELP, false));
+            .arg(
+                Arg::with_name("opt")
+                    .long("opt")
+                    .short('o')
+                    .takes_value(true)
+                    .aliases(&["invisible", "als1", "more"]),
+            )
+            .arg(Arg::from("-f, --flag").aliases(&["invisible", "flg1", "anyway"])),
+    );
+    assert!(test::compare_output(
+        app,
+        "ct test --help",
+        SC_INVISIBLE_ALIAS_HELP,
+        false
+    ));
 }
 
 #[test]
 fn visible_arg_aliases_help_output() {
-    let app = App::new("ct")
-        .author("Salim Afiune")
-        .subcommand(SubCommand::with_name("test")
+    let app = App::new("ct").author("Salim Afiune").subcommand(
+        App::new("test")
             .about("Some help")
             .version("1.2")
-            .arg(Arg::with_name("opt")
-                .long("opt")
-                .short("o")
-                .takes_value(true)
-                .alias("invisible")
-                .visible_alias("visible"))
-            .arg(Arg::with_name("flg")
-                .long("flag")
-                .short("f")
-                .visible_aliases(&["v_flg", "flag2", "flg3"])));
-    assert!(test::compare_output(app, "ct test --help", SC_VISIBLE_ALIAS_HELP, false));
+            .arg(
+                Arg::with_name("opt")
+                    .long("opt")
+                    .short('o')
+                    .takes_value(true)
+                    .alias("invisible")
+                    .visible_alias("visible"),
+            )
+            .arg(
+                Arg::with_name("flg")
+                    .long("flag")
+                    .short('f')
+                    .visible_aliases(&["v_flg", "flag2", "flg3"]),
+            ),
+    );
+    assert!(test::compare_output(
+        app,
+        "ct test --help",
+        SC_VISIBLE_ALIAS_HELP,
+        false
+    ));
 }

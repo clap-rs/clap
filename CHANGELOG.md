@@ -1,160 +1,8 @@
-<a name="v2.33.0"></a>
-## v2.33.0 (2019-04-06)
-
-#### New Sponsor
-
-*   Stephen Oats is now a sponsor \o/ ([823457c0](https://github.com/kbknapp/clap-rs/commit/823457c0ef5e994ed7080cf62addbfe1aa3b1833))
-* **SPONSORS.md:**  fixes Josh Triplett's info in the sponsor document ([24cb5740](https://github.com/kbknapp/clap-rs/commit/24cb574090a11159b48bba105d5ec2dfb0a20e4e))
-
-#### Features
-
-* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
-* There is a new setting to disable automatic building of `--help` and `-h` flags (`AppSettings::DisableAutoHelp`)
-
-#### Improvements
-
-* **arg_matches.rs:**  add Debug implementations ([47192b7a](https://github.com/kbknapp/clap-rs/commit/47192b7a2d84ec716b81ae4af621e008a8762dc9))
-* **macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
-
-#### Documentation
-
-*   Refer to macOS rather than OSX. ([ab0d767f](https://github.com/kbknapp/clap-rs/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
-* **README.md:**  use https for all links ([96a7639a](https://github.com/kbknapp/clap-rs/commit/96a7639a36bcb184c3f45348986883115ef1ab3a))
-
-#### Bug Fixes
-
-*   add debug assertion for missing args in subcommand ArgGroup ([2699d9e5](https://github.com/kbknapp/clap-rs/commit/2699d9e51e7eadc258ba64c4e347c5d1fef61343))
-*   Restore compat with Rust 1.21 ([6b263de1](https://github.com/kbknapp/clap-rs/commit/6b263de1d42ede692ec5ee55019ad2fc6386f92e))
-*   Dont mention unused subcommands ([ef92e2b6](https://github.com/kbknapp/clap-rs/commit/ef92e2b639ed305bdade4741f60fa85cb0101c5a))
-* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
-* **arg_enum!:**
-  *  Fix comma position for valid values. ([1f1f9ff3](https://github.com/kbknapp/clap-rs/commit/1f1f9ff3fa38a43231ef8be9cfea89a32e53f518))
-  *  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/kbknapp/clap-rs/commit/7023184fca04e852c270341548d6a16207d13862))
-* **completions:**  improve correctness of completions when whitespace is involved ([5a08ff29](https://github.com/kbknapp/clap-rs/commit/5a08ff295b2aa6ce29420df6252a0e3ff4441bdc))
-* **help message:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/kbknapp/clap-rs/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
-* **macros:**  fixes broken pattern which prevented calling multi-argument Arg methods ([9e7a352e](https://github.com/kbknapp/clap-rs/commit/9e7a352e13aaf8025d80f2bac5c47fb32528672b))
-* **parser:**  Better interaction between AllowExternalSubcommands and SubcommandRequired ([9601c95a](https://github.com/kbknapp/clap-rs/commit/9601c95a03d2b82bf265c328b4769238f1b79002))
+## Unreleased
 
 #### Minimum Required Rust
 
-* As of this release, `clap` requires `rustc 1.31.0` or greater.
-
-<a name="v2.32.0"></a>
-## v2.32.0 (2018-06-26)
-
-#### Minimum Required Rust
-
-* As of this release, `clap` requires `rustc 1.21.0` or greater.
-
-
-#### Features
-
-* **Completions:**  adds completion support for Elvish. ([e9d0562a](https://github.com/kbknapp/clap-rs/commit/e9d0562a1dc5dfe731ed7c767e6cee0af08f0cf9))
-
-#### Improvements
-
-* **macros:**  Support shorthand syntax for ArgGroups ([df9095e7](https://github.com/kbknapp/clap-rs/commit/df9095e75bb1e7896415251d0d4ffd8a0ebcd559))
-
-#### Bug Fixes
-
-* **OsValues:**  Add `ExactSizeIterator` implementation ([356c69e5](https://github.com/kbknapp/clap-rs/commit/356c69e508fd25a9f0ea2d27bf80ae1d9a8d88f4))
-* **arg_enum!:**  Invalid expansions of some trailing-comma patterns ([7023184f](https://github.com/kbknapp/clap-rs/commit/7023184fca04e852c270341548d6a16207d13862))
-* **help message:**  Unconditionally uses long description for subcommands ([6acc8b6a](https://github.com/kbknapp/clap-rs/commit/6acc8b6a621a765cbf513450188000d943676a30), closes [#897](https://github.com/kbknapp/clap-rs/issues/897))
-
-#### Documentation
-
-*   Refer to macOS rather than OSX. ([ab0d767f](https://github.com/kbknapp/clap-rs/commit/ab0d767f3a5a57e2bbb97d0183c2ef63c8c77a6c))
-
-
-
-<a name="v2.31.2"></a>
-### v2.31.2 (2018-03-19)
-
-#### Bug Fixes
-
-* **Fish Completions:**  fixes a bug that only allowed a single completion in in Fish Shell ([e8774a8](https://github.com/kbknapp/clap-rs/pull/1214/commits/e8774a84ee4a319c888036e7c595ab46451d8e48), closes [#1212](https://github.com/kbknapp/clap-rs/issues/1212))
-* **AllowExternalSubcommands**: fixes a bug where external subcommands would be blocked by a similarly named subcommand (suggestions were getting in the way). ([a410e85](https://github.com/kbknapp/clap-rs/pull/1215/commits/a410e855bcd82b05f9efa73fa8b9774dc8842c6b))
-
-#### Documentation
-
-* Fixes some typos in the `README.md` ([c8e685d7](https://github.com/kbknapp/clap-rs/commit/c8e685d76adee2a3cc06cac6952ffcf6f9548089))
-
-<a name="v2.31.1"></a>
-### v2.31.1 (2018-03-06)
-
-
-#### Improvements
-
-* **AllowMissingPositional:**  improves the ability of AllowMissingPositional to allow 'skipping' to the last positional arg with '--' ([df20e6e2](https://github.com/kbknapp/clap-rs/commit/df20e6e24b4e782be0b423b484b9798e3e2efe2f))
-
-
-<a name="v2.31.0"></a>
-## v2.31.0 (2018-03-04)
-
-
-#### Features
-
-* **Arg Indices:**  adds the ability to query argument value indices ([f58d0576](https://github.com/kbknapp/clap-rs/commit/f58d05767ec8133c8eb2de117cb642b9ae29ccbc))
-* **Indices:**  implements an Indices<Item=&usize> iterator ([1e67be44](https://github.com/kbknapp/clap-rs/commit/1e67be44f0ccf161cc84c4e6082382072e89c302))
-* **Raw Args** adds a convenience function to `Arg` that allows implying all of `Arg::last` `Arg::allow_hyphen_values` and `Arg::multiple(true)` ([66a78f29](https://github.com/kbknapp/clap-rs/commit/66a78f2972786f5fe7c07937a1ac23da2542afd2))
-
-#### Documentation
-
-*   Fix some typos and markdown issues. ([935ba0dd](https://github.com/kbknapp/clap-rs/commit/935ba0dd547a69c3f636c5486795012019408794))
-* **Arg Indices:**  adds the documentation for the arg index querying methods ([50bc0047](https://github.com/kbknapp/clap-rs/commit/50bc00477afa64dc6cdc5de161d3de3ba1d105a7))
-* **CONTRIBUTING.md:**  fix url to clippy upstream repo to point to https://github.com/rust-lang-nursery/rust-clippy instead of https://github.com/Manishearth/rust-clippy ([42407d7f](https://github.com/kbknapp/clap-rs/commit/42407d7f21d794103cda61f49d2615aae0a4bcd9))
-* **Values:**  improves the docs example of the Values iterator ([74075d65](https://github.com/kbknapp/clap-rs/commit/74075d65e8db1ddb5e2a4558009a5729d749d1b6))
-* Updates readme to hint that the `wrap_help` feature is a thing ([fc7ab227](https://github.com/kbknapp/clap-rs/commit/66a78f2972786f5fe7c07937a1ac23da2542afd2))
-
-### Improvements
-
-*  Cargo.toml: use codegen-units = 1 in release and bench profiles ([19f425ea](https://github.com/kbknapp/clap-rs/commit/66a78f2972786f5fe7c07937a1ac23da2542afd2))
-*  Adds WASM support (clap now compiles on WASM!) ([689949e5](https://github.com/kbknapp/clap-rs/commit/689949e57d390bb61bc69f3ed91f60a2105738d0))
-*  Uses the short help tool-tip for PowerShell completion scripts ([ecda22ce](https://github.com/kbknapp/clap-rs/commit/ecda22ce7210ce56d7b2d1a5445dd1b8a2959656))
-
-
-<a name="v2.30.0"></a>
-## v2.30.0 (2018-02-13)
-
-#### Bug Fixes
-
-* **YAML:** Adds a missing conversion from  `Arg::last` when instantiating from a YAML file ([aab77c81a5](https://github.com/kbknapp/clap-rs/pull/1175/commits/aab77c81a519b045f95946ae0dd3e850f9b93070), closes [#1160](https://github.com/kbknapp/clap-rs/issues/1173))
-
-#### Improvements
-
-* **Bash Completions:**  instead of completing a generic option name, all bash completions fall back to file completions UNLESS `Arg::possible_values` was used ([872f02ae](https://github.com/kbknapp/clap-rs/commit/872f02aea900ffa376850a279eb164645e1234fa))
-* **Deps:**  No longer needlessly compiles `ansi_term` on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
-* **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API ([414707e4e97](https://github.com/kbknapp/clap-rs/pull/1176/commits/414707e4e979d07bfe555247e5d130c546673708), closes [#1160](https://github.com/kbknapp/clap-rs/issues/1160))
-
-
-<a name="v2.29.4"></a>
-### v2.29.4 (2018-02-06)
-
-
-#### Bug Fixes
-
-* **Overrides Self:**  fixes a bug where options with multiple values couldnt ever have multiple values ([d95907cf](https://github.com/kbknapp/clap-rs/commit/d95907cff6d011a901fe35fa00b0f4e18547a1fb))
-
-
-
-<a name="v2.29.3"></a>
-### v2.29.3 (2018-02-05)
-
-
-#### Improvements
-
-* **Overrides:**  clap now supports arguments which override with themselves ([6c7a0010](https://github.com/kbknapp/clap-rs/commit/6c7a001023ca1eac1cc6ffe6c936b4c4a2aa3c45), closes [#976](https://github.com/kbknapp/clap-rs/issues/976))
-
-#### Bug Fixes
-
-* **Requirements:**  fixes an issue where conflicting args would still show up as required ([e06cefac](https://github.com/kbknapp/clap-rs/commit/e06cefac97083838c0a4e1444dcad02a5c3f911e), closes [#1158](https://github.com/kbknapp/clap-rs/issues/1158))
-* Fixes a bug which disallows proper nesting of `--` ([73993fe](https://github.com/kbknapp/clap-rs/commit/73993fe30d135f682e763ec93dcb0814ed518011), closes [#1161](https://github.com/kbknapp/clap-rs/issues/1161))
-
-#### New Settings
-
-* **AllArgsOverrideSelf:**  adds a new convenience setting to allow all args to override themselves ([4670325d](https://github.com/kbknapp/clap-rs/commit/4670325d1bf0369addec2ae2bcb56f1be054c924))
-
-
+* As of this release, `clap` requires `rustc 1.33.0` or greater.
 
 <a name="v2.29.2"></a>
 ### v2.29.2 (2018-01-16)
@@ -959,7 +807,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Documentation
 
-* **Help Wrapping:**  removes the verbiage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
 * **Value Delimiters:**  updates the docs for the Arg::multiple method WRT value delimiters and default settings ([f9d17a06](https://github.com/kbknapp/clap-rs/commit/f9d17a060aa53f10d0a6e1a7eed5d989d1a59533))
 * **appsettings:**  Document AppSetting::DisableVersion ([94501965](https://github.com/kbknapp/clap-rs/commit/945019654d2ca67eb2b1d6014fdf80b84d528d30), closes [#589](https://github.com/kbknapp/clap-rs/issues/589))
 
@@ -987,7 +835,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Documentation
 
-* **Help Wrapping:**  removes the verbiage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/kbknapp/clap-rs/commit/c5a2b352ca600f5b802290ad945731066cd53611))
 
 #### Improvements
 
@@ -2619,7 +2467,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 #### Features
 
 * **macros**
-  *  add ability to get multiple typed values or exit ([0b87251f](https://github.com/kbknapp/clap-rs/commit/0b87251fc088234bee51c323c2b652d7254f7a59))
+  *  add ability to get mutliple typed values or exit ([0b87251f](https://github.com/kbknapp/clap-rs/commit/0b87251fc088234bee51c323c2b652d7254f7a59))
   *  add ability to get a typed multiple values ([e243fe38](https://github.com/kbknapp/clap-rs/commit/e243fe38ddbbf845a46c0b9baebaac3778c80927))
   *  add convenience macro to get a typed value or exit ([4b7cd3ea](https://github.com/kbknapp/clap-rs/commit/4b7cd3ea4947780d9daa39f3e1ddab53ad4c7fef))
   *  add convenience macro to get a typed value ([8752700f](https://github.com/kbknapp/clap-rs/commit/8752700fbb30e89ee68adbce24489ae9a24d33a9))

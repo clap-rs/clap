@@ -1,15 +1,38 @@
 [package]
-
 name = "clap"
-version = "2.33.0"
+version = "3.0.0-beta.1"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = ["examples/*", "clap-test/*", "tests/*", "benches/*", "*.png", "clap-perf/*", "*.dot"]
+exclude = [
+	".github/*",
+	"examples/*",
+	"tests/*",
+	"benches/*",
+	"clap-perf/*",
+	"etc/*",
+	"*.png",
+	"*.dot",
+	"*.yml",
+	"*.toml",
+	"*.md",
+	"clap-test.rs"
+]
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"README.md"
+]
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
 readme = "README.md"
-license = "MIT"
-keywords = ["argument", "cli", "arg", "parser", "parse"]
+license = "MIT OR Apache-2.0"
+keywords = [
+	"argument",
+	"cli",
+	"arg",
+	"parser",
+	"parse"
+]
 categories = ["command-line-interface"]
 description = """
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -26,42 +49,35 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 bitflags              = "1.0"
 unicode-width         = "0.1.4"
-textwrap              = "0.11.0"
-strsim    = { version = "0.8",  optional = true }
-yaml-rust = { version = "0.3.5",  optional = true }
-clippy    = { version = "~0.0.166", optional = true }
+textwrap              = "0.11"
+indexmap              = "1.0.1"
+strsim    = { version = "0.9.0",  optional = true }
+yaml-rust = { version = "0.4",  optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
-term_size = { version = "0.3.0", optional = true }
+term_size = { version = "1.0.0-beta1", optional = true }
+clap_derive = { git = "https://github.com/clap-rs/clap_derive", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
-ansi_term = { version = "0.11",  optional = true }
+ansi_term = { version = "0.11.0",  optional = true }
 
 [dev-dependencies]
-regex = "1"
-lazy_static = "1.3"
+regex = "1.0"
+lazy_static = "1"
 version-sync = "0.8"
 
 [features]
-default     = ["suggestions", "color", "vec_map"]
+default     = ["suggestions", "color", "vec_map", "derive"]
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
+derive      = ["clap_derive"]
 yaml        = ["yaml-rust"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
-lints       = ["clippy"] # Requires nightly Rust
 debug       = [] # Enables debug messages
 no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 doc         = ["yaml"] # All the features which add to documentation
-
-[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = true
-debug-assertions = false
-codegen-units = 1
 
 [profile.dev]
 opt-level = 0

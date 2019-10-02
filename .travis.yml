@@ -3,12 +3,15 @@ language: rust
 cache: cargo
 rust:
   - nightly
+  - nightly-2019-06-18
   - beta
   - stable
-  - 1.31.0
+  - 1.33.0
 matrix:
     allow_failures:
         - rust: nightly
+    nightly-2019-06-18:
+        - script: cargo clippy
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
@@ -21,21 +24,19 @@ before_script:
     fi
 script:
   - |
-    travis-cargo --only stable test -- --verbose --no-default-features &&
+    travis-cargo test -- --verbose --no-default-features &&
     travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
     travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
-    travis-cargo --only nightly bench -- --no-run 
+    travis-cargo --only nightly bench
 addons:
   apt:
     packages:
-    - binutils-dev 
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
-    - libiberty-dev
     - cmake
     - gcc
-    - zlib1g-dev 
+    - binutils-dev
 after_success:
   - |
     wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
@@ -55,5 +56,4 @@ after_success:
     echo "Uploaded code coverage"
 env:
   global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
     - secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=

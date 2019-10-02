@@ -26,10 +26,12 @@ fn hidden_args() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.4")
-        .args(&[Arg::from_usage("-f, --flag 'some flag'").hidden(true),
-                    Arg::from_usage("-F, --flag2 'some other flag'"),
-                    Arg::from_usage("--option [opt] 'some option'"),
-                    Arg::with_name("DUMMY").required(false).hidden(true)]);
+        .args(&[
+            Arg::from("-f, --flag 'some flag'").hidden(true),
+            Arg::from("-F, --flag2 'some other flag'"),
+            Arg::from("--option [opt] 'some option'"),
+            Arg::with_name("DUMMY").hidden(true),
+        ]);
     assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
 }
 
@@ -74,16 +76,22 @@ fn hidden_short_args() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .help("Some help text describing the --config arg"),                
+                .help("Some help text describing the --config arg"),
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
-                .help("This text should be visible")]);
+                .help("This text should be visible"),
+        ]);
 
-    assert!(test::compare_output(app, "test -h", HIDDEN_SHORT_ARGS, false));        
+    assert!(test::compare_output(
+        app,
+        "test -h",
+        HIDDEN_SHORT_ARGS,
+        false
+    ));
 }
 
 /// Ensure visible with opposite option
@@ -95,16 +103,22 @@ fn hidden_short_args_long_help() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .help("Some help text describing the --config arg"),                
+                .help("Some help text describing the --config arg"),
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
-                .help("This text should be visible")]);
+                .help("This text should be visible"),
+        ]);
 
-    assert!(test::compare_output(app, "test --help", HIDDEN_SHORT_ARGS_LONG_HELP, false));        
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        HIDDEN_SHORT_ARGS_LONG_HELP,
+        false
+    ));
 }
 
 static HIDDEN_LONG_ARGS: &'static str = "test 2.31.2
@@ -132,16 +146,22 @@ fn hidden_long_args() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .help("Some help text describing the --config arg"),                
+                .help("Some help text describing the --config arg"),
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
-                .help("This text should be visible")]);
+                .help("This text should be visible"),
+        ]);
 
-    assert!(test::compare_output(app, "test --help", HIDDEN_LONG_ARGS, false));        
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        HIDDEN_LONG_ARGS,
+        false
+    ));
 }
 
 static HIDDEN_LONG_ARGS_SHORT_HELP: &'static str = "test 2.31.2
@@ -165,14 +185,20 @@ fn hidden_long_args_short_help() {
         .version("2.31.2")
         .args(&[
             Arg::with_name("cfg")
-                .short("c")
+                .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .help("Some help text describing the --config arg"),                
+                .help("Some help text describing the --config arg"),
             Arg::with_name("visible")
-                .short("v")
+                .short('v')
                 .long("visible")
-                .help("This text should be visible")]);
+                .help("This text should be visible"),
+        ]);
 
-    assert!(test::compare_output(app, "test -h", HIDDEN_LONG_ARGS_SHORT_HELP, false));        
+    assert!(test::compare_output(
+        app,
+        "test -h",
+        HIDDEN_LONG_ARGS_SHORT_HELP,
+        false
+    ));
 }

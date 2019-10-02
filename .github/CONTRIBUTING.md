@@ -35,7 +35,7 @@ $ just run-test <test_name>
 
 ### Linting Code
 
-During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/rust-lang-nursery/rust-clippy). In order to check if these lints pass on your own computer prior to submitting a PR you'll need a nightly compiler.
+During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/Manishearth/rust-clippy). In order to check if these lints pass on your own computer prior to submitting a PR you'll need a nightly compiler.
 
 In order to check the code for lints run either:
 

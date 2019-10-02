@@ -3,7 +3,7 @@ extern crate regex;
 
 use std::str;
 
-use clap::{App, Arg, SubCommand, AppSettings};
+use clap::{App, AppSettings, Arg};
 
 include!("../clap-test.rs");
 
@@ -119,16 +119,25 @@ OPTIONS:
 
 #[test]
 fn no_derive_order() {
-    let app = App::new("test")
-        .version("1.2")
-        .args(&[
-            Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
-            Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
-        ]);
+    let app = App::new("test").version("1.2").args(&[
+        Arg::with_name("flag_b").long("flag_b").help("first flag"),
+        Arg::with_name("option_b")
+            .long("option_b")
+            .takes_value(true)
+            .help("first option"),
+        Arg::with_name("flag_a").long("flag_a").help("second flag"),
+        Arg::with_name("option_a")
+            .long("option_a")
+            .takes_value(true)
+            .help("second option"),
+    ]);
 
-    assert!(test::compare_output(app, "test --help", NO_DERIVE_ORDER, false));
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        NO_DERIVE_ORDER,
+        false
+    ));
 }
 
 #[test]
@@ -138,12 +147,23 @@ fn derive_order() {
         .version("1.2")
         .args(&[
             Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+            Arg::with_name("option_b")
+                .long("option_b")
+                .takes_value(true)
+                .help("first option"),
             Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
+            Arg::with_name("option_a")
+                .long("option_a")
+                .takes_value(true)
+                .help("second option"),
         ]);
 
-    assert!(test::compare_output(app, "test --help", DERIVE_ORDER, false));
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        DERIVE_ORDER,
+        false
+    ));
 }
 
 #[test]
@@ -153,12 +173,23 @@ fn unified_help() {
         .version("1.2")
         .args(&[
             Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+            Arg::with_name("option_b")
+                .long("option_b")
+                .takes_value(true)
+                .help("first option"),
             Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
+            Arg::with_name("option_a")
+                .long("option_a")
+                .takes_value(true)
+                .help("second option"),
         ]);
 
-    assert!(test::compare_output(app, "test --help", UNIFIED_HELP, false));
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        UNIFIED_HELP,
+        false
+    ));
 }
 
 #[test]
@@ -169,12 +200,23 @@ fn unified_help_and_derive_order() {
         .version("1.2")
         .args(&[
             Arg::with_name("flag_b").long("flag_b").help("first flag"),
-            Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+            Arg::with_name("option_b")
+                .long("option_b")
+                .takes_value(true)
+                .help("first option"),
             Arg::with_name("flag_a").long("flag_a").help("second flag"),
-            Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
+            Arg::with_name("option_a")
+                .long("option_a")
+                .takes_value(true)
+                .help("second option"),
         ]);
 
-    assert!(test::compare_output(app, "test --help", UNIFIED_HELP_AND_DERIVE, false));
+    assert!(test::compare_output(
+        app,
+        "test --help",
+        UNIFIED_HELP_AND_DERIVE,
+        false
+    ));
 }
 
 #[test]
@@ -182,32 +224,54 @@ fn derive_order_subcommand_propagate() {
     let app = App::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
-        .subcommand(SubCommand::with_name("sub")
-            .version("1.2")
-            .args(&[
+        .subcommand(
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+                Arg::with_name("option_b")
+                    .long("option_b")
+                    .takes_value(true)
+                    .help("first option"),
                 Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
-            ]));
+                Arg::with_name("option_a")
+                    .long("option_a")
+                    .takes_value(true)
+                    .help("second option"),
+            ]),
+        );
 
-    assert!(test::compare_output(app, "test sub --help", DERIVE_ORDER_SC_PROP, false));
+    assert!(test::compare_output(
+        app,
+        "test sub --help",
+        DERIVE_ORDER_SC_PROP,
+        false
+    ));
 }
 
 #[test]
 fn unified_help_subcommand_propagate() {
     let app = App::new("test")
         .global_setting(AppSettings::UnifiedHelpMessage)
-        .subcommand(SubCommand::with_name("sub")
-            .version("1.2")
-            .args(&[
+        .subcommand(
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+                Arg::with_name("option_b")
+                    .long("option_b")
+                    .takes_value(true)
+                    .help("first option"),
                 Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
-            ]));
+                Arg::with_name("option_a")
+                    .long("option_a")
+                    .takes_value(true)
+                    .help("second option"),
+            ]),
+        );
 
-    assert!(test::compare_output(app, "test sub --help", UNIFIED_SC_PROP, false));
+    assert!(test::compare_output(
+        app,
+        "test sub --help",
+        UNIFIED_SC_PROP,
+        false
+    ));
 }
 
 #[test]
@@ -215,16 +279,27 @@ fn unified_help_and_derive_order_subcommand_propagate() {
     let app = App::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .global_setting(AppSettings::UnifiedHelpMessage)
-        .subcommand(SubCommand::with_name("sub")
-            .version("1.2")
-            .args(&[
+        .subcommand(
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
+                Arg::with_name("option_b")
+                    .long("option_b")
+                    .takes_value(true)
+                    .help("first option"),
                 Arg::with_name("flag_a").long("flag_a").help("second flag"),
-                Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
-            ]));
+                Arg::with_name("option_a")
+                    .long("option_a")
+                    .takes_value(true)
+                    .help("second option"),
+            ]),
+        );
 
-    assert!(test::compare_output(app, "test sub --help", UNIFIED_DERIVE_SC_PROP, false));
+    assert!(test::compare_output(
+        app,
+        "test sub --help",
+        UNIFIED_DERIVE_SC_PROP,
+        false
+    ));
 }
 
 #[test]
@@ -232,14 +307,28 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
     let app = App::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)
         .global_setting(AppSettings::UnifiedHelpMessage)
-        .subcommand(SubCommand::with_name("sub")
-            .version("1.2")
-            .args(&[
+        .subcommand(
+            App::new("sub").version("1.2").args(&[
                 Arg::with_name("flag_b").long("flag_b").help("first flag"),
-                Arg::with_name("option_b").long("option_b").takes_value(true).help("first option"),
-                Arg::with_name("flag_a").long("flag_a").help("second flag").display_order(0),
-                Arg::with_name("option_a").long("option_a").takes_value(true).help("second option"),
-            ]));
+                Arg::with_name("option_b")
+                    .long("option_b")
+                    .takes_value(true)
+                    .help("first option"),
+                Arg::with_name("flag_a")
+                    .long("flag_a")
+                    .help("second flag")
+                    .display_order(0),
+                Arg::with_name("option_a")
+                    .long("option_a")
+                    .takes_value(true)
+                    .help("second option"),
+            ]),
+        );
 
-    assert!(test::compare_output(app, "test sub --help", UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER, false));
+    assert!(test::compare_output(
+        app,
+        "test sub --help",
+        UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER,
+        false
+    ));
 }

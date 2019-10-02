@@ -4,63 +4,65 @@ extern crate regex;
 #[cfg(test)]
 mod tests {
     include!("../clap-test.rs");
-    use clap::{App, Arg, SubCommand, ArgMatches};
+    use clap::{App, Arg, ArgMatches, ArgSettings};
 
-    fn get_app() -> App<'static, 'static> {
+    fn get_app() -> App<'static> {
         App::new("myprog")
-            .arg(Arg::with_name("GLOBAL_ARG")
-                .long("global-arg")
-                .help(
-                    "Specifies something needed by the subcommands",
-                )
-                .global(true)
-                .takes_value(true)
-                .default_value("default_value"))
-            .arg(Arg::with_name("GLOBAL_FLAG")
-                .long("global-flag")
-                .help(
-                    "Specifies something needed by the subcommands",
-                )
-                .multiple(true)
-                .global(true))
-            .subcommand(SubCommand::with_name("outer")
-                .subcommand(SubCommand::with_name("inner")))
+            .arg(
+                Arg::with_name("GLOBAL_ARG")
+                    .long("global-arg")
+                    .help("Specifies something needed by the subcommands")
+                    .global(true)
+                    .setting(ArgSettings::TakesValue)
+                    .default_value("default_value"),
+            )
+            .arg(
+                Arg::with_name("GLOBAL_FLAG")
+                    .long("global-flag")
+                    .help("Specifies something needed by the subcommands")
+                    .global(true)
+                    .setting(ArgSettings::MultipleOccurrences),
+            )
+            .subcommand(App::new("outer").subcommand(App::new("inner")))
     }
 
-    fn get_matches(app: App<'static, 'static>, argv: &'static str) -> ArgMatches<'static> {
-        app.get_matches_from(argv.split(' ').collect::<Vec<_>>())
+    fn get_matches(app: App<'static>, argv: &'static str) -> ArgMatches {
+        app.get_matches_from(argv.split(" ").collect::<Vec<_>>())
     }
 
-    fn get_outer_matches<'a>(m: &'a ArgMatches<'static>) -> &'a ArgMatches<'static> {
-        m.subcommand_matches("outer").expect("could not access outer subcommand")
+    fn get_outer_matches(m: &ArgMatches) -> &ArgMatches {
+        m.subcommand_matches("outer")
+            .expect("could not access outer subcommand")
     }
 
-    fn get_inner_matches<'a>(m: &'a ArgMatches<'static>) -> &'a ArgMatches<'static> {
-        get_outer_matches(m).subcommand_matches("inner").expect("could not access inner subcommand")
+    fn get_inner_matches(m: &ArgMatches) -> &ArgMatches {
+        get_outer_matches(m)
+            .subcommand_matches("inner")
+            .expect("could not access inner subcommand")
     }
 
-    fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches<'static>, val: T) -> bool {
+    fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         m.value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn inner_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches<'static>, val: T) -> bool {
+    fn inner_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         get_inner_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches<'static>, val: T) -> bool {
+    fn outer_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
         get_outer_matches(m).value_of("GLOBAL_ARG") == val.into()
     }
 
-    fn top_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn top_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }
 
-    fn inner_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         let m = get_inner_matches(m);
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }
 
-    fn outer_can_access_flag(m: &ArgMatches<'static>, present: bool, occurrences: u64) -> bool {
+    fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u64) -> bool {
         let m = get_outer_matches(m);
         (m.is_present("GLOBAL_FLAG") == present) && (m.occurrences_of("GLOBAL_FLAG") == occurrences)
     }
@@ -127,7 +129,7 @@ mod tests {
         assert!(inner_can_access_flag(&m, true, 1));
         assert!(outer_can_access_flag(&m, true, 1));
     }
-    
+
     #[test]
     fn global_flag_2x_used_top_level() {
         let m = get_matches(get_app(), "myprog --global-flag --global-flag outer inner");

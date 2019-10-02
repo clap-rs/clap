@@ -5,7 +5,6 @@ extern crate clap;
 // $crate:: internally
 
 fn main() {
-
     // Validation example testing that a file exists
     let file_exists = |path| {
         if std::fs::metadata(path).is_ok() {
@@ -16,7 +15,7 @@ fn main() {
     };
 
     // External module may contain this subcommand. If this exists in another module, a function is
-    // required to access it. Recommend `fn clap() -> Clap::SubCommand`.
+    // required to access it. Recommend `fn clap() -> Clap::`.
     let external_sub_command = clap_app!( @subcommand foo =>
         (@arg bar: -b "Bar")
     );
@@ -41,7 +40,7 @@ fn main() {
             (@arg list: -l "Lists test values")
             (@arg test_req: -r requires[list] "Tests requirement for listing")
             (@arg aaaa: --aaaa +takes_value {
-                    |a| if a.contains('a') {
+                    |a| if a.contains("a") {
                         Ok(())
                     } else {
                         Err(String::from("string does not contain at least one a"))
@@ -70,7 +69,7 @@ fn main() {
 
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level app
-    if let Some(matches) = matches.subcommand_matches("test") {
+    if let Some(ref matches) = matches.subcommand_matches("test") {
         // "$ myapp test" was run
         if matches.is_present("list") {
             // "$ myapp test -l" was run

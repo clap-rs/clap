@@ -15,7 +15,7 @@ enum Vals {
     Foo,
     Bar,
     Baz,
-    Qux
+    Qux,
 }
 
 // Implement the trait
@@ -28,7 +28,7 @@ impl FromStr for Vals {
             "Bar" => Ok(Vals::Bar),
             "Baz" => Ok(Vals::Baz),
             "Qux" => Ok(Vals::Qux),
-            _     => Err("no match")
+            _ => Err("no match"),
         }
     }
 }
@@ -36,11 +36,13 @@ impl FromStr for Vals {
 fn main() {
     // Create the application like normal
     let m = App::new("myapp")
-                    // Use a single positional argument that is required
-                    .arg(Arg::from_usage("<type> 'The type to use'")
-                            // Define the list of possible values
-                            .possible_values(&["Foo", "Bar", "Baz", "Qux"]))
-                    .get_matches();
+        // Use a single positional argument that is required
+        .arg(
+            Arg::from("<type> 'The type to use'")
+                // Define the list of possible values
+                .possible_values(&["Foo", "Bar", "Baz", "Qux"]),
+        )
+        .get_matches();
 
     let t = value_t!(m, "type", Vals).unwrap_or_else(|e| e.exit());
 
@@ -49,6 +51,6 @@ fn main() {
         Vals::Foo => println!("Found a Foo"),
         Vals::Bar => println!("Found a Bar"),
         Vals::Baz => println!("Found a Baz"),
-        Vals::Qux => println!("Found a Qux")
+        Vals::Qux => println!("Found a Qux"),
     }
 }

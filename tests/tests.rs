@@ -101,7 +101,13 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("option") {
         if let Some(v) = matches.value_of("option") {
-            writeln!(w, "option present {} times with value: {}",matches.occurrences_of("option"), v).unwrap();
+            writeln!(
+                w,
+                "option present {} times with value: {}",
+                matches.occurrences_of("option"),
+                v
+            )
+            .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {
@@ -120,29 +126,55 @@ pub fn check_complex_output(args: &str, out: &str) {
 
     if matches.is_present("flag2") {
         writeln!(w, "flag2 present").unwrap();
-        writeln!(w, "option2 present with value of: {}", matches.value_of("long-option-2").unwrap()).unwrap();
-        writeln!(w, "positional2 present with value of: {}", matches.value_of("positional2").unwrap()).unwrap();
+        writeln!(
+            w,
+            "option2 present with value of: {}",
+            matches.value_of("long-option-2").unwrap()
+        )
+        .unwrap();
+        writeln!(
+            w,
+            "positional2 present with value of: {}",
+            matches.value_of("positional2").unwrap()
+        )
+        .unwrap();
     } else {
         writeln!(w, "flag2 NOT present").unwrap();
-        writeln!(w, "option2 maybe present with value of: {}", matches.value_of("long-option-2").unwrap_or("Nothing")).unwrap();
-        writeln!(w, "positional2 maybe present with value of: {}", matches.value_of("positional2").unwrap_or("Nothing")).unwrap();
+        writeln!(
+            w,
+            "option2 maybe present with value of: {}",
+            matches.value_of("long-option-2").unwrap_or("Nothing")
+        )
+        .unwrap();
+        writeln!(
+            w,
+            "positional2 maybe present with value of: {}",
+            matches.value_of("positional2").unwrap_or("Nothing")
+        )
+        .unwrap();
     }
 
     let _ = match matches.value_of("Option3").unwrap_or("") {
         "fast" => writeln!(w, "option3 present quickly"),
         "slow" => writeln!(w, "option3 present slowly"),
-        _      => writeln!(w, "option3 NOT present")
+        _ => writeln!(w, "option3 NOT present"),
     };
 
     let _ = match matches.value_of("positional3").unwrap_or("") {
         "vi" => writeln!(w, "positional3 present in vi mode"),
         "emacs" => writeln!(w, "positional3 present in emacs mode"),
-        _      => writeln!(w, "positional3 NOT present")
+        _ => writeln!(w, "positional3 NOT present"),
     };
 
     if matches.is_present("option") {
         if let Some(v) = matches.value_of("option") {
-            writeln!(w, "option present {} times with value: {}",matches.occurrences_of("option"), v).unwrap();
+            writeln!(
+                w,
+                "option present {} times with value: {}",
+                matches.occurrences_of("option"),
+                v
+            )
+            .unwrap();
         }
         if let Some(ov) = matches.values_of("option") {
             for o in ov {
@@ -192,27 +224,27 @@ pub fn check_complex_output(args: &str, out: &str) {
     assert_eq!(res, out);
 }
 
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     enum Val1 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     #[derive(Debug)]
     pub enum Val2 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     enum Val3 {
         ValOne,
         ValTwo
     }
 }
-arg_enum!{
+arg_enum! {
     pub enum Val4 {
         ValOne,
         ValTwo
@@ -268,22 +300,27 @@ fn test_enums() {
 
 #[test]
 fn create_app() {
-    let _ =
-        App::new("test").version("1.0").author("kevin").about("does awesome things").get_matches_from(vec![""]);
+    let _ = App::new("test")
+        .version("1.0")
+        .author("kevin")
+        .about("does awesome things")
+        .get_matches_from(vec![""]);
 }
 
 #[test]
 fn add_multiple_arg() {
     let _ = App::new("test")
-                .args(&[
-                    Arg::with_name("test").short("s"),
-                    Arg::with_name("test2").short("l")])
-                .get_matches_from(vec![""]);
+        .args(&[
+            Arg::with_name("test").short('s'),
+            Arg::with_name("test2").short('l'),
+        ])
+        .get_matches_from(vec![""]);
 }
 #[test]
 fn flag_x2_opt() {
-    check_complex_output("clap-test value -f -f -o some",
-"flag present 2 times
+    check_complex_output(
+        "clap-test value -f -f -o some",
+        "flag present 2 times
 option present 1 times with value: some
 An option: some
 positional present with value: value
@@ -296,13 +333,12 @@ option present 1 times with value: some
 An option: some
 positional present with value: value
 subcmd NOT present
-");
+",
+    );
 }
 
 #[test]
-fn long_opt_x2_pos() {
-    check_complex_output("clap-test value --option some --option other", O2P);
-}
+fn long_opt_x2_pos() { check_complex_output("clap-test value --option some --option other", O2P); }
 
 #[test]
 fn long_opt_eq_x2_pos() {
@@ -310,29 +346,19 @@ fn long_opt_eq_x2_pos() {
 }
 
 #[test]
-fn short_opt_x2_pos() {
-    check_complex_output("clap-test value -o some -o other", O2P);
-}
+fn short_opt_x2_pos() { check_complex_output("clap-test value -o some -o other", O2P); }
 
 #[test]
-fn short_opt_eq_x2_pos() {
-    check_complex_output("clap-test value -o=some -o=other", O2P);
-}
+fn short_opt_eq_x2_pos() { check_complex_output("clap-test value -o=some -o=other", O2P); }
 
 #[test]
-fn short_flag_x2_comb_short_opt_pos() {
-    check_complex_output("clap-test value -ff -o some", F2OP);
-}
+fn short_flag_x2_comb_short_opt_pos() { check_complex_output("clap-test value -ff -o some", F2OP); }
 
 #[test]
-fn short_flag_short_opt_pos() {
-    check_complex_output("clap-test value -f -o some", FOP);
-}
+fn short_flag_short_opt_pos() { check_complex_output("clap-test value -f -o some", FOP); }
 
 #[test]
-fn long_flag_long_opt_pos() {
-    check_complex_output("clap-test value --flag --option some", FOP);
-}
+fn long_flag_long_opt_pos() { check_complex_output("clap-test value --flag --option some", FOP); }
 
 #[test]
 fn long_flag_long_opt_eq_pos() {
