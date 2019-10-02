@@ -10,9 +10,6 @@ Please use the following template to assist with creating an issue and to ensure
 
 * Can be found in Cargo.lock of your project (i.e. `grep clap Cargo.lock`)
 
-### Bug or Feature Request Summary
-
-
 ### Expected Behavior Summary
 
 
@@ -33,6 +30,7 @@ Compile clap with cargo features `"debug"` such as:
 [dependencies]
 clap = { version = "2", features = ["debug"] }
 ```
+The output may be very long, so feel free to link to a gist or attach a text file
 
 <details>
 <summary> Debug Output </summary>

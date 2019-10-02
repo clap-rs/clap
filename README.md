@@ -1,17 +1,12 @@
 clap
 ====
 
-[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/kbknapp/clap-rs/badge.svg?branch=master&service=github)](https://coveralls.io/github/kbknapp/clap-rs?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](http://img.shields.io/badge/license-Apache 2.0-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/clap-rs/clap/badge.svg?branch=master&service=github)](https://coveralls.io/github/clap-rs/clap?branch=master) [![Join the chat at https://gitter.im/clap-rs/clap](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clap-rs/clap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Linux: [![Build Status](https://travis-ci.org/clap-rs/clap.svg?branch=master)](https://travis-ci.org/clap-rs/clap)
 Windows: [![Build status](https://ci.appveyor.com/api/projects/status/ejg8c33dn31nhv36/branch/master?svg=true)](https://ci.appveyor.com/project/kbknapp/clap-rs/branch/master)
 
 Command Line Argument Parser for Rust
-
-# Important note on clap 3.0
-
-Clap 3.0 is under development and available on the [v3-master](https://github.com/clap-rs/clap/tree/v3-master). When sending a pull request, ensure that it is against v3-master branch and not already covered by the 3.0 refactor. Thanks!
-
 
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
@@ -22,6 +17,7 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 Table of Contents
 =================
 
+* [What's New](#whats-new)
 * [About](#about)
 * [FAQ](#faq)
 * [Features](#features)
@@ -44,6 +40,12 @@ Table of Contents
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
+## What's New
+
+Here's whats new in 3.0.0-alpha.1:
+
+For full details, see [CHANGELOG.md](https://github.com/clap-rs/clap/blob/master/CHANGELOG.md)
+
 ## About
 
 `clap` is used to parse *and validate* the string of command line arguments provided by a user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
@@ -59,6 +61,14 @@ For a full FAQ and more in depth details, see [the wiki page](https://github.com
 ### Comparisons
 
 First, let me say that these comparisons are highly subjective, and not meant in a critical or harsh manner. All the argument parsing libraries out there (to include `clap`) have their own strengths and weaknesses. Sometimes it just comes down to personal taste when all other factors are equal. When in doubt, try them all and pick one that you enjoy :) There's plenty of room in the Rust community for multiple implementations!
+
+#### How does `clap` compare to [structopt](https://github.com/TeXitoi/structopt)?
+
+Simple! `clap` *is* `stuctopt`. With the 3.0 release, `clap` imported the `structopt` code into it's own codebase as the [`clap_derive`](https://github.com/clap-rs/clap_derive) crate. Since `structopt` already used `clap` under the hood, the transition was nearly painless, and is 100% feature compatible. 
+
+If you were using `structopt` before, the only thing you should have to do is change the attributes from `#[structopt(...)]` to `#[clap(...)]`.
+
+Also the derive statements changed from `#[derive(Structopt)]` to `#[derive(Clap)]`. There is also some additional functionality that's been added to the `clap_derive` crate. See the documentation for that crate, for more details.
 
 #### How does `clap` compare to [getopts](https://github.com/rust-lang-nursery/getopts)?
 
@@ -82,15 +92,17 @@ Because `docopt` is doing a ton of work to parse your help messages and determin
 
 #### All else being equal, what are some reasons *not* to use `clap`? (The Anti Pitch)
 
-Depending on the style in which you choose to define the valid arguments, `clap` can be very verbose. `clap` also offers so many fine-tuning knobs and dials, that learning everything can seem overwhelming. I strive to keep the simple cases simple, but when turning all those custom dials it can get complex. `clap` is also opinionated about parsing. Even though so much can be tweaked and tuned with `clap` (and I'm adding more all the time), there are still certain features which `clap` implements in specific ways which may be contrary to some users use-cases. Finally, `clap` is "stringly typed" when referring to arguments which can cause typos in code. This particular paper-cut is being actively worked on, and should be gone in v3.x.
+Depending on the style in which you choose to define the valid arguments, `clap` can be very verbose. `clap` also offers so many finetuning knobs and dials, that learning everything can seem overwhelming. I strive to keep the simple cases simple, but when turning all those custom dials it can get complex. `clap` is also opinionated about parsing. Even though so much can be tweaked and tuned with `clap` (and I'm adding more all the time), there are still certain features which `clap` implements in specific ways which may be contrary to some users use-cases. Finally, `clap` is "stringly typed" when referring to arguments which can cause typos in code. This particular paper-cut is being actively worked on, and should be gone in v3.x.
 
 ## Features
 
 Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation](https://docs.rs/clap/) and [examples/](examples) directory
 
+* Generate a CLI simply by defining a struct!
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage statements
-* **Auto-generated completion scripts at compile time (Bash, Zsh, Fish, and PowerShell)**
+* **Auto-generated completion scripts (Bash, Zsh, Fish, Elvish and PowerShell)**
+  - Using [`clap_generate`](https://github.com/clap-rs/clap_generate)
   - Even works through many multiple levels of subcommands
   - Works with options which only accept certain values
   - Works with subcommand aliases
@@ -143,14 +155,82 @@ The following examples show a quick example of some of the very basic functional
 
  **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`. These different styles are purely a matter of personal preference.
 
-The first example shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired.
+The first example shows the simplest way to use `clap`, by defining a struct. If you're familiar with the `structopt` crate you're in luck, it's the same! (In fact it's the exact same code running under the covers!)
 
 ```rust
-// (Full example with detailed comments in examples/01b_quick_example.rs)
+// (Full example with detailed comments in examples/01d_quick_example.rs)
 //
-// This example demonstrates clap's full 'builder pattern' style of creating arguments which is
-// more verbose, but allows easier editing, and at times more advanced options, or the possibility
-// to generate arguments dynamically.
+// This example demonstrates clap's full 'custom derive' style of creating arguments which is the
+// simplest method of use, but sacrifices some flexibility.
+#[macro_use]
+extern crate clap;
+
+/// This doc string acts as a help message when the user runs '--help'
+/// as do all doc strings on fields
+#[derive(Clap)]
+#[clap(version = "1.0", author = "Kevin K.")]
+struct Opts {
+    /// Sets a custom config file. Could have been an Option<T> with no default too
+    #[clap(short = "c", long = "config", default_value = "default.conf")]
+    file: String,
+    /// Some input. Because this isn't an Option<T> it's required to be used
+    input: String, 
+    /// A level of verbosity, and can be used multiple times
+    #[clap(short = "v", long = "verbose", parse_from_occurrences)]
+    verbose: Option<i32>,
+    #[clap(subcommand)]
+    subcmd: SubCommand,
+}
+
+#[derive(Clap)]
+enum SubCommand {
+    /// A subcommand for controlling testing
+    #[clap(name = "test", version = "1.3", author = "Someone Else")]
+    Test {
+        /// Print debug info 
+        #[clap(short = "d")]
+        debug: bool
+    }
+}
+fn main() {
+    let opts: Opts = Opts::parse();
+
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    println!("Value for config: {}", opts.config);
+    println!("Using input file: {}", opts.input);
+
+    // Vary the output based on how many times the user used the "verbose" flag
+    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
+    match opts.verbose.unwrap_or(0) {
+        0 => println!("No verbose info"),
+        1 => println!("Some verbose info"),
+        2 => println!("Tons of verbose info"),
+        3 | _ => println!("Don't be crazy"),
+    }
+
+    // You can handle information about subcommands by requesting their matches by name
+    // (as below), requesting just the name used, or both at the same time
+    match matches.subcmd {
+        SubCommand::Test @ t => {
+            if t.debug {
+                println!("Printing debug info...");
+            } else {
+                println!("Printing normally...");
+            }
+        }
+    }
+
+    // more program logic goes here...
+}
+```
+
+This second method shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+
+```rust
+// (Full example with detailed comments in examples/01a_quick_example.rs)
+//
+// This example demonstrates clap's "builder pattern" method of creating arguments
+// which the most flexible, but also most verbose.
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 
@@ -160,7 +240,7 @@ fn main() {
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
                           .arg(Arg::with_name("config")
-                               .short("c")
+                               .short('c')
                                .long("config")
                                .value_name("FILE")
                                .help("Sets a custom config file")
@@ -170,7 +250,7 @@ fn main() {
                                .required(true)
                                .index(1))
                           .arg(Arg::with_name("v")
-                               .short("v")
+                               .short('v')
                                .multiple(true)
                                .help("Sets the level of verbosity"))
                           .subcommand(SubCommand::with_name("test")
@@ -178,42 +258,45 @@ fn main() {
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
                                       .arg(Arg::with_name("debug")
-                                          .short("d")
+                                          .short('d')
                                           .help("print debug information verbosely")))
                           .get_matches();
 
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    let config = matches.value_of("config").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
-
-    // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-    // required we could have used an 'if let' to conditionally get the value)
-    println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-
-    // Vary the output based on how many times the user used the "verbose" flag
-    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match matches.occurrences_of("v") {
-        0 => println!("No verbose info"),
-        1 => println!("Some verbose info"),
-        2 => println!("Tons of verbose info"),
-        3 | _ => println!("Don't be crazy"),
-    }
-
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    if let Some(matches) = matches.subcommand_matches("test") {
-        if matches.is_present("debug") {
-            println!("Printing debug info...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // more program logic goes here...
+    // Same as above examples...
 }
 ```
 
-One could also optionally declare their CLI in YAML format and keep your Rust source tidy
+The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
+
+```rust
+// (Full example with detailed comments in examples/01a_quick_example.rs)
+//
+// This example demonstrates clap's "usage strings" method of creating arguments
+// which is less verbose
+extern crate clap;
+use clap::{Arg, App, SubCommand};
+
+fn main() {
+    let matches = App::new("myapp")
+                          .version("1.0")
+                          .author("Kevin K. <kbknapp@gmail.com>")
+                          .about("Does awesome things")
+                          .args_from_usage(
+                              "-c, --config=[FILE] 'Sets a custom config file'
+                              <INPUT>              'Sets the input file to use'
+                              -v...                'Sets the level of verbosity'")
+                          .subcommand(SubCommand::with_name("test")
+                                      .about("controls testing features")
+                                      .version("1.3")
+                                      .author("Someone E. <someone_else@other.com>")
+                                      .arg("-d, --debug 'Print debug information'"))
+                          .get_matches();
+
+    // Same as previous example...
+}
+```
+
+This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
 
 First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
@@ -251,7 +334,7 @@ subcommands:
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
 
-Simply change your `clap = "2.33"` to `clap = {version = "2.33", features = ["yaml"]}`.
+Simply change your `clap = "3.0.0-beta.1"` to `clap = {version = "3.0.0-beta.1", features = ["yaml"]}`.
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
@@ -273,13 +356,16 @@ fn main() {
 }
 ```
 
-If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output
+If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output (except the first example where the help message sort of explains the Rust code).
 
 ```sh
 $ myprog --help
 My Super Program 1.0
 Kevin K. <kbknapp@gmail.com>
 Does awesome things
+
+ARGS:
+    INPUT    The input file to use
 
 USAGE:
     MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
@@ -292,9 +378,6 @@ FLAGS:
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 
-ARGS:
-    INPUT    The input file to use
-
 SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    Controls testing features
@@ -302,20 +385,13 @@ SUBCOMMANDS:
 
 **NOTE:** You could also run `myapp test --help` or `myapp help test` to see the help message for the `test` subcommand.
 
-There are also two other methods to create CLIs. Which style you choose is largely a matter of personal preference. The two other methods are:
-
-* Using [usage strings (examples/01a_quick_example.rs)](examples/01a_quick_example.rs) similar to (but not exact) docopt style usage statements. This is far less verbose than the above methods, but incurs a slight runtime penalty.
-* Using [a macro (examples/01c_quick_example.rs)](examples/01c_quick_example.rs) which is like a hybrid of the builder and usage string style. It's less verbose, but doesn't incur the runtime penalty of the usage string style. The downside is that it's harder to debug, and more opaque.
-
-Examples of each method can be found in the [examples/](examples) directory of this repository.
-
 ## Try it!
 
 ### Pre-Built Test
 
 To try out the pre-built examples, use the following steps:
 
-* Clone the repository `$ git clone https://github.com/clap-rs/clap && cd clap-rs/`
+* Clone the repository `$ git clone https://github.com/clap-rs/clap && cd clap/`
 * Compile the example `$ cargo build --example <EXAMPLE>`
 * Run the help info `$ ./target/debug/examples/<EXAMPLE> --help`
 * Play with the arguments!
@@ -329,17 +405,23 @@ To test out `clap`'s default auto-generated help/version follow these steps:
 
 ```toml
 [dependencies]
-clap = "2"
+clap = "3.0.0-beta.1"
 ```
 
 * Add the following to your `src/main.rs`
 
 ```rust
+#[macro_use]
 extern crate clap;
 use clap::App;
 
+#[derive(Clap)]
+#[clap(version = "v1.0-beta")]
+/// My First clap CLI!
+struct Opts;
+
 fn main() {
-  App::new("fake").version("v1.0-beta").get_matches();
+    Opts::parse();
 }
 ```
 
@@ -352,7 +434,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` () to use from c
 
 ```toml
 [dependencies]
-clap = "~2.33"
+clap = "~3.0.0-beta.1"
 ```
 
 (**note**: If you are concerned with supporting a minimum version of Rust that is *older* than the current stable Rust minus 2 stable releases, it's recommended to use the `~major.minor.patch` style versions in your `Cargo.toml` which will only update the patch version automatically. For more information see the [Compatibility Policy](#compatibility-policy))
@@ -367,15 +449,16 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 #### Features enabled by default
 
+* **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` only on non-Windows targets)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
 * **"vec_map"**: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
 
 To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "2.33"
+version = "3.0.0-beta.1"
 default-features = false
 ```
 
@@ -383,7 +466,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "2.33"
+version = "3.0.0-beta.1"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -398,13 +481,7 @@ features = [ "suggestions", "color" ]
 
 ### Dependencies Tree
 
-The following graphic depicts `clap`s dependency graph (generated using [cargo-graph](https://github.com/kbknapp/cargo-graph)).
-
- * **Dashed** Line: Optional dependency
- * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
- * **Blue** Color: Dev dependency, only used while developing.
-
-![clap dependencies](clap_dep_graph.png)
+@TODO-v3-beta: update
 
 ### More Information
 
@@ -432,7 +509,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~2.33"
+clap = "~3.0.0-beta.1"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
@@ -449,20 +526,20 @@ Right now Cargo's version resolution is pretty naive, it's just a brute-force se
 
 # In one Cargo.toml
 [dependencies]
-clap = "~2.33.0"
+clap = "~3.0.0-beta.1"
 
 # In another Cargo.toml
 [dependencies]
-clap = "2.33.0"
+clap = "3.0.0-beta.1"
 ```
 
 This is inherently an unresolvable crate graph in Cargo right now. Cargo requires there's only one major version of a crate, and being in the same workspace these two crates must share a version. This is impossible in this location, though, as these version constraints cannot be met.
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.32.0, meaning `clap` is guaranteed to compile with 1.30.0 and beyond.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.35.0, meaning `clap` is guaranteed to compile with 1.33.0 and beyond.
 
-At the 1.33.0 stable release, `clap` will be guaranteed to compile with 1.31.0 and beyond, etc.
+At the 1.36.0 stable release, `clap` will be guaranteed to compile with 1.34.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
@@ -474,21 +551,17 @@ Upon bumping the minimum version of Rust (assuming it's within the stable-2 rang
  * The breaking change is to be fixing a bug (i.e. relying on a bug as a feature)
  * The breaking change is a feature isn't used in the wild, or all users of said feature have given approval *prior* to the change
 
-#### Compatibility with Wasm
-
-A best effort is made to ensure that `clap` will work on projects targeting `wasm32-unknown-unknown`. However there is no dedicated CI build
-covering this specific target.
-
 ## License
 
-`clap` is licensed under the MIT license. Please read the [LICENSE-MIT](LICENSE-MIT) file in this repository for more information.
+`clap` is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
+
+See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) files in this repository for more information.
 
 ## Related Crates
 
 There are several excellent crates which can be used with `clap`, I recommend checking them all out! If you've got a crate that would be a good fit to be used with `clap` open an issue and let me know, I'd love to add it!
 
-* [`structopt`](https://github.com/TeXitoi/structopt) - This crate allows you to define a struct, and build a CLI from it! No more "stringly typed" and it uses `clap` behind the scenes! (*Note*: There is work underway to pull this crate into mainline `clap`).
-* [`assert_cmd`](https://github.com/assert-rs/assert_cmd) - This crate allows you test your CLIs in a very intuitive and functional way!
+* [`assert_cli`](https://github.com/assert-rs/assert_cli) - This crate allows you test your CLIs in a very intuitive and functional way!
 
 ## Recent Breaking Changes
 

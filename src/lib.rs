@@ -1,4 +1,4 @@
-// Copyright ⓒ 2015-2016 Kevin B. Knapp and [`clap-rs` contributors](https://github.com/clap-rs/clap/blob/master/CONTRIBUTORS.md).
+// Copyright ⓒ 2015-2016 Kevin B. Knapp and [`clap-rs` contributors](https://github.com/kbknapp/clap-rs/blob/master/CONTRIBUTORS.md).
 // Licensed under the MIT license
 // (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
 // notice may not be copied, modified, or distributed except according to those terms.
@@ -46,7 +46,7 @@
 //! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 //! // to generate arguments dynamically.
 //! extern crate clap;
-//! use clap::{Arg, App, SubCommand};
+//! use clap::{Arg, App, };
 //!
 //! fn main() {
 //!     let matches = App::new("My Super Program")
@@ -54,7 +54,7 @@
 //!                           .author("Kevin K. <kbknapp@gmail.com>")
 //!                           .about("Does awesome things")
 //!                           .arg(Arg::with_name("config")
-//!                                .short("c")
+//!                                .short('c')
 //!                                .long("config")
 //!                                .value_name("FILE")
 //!                                .help("Sets a custom config file")
@@ -64,15 +64,15 @@
 //!                                .required(true)
 //!                                .index(1))
 //!                           .arg(Arg::with_name("v")
-//!                                .short("v")
+//!                                .short('v')
 //!                                .multiple(true)
 //!                                .help("Sets the level of verbosity"))
-//!                           .subcommand(SubCommand::with_name("test")
+//!                           .subcommand(App::new("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
 //!                                       .arg(Arg::with_name("debug")
-//!                                           .short("d")
+//!                                           .short('d')
 //!                                           .help("print debug information verbosely")))
 //!                           .get_matches();
 //!
@@ -117,22 +117,21 @@
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
 //! extern crate clap;
-//! use clap::{Arg, App, SubCommand};
+//! use clap::{Arg, App, };
 //!
 //! fn main() {
 //!     let matches = App::new("myapp")
 //!                           .version("1.0")
 //!                           .author("Kevin K. <kbknapp@gmail.com>")
 //!                           .about("Does awesome things")
-//!                           .args_from_usage(
-//!                               "-c, --config=[FILE] 'Sets a custom config file'
-//!                               <INPUT>              'Sets the input file to use'
-//!                               -v...                'Sets the level of verbosity'")
-//!                           .subcommand(SubCommand::with_name("test")
+//!                           .arg("-c, --config=[FILE] 'Sets a custom config file'")
+//!                           .arg("<INPUT>              'Sets the input file to use'")
+//!                           .arg("-v...                'Sets the level of verbosity'")
+//!                           .subcommand(App::new("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
-//!                                       .arg_from_usage("-d, --debug 'Print debug information'"))
+//!                                       .arg("-d, --debug 'Print debug information'"))
 //!                           .get_matches();
 //!
 //!     // Same as previous example...
@@ -266,7 +265,7 @@
 //!
 //! To try out the pre-built example, use the following steps:
 //!
-//! * Clone the repository `$ git clone https://github.com/clap-rs/clap && cd clap-rs/tests`
+//! * Clone the repository `$ git clone https://github.com/kbknapp/clap-rs && cd clap-rs/tests`
 //! * Compile the example `$ cargo build --release`
 //! * Run the help info `$ ./target/release/claptests --help`
 //! * Play with the arguments!
@@ -313,7 +312,7 @@
 //!
 //! ```toml
 //! [dependencies.clap]
-//! git = "https://github.com/clap-rs/clap.git"
+//! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
 //!
 //! Add `extern crate clap;` to your crate root.
@@ -330,7 +329,7 @@
 //! * `suggestions`: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 //! * `color`: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
 //! * `wrap_help`: Wraps the help at the actual terminal width when
-//!  available, instead of 120 characters. (builds dependency `textwrap`
+//!  available, instead of 120 chracters. (builds dependency `textwrap`
 //! with feature `term_size`)
 //!
 //! To disable these, add this to your `Cargo.toml`:
@@ -366,7 +365,7 @@
 //!  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 //!  * **Blue** Color: Dev dependency, only used while developing.
 //!
-//! ![clap dependencies](https://raw.githubusercontent.com/clap-rs/clap/master/clap_dep_graph.png)
+//! ![clap dependencies](https://raw.githubusercontent.com/kbknapp/clap-rs/master/clap_dep_graph.png)
 //!
 //! ### More Information
 //!
@@ -391,7 +390,7 @@
 //! `clap`. You can either add it to the [examples/] directory, or file an issue and tell
 //! me. I'm all about giving credit where credit is due :)
 //!
-//! Please read [CONTRIBUTING.md](https://raw.githubusercontent.com/clap-rs/clap/master/.github/CONTRIBUTING.md) before you start contributing.
+//! Please read [CONTRIBUTING.md](https://raw.githubusercontent.com/kbknapp/clap-rs/master/.github/CONTRIBUTING.md) before you start contributing.
 //!
 //!
 //! ### Testing Code
@@ -404,16 +403,16 @@
 //! ```
 //!
 //! Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the
-//! prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands
+//! prebuilt recipies. *Not* using `just` is perfectly fine as well, it simply bundles commands
 //! automatically.
 //!
 //! For example, to test the code, as above simply run:
 //!
 //! ```text
-//! $ just run-tests
+//! $ just run-tests`
 //! ```
 //!
-//! From here on, I will list the appropriate `cargo` command as well as the `just` command.
+//! From here on, I will lis the appropriate `cargo` command as well as the `just` command.
 //!
 //! Sometimes it's helpful to only run a subset of the tests, which can be done via:
 //!
@@ -487,7 +486,7 @@
 //! version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version
 //! of `clap` will be bumped.
 //!
-//! In order to keep from being surprised by breaking changes, it is **highly** recommended to use
+//! In order to keep from being suprised of breaking changes, it is **highly** recommended to use
 //! the `~major.minor.patch` style in your `Cargo.toml`:
 //!
 //! ```toml
@@ -512,25 +511,28 @@
 //! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT][license] file in
 //! this repository for more information.
 //!
-//! [examples/]: https://github.com/clap-rs/clap/tree/master/examples
+//! [examples/]: https://github.com/kbknapp/clap-rs/tree/master/examples
 //! [video tutorials]: https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U
-//! [license]: https://raw.githubusercontent.com/clap-rs/clap/master/LICENSE-MIT
+//! [license]: https://raw.githubusercontent.com/kbknapp/clap-rs/master/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.33.0")]
-#![deny(missing_docs, missing_debug_implementations, missing_copy_implementations, trivial_casts,
-        unused_import_braces, unused_allocation)]
-// Lints we'd like to deny but are currently failing for upstream crates
-//      unused_qualifications       (bitflags, clippy)
-//      trivial_numeric_casts       (bitflags)
-#![cfg_attr(not(any(feature = "lints", feature = "nightly")), forbid(unstable_features))]
-#![cfg_attr(feature = "lints", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
+#![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.1")]
+#![deny(
+    missing_docs,
+    missing_debug_implementations,
+    missing_copy_implementations,
+    trivial_casts,
+    unused_import_braces,
+    unused_allocation,
+    trivial_numeric_casts
+)]
 // Need to disable deny(warnings) while deprecations are active
 // #![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
-#![cfg_attr(feature = "lints", allow(doc_markdown))]
-#![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+#![cfg_attr(feature = "lints", feature(plugin))]
+#![cfg_attr(feature = "lints", plugin(clippy))]
+// #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+// #![cfg_attr(feature = "lints", allow(doc_markdown))]
+// #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 extern crate ansi_term;
@@ -538,6 +540,11 @@ extern crate ansi_term;
 extern crate atty;
 #[macro_use]
 extern crate bitflags;
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", allow(unused_imports))]
+#[cfg_attr(feature = "derive", macro_use)]
+extern crate clap_derive;
+extern crate indexmap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "wrap_help")]
@@ -549,81 +556,53 @@ extern crate vec_map;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
+pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+pub use crate::output::fmt::Format;
+pub use crate::parse::errors::{Error, ErrorKind, Result};
+pub use crate::parse::{ArgMatches, OsValues, Values};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
-pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
-pub use app::{App, AppSettings};
-pub use fmt::Format;
-pub use errors::{Error, ErrorKind, Result};
-pub use completions::Shell;
+
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", doc(hidden))]
+pub use clap_derive::*;
+
+use std::result::Result as StdResult;
 
 #[macro_use]
 mod macros;
-mod app;
-mod args;
-mod usage_parser;
-mod fmt;
-mod suggestions;
-mod errors;
-mod osstringext;
-mod strext;
-mod completions;
-mod map;
 
-const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
-                                          report at https://github.com/clap-rs/clap/issues";
-const INVALID_UTF8: &'static str = "unexpected invalid UTF-8 code point";
+mod build;
+mod mkeymap;
+mod output;
+mod parse;
+mod util;
 
-#[cfg(unstable)]
-pub use derive::{ArgEnum, ClapApp, FromArgMatches, IntoApp};
+const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
+                                  report at https://github.com/kbknapp/clap-rs/issues";
+const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
-#[cfg(unstable)]
-mod derive {
+/// @TODO @release @docs
+pub trait Clap: FromArgMatches + IntoApp + Sized {}
+
+/// @TODO @release @docs
+pub trait FromArgMatches: Sized {
     /// @TODO @release @docs
-    pub trait ClapApp: IntoApp + FromArgMatches + Sized {
-        /// @TODO @release @docs
-        fn parse() -> Self { Self::from_argmatches(Self::into_app().get_matches()) }
+    fn from_argmatches(matches: &crate::parse::ArgMatches) -> Self;
 
-        /// @TODO @release @docs
-        fn parse_from<I, T>(argv: I) -> Self
-        where
-            I: IntoIterator<Item = T>,
-            T: Into<OsString> + Clone,
-        {
-            Self::from_argmatches(Self::into_app().get_matches_from(argv))
-        }
-
-        /// @TODO @release @docs
-        fn try_parse() -> Result<Self, clap::Error> {
-            Self::try_from_argmatches(Self::into_app().get_matches_safe()?)
-        }
-
-
-        /// @TODO @release @docs
-        fn try_parse_from<I, T>(argv: I) -> Result<Self, clap::Error>
-        where
-            I: IntoIterator<Item = T>,
-            T: Into<OsString> + Clone,
-        {
-            Self::try_from_argmatches(Self::into_app().get_matches_from_safe(argv)?)
-        }
+    /// @TODO @release @docs
+    fn try_from_argmatches(
+        matches: &crate::parse::ArgMatches,
+    ) -> StdResult<Self, crate::parse::errors::Error> {
+        Ok(<Self as FromArgMatches>::from_argmatches(matches))
     }
-
-    /// @TODO @release @docs
-    pub trait IntoApp {
-        /// @TODO @release @docs
-        fn into_app<'a, 'b>() -> clap::App<'a, 'b>;
-    }
-
-    /// @TODO @release @docs
-    pub trait FromArgMatches: Sized {
-        /// @TODO @release @docs
-        fn from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Self;
-
-        /// @TODO @release @docs
-        fn try_from_argmatches<'a>(matches: clap::ArgMatches<'a>) -> Result<Self, clap::Error>;
-    }
-
-    /// @TODO @release @docs
-    pub trait ArgEnum {}
 }
+
+/// @TODO @release @docs
+pub trait IntoApp: Sized {
+    /// @TODO @release @docs
+    fn into_app<'b>() -> crate::build::App<'b>;
+}
+
+/// @TODO @release @docs
+pub trait ArgEnum {}

@@ -22,9 +22,9 @@ fn basic() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -38,7 +38,7 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
-    let app = clap_app!(("app name with spaces-and-hyphens") =>
+    let mut app = clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -55,9 +55,9 @@ fn quoted_app_name() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -68,10 +68,11 @@ fn quoted_app_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.p.meta.name, "app name with spaces-and-hyphens");
+    assert_eq!(app.name, "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
-    app.write_help(&mut help_text).expect("Could not write help text.");
+    app.write_help(&mut help_text)
+        .expect("Could not write help text.");
     let help_text = String::from_utf8(help_text).expect("Help text is not valid utf-8");
     assert!(help_text.starts_with("app name with spaces-and-hyphens 0.1\n"));
 }
@@ -95,9 +96,9 @@ fn quoted_arg_long_name() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -108,7 +109,8 @@ fn quoted_arg_long_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+    let matches = app
+        .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
@@ -132,9 +134,9 @@ fn quoted_arg_name() {
         (@arg ("positional-3"): index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests multiple values, not mult occs")
+            "Tests mutliple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -145,7 +147,8 @@ fn quoted_arg_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    let matches = app.get_matches_from_safe(vec!["bin_name", "value1", "value2", "--long-option-2"])
+    let matches = app
+        .try_get_matches_from(vec!["bin_name", "value1", "value2", "--long-option-2"])
         .expect("Expected to successfully match the given args.");
     assert!(matches.is_present("option2"));
 }
@@ -163,7 +166,7 @@ fn group_macro() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -183,7 +186,7 @@ fn group_macro_set_multiple() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -205,7 +208,7 @@ fn group_macro_set_not_multiple() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name", "--hard", "--easy"]);
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
@@ -224,7 +227,7 @@ fn group_macro_set_required() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    let result = app.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
@@ -243,149 +246,32 @@ fn group_macro_set_not_required() {
              )
     );
 
-    let result = app.get_matches_from_safe(vec!["bin_name"]);
+    let result = app.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(!matches.is_present("difficulty"));
 }
 
 #[test]
-fn multiarg() {
-    let app = || clap_app!(
-        claptests =>
-            (@arg flag: --flag "value")
-            (@arg multiarg: --multiarg
-             default_value("flag-unset") default_value_if("flag", None, "flag-set")
-             "multiarg")
-            (@arg multiarg2: --multiarg2
-             default_value("flag-unset") default_value_if("flag", None, "flag-set",)
-             "multiarg2")
-    );
-
-    let matches = app()
-        .get_matches_from_safe(vec!["bin_name"])
-        .expect("match failed");
-    assert_eq!(matches.value_of("multiarg"), Some("flag-unset"));
-    assert_eq!(matches.value_of("multiarg2"), Some("flag-unset"));
-
-    let matches = app()
-        .get_matches_from_safe(vec!["bin_name", "--flag"])
-        .expect("match failed");
-    assert_eq!(matches.value_of("multiarg"), Some("flag-set"));
-    assert_eq!(matches.value_of("multiarg2"), Some("flag-set"));
+fn arg_enum() {
+    arg_enum! {
+        #[derive(Debug, PartialEq, Copy, Clone)]
+        pub enum Greek {
+            Alpha,
+            Bravo
+        }
+    }
+    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
 }
 
 #[test]
-fn arg_enum() {
-    // Helper macros to avoid repetition
-    macro_rules! test_greek {
-        ($arg_enum:item, $tests:block) => {{
-            $arg_enum
-            // FromStr implementation
-            assert!("Charlie".parse::<Greek>().is_err());
-            // Display implementation
-            assert_eq!(format!("{}", Greek::Alpha), "Alpha");
-            assert_eq!(format!("{}", Greek::Bravo), "Bravo");
-            // fn variants()
-            assert_eq!(Greek::variants(), ["Alpha", "Bravo"]);
-            // rest of tests
-            $tests
-        }};
+fn arg_enum_trailing_comma() {
+    arg_enum! {
+        #[derive(Debug, PartialEq, Copy, Clone)]
+        pub enum Greek {
+            Alpha,
+            Bravo,
+        }
     }
-    macro_rules! test_greek_no_meta {
-        {$arg_enum:item} => {
-            test_greek!($arg_enum, {
-                // FromStr implementation
-                assert!("Alpha".parse::<Greek>().is_ok());
-                assert!("Bravo".parse::<Greek>().is_ok());
-            })
-        };
-    }
-    macro_rules! test_greek_meta {
-        {$arg_enum:item} => {
-            test_greek!($arg_enum, {
-                // FromStr implementation
-                assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
-                assert_eq!("Bravo".parse::<Greek>(), Ok(Greek::Bravo));
-            })
-        };
-    }
-
-    // Tests for each pattern
-    // meta  NO, pub  NO, trailing comma  NO
-    test_greek_no_meta!{
-        arg_enum!{
-            enum Greek {
-                Alpha,
-                Bravo
-            }
-        }
-    };
-    // meta  NO, pub  NO, trailing comma YES
-    test_greek_no_meta!{
-        arg_enum!{
-            enum Greek {
-                Alpha,
-                Bravo,
-            }
-        }
-    };
-    // meta  NO, pub YES, trailing comma  NO
-    test_greek_no_meta!{
-        arg_enum!{
-            pub enum Greek {
-                Alpha,
-                Bravo
-            }
-        }
-    };
-    // meta  NO, pub YES, trailing comma YES
-    test_greek_no_meta!{
-        arg_enum!{
-            pub enum Greek {
-                Alpha,
-                Bravo,
-            }
-        }
-    };
-    // meta YES, pub  NO, trailing comma  NO
-    test_greek_meta!{
-        arg_enum!{
-            #[derive(Debug, PartialEq, Copy, Clone)]
-            enum Greek {
-                Alpha,
-                Bravo
-            }
-        }
-    };
-    // meta YES, pub  NO, trailing comma YES
-    test_greek_meta!{
-        arg_enum!{
-            #[derive(Debug, PartialEq, Copy, Clone)]
-            enum Greek {
-                Alpha,
-                Bravo,
-            }
-        }
-    };
-    // meta YES, pub YES, trailing comma  NO
-    test_greek_meta!{
-        arg_enum!{
-            #[derive(Debug, PartialEq, Copy, Clone)]
-            pub enum Greek {
-                Alpha,
-                Bravo
-            }
-        }
-    };
-    // meta YES, pub YES, trailing comma YES
-    test_greek_meta!{
-        arg_enum!{
-            #[derive(Debug, PartialEq, Copy, Clone)]
-            pub enum Greek {
-                Alpha,
-                Bravo,
-            }
-        }
-    };
+    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
 }

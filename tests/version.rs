@@ -3,7 +3,7 @@ extern crate regex;
 
 use std::str;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, AppSettings, ErrorKind};
 
 include!("../clap-test.rs");
 
@@ -15,7 +15,7 @@ fn version_short() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["myprog", "-V"]);
+        .try_get_matches_from(vec!["myprog", "-V"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
@@ -27,7 +27,7 @@ fn version_long() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .get_matches_from_safe(vec!["myprog", "--version"]);
+        .try_get_matches_from(vec!["myprog", "--version"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
@@ -36,23 +36,26 @@ fn version_long() {
 #[test]
 fn complex_version_output() {
     let mut a = App::new("clap-test").version("v1.4.8");
-    let _ = a.get_matches_from_safe_borrow(vec![""]);
+    let _ = a.try_get_matches_from_mut(vec![""]);
 
-        // Now we check the output of print_version()
-        let mut ver = vec![];
-        a.write_version(&mut ver).unwrap();
-        assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
+    // Now we check the output of print_version()
+    let mut ver = vec![];
+    a.write_version(&mut ver).unwrap();
+    assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
 }
 
 #[test]
 fn override_ver() {
     let m = App::new("test")
+        .setting(AppSettings::NoAutoVersion)
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .arg(Arg::from_usage("-v, --version 'some version'"))
-        .get_matches_from_safe(vec!["test", "--version"]);
+        .mut_arg("version", |a| {
+            a.short('v').long("version").help("some version")
+        })
+        .try_get_matches_from(vec!["test", "--version"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     assert!(m.unwrap().is_present("version"));
 }

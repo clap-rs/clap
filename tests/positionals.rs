@@ -5,9 +5,11 @@ use clap::{App, Arg, ErrorKind};
 #[test]
 fn only_pos_follow() {
     let r = App::new("onlypos")
-        .args(&[Arg::from_usage("-f [flag] 'some opt'"),
-                Arg::from_usage("[arg] 'some arg'")])
-        .get_matches_from_safe(vec!["", "--", "-f"]);
+        .args(&[
+            Arg::from("-f [flag] 'some opt'"),
+            Arg::from("[arg] 'some arg'"),
+        ])
+        .try_get_matches_from(vec!["", "--", "-f"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
@@ -19,12 +21,14 @@ fn only_pos_follow() {
 fn issue_946() {
     let r = App::new("compiletest")
         .setting(clap::AppSettings::AllowLeadingHyphen)
-        .args_from_usage("--exact    'filters match exactly'")
-        .arg(clap::Arg::with_name("filter")
-            .index(1)
-            .takes_value(true)
-            .help("filters to apply to output"))
-    .get_matches_from_safe(vec!["compiletest", "--exact"]);
+        .arg("--exact    'filters match exactly'")
+        .arg(
+            clap::Arg::with_name("filter")
+                .index(1)
+                .takes_value(true)
+                .help("filters to apply to output"),
+        )
+        .try_get_matches_from(vec!["compiletest", "--exact"]);
     assert!(r.is_ok(), "{:#?}", r);
     let matches = r.unwrap();
 
@@ -36,11 +40,10 @@ fn issue_946() {
 fn positional() {
     let r = App::new("positional")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
-        .get_matches_from_safe(vec!["", "-f", "test"]);
+            Arg::from("-f, --flag 'some flag'"),
+            Arg::with_name("positional").index(1),
+        ])
+        .try_get_matches_from(vec!["", "-f", "test"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
@@ -49,10 +52,9 @@ fn positional() {
 
     let m = App::new("positional")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
+            Arg::from("-f, --flag 'some flag'"),
+            Arg::with_name("positional").index(1),
+        ])
         .get_matches_from(vec!["", "test", "--flag"]);
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
@@ -62,10 +64,9 @@ fn positional() {
 #[test]
 fn lots_o_vals() {
     let r = App::new("opts")
-        .arg(
-            Arg::from_usage("[opt]... 'some pos'"),
-            )
-        .get_matches_from_safe(vec!["",
+        .arg(Arg::from("[opt]... 'some pos'"))
+        .try_get_matches_from(vec![
+            "", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -92,8 +93,8 @@ fn lots_o_vals() {
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            ]);
+            "some",
+        ]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
@@ -104,45 +105,46 @@ fn lots_o_vals() {
 fn positional_multiple() {
     let r = App::new("positional_multiple")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .multiple(true)
-            ])
-        .get_matches_from_safe(vec!["", "-f", "test1", "test2", "test3"]);
+            Arg::from("-f, --flag 'some flag'"),
+            Arg::with_name("positional").index(1).multiple(true),
+        ])
+        .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test1", "test2", "test3"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test1", "test2", "test3"]
+    );
 }
 
 #[test]
 fn positional_multiple_3() {
     let r = App::new("positional_multiple")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .multiple(true)
-            ])
-        .get_matches_from_safe(vec!["", "test1", "test2", "test3", "--flag"]);
+            Arg::from("-f, --flag 'some flag'"),
+            Arg::with_name("positional").index(1).multiple(true),
+        ])
+        .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test1", "test2", "test3"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test1", "test2", "test3"]
+    );
 }
 
 #[test]
 fn positional_multiple_2() {
     let result = App::new("positional_multiple")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-            ])
-        .get_matches_from_safe(vec!["", "-f", "test1", "test2", "test3"]);
+            Arg::from("-f, --flag 'some flag'"),
+            Arg::with_name("positional").index(1),
+        ])
+        .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::UnknownArgument);
@@ -152,26 +154,27 @@ fn positional_multiple_2() {
 fn positional_possible_values() {
     let r = App::new("positional_possible_values")
         .args(&[
-            Arg::from_usage("-f, --flag 'some flag'"),
+            Arg::from("-f, --flag 'some flag'"),
             Arg::with_name("positional")
                 .index(1)
-                .possible_value("test123")
-            ])
-        .get_matches_from_safe(vec!["", "-f", "test123"]);
+                .possible_value("test123"),
+        ])
+        .try_get_matches_from(vec!["", "-f", "test123"]);
     assert!(r.is_ok(), "{:#?}", r);
     let m = r.unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
-    assert_eq!(&*m.values_of("positional").unwrap().collect::<Vec<_>>(), &["test123"]);
+    assert_eq!(
+        &*m.values_of("positional").unwrap().collect::<Vec<_>>(),
+        &["test123"]
+    );
 }
 
 #[test]
 fn create_positional() {
     let _ = App::new("test")
-                .arg(Arg::with_name("test")
-                            .index(1)
-                            .help("testing testing"))
-                .get_matches_from(vec![""]);
+        .arg(Arg::with_name("test").index(1).help("testing testing"))
+        .get_matches_from(vec![""]);
 }
 
 #[test]
@@ -183,59 +186,56 @@ fn positional_hyphen_does_not_panic() {
 
 #[test]
 fn single_positional_usage_string() {
-    let m = App::new("test").arg_from_usage("[FILE] 'some file'").get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FILE]");
+    let mut app = App::new("test").arg("[FILE] 'some file'");
+    assert_eq!(app.generate_usage(), "USAGE:\n    test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
-    let m = App::new("test").arg_from_usage("[FILE]... 'some file'").get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [FILE]...");
+    let mut app = App::new("test").arg("[FILE]... 'some file'");
+    assert_eq!(app.generate_usage(), "USAGE:\n    test [FILE]...");
 }
 
 #[test]
 fn multiple_positional_usage_string() {
-    let m = App::new("test")
-        .arg_from_usage("[FILE] 'some file'")
-        .arg_from_usage("[FILES]... 'some file'")
-        .get_matches_from(vec!["test"]);
-    assert_eq!(m.usage(), "USAGE:\n    test [ARGS]");
+    let mut app = App::new("test")
+        .arg("[FILE] 'some file'")
+        .arg("[FILES]... 'some file'");
+    assert_eq!(app.generate_usage(), "USAGE:\n    test [ARGS]");
 }
 
 #[test]
 fn multiple_positional_one_required_usage_string() {
-    let m = App::new("test")
-        .arg_from_usage("<FILE> 'some file'")
-        .arg_from_usage("[FILES]... 'some file'")
-        .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test <FILE> [FILES]...");
+    let mut app = App::new("test")
+        .arg("<FILE> 'some file'")
+        .arg("[FILES]... 'some file'");
+    assert_eq!(app.generate_usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
 
 #[test]
 fn single_positional_required_usage_string() {
-    let m = App::new("test")
-        .arg_from_usage("<FILE> 'some file'")
-        .get_matches_from(vec!["test", "file"]);
-    assert_eq!(m.usage(), "USAGE:\n    test <FILE>");
+    let mut app = App::new("test").arg("<FILE> 'some file'");
+    assert_eq!(app.generate_usage(), "USAGE:\n    test <FILE>");
 }
 
+// This tests a programmer error and will only succeed with debug_assertions
+#[cfg(debug_assertions)]
 #[test]
-#[should_panic]
+#[should_panic(expected = "Found positional argument which is not required \
+with a lower index than a required positional argument")]
 fn missing_required() {
-    let r = App::new("test")
-        .arg_from_usage("[FILE1] 'some file'")
-        .arg_from_usage("<FILE2> 'some file'")
-        .get_matches_from_safe(vec!["test", "file"]);
-    assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    let _ = App::new("test")
+        .arg("[FILE1] 'some file'")
+        .arg("<FILE2> 'some file'")
+        .try_get_matches_from(vec![""]);
 }
 
 #[test]
 fn missing_required_2() {
     let r = App::new("test")
-        .arg_from_usage("<FILE1> 'some file'")
-        .arg_from_usage("<FILE2> 'some file'")
-        .get_matches_from_safe(vec!["test", "file"]);
+        .arg("<FILE1> 'some file'")
+        .arg("<FILE2> 'some file'")
+        .try_get_matches_from(vec!["test", "file"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
@@ -243,10 +243,10 @@ fn missing_required_2() {
 #[test]
 fn last_positional() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS] 'some corpus'")
-        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
-        .get_matches_from_safe(vec!["test", "tgt", "--", "arg"]);
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS] 'some corpus'")
+        .arg(Arg::from("[ARGS]... 'some file'").last(true))
+        .try_get_matches_from(vec!["test", "tgt", "--", "arg"]);
     assert!(r.is_ok());
     let m = r.unwrap();
     assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["arg"]);
@@ -255,10 +255,10 @@ fn last_positional() {
 #[test]
 fn last_positional_no_double_dash() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS] 'some corpus'")
-        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
-        .get_matches_from_safe(vec!["test", "tgt", "crp", "arg"]);
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS] 'some corpus'")
+        .arg(Arg::from("[ARGS]... 'some file'").last(true))
+        .try_get_matches_from(vec!["test", "tgt", "crp", "arg"]);
     assert!(r.is_err());
     assert_eq!(r.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
@@ -266,9 +266,9 @@ fn last_positional_no_double_dash() {
 #[test]
 fn last_positional_second_to_last_mult() {
     let r = App::new("test")
-        .arg_from_usage("<TARGET> 'some target'")
-        .arg_from_usage("[CORPUS]... 'some corpus'")
-        .arg(Arg::from_usage("[ARGS]... 'some file'").last(true))
-        .get_matches_from_safe(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
+        .arg("<TARGET> 'some target'")
+        .arg("[CORPUS]... 'some corpus'")
+        .arg(Arg::from("[ARGS]... 'some file'").last(true))
+        .try_get_matches_from(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
     assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
 }

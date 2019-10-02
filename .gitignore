@@ -25,3 +25,7 @@ Cargo.lock
 # Project files
 .vscode/*
 .idea/*
+clap-rs.iml
+
+# Auxiliary files
+test-results.test
