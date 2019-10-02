@@ -8,8 +8,8 @@ use clap::{App, AppSettings, Arg, ArgSettings};
 
 use test::Bencher;
 
-static OPT3_VALS: [&'static str; 2] = ["fast", "slow"];
-static POS3_VALS: [&'static str; 2] = ["vi", "emacs"];
+static OPT3_VALS: [&str; 2] = ["fast", "slow"];
+static POS3_VALS: [&str; 2] = ["vi", "emacs"];
 
 macro_rules! create_app {
     () => {{

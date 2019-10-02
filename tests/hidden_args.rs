@@ -5,7 +5,7 @@ use clap::{App, Arg};
 
 include!("../clap-test.rs");
 
-static HIDDEN_ARGS: &'static str = "test 1.4
+static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
 tests stuff
 
@@ -35,7 +35,7 @@ fn hidden_args() {
     assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
 }
 
-static HIDDEN_SHORT_ARGS: &'static str = "test 2.31.2
+static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
 Steve P.
 hides short args
 
@@ -47,7 +47,7 @@ FLAGS:
     -V, --version    Prints version information
     -v, --visible    This text should be visible";
 
-static HIDDEN_SHORT_ARGS_LONG_HELP: &'static str = "test 2.31.2
+static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
 Steve P.
 hides short args
 
@@ -121,7 +121,7 @@ fn hidden_short_args_long_help() {
     ));
 }
 
-static HIDDEN_LONG_ARGS: &'static str = "test 2.31.2
+static HIDDEN_LONG_ARGS: &str = "test 2.31.2
 Steve P.
 hides long args
 
@@ -164,7 +164,7 @@ fn hidden_long_args() {
     ));
 }
 
-static HIDDEN_LONG_ARGS_SHORT_HELP: &'static str = "test 2.31.2
+static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "test 2.31.2
 Steve P.
 hides long args
 

@@ -59,7 +59,7 @@ fn main() {
 
     // See if --set-ver was used to set the version manually
     let version = if let Some(ver) = matches.value_of("ver") {
-        format!("{}", ver)
+        ver.to_string()
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
         let (maj, min, pat) = (

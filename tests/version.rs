@@ -7,7 +7,7 @@ use clap::{App, AppSettings, ErrorKind};
 
 include!("../clap-test.rs");
 
-static VERSION: &'static str = "clap-test v1.4.8";
+static VERSION: &str = "clap-test v1.4.8";
 
 #[test]
 fn version_short() {

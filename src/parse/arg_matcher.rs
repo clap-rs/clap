@@ -77,12 +77,12 @@ impl ArgMatcher {
 
     pub fn get(&self, arg: Id) -> Option<&MatchedArg> { self.0.args.get(&arg) }
 
-    pub fn remove(&mut self, arg: Id) { self.0.args.remove(&arg); }
+    pub fn remove(&mut self, arg: Id) { self.0.args.swap_remove(&arg); }
 
     #[allow(dead_code)]
     pub fn remove_all(&mut self, args: &[Id]) {
         for arg in args {
-            self.0.args.remove(arg);
+            self.0.args.swap_remove(arg);
         }
     }
 

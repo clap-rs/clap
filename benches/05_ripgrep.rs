@@ -17,10 +17,10 @@ use std::io::Cursor;
 use test::Bencher;
 
 #[bench]
-fn build_app_short(b: &mut Bencher) { b.iter(|| app_short()); }
+fn build_app_short(b: &mut Bencher) { b.iter(app_short); }
 
 #[bench]
-fn build_app_long(b: &mut Bencher) { b.iter(|| app_long()); }
+fn build_app_long(b: &mut Bencher) { b.iter(app_long); }
 
 #[bench]
 fn build_help_short(b: &mut Bencher) {
@@ -224,7 +224,7 @@ fn parse_lots(b: &mut Bencher) {
     });
 }
 
-const ABOUT: &'static str = "
+const ABOUT: &str = "
 ripgrep (rg) recursively searches your current directory for a regex pattern.
 
 ripgrep's regex engine uses finite automata and guarantees linear time
@@ -235,13 +235,13 @@ Project home page: https://github.com/BurntSushi/ripgrep
 
 Use -h for short descriptions and --help for more details.";
 
-const USAGE: &'static str = "
+const USAGE: &str = "
     rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
     rg [OPTIONS] --type-list";
 
-const TEMPLATE: &'static str = "\
+const TEMPLATE: &str = "\
 {bin} {version}
 {author}
 {about}
