@@ -364,7 +364,7 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[allow(clippy::cyclomatic_complexity)]
+    #[allow(clippy::cognitive_complexity)]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher,
