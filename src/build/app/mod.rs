@@ -117,7 +117,7 @@ pub struct App<'b> {
 
 impl<'b> App<'b> {
     /// Creates a new instance of an application requiring a name. The name may be, but doesn't
-    /// have to be same as the binary. The name will be displayed to the user when they request to
+    /// have to be, same as the binary. The name will be displayed to the user when they request to
     /// print version or help and usage information.
     ///
     /// # Examples
@@ -147,11 +147,10 @@ impl<'b> App<'b> {
     /// request the help information with `--help` or `-h`.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_authors!`] to automatically set your
-    /// application's author(s) to the same thing as your crate at compile time. See the [`examples/`]
-    /// directory for more information
+    /// application's author(s) to the same thing as your crate at compile time.
     ///
     /// See the [`examples/`]
-    /// directory for more information
+    /// directory for more information.
     ///
     /// # Examples
     ///
@@ -195,7 +194,7 @@ impl<'b> App<'b> {
     /// information with `-h`.
     ///
     /// **NOTE:** If only `about` is provided, and not [`App::long_about`] but the user requests
-    /// `--help` clap will still display the contents of `about` appropriately
+    /// `--help`, clap will still display the contents of `about` appropriately
     ///
     /// **NOTE:** Only [`App::about`] is used in completion script generation in order to be
     /// concise
@@ -242,7 +241,7 @@ impl<'b> App<'b> {
 
     /// Sets the program's name. This will be displayed when displaying help information.
     ///
-    /// **Pro-top:** This function is particularly useful when configuring a program via
+    /// **Pro-tip:** This function is particularly useful when configuring a program via
     /// [`App::from_yaml`] in conjunction with the [`crate_name!`] macro to derive the program's
     /// name from its `Cargo.toml`.
     ///
@@ -453,8 +452,8 @@ impl<'b> App<'b> {
     ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
-    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to writen
-    /// in the lowercase and without spacing.
+    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to
+    /// be written in the lowercase and without spacing.
     /// [`App::about`]: ./struct.App.html#method.about
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
@@ -652,7 +651,7 @@ impl<'b> App<'b> {
         self
     }
 
-    /// Adds multiple [arguments] to the list of valid possibilties
+    /// Adds multiple [arguments] to the list of valid possibilities.
     ///
     /// # Examples
     ///
