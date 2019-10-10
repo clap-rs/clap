@@ -448,6 +448,38 @@ fn conditional_reqs_pass() {
 }
 
 #[test]
+fn multiple_defaults() {
+    let r = App::new("diff")
+        .arg(
+            Arg::with_name("files")
+                .long("files")
+                .number_of_values(2)
+                .default_values(&["old", "new"]),
+        )
+        .try_get_matches_from(vec![""]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("files"));
+    assert_eq!(m.values_of_lossy("files").unwrap(), vec!["old", "new"]);
+}
+
+#[test]
+fn multiple_defaults_override() {
+    let r = App::new("diff")
+        .arg(
+            Arg::with_name("files")
+                .long("files")
+                .number_of_values(2)
+                .default_values(&["old", "new"]),
+        )
+        .try_get_matches_from(vec!["", "--files", "other", "mine"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("files"));
+    assert_eq!(m.values_of_lossy("files").unwrap(), vec!["other", "mine"]);
+}
+
+#[test]
 fn issue_1050_num_vals_and_defaults() {
     let res = App::new("hello")
         .arg(

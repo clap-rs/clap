@@ -454,16 +454,23 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {
-            if let Some(pv) = a.default_val {
+            if let Some(ref pv) = a.default_vals {
                 debugln!("Help::spec_vals: Found default value...[{:?}]", pv);
-                spec_vals.push(format!(
-                    " [default: {}]",
-                    if self.color {
-                        self.cizer.good(pv.to_string_lossy())
-                    } else {
-                        Format::None(pv.to_string_lossy())
-                    }
-                ));
+
+                let pvs = if self.color {
+                    pv
+                        .iter()
+                        .map(|&pvs| format!("{}", self.cizer.good(pvs.to_string_lossy())))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                } else {
+                    pv
+                        .iter()
+                        .map(|&pvs| format!("{}", Format::None(pvs.to_string_lossy())))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                };
+                spec_vals.push(format!(" [default: {}]", pvs));
             }
         }
         if let Some(ref aliases) = a.aliases {
