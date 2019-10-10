@@ -101,7 +101,7 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub val_delim: Option<char>,
     #[doc(hidden)]
-    pub default_val: Option<&'help OsStr>,
+    pub default_vals: Option<Vec<&'help OsStr>>,
     #[doc(hidden)]
     pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
     #[doc(hidden)]
@@ -2265,16 +2265,34 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value(self, val: &'help str) -> Self {
-        self.default_value_os(OsStr::from_bytes(val.as_bytes()))
+        self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
     }
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_os(mut self, val: &'help OsStr) -> Self {
+    pub fn default_value_os(self, val: &'help OsStr) -> Self {
+        self.default_values_os(&[val])
+    }
+
+    /// Like [`Arg::default_value'] but for args taking multiple values
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    pub fn default_values(self, vals: &[&'help str]) -> Self {
+        let vals_vec: Vec<_> = vals
+            .iter()
+            .map(|val| OsStr::from_bytes(val.as_bytes()))
+            .collect();
+        self.default_values_os(&vals_vec[..])
+    }
+
+    /// Provides default values in the exact same manner as [`Arg::default_values`]
+    /// only using [`OsStr`]s instead.
+    /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.setb(ArgSettings::TakesValue);
-        self.default_val = Some(val);
+        self.default_vals = Some(vals.to_vec());
         self
     }
 
@@ -4227,7 +4245,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.disp_ord,
             self.env,
             self.unified_ord,
-            self.default_val,
+            self.default_vals,
             self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
             self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
         )

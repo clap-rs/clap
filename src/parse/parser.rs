@@ -1361,7 +1361,7 @@ where
         debugln!("Parser::add_defaults;");
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
-                if let Some(ref val) = $a.default_val {
+                if let Some(ref vals) = $a.default_vals {
                     debugln!("Parser::add_defaults:iter:{}: has default vals", $a.name);
                     if $m
                         .get($a.id)
@@ -1373,7 +1373,9 @@ where
                             "Parser::add_defaults:iter:{}: has no user defined vals",
                             $a.name
                         );
-                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+                        for val in vals {
+                            $_self.add_val_to_arg($a, val, $m)?;
+                        }
                     } else if $m.get($a.id).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
@@ -1382,7 +1384,9 @@ where
                     } else {
                         debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
 
-                        $_self.add_val_to_arg($a, OsStr::new(val), $m)?;
+                        for val in vals {
+                            $_self.add_val_to_arg($a, val, $m)?;
+                        }
                     }
                 } else {
                     debugln!(
