@@ -19,7 +19,8 @@ use clap::{AppSettings, Clap};
 
 /// An example of raw attributes
 #[derive(Clap, Debug)]
-#[clap(raw(global_settings = "&[AppSettings::ColoredHelp, AppSettings::VersionlessSubcommands]"))]
+#[clap(raw(global_setting = "AppSettings::ColoredHelp"))]
+#[clap(raw(global_setting = "AppSettings::VersionlessSubcommands"))]
 struct Opt {
     /// Output file
     #[clap(short = "o", long = "output")]

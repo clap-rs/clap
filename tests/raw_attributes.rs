@@ -19,7 +19,7 @@ use clap::{AppSettings, Clap};
 
 // Check if the global settings compile
 #[derive(Clap, Debug, PartialEq, Eq)]
-#[clap(raw(global_settings = "&[AppSettings::ColoredHelp]"))]
+#[clap(raw(global_setting = "AppSettings::ColoredHelp"))]
 struct Opt {
     #[clap(
         long = "x",
@@ -32,11 +32,7 @@ struct Opt {
     )]
     x: i32,
 
-    #[clap(
-        short = "l",
-        long = "level",
-        raw(aliases = r#"&["set-level", "lvl"]"#)
-    )]
+    #[clap(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
     level: String,
 
     #[clap(long = "values")]

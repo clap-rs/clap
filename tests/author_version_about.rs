@@ -45,6 +45,7 @@ FLAGS:
 
     -V, --version    
             Prints version information
+
 ";
 
 #[test]

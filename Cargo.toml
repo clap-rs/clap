@@ -28,7 +28,7 @@ proc-macro2 = "0.4"
 clippy = {version = "0.0.174", optional = true }
 
 [dev-dependencies]
-clap = { git = "https://github.com/clap-rs/clap", branch = "v3-master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
+clap = { git = "https://github.com/clap-rs/clap", branch = "master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
 
 [features]
 default = []

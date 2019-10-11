@@ -9,7 +9,7 @@ use clap::{AppSettings, Clap};
     about = "",
     version = "",
     author = "",
-    raw(global_settings = "&[AppSettings::DisableVersion]")
+    raw(global_setting = "AppSettings::DisableVersion")
 )]
 struct Opt {}
 
