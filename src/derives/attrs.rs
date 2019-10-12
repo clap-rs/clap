@@ -254,7 +254,6 @@ impl Attrs {
         let mut res = Self::new(name);
         let attrs_with_env = [
             ("version", "CARGO_PKG_VERSION"),
-            ("about", "CARGO_PKG_DESCRIPTION"),
             ("author", "CARGO_PKG_AUTHORS"),
         ];
         attrs_with_env
