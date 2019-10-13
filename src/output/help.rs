@@ -93,7 +93,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             self.write_default_help()?;
         }
 
-        write!(self.writer, "\n")?;
+        writeln!(self.writer)?;
 
         Ok(())
     }

@@ -34,7 +34,7 @@ impl Hasher for FnvHasher {
 
         for byte in bytes.iter() {
             hash ^= u64::from(*byte);
-            hash = hash.wrapping_mul(0x100000001b3);
+            hash = hash.wrapping_mul(0x0100_0000_01b3);
         }
 
         *self = FnvHasher(hash);
