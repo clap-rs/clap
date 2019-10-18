@@ -14,7 +14,7 @@
 //! arguments.
 //!
 //! `clap` also provides the traditional version and help switches (or flags) 'for free' meaning
-//! automatically with no configuration. It does this by checking list of valid possibilities you
+//! automatically with no configuration. It does this by checking the list of valid possibilities you
 //! supplied and adding only the ones you haven't already defined. If you are using subcommands,
 //! `clap` will also auto-generate a `help` subcommand for you in addition to the traditional flags.
 //!
