@@ -45,7 +45,6 @@
 //! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 //! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 //! // to generate arguments dynamically.
-//! extern crate clap;
 //! use clap::{Arg, App, };
 //!
 //! fn main() {
@@ -116,7 +115,6 @@
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
-//! extern crate clap;
 //! use clap::{Arg, App, };
 //!
 //! fn main() {
@@ -285,7 +283,6 @@
 //! * Add the following to your `src/main.rs`
 //!
 //! ```no_run
-//! extern crate clap;
 //! use clap::App;
 //!
 //! fn main() {
@@ -314,8 +311,6 @@
 //! [dependencies.clap]
 //! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
-//!
-//! Add `extern crate clap;` to your crate root.
 //!
 //! Define a list of valid arguments for your program (see the
 //! [documentation](https://docs.rs/clap/) or [examples/] directory of this repo)
@@ -544,13 +539,10 @@ extern crate bitflags;
 #[cfg_attr(feature = "derive", allow(unused_imports))]
 #[cfg_attr(feature = "derive", macro_use)]
 extern crate clap_derive;
-extern crate indexmap;
 #[cfg(feature = "suggestions")]
 extern crate strsim;
 #[cfg(feature = "wrap_help")]
 extern crate term_size;
-extern crate textwrap;
-extern crate unicode_width;
 #[cfg(feature = "vec_map")]
 extern crate vec_map;
 #[cfg(feature = "yaml")]
