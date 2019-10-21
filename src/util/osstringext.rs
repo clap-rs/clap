@@ -15,7 +15,7 @@ pub trait OsStrExt2 {
     fn starts_with(&self, s: &[u8]) -> bool;
     fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
-    fn trim_left_matches(&self, b: u8) -> &OsStr;
+    fn trim_start_matches(&self, b: u8) -> &OsStr;
     fn contains_byte(&self, b: u8) -> bool;
     fn split(&self, b: u8) -> OsSplit;
 }
@@ -56,7 +56,7 @@ impl OsStrExt2 for OsStr {
         )
     }
 
-    fn trim_left_matches(&self, byte: u8) -> &OsStr {
+    fn trim_start_matches(&self, byte: u8) -> &OsStr {
         let mut found = false;
         for (i, b) in self.as_bytes().iter().enumerate() {
             if b != &byte {

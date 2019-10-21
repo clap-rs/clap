@@ -6,7 +6,7 @@ include!("../clap-test.rs");
 use clap::{App, Arg, ArgMatches, ArgSettings, ErrorKind};
 
 #[cfg(feature = "suggestions")]
-static DYM: &'static str =
+static DYM: &str =
     "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
 \tDid you mean --option?
 If you tried to supply `--optio` as a PATTERN use `-- --optio`
@@ -163,7 +163,7 @@ fn lots_o_vals() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(m.is_present("o"));
-    assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>().len(), 297); // i.e. more than u8
+    assert_eq!(m.values_of("o").unwrap().count(), 297); // i.e. more than u8
 }
 
 #[test]

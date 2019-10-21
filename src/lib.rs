@@ -530,7 +530,7 @@
 // #![cfg_attr(feature = "lints", deny(warnings))]
 #![cfg_attr(feature = "lints", feature(plugin))]
 #![cfg_attr(feature = "lints", plugin(clippy))]
-// #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
+// #![cfg_attr(feature = "lints", allow(cognitive_complexity))]
 // #![cfg_attr(feature = "lints", allow(doc_markdown))]
 // #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 

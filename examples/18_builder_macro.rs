@@ -40,7 +40,7 @@ fn main() {
             (@arg list: -l "Lists test values")
             (@arg test_req: -r requires[list] "Tests requirement for listing")
             (@arg aaaa: --aaaa +takes_value {
-                    |a| if a.contains("a") {
+                    |a| if a.contains('a') {
                         Ok(())
                     } else {
                         Err(String::from("string does not contain at least one a"))

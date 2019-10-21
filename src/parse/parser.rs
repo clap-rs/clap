@@ -23,9 +23,9 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
 #[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
 use crate::util::OsStrExt3;
+use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -364,7 +364,7 @@ where
     'b: 'c,
 {
     // The actual parsing function
-    #[allow(clippy::cyclomatic_complexity)]
+    #[allow(clippy::cognitive_complexity)]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -437,9 +437,7 @@ where
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
@@ -465,9 +463,7 @@ where
                                     ));
                                 }
                             }
-                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     }
@@ -1014,13 +1010,13 @@ where
         let mut val = None;
         debug!("Parser::parse_long_arg: Does it contain '='...");
         let arg = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = full_arg.trim_left_matches(b'-').split_at_byte(b'=');
+            let (p0, p1) = full_arg.trim_start_matches(b'-').split_at_byte(b'=');
             sdebugln!("Yes '{:?}'", p1);
             val = Some(p1);
             p0
         } else {
             sdebugln!("No");
-            full_arg.trim_left_matches(b'-')
+            full_arg.trim_start_matches(b'-')
         };
         if let Some(opt) = self.app.args.get(&KeyType::Long(arg.into())) {
             debugln!(
@@ -1056,7 +1052,7 @@ where
         full_arg: &OsStr,
     ) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_short_arg: full_arg={:?}", full_arg);
-        let arg_os = full_arg.trim_left_matches(b'-');
+        let arg_os = full_arg.trim_start_matches(b'-');
         let arg = arg_os.to_string_lossy();
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
@@ -1156,7 +1152,7 @@ where
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
-            let v = fv.trim_left_matches(b'=');
+            let v = fv.trim_start_matches(b'=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(ClapError::empty_value(
@@ -1561,26 +1557,44 @@ impl<'b, 'c> Parser<'b, 'c>
 where
     'b: 'c,
 {
-    fn contains_short(&self, s: char) -> bool { self.app.contains_short(s) }
+    fn contains_short(&self, s: char) -> bool {
+        self.app.contains_short(s)
+    }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
-    pub(crate) fn has_args(&self) -> bool { self.app.has_args() }
+    pub(crate) fn has_args(&self) -> bool {
+        self.app.has_args()
+    }
 
-    pub(crate) fn has_opts(&self) -> bool { self.app.has_opts() }
+    pub(crate) fn has_opts(&self) -> bool {
+        self.app.has_opts()
+    }
 
-    pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
+    pub(crate) fn has_flags(&self) -> bool {
+        self.app.has_flags()
+    }
 
     pub(crate) fn has_positionals(&self) -> bool {
         self.app.args.keys.iter().any(|x| x.key.is_position())
     }
 
-    pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }
+    pub(crate) fn has_subcommands(&self) -> bool {
+        self.app.has_subcommands()
+    }
 
-    pub(crate) fn has_visible_subcommands(&self) -> bool { self.app.has_visible_subcommands() }
+    pub(crate) fn has_visible_subcommands(&self) -> bool {
+        self.app.has_visible_subcommands()
+    }
 
-    pub(crate) fn is_set(&self, s: AS) -> bool { self.app.is_set(s) }
+    pub(crate) fn is_set(&self, s: AS) -> bool {
+        self.app.is_set(s)
+    }
 
-    pub(crate) fn set(&mut self, s: AS) { self.app.set(s) }
+    pub(crate) fn set(&mut self, s: AS) {
+        self.app.set(s)
+    }
 
-    pub(crate) fn unset(&mut self, s: AS) { self.app.unset(s) }
+    pub(crate) fn unset(&mut self, s: AS) {
+        self.app.unset(s)
+    }
 }
