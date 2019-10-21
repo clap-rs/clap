@@ -14,7 +14,7 @@ use crate::INVALID_UTF8;
 
 type Id = u64;
 
-/// Used to get information about the arguments that where supplied to the program at runtime by
+/// Used to get information about the arguments that were supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
 /// methods.
 ///
