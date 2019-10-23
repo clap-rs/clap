@@ -312,16 +312,17 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 
 fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
     quote! {
+        #[allow(unreachable_pub)]
         pub fn parse() -> #name {
             use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches())
         }
-
+        #[allow(unreachable_pub)]
         pub fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
             use ::clap::{FromArgMatches, IntoApp};
             Ok(#name::from_argmatches(&#name::into_app().try_get_matches()?))
         }
-
+        #[allow(unreachable_pub)]
         pub fn parse_from<I, T>(itr: I) -> #name
         where
             I: ::std::iter::IntoIterator<Item = T>,
@@ -329,7 +330,7 @@ fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
             use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches_from(itr))
         }
-
+        #[allow(unreachable_pub)]
         pub fn try_parse_from<I, T>(itr: I) -> ::std::result::Result<#name, ::clap::Error>
         where
             I: ::std::iter::IntoIterator<Item = T>,
