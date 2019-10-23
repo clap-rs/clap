@@ -7,7 +7,7 @@ use clap::{App, AppSettings, Arg};
 
 include!("../clap-test.rs");
 
-static NO_DERIVE_ORDER: &'static str = "test 1.2
+static NO_DERIVE_ORDER: &str = "test 1.2
 
 USAGE:
     test [FLAGS] [OPTIONS]
@@ -22,7 +22,7 @@ OPTIONS:
         --option_a <option_a>    second option
         --option_b <option_b>    first option";
 
-static DERIVE_ORDER: &'static str = "test 1.2
+static DERIVE_ORDER: &str = "test 1.2
 
 USAGE:
     test [FLAGS] [OPTIONS]
@@ -37,7 +37,7 @@ OPTIONS:
         --option_b <option_b>    first option
         --option_a <option_a>    second option";
 
-static UNIFIED_HELP: &'static str = "test 1.2
+static UNIFIED_HELP: &str = "test 1.2
 
 USAGE:
     test [OPTIONS]
@@ -50,7 +50,7 @@ OPTIONS:
         --option_b <option_b>    first option
     -V, --version                Prints version information";
 
-static UNIFIED_HELP_AND_DERIVE: &'static str = "test 1.2
+static UNIFIED_HELP_AND_DERIVE: &str = "test 1.2
 
 USAGE:
     test [OPTIONS]
@@ -63,7 +63,7 @@ OPTIONS:
     -h, --help                   Prints help information
     -V, --version                Prints version information";
 
-static DERIVE_ORDER_SC_PROP: &'static str = "test-sub 1.2
+static DERIVE_ORDER_SC_PROP: &str = "test-sub 1.2
 
 USAGE:
     test sub [FLAGS] [OPTIONS]
@@ -78,7 +78,7 @@ OPTIONS:
         --option_b <option_b>    first option
         --option_a <option_a>    second option";
 
-static UNIFIED_SC_PROP: &'static str = "test-sub 1.2
+static UNIFIED_SC_PROP: &str = "test-sub 1.2
 
 USAGE:
     test sub [OPTIONS]
@@ -91,7 +91,7 @@ OPTIONS:
         --option_b <option_b>    first option
     -V, --version                Prints version information";
 
-static UNIFIED_DERIVE_SC_PROP: &'static str = "test-sub 1.2
+static UNIFIED_DERIVE_SC_PROP: &str = "test-sub 1.2
 
 USAGE:
     test sub [OPTIONS]
@@ -104,7 +104,7 @@ OPTIONS:
     -h, --help                   Prints help information
     -V, --version                Prints version information";
 
-static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &'static str = "test-sub 1.2
+static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &str = "test-sub 1.2
 
 USAGE:
     test sub [OPTIONS]

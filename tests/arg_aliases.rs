@@ -5,7 +5,7 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg};
 
-static SC_VISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
+static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
 USAGE:
@@ -19,7 +19,7 @@ FLAGS:
 OPTIONS:
     -o, --opt <opt>     [aliases: visible]";
 
-static SC_INVISIBLE_ALIAS_HELP: &'static str = "ct-test 1.2
+static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
 USAGE:
@@ -57,7 +57,7 @@ fn multiple_aliases_of_option() {
             .long("aliases")
             .takes_value(true)
             .help("multiple aliases")
-            .aliases(&vec!["alias1", "alias2", "alias3"]),
+            .aliases(&["alias1", "alias2", "alias3"]),
     );
     let long = a
         .clone()
@@ -151,7 +151,7 @@ fn alias_on_a_subcommand_option() {
         .arg(
             Arg::with_name("other")
                 .long("other")
-                .aliases(&vec!["o1", "o2", "o3"]),
+                .aliases(&["o1", "o2", "o3"]),
         )
         .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
 

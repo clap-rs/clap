@@ -5,7 +5,7 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
-static REQUIRE_EQUALS: &'static str = "error: The following required arguments were not provided:
+static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
 
 USAGE:
@@ -13,7 +13,7 @@ USAGE:
 
 For more information try --help";
 
-static MISSING_REQ: &'static str = "error: The following required arguments were not provided:
+static MISSING_REQ: &str = "error: The following required arguments were not provided:
     <positional2>
     --long-option-2 <option2>
 
@@ -22,7 +22,7 @@ USAGE:
 
 For more information try --help";
 
-static COND_REQ_IN_USAGE: &'static str =
+static COND_REQ_IN_USAGE: &str =
     "error: The following required arguments were not provided:
     --output <output>
 
@@ -661,7 +661,7 @@ fn require_eq() {
     assert!(test::compare_output(app, "clap-test", REQUIRE_EQUALS, true));
 }
 
-static ISSUE_1158: &'static str = "error: The following required arguments were not provided:
+static ISSUE_1158: &str = "error: The following required arguments were not provided:
     -x <X>
     -y <Y>
     -z <Z>

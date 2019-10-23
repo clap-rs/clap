@@ -210,7 +210,7 @@ fn main() {
 
     // You can handle information about subcommands by requesting their matches by name
     // (as below), requesting just the name used, or both at the same time
-    match matches.subcmd {
+    match opts.subcmd {
         SubCommand::Test @ t => {
             if t.debug {
                 println!("Printing debug info...");

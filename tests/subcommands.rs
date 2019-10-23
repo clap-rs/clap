@@ -5,7 +5,7 @@ include!("../clap-test.rs");
 
 use clap::{App, Arg, ErrorKind};
 
-static VISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
+static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
 USAGE:
     clap-test [SUBCOMMAND]
@@ -18,7 +18,7 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    Some help [aliases: dongle, done]";
 
-static INVISIBLE_ALIAS_HELP: &'static str = "clap-test 2.6
+static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
 USAGE:
     clap-test [SUBCOMMAND]
@@ -32,7 +32,7 @@ SUBCOMMANDS:
     test    Some help";
 
 #[cfg(feature = "suggestions")]
-static DYM_SUBCMD: &'static str = "error: The subcommand 'subcm' wasn't recognized
+static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
 	Did you mean 'subcmd'?
 
 If you believe you received this message in error, try re-running with 'dym -- subcm'
@@ -43,7 +43,7 @@ USAGE:
 For more information try --help";
 
 #[cfg(feature = "suggestions")]
-static DYM_ARG: &'static str =
+static DYM_ARG: &str =
     "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 If you tried to supply `--subcm` as a PATTERN use `-- --subcm`
