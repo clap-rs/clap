@@ -1,7 +1,7 @@
 // Std
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, BufWriter, Write};
+use std::io::Write;
 use std::iter::Peekable;
 use std::mem;
 #[cfg(all(
