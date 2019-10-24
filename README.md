@@ -240,7 +240,7 @@ fn main() {
                           .author("Kevin K. <kbknapp@gmail.com>")
                           .about("Does awesome things")
                           .arg(Arg::with_name("config")
-                               .short('c')
+                               .short("c")
                                .long("config")
                                .value_name("FILE")
                                .help("Sets a custom config file")
@@ -250,7 +250,7 @@ fn main() {
                                .required(true)
                                .index(1))
                           .arg(Arg::with_name("v")
-                               .short('v')
+                               .short("v")
                                .multiple(true)
                                .help("Sets the level of verbosity"))
                           .subcommand(SubCommand::with_name("test")
@@ -258,7 +258,7 @@ fn main() {
                                       .version("1.3")
                                       .author("Someone E. <someone_else@other.com>")
                                       .arg(Arg::with_name("debug")
-                                          .short('d')
+                                          .short("d")
                                           .help("print debug information verbosely")))
                           .get_matches();
 
