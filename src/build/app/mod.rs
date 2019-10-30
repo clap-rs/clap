@@ -1510,16 +1510,11 @@ impl<'b> App<'b> {
                     $sc.max_w = $_self.max_w;
                 }
                 {
-                    for a in $_self
-                        .args
-                        .args
-                        .iter()
-                        .filter(|a| a.global)
-                        {
-                            $sc.args.push(a.clone());
-                        }
+                    for a in $_self.args.args.iter().filter(|a| a.global) {
+                        $sc.args.push(a.clone());
+                    }
                 }
-            }}
+            }};
         }
 
         debugln!("App::_propagate:{}", self.name);
@@ -1531,9 +1526,13 @@ impl<'b> App<'b> {
                         sc._propagate(prop);
                     }
                 }
-            },
+            }
             Propagation::To(id) => {
-                let mut sc = self.subcommands.iter_mut().find(|sc| sc.id == id).expect(INTERNAL_ERROR_MSG);
+                let mut sc = self
+                    .subcommands
+                    .iter_mut()
+                    .find(|sc| sc.id == id)
+                    .expect(INTERNAL_ERROR_MSG);
                 propagate_subcmd!(self, sc);
             },
             Propagation::None => (),
@@ -1839,7 +1838,8 @@ impl<'b> App<'b> {
         let requires_if_or_not = |&(val, req_arg)| {
             if let Some(v) = val {
                 if matcher
-                    .get(arg).map(|ma| ma.contains_val(v))
+                    .get(arg)
+                    .and_then(|ma| Some(ma.contains_val(v)))
                     .unwrap_or(false)
                 {
                     Some(req_arg)
