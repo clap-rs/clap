@@ -14,12 +14,6 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 * [website](https://clap.rs/)
 * [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U)
 
-# Important note on clap 3.0
-
-Clap 3.0 is under development and available on the [`master` branch](https://github.com/clap-rs/clap/tree/master), however the latest offically released version is still v2.33 (on the [`v2-master` branch](https://github.com/clap-rs/clap/tree/v2-master)).
-
-Please consider supporting v3.0 moving forward, however if sending a pull request that is for v2.x please ensure that it is against `v2-master` branch. Thanks! Also please note that v2.x will not remain in active development (sans security fixes) once v3.0 is officially released.
-
 Table of Contents
 =================
 
@@ -543,9 +537,9 @@ This is inherently an unresolvable crate graph in Cargo right now. Cargo require
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.35.0, meaning `clap` is guaranteed to compile with 1.33.0 and beyond.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.38.0, meaning `clap` is guaranteed to compile with 1.36.0 and beyond.
 
-At the 1.36.0 stable release, `clap` will be guaranteed to compile with 1.34.0 and beyond, etc.
+At the 1.39.0 stable release, `clap` will be guaranteed to compile with 1.37.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 
