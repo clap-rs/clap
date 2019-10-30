@@ -455,9 +455,9 @@ This is inherently an unresolvable crate graph in Cargo right now. Cargo require
 
 #### Minimum Version of Rust
 
-`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.32.0, meaning `clap` is guaranteed to compile with 1.30.0 and beyond.
+`clap` will officially support current stable Rust, minus two releases, but may work with prior releases as well. For example, current stable Rust at the time of this writing is 1.35.0, meaning `clap` is guaranteed to compile with 1.33.0 and beyond.
 
-At the 1.33.0 stable release, `clap` will be guaranteed to compile with 1.31.0 and beyond, etc.
+At the 1.36.0 stable release, `clap` will be guaranteed to compile with 1.34.0 and beyond, etc.
 
 Upon bumping the minimum version of Rust (assuming it's within the stable-2 range), it *must* be clearly annotated in the `CHANGELOG.md`
 

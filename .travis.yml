@@ -3,12 +3,15 @@ language: rust
 cache: cargo
 rust:
   - nightly
+  - nightly-2019-06-18
   - beta
   - stable
-  - 1.31.0
+  - 1.33.0
 matrix:
     allow_failures:
         - rust: nightly
+    nightly-2019-06-18:
+        - script: cargo clippy
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
