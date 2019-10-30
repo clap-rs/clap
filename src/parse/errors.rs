@@ -424,7 +424,7 @@ impl Error {
         color: ColorWhen,
     ) -> Self
     where
-        O: Into<String>,
+        O: Into<String> + Copy,
         U: Display,
     {
         let mut v = vec![group.name.to_owned()];
@@ -433,6 +433,14 @@ impl Error {
             when: color,
         });
         Error {
+            cause: format!(
+                "The argument '{}' cannot be used with {}",
+                group.name,
+                other.map_or(
+                    "one or more of the other specified arguments".to_owned(),
+                    |name| format!("'{}'", name.into())
+                )
+            ),
             message: format!(
                 "{} The argument '{}' cannot be used with {}\n\n\
                  {}\n\n\
@@ -454,6 +462,7 @@ impl Error {
             info: Some(v),
         }
     }
+
     #[doc(hidden)]
     pub fn argument_conflict<O, U>(arg: &Arg, other: Option<O>, usage: U, color: ColorWhen) -> Self
     where

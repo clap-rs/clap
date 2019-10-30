@@ -437,9 +437,7 @@ where
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
@@ -465,9 +463,7 @@ where
                                     ));
                                 }
                             }
-                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
-                                continue
-                            }
+                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => continue,
                             _ => (),
                         }
                     }
@@ -1568,26 +1564,44 @@ impl<'b, 'c> Parser<'b, 'c>
 where
     'b: 'c,
 {
-    fn contains_short(&self, s: char) -> bool { self.app.contains_short(s) }
+    fn contains_short(&self, s: char) -> bool {
+        self.app.contains_short(s)
+    }
 
     #[cfg_attr(feature = "lints", allow(needless_borrow))]
-    pub(crate) fn has_args(&self) -> bool { self.app.has_args() }
+    pub(crate) fn has_args(&self) -> bool {
+        self.app.has_args()
+    }
 
-    pub(crate) fn has_opts(&self) -> bool { self.app.has_opts() }
+    pub(crate) fn has_opts(&self) -> bool {
+        self.app.has_opts()
+    }
 
-    pub(crate) fn has_flags(&self) -> bool { self.app.has_flags() }
+    pub(crate) fn has_flags(&self) -> bool {
+        self.app.has_flags()
+    }
 
     pub(crate) fn has_positionals(&self) -> bool {
         self.app.args.keys.iter().any(|x| x.key.is_position())
     }
 
-    pub(crate) fn has_subcommands(&self) -> bool { self.app.has_subcommands() }
+    pub(crate) fn has_subcommands(&self) -> bool {
+        self.app.has_subcommands()
+    }
 
-    pub(crate) fn has_visible_subcommands(&self) -> bool { self.app.has_visible_subcommands() }
+    pub(crate) fn has_visible_subcommands(&self) -> bool {
+        self.app.has_visible_subcommands()
+    }
 
-    pub(crate) fn is_set(&self, s: AS) -> bool { self.app.is_set(s) }
+    pub(crate) fn is_set(&self, s: AS) -> bool {
+        self.app.is_set(s)
+    }
 
-    pub(crate) fn set(&mut self, s: AS) { self.app.set(s) }
+    pub(crate) fn set(&mut self, s: AS) {
+        self.app.set(s)
+    }
 
-    pub(crate) fn unset(&mut self, s: AS) { self.app.unset(s) }
+    pub(crate) fn unset(&mut self, s: AS) {
+        self.app.unset(s)
+    }
 }
