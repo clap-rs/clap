@@ -14,12 +14,6 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 * [website](https://clap.rs/)
 * [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U)
 
-# Important note on clap 3.0
-
-Clap 3.0 is under development and available on the [`master` branch](https://github.com/clap-rs/clap/tree/master), however the latest offically released version is still v2.33 (on the [`v2-master` branch](https://github.com/clap-rs/clap/tree/v2-master)).
-
-Please consider supporting v3.0 moving forward, however if sending a pull request that is for v2.x please ensure that it is against `v2-master` branch. Thanks! Also please note that v2.x will not remain in active development (sans security fixes) once v3.0 is officially released.
-
 Table of Contents
 =================
 
