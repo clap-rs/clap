@@ -64,7 +64,7 @@ First, let me say that these comparisons are highly subjective, and not meant in
 
 #### How does `clap` compare to [structopt](https://github.com/TeXitoi/structopt)?
 
-Simple! `clap` *is* `structopt`. With the 3.0 release, `clap` imported the `structopt` code into it's own codebase as the [`clap_derive`](https://github.com/clap-rs/clap_derive) crate. Since `structopt` already used `clap` under the hood, the transition was nearly painless, and is 100% feature compatible. 
+Simple! `clap` *is* `structopt`. With the 3.0 release, `clap` imported the `structopt` code into it's own codebase as the [`clap_derive`](https://github.com/clap-rs/clap_derive) crate. Since `structopt` already used `clap` under the hood, the transition was nearly painless, and is 100% feature compatible.
 
 If you were using `structopt` before, the only thing you should have to do is change the attributes from `#[structopt(...)]` to `#[clap(...)]`.
 
@@ -174,7 +174,7 @@ struct Opts {
     #[clap(short = "c", long = "config", default_value = "default.conf")]
     file: String,
     /// Some input. Because this isn't an Option<T> it's required to be used
-    input: String, 
+    input: String,
     /// A level of verbosity, and can be used multiple times
     #[clap(short = "v", long = "verbose", parse_from_occurrences)]
     verbose: Option<i32>,
@@ -187,7 +187,7 @@ enum SubCommand {
     /// A subcommand for controlling testing
     #[clap(name = "test", version = "1.3", author = "Someone Else")]
     Test {
-        /// Print debug info 
+        /// Print debug info
         #[clap(short = "d")]
         debug: bool
     }
@@ -350,7 +350,7 @@ use clap::App;
 fn main() {
     // The YAML file is found relative to the current file, similar to how modules are found
     let yaml = load_yaml!("cli.yml");
-    let matches = App::from_yaml(yaml).get_matches();
+    let matches = App::from(yaml).get_matches();
 
     // Same as previous examples...
 }
