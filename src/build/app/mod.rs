@@ -1466,7 +1466,7 @@ impl<'b> App<'b> {
         for name in self.args.args.iter().map(|x| x.id) {
             if self.args.args.iter().filter(|x| x.id == name).count() > 1 {
                 panic!(format!(
-                    "Arg names must be unique, found {} more than once",
+                    "Arg names must be unique, found '{}' more than once",
                     name
                 ));
             }
@@ -1619,7 +1619,7 @@ impl<'b> App<'b> {
         if let Some(l) = a.long {
             assert!(
                 self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
-                "Argument long must be unique\n\n\t--{} is already in use",
+                "Argument long must be unique\n\n\t'--{}' is already in use",
                 l
             );
         }
@@ -1628,7 +1628,7 @@ impl<'b> App<'b> {
         if let Some(s) = a.short {
             assert!(
                 self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
-                "Argument short must be unique\n\n\t-{} is already in use",
+                "Argument short must be unique\n\n\t'-{}' is already in use",
                 s
             );
         }
@@ -1650,13 +1650,13 @@ impl<'b> App<'b> {
         if a.is_set(ArgSettings::Last) {
             assert!(
                 a.long.is_none(),
-                "Flags or Options may not have last(true) set. {} has both a long and \
+                "Flags or Options may not have last(true) set. '{}' has both a long and \
                  last(true) set.",
                 a.name
             );
             assert!(
                 a.short.is_none(),
-                "Flags or Options may not have last(true) set. {} has both a short and \
+                "Flags or Options may not have last(true) set. '{}' has both a short and \
                  last(true) set.",
                 a.name
             );
