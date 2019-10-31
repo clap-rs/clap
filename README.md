@@ -176,22 +176,26 @@ struct Opts {
     /// Some input. Because this isn't an Option<T> it's required to be used
     input: String,
     /// A level of verbosity, and can be used multiple times
-    #[clap(short = "v", long = "verbose", parse_from_occurrences)]
-    verbose: Option<i32>,
+    #[clap(short = "v", long = "verbose", parse(from_occurrences))]
+    verbose: i32,
     #[clap(subcommand)]
     subcmd: SubCommand,
 }
 
 #[derive(Clap)]
 enum SubCommand {
-    /// A subcommand for controlling testing
-    #[clap(name = "test", version = "1.3", author = "Someone Else")]
-    Test {
-        /// Print debug info
-        #[clap(short = "d")]
-        debug: bool
-    }
+    Test(Test),
 }
+
+/// A subcommand for controlling testing
+#[derive(Clap)]
+#[clap(name = "test", version = "1.3", author = "Someone Else")]
+Test {
+    /// Print debug info
+    #[clap(short = "d")]
+    debug: bool
+}
+
 fn main() {
     let opts: Opts = Opts::parse();
 
@@ -201,7 +205,7 @@ fn main() {
 
     // Vary the output based on how many times the user used the "verbose" flag
     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match opts.verbose.unwrap_or(0) {
+    match opts.verbose {
         0 => println!("No verbose info"),
         1 => println!("Some verbose info"),
         2 => println!("Tons of verbose info"),
@@ -211,7 +215,7 @@ fn main() {
     // You can handle information about subcommands by requesting their matches by name
     // (as below), requesting just the name used, or both at the same time
     match opts.subcmd {
-        SubCommand::Test @ t => {
+        SubCommand::Test(t) => {
             if t.debug {
                 println!("Printing debug info...");
             } else {
