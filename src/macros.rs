@@ -643,6 +643,12 @@ macro_rules! app_from_crate {
 /// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
 ///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
 ///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
+/// 
+/// # Alternative form for non-ident values
+/// 
+/// Certain places that normally accept an `ident`, will optionally accept an alternative of `("expr enclosed by parens")`
+/// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
+/// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`
 ///
 /// [`Arg::short`]: ./struct.Arg.html#method.short
 /// [`Arg::long`]: ./struct.Arg.html#method.long
@@ -702,6 +708,14 @@ macro_rules! clap_app {
         $crate::clap_app!{ @app
             ($builder.subcommand(
                 $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
+            ))
+            $($tt)*
+        }
+    };
+    (@app ($builder:expr) (@subcommand ($name:expr) => $($tail:tt)*) $($tt:tt)*) => {
+        clap_app!{ @app
+            ($builder.subcommand(
+                $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
             ))
             $($tt)*
         }
@@ -790,6 +804,9 @@ macro_rules! clap_app {
 // Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
+    };
+    (@subcommand ($name:expr) => $($tail:tt)*) => {
+        $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
     };
 // Start the magic
     (($name:expr) => $($tail:tt)*) => {{
