@@ -424,7 +424,7 @@ impl Error {
         color: ColorWhen,
     ) -> Self
     where
-        O: Into<String> + Copy,
+        O: Into<String>,
         U: Display,
     {
         let mut v = vec![group.name.to_owned()];
@@ -432,29 +432,37 @@ impl Error {
             use_stderr: true,
             when: color,
         });
-        Error {
-            cause: format!(
-                "The argument '{}' cannot be used with {}",
-                group.name,
-                other.map_or(
-                    "one or more of the other specified arguments".to_owned(),
-                    |name| format!("'{}'", name.into())
+        let (plain_cause, colored_cause) = match other {
+            Some(name) => {
+                let n = name.into();
+                v.push(n.clone());
+                (
+                    format!("The argument '{}' cannot be used with '{}'", group.name, n),
+                    format!(
+                        "The argument '{}' cannot be used with '{}'",
+                        group.name,
+                        c.warning(n)
+                    ),
                 )
-            ),
+            }
+            None => {
+                let n = "one or more of the other specified arguments";
+                (
+                    format!("The argument '{}' cannot be used with {}", group.name, n),
+                    format!(
+                        "The argument '{}' cannot be used with {}",
+                        group.name,
+                        c.none(n)
+                    ),
+                )
+            }
+        };
+        Error {
+            cause: plain_cause,
             message: format!(
-                "{} The argument '{}' cannot be used with {}\n\n\
-                 {}\n\n\
-                 For more information try {}",
+                "{} {}\n\n{}\n\nFor more information try {}",
                 c.error("error:"),
-                c.warning(group.name),
-                match other {
-                    Some(name) => {
-                        let n = name.into();
-                        v.push(n.clone());
-                        c.warning(format!("'{}'", n))
-                    }
-                    None => c.none("one or more of the other specified arguments".to_owned()),
-                },
+                colored_cause,
                 usage,
                 c.good("--help")
             ),
@@ -474,26 +482,37 @@ impl Error {
             use_stderr: true,
             when: color,
         });
-        let conflicting_arg = match other {
+        let (plain_cause, colored_cause) = match other {
             Some(name) => {
                 let n = name.into();
                 v.push(n.clone());
-                c.warning(format!("'{}'", n))
+                (
+                    format!("The argument '{}' cannot be used with '{}'", arg, n),
+                    format!(
+                        "The argument '{}' cannot be used with {}",
+                        c.warning(arg.to_string()),
+                        c.warning(format!("'{}'", n))
+                    ),
+                )
             }
-            None => c.none("one or more of the other specified arguments".to_owned()),
+            None => {
+                let n = "one or more of the other specified arguments";
+                (
+                    format!("The argument '{}' cannot be used with {}", arg, n),
+                    format!(
+                        "The argument '{}' cannot be used with {}",
+                        c.warning(arg.to_string()),
+                        c.none(n)
+                    ),
+                )
+            }
         };
         Error {
-            cause: format!(
-                "The argument '{}' cannot be used with {}",
-                arg, conflicting_arg
-            ),
+            cause: plain_cause,
             message: format!(
-                "{} The argument '{}' cannot be used with {}\n\n\
-                 {}\n\n\
-                 For more information try {}",
+                "{} {}\n\n{}\n\nFor more information try {}",
                 c.error("error:"),
-                c.warning(&*arg.to_string()),
-                conflicting_arg,
+                colored_cause,
                 usage,
                 c.good("--help")
             ),
