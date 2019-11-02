@@ -459,7 +459,7 @@ macro_rules! crate_version {
 macro_rules! crate_authors {
     ($sep:expr) => {{
         use std::ops::Deref;
-        use std::sync::Once;
+        use std::boxed::Box;
 
         #[allow(missing_copy_implementations)]
         #[allow(dead_code)]
@@ -471,15 +471,9 @@ macro_rules! crate_authors {
             type Target = str;
 
             fn deref(&self) -> &'static str {
-                static ONCE: Once = Once::new();
-                static mut VALUE: *const String = 0 as *const String;
-
-                ONCE.call_once(|| {
-                    let s = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
-                    VALUE = Box::leak(s);
-                });
-
-                &(*VALUE)[..]
+                let s: Box<String> = Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep));
+                let s2 = Box::leak(s);
+                &*s2 // weird but compiler-suggested way to turn a String into &str
             }
         }
 
