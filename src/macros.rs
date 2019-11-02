@@ -479,6 +479,9 @@ macro_rules! crate_authors {
                     self.authors.replace(Some(unwrapped_authors));
                     unwrapped_authors
                 } else {
+                    // This caches the result for subsequent invocations of the same instance of the macro
+                    // to avoid performing one memory allocation per call.
+                    // If performance ever becomes a problem for this code, it should be moved to build.rs
                     let s: Box<String> = Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep));
                     let static_string = Box::leak(s);
                     self.authors.replace(Some(&*static_string));
