@@ -470,19 +470,16 @@ macro_rules! crate_authors {
         impl Deref for CargoAuthors {
             type Target = str;
 
-            #[allow(unsafe_code)]
             fn deref(&self) -> &'static str {
                 static ONCE: Once = Once::new();
                 static mut VALUE: *const String = 0 as *const String;
 
-                unsafe {
-                    ONCE.call_once(|| {
-                        let s = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
-                        VALUE = Box::into_raw(Box::new(s));
-                    });
+                ONCE.call_once(|| {
+                    let s = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
+                    VALUE = Box::leak(s);
+                });
 
-                    &(*VALUE)[..]
-                }
+                &(*VALUE)[..]
             }
         }
 
