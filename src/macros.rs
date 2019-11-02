@@ -460,10 +460,12 @@ macro_rules! crate_authors {
     ($sep:expr) => {{
         use std::ops::Deref;
         use std::boxed::Box;
+        use std::cell::Cell;
 
         #[allow(missing_copy_implementations)]
         #[allow(dead_code)]
         struct CargoAuthors {
+            authors: Cell<Option<&'static str>>,
             __private_field: (),
         };
 
@@ -471,13 +473,22 @@ macro_rules! crate_authors {
             type Target = str;
 
             fn deref(&self) -> &'static str {
-                let s: Box<String> = Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep));
-                let s2 = Box::leak(s);
-                &*s2 // weird but compiler-suggested way to turn a String into &str
+                let authors = self.authors.take();
+                if authors.is_some() {
+                    let unwrapped_authors = authors.unwrap();
+                    self.authors.replace(Some(unwrapped_authors));
+                    unwrapped_authors
+                } else {
+                    let s: Box<String> = Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep));
+                    let static_string = Box::leak(s);
+                    self.authors.replace(Some(&*static_string));
+                    &*static_string // weird but compiler-suggested way to turn a String into &str
+                }
             }
         }
 
         &*CargoAuthors {
+            authors: std::cell::Cell::new(Option::None),
             __private_field: (),
         }
     }};
