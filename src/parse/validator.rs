@@ -67,6 +67,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             let mut out = vec![];
             self.p.write_help_err(&mut out)?;
             return Err(Error {
+                cause: String::new(),
                 message: String::from_utf8_lossy(&*out).into_owned(),
                 kind: ErrorKind::MissingArgumentOrSubcommand,
                 info: None,
@@ -397,14 +398,6 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         (ma.vals.len() % num as usize)
                     } else {
                         ma.vals.len()
-                    },
-                    if ma.vals.len() == 1
-                        || (a.is_set(ArgSettings::MultipleValues)
-                            && (ma.vals.len() % num as usize) == 1)
-                    {
-                        "as"
-                    } else {
-                        "ere"
                     },
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),

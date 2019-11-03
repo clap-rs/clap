@@ -700,6 +700,7 @@ where
             let mut out = vec![];
             self.write_help_err(&mut out)?;
             return Err(ClapError {
+                cause: String::new(),
                 message: String::from_utf8_lossy(&*out).into_owned(),
                 kind: ErrorKind::MissingArgumentOrSubcommand,
                 info: None,
@@ -1534,6 +1535,7 @@ where
         match Help::new(&mut buf, self, use_long, false).write_help() {
             Err(e) => e,
             _ => ClapError {
+                cause: String::new(),
                 message: String::from_utf8(buf).unwrap_or_default(),
                 kind: ErrorKind::HelpDisplayed,
                 info: None,
@@ -1548,6 +1550,7 @@ where
         match self.print_version(&mut buf_w, use_long) {
             Err(e) => e,
             _ => ClapError {
+                cause: String::new(),
                 message: String::new(),
                 kind: ErrorKind::VersionDisplayed,
                 info: None,
