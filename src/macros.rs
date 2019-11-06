@@ -459,34 +459,39 @@ macro_rules! crate_version {
 macro_rules! crate_authors {
     ($sep:expr) => {{
         use std::ops::Deref;
-        use std::sync::Once;
+        use std::boxed::Box;
+        use std::cell::Cell;
 
         #[allow(missing_copy_implementations)]
         #[allow(dead_code)]
         struct CargoAuthors {
+            authors: Cell<Option<&'static str>>,
             __private_field: (),
         };
 
         impl Deref for CargoAuthors {
             type Target = str;
 
-            #[allow(unsafe_code)]
             fn deref(&self) -> &'static str {
-                static ONCE: Once = Once::new();
-                static mut VALUE: *const String = 0 as *const String;
-
-                unsafe {
-                    ONCE.call_once(|| {
-                        let s = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
-                        VALUE = Box::into_raw(Box::new(s));
-                    });
-
-                    &(*VALUE)[..]
+                let authors = self.authors.take();
+                if authors.is_some() {
+                    let unwrapped_authors = authors.unwrap();
+                    self.authors.replace(Some(unwrapped_authors));
+                    unwrapped_authors
+                } else {
+                    // This caches the result for subsequent invocations of the same instance of the macro
+                    // to avoid performing one memory allocation per call.
+                    // If performance ever becomes a problem for this code, it should be moved to build.rs
+                    let s: Box<String> = Box::new(env!("CARGO_PKG_AUTHORS").replace(':', $sep));
+                    let static_string = Box::leak(s);
+                    self.authors.replace(Some(&*static_string));
+                    &*static_string // weird but compiler-suggested way to turn a String into &str
                 }
             }
         }
 
         &*CargoAuthors {
+            authors: std::cell::Cell::new(Option::None),
             __private_field: (),
         }
     }};
