@@ -202,7 +202,7 @@
 //! builder pattern (the first example), but without all the verbosity.
 //!
 //! ```no_run
-//!
+//! use clap::clap_app;
 //! fn main() {
 //!     let matches = clap_app!(myapp =>
 //!         (version: "1.0")
@@ -553,7 +553,7 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs
-pub trait Clap: FromArgMatches + IntoApp + Sized {}
+pub trait Clap: From<ArgMatches> + IntoApp + Sized {}
 
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {
