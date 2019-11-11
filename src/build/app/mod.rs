@@ -1378,7 +1378,7 @@ impl<'b> App<'b> {
         T: Into<OsString> + Clone,
     {
         debugln!("App::_do_parse;");
-        let mut matcher = ArgMatcher::new();
+        let mut matcher = ArgMatcher::default();
 
         // If there are global arguments, or settings we need to propgate them down to subcommands
         // before parsing incase we run into a subcommand

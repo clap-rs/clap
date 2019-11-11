@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::mem;
+use std::ops::Deref;
 
 // Third Party
 use indexmap;
@@ -20,8 +21,14 @@ impl Default for ArgMatcher {
     fn default() -> Self { ArgMatcher(ArgMatches::default()) }
 }
 
+impl Deref for ArgMatcher {
+    type Target = ArgMatches;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl ArgMatcher {
-    pub fn new() -> Self { ArgMatcher::default() }
 
     pub fn into_inner(self) -> ArgMatches { self.0 }
 

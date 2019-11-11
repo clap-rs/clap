@@ -623,7 +623,7 @@ where
                 };
 
                 // Collect the external subcommand args
-                let mut sc_m = ArgMatcher::new();
+                let mut sc_m = ArgMatcher::default();
                 while let Some(v) = it.next() {
                     let a = v.into();
                     if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
@@ -888,7 +888,7 @@ where
             self.app._propagate(Propagation::To(id));
         }
         if let Some(sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
-            let mut sc_matcher = ArgMatcher::new();
+            let mut sc_matcher = ArgMatcher::default();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
             sc.usage = Some(format!(
