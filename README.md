@@ -172,7 +172,7 @@ extern crate clap;
 struct Opts {
     /// Sets a custom config file. Could have been an Option<T> with no default too
     #[clap(short = "c", long = "config", default_value = "default.conf")]
-    file: String,
+    config: String,
     /// Some input. Because this isn't an Option<T> it's required to be used
     input: String,
     /// A level of verbosity, and can be used multiple times
@@ -190,7 +190,7 @@ enum SubCommand {
 /// A subcommand for controlling testing
 #[derive(Clap)]
 #[clap(name = "test", version = "1.3", author = "Someone Else")]
-Test {
+struct Test {
     /// Print debug info
     #[clap(short = "d")]
     debug: bool
