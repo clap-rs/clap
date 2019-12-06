@@ -25,7 +25,11 @@ fn gen_app_augmentation(
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(&field, parent_attribute.casing());
+        let attrs = Attrs::from_field(
+            &field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
         let kind = attrs.kind();
         if let Kind::Subcommand(ty) = &*kind {
             let subcmd_type = match (**ty, sub_type(&field.ty)) {
@@ -61,7 +65,11 @@ fn gen_app_augmentation(
     }
 
     let args = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(field, parent_attribute.casing());
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
         let kind = attrs.kind();
         match &*kind {
             Kind::Subcommand(_) | Kind::Skip(_) => None,
@@ -202,6 +210,7 @@ fn gen_augment_app_for_enum(
             &variant.attrs,
             Name::Derived(variant.ident.clone()),
             parent_attribute.casing(),
+            parent_attribute.env_casing(),
         );
         let app_var = syn::Ident::new("subcommand", proc_macro2::Span::call_site());
         let arg_block = match variant.fields {
@@ -261,6 +270,7 @@ fn gen_from_subcommand(
             &variant.attrs,
             Name::Derived(variant.ident.clone()),
             parent_attribute.casing(),
+            parent_attribute.env_casing(),
         );
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;

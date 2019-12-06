@@ -25,6 +25,9 @@ use syn::{self, ext::IdentExt, spanned::Spanned, LitStr};
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
 
+/// Default casing style for environment variables
+pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
+
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone)]
 pub enum Kind {
@@ -83,6 +86,7 @@ pub enum Name {
 pub struct Attrs {
     name: Name,
     casing: Sp<CasingStyle>,
+    env_casing: Sp<CasingStyle>,
     methods: Vec<Method>,
     parser: Sp<Parser>,
     author: Option<Method>,
@@ -235,10 +239,16 @@ impl Name {
 }
 
 impl Attrs {
-    fn new(default_span: Span, name: Name, casing: Sp<CasingStyle>) -> Self {
+    fn new(
+        default_span: Span,
+        name: Name,
+        casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
         Self {
             name,
             casing,
+            env_casing,
             methods: vec![],
             parser: Parser::default_spanned(default_span),
             about: None,
@@ -272,6 +282,13 @@ impl Attrs {
                     self.push_str_method(
                         ident.into(),
                         self.name.clone().translate(*self.casing).into(),
+                    );
+                }
+
+                Env(ident) => {
+                    self.push_str_method(
+                        ident.into(),
+                        self.name.clone().translate(*self.env_casing).into(),
                     );
                 }
 
@@ -315,6 +332,10 @@ impl Attrs {
 
                 RenameAll(_, casing_lit) => {
                     self.casing = CasingStyle::from_lit(casing_lit);
+                }
+
+                RenameAllEnv(_, casing_lit) => {
+                    self.env_casing = CasingStyle::from_lit(casing_lit);
                 }
 
                 Parse(ident, spec) => {
@@ -412,8 +433,9 @@ impl Attrs {
         attrs: &[syn::Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
     ) -> Self {
-        let mut res = Self::new(span, name, argument_casing);
+        let mut res = Self::new(span, name, argument_casing, env_casing);
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
@@ -431,9 +453,18 @@ impl Attrs {
         }
     }
 
-    pub fn from_field(field: &syn::Field, struct_casing: Sp<CasingStyle>) -> Self {
+    pub fn from_field(
+        field: &syn::Field,
+        struct_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
         let name = field.ident.clone().unwrap();
-        let mut res = Self::new(field.span(), Name::Derived(name), struct_casing);
+        let mut res = Self::new(
+            field.span(),
+            Name::Derived(name.clone()),
+            struct_casing,
+            env_casing,
+        );
         res.push_doc_comment(&field.attrs, "help");
         res.push_attrs(&field.attrs);
 
@@ -617,6 +648,10 @@ impl Attrs {
 
     pub fn casing(&self) -> Sp<CasingStyle> {
         self.casing.clone()
+    }
+
+    pub fn env_casing(&self) -> Sp<CasingStyle> {
+        self.env_casing.clone()
     }
 
     pub fn is_positional(&self) -> bool {

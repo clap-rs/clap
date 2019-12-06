@@ -19,7 +19,9 @@ use syn::punctuated;
 use syn::spanned::Spanned as _;
 use syn::token;
 
-use super::{spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING};
+use super::{
+    spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING, DEFAULT_ENV_CASING,
+};
 
 pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     use syn::Data::*;
@@ -39,6 +41,7 @@ pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStr
                 &input.attrs,
                 Name::Assigned(syn::LitStr::new(&name, proc_macro2::Span::call_site())),
                 Sp::call_site(DEFAULT_CASING),
+                Sp::call_site(DEFAULT_ENV_CASING),
             );
 
             gen_from_argmatches_impl_for_struct(struct_name, &fields.named, &attrs)
@@ -92,7 +95,11 @@ pub fn gen_constructor(
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(field, parent_attribute.casing());
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
         match &*attrs.kind() {
