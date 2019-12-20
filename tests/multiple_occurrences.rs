@@ -76,3 +76,57 @@ fn multiple_occurrences_of_flags_large_quantity() {
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 1024);
 }
+
+#[test]
+fn multiple_occurrences_of_before_env() {
+    let app = App::new("mo_before_env").arg(
+        Arg::with_name("verbose")
+            .env("VERBOSE")
+            .short('v')
+            .long("verbose")
+            .takes_value(false)
+            .multiple_occurrences(true),
+    );
+
+    let m = app.clone().try_get_matches_from(vec![""]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
+
+    let m = app.clone().try_get_matches_from(vec!["", "-v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
+
+    let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
+    let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+}
+
+#[test]
+fn multiple_occurrences_of_after_env() {
+    let app = App::new("mo_after_env").arg(
+        Arg::with_name("verbose")
+            .short('v')
+            .long("verbose")
+            .takes_value(false)
+            .multiple_occurrences(true)
+            .env("VERBOSE"),
+    );
+
+    let m = app.clone().try_get_matches_from(vec![""]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
+
+    let m = app.clone().try_get_matches_from(vec!["", "-v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
+
+    let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
+    let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+}
