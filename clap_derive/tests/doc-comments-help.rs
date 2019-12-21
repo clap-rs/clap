@@ -69,21 +69,26 @@ fn field_long_doc_comment_both_help_long_help() {
     #[derive(Clap, PartialEq, Debug)]
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
-        /// DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES.
+        /// Dot is removed from multiline comments.
         ///
-        /// Or something else
+        /// Long help
         #[clap(long)]
         foo: bool,
+
+        /// Dot is removed from one short comment.
+        #[clap(long)]
+        bar: bool,
     }
 
     let short_help = get_help::<LoremIpsum>();
     let long_help = get_long_help::<LoremIpsum>();
 
-    assert!(short_help.contains("CIRCUMSTANCES"));
-    assert!(!short_help.contains("CIRCUMSTANCES."));
-    assert!(!short_help.contains("Or something else"));
-    assert!(long_help.contains("DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"));
-    assert!(long_help.contains("Or something else"));
+    assert!(short_help.contains("Dot is removed from one short comment"));
+    assert!(!short_help.contains("Dot is removed from one short comment."));
+    assert!(short_help.contains("Dot is removed from multiline comments"));
+    assert!(!short_help.contains("Dot is removed from multiline comments."));
+    assert!(long_help.contains("Long help"));
+    assert!(!short_help.contains("Long help"));
 }
 
 #[test]
@@ -113,4 +118,51 @@ fn top_long_doc_comment_both_help_long_help() {
     assert!(!short_help.contains("Or something else"));
     assert!(long_help.contains("DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"));
     assert!(long_help.contains("Or something else"));
+}
+
+#[test]
+fn verbatim_doc_comment() {
+    /// DANCE!
+    ///
+    ///                    ()
+    ///                    |
+    ///               (   ()   )
+    ///     ) ________    //  )
+    ///  ()  |\       \  //
+    /// ( \\__ \ ______\//
+    ///    \__) |       |
+    ///      |  |       |
+    ///       \ |       |
+    ///        \|_______|
+    ///        //    \\
+    ///       ((     ||
+    ///        \\    ||
+    ///      ( ()    ||
+    ///       (      () ) )
+    #[derive(Clap, Debug)]
+    #[clap(verbatim_doc_comment)]
+    struct SeeFigure1 {
+        #[clap(long)]
+        foo: bool,
+    }
+
+    let help = get_long_help::<SeeFigure1>();
+    let sample = r#"
+                   ()
+                   |
+              (   ()   )
+    ) ________    //  )
+ ()  |\       \  //
+( \\__ \ ______\//
+   \__) |       |
+     |  |       |
+      \ |       |
+       \|_______|
+       //    \\
+      ((     ||
+       \\    ||
+     ( ()    ||
+      (      () ) )"#;
+
+    assert!(help.contains(sample))
 }

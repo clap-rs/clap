@@ -12,15 +12,15 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{parse::*, spanned::Sp, ty::Ty};
+use super::{parse::*, spanned::Sp, ty::Ty, doc_comments::process_doc_comment};
 
 use std::env;
 
 use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
-use proc_macro2::{self, Span};
+use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, LitStr};
+use syn::{self, ext::IdentExt, spanned::Spanned, *};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -87,12 +87,14 @@ pub struct Attrs {
     name: Name,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
+    doc_comment: Vec<Method>,
     methods: Vec<Method>,
     parser: Sp<Parser>,
     author: Option<Method>,
     about: Option<Method>,
     version: Option<Method>,
-    no_version: Option<syn::Ident>,
+    no_version: Option<Ident>,
+    verbatim_doc_comment: Option<Ident>,
     has_custom_parser: bool,
     kind: Sp<Kind>,
 }
@@ -108,7 +110,7 @@ pub struct GenOutput {
 }
 
 impl Method {
-    fn new(name: syn::Ident, args: proc_macro2::TokenStream) -> Self {
+    pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }
     }
 
@@ -249,12 +251,14 @@ impl Attrs {
             name,
             casing,
             env_casing,
+            doc_comment: vec![],
             methods: vec![],
             parser: Parser::default_spanned(default_span),
             about: None,
             author: None,
             version: None,
             no_version: None,
+            verbatim_doc_comment: None,
 
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
@@ -263,13 +267,11 @@ impl Attrs {
 
     /// push `.method("str literal")`
     fn push_str_method(&mut self, name: Sp<String>, arg: Sp<String>) {
-        match (&**name, &**arg) {
-            ("name", _) => {
-                self.name = Name::Assigned(arg.as_lit());
-            }
-            _ => self
-                .methods
-                .push(Method::new(name.as_ident(), quote!(#arg))),
+        if *name == "name" {
+            self.name = Name::Assigned(arg.as_lit());
+        } else {
+            self.methods
+                .push(Method::new(name.as_ident(), quote!(#arg)))
         }
     }
 
@@ -310,6 +312,8 @@ impl Attrs {
 
                 NoVersion(ident) => self.no_version = Some(ident),
 
+                VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
+
                 About(ident, about) => {
                     self.about = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
                 }
@@ -347,85 +351,25 @@ impl Attrs {
     }
 
     fn push_doc_comment(&mut self, attrs: &[syn::Attribute], name: &str) {
-        let doc_comments = attrs
+        use syn::Lit::*;
+        use syn::Meta::*;
+
+        let comment_parts: Vec<_> = attrs
             .iter()
+            .filter(|attr| attr.path.is_ident("doc"))
             .filter_map(|attr| {
-                if attr.path.is_ident("doc") {
-                    attr.parse_meta().ok()
+                if let Ok(NameValue(MetaNameValue { lit: Str(s), .. })) = attr.parse_meta() {
+                    Some(s.value())
                 } else {
+                    // non #[doc = "..."] attributes are not our concern
+                    // we leave them for rustc to handle
                     None
                 }
             })
-            .filter_map(|attr| {
-                use syn::Lit::*;
-                use syn::Meta::*;
-                if let NameValue(syn::MetaNameValue {
-                    path, lit: Str(s), ..
-                }) = attr
-                {
-                    if !path.is_ident("doc") {
-                        return None;
-                    }
-                    let value = s.value();
+            .collect();
 
-                    let text = value
-                        .trim_start_matches("//!")
-                        .trim_start_matches("///")
-                        .trim_start_matches("/*!")
-                        .trim_start_matches("/**")
-                        .trim_end_matches("*/")
-                        .trim();
-                    if text.is_empty() {
-                        Some("\n\n".to_string())
-                    } else {
-                        Some(text.to_string())
-                    }
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-        if doc_comments.is_empty() {
-            return;
-        }
-        let merged_lines = doc_comments
-            .join(" ")
-            .split('\n')
-            .map(str::trim)
-            .map(str::to_string)
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let expected_doc_comment_split = if let Some(content) = doc_comments.get(1) {
-            (doc_comments.len() > 2) && (content == "\n\n")
-        } else {
-            false
-        };
-
-        if expected_doc_comment_split {
-            let long_name = Sp::call_site(format!("long_{}", name));
-
-            self.methods
-                .push(Method::new(long_name.as_ident(), quote!(#merged_lines)));
-
-            // Remove trailing whitespace and period from short help, as rustdoc
-            // best practice is to use complete sentences, but command-line help
-            // typically omits the trailing period.
-            let short_arg = doc_comments
-                .first()
-                .map(|s| s.trim())
-                .map_or("", |s| s.trim_end_matches('.'));
-
-            self.methods.push(Method::new(
-                syn::Ident::new(name, Span::call_site()),
-                quote!(#short_arg),
-            ));
-        } else {
-            self.methods.push(Method::new(
-                syn::Ident::new(name, Span::call_site()),
-                quote!(#merged_lines),
-            ));
-        }
+        self.doc_comment =
+            process_doc_comment(comment_parts, name, self.verbatim_doc_comment.is_none());
     }
 
     pub fn from_struct(
@@ -624,14 +568,16 @@ impl Attrs {
         let author = &self.author;
         let about = &self.about;
         let methods = &self.methods;
+        let doc_comment = &self.doc_comment;
 
-        quote!( #author #version #(#methods)* #about )
+        quote!( #(#doc_comment)* #author #version #about #(#methods)*  )
     }
 
     /// generate methods on top of a field
     pub fn field_methods(&self) -> proc_macro2::TokenStream {
         let methods = &self.methods;
-        quote!( #(#methods)* )
+        let doc_comment = &self.doc_comment;
+        quote!( #(#doc_comment)* #(#methods)* )
     }
 
     pub fn cased_name(&self) -> LitStr {
@@ -667,9 +613,13 @@ impl Attrs {
     }
 
     pub fn has_doc_methods(&self) -> bool {
-        self.methods
-            .iter()
-            .any(|m| m.name == "help" || m.name == "long_help")
+        !self.doc_comment.is_empty()
+            || self.methods.iter().any(|m| {
+                m.name == "help"
+                    || m.name == "long_help"
+                    || m.name == "about"
+                    || m.name == "long_about"
+            })
     }
 }
 

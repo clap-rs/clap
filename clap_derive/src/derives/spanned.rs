@@ -75,9 +75,9 @@ impl<'a> From<Sp<&'a str>> for Sp<String> {
     }
 }
 
-impl<T: PartialEq> PartialEq for Sp<T> {
-    fn eq(&self, other: &Sp<T>) -> bool {
-        self.val == other.val
+impl<U, T: PartialEq<U>> PartialEq<U> for Sp<T> {
+    fn eq(&self, other: &U) -> bool {
+        self.val == *other
     }
 }
 

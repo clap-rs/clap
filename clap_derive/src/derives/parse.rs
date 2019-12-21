@@ -35,6 +35,7 @@ pub enum ClapAttr {
     Flatten(Ident),
     Subcommand(Ident),
     NoVersion(Ident),
+    VerbatimDocComment(Ident),
 
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
@@ -184,6 +185,7 @@ impl Parse for ClapAttr {
                 "flatten" => Ok(Flatten(name)),
                 "subcommand" => Ok(Subcommand(name)),
                 "no_version" => Ok(NoVersion(name)),
+                "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
                 "about" => (Ok(About(name, None))),
                 "author" => (Ok(Author(name, None))),
