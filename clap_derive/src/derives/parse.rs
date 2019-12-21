@@ -1,7 +1,7 @@
 use std::iter::FromIterator;
 
-use proc_macro2::TokenStream;
 use proc_macro_error::{abort, ResultExt};
+use quote::ToTokens;
 use syn::{
     self, parenthesized,
     parse::{Parse, ParseBuffer, ParseStream},
@@ -230,19 +230,49 @@ impl Parse for ParserSpec {
     }
 }
 
+struct CommaSeparated<T>(Punctuated<T, Token![,]>);
+
+impl<T: Parse> Parse for CommaSeparated<T> {
+    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+        let res = Punctuated::parse_separated_nonempty(input)?;
+        Ok(CommaSeparated(res))
+    }
+}
+
 fn raw_method_suggestion(ts: ParseBuffer) -> String {
-    let do_parse = move || -> Result<(Ident, TokenStream), syn::Error> {
+    let do_parse = move || -> Result<(Ident, CommaSeparated<Expr>), syn::Error> {
         let name = ts.parse()?;
         let _eq: Token![=] = ts.parse()?;
         let val: LitStr = ts.parse()?;
         Ok((name, syn::parse_str(&val.value())?))
     };
+
+    fn to_string<T: ToTokens>(val: &T) -> String {
+        val.to_token_stream()
+            .to_string()
+            .replace(" ", "")
+            .replace(",", ", ")
+    }
+
     if let Ok((name, val)) = do_parse() {
-        let val = val.to_string().replace(" ", "").replace(",", ", ");
+        let exprs = val.0;
+        let suggestion = if exprs.len() == 1 {
+            let val = to_string(&exprs[0]);
+            format!(" = {}", val)
+        } else {
+            let val = exprs
+                .into_iter()
+                .map(|expr| to_string(&expr))
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            format!("({})", val)
+        };
+
         format!(
             "if you need to call `clap::Arg/App::{}` method you \
-             can do it like this: #[clap({}({}))]",
-            name, name, val
+             can do it like this: #[structopt({}{})]",
+            name, name, suggestion
         )
     } else {
         "if you need to call some method from `clap::Arg/App` \

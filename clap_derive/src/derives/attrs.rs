@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{parse::*, spanned::Sp, ty::Ty, doc_comments::process_doc_comment};
+use super::{doc_comments::process_doc_comment, parse::*, spanned::Sp, ty::Ty};
 
 use std::env;
 

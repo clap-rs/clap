@@ -24,6 +24,7 @@ fn issue_151() {
     assert!(Cli::try_parse_from(&["test", "--foo"]).is_ok());
     assert!(Cli::try_parse_from(&["test", "--bar"]).is_ok());
     assert!(Cli::try_parse_from(&["test", "--zebra"]).is_err());
+    assert!(Cli::try_parse_from(&["test", "--foo", "--bar"]).is_ok());
 }
 
 #[test]
