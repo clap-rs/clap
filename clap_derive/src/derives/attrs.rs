@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{parse::*, spanned::Sp, ty::Ty, doc_comments::process_doc_comment};
+use super::{doc_comments::process_doc_comment, parse::*, spanned::Sp, ty::Ty};
 
 use std::env;
 
@@ -20,7 +20,7 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, *};
+use syn::{self, ext::IdentExt, spanned::Spanned, Ident, LitStr, MetaNameValue};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
