@@ -2646,7 +2646,9 @@ impl<'help> Arg<'help> {
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        if !self.is_set(ArgSettings::MultipleOccurrences) {
+            self.setb(ArgSettings::TakesValue);
+        }
 
         self.env = Some((name, env::var_os(name)));
         self
