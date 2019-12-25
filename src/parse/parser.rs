@@ -1,7 +1,7 @@
 // Std
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, BufWriter, Write};
+use std::io::Write;
 use std::iter::Peekable;
 use std::mem;
 #[cfg(all(
@@ -623,7 +623,7 @@ where
                 };
 
                 // Collect the external subcommand args
-                let mut sc_m = ArgMatcher::new();
+                let mut sc_m = ArgMatcher::default();
                 while let Some(v) = it.next() {
                     let a = v.into();
                     if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
@@ -888,7 +888,7 @@ where
             self.app._propagate(Propagation::To(id));
         }
         if let Some(sc) = subcommands_mut!(self.app).find(|s| s.name == sc_name) {
-            let mut sc_matcher = ArgMatcher::new();
+            let mut sc_matcher = ArgMatcher::default();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
             sc.usage = Some(format!(
@@ -1545,13 +1545,12 @@ where
 
     fn version_err(&self, use_long: bool) -> ClapError {
         debugln!("Parser::version_err: ");
-        let out = io::stdout();
-        let mut buf_w = BufWriter::new(out.lock());
-        match self.print_version(&mut buf_w, use_long) {
+        let mut buf = vec![];
+        match self.print_version(&mut buf, use_long) {
             Err(e) => e,
             _ => ClapError {
                 cause: String::new(),
-                message: String::new(),
+                message: String::from_utf8(buf).unwrap_or_default(),
                 kind: ErrorKind::VersionDisplayed,
                 info: None,
             },

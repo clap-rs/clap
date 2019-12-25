@@ -99,29 +99,24 @@ impl<'b> MKeyMap<'b> {
     //TODO ::get_first([KeyA, KeyB])
 
     pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'b>> {
-        for k in &self.keys {
-            if &k.key == key {
-                return self.args.get_mut(k.index);
-            }
-        }
-        None
+        let key = self.keys.iter()
+        .find(|k| k.key == *key);
+
+        match key {
+            Some(k) => self.args.get_mut(k.index),
+            None => None
     }
+    }
+
 
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
 
     pub fn remove_key(&mut self, key: &KeyType) {
-        let mut idx = None;
-        for (i, k) in self.keys.iter().enumerate() {
-            if &k.key == key {
-                idx = Some(i);
-                break;
-            }
-        }
-        if let Some(idx) = idx {
-            self.keys.swap_remove(idx);
+        let idx = self.keys.iter().enumerate().find(|(_,k)| k.key == *key).and_then(|(i, _)| Some(i));
+        if let Some(id) = idx {
+            self.keys.swap_remove(id);
         }
     }
-    //TODO ::remove_keys([KeyA, KeyB])
 
     pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
         let index = self.find_by_name(name);

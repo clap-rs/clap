@@ -2,6 +2,7 @@
 #[allow(unused_imports)]
 use std::ops::BitOr;
 use std::str::FromStr;
+use bitflags::bitflags;
 
 bitflags! {
     struct Flags: u64 {

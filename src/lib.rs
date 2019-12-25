@@ -45,7 +45,6 @@
 //! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
 //! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
 //! // to generate arguments dynamically.
-//! extern crate clap;
 //! use clap::{Arg, App, };
 //!
 //! fn main() {
@@ -116,7 +115,6 @@
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
-//! extern crate clap;
 //! use clap::{Arg, App, };
 //!
 //! fn main() {
@@ -189,7 +187,6 @@
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
 //! // more clean, but takes a very small performance hit compared to the other two methods.
 //! #[macro_use]
-//! extern crate clap;
 //! use clap::App;
 //!
 //! fn main() {
@@ -205,9 +202,7 @@
 //! builder pattern (the first example), but without all the verbosity.
 //!
 //! ```no_run
-//! #[macro_use]
-//! extern crate clap;
-//!
+//! use clap::clap_app;
 //! fn main() {
 //!     let matches = clap_app!(myapp =>
 //!         (version: "1.0")
@@ -285,7 +280,6 @@
 //! * Add the following to your `src/main.rs`
 //!
 //! ```no_run
-//! extern crate clap;
 //! use clap::App;
 //!
 //! fn main() {
@@ -314,8 +308,6 @@
 //! [dependencies.clap]
 //! git = "https://github.com/kbknapp/clap-rs.git"
 //! ```
-//!
-//! Add `extern crate clap;` to your crate root.
 //!
 //! Define a list of valid arguments for your program (see the
 //! [documentation](https://docs.rs/clap/) or [examples/] directory of this repo)
@@ -534,28 +526,6 @@
 // #![cfg_attr(feature = "lints", allow(doc_markdown))]
 // #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-extern crate ansi_term;
-#[cfg(feature = "color")]
-extern crate atty;
-#[macro_use]
-extern crate bitflags;
-#[cfg(feature = "derive")]
-#[cfg_attr(feature = "derive", allow(unused_imports))]
-#[cfg_attr(feature = "derive", macro_use)]
-extern crate clap_derive;
-extern crate indexmap;
-#[cfg(feature = "suggestions")]
-extern crate strsim;
-#[cfg(feature = "wrap_help")]
-extern crate term_size;
-extern crate textwrap;
-extern crate unicode_width;
-#[cfg(feature = "vec_map")]
-extern crate vec_map;
-#[cfg(feature = "yaml")]
-extern crate yaml_rust;
-
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
@@ -583,7 +553,7 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs
-pub trait Clap: FromArgMatches + IntoApp + Sized {}
+pub trait Clap: From<ArgMatches> + IntoApp + Sized {}
 
 /// @TODO @release @docs
 pub trait FromArgMatches: Sized {

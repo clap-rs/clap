@@ -18,7 +18,9 @@ fn version_short() {
         .try_get_matches_from(vec!["myprog", "-V"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::VersionDisplayed);
+    assert_eq!(err.message, "test 1.3");
 }
 
 #[test]
@@ -30,7 +32,9 @@ fn version_long() {
         .try_get_matches_from(vec!["myprog", "--version"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::VersionDisplayed);
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::VersionDisplayed);
+    assert_eq!(err.message, "test 1.3");
 }
 
 #[test]
