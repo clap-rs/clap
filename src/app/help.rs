@@ -732,21 +732,13 @@ impl<'a> Help<'a> {
         if let Some(author) = parser.meta.author {
             write_thing!(author)
         }
-        // if self.use_long {
-        //     if let Some(about) = parser.meta.long_about {
-        //         debugln!("Help::write_default_help: writing long about");
-        //         write_thing!(about)
-        //     } else if let Some(about) = parser.meta.about {
-        //         debugln!("Help::write_default_help: writing about");
-        //         write_thing!(about)
-        //     }
-        // } else
-        if let Some(about) = parser.meta.long_about {
+
+        if self.use_long && parser.meta.long_about.is_some() {
             debugln!("Help::write_default_help: writing long about");
-            write_thing!(about)
-        } else if let Some(about) = parser.meta.about {
+            write_thing!(parser.meta.long_about.unwrap())
+        } else if parser.meta.about.is_some() {
             debugln!("Help::write_default_help: writing about");
-            write_thing!(about)
+            write_thing!(parser.meta.about.unwrap())
         }
 
         color!(self, "\nUSAGE:", warning)?;
