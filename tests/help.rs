@@ -1184,7 +1184,7 @@ fn show_long_about_issue_897() {
 }
 
 static ISSUE_897_SHORT: &'static str = "ctest-foo 0.1
-Long about foo
+About foo
 
 USAGE:
     ctest foo
