@@ -312,25 +312,26 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 
 fn gen_parse_fns(name: &syn::Ident) -> proc_macro2::TokenStream {
     quote! {
-        fn parse() -> #name {
+        #[allow(unreachable_pub)]
+        pub fn parse() -> #name {
             use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches())
         }
-
-        fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
+        #[allow(unreachable_pub)]
+        pub fn try_parse() -> ::std::result::Result<#name, ::clap::Error> {
             use ::clap::{FromArgMatches, IntoApp};
             Ok(#name::from_argmatches(&#name::into_app().try_get_matches()?))
         }
-
-        fn parse_from<I, T>(itr: I) -> #name
+        #[allow(unreachable_pub)]
+        pub fn parse_from<I, T>(itr: I) -> #name
         where
             I: ::std::iter::IntoIterator<Item = T>,
             T: Into<::std::ffi::OsString> + Clone {
             use ::clap::{FromArgMatches, IntoApp};
             #name::from_argmatches(&#name::into_app().get_matches_from(itr))
         }
-
-        fn try_parse_from<I, T>(itr: I) -> ::std::result::Result<#name, ::clap::Error>
+        #[allow(unreachable_pub)]
+        pub fn try_parse_from<I, T>(itr: I) -> ::std::result::Result<#name, ::clap::Error>
         where
             I: ::std::iter::IntoIterator<Item = T>,
             T: Into<::std::ffi::OsString> + Clone {
