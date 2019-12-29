@@ -1,7 +1,7 @@
 error: `#[clap(raw(...))` attributes are removed, they are replaced with raw methods
 
   = help: if you meant to call `clap::Arg::raw()` method you should use bool literal, like `raw(true)` or `raw(false)`
-  = note: if you need to call `clap::Arg/App::case_insensitive` method you can do it like this: #[structopt(case_insensitive = true)]
+  = note: if you need to call `clap::Arg/App::case_insensitive` method you can do it like this: #[clap(case_insensitive = true)]
 
   --> $DIR/raw.rs:13:12
    |
@@ -11,7 +11,7 @@ error: `#[clap(raw(...))` attributes are removed, they are replaced with raw met
 error: `#[clap(raw(...))` attributes are removed, they are replaced with raw methods
 
   = help: if you meant to call `clap::Arg::raw()` method you should use bool literal, like `raw(true)` or `raw(false)`
-  = note: if you need to call `clap::Arg/App::requires_if` method you can do it like this: #[structopt(requires_if("one", "two"))]
+  = note: if you need to call `clap::Arg/App::requires_if` method you can do it like this: #[clap(requires_if("one", "two"))]
 
   --> $DIR/raw.rs:19:12
    |

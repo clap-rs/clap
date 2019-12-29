@@ -457,7 +457,11 @@ pub use yaml_rust::YamlLoader;
 
 #[cfg(feature = "derive")]
 #[cfg_attr(feature = "derive", doc(hidden))]
-pub use clap_derive::*;
+pub use clap_derive::{self, *};
+
+#[cfg(feature = "derive")]
+#[cfg_attr(feature = "derive", doc(hidden))]
+pub use lazy_static;
 
 use std::result::Result as StdResult;
 
