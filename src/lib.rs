@@ -518,18 +518,11 @@
     unused_allocation,
     trivial_numeric_casts
 )]
-// Need to disable deny(warnings) while deprecations are active
-// #![cfg_attr(feature = "lints", deny(warnings))]
-#![cfg_attr(feature = "lints", feature(plugin))]
-#![cfg_attr(feature = "lints", plugin(clippy))]
-// #![cfg_attr(feature = "lints", allow(cognitive_complexity))]
-// #![cfg_attr(feature = "lints", allow(doc_markdown))]
-// #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
 
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
-pub use crate::parse::{ArgMatches, OsValues, Values};
+pub use crate::parse::{ArgMatches, OsValues, Values, SubCommand};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 
@@ -540,7 +533,8 @@ pub use clap_derive::*;
 use std::result::Result as StdResult;
 
 #[macro_use]
-mod macros;
+#[allow(missing_docs)]
+pub mod macros;
 
 mod build;
 mod mkeymap;
