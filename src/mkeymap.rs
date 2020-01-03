@@ -55,9 +55,17 @@ impl<'b> MKeyMap<'b> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
-    pub fn contains_long(&self, l: &str) -> bool { self.keys.iter().any(|x| x.key == l) }
+    pub fn contains_long(&self, l: &str) -> bool {
+        self.contains(l)
+    }
 
-    pub fn contains_short(&self, c: char) -> bool { self.keys.iter().any(|x| x.key == c) }
+    pub fn contains_short(&self, c: char) -> bool {
+        self.contains(c)
+    }
+
+    pub fn contains<K>(&self, key: K) -> bool where KeyType: PartialEq<K> {
+        self.keys.iter().any(|x| x.key == key)
+    }
 
     pub fn insert(&mut self, key: KeyType, value: Arg<'b>) -> usize {
         let index = self.push(value);
