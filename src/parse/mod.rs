@@ -2,7 +2,7 @@ pub mod errors;
 pub mod features;
 
 mod arg_matcher;
-mod matches;
+pub mod matches;
 mod parser;
 mod validator;
 
