@@ -55,10 +55,12 @@ impl<'b> MKeyMap<'b> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
+    #[deprecated(since="3.0.0", note="Use `contains` instead")]
     pub fn contains_long(&self, l: &str) -> bool {
         self.contains(l)
     }
 
+    #[deprecated(since="3.0.0", note="Use `contains` instead")]
     pub fn contains_short(&self, c: char) -> bool {
         self.contains(c)
     }
