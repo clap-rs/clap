@@ -185,12 +185,12 @@ struct Opts {
 #[derive(Clap)]
 enum SubCommand {
     /// A help message for the Test subcommand
+    #[clap(name = "test", version = "1.3", author = "Someone Else")]
     Test(Test),
 }
 
 /// A subcommand for controlling testing
 #[derive(Clap)]
-#[clap(name = "test", version = "1.3", author = "Someone Else")]
 struct Test {
     /// Print debug info
     #[clap(short = "d")]
