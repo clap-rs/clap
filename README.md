@@ -184,6 +184,7 @@ struct Opts {
 
 #[derive(Clap)]
 enum SubCommand {
+    /// A help message for the Test subcommand
     Test(Test),
 }
 
