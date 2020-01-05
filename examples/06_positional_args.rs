@@ -25,6 +25,7 @@ fn main() {
                 .conflicts_with("output") // Opposite of requires(), says "if the
                 // user uses -a, they CANNOT use 'output'"
                 // also has a conflicts_with_all(Vec<&str>)
+                // and a conflicts_with_everything()
                 .required(true), // By default this argument MUST be present
                                  // NOTE: mutual exclusions take precedence over
                                  // required arguments

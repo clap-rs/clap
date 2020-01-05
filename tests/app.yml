@@ -93,6 +93,12 @@ args:
         multiple: true
         help: Tests 3 max vals
         max_values: 3
+    - exclusive:
+        long: exclusive
+        help: Tests 3 exclusive
+        exclusive: true
+    
+    
 arg_groups:
     - test:
         args:
