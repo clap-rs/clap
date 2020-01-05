@@ -885,14 +885,14 @@ impl<'help> Arg<'help> {
     ///     .conflicts_with_everything()
     /// # ;
     /// ```
-    /// **NOTE:** If using YAML the above example  should be laid out as follows
+    /// **NOTE:** If using YAML the above example should be laid out as follows
     ///
     /// ```yaml
     /// - config
-    ///     exlusive: true
+    ///     exclusive: true
     /// ```
     ///
-    /// Setting an exlusive argument and having any other arguments present at runtime 
+    /// Setting an exclusive argument and having any other arguments present at runtime 
     /// is an error.
     ///
     /// ```rust
