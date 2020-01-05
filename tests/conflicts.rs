@@ -42,6 +42,28 @@ fn flag_conflict_2() {
 }
 
 #[test]
+fn flag_conflict_with_all() {
+    let result = App::new("flag_conflict")
+        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with_all(&["other"]))
+        .arg(Arg::from("-o, --other 'some flag'"))
+        .try_get_matches_from(vec!["myprog", "-o", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn flag_conflict_with_everything() {
+    let result = App::new("flag_conflict")
+        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with_everything())
+        .arg(Arg::from("-o, --other 'some flag'"))
+        .try_get_matches_from(vec!["myprog", "-o", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn group_conflict() {
     let result = App::new("group_conflict")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
