@@ -874,7 +874,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Set an exlusive argument by name. An exclusive argument conflict with every other flag 
+    /// Set an exclusive argument by name. An exclusive argument conflict with every other flag 
     /// and must be always passed alone.
     /// 
     /// # Examples
