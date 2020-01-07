@@ -782,9 +782,13 @@ impl<'help> Arg<'help> {
     /// only need to be set for one of the two arguments, they do not need to be set for each.
     ///
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
-    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
+    /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not 
     /// need to also do B.conflicts_with(A))
-    ///
+    /// 
+    /// **NOTE:** [`Arg::conflicts_with_all(names)`] allows specifying an argument which conflicts with more than one argument. 
+    /// 
+    /// **NOTE** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument. 
+    /// 
     /// # Examples
     ///
     /// ```rust
@@ -812,6 +816,10 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
+    ///     
+    /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
+    /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
+
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
         let name = arg_id.key();
         if let Some(ref mut vec) = self.blacklist {
@@ -831,7 +839,9 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
     /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
     /// need to also do B.conflicts_with(A))
-    ///
+    /// 
+    /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument. 
+    /// 
     /// # Examples
     ///
     /// ```rust
@@ -863,6 +873,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
+    /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
+
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.blacklist {
             for s in names {
@@ -874,7 +886,8 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Set an exclusive argument by name. An exclusive argument conflict with every other flag 
+    /// Specifies that an argument is exclusive.
+    /// An exclusive argument conflict with every other flag 
     /// and must be always passed alone.
     /// 
     /// # Examples
@@ -882,7 +895,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::with_name("config")
-    ///     .conflicts_with_everything()
+    ///     .exclusive(true)
     /// # ;
     /// ```
     /// **NOTE:** If using YAML the above example should be laid out as follows
@@ -900,7 +913,7 @@ impl<'help> Arg<'help> {
     /// let res = App::new("prog")
     ///     .arg(Arg::with_name("exclusive")
     ///         .takes_value(true)
-    ///         .conflicts_with_everything()
+    ///         .exclusive(true)
     ///         .long("exclusive"))
     ///     .arg(Arg::with_name("debug")
     ///         .long("debug"))
@@ -913,8 +926,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    pub fn conflicts_with_everything(mut self) -> Self {
-        self.exclusive = true;
+    pub fn exclusive(mut self, exclusive: bool) -> Self {
+        self.exclusive = exclusive;
         self
     }
 
@@ -4134,14 +4147,6 @@ impl<'help> Arg<'help> {
             Cow::Borrowed(self.name)
         }
     }
-   
-    // Used by yaml
-    #[allow(dead_code)]
-    fn exclusive(mut self, exclusive: bool) -> Self {
-        self.exclusive = exclusive;
-        self
-    }  
-
 }
 
 impl<'help, 'z> From<&'z Arg<'help>> for Arg<'help> {

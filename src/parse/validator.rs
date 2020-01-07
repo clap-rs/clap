@@ -209,7 +209,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
 
     fn validate_conflicts(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Validator::validate_conflicts;");
-        let validate_result = self.validate_conflicts_with_everything(matcher);
+        let validate_result = self.validate_exclusive(matcher);
         if validate_result.is_err() {
             return validate_result;
         }
@@ -261,11 +261,11 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         Ok(())
     }
 
-    fn validate_conflicts_with_everything(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        debugln!("Validator::validate_conflicts_with_everything;");
+    fn validate_exclusive(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        debugln!("Validator::validate_exclusive;");
         let args_count = matcher.arg_names().count();
         for &name in matcher.arg_names() {
-            debugln!("Validator::validate_conflicts_with_everything:iter:{};", name);
+            debugln!("Validator::validate_exclusive:iter:{};", name);
             if let Some(arg) = self.p.app.find(name) {
                 if arg.exclusive && args_count > 1 {
                     let c_with : Option<String> = None;
@@ -275,7 +275,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         Usage::new(self.p).create_usage_with_title(&[]),
                         self.p.app.color(),
                     ));
-                    debugln!("Validator::validate_conflicts_with_everything; ERROR: {}", err);
+                    debugln!("Validator::validate_exclusive; ERROR: {}", err);
                     return err;
                 }
             }

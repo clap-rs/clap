@@ -55,7 +55,7 @@ fn flag_conflict_with_all() {
 #[test]
 fn flag_conflict_with_everything() {
     let result = App::new("flag_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with_everything())
+        .arg(Arg::from("-f, --flag 'some flag'").exclusive(true))
         .arg(Arg::from("-o, --other 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
