@@ -8,12 +8,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 use proc_macro2;
-use quote;
+// use quote;
 use syn;
-use syn::punctuated;
-use syn::token;
+// use syn::punctuated;
+// use syn::token;
 
-pub fn derive_arg_enum(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn derive_arg_enum(_ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     unimplemented!()
 
     // let from_str_block = impl_from_str(ast)?;

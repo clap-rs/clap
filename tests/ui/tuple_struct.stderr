@@ -1,0 +1,5 @@
+error: clap_derive only supports non-tuple structs and enums
+  --> $DIR/tuple_struct.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^

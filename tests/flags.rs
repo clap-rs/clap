@@ -12,16 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#[macro_use]
-extern crate clap;
-
 use clap::Clap;
 
 #[test]
 fn unique_flag() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "alice")]
+        #[clap(short, long)]
         alice: bool,
     }
 
@@ -38,9 +35,9 @@ fn unique_flag() {
 fn multiple_flag() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "alice", parse(from_occurrences))]
+        #[clap(short, long, parse(from_occurrences))]
         alice: u64,
-        #[clap(short = "b", long = "bob", parse(from_occurrences))]
+        #[clap(short, long, parse(from_occurrences))]
         bob: u8,
     }
 
@@ -62,13 +59,44 @@ fn multiple_flag() {
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
 }
 
+fn parse_from_flag(b: bool) -> std::sync::atomic::AtomicBool {
+    std::sync::atomic::AtomicBool::new(b)
+}
+
+#[test]
+fn non_bool_flags() {
+    #[derive(Clap, Debug)]
+    struct Opt {
+        #[clap(short, long, parse(from_flag = parse_from_flag))]
+        alice: std::sync::atomic::AtomicBool,
+        #[clap(short, long, parse(from_flag))]
+        bob: std::sync::atomic::AtomicBool,
+    }
+
+    let falsey = Opt::parse_from(&["test"]);
+    assert!(!falsey.alice.load(std::sync::atomic::Ordering::Relaxed));
+    assert!(!falsey.bob.load(std::sync::atomic::Ordering::Relaxed));
+
+    let alice = Opt::parse_from(&["test", "-a"]);
+    assert!(alice.alice.load(std::sync::atomic::Ordering::Relaxed));
+    assert!(!alice.bob.load(std::sync::atomic::Ordering::Relaxed));
+
+    let bob = Opt::parse_from(&["test", "-b"]);
+    assert!(!bob.alice.load(std::sync::atomic::Ordering::Relaxed));
+    assert!(bob.bob.load(std::sync::atomic::Ordering::Relaxed));
+
+    let both = Opt::parse_from(&["test", "-b", "-a"]);
+    assert!(both.alice.load(std::sync::atomic::Ordering::Relaxed));
+    assert!(both.bob.load(std::sync::atomic::Ordering::Relaxed));
+}
+
 #[test]
 fn combined_flags() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "alice")]
+        #[clap(short, long)]
         alice: bool,
-        #[clap(short = "b", long = "bob", parse(from_occurrences))]
+        #[clap(short, long, parse(from_occurrences))]
         bob: u64,
     }
 

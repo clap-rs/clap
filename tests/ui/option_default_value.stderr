@@ -1,0 +1,5 @@
+error: default_value is meaningless for Option
+  --> $DIR/option_default_value.rs:14:19
+   |
+14 |     #[clap(short, default_value = 1)]
+   |                   ^^^^^^^^^^^^^

@@ -1,10 +1,7 @@
 //! `git.rs` serves as a demonstration of how to use subcommands,
 //! as well as a demonstration of adding documentation to subcommands.
-//! Documentation can be added either through doc comments or the
-//! `about` attribute.
-
-#[macro_use]
-extern crate clap;
+//! Documentation can be added either through doc comments or
+//! `help`/`about` attributes.
 
 use clap::Clap;
 
@@ -12,22 +9,20 @@ use clap::Clap;
 #[clap(name = "git")]
 /// the stupid content tracker
 enum Opt {
-    #[clap(name = "fetch")]
     /// fetch branches from remote repository
     Fetch {
-        #[clap(long = "dry-run")]
+        #[clap(long)]
         dry_run: bool,
-        #[clap(long = "all")]
+        #[clap(long)]
         all: bool,
         #[clap(default_value = "origin")]
         repository: String,
     },
-    #[clap(name = "add")]
-    /// add files to the staging area
+    #[clap(override_help = "add files to the staging area")]
     Add {
-        #[clap(short = "i")]
+        #[clap(short)]
         interactive: bool,
-        #[clap(short = "a")]
+        #[clap(short)]
         all: bool,
         files: Vec<String>,
     },

@@ -1,0 +1,5 @@
+error: expected parentheses after `clap`
+  --> $DIR/clap_derive_empty_attr.rs:14:7
+   |
+14 |     #[clap]
+   |       ^^^^

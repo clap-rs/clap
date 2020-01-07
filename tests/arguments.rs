@@ -12,9 +12,6 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#[macro_use]
-extern crate clap;
-
 use clap::Clap;
 
 #[test]
@@ -44,18 +41,6 @@ fn argument_with_default() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
         #[clap(default_value = "42")]
-        arg: i32,
-    }
-    assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "24"]));
-    assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test"]));
-    assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
-}
-
-#[test]
-fn argument_with_raw_default() {
-    #[derive(Clap, PartialEq, Debug)]
-    struct Opt {
-        #[clap(raw(default_value = r#""42""#))]
         arg: i32,
     }
     assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "24"]));

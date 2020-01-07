@@ -15,39 +15,16 @@ use syn;
 
 pub mod arg_enum;
 pub mod attrs;
+pub mod parse;
+pub mod spanned;
+pub mod ty;
 mod clap;
 mod from_argmatches;
 mod into_app;
 
 pub use self::arg_enum::derive_arg_enum;
-pub use self::attrs::{Attrs, Kind, Parser, Ty};
+pub use self::attrs::{Attrs, Kind, Name, Parser, ParserKind, CasingStyle, GenOutput, DEFAULT_CASING};
+pub use self::ty::{sub_type, Ty};
 pub use self::clap::derive_clap;
 pub use self::from_argmatches::derive_from_argmatches;
 pub use self::into_app::derive_into_app;
-
-fn sub_type(t: &syn::Type) -> Option<&syn::Type> {
-    let segs = match *t {
-        syn::Type::Path(syn::TypePath {
-            path: syn::Path { ref segments, .. },
-            ..
-        }) => segments,
-        _ => return None,
-    };
-    match *segs.iter().last().unwrap() {
-        syn::PathSegment {
-            arguments:
-                syn::PathArguments::AngleBracketed(syn::AngleBracketedGenericArguments {
-                    ref args, ..
-                }),
-            ..
-        } if args.len() == 1 =>
-        {
-            if let syn::GenericArgument::Type(ref ty) = args[0] {
-                Some(ty)
-            } else {
-                None
-            }
-        }
-        _ => None,
-    }
-}

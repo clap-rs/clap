@@ -13,21 +13,20 @@
 // MIT/Apache 2.0 license.
 
 #![deny(warnings)]
-#![cfg(feature = "nightly")] // TODO: remove that when never is stable
-#![feature(never_type)]
 
-#[macro_use]
 extern crate clap;
 
 use clap::Clap;
 
-fn try_str(s: &str) -> Result<String, !> { Ok(s.into()) }
+fn try_str(s: &str) -> Result<String, std::convert::Infallible> {
+    Ok(s.into())
+}
 
 #[test]
 fn warning_never_struct() {
     #[derive(Debug, PartialEq, Clap)]
     struct Opt {
-        #[clap(parse(try_from_str = "try_str"))]
+        #[clap(parse(try_from_str = try_str))]
         s: String,
     }
     assert_eq!(
@@ -43,7 +42,7 @@ fn warning_never_enum() {
     #[derive(Debug, PartialEq, Clap)]
     enum Opt {
         Foo {
-            #[clap(parse(try_from_str = "try_str"))]
+            #[clap(parse(try_from_str = try_str))]
             s: String,
         },
     }
@@ -51,6 +50,6 @@ fn warning_never_enum() {
         Opt::Foo {
             s: "foo".to_string()
         },
-        Opt::parse_from(&["test", "Foo", "foo"])
+        Opt::parse_from(&["test", "foo", "foo"])
     );
 }

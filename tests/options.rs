@@ -12,16 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#[macro_use]
-extern crate clap;
-
 use clap::Clap;
 
 #[test]
 fn required_option() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "arg")]
+        #[clap(short, long)]
         arg: i32,
     }
     assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test", "-a42"]));
@@ -35,7 +32,7 @@ fn required_option() {
 fn optional_option() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a")]
+        #[clap(short)]
         arg: Option<i32>,
     }
     assert_eq!(Opt { arg: Some(42) }, Opt::parse_from(&["test", "-a42"]));
@@ -47,7 +44,7 @@ fn optional_option() {
 fn option_with_default() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", default_value = "42")]
+        #[clap(short, default_value = "42")]
         arg: i32,
     }
     assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "-a24"]));
@@ -59,7 +56,7 @@ fn option_with_default() {
 fn option_with_raw_default() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", raw(default_value = r#""42""#))]
+        #[clap(short, default_value = "42")]
         arg: i32,
     }
     assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "-a24"]));
@@ -71,7 +68,7 @@ fn option_with_raw_default() {
 fn options() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "arg")]
+        #[clap(short, long)]
         arg: Vec<i32>,
     }
     assert_eq!(Opt { arg: vec![24] }, Opt::parse_from(&["test", "-a24"]));
@@ -86,7 +83,7 @@ fn options() {
 fn default_value() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", default_value = "test")]
+        #[clap(short, default_value = "test")]
         arg: String,
     }
     assert_eq!(Opt { arg: "test".into() }, Opt::parse_from(&["test"]));
@@ -94,4 +91,195 @@ fn default_value() {
         Opt { arg: "foo".into() },
         Opt::parse_from(&["test", "-afoo"])
     );
+}
+
+#[test]
+fn option_from_str() {
+    #[derive(Debug, PartialEq)]
+    struct A;
+
+    impl<'a> From<&'a str> for A {
+        fn from(_: &str) -> A {
+            A
+        }
+    }
+
+    #[derive(Debug, Clap, PartialEq)]
+    struct Opt {
+        #[clap(parse(from_str))]
+        a: Option<A>,
+    }
+
+    assert_eq!(Opt { a: None }, Opt::parse_from(&["test"]));
+    assert_eq!(Opt { a: Some(A) }, Opt::parse_from(&["test", "foo"]));
+}
+
+#[test]
+fn optional_argument_for_optional_option() {
+    use clap::IntoApp;
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
+        #[allow(clippy::option_option)]
+        arg: Option<Option<i32>>,
+    }
+    assert_eq!(
+        Opt {
+            arg: Some(Some(42))
+        },
+        Opt::parse_from(&["test", "-a42"])
+    );
+    assert_eq!(Opt { arg: Some(None) }, Opt::parse_from(&["test", "-a"]));
+    assert_eq!(Opt { arg: None }, Opt::parse_from(&["test"]));
+    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
+}
+
+#[test]
+fn two_option_options() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
+        arg: Option<Option<i32>>,
+
+        #[clap(long)]
+        field: Option<Option<String>>,
+    }
+    assert_eq!(
+        Opt {
+            arg: Some(Some(42)),
+            field: Some(Some("f".into()))
+        },
+        Opt::parse_from(&["test", "-a42", "--field", "f"])
+    );
+    assert_eq!(
+        Opt {
+            arg: Some(Some(42)),
+            field: Some(None)
+        },
+        Opt::parse_from(&["test", "-a42", "--field"])
+    );
+    assert_eq!(
+        Opt {
+            arg: Some(None),
+            field: Some(None)
+        },
+        Opt::parse_from(&["test", "-a", "--field"])
+    );
+    assert_eq!(
+        Opt {
+            arg: Some(None),
+            field: Some(Some("f".into()))
+        },
+        Opt::parse_from(&["test", "-a", "--field", "f"])
+    );
+    assert_eq!(
+        Opt {
+            arg: None,
+            field: Some(None)
+        },
+        Opt::parse_from(&["test", "--field"])
+    );
+    assert_eq!(
+        Opt {
+            arg: None,
+            field: None
+        },
+        Opt::parse_from(&["test"])
+    );
+}
+
+#[test]
+fn optional_vec() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
+        arg: Option<Vec<i32>>,
+    }
+    assert_eq!(
+        Opt { arg: Some(vec![1]) },
+        Opt::parse_from(&["test", "-a", "1"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
+        Opt::parse_from(&["test", "-a1", "-a2"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
+        Opt::parse_from(&["test", "-a1", "-a2", "-a"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
+        Opt::parse_from(&["test", "-a1", "-a", "-a2"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
+        Opt::parse_from(&["test", "-a", "1", "2"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2, 3])
+        },
+        Opt::parse_from(&["test", "-a", "1", "2", "-a", "3"])
+    );
+
+    assert_eq!(Opt { arg: Some(vec![]) }, Opt::parse_from(&["test", "-a"]));
+
+    assert_eq!(
+        Opt { arg: Some(vec![]) },
+        Opt::parse_from(&["test", "-a", "-a"])
+    );
+
+    assert_eq!(Opt { arg: None }, Opt::parse_from(&["test"]));
+}
+
+#[test]
+fn two_optional_vecs() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
+        arg: Option<Vec<i32>>,
+
+        #[clap(short)]
+        b: Option<Vec<i32>>,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1]),
+            b: Some(vec![])
+        },
+        Opt::parse_from(&["test", "-a", "1", "-b"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1]),
+            b: Some(vec![])
+        },
+        Opt::parse_from(&["test", "-a", "-b", "-a1"])
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2]),
+            b: Some(vec![1, 2])
+        },
+        Opt::parse_from(&["test", "-a1", "-a2", "-b1", "-b2"])
+    );
+
+    assert_eq!(Opt { arg: None, b: None }, Opt::parse_from(&["test"]));
 }

@@ -12,38 +12,36 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#[macro_use]
-extern crate clap;
-
 use clap::{AppSettings, Clap};
+use std::num::ParseIntError;
+
+pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Clap, Debug, PartialEq, Eq)]
-#[clap(raw(global_setting = "AppSettings::ColoredHelp"))]
+#[clap(global_setting = AppSettings::ColoredHelp)]
 struct Opt {
     #[clap(
         long = "x",
-        raw(
-            display_order = "2",
-            next_line_help = "true",
-            default_value = r#""0""#,
-            require_equals = "true"
-        )
+        display_order = DISPLAY_ORDER,
+        next_line_help = true,
+        default_value = "0",
+        require_equals = true
     )]
     x: i32,
 
-    #[clap(short = "l", long = "level", raw(aliases = r#"&["set-level", "lvl"]"#))]
+    #[clap(short = "l", long = "level", aliases = &["set-level", "lvl"])]
     level: String,
 
-    #[clap(long = "values")]
+    #[clap(long("values"))]
     values: Vec<i32>,
 
-    #[clap(name = "FILE", raw(requires_if = r#""FILE", "values""#))]
+    #[clap(name = "FILE", requires_if("FILE", "values"))]
     files: Vec<String>,
 }
 
 #[test]
-fn test_raw_slice() {
+fn test_slice() {
     assert_eq!(
         Opt {
             x: 0,
@@ -83,7 +81,7 @@ fn test_raw_slice() {
 }
 
 #[test]
-fn test_raw_multi_args() {
+fn test_multi_args() {
     assert_eq!(
         Opt {
             x: 0,
@@ -105,13 +103,13 @@ fn test_raw_multi_args() {
 }
 
 #[test]
-fn test_raw_multi_args_fail() {
+fn test_multi_args_fail() {
     let result = Opt::try_parse_from(&["test", "-l", "1", "--", "FILE"]);
     assert!(result.is_err());
 }
 
 #[test]
-fn test_raw_bool() {
+fn test_bool() {
     assert_eq!(
         Opt {
             x: 1,
@@ -123,4 +121,29 @@ fn test_raw_bool() {
     );
     let result = Opt::try_parse_from(&["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
+}
+
+fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
+    u64::from_str_radix(input, 16)
+}
+
+#[derive(Clap, PartialEq, Debug)]
+struct HexOpt {
+    #[clap(short = "n", parse(try_from_str = parse_hex))]
+    number: u64,
+}
+
+#[test]
+fn test_parse_hex_function_path() {
+    assert_eq!(
+        HexOpt { number: 5 },
+        HexOpt::parse_from(&["test", "-n", "5"])
+    );
+    assert_eq!(
+        HexOpt { number: 0xabcdef },
+        HexOpt::parse_from(&["test", "-n", "abcdef"])
+    );
+
+    let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
+    assert!(err.message.contains("invalid digit found in string"), err);
 }

@@ -12,28 +12,27 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#[macro_use]
-extern crate clap;
+mod utils;
 
 use clap::Clap;
+use utils::*;
 
 #[derive(Clap, PartialEq, Debug)]
 enum Opt {
-    #[clap(name = "fetch", about = "Fetch stuff from GitHub.")]
+    /// Fetch stuff from GitHub
     Fetch {
-        #[clap(long = "all")]
+        #[clap(long)]
         all: bool,
-        #[clap(short = "f", long = "force")]
+        #[clap(short, long)]
         /// Overwrite local branches.
         force: bool,
         repo: String,
     },
 
-    #[clap(name = "add")]
     Add {
-        #[clap(short = "i", long = "interactive")]
+        #[clap(short, long)]
         interactive: bool,
-        #[clap(short = "v", long = "verbose")]
+        #[clap(short, long)]
         verbose: bool,
     },
 }
@@ -90,7 +89,6 @@ fn test_no_parse() {
 
 #[derive(Clap, PartialEq, Debug)]
 enum Opt2 {
-    #[clap(name = "do-something")]
     DoSomething { arg: String },
 }
 
@@ -108,11 +106,8 @@ fn test_hyphenated_subcommands() {
 
 #[derive(Clap, PartialEq, Debug)]
 enum Opt3 {
-    #[clap(name = "add")]
     Add,
-    #[clap(name = "init")]
     Init,
-    #[clap(name = "fetch")]
     Fetch,
 }
 
@@ -135,13 +130,11 @@ struct Fetch {
 }
 #[derive(Clap, PartialEq, Debug)]
 enum Opt4 {
-    /// Not shown
-    #[clap(name = "add", about = "Add a file")]
+    // Not shown
+    /// Add a file
     Add(Add),
-    #[clap(name = "init")]
     Init,
     /// download history from remote
-    #[clap(name = "fetch")]
     Fetch(Fetch),
 }
 
@@ -163,9 +156,7 @@ fn test_tuple_commands() {
         Opt4::parse_from(&["test", "fetch", "origin"])
     );
 
-    let mut output = Vec::new();
-    Opt4::into_app().write_long_help(&mut output).unwrap();
-    let output = String::from_utf8(output).unwrap();
+    let output = get_long_help::<Opt4>();
 
     assert!(output.contains("download history from remote"));
     assert!(output.contains("Add a file"));
@@ -176,15 +167,12 @@ fn test_tuple_commands() {
 fn enum_in_enum_subsubcommand() {
     #[derive(Clap, Debug, PartialEq)]
     pub enum Opt {
-        #[clap(name = "daemon")]
         Daemon(DaemonCommand),
     }
 
     #[derive(Clap, Debug, PartialEq)]
     pub enum DaemonCommand {
-        #[clap(name = "start")]
         Start,
-        #[clap(name = "stop")]
         Stop,
     }
 
@@ -213,7 +201,7 @@ fn flatten_enum() {
 
     assert!(Opt::try_parse_from(&["test"]).is_err());
     assert_eq!(
-        Opt::parse_from(&["test", "Foo"]),
+        Opt::parse_from(&["test", "foo"]),
         Opt {
             sub_cmd: SubCmd::Foo
         }

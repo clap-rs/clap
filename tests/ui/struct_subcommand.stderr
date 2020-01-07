@@ -1,0 +1,5 @@
+error: subcommand is only allowed on fields
+  --> $DIR/struct_subcommand.rs:12:24
+   |
+12 | #[clap(name = "basic", subcommand)]
+   |                        ^^^^^^^^^^

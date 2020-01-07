@@ -1,6 +1,7 @@
 [package]
 name = "clap_derive"
 version = "0.3.0"
+edition = "2018"
 authors = [
     "Guillaume Pinot <texitoi@texitoi.eu>",
     "Kevin K. <kbknapp@gmail.com>",
@@ -22,17 +23,20 @@ travis-ci = { repository = "clap-rs/clap_derive" }
 appveyor = { repository = "https://github.com/clap-rs/clap_derive", service = "github" }
 
 [dependencies]
-syn = "0.15.39"
-quote = "0.6"
-proc-macro2 = "0.4"
-clippy = {version = "0.0.174", optional = true }
+syn = { version = "1", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+heck = "0.3.0"
+proc-macro-error = "0.4.3"
 
 [dev-dependencies]
 clap = { git = "https://github.com/clap-rs/clap", branch = "master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
+trybuild = "1.0.5"
+rustversion = "0.1"
 
 [features]
 default = []
 nightly = []
-lints = ["clippy"]
+lints = []
 debug = []
 doc = []
