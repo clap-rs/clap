@@ -32,7 +32,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
     do
         case "${{i}}" in
             {name})
-                cmd="{name}"
+                cmd="{cmd}"
                 ;;
             {subcmds}
             *)
@@ -41,7 +41,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
     done
 
     case "${{cmd}}" in
-        {name})
+        {cmd})
             opts="{name_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
@@ -63,6 +63,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
 complete -F _{name} -o bashdefault -o default {name}
 "#,
                 name = self.p.meta.bin_name.as_ref().unwrap(),
+                cmd = self.p.meta.bin_name.as_ref().unwrap().replace("-", "__"),
                 name_opts = self.all_options_for_path(self.p.meta.bin_name.as_ref().unwrap()),
                 name_opts_details =
                     self.option_details_for_path(self.p.meta.bin_name.as_ref().unwrap()),
