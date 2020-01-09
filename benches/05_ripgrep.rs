@@ -6,8 +6,6 @@
 #![feature(test)]
 
 extern crate clap;
-#[macro_use]
-extern crate lazy_static;
 extern crate test;
 
 use clap::{App, AppSettings, Arg, ArgSettings};
@@ -15,6 +13,8 @@ use clap::{App, AppSettings, Arg, ArgSettings};
 use std::collections::HashMap;
 use std::io::Cursor;
 use test::Bencher;
+
+use lazy_static::lazy_static;
 
 #[bench]
 fn build_app_short(b: &mut Bencher) {

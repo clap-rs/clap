@@ -1,11 +1,8 @@
 #![feature(test)]
 
-#[macro_use]
-extern crate clap;
 extern crate test;
 
-use clap::{App, AppSettings, Arg, ArgSettings};
-
+use clap::{clap_app, App, AppSettings, Arg, ArgSettings};
 use test::Bencher;
 
 static OPT3_VALS: [&str; 2] = ["fast", "slow"];
