@@ -186,7 +186,8 @@
 //! //
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
 //! // more clean, but takes a very small performance hit compared to the other two methods.
-//! use clap::{App, load_yaml};
+//! #[macro_use]
+//! use clap::App;
 //!
 //! fn main() {
 //!     // The YAML file is found relative to the current file, similar to how modules are found
@@ -450,7 +451,7 @@ compile_error!("`std` feature is currently required to build this crate");
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
-pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
+pub use crate::parse::{ArgMatches, OsValues, Values, SubCommand};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 

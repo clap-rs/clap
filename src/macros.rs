@@ -13,7 +13,9 @@
 /// of an `App` struct.
 ///
 /// ```ignore
-/// # use clap::{App, load_yaml};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let yml = load_yaml!("app.yml");
 /// let app = App::from_yaml(yml);
@@ -38,7 +40,9 @@ macro_rules! load_yaml {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, value_t};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -82,7 +86,9 @@ macro_rules! value_t {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, value_t_or_exit};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -125,7 +131,9 @@ macro_rules! value_t_or_exit {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, values_t};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -185,7 +193,9 @@ macro_rules! values_t {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, values_t_or_exit};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -244,7 +254,7 @@ macro_rules! values_t_or_exit {
 /// # Examples
 ///
 /// ```
-/// # use clap::_clap_count_exprs;
+/// # #[macro_use] extern crate clap;
 /// # fn main() {
 /// const COUNT: usize = _clap_count_exprs!(a, 5+1, "hi there!".into_string());
 /// assert_eq!(COUNT, 3);
@@ -272,7 +282,9 @@ macro_rules! _clap_count_exprs {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{App, Arg, arg_enum, value_t};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::{App, Arg};
 /// arg_enum!{
 ///     #[derive(PartialEq, Debug)]
 ///     pub enum Foo {
@@ -404,7 +416,9 @@ macro_rules! arg_enum {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, crate_version};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let m = App::new("app")
 ///             .version(crate_version!())
@@ -431,7 +445,9 @@ macro_rules! crate_version {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, crate_authors};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let m = App::new("app")
 ///             .author(crate_authors!("\n"))
@@ -489,7 +505,9 @@ macro_rules! crate_authors {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, crate_description};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let m = App::new("app")
 ///             .about(crate_description!())
@@ -509,7 +527,9 @@ macro_rules! crate_description {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::{App, crate_name};
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
 /// # fn main() {
 /// let m = App::new(crate_name!())
 ///             .get_matches();
@@ -540,7 +560,8 @@ macro_rules! crate_name {
 /// # Examples
 ///
 /// ```no_run
-/// # use clap::app_from_crate;
+/// # #[macro_use]
+/// # extern crate clap;
 /// # fn main() {
 /// let m = app_from_crate!().get_matches();
 /// # }
@@ -570,7 +591,8 @@ macro_rules! app_from_crate {
 /// # Examples
 ///
 /// ```no_run
-/// use clap::clap_app;
+/// # #[macro_use]
+/// # extern crate clap;
 /// # fn main() {
 /// let matches = clap_app!(myapp =>
 ///     (version: "1.0")
@@ -626,9 +648,9 @@ macro_rules! app_from_crate {
 /// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
 ///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
 ///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
-///
+/// 
 /// # Alternative form for non-ident values
-///
+/// 
 /// Certain places that normally accept an `ident`, will optionally accept an alternative of `("expr enclosed by parens")`
 /// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
 /// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`

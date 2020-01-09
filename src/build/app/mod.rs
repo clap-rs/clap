@@ -251,7 +251,9 @@ impl<'b> App<'b> {
     ///
     /// # Examples
     /// ```ignore
-    /// # use clap::{App, load_yaml};
+    /// # #[macro_use]
+    /// # extern crate clap;
+    /// # use clap::App;
     /// # fn main() {
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml)
