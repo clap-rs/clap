@@ -1,10 +1,6 @@
-#[macro_use]
-extern crate clap;
-extern crate regex;
-
 include!("../clap-test.rs");
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind, clap_app};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 Kevin K.
