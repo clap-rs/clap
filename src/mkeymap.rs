@@ -55,9 +55,19 @@ impl<'b> MKeyMap<'b> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
-    pub fn contains_long(&self, l: &str) -> bool { self.keys.iter().any(|x| x.key == l) }
+    #[deprecated(since="3.0.0", note="Use `contains` instead")]
+    pub fn contains_long(&self, l: &str) -> bool {
+        self.contains(l)
+    }
 
-    pub fn contains_short(&self, c: char) -> bool { self.keys.iter().any(|x| x.key == c) }
+    #[deprecated(since="3.0.0", note="Use `contains` instead")]
+    pub fn contains_short(&self, c: char) -> bool {
+        self.contains(c)
+    }
+
+    pub fn contains<K>(&self, key: K) -> bool where KeyType: PartialEq<K> {
+        self.keys.iter().any(|x| x.key == key)
+    }
 
     pub fn insert(&mut self, key: KeyType, value: Arg<'b>) -> usize {
         let index = self.push(value);
@@ -89,12 +99,10 @@ impl<'b> MKeyMap<'b> {
     // ! Arg mutation functionality
 
     pub fn get(&self, key: &KeyType) -> Option<&Arg<'b>> {
-        for k in &self.keys {
-            if &k.key == key {
-                return Some(&self.args[k.index]);
-            }
-        }
-        None
+        self.keys
+            .iter()
+            .find(|k| k.key == *key)
+            .map(|k| &self.args[k.index])
     }
     //TODO ::get_first([KeyA, KeyB])
 
@@ -108,14 +116,13 @@ impl<'b> MKeyMap<'b> {
     }
     }
 
-
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
 
     pub fn remove_key(&mut self, key: &KeyType) {
-        let idx = self.keys.iter().enumerate().find(|(_,k)| k.key == *key).and_then(|(i, _)| Some(i));
-        if let Some(id) = idx {
-            self.keys.swap_remove(id);
-        }
+        self.keys
+            .iter()
+            .position(|k| k.key == *key)
+            .map(|i| self.keys.swap_remove(i));
     }
 
     pub fn insert_key_by_name(&mut self, key: KeyType, name: &str) {
@@ -175,13 +182,11 @@ impl<'b> MKeyMap<'b> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
-        let mut idx = None;
-        for k in self.keys.iter() {
-            if &k.key == key {
-                idx = Some(k.index);
-                break;
-            }
-        }
+
+        let idx = self.keys
+            .iter()
+            .position(|k| k.key == *key);
+
         if let Some(idx) = idx {
             let arg = self.args.swap_remove(idx);
             for key in _get_keys(&arg) {
@@ -200,18 +205,11 @@ impl<'b> MKeyMap<'b> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
-        let mut index = None;
-        for (i, arg) in self.args.iter().enumerate() {
-            if arg.id == _name {
-                index = Some(i);
-                break;
-            }
-        }
-        if let Some(i) = index {
-            Some(self.args.swap_remove(i))
-        } else {
-            None
-        }
+
+        self.args
+            .iter()
+            .position(|arg| arg.id == _name)
+            .map(|i| self.args.swap_remove(i))
     }
 }
 

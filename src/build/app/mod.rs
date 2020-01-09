@@ -1769,7 +1769,8 @@ impl<'b> App<'b> {
         if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");
         }
-        self.args.contains_short(s)
+
+        self.args.contains(s)
     }
 
     pub fn is_set(&self, s: AppSettings) -> bool {
