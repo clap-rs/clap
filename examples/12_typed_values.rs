@@ -19,9 +19,6 @@ fn main() {
     // arguments, because if the argument isn't found, it exits. Just FYI ;)
     //
     // The following example shows both methods.
-    //
-    // **NOTE:** to use the macros, you must include #[macro_use] just above the 'extern crate clap;'
-    // declaration in your crate root.
     let matches = App::new("myapp")
         // Create two arguments, a required positional which accepts multiple values
         // and an optional '-l value'
