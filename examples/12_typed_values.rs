@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate clap;
-
-use clap::App;
+use clap::{value_t, values_t, App};
 
 fn main() {
     // You can use some convenience macros provided by clap to get typed values, so long as the

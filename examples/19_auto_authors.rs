@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate clap;
-
-use clap::App;
+use clap::{crate_authors, App};
 
 fn main() {
     App::new("myapp")
