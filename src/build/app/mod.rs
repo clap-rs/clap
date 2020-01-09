@@ -251,12 +251,12 @@ impl<'b> App<'b> {
     ///
     /// # Examples
     /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// # use clap::{App, load_yaml};
+    /// # fn main() {
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml)
     ///     .name(crate_name!());
+    /// # }
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```

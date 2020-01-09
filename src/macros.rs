@@ -13,9 +13,7 @@
 /// of an `App` struct.
 ///
 /// ```ignore
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, load_yaml};
 /// # fn main() {
 /// let yml = load_yaml!("app.yml");
 /// let app = App::from_yaml(yml);
@@ -40,9 +38,7 @@ macro_rules! load_yaml {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, value_t};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -86,9 +82,7 @@ macro_rules! value_t {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, value_t_or_exit};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -131,9 +125,7 @@ macro_rules! value_t_or_exit {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, values_t};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -193,9 +185,7 @@ macro_rules! values_t {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, values_t_or_exit};
 /// # fn main() {
 /// let matches = App::new("myapp")
 ///               .arg("[seq]... 'A sequence of pos whole nums, i.e. 20 45'")
@@ -254,7 +244,7 @@ macro_rules! values_t_or_exit {
 /// # Examples
 ///
 /// ```
-/// # #[macro_use] extern crate clap;
+/// # use clap::_clap_count_exprs;
 /// # fn main() {
 /// const COUNT: usize = _clap_count_exprs!(a, 5+1, "hi there!".into_string());
 /// assert_eq!(COUNT, 3);
@@ -282,9 +272,7 @@ macro_rules! _clap_count_exprs {
 /// # Examples
 ///
 /// ```rust
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::{App, Arg};
+/// # use clap::{App, Arg, arg_enum, value_t};
 /// arg_enum!{
 ///     #[derive(PartialEq, Debug)]
 ///     pub enum Foo {
@@ -416,9 +404,7 @@ macro_rules! arg_enum {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_version};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .version(crate_version!())
@@ -445,9 +431,7 @@ macro_rules! crate_version {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_authors};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .author(crate_authors!("\n"))
@@ -505,9 +489,7 @@ macro_rules! crate_authors {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_description};
 /// # fn main() {
 /// let m = App::new("app")
 ///             .about(crate_description!())
@@ -527,9 +509,7 @@ macro_rules! crate_description {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
+/// # use clap::{App, crate_name};
 /// # fn main() {
 /// let m = App::new(crate_name!())
 ///             .get_matches();
@@ -560,8 +540,7 @@ macro_rules! crate_name {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// # use clap::app_from_crate;
 /// # fn main() {
 /// let m = app_from_crate!().get_matches();
 /// # }
@@ -591,8 +570,7 @@ macro_rules! app_from_crate {
 /// # Examples
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
+/// use clap::clap_app;
 /// # fn main() {
 /// let matches = clap_app!(myapp =>
 ///     (version: "1.0")
