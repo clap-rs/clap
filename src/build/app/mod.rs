@@ -1840,7 +1840,7 @@ impl<'b> App<'b> {
             if let Some(v) = val {
                 if matcher
                     .get(arg)
-                    .and_then(|ma| Some(ma.contains_val(v)))
+                    .map(|ma| ma.contains_val(v))
                     .unwrap_or(false)
                 {
                     Some(req_arg)

@@ -2102,7 +2102,7 @@ impl<'help> Arg<'help> {
         self.setb(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
-                .nth(0)
+                .next()
                 .expect("Failed to get value_delimiter from arg"),
         );
         self

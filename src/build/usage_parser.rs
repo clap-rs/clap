@@ -159,7 +159,7 @@ impl<'a> UsageParser<'a> {
     fn short(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::short;");
         let start = &self.usage[self.pos..];
-        let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
+        let short = start.chars().next().expect(INTERNAL_ERROR_MSG);
         debugln!("UsageParser::short: setting short...{}", short);
         arg.short = Some(short);
         if arg.name.is_empty() {
