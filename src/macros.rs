@@ -648,9 +648,9 @@ macro_rules! app_from_crate {
 /// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
 ///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
 ///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
-/// 
+///
 /// # Alternative form for non-ident values
-/// 
+///
 /// Certain places that normally accept an `ident`, will optionally accept an alternative of `("expr enclosed by parens")`
 /// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
 /// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`

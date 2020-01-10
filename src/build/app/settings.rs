@@ -1,8 +1,8 @@
 // Std
+use bitflags::bitflags;
 #[allow(unused_imports)]
 use std::ops::BitOr;
 use std::str::FromStr;
-use bitflags::bitflags;
 
 bitflags! {
     struct Flags: u64 {
@@ -1075,10 +1075,7 @@ mod test {
             "validargfound".parse::<AppSettings>().unwrap(),
             AppSettings::ValidArgFound
         );
-        assert_eq!(
-            "built".parse::<AppSettings>().unwrap(),
-            AppSettings::Built
-        );
+        assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
         assert_eq!(
             "trailingvalues".parse::<AppSettings>().unwrap(),
             AppSettings::TrailingValues

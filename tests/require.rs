@@ -22,8 +22,7 @@ USAGE:
 
 For more information try --help";
 
-static COND_REQ_IN_USAGE: &str =
-    "error: The following required arguments were not provided:
+static COND_REQ_IN_USAGE: &str = "error: The following required arguments were not provided:
     --output <output>
 
 USAGE:

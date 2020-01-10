@@ -55,17 +55,16 @@ impl<'b> MKeyMap<'b> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
-    #[deprecated(since="3.0.0", note="Use `contains` instead")]
-    pub fn contains_long(&self, l: &str) -> bool {
-        self.contains(l)
-    }
+    #[deprecated(since = "3.0.0", note = "Use `contains` instead")]
+    pub fn contains_long(&self, l: &str) -> bool { self.contains(l) }
 
-    #[deprecated(since="3.0.0", note="Use `contains` instead")]
-    pub fn contains_short(&self, c: char) -> bool {
-        self.contains(c)
-    }
+    #[deprecated(since = "3.0.0", note = "Use `contains` instead")]
+    pub fn contains_short(&self, c: char) -> bool { self.contains(c) }
 
-    pub fn contains<K>(&self, key: K) -> bool where KeyType: PartialEq<K> {
+    pub fn contains<K>(&self, key: K) -> bool
+    where
+        KeyType: PartialEq<K>,
+    {
         self.keys.iter().any(|x| x.key == key)
     }
 
@@ -107,13 +106,12 @@ impl<'b> MKeyMap<'b> {
     //TODO ::get_first([KeyA, KeyB])
 
     pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'b>> {
-        let key = self.keys.iter()
-        .find(|k| k.key == *key);
+        let key = self.keys.iter().find(|k| k.key == *key);
 
         match key {
             Some(k) => self.args.get_mut(k.index),
-            None => None
-    }
+            None => None,
+        }
     }
 
     pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
@@ -183,9 +181,7 @@ impl<'b> MKeyMap<'b> {
             panic!("Cannot remove args after being built");
         }
 
-        let idx = self.keys
-            .iter()
-            .position(|k| k.key == *key);
+        let idx = self.keys.iter().position(|k| k.key == *key);
 
         if let Some(idx) = idx {
             let arg = self.args.swap_remove(idx);
@@ -295,7 +291,7 @@ mod tests {
 
         map.insert(Long(OsString::from("Two")), Arg::with_name("Value1"));
 
-        assert_eq!(map.args.len(), orig_len + 1/* , "Len changed" */);
+        assert_eq!(map.args.len(), orig_len + 1 /* , "Len changed" */);
         // assert_eq!(
         //     map.get(&Long(OsString::from("One"))),
         //     map.get(&Long(OsString::from("Two")))

@@ -209,15 +209,20 @@ impl<'a> UsageParser<'a> {
     }
 
     fn default(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::default; from: \"{}\"", &self.usage[self.pos..self.usage.len()]);
+        debugln!(
+            "UsageParser::default; from: \"{}\"",
+            &self.usage[self.pos..self.usage.len()]
+        );
         self.pos += 1; // Skip @
         self.stop_at(default_value_end); // Find first space after value
         debugln!(
             "UsageParser::default: setting default...\"{}\"",
             &self.usage[self.start..self.pos]
-            );
+        );
         arg.setb(ArgSettings::TakesValue);
-        arg.default_vals = Some(vec![std::ffi::OsStr::new(&self.usage[self.start..self.pos])]);
+        arg.default_vals = Some(vec![std::ffi::OsStr::new(
+            &self.usage[self.start..self.pos],
+        )]);
         self.prev = UsageToken::Default;
     }
 }
@@ -226,7 +231,9 @@ impl<'a> UsageParser<'a> {
 fn name_end(b: u8) -> bool { b != b']' && b != b'>' }
 
 #[inline]
-fn token(b: u8) -> bool { b != b'\'' && b != b'.' && b != b'<' && b != b'[' && b != b'-' && b != b'@' }
+fn token(b: u8) -> bool {
+    b != b'\'' && b != b'.' && b != b'<' && b != b'[' && b != b'-' && b != b'@'
+}
 
 #[inline]
 fn long_end(b: u8) -> bool {

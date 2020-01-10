@@ -1534,7 +1534,7 @@ impl<'b> App<'b> {
                     .find(|sc| sc.id == id)
                     .expect(INTERNAL_ERROR_MSG);
                 propagate_subcmd!(self, sc);
-            },
+            }
             Propagation::None => (),
         }
     }

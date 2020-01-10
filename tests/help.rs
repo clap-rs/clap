@@ -545,8 +545,6 @@ FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
-
-
 fn setup() -> App<'static> {
     App::new("test")
         .author("Kevin K.")
@@ -1521,6 +1519,7 @@ fn show_short_about_issue_897() {
     ));
 }
 
+#[rustfmt::skip]
 #[test]
 fn issue_1487() {
     let app = App::new("test")
@@ -1532,4 +1531,4 @@ fn issue_1487() {
             .args(&["arg1", "arg2"])
             .required(true));
     assert!(test::compare_output(app, "ctest -h", ISSUE_1487, false));
-} 
+}

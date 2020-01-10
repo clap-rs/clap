@@ -31,7 +31,7 @@ fn main() {
                 .help("sets the config file to use")
                 .short('c')
                 .long("config")
-		.takes_value(true),
+                .takes_value(true),
         )
         .arg(
             Arg::with_name("input")

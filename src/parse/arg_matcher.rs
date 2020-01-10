@@ -23,13 +23,10 @@ impl Default for ArgMatcher {
 
 impl Deref for ArgMatcher {
     type Target = ArgMatches;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
+    fn deref(&self) -> &Self::Target { &self.0 }
 }
 
 impl ArgMatcher {
-
     pub fn into_inner(self) -> ArgMatches { self.0 }
 
     #[allow(dead_code)]
