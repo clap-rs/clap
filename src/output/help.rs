@@ -48,7 +48,12 @@ pub struct Help<'b, 'c, 'd, 'w> {
 // Public Functions
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(w: &'w mut dyn Write, parser: &'d Parser<'b, 'c>, use_long: bool, stderr: bool) -> Self {
+    pub fn new(
+        w: &'w mut dyn Write,
+        parser: &'d Parser<'b, 'c>,
+        use_long: bool,
+        stderr: bool,
+    ) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,
@@ -458,14 +463,12 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 debugln!("Help::spec_vals: Found default value...[{:?}]", pv);
 
                 let pvs = if self.color {
-                    pv
-                        .iter()
+                    pv.iter()
                         .map(|&pvs| format!("{}", self.cizer.good(pvs.to_string_lossy())))
                         .collect::<Vec<_>>()
                         .join(" ")
                 } else {
-                    pv
-                        .iter()
+                    pv.iter()
                         .map(|&pvs| format!("{}", Format::None(pvs.to_string_lossy())))
                         .collect::<Vec<_>>()
                         .join(" ")

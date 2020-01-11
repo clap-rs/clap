@@ -874,9 +874,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Set an exclusive argument by name. An exclusive argument conflict with every other flag 
+    /// Set an exclusive argument by name. An exclusive argument conflict with every other flag
     /// and must be always passed alone.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -892,7 +892,7 @@ impl<'help> Arg<'help> {
     ///     exclusive: true
     /// ```
     ///
-    /// Setting an exclusive argument and having any other arguments present at runtime 
+    /// Setting an exclusive argument and having any other arguments present at runtime
     /// is an error.
     ///
     /// ```rust
@@ -2319,9 +2319,7 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_os(self, val: &'help OsStr) -> Self {
-        self.default_values_os(&[val])
-    }
+    pub fn default_value_os(self, val: &'help OsStr) -> Self { self.default_values_os(&[val]) }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
@@ -4134,14 +4132,13 @@ impl<'help> Arg<'help> {
             Cow::Borrowed(self.name)
         }
     }
-   
+
     // Used by yaml
     #[allow(dead_code)]
     fn exclusive(mut self, exclusive: bool) -> Self {
         self.exclusive = exclusive;
         self
-    }  
-
+    }
 }
 
 impl<'help, 'z> From<&'z Arg<'help>> for Arg<'help> {
