@@ -97,3 +97,37 @@ fn flatten_in_subcommand() {
         Opt::parse_from(&["test", "add", "-i", "43"])
     );
 }
+
+#[test]
+fn merge_subcommands_with_flatten() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum BaseCli {
+        Command1(Command1),
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command1 {
+        arg1: i32,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command2 {
+        arg2: i32,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    enum Opt {
+        #[clap(flatten)]
+        BaseCli(BaseCli),
+        Command2(Command2),
+    }
+
+    assert_eq!(
+        Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 42 })),
+        Opt::parse_from(&["test", "command1", "42"])
+    );
+    assert_eq!(
+        Opt::Command2(Command2 { arg2: 43 }),
+        Opt::parse_from(&["test", "command2", "43"])
+    );
+}

@@ -20,7 +20,7 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Ident, MetaNameValue, Type};
+use syn::{self, ext::IdentExt, spanned::Spanned, Expr, Ident, MetaNameValue, Type};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -33,8 +33,8 @@ pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 pub enum Kind {
     Arg(Sp<Ty>),
     Subcommand(Sp<Ty>),
-    FlattenStruct,
-    Skip(Option<syn::Expr>),
+    Flatten,
+    Skip(Option<Expr>),
 }
 
 #[derive(Clone)]
@@ -298,7 +298,7 @@ impl Attrs {
                 }
 
                 Flatten(ident) => {
-                    let kind = Sp::new(Kind::FlattenStruct, ident.span());
+                    let kind = Sp::new(Kind::Flatten, ident.span());
                     self.set_kind(kind);
                 }
 
@@ -421,9 +421,8 @@ impl Attrs {
         }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::FlattenStruct => abort!(res.kind.span(), "flatten is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) => res,
+            Kind::Arg(_) | Kind::Flatten => res,
         }
     }
 
@@ -444,7 +443,7 @@ impl Attrs {
         res.push_attrs(&field.attrs);
 
         match &*res.kind {
-            Kind::FlattenStruct => {
+            Kind::Flatten => {
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),

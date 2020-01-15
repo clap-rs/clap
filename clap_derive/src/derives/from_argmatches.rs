@@ -117,7 +117,7 @@ pub fn gen_constructor(
                 }
             }
 
-            Kind::FlattenStruct => quote_spanned! { kind.span()=>
+            Kind::Flatten => quote_spanned! { kind.span()=>
                 #field_name: ::clap::FromArgMatches::from_argmatches(matches)
             },
 
