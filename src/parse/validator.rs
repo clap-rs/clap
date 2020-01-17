@@ -279,7 +279,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         self.p.app.color(),
                     ));
                     debugln!(
-                        "Validator::validate_conflicts_with_everything; ERROR: {}",
+                        "Validator::validate_conflicts_with_everything; ERROR: {:?}",
                         err
                     );
                     return err;
