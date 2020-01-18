@@ -998,14 +998,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 _ => continue,
             };
 
-            debugln!("Help::write_template_help:iter: tag_buf={};", unsafe {
-                String::from_utf8_unchecked(
-                    tag_buf.get_ref()[0..tag_length]
-                        .iter()
-                        .map(|&i| i)
-                        .collect::<Vec<_>>(),
-                )
-            });
+            debugln!(
+                "Help::write_template_help:iter: tag_buf={};",
+                String::from_utf8_lossy(&tag_buf.get_ref()[0..tag_length])
+            );
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
                     self.writer.write_all(b"Could not decode tag name")?;
