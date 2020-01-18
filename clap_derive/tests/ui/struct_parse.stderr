@@ -1,0 +1,5 @@
+error: `parse` attribute is only allowed on fields
+  --> $DIR/struct_parse.rs:12:24
+   |
+12 | #[clap(name = "basic", parse(from_str))]
+   |                        ^^^^^

@@ -1,0 +1,5 @@
+error: required is meaningless for Option
+  --> $DIR/option_required.rs:14:19
+   |
+14 |     #[clap(short, required = true)]
+   |                   ^^^^^^^^

@@ -1,0 +1,5 @@
+error: flatten is only allowed on fields
+  --> $DIR/struct_flatten.rs:12:24
+   |
+12 | #[clap(name = "basic", flatten)]
+   |                        ^^^^^^^
