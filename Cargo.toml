@@ -57,7 +57,7 @@ yaml-rust = { version = "0.4",  optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
 term_size = { version = "1.0.0-beta1", optional = true }
-clap_derive = { git = "https://github.com/clap-rs/clap_derive", optional = true }
+clap_derive = { path = "./clap_derive", version = "3.0.0-beta.1", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 ansi_term = { version = "0.12.1", optional = true }
@@ -106,3 +106,8 @@ codegen-units = 1
 
 [package.metadata.docs.rs]
 features = ["doc"]
+
+[workspace]
+members = [
+	"clap_derive",
+]

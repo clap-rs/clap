@@ -3,3 +3,9 @@ error: required is meaningless for bool
    |
 14 |     #[clap(short, required = true)]
    |                   ^^^^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/bool_required.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

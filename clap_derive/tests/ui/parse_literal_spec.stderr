@@ -3,3 +3,9 @@ error: parser specification must start with identifier
    |
 14 |     #[clap(parse("from_str"))]
    |                  ^^^^^^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/parse_literal_spec.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

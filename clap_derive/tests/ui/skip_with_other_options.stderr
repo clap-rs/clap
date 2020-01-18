@@ -3,3 +3,9 @@ error: methods are not allowed for skipped fields
   |
 8 |     #[clap(skip, long)]
   |            ^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+ --> $DIR/skip_with_other_options.rs:3:10
+  |
+3 | #[derive(Clap, Debug)]
+  |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

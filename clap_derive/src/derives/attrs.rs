@@ -17,10 +17,10 @@ use super::{parse::*, spanned::Sp, ty::Ty};
 use std::env;
 
 use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
-use proc_macro2::{self, Span, TokenStream};
+use proc_macro2::{self, Span};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Expr, Ident, LitStr, MetaNameValue};
+use syn::{self, ext::IdentExt, spanned::Spanned, LitStr};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;

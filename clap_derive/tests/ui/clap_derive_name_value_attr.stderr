@@ -3,3 +3,9 @@ error: expected parentheses
    |
 14 |     #[clap = "short"]
    |            ^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/clap_derive_name_value_attr.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

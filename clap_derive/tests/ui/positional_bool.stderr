@@ -8,3 +8,9 @@ error: `bool` cannot be used as positional parameter with default parser
   |
 5 |     verbose: bool,
   |              ^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+ --> $DIR/positional_bool.rs:3:10
+  |
+3 | #[derive(Clap, Debug)]
+  |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

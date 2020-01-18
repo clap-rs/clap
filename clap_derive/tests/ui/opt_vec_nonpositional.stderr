@@ -3,3 +3,9 @@ error: Option<Vec<T>> type is meaningless for positional argument
    |
 14 |     n: Option<Vec<u32>>,
    |        ^^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/opt_vec_nonpositional.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

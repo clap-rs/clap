@@ -29,7 +29,8 @@ before_script:
     fi
 script:
   - |
-    travis-cargo test -- --verbose --no-default-features &&
+    travis-cargo --skip nightly test -- --all --verbose --no-default-features &&
+    travis-cargo --only nightly test -- --verbose --no-default-features &&
     travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
     travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
     travis-cargo --only nightly bench

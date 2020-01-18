@@ -1,6 +1,6 @@
 [package]
 name = "clap_derive"
-version = "0.3.0"
+version = "3.0.0-beta.1"
 edition = "2018"
 authors = [
     "Guillaume Pinot <texitoi@texitoi.eu>",
@@ -18,10 +18,6 @@ readme = "README.md"
 [lib]
 proc-macro = true
 
-[badges]
-travis-ci = { repository = "clap-rs/clap_derive" }
-appveyor = { repository = "https://github.com/clap-rs/clap_derive", service = "github" }
-
 [dependencies]
 syn = { version = "1", features = ["full"] }
 quote = "1"
@@ -30,7 +26,7 @@ heck = "0.3.0"
 proc-macro-error = "0.4.3"
 
 [dev-dependencies]
-clap = { git = "https://github.com/clap-rs/clap", branch = "master"} # ONLY FOR INITIAL DEVELOPMENT...change to real crates.io ver for rlease!
+clap = { path = "../", version = "3.0.0-beta.1" }
 trybuild = "1.0.5"
 rustversion = "0.1"
 
