@@ -2,7 +2,7 @@
 
 use clap::Clap;
 
-#[rustversion::since(1.37)]
+#[rustversion::all(since(1.37), stable)]
 #[test]
 fn special_types_bool() {
     mod inner {

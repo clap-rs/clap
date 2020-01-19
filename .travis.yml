@@ -15,8 +15,11 @@ rust:
 matrix:
     allow_failures:
         - rust: nightly
-    nightly-2019-06-18:
-        - script: cargo clippy
+    include:
+      - rust: nightly-2019-06-18
+        before_script:
+          - rustup component add clippy
+        script: cargo clippy
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
