@@ -5,26 +5,10 @@ use quote::ToTokens;
 use syn::{
     self, parenthesized,
     parse::{Parse, ParseBuffer, ParseStream},
-    parse2,
     punctuated::Punctuated,
     spanned::Spanned,
     Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
 };
-
-pub struct ClapAttributes {
-    pub paren_token: syn::token::Paren,
-    pub attrs: Punctuated<ClapAttr, Token![,]>,
-}
-
-impl Parse for ClapAttributes {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let content;
-        let paren_token = parenthesized!(content in input);
-        let attrs = content.parse_terminated(ClapAttr::parse)?;
-
-        Ok(ClapAttributes { paren_token, attrs })
-    }
-}
 
 #[allow(clippy::large_enum_variant)]
 pub enum ClapAttr {
@@ -290,19 +274,8 @@ pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
         .iter()
         .filter(|attr| attr.path.is_ident("clap"))
         .flat_map(|attr| {
-            let attrs: ClapAttributes = parse2(attr.tokens.clone())
-                .map_err(|e| match &*e.to_string() {
-                    // this error message is misleading and points to Span::call_site()
-                    // so we patch it with something meaningful
-                    "unexpected end of input, expected parentheses" => {
-                        let span = attr.path.span();
-                        let patch_msg = "expected parentheses after `clap`";
-                        syn::Error::new(span, patch_msg)
-                    }
-                    _ => e,
-                })
-                .unwrap_or_abort();
-            attrs.attrs
+            attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
+                .unwrap_or_abort()
         })
         .collect()
 }
