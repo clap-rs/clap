@@ -217,21 +217,13 @@ impl Parse for ParserSpec {
     }
 }
 
-struct CommaSeparated<T>(Punctuated<T, Token![,]>);
-
-impl<T: Parse> Parse for CommaSeparated<T> {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let res = Punctuated::parse_separated_nonempty(input)?;
-        Ok(CommaSeparated(res))
-    }
-}
-
 fn raw_method_suggestion(ts: ParseBuffer) -> String {
-    let do_parse = move || -> Result<(Ident, CommaSeparated<Expr>), syn::Error> {
+    let do_parse = move || -> Result<(Ident, Punctuated<Expr, Token![,]>), syn::Error> {
         let name = ts.parse()?;
         let _eq: Token![=] = ts.parse()?;
         let val: LitStr = ts.parse()?;
-        Ok((name, syn::parse_str(&val.value())?))
+        let exprs = val.parse_with(Punctuated::<Expr, Token![,]>::parse_terminated)?;
+        Ok((name, exprs))
     };
 
     fn to_string<T: ToTokens>(val: &T) -> String {
@@ -241,8 +233,7 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
             .replace(",", ", ")
     }
 
-    if let Ok((name, val)) = do_parse() {
-        let exprs = val.0;
+    if let Ok((name, exprs)) = do_parse() {
         let suggestion = if exprs.len() == 1 {
             let val = to_string(&exprs[0]);
             format!(" = {}", val)
