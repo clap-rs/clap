@@ -49,6 +49,7 @@ maintenance = {status = "actively-developed"}
 
 [dependencies]
 bitflags              = "1.2"
+exitcode              = "1.1.2"
 unicode-width         = "0.1.4"
 textwrap              = "0.11"
 indexmap              = "1.0.1"
