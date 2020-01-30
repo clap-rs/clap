@@ -1,0 +1,11 @@
+error: methods and doc comments are not allowed for flattened entry
+  --> $DIR/flatten_and_doc.rs:23:12
+   |
+23 |     #[clap(flatten)]
+   |            ^^^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/flatten_and_doc.rs:19:10
+   |
+19 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

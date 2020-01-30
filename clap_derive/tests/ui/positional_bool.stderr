@@ -1,0 +1,16 @@
+error: `bool` cannot be used as positional parameter with default parser
+
+  = help: if you want to create a flag add `long` or `short`
+  = help: If you really want a boolean parameter add an explicit parser, for example `parse(try_from_str)`
+  = note: see also https://github.com/clap-rs/clap_derive/tree/master/examples/true_or_false.rs
+
+ --> $DIR/positional_bool.rs:5:14
+  |
+5 |     verbose: bool,
+  |              ^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+ --> $DIR/positional_bool.rs:3:10
+  |
+3 | #[derive(Clap, Debug)]
+  |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

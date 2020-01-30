@@ -1,0 +1,11 @@
+error: parse attribute is not allowed for flattened entry
+  --> $DIR/flatten_and_parse.rs:22:21
+   |
+22 |     #[clap(flatten, parse(from_occurrences))]
+   |                     ^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/flatten_and_parse.rs:19:10
+   |
+19 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

@@ -13,5 +13,5 @@ install:
   - cargo -vV
 build: false
 test_script:
-  - cargo build --verbose --features yaml
-  - cargo test --verbose --features yaml
+  - cargo build --all --verbose --features yaml
+  - cargo test --all --verbose --features yaml

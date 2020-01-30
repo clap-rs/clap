@@ -15,8 +15,11 @@ rust:
 matrix:
     allow_failures:
         - rust: nightly
-    nightly-2019-06-18:
-        - script: cargo clippy
+    include:
+      - rust: nightly-2019-06-18
+        before_script:
+          - rustup component add clippy
+        script: cargo clippy
 before_script:
   - |
     pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
@@ -29,7 +32,8 @@ before_script:
     fi
 script:
   - |
-    travis-cargo test -- --verbose --no-default-features &&
+    travis-cargo --skip nightly test -- --all --verbose --no-default-features &&
+    travis-cargo --only nightly test -- --verbose --no-default-features &&
     travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
     travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
     travis-cargo --only nightly bench

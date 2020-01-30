@@ -1,0 +1,11 @@
+error: `parse` argument must be a function path
+  --> $DIR/parse_function_is_not_path.rs:14:29
+   |
+14 |     #[clap(parse(from_str = "2"))]
+   |                             ^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/parse_function_is_not_path.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

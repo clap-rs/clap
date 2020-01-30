@@ -1,0 +1,11 @@
+error: unsupported casing: `fail`
+  --> $DIR/rename_all_wrong_casing.rs:12:37
+   |
+12 | #[clap(name = "basic", rename_all = "fail")]
+   |                                     ^^^^^^
+
+error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
+  --> $DIR/rename_all_wrong_casing.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`
