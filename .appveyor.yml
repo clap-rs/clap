@@ -1,9 +1,9 @@
 environment:
   matrix:
-  - TARGET: x86_64-pc-windows-msvc
-  - TARGET: i686-pc-windows-msvc
-  - TARGET: x86_64-pc-windows-gnu
-  - TARGET: i686-pc-windows-gnu
+    - TARGET: x86_64-pc-windows-msvc
+    - TARGET: i686-pc-windows-msvc
+    - TARGET: x86_64-pc-windows-gnu
+    - TARGET: i686-pc-windows-gnu
   RUST_BACKTRACE: full
 install:
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
@@ -13,7 +13,5 @@ install:
   - cargo -vV
 build: false
 test_script:
-  - cargo build --all --no-default-features
   - cargo test --all --no-default-features
-  - cargo build --all --features yaml unstable
-  - cargo test --all --features yaml unstable
+  - cargo test --all --features "yaml unstable"

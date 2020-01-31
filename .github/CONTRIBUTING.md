@@ -40,8 +40,9 @@ During the CI process `clap` runs against many different lints using [`clippy`](
 In order to check the code for lints and to format it run either:
 
 ```sh
-$ cargo clippy --all --all-features -- -D warnings
-$ cargo fmt
+$ cargo clippy --all --lib --features "yaml unstable" -- -D warnings
+$ cargo clippy --all --tests --examples --features "yaml unstable"
+$ cargo fmt -- --check
 
 # Or
 
