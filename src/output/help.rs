@@ -22,10 +22,14 @@ use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
-    pub fn dimensions() -> Option<(usize, usize)> { None }
+    pub fn dimensions() -> Option<(usize, usize)> {
+        None
+    }
 }
 
-fn str_width(s: &str) -> usize { UnicodeWidthStr::width(s) }
+fn str_width(s: &str) -> usize {
+    UnicodeWidthStr::width(s)
+}
 
 const TAB: &str = "    ";
 

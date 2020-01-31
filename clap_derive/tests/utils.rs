@@ -5,9 +5,7 @@ use clap::IntoApp;
 
 pub fn get_help<T: IntoApp>() -> String {
     let mut output = Vec::new();
-    <T as IntoApp>::into_app()
-        .write_help(&mut output)
-        .unwrap();
+    <T as IntoApp>::into_app().write_help(&mut output).unwrap();
     let output = String::from_utf8(output).unwrap();
 
     eprintln!("\n%%% HELP %%%:=====\n{}\n=====\n", output);

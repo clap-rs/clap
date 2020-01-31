@@ -414,7 +414,9 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
+    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        write!(w, "{}", self.message)
+    }
 
     #[doc(hidden)]
     pub fn group_conflict<O, U>(
@@ -1031,15 +1033,21 @@ impl Error {
 }
 
 impl StdError for Error {
-    fn description(&self) -> &str { &*self.message }
+    fn description(&self) -> &str {
+        &*self.message
+    }
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result { writeln!(f, "{}", self.message) }
+    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
+        writeln!(f, "{}", self.message)
+    }
 }
 
 impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self { Error::with_description(e.description(), ErrorKind::Io) }
+    fn from(e: io::Error) -> Self {
+        Error::with_description(e.description(), ErrorKind::Io)
+    }
 }
 
 impl From<std_fmt::Error> for Error {

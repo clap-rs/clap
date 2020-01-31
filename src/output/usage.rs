@@ -18,7 +18,9 @@ where
 }
 
 impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
-    pub fn new(p: &'z Parser<'b, 'c>) -> Self { Usage { p } }
+    pub fn new(p: &'z Parser<'b, 'c>) -> Self {
+        Usage { p }
+    }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)

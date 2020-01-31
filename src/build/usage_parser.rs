@@ -228,7 +228,9 @@ impl<'a> UsageParser<'a> {
 }
 
 #[inline]
-fn name_end(b: u8) -> bool { b != b']' && b != b'>' }
+fn name_end(b: u8) -> bool {
+    b != b']' && b != b'>'
+}
 
 #[inline]
 fn token(b: u8) -> bool {
@@ -241,10 +243,14 @@ fn long_end(b: u8) -> bool {
 }
 
 #[inline]
-fn help_start(b: u8) -> bool { b != b'\'' }
+fn help_start(b: u8) -> bool {
+    b != b'\''
+}
 
 #[inline]
-fn default_value_end(b: u8) -> bool { b != b' ' }
+fn default_value_end(b: u8) -> bool {
+    b != b' '
+}
 
 #[cfg(test)]
 mod test {

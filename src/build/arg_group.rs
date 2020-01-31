@@ -107,7 +107,9 @@ impl<'a> ArgGroup<'a> {
         }
     }
     /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(id: T) -> Self { ArgGroup::_with_id(id.key()) }
+    pub fn new<T: Key>(id: T) -> Self {
+        ArgGroup::_with_id(id.key())
+    }
     /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
     /// get values from the group or refer to the group inside of conflict and requirement rules.
     ///

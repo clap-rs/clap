@@ -23,7 +23,9 @@ impl Default for MatchedArg {
 }
 
 impl MatchedArg {
-    pub fn new() -> Self { MatchedArg::default() }
+    pub fn new() -> Self {
+        MatchedArg::default()
+    }
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals
             .iter()

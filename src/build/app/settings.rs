@@ -55,16 +55,24 @@ pub struct AppFlags(Flags);
 
 impl BitOr for AppFlags {
     type Output = Self;
-    fn bitor(self, rhs: Self) -> Self { AppFlags(self.0 | rhs.0) }
+    fn bitor(self, rhs: Self) -> Self {
+        AppFlags(self.0 | rhs.0)
+    }
 }
 
 impl Default for AppFlags {
-    fn default() -> Self { AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO) }
+    fn default() -> Self {
+        AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO)
+    }
 }
 
 impl AppFlags {
-    pub fn new() -> Self { AppFlags::default() }
-    pub fn zeroed() -> Self { AppFlags(Flags::empty()) }
+    pub fn new() -> Self {
+        AppFlags::default()
+    }
+    pub fn zeroed() -> Self {
+        AppFlags(Flags::empty())
+    }
 
     impl_settings! { AppSettings,
         ArgRequiredElseHelp => Flags::A_REQUIRED_ELSE_HELP,

@@ -51,15 +51,21 @@ impl PartialEq<char> for KeyType {
 }
 
 impl<'b> MKeyMap<'b> {
-    pub fn new() -> Self { MKeyMap::default() }
+    pub fn new() -> Self {
+        MKeyMap::default()
+    }
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
     #[deprecated(since = "3.0.0", note = "Use `contains` instead")]
-    pub fn contains_long(&self, l: &str) -> bool { self.contains(l) }
+    pub fn contains_long(&self, l: &str) -> bool {
+        self.contains(l)
+    }
 
     #[deprecated(since = "3.0.0", note = "Use `contains` instead")]
-    pub fn contains_short(&self, c: char) -> bool { self.contains(c) }
+    pub fn contains_short(&self, c: char) -> bool {
+        self.contains(c)
+    }
 
     pub fn contains<K>(&self, key: K) -> bool
     where
@@ -114,7 +120,9 @@ impl<'b> MKeyMap<'b> {
         }
     }
 
-    pub fn is_empty(&self) -> bool { self.keys.is_empty() && self.args.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.keys.is_empty() && self.args.is_empty()
+    }
 
     pub fn remove_key(&mut self, key: &KeyType) {
         self.keys

@@ -49,7 +49,9 @@ macro_rules! create_app {
 }
 
 #[bench]
-fn create_app_from_usage(b: &mut Bencher) { b.iter(|| create_app!()); }
+fn create_app_from_usage(b: &mut Bencher) {
+    b.iter(|| create_app!());
+}
 
 #[bench]
 fn create_app_builder(b: &mut Bencher) {
@@ -203,10 +205,14 @@ fn create_app_macros(b: &mut Bencher) {
 }
 
 #[bench]
-fn parse_clean(b: &mut Bencher) { b.iter(|| create_app!().get_matches_from(vec![""])); }
+fn parse_clean(b: &mut Bencher) {
+    b.iter(|| create_app!().get_matches_from(vec![""]));
+}
 
 #[bench]
-fn parse_flag(b: &mut Bencher) { b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"])); }
+fn parse_flag(b: &mut Bencher) {
+    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]));
+}
 
 #[bench]
 fn parse_option(b: &mut Bencher) {

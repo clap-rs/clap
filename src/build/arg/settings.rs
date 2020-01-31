@@ -34,7 +34,9 @@ bitflags! {
 pub struct ArgFlags(Flags);
 
 impl ArgFlags {
-    pub fn new() -> Self { ArgFlags::default() }
+    pub fn new() -> Self {
+        ArgFlags::default()
+    }
 
     // @TODO @p6 @internal: Reorder alphabetically
     impl_settings! {ArgSettings,
@@ -62,7 +64,9 @@ impl ArgFlags {
 }
 
 impl Default for ArgFlags {
-    fn default() -> Self { ArgFlags(Flags::DELIM_NOT_SET) }
+    fn default() -> Self {
+        ArgFlags(Flags::DELIM_NOT_SET)
+    }
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter

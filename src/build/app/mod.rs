@@ -138,10 +138,14 @@ impl<'b> App<'b> {
     }
 
     /// Get the name of the app
-    pub fn get_name(&self) -> &str { &self.name }
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
 
     /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.as_ref().map(String::as_str) }
+    pub fn get_bin_name(&self) -> Option<&str> {
+        self.bin_name.as_ref().map(String::as_str)
+    }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -1165,7 +1169,9 @@ impl<'b> App<'b> {
     ///     .get_matches();
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
-    pub fn get_matches(self) -> ArgMatches { self.get_matches_from(&mut env::args_os()) }
+    pub fn get_matches(self) -> ArgMatches {
+        self.get_matches_from(&mut env::args_os())
+    }
 
     /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
     ///
@@ -1777,27 +1783,49 @@ impl<'b> App<'b> {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
-    pub fn set(&mut self, s: AppSettings) { self.settings.set(s) }
+    pub fn set(&mut self, s: AppSettings) {
+        self.settings.set(s)
+    }
 
-    pub fn set_global(&mut self, s: AppSettings) { self.g_settings.set(s) }
+    pub fn set_global(&mut self, s: AppSettings) {
+        self.g_settings.set(s)
+    }
 
-    pub fn unset_global(&mut self, s: AppSettings) { self.g_settings.unset(s) }
+    pub fn unset_global(&mut self, s: AppSettings) {
+        self.g_settings.unset(s)
+    }
 
-    pub fn unset(&mut self, s: AppSettings) { self.settings.unset(s) }
+    pub fn unset(&mut self, s: AppSettings) {
+        self.settings.unset(s)
+    }
 
-    pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
+    pub fn has_subcommands(&self) -> bool {
+        !self.subcommands.is_empty()
+    }
 
-    pub fn has_args(&self) -> bool { !self.args.is_empty() }
+    pub fn has_args(&self) -> bool {
+        !self.args.is_empty()
+    }
 
-    pub fn has_opts(&self) -> bool { opts!(self).count() > 0 }
+    pub fn has_opts(&self) -> bool {
+        opts!(self).count() > 0
+    }
 
-    pub fn has_flags(&self) -> bool { flags!(self).count() > 0 }
+    pub fn has_flags(&self) -> bool {
+        flags!(self).count() > 0
+    }
 
-    pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
+    pub fn has_positionals(&self) -> bool {
+        positionals!(self).count() > 0
+    }
 
-    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_opts(&self) -> bool {
+        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
+    }
 
-    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_flags(&self) -> bool {
+        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
+    }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
@@ -2013,5 +2041,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
 }
 
 impl<'e> fmt::Display for App<'e> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.name) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }

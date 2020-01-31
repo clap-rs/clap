@@ -18,19 +18,27 @@ type Id = u64;
 pub struct ArgMatcher(pub ArgMatches);
 
 impl Default for ArgMatcher {
-    fn default() -> Self { ArgMatcher(ArgMatches::default()) }
+    fn default() -> Self {
+        ArgMatcher(ArgMatches::default())
+    }
 }
 
 impl Deref for ArgMatcher {
     type Target = ArgMatches;
-    fn deref(&self) -> &Self::Target { &self.0 }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl ArgMatcher {
-    pub fn into_inner(self) -> ArgMatches { self.0 }
+    pub fn into_inner(self) -> ArgMatches {
+        self.0
+    }
 
     #[allow(dead_code)]
-    pub fn is_present(&self, name: Id) -> bool { self.0._id_is_present(name) }
+    pub fn is_present(&self, name: Id) -> bool {
+        self.0._id_is_present(name)
+    }
 
     pub fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
         debugln!(
@@ -77,11 +85,17 @@ impl ArgMatcher {
         }
     }
 
-    pub fn get_mut(&mut self, arg: Id) -> Option<&mut MatchedArg> { self.0.args.get_mut(&arg) }
+    pub fn get_mut(&mut self, arg: Id) -> Option<&mut MatchedArg> {
+        self.0.args.get_mut(&arg)
+    }
 
-    pub fn get(&self, arg: Id) -> Option<&MatchedArg> { self.0.args.get(&arg) }
+    pub fn get(&self, arg: Id) -> Option<&MatchedArg> {
+        self.0.args.get(&arg)
+    }
 
-    pub fn remove(&mut self, arg: Id) { self.0.args.swap_remove(&arg); }
+    pub fn remove(&mut self, arg: Id) {
+        self.0.args.swap_remove(&arg);
+    }
 
     #[allow(dead_code)]
     pub fn remove_all(&mut self, args: &[Id]) {
@@ -90,23 +104,37 @@ impl ArgMatcher {
         }
     }
 
-    pub fn insert(&mut self, name: Id) { self.0.args.insert(name, MatchedArg::new()); }
+    pub fn insert(&mut self, name: Id) {
+        self.0.args.insert(name, MatchedArg::new());
+    }
 
-    pub fn contains(&self, arg: Id) -> bool { self.0.args.contains_key(&arg) }
+    pub fn contains(&self, arg: Id) -> bool {
+        self.0.args.contains_key(&arg)
+    }
 
-    pub fn is_empty(&self) -> bool { self.0.args.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.0.args.is_empty()
+    }
 
-    pub fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> { self.0.args.keys() }
+    pub fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
+        self.0.args.keys()
+    }
 
     pub fn entry(&mut self, arg: Id) -> indexmap::map::Entry<Id, MatchedArg> {
         self.0.args.entry(arg)
     }
 
-    pub fn subcommand(&mut self, sc: SubCommand) { self.0.subcommand = Some(Box::new(sc)); }
+    pub fn subcommand(&mut self, sc: SubCommand) {
+        self.0.subcommand = Some(Box::new(sc));
+    }
 
-    pub fn subcommand_name(&self) -> Option<&str> { self.0.subcommand_name() }
+    pub fn subcommand_name(&self) -> Option<&str> {
+        self.0.subcommand_name()
+    }
 
-    pub fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> { self.0.args.iter() }
+    pub fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
+        self.0.args.iter()
+    }
 
     pub fn inc_occurrence_of(&mut self, arg: Id) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);

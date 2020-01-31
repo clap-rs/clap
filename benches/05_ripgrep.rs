@@ -17,10 +17,14 @@ use std::io::Cursor;
 use test::Bencher;
 
 #[bench]
-fn build_app_short(b: &mut Bencher) { b.iter(app_short); }
+fn build_app_short(b: &mut Bencher) {
+    b.iter(app_short);
+}
 
 #[bench]
-fn build_app_long(b: &mut Bencher) { b.iter(app_long); }
+fn build_app_long(b: &mut Bencher) {
+    b.iter(app_long);
+}
 
 #[bench]
 fn build_help_short(b: &mut Bencher) {
@@ -35,7 +39,9 @@ fn build_help_long(b: &mut Bencher) {
 }
 
 #[bench]
-fn parse_clean(b: &mut Bencher) { b.iter(|| app_short().get_matches_from(vec!["rg", "pat"])); }
+fn parse_clean(b: &mut Bencher) {
+    b.iter(|| app_short().get_matches_from(vec!["rg", "pat"]));
+}
 
 #[bench]
 fn parse_complex(b: &mut Bencher) {
@@ -255,10 +261,14 @@ OPTIONS:
 {unified}";
 
 /// Build a clap application with short help strings.
-pub fn app_short() -> App<'static> { app(false, |k| USAGES[k].short) }
+pub fn app_short() -> App<'static> {
+    app(false, |k| USAGES[k].short)
+}
 
 /// Build a clap application with long help strings.
-pub fn app_long() -> App<'static> { app(true, |k| USAGES[k].long) }
+pub fn app_long() -> App<'static> {
+    app(true, |k| USAGES[k].long)
+}
 
 /// Build the help text of an application.
 fn build_help(app: &mut App) -> String {
