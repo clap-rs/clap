@@ -957,6 +957,7 @@ impl FromStr for AppSettings {
 mod test {
     use super::AppSettings;
 
+    #[allow(clippy::cognitive_complexity)]
     #[test]
     fn app_settings_fromstr() {
         assert_eq!(

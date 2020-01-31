@@ -136,10 +136,8 @@ impl<'a> ArgGroup<'a> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::ArgGroup;
-    /// # fn main() {
     /// let yml = load_yaml!("group.yml");
     /// let ag = ArgGroup::from_yaml(yml);
-    /// # }
     /// ```
     #[cfg(feature = "yaml")]
     pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
@@ -167,7 +165,6 @@ impl<'a> ArgGroup<'a> {
     /// assert!(m.is_present("flag"));
     /// ```
     /// [argument]: ./struct.Arg.html
-    #[cfg_attr(feature = "lints", allow(should_assert_eq))]
     pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
         self.args.push(arg_id.key());
         self

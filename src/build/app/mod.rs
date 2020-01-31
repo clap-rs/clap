@@ -254,13 +254,11 @@ impl<'b> App<'b> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::App;
-    /// # fn main() {
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml)
     ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
-    /// # }
     /// ```
     ///
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
@@ -1412,6 +1410,7 @@ impl<'b> App<'b> {
         Ok(matcher.into_inner())
     }
 
+    #[allow(clippy::debug_assert_with_mut_call)]
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
     pub fn _build(&mut self) {
@@ -1467,7 +1466,7 @@ impl<'b> App<'b> {
     }
 
     // Perform some expensive assertions on the Parser itself
-    fn _app_debug_asserts(&mut self) -> bool {
+    fn _app_debug_asserts(&self) -> bool {
         debugln!("App::_app_debug_asserts;");
         for name in self.args.args.iter().map(|x| x.id) {
             if self.args.args.iter().filter(|x| x.id == name).count() > 1 {
@@ -1868,7 +1867,7 @@ impl<'b> App<'b> {
             if let Some(v) = val {
                 if matcher
                     .get(arg)
-                    .and_then(|ma| Some(ma.contains_val(v)))
+                    .map(|ma| ma.contains_val(v))
                     .unwrap_or(false)
                 {
                     Some(req_arg)
@@ -1904,6 +1903,7 @@ impl<'b> App<'b> {
 
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a> {
+    #[allow(clippy::cognitive_complexity)]
     fn from(mut yaml: &'a Yaml) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;

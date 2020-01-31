@@ -26,6 +26,7 @@ impl Parse for ClapAttributes {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum ClapAttr {
     // single-identifier attributes
     Short(Ident),
@@ -82,7 +83,7 @@ impl Parse for ClapAttr {
                     }
                 };
 
-                match &*name_str.to_string() {
+                match &*name_str {
                     "rename_all" => Ok(RenameAll(name, lit)),
 
                     "version" => {

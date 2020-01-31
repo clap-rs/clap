@@ -171,8 +171,6 @@ enum Stash {
 #[test]
 fn sub_sub_cmd_with_option() {
     fn make(args: &[&str]) -> Option<SubSubCmdWithOption> {
-        use clap::{FromArgMatches, IntoApp};
-
         SubSubCmdWithOption::try_parse_from(args).ok()
     }
     assert_eq!(

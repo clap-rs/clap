@@ -4,10 +4,7 @@ use std::ffi::{OsStr, OsString};
 use std::io::Write;
 use std::iter::Peekable;
 use std::mem;
-#[cfg(all(
-    feature = "debug",
-    not(any(target_os = "windows", target_arch = "wasm32"))
-))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
 
 // Internal
@@ -23,7 +20,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
 use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
 use crate::INTERNAL_ERROR_MSG;
@@ -81,8 +78,7 @@ where
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
-    fn _verify_positionals(&mut self) -> bool {
+    fn _verify_positionals(&self) -> bool {
         debugln!("Parser::_verify_positionals;");
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -288,6 +284,7 @@ where
         true
     }
 
+    #[allow(clippy::block_in_if_condition_stmt)]
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debugln!("Parser::_build;");
@@ -720,11 +717,6 @@ where
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
-            #[cfg(target_os = "windows")]
-            use crate::util::OsStrExt3;
-            #[cfg(not(target_os = "windows"))]
-            use std::os::unix::ffi::OsStrExt;
-
             let n_bytes = n.as_bytes();
             let h_bytes = OsStr::new(h).as_bytes();
 
@@ -1050,7 +1042,6 @@ where
             .map(|_| ParseResult::NotFound)
     }
 
-    #[cfg_attr(feature = "lints", allow(len_zero))]
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
@@ -1362,6 +1353,7 @@ where
         }
     }
 
+    #[allow(clippy::cognitive_complexity)]
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
         macro_rules! add_val {
@@ -1571,7 +1563,6 @@ where
         self.app.contains_short(s)
     }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub(crate) fn has_args(&self) -> bool {
         self.app.has_args()
     }

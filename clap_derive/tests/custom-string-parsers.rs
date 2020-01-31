@@ -14,7 +14,7 @@
 
 use clap::Clap;
 
-use std::ffi::{CString, OsStr, OsString};
+use std::ffi::{CString, OsStr};
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
@@ -74,7 +74,9 @@ fn test_parse_hex() {
         HexOpt::parse_from(&["test", "-n", "5"])
     );
     assert_eq!(
-        HexOpt { number: 0xabcdef },
+        HexOpt {
+            number: 0x00ab_cdef
+        },
         HexOpt::parse_from(&["test", "-n", "abcdef"])
     );
 
@@ -292,8 +294,6 @@ fn test_custom_bool() {
 
 #[test]
 fn test_cstring() {
-    use clap::IntoApp;
-
     #[derive(Clap)]
     struct Opt {
         #[clap(parse(try_from_str = CString::new))]

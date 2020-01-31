@@ -3,7 +3,7 @@
 
 #[test]
 fn issue_151() {
-    use clap::{ArgGroup, Clap, IntoApp};
+    use clap::{ArgGroup, Clap};
 
     #[derive(Clap, Debug)]
     #[clap(group = ArgGroup::with_name("verb").required(true).multiple(true))]
@@ -28,7 +28,7 @@ fn issue_151() {
 
 #[test]
 fn issue_289() {
-    use clap::{AppSettings, Clap, IntoApp};
+    use clap::{AppSettings, Clap};
 
     #[derive(Clap)]
     #[clap(setting = AppSettings::InferSubcommands)]

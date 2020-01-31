@@ -165,13 +165,12 @@ impl<'help> Arg<'help> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::Arg;
-    /// # fn main() {
     /// let yml = load_yaml!("arg.yml");
     /// let arg = Arg::from_yaml(yml);
-    /// # }
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
+    #[allow(clippy::cognitive_complexity)]
     pub fn from_yaml(y: &yaml_rust::yaml::Hash) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
@@ -2577,7 +2576,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
     pub fn default_value_ifs_os<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help OsStr>, &'help OsStr)],

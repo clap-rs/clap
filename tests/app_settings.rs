@@ -288,8 +288,7 @@ fn global_setting() {
     assert!(app
         .subcommands
         .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
+        .find(|s| s.name == "subcmd")
         .unwrap()
         .is_set(AppSettings::ColoredHelp));
 }
@@ -304,15 +303,13 @@ fn global_settings() {
     assert!(app
         .subcommands
         .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
+        .find(|s| s.name == "subcmd")
         .unwrap()
         .is_set(AppSettings::ColoredHelp));
     assert!(app
         .subcommands
         .iter()
-        .filter(|s| s.name == "subcmd")
-        .next()
+        .find(|s| s.name == "subcmd")
         .unwrap()
         .is_set(AppSettings::TrailingVarArg));
 }
