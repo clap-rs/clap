@@ -13,25 +13,22 @@
 	rm CONTRIBUTORS.md.bak
 
 run-test TESTG TEST="":
-	cargo test --test {{TESTG}} -- {{TEST}}
+	cargo test --all --test {{TESTG}} -- {{TEST}}
 
 debug TESTG TEST="":
-	cargo test --test {{TESTG}} --features debug -- {{TEST}}
+	cargo test --all --test {{TESTG}} --features debug -- {{TEST}}
 
 run-tests:
-	cargo test --features "yaml unstable"
+	cargo test --all --features "yaml unstable"
 
-@bench: nightly
-	cargo bench && just remove-nightly
+@bench:
+	cargo bench
 
-nightly:
-	rustup override add nightly
-
-remove-nightly:
-	rustup override remove
-
-@lint: nightly
-	cargo build --features lints && just remove-nightly
+@lint:
+	rustup add component clippy
+	rustup add component rustfmt
+	cargo clippy --all --all-features -- -D warnings
+	cargo fmt
 
 clean:
 	cargo clean
