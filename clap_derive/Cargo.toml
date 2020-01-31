@@ -28,7 +28,7 @@ proc-macro-error = "0.4.3"
 [dev-dependencies]
 clap = { path = "../", version = "3.0.0-beta.1" }
 trybuild = "1.0.5"
-rustversion = "0.1"
+rustversion = "1"
 
 [features]
 default = []
