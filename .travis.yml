@@ -31,7 +31,7 @@ jobs:
         - cargo bench
 script:
   - cargo test --all --no-default-features
-  - cargo test --all --features "yaml unstable"
+  - cargo test --all --features yaml unstable
 addons:
   apt:
     packages:

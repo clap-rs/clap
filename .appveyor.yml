@@ -13,5 +13,7 @@ install:
   - cargo -vV
 build: false
 test_script:
-  - cargo build --all --verbose --features yaml
-  - cargo test --all --verbose --features yaml
+  - cargo build --all --no-default-features
+  - cargo test --all --no-default-features
+  - cargo build --all --features yaml unstable
+  - cargo test --all --features yaml unstable
