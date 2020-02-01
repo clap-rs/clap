@@ -985,7 +985,7 @@ impl Error {
             when: color,
         });
         Error {
-            cause: format!("{}", e),
+            cause: e.to_string(),
             message: format!("{} {}", c.error("error:"), e),
             kind: ErrorKind::Io,
             info: None,
@@ -1046,12 +1046,12 @@ impl Display for Error {
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error::with_description(format!("{}", e), ErrorKind::Io)
+        Error::with_description(e.to_string(), ErrorKind::Io)
     }
 }
 
 impl From<std_fmt::Error> for Error {
     fn from(e: std_fmt::Error) -> Self {
-        Error::with_description(format!("{}", e), ErrorKind::Format)
+        Error::with_description(e.to_string(), ErrorKind::Format)
     }
 }
