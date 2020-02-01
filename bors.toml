@@ -1,0 +1,6 @@
+status = [
+  "continuous-integration/travis-ci/push",
+  "continuous-integration/appveyor/branch"
+]
+required_approvals = 1
+timeout_sec = 7200
