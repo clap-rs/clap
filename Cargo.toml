@@ -54,7 +54,7 @@ unicode-width         = "0.1.4"
 textwrap              = "0.11"
 indexmap              = "1.0.1"
 strsim    = { version = "0.9.0",  optional = true }
-yaml-rust = { version = "0.4",  optional = true }
+yaml-rust = { version = "0.4.1",  optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
 term_size = { version = "1.0.0-beta1", optional = true }
