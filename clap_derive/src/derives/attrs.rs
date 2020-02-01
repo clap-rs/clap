@@ -25,6 +25,7 @@ use syn::{self, ext::IdentExt, spanned::Spanned, LitStr};
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone)]
 pub enum Kind {
     Arg(Sp<Ty>),
@@ -375,7 +376,7 @@ impl Attrs {
             .join("\n");
 
         let expected_doc_comment_split = if let Some(content) = doc_comments.get(1) {
-            (doc_comments.len() > 2) && (content == &"\n\n")
+            (doc_comments.len() > 2) && (content == "\n\n")
         } else {
             false
         };
@@ -432,7 +433,7 @@ impl Attrs {
 
     pub fn from_field(field: &syn::Field, struct_casing: Sp<CasingStyle>) -> Self {
         let name = field.ident.clone().unwrap();
-        let mut res = Self::new(field.span(), Name::Derived(name.clone()), struct_casing);
+        let mut res = Self::new(field.span(), Name::Derived(name), struct_casing);
         res.push_doc_comment(&field.attrs, "help");
         res.push_attrs(&field.attrs);
 

@@ -5,7 +5,9 @@ struct Child<T> {
 }
 
 impl<T> Child<T> {
-    fn new(id: T) -> Self { Child { id, children: None } }
+    fn new(id: T) -> Self {
+        Child { id, children: None }
+    }
 }
 
 #[derive(Debug)]
@@ -15,7 +17,9 @@ impl<T> ChildGraph<T>
 where
     T: Sized + PartialEq + Copy + Clone,
 {
-    pub fn with_capacity(s: usize) -> Self { ChildGraph(Vec::with_capacity(s)) }
+    pub fn with_capacity(s: usize) -> Self {
+        ChildGraph(Vec::with_capacity(s))
+    }
 
     pub fn insert(&mut self, req: T) -> usize {
         if !self.contains(req) {
@@ -47,7 +51,11 @@ where
         c_idx
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &T> { self.0.iter().map(|r| &r.id) }
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.0.iter().map(|r| &r.id)
+    }
 
-    pub fn contains(&self, req: T) -> bool { self.0.iter().any(|r| r.id == req) }
+    pub fn contains(&self, req: T) -> bool {
+        self.0.iter().any(|r| r.id == req)
+    }
 }

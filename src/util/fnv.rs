@@ -24,11 +24,15 @@ where
 pub(crate) struct FnvHasher(u64);
 
 impl FnvHasher {
-    pub(crate) fn new() -> Self { FnvHasher(MAGIC_INIT) }
+    pub(crate) fn new() -> Self {
+        FnvHasher(MAGIC_INIT)
+    }
 }
 
 impl Hasher for FnvHasher {
-    fn finish(&self) -> u64 { self.0 }
+    fn finish(&self) -> u64 {
+        self.0
+    }
     fn write(&mut self, bytes: &[u8]) {
         let FnvHasher(mut hash) = *self;
 

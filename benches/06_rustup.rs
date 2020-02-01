@@ -12,10 +12,14 @@ use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings};
 use test::Bencher;
 
 #[bench]
-fn build_app(b: &mut Bencher) { b.iter(build_cli); }
+fn build_app(b: &mut Bencher) {
+    b.iter(build_cli);
+}
 
 #[bench]
-fn parse_clean(b: &mut Bencher) { b.iter(|| build_cli().get_matches_from(vec![""])); }
+fn parse_clean(b: &mut Bencher) {
+    b.iter(|| build_cli().get_matches_from(vec![""]));
+}
 
 #[bench]
 fn parse_subcommands(b: &mut Bencher) {

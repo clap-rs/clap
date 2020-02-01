@@ -159,7 +159,7 @@ impl<'a> UsageParser<'a> {
     fn short(&mut self, arg: &mut Arg<'a>) {
         debugln!("UsageParser::short;");
         let start = &self.usage[self.pos..];
-        let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
+        let short = start.chars().next().expect(INTERNAL_ERROR_MSG);
         debugln!("UsageParser::short: setting short...{}", short);
         arg.short = Some(short);
         if arg.name.is_empty() {
@@ -228,7 +228,9 @@ impl<'a> UsageParser<'a> {
 }
 
 #[inline]
-fn name_end(b: u8) -> bool { b != b']' && b != b'>' }
+fn name_end(b: u8) -> bool {
+    b != b']' && b != b'>'
+}
 
 #[inline]
 fn token(b: u8) -> bool {
@@ -241,15 +243,20 @@ fn long_end(b: u8) -> bool {
 }
 
 #[inline]
-fn help_start(b: u8) -> bool { b != b'\'' }
+fn help_start(b: u8) -> bool {
+    b != b'\''
+}
 
 #[inline]
-fn default_value_end(b: u8) -> bool { b != b' ' }
+fn default_value_end(b: u8) -> bool {
+    b != b' '
+}
 
 #[cfg(test)]
 mod test {
     use crate::build::{Arg, ArgSettings};
 
+    #[allow(clippy::cognitive_complexity)]
     #[test]
     fn create_flag_usage() {
         let a = Arg::from("[flag] -f 'some help info'");

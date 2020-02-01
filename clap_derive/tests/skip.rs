@@ -68,7 +68,7 @@ fn skip_enum() {
 
     impl Default for Kind {
         fn default() -> Self {
-            return Kind::B;
+            Kind::B
         }
     }
 
@@ -141,7 +141,7 @@ fn skip_val() {
         Opt::parse_from(&["test", "-n", "10"]),
         Opt {
             number: 10,
-            k: "key".into(),
+            k: "key".to_string(),
             v: vec![1, 2, 3]
         }
     );

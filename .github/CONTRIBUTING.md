@@ -9,8 +9,8 @@ Another really great way to help is if you find an interesting, or helpful way i
 To test with all features both enabled and disabled, you can run these commands:
 
 ```sh
-$ cargo test --no-default-features
-$ cargo test --features "yaml unstable"
+$ cargo test --all --no-default-features
+$ cargo test --all --features "yaml unstable"
 ```
 
 Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
@@ -26,7 +26,7 @@ From here on, I will list the appropriate `cargo` command as well as the `just` 
 Sometimes it's helpful to only run a subset of the tests, which can be done via:
 
 ```sh
-$ cargo test --test <test_name>
+$ cargo test --all --test <test_name>
 
 # Or
 
@@ -35,14 +35,14 @@ $ just run-test <test_name>
 
 ### Linting Code
 
-During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/Manishearth/rust-clippy). In order to check if these lints pass on your own computer prior to submitting a PR you'll need a nightly compiler.
+During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/rust-lang/rust-clippy).
 
-In order to check the code for lints run either:
+In order to check the code for lints and to format it run either:
 
 ```sh
-$ rustup override add nightly
-$ cargo build --features lints
-$ rustup override remove
+$ cargo clippy --all --lib --features "yaml unstable" -- -D warnings
+$ cargo clippy --all --tests --examples --features "yaml unstable"
+$ cargo fmt -- --check
 
 # Or
 
@@ -54,10 +54,10 @@ $ just lint
 Another helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running the full test suite or individual tests, run:
 
 ```sh
-$ cargo test --features debug
+$ cargo test --all --features debug
 
 # Or for individual tests
-$ cargo test --test <test_name> --features debug
+$ cargo test --all --test <test_name> --features debug
 
 # The corresponding just command for individual debugging tests is:
 $ just debug <test_name>
@@ -81,7 +81,7 @@ I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/a5
     - `wip` - A work in progress commit (Should typically be `git rebase`'ed away)
     - `chore` - Catch all or things that have to do with the build system, etc
     - `examples` - Changes to existing example, or a new example
- * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Parenthesis can be omitted if you are opting not to use the `COMPONENT`. 
+ * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Parenthesis can be omitted if you are opting not to use the `COMPONENT`.
 
 ### Tests and Documentation
 

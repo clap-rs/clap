@@ -7,25 +7,23 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
+/*
 use proc_macro2;
-// use quote;
+use quote;
 use syn;
-// use syn::punctuated;
-// use syn::token;
+use syn::punctuated;
+use syn::token;
 
 pub fn derive_arg_enum(_ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    unimplemented!()
+    let from_str_block = impl_from_str(ast)?;
+    let variants_block = impl_variants(ast)?;
 
-    // let from_str_block = impl_from_str(ast)?;
-    // let variants_block = impl_variants(ast)?;
-
-    // quote! {
-    //     #from_str_block
-    //     #variants_block
-    // }
+    quote! {
+        #from_str_block
+        #variants_block
+    }
 }
 
-/*
 fn impl_from_str(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let ident = &ast.ident;
     let is_case_sensitive = ast.attrs.iter().any(|v| v.name() == "case_sensitive");

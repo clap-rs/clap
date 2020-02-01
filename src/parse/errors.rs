@@ -414,7 +414,9 @@ impl Error {
     }
 
     #[doc(hidden)]
-    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> { write!(w, "{}", self.message) }
+    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> {
+        write!(w, "{}", self.message)
+    }
 
     #[doc(hidden)]
     pub fn group_conflict<O, U>(
@@ -983,8 +985,8 @@ impl Error {
             when: color,
         });
         Error {
-            cause: e.description().to_string(),
-            message: format!("{} {}", c.error("error:"), e.description()),
+            cause: e.to_string(),
+            message: format!("{} {}", c.error("error:"), e),
             kind: ErrorKind::Io,
             info: None,
         }
@@ -1016,34 +1018,40 @@ impl Error {
     ///
     /// This can be used in combination with `Error::exit` to exit your program
     /// with a custom error message.
-    pub fn with_description(description: &str, kind: ErrorKind) -> Self {
+    pub fn with_description(description: impl Into<String>, kind: ErrorKind) -> Self {
         let c = Colorizer::new(&ColorizerOption {
             use_stderr: true,
             when: ColorWhen::Auto,
         });
+
+        let cause = description.into();
+        let message = format!("{} {}", c.error("error:"), cause);
+
         Error {
-            cause: description.to_string(),
-            message: format!("{} {}", c.error("error:"), description),
+            cause,
+            message,
             kind,
             info: None,
         }
     }
 }
 
-impl StdError for Error {
-    fn description(&self) -> &str { &*self.message }
-}
+impl StdError for Error {}
 
 impl Display for Error {
-    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result { writeln!(f, "{}", self.message) }
+    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
+        writeln!(f, "{}", self.message)
+    }
 }
 
 impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self { Error::with_description(e.description(), ErrorKind::Io) }
+    fn from(e: io::Error) -> Self {
+        Error::with_description(e.to_string(), ErrorKind::Io)
+    }
 }
 
 impl From<std_fmt::Error> for Error {
     fn from(e: std_fmt::Error) -> Self {
-        Error::with_description(e.description(), ErrorKind::Format)
+        Error::with_description(e.to_string(), ErrorKind::Format)
     }
 }

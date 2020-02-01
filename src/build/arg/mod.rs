@@ -165,13 +165,12 @@ impl<'help> Arg<'help> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::Arg;
-    /// # fn main() {
     /// let yml = load_yaml!("arg.yml");
     /// let arg = Arg::from_yaml(yml);
-    /// # }
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[cfg(feature = "yaml")]
+    #[allow(clippy::cognitive_complexity)]
     pub fn from_yaml(y: &yaml_rust::yaml::Hash) -> Arg {
         // We WANT this to panic on error...so expect() is good.
         let name_yml = y.keys().nth(0).unwrap();
@@ -2319,7 +2318,9 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_os(self, val: &'help OsStr) -> Self { self.default_values_os(&[val]) }
+    pub fn default_value_os(self, val: &'help OsStr) -> Self {
+        self.default_values_os(&[val])
+    }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
@@ -2575,7 +2576,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
     pub fn default_value_ifs_os<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help OsStr>, &'help OsStr)],
@@ -2685,7 +2685,9 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    pub fn env(self, name: &'help str) -> Self { self.env_os(OsStr::new(name)) }
+    pub fn env(self, name: &'help str) -> Self {
+        self.env_os(OsStr::new(name))
+    }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
@@ -3855,7 +3857,9 @@ impl<'help> Arg<'help> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
-    pub fn raw(self, raw: bool) -> Self { self.multiple(raw).allow_hyphen_values(raw).last(raw) }
+    pub fn raw(self, raw: bool) -> Self {
+        self.multiple(raw).allow_hyphen_values(raw).last(raw)
+    }
 
     /// Hides an argument from short help message output.
     ///
@@ -4014,7 +4018,9 @@ impl<'help> Arg<'help> {
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
@@ -4073,14 +4079,20 @@ impl<'help> Arg<'help> {
 
     // @TODO @p6 @naming @internal: rename to set_mut
     #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) { self.settings.set(s); }
+    pub fn setb(&mut self, s: ArgSettings) {
+        self.settings.set(s);
+    }
 
     // @TODO @p6 @naming @internal: rename to unset_mut
     #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) { self.settings.unset(s); }
+    pub fn unsetb(&mut self, s: ArgSettings) {
+        self.settings.unset(s);
+    }
 
     #[doc(hidden)]
-    pub fn has_switch(&self) -> bool { self.short.is_some() || self.long.is_some() }
+    pub fn has_switch(&self) -> bool {
+        self.short.is_some() || self.long.is_some()
+    }
 
     #[doc(hidden)]
     pub fn longest_filter(&self) -> bool {
@@ -4142,15 +4154,21 @@ impl<'help> Arg<'help> {
 }
 
 impl<'help, 'z> From<&'z Arg<'help>> for Arg<'help> {
-    fn from(a: &'z Arg<'help>) -> Self { a.clone() }
+    fn from(a: &'z Arg<'help>) -> Self {
+        a.clone()
+    }
 }
 
 impl<'help> From<&'help str> for Arg<'help> {
-    fn from(s: &'help str) -> Self { UsageParser::from_usage(s).parse() }
+    fn from(s: &'help str) -> Self {
+        UsageParser::from_usage(s).parse()
+    }
 }
 
 impl<'help> PartialEq for Arg<'help> {
-    fn eq(&self, other: &Arg<'help>) -> bool { self.name == other.name }
+    fn eq(&self, other: &Arg<'help>) -> bool {
+        self.name == other.name
+    }
 }
 
 impl<'help> Display for Arg<'help> {
@@ -4252,11 +4270,15 @@ impl<'help> Display for Arg<'help> {
 }
 
 impl<'help> PartialOrd for Arg<'help> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl<'help> Ord for Arg<'help> {
-    fn cmp(&self, other: &Arg) -> Ordering { self.name.cmp(&other.name) }
+    fn cmp(&self, other: &Arg) -> Ordering {
+        self.name.cmp(&other.name)
+    }
 }
 
 impl<'help> Eq for Arg<'help> {}

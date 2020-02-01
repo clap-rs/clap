@@ -140,8 +140,6 @@ enum Opt4 {
 
 #[test]
 fn test_tuple_commands() {
-    use clap::IntoApp;
-
     assert_eq!(
         Opt4::Add(Add {
             file: "f".to_string()

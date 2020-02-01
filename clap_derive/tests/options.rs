@@ -116,8 +116,6 @@ fn option_from_str() {
 
 #[test]
 fn optional_argument_for_optional_option() {
-    use clap::IntoApp;
-
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
         #[clap(short)]

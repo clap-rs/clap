@@ -140,7 +140,9 @@ fn test_parse_hex_function_path() {
         HexOpt::parse_from(&["test", "-n", "5"])
     );
     assert_eq!(
-        HexOpt { number: 0xabcdef },
+        HexOpt {
+            number: 0x00ab_cdef
+        },
         HexOpt::parse_from(&["test", "-n", "abcdef"])
     );
 

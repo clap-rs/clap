@@ -138,10 +138,14 @@ impl<'b> App<'b> {
     }
 
     /// Get the name of the app
-    pub fn get_name(&self) -> &str { &self.name }
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
 
     /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> { self.bin_name.as_ref().map(String::as_str) }
+    pub fn get_bin_name(&self) -> Option<&str> {
+        self.bin_name.as_ref().map(String::as_str)
+    }
 
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help information with `--help` or `-h`.
@@ -250,13 +254,11 @@ impl<'b> App<'b> {
     /// # #[macro_use]
     /// # extern crate clap;
     /// # use clap::App;
-    /// # fn main() {
     /// let yml = load_yaml!("app.yml");
     /// let app = App::from_yaml(yml)
     ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
-    /// # }
     /// ```
     ///
     /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
@@ -1165,7 +1167,9 @@ impl<'b> App<'b> {
     ///     .get_matches();
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
-    pub fn get_matches(self) -> ArgMatches { self.get_matches_from(&mut env::args_os()) }
+    pub fn get_matches(self) -> ArgMatches {
+        self.get_matches_from(&mut env::args_os())
+    }
 
     /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
     ///
@@ -1406,6 +1410,7 @@ impl<'b> App<'b> {
         Ok(matcher.into_inner())
     }
 
+    #[allow(clippy::debug_assert_with_mut_call)]
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
     pub fn _build(&mut self) {
@@ -1461,7 +1466,7 @@ impl<'b> App<'b> {
     }
 
     // Perform some expensive assertions on the Parser itself
-    fn _app_debug_asserts(&mut self) -> bool {
+    fn _app_debug_asserts(&self) -> bool {
         debugln!("App::_app_debug_asserts;");
         for name in self.args.args.iter().map(|x| x.id) {
             if self.args.args.iter().filter(|x| x.id == name).count() > 1 {
@@ -1777,27 +1782,49 @@ impl<'b> App<'b> {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
-    pub fn set(&mut self, s: AppSettings) { self.settings.set(s) }
+    pub fn set(&mut self, s: AppSettings) {
+        self.settings.set(s)
+    }
 
-    pub fn set_global(&mut self, s: AppSettings) { self.g_settings.set(s) }
+    pub fn set_global(&mut self, s: AppSettings) {
+        self.g_settings.set(s)
+    }
 
-    pub fn unset_global(&mut self, s: AppSettings) { self.g_settings.unset(s) }
+    pub fn unset_global(&mut self, s: AppSettings) {
+        self.g_settings.unset(s)
+    }
 
-    pub fn unset(&mut self, s: AppSettings) { self.settings.unset(s) }
+    pub fn unset(&mut self, s: AppSettings) {
+        self.settings.unset(s)
+    }
 
-    pub fn has_subcommands(&self) -> bool { !self.subcommands.is_empty() }
+    pub fn has_subcommands(&self) -> bool {
+        !self.subcommands.is_empty()
+    }
 
-    pub fn has_args(&self) -> bool { !self.args.is_empty() }
+    pub fn has_args(&self) -> bool {
+        !self.args.is_empty()
+    }
 
-    pub fn has_opts(&self) -> bool { opts!(self).count() > 0 }
+    pub fn has_opts(&self) -> bool {
+        opts!(self).count() > 0
+    }
 
-    pub fn has_flags(&self) -> bool { flags!(self).count() > 0 }
+    pub fn has_flags(&self) -> bool {
+        flags!(self).count() > 0
+    }
 
-    pub fn has_positionals(&self) -> bool { positionals!(self).count() > 0 }
+    pub fn has_positionals(&self) -> bool {
+        positionals!(self).count() > 0
+    }
 
-    pub fn has_visible_opts(&self) -> bool { opts!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_opts(&self) -> bool {
+        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
+    }
 
-    pub fn has_visible_flags(&self) -> bool { flags!(self).any(|o| !o.is_set(ArgSettings::Hidden)) }
+    pub fn has_visible_flags(&self) -> bool {
+        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
+    }
 
     pub fn has_visible_positionals(&self) -> bool {
         positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
@@ -1840,7 +1867,7 @@ impl<'b> App<'b> {
             if let Some(v) = val {
                 if matcher
                     .get(arg)
-                    .and_then(|ma| Some(ma.contains_val(v)))
+                    .map(|ma| ma.contains_val(v))
                     .unwrap_or(false)
                 {
                     Some(req_arg)
@@ -1876,6 +1903,7 @@ impl<'b> App<'b> {
 
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a> {
+    #[allow(clippy::cognitive_complexity)]
     fn from(mut yaml: &'a Yaml) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
@@ -2013,5 +2041,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
 }
 
 impl<'e> fmt::Display for App<'e> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, "{}", self.name) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }

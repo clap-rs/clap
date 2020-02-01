@@ -214,7 +214,9 @@ impl ArgMatches {
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
         self.args.get(&id.key()).map(|arg| {
-            fn to_str_slice(o: &OsString) -> &str { o.to_str().expect(INVALID_UTF8) }
+            fn to_str_slice(o: &OsString) -> &str {
+                o.to_str().expect(INVALID_UTF8)
+            }
             let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
 
             Values {
@@ -288,7 +290,9 @@ impl ArgMatches {
     /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     pub fn values_of_os<'a, T: Key>(&'a self, id: T) -> Option<OsValues<'a>> {
-        fn to_str_slice(o: &OsString) -> &OsStr { &*o }
+        fn to_str_slice(o: &OsString) -> &OsStr {
+            &*o
+        }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
 
         self.args.get(&id.key()).map(|arg| OsValues {
@@ -311,7 +315,9 @@ impl ArgMatches {
     ///
     /// assert!(m.is_present("debug"));
     /// ```
-    pub fn is_present<T: Key>(&self, id: T) -> bool { self._id_is_present(id.key()) }
+    pub fn is_present<T: Key>(&self, id: T) -> bool {
+        self._id_is_present(id.key())
+    }
 
     #[doc(hidden)]
     pub fn _id_is_present(&self, arg_id: Id) -> bool {
@@ -682,7 +688,9 @@ impl ArgMatches {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
-    pub fn subcommand_name(&self) -> Option<&str> { self.subcommand.as_ref().map(|sc| &*sc.name) }
+    pub fn subcommand_name(&self) -> Option<&str> {
+        self.subcommand.as_ref().map(|sc| &*sc.name)
+    }
 
     /// This brings together [`ArgMatches::subcommand_matches`] and [`ArgMatches::subcommand_name`]
     /// by returning a tuple with both pieces of information.
@@ -773,12 +781,18 @@ pub struct Values<'a> {
 impl<'a> Iterator for Values<'a> {
     type Item = &'a str;
 
-    fn next(&mut self) -> Option<&'a str> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<&'a str> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a> DoubleEndedIterator for Values<'a> {
-    fn next_back(&mut self) -> Option<&'a str> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<&'a str> {
+        self.iter.next_back()
+    }
 }
 
 impl<'a> ExactSizeIterator for Values<'a> {}
@@ -788,7 +802,9 @@ impl<'a> Default for Values<'a> {
     fn default() -> Self {
         static EMPTY: [OsString; 0] = [];
         // This is never called because the iterator is empty:
-        fn to_str_slice(_: &OsString) -> &str { unreachable!() };
+        fn to_str_slice(_: &OsString) -> &str {
+            unreachable!()
+        };
         Values {
             iter: EMPTY[..].iter().map(to_str_slice),
         }
@@ -825,12 +841,18 @@ pub struct OsValues<'a> {
 impl<'a> Iterator for OsValues<'a> {
     type Item = &'a OsStr;
 
-    fn next(&mut self) -> Option<&'a OsStr> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<&'a OsStr> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a> DoubleEndedIterator for OsValues<'a> {
-    fn next_back(&mut self) -> Option<&'a OsStr> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<&'a OsStr> {
+        self.iter.next_back()
+    }
 }
 
 impl<'a> ExactSizeIterator for OsValues<'a> {}
@@ -840,7 +862,9 @@ impl<'a> Default for OsValues<'a> {
     fn default() -> Self {
         static EMPTY: [OsString; 0] = [];
         // This is never called because the iterator is empty:
-        fn to_str_slice(_: &OsString) -> &OsStr { unreachable!() };
+        fn to_str_slice(_: &OsString) -> &OsStr {
+            unreachable!()
+        };
         OsValues {
             iter: EMPTY[..].iter().map(to_str_slice),
         }
@@ -878,12 +902,18 @@ pub struct Indices<'a> {
 impl<'a> Iterator for Indices<'a> {
     type Item = usize;
 
-    fn next(&mut self) -> Option<usize> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<usize> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a> DoubleEndedIterator for Indices<'a> {
-    fn next_back(&mut self) -> Option<usize> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<usize> {
+        self.iter.next_back()
+    }
 }
 
 impl<'a> ExactSizeIterator for Indices<'a> {}

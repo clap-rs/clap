@@ -20,7 +20,7 @@ pub mod parse;
 pub mod spanned;
 pub mod ty;
 
-pub use self::arg_enum::derive_arg_enum;
+// pub use self::arg_enum::derive_arg_enum;
 pub use self::attrs::{
     Attrs, CasingStyle, GenOutput, Kind, Name, Parser, ParserKind, DEFAULT_CASING,
 };

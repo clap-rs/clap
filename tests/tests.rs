@@ -338,7 +338,9 @@ subcmd NOT present
 }
 
 #[test]
-fn long_opt_x2_pos() { check_complex_output("clap-test value --option some --option other", O2P); }
+fn long_opt_x2_pos() {
+    check_complex_output("clap-test value --option some --option other", O2P);
+}
 
 #[test]
 fn long_opt_eq_x2_pos() {
@@ -346,19 +348,29 @@ fn long_opt_eq_x2_pos() {
 }
 
 #[test]
-fn short_opt_x2_pos() { check_complex_output("clap-test value -o some -o other", O2P); }
+fn short_opt_x2_pos() {
+    check_complex_output("clap-test value -o some -o other", O2P);
+}
 
 #[test]
-fn short_opt_eq_x2_pos() { check_complex_output("clap-test value -o=some -o=other", O2P); }
+fn short_opt_eq_x2_pos() {
+    check_complex_output("clap-test value -o=some -o=other", O2P);
+}
 
 #[test]
-fn short_flag_x2_comb_short_opt_pos() { check_complex_output("clap-test value -ff -o some", F2OP); }
+fn short_flag_x2_comb_short_opt_pos() {
+    check_complex_output("clap-test value -ff -o some", F2OP);
+}
 
 #[test]
-fn short_flag_short_opt_pos() { check_complex_output("clap-test value -f -o some", FOP); }
+fn short_flag_short_opt_pos() {
+    check_complex_output("clap-test value -f -o some", FOP);
+}
 
 #[test]
-fn long_flag_long_opt_pos() { check_complex_output("clap-test value --flag --option some", FOP); }
+fn long_flag_long_opt_pos() {
+    check_complex_output("clap-test value --flag --option some", FOP);
+}
 
 #[test]
 fn long_flag_long_opt_eq_pos() {

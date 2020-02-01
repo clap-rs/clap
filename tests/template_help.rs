@@ -128,7 +128,7 @@ fn template_author_version() {
 
 // ----------
 
-fn app_example1<'b, 'c>() -> App<'c> {
+fn app_example1<'c>() -> App<'c> {
     App::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
