@@ -269,6 +269,10 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short(mut self, s: char) -> Self {
+        if s == '-' {
+            panic!("Invalid option character");
+        }
+
         self.short = Some(s);
         self
     }
