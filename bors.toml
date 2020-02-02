@@ -8,4 +8,4 @@ pr_status = [
 ]
 timeout_sec = 7200
 delete_merged_branches = true
-block_lables = ["R: blocked"]
+block_lables = ["R: blocked", "R: require changes"]
