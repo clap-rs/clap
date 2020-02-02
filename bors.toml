@@ -1,0 +1,11 @@
+status = [
+	"continuous-integration/travis-ci/push",
+	"continuous-integration/appveyor/branch"
+]
+pr_status = [
+	"continuous-integration/travis-ci/pr",
+	"continuous-integration/appveyor/pr"
+]
+timeout_sec = 7200
+delete_merged_branches = true
+block_lables = ["R: blocked"]
