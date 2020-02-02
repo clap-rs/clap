@@ -69,7 +69,8 @@ lazy_static = "1"
 version-sync = "0.8"
 
 [features]
-default     = ["suggestions", "color", "vec_map", "derive"]
+default     = ["suggestions", "color", "vec_map", "derive", "std"]
+std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
