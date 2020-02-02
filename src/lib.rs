@@ -445,6 +445,9 @@
     trivial_numeric_casts
 )]
 
+#[cfg(not(feature = "std"))]
+compile_error!("`std` feature is currently required to build this crate");
+
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
