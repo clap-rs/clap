@@ -84,3 +84,6 @@ features = ["doc"]
 members = [
 	"clap_derive",
 ]
+default-members = [
+	".", "clap_derive",
+]

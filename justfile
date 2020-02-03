@@ -13,13 +13,13 @@
 	rm CONTRIBUTORS.md.bak
 
 run-test TESTG TEST="":
-	cargo test --all --test {{TESTG}} -- {{TEST}}
+	cargo test --test {{TESTG}} -- {{TEST}}
 
 debug TESTG TEST="":
-	cargo test --all --test {{TESTG}} --features debug -- {{TEST}}
+	cargo test --test {{TESTG}} --features debug -- {{TEST}}
 
 run-tests:
-	cargo test --all --features "yaml unstable"
+	cargo test --features "yaml unstable"
 
 @bench:
 	cargo bench
@@ -27,8 +27,8 @@ run-tests:
 @lint:
 	rustup add component clippy
 	rustup add component rustfmt
-	cargo clippy --all --lib --features "yaml unstable" -- -D warnings
-	cargo clippy --all --tests --examples --features "yaml unstable"
+	cargo clippy --lib --features "yaml unstable" -- -D warnings
+	cargo clippy --tests --examples --features "yaml unstable"
 	cargo fmt -- --check
 
 clean:

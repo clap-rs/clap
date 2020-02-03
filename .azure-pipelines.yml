@@ -48,11 +48,11 @@ stages:
             displayName: Caching compiled
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
-          - script: cargo test --all --no-default-features
+          - script: cargo test --no-default-features
             displayName: Test without default features
             env:
               RUST_BACKTRACE: full
-          - script: cargo test --all --features "yaml unstable"
+          - script: cargo test --features "yaml unstable"
             displayName: Test with most features
             env:
               RUST_BACKTRACE: full
