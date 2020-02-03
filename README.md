@@ -162,8 +162,7 @@ The first example shows the simplest way to use `clap`, by defining a struct. If
 //
 // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
 // simplest method of use, but sacrifices some flexibility.
-#[macro_use]
-extern crate clap;
+use clap::Clap;
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
@@ -348,9 +347,7 @@ Finally we create our `main.rs` file just like we would have with the previous t
 //
 // This example demonstrates clap's building from YAML style of creating arguments which is far
 // more clean, but takes a very small performance hit compared to the other two methods.
-#[macro_use]
-extern crate clap;
-use clap::App;
+use clap::{App, load_yaml};
 
 fn main() {
     // The YAML file is found relative to the current file, similar to how modules are found
@@ -416,9 +413,7 @@ clap = "3.0.0-beta.1"
 * Add the following to your `src/main.rs`
 
 ```rust
-#[macro_use]
-extern crate clap;
-use clap::App;
+use clap::{App, Clap};
 
 #[derive(Clap)]
 #[clap(version = "v1.0-beta")]

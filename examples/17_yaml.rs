@@ -11,17 +11,12 @@
 // [dependencies]
 // clap = { features = ["yaml"] }
 
-// Using yaml requires calling a clap macro `load_yaml!()` so we must use the '#[macro_use]'
-// directive
+// Using yaml requires calling a clap macro `load_yaml!()`.
 // Note: If you're using clap as a dependency and don't have a feature for your users called
 // "yaml", you'll need to remove the #[cfg(feature = "yaml")] conditional compilation attribute
 #[cfg(feature = "yaml")]
-#[macro_use]
-extern crate clap;
-
-#[cfg(feature = "yaml")]
 fn main() {
-    use clap::App;
+    use clap::{load_yaml, App};
 
     // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
     // use the convenience macro which loads the file at compile relative to the current file

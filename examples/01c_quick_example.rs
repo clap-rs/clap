@@ -1,5 +1,4 @@
-#[macro_use]
-extern crate clap;
+use clap::clap_app;
 
 fn main() {
     // This example shows how to create an application with several arguments using macro builder.

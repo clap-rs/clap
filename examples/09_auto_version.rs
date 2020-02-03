@@ -1,7 +1,4 @@
-#[macro_use]
-extern crate clap;
-
-use clap::App;
+use clap::{crate_version, App};
 
 fn main() {
     // You can have clap pull the application version directly from your Cargo.toml starting with

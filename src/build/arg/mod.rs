@@ -162,9 +162,7 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::Arg;
+    /// use clap::{Arg, load_yaml};
     /// let yml = load_yaml!("arg.yml");
     /// let arg = Arg::from_yaml(yml);
     /// ```
