@@ -451,7 +451,7 @@ compile_error!("`std` feature is currently required to build this crate");
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
-pub use crate::parse::{ArgMatches, OsValues, Values, SubCommand};
+pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;
 

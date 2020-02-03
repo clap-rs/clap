@@ -1,6 +1,6 @@
 #![cfg(feature = "yaml")]
 
-use clap::{App, load_yaml};
+use clap::{load_yaml, App};
 
 #[test]
 fn create_app_from_yaml() {

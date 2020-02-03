@@ -5,7 +5,7 @@
 use std::str::FromStr;
 
 // Add clap like normal
-use clap::{App, Arg, value_t};
+use clap::{value_t, App, Arg};
 
 // Define your enum
 enum Vals {

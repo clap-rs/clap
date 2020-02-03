@@ -10,7 +10,7 @@
 // that accepts only one of those values, and use clap to parse the argument.
 
 // Add clap like normal
-use clap::{App, Arg, value_t, arg_enum};
+use clap::{arg_enum, value_t, App, Arg};
 
 // Using arg_enum! is more like traditional enum declarations
 //

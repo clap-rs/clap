@@ -3,7 +3,7 @@ use std::str;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, arg_enum};
+use clap::{arg_enum, App, Arg};
 
 static SCF2OP: &str = "flag present 2 times
 option NOT present

@@ -16,7 +16,7 @@
 // "yaml", you'll need to remove the #[cfg(feature = "yaml")] conditional compilation attribute
 #[cfg(feature = "yaml")]
 fn main() {
-    use clap::{App, load_yaml};
+    use clap::{load_yaml, App};
 
     // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
     // use the convenience macro which loads the file at compile relative to the current file
