@@ -133,13 +133,9 @@ impl<'a> ArgGroup<'a> {
     /// # Examples
     ///
     /// ```ignore
-    /// # #[macro_use]
-    /// # extern crate clap;
-    /// # use clap::ArgGroup;
-    /// # fn main() {
+    /// # use clap::{ArgGroup, load_yaml};
     /// let yml = load_yaml!("group.yml");
     /// let ag = ArgGroup::from_yaml(yml);
-    /// # }
     /// ```
     #[cfg(feature = "yaml")]
     pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
