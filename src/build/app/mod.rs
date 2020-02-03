@@ -1197,7 +1197,7 @@ impl<'b> App<'b> {
                         i.lock().read_line(&mut s).unwrap();
                     }
                     drop(e);
-                    process::exit(1);
+                    process::exit(2);
                 }
 
                 e.exit()
@@ -1272,7 +1272,7 @@ impl<'b> App<'b> {
                 }
                 drop(self);
                 drop(e);
-                process::exit(1);
+                process::exit(2);
             }
 
             drop(self);
