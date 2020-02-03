@@ -40,8 +40,8 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 edition = "2018"
 
 [badges]
-travis-ci = { repository = "clap-rs/clap" }
-appveyor = { repository = "clap-rs/clap" }
+travis-ci = { repository = "clap-rs/clap", branch = "master" }
+azure-devops = { project = "clap-rs/clap", pipeline = "clap-rs.clap" }
 coveralls = { repository = "clap-rs/clap", branch = "master" }
 is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
 is-it-maintained-open-issues = { repository = "clap-rs/clap" }

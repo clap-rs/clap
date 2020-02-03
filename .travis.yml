@@ -1,6 +1,19 @@
 os: linux
 language: rust
 cache: cargo
+before_cache:
+  - find target/debug -type f -maxdepth 1 -delete
+  - rm -rf target/.rustc_info.json
+  - rm -rf target/debug/examples
+  - rm -rf target/debug/incremental
+  - rm -rf target/tests/target/debug/incremental
+  - rm -rf target/tests/target/debug/deps/{clap*, trybuild*}
+  - rm -rf target/debug/{deps,.fingerpint}/clap*
+  - find target/debug/deps -name "clap*" -exec rm -rf {} +
+  - ls -1 examples/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
+  - ls -1 clap_derive/examples/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
+  - ls -1 tests/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
+  - ls -1 clap_derive/tests/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
 rust: stable
 branches:
   only:
@@ -8,9 +21,8 @@ branches:
     - staging
     # This is where pull requests from "bors try" are built.
     - trying
-    # Enable building pull requests.
+    # Always build master & Enable building pull requests.
     - master
-    - v2-master
 jobs:
   allow_failures:
     - rust: nightly
@@ -19,8 +31,9 @@ jobs:
   fast_finish: true
   include:
     - os: osx
-    - {}
+      rust: 1.36.0
     - rust: 1.36.0
+    - {}
     - rust: beta
     - rust: nightly
     - env:
