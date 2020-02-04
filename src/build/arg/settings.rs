@@ -37,30 +37,30 @@ impl ArgFlags {
     pub fn new() -> Self {
         ArgFlags::default()
     }
+}
 
-    // @TODO @p6 @internal: Reorder alphabetically
-    impl_settings! {ArgSettings,
-        Required => Flags::REQUIRED,
-        MultipleOccurrences => Flags::MULTIPLE_OCC,
-        MultipleValues => Flags::MULTIPLE_VALS,
-        AllowEmptyValues => Flags::EMPTY_VALS,
-        Hidden => Flags::HIDDEN,
-        TakesValue => Flags::TAKES_VAL,
-        UseValueDelimiter => Flags::USE_DELIM,
-        NextLineHelp => Flags::NEXT_LINE_HELP,
-        RequiredUnlessAll => Flags::R_UNLESS_ALL,
-        RequireDelimiter => Flags::REQ_DELIM,
-        ValueDelimiterNotSet => Flags::DELIM_NOT_SET,
-        HidePossibleValues => Flags::HIDE_POS_VALS,
-        AllowHyphenValues => Flags::ALLOW_TAC_VALS,
-        RequireEquals => Flags::REQUIRE_EQUALS,
-        Last => Flags::LAST,
-        IgnoreCase => Flags::CASE_INSENSITIVE,
-        HideEnvValues => Flags::HIDE_ENV_VALS,
-        HideDefaultValue => Flags::HIDE_DEFAULT_VAL,
-        HiddenShortHelp => Flags::HIDDEN_SHORT_H,
-        HiddenLongHelp => Flags::HIDDEN_LONG_H
-    }
+// @TODO @p6 @internal: Reorder alphabetically
+impl_settings! { ArgSettings, ArgFlags,
+    Required("required") => Flags::REQUIRED,
+    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
+    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
+    AllowEmptyValues("allowemptyvalues") => Flags::EMPTY_VALS,
+    Hidden("hidden") => Flags::HIDDEN,
+    TakesValue("takesvalue") => Flags::TAKES_VAL,
+    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
+    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
+    RequiredUnlessAll("requiredunlessalln") => Flags::R_UNLESS_ALL,
+    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
+    ValueDelimiterNotSet("valuedelimiternotset") => Flags::DELIM_NOT_SET,
+    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
+    AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
+    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
+    Last("last") => Flags::LAST,
+    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
+    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
+    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
+    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H
 }
 
 impl Default for ArgFlags {
@@ -122,33 +122,6 @@ pub enum ArgSettings {
     RequiredUnlessAll,
     #[doc(hidden)]
     ValueDelimiterNotSet,
-}
-
-impl FromStr for ArgSettings {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        match &*s.to_ascii_lowercase() {
-            "required" => Ok(ArgSettings::Required),
-            "allowemptyvalues" => Ok(ArgSettings::AllowEmptyValues),
-            "hidden" => Ok(ArgSettings::Hidden),
-            "takesvalue" => Ok(ArgSettings::TakesValue),
-            "usevaluedelimiter" => Ok(ArgSettings::UseValueDelimiter),
-            "nextlinehelp" => Ok(ArgSettings::NextLineHelp),
-            "requiredunlessall" => Ok(ArgSettings::RequiredUnlessAll),
-            "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
-            "valuedelimiternotset" => Ok(ArgSettings::ValueDelimiterNotSet),
-            "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
-            "allowhyphenvalues" => Ok(ArgSettings::AllowHyphenValues),
-            "requireequals" => Ok(ArgSettings::RequireEquals),
-            "last" => Ok(ArgSettings::Last),
-            "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
-            "ignorecase" => Ok(ArgSettings::IgnoreCase),
-            "hideenvvalues" => Ok(ArgSettings::HideEnvValues),
-            "hiddenshorthelp" => Ok(ArgSettings::HiddenShortHelp),
-            "hiddenlonghelp" => Ok(ArgSettings::HiddenLongHelp),
-            _ => Err("unknown ArgSetting, cannot convert from str".to_owned()),
-        }
-    }
 }
 
 #[cfg(test)]

@@ -824,25 +824,39 @@ macro_rules! clap_app {
 }
 
 macro_rules! impl_settings {
-    ($n:ident, $($v:ident => $c:path),+) => {
-        pub fn set(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.insert($c)),+
+    ($settings:ident, $flags:ident,
+        $( $setting:ident($str:expr) => $flag:path ),+
+    ) => {
+        impl $flags {
+            pub fn set(&mut self, s: $settings) {
+                match s {
+                    $($settings::$setting => self.0.insert($flag)),*
+                }
+            }
+
+            pub fn unset(&mut self, s: $settings) {
+                match s {
+                    $($settings::$setting => self.0.remove($flag)),*
+                }
+            }
+
+            pub fn is_set(&self, s: $settings) -> bool {
+                match s {
+                    $($settings::$setting => self.0.contains($flag)),*
+                }
             }
         }
 
-        pub fn unset(&mut self, s: $n) {
-            match s {
-                $($n::$v => self.0.remove($c)),+
+        impl FromStr for $settings {
+            type Err = String;
+            fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+                match &*s.to_ascii_lowercase() {
+                    $( $str => $settings::$setting, )*
+                    _ => Err(format!("unknown AppSetting: `{}`", s)),
+                }
             }
         }
-
-        pub fn is_set(&self, s: $n) -> bool {
-            match s {
-                $($n::$v => self.0.contains($c)),+
-            }
-        }
-    };
+    }
 }
 
 // Convenience for writing to stderr thanks to https://github.com/BurntSushi

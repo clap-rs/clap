@@ -73,48 +73,87 @@ impl AppFlags {
     pub fn zeroed() -> Self {
         AppFlags(Flags::empty())
     }
+}
 
-    impl_settings! { AppSettings,
-        ArgRequiredElseHelp => Flags::A_REQUIRED_ELSE_HELP,
-        ArgsNegateSubcommands => Flags::ARGS_NEGATE_SCS,
-        AllowExternalSubcommands => Flags::ALLOW_UNK_SC,
-        AllowInvalidUtf8 => Flags::UTF8_NONE,
-        AllowLeadingHyphen => Flags::LEADING_HYPHEN,
-        AllowNegativeNumbers => Flags::ALLOW_NEG_NUMS,
-        AllowMissingPositional => Flags::ALLOW_MISSING_POS,
-        ColoredHelp => Flags::COLORED_HELP,
-        ColorAlways => Flags::COLOR_ALWAYS,
-        ColorAuto => Flags::COLOR_AUTO,
-        ColorNever => Flags::COLOR_NEVER,
-        DontDelimitTrailingValues => Flags::DONT_DELIM_TRAIL,
-        DontCollapseArgsInUsage => Flags::DONT_COLLAPSE_ARGS,
-        DeriveDisplayOrder => Flags::DERIVE_DISP_ORDER,
-        DisableHelpSubcommand => Flags::DISABLE_HELP_SC,
-        DisableVersion => Flags::DISABLE_VERSION,
-        GlobalVersion => Flags::GLOBAL_VERSION,
-        HidePossibleValuesInHelp => Flags::NO_POS_VALUES,
-        Hidden => Flags::HIDDEN,
-        LowIndexMultiplePositional => Flags::LOW_INDEX_MUL_POS,
-        NoAutoHelp => Flags::NO_AUTO_HELP,
-        NoAutoVersion => Flags::NO_AUTO_VERSION,
-        NoBinaryName => Flags::NO_BIN_NAME,
-        StrictUtf8 => Flags::UTF8_STRICT,
-        SubcommandsNegateReqs => Flags::SC_NEGATE_REQS,
-        SubcommandRequired => Flags::SC_REQUIRED,
-        SubcommandRequiredElseHelp => Flags::SC_REQUIRED_ELSE_HELP,
-        TrailingVarArg => Flags::TRAILING_VARARG,
-        UnifiedHelpMessage => Flags::UNIFIED_HELP,
-        NextLineHelp => Flags::NEXT_LINE_HELP,
-        VersionlessSubcommands => Flags::VERSIONLESS_SC,
-        WaitOnError => Flags::WAIT_ON_ERROR,
-        TrailingValues => Flags::TRAILING_VALUES,
-        ValidNegNumFound => Flags::VALID_NEG_NUM_FOUND,
-        Built => Flags::BUILT,
-        ValidArgFound => Flags::VALID_ARG_FOUND,
-        InferSubcommands => Flags::INFER_SUBCOMMANDS,
-        AllArgsOverrideSelf => Flags::ARGS_OVERRIDE_SELF,
-        ContainsLast => Flags::CONTAINS_LAST
-    }
+impl_settings! { AppSettings, AppFlags,
+    ArgRequiredElseHelp("argrequiredelsehelp")
+        => Flags::A_REQUIRED_ELSE_HELP,
+    ArgsNegateSubcommands("argsnegatesubcommands")
+        => Flags::ARGS_NEGATE_SCS,
+    AllowExternalSubcommands("allowexternalsubcommands")
+        => Flags::ALLOW_UNK_SC,
+    AllowInvalidUtf8("allowinvalidutf8")
+        => Flags::UTF8_NONE,
+    AllowLeadingHyphen("allowleadinghyphen")
+        => Flags::LEADING_HYPHEN,
+    AllowNegativeNumbers("allownegativenumbers")
+        => Flags::ALLOW_NEG_NUMS,
+    AllowMissingPositional("allowmissingpositional")
+        => Flags::ALLOW_MISSING_POS,
+    ColoredHelp("coloredhelp")
+        => Flags::COLORED_HELP,
+    ColorAlways("coloralways")
+        => Flags::COLOR_ALWAYS,
+    ColorAuto("colorauto")
+        => Flags::COLOR_AUTO,
+    ColorNever("colornever")
+        => Flags::COLOR_NEVER,
+    DontDelimitTrailingValues("dontdelimittrailingvalues")
+        => Flags::DONT_DELIM_TRAIL,
+    DontCollapseArgsInUsage("dontcollapseargsinusage")
+        => Flags::DONT_COLLAPSE_ARGS,
+    DeriveDisplayOrder("derivedisplayorder")
+        => Flags::DERIVE_DISP_ORDER,
+    DisableHelpSubcommand("disablehelpsubcommand")
+        => Flags::DISABLE_HELP_SC,
+    DisableVersion("disableversion")
+        => Flags::DISABLE_VERSION,
+    GlobalVersion("globalversion")
+        => Flags::GLOBAL_VERSION,
+    HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
+        => Flags::NO_POS_VALUES,
+    Hidden("hidden")
+        => Flags::HIDDEN,
+    LowIndexMultiplePositional("lowindexmultiplepositional")
+        => Flags::LOW_INDEX_MUL_POS,
+    NoAutoHelp("noautohelp")
+        => Flags::NO_AUTO_HELP,
+    NoAutoVersion("noautoversion")
+        => Flags::NO_AUTO_VERSION,
+    NoBinaryName("nobinaryname")
+        => Flags::NO_BIN_NAME,
+    StrictUtf8("strictutf8")
+        => Flags::UTF8_STRICT,
+    SubcommandsNegateReqs("subcommandsnegatereqs")
+        => Flags::SC_NEGATE_REQS,
+    SubcommandRequired("subcommandrequired")
+        => Flags::SC_REQUIRED,
+    SubcommandRequiredElseHelp("subcommandrequiredelsehelp")
+        => Flags::SC_REQUIRED_ELSE_HELP,
+    TrailingVarArg("trailingvararg")
+        => Flags::TRAILING_VARARG,
+    UnifiedHelpMessage("unifiedhelpmessage")
+        => Flags::UNIFIED_HELP,
+    NextLineHelp("nextlinehelp")
+        => Flags::NEXT_LINE_HELP,
+    VersionlessSubcommands("versionlesssubcommands")
+        => Flags::VERSIONLESS_SC,
+    WaitOnError("waitonerror")
+        => Flags::WAIT_ON_ERROR,
+    TrailingValues("trailingvalues")
+        => Flags::TRAILING_VALUES,
+    ValidNegNumFound("validnegnumfound")
+        => Flags::VALID_NEG_NUM_FOUND,
+    Built("built")
+        => Flags::BUILT,
+    ValidArgFound("validargfound")
+        => Flags::VALID_ARG_FOUND,
+    InferSubcommands("infersubcommands")
+        => Flags::INFER_SUBCOMMANDS,
+    AllArgsOverrideSelf("allargsoverrideself")
+        => Flags::ARGS_OVERRIDE_SELF,
+    ContainsLast("containslast")
+        => Flags::CONTAINS_LAST
 }
 
 /// Application level settings, which affect how [`App`] operates
@@ -908,49 +947,6 @@ pub enum AppSettings {
 
     #[doc(hidden)]
     ContainsLast,
-}
-
-impl FromStr for AppSettings {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        match &*s.to_ascii_lowercase() {
-            "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
-            "argsnegatesubcommands" => Ok(AppSettings::ArgsNegateSubcommands),
-            "allowinvalidutf8" => Ok(AppSettings::AllowInvalidUtf8),
-            "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
-            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
-            "allownegativenumbers" => Ok(AppSettings::AllowNegativeNumbers),
-            "colorauto" => Ok(AppSettings::ColorAuto),
-            "coloralways" => Ok(AppSettings::ColorAlways),
-            "colornever" => Ok(AppSettings::ColorNever),
-            "coloredhelp" => Ok(AppSettings::ColoredHelp),
-            "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
-            "dontcollapseargsinusage" => Ok(AppSettings::DontCollapseArgsInUsage),
-            "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
-            "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
-            "disableversion" => Ok(AppSettings::DisableVersion),
-            "globalversion" => Ok(AppSettings::GlobalVersion),
-            "hidden" => Ok(AppSettings::Hidden),
-            "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
-            "infersubcommands" => Ok(AppSettings::InferSubcommands),
-            "lowindexmultiplepositional" => Ok(AppSettings::LowIndexMultiplePositional),
-            "nobinaryname" => Ok(AppSettings::NoBinaryName),
-            "nextlinehelp" => Ok(AppSettings::NextLineHelp),
-            "strictutf8" => Ok(AppSettings::StrictUtf8),
-            "subcommandsnegatereqs" => Ok(AppSettings::SubcommandsNegateReqs),
-            "subcommandrequired" => Ok(AppSettings::SubcommandRequired),
-            "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
-            "trailingvararg" => Ok(AppSettings::TrailingVarArg),
-            "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
-            "versionlesssubcommands" => Ok(AppSettings::VersionlessSubcommands),
-            "waitonerror" => Ok(AppSettings::WaitOnError),
-            "validnegnumfound" => Ok(AppSettings::ValidNegNumFound),
-            "validargfound" => Ok(AppSettings::ValidArgFound),
-            "built" => Ok(AppSettings::Built),
-            "trailingvalues" => Ok(AppSettings::TrailingValues),
-            _ => Err("unknown AppSetting, cannot convert from str".to_owned()),
-        }
-    }
 }
 
 #[cfg(test)]
