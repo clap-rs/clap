@@ -3,17 +3,34 @@ name = "clap_derive"
 version = "3.0.0-beta.1"
 edition = "2018"
 authors = [
-    "Guillaume Pinot <texitoi@texitoi.eu>",
-    "Kevin K. <kbknapp@gmail.com>",
-    "hoverbear <andrew@hoverbear.org>"
+	"Guillaume Pinot <texitoi@texitoi.eu>",
+	"Kevin K. <kbknapp@gmail.com>",
+	"hoverbear <andrew@hoverbear.org>"
+]
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"README.md"
 ]
 description = "Parse command line argument by defining a struct, derive crate."
+repository = "https://github.com/clap-rs/clap/tree/master/clap_derive"
 documentation = "https://docs.rs/clap_derive"
-repository = "https://github.com/clap-rs/clap_derive"
-keywords = ["clap", "cli", "derive", "proc_macro", "parse"]
+homepage = "https://clap.rs/"
+keywords = [
+	"clap",
+	"cli",
+	"derive",
+	"proc_macro",
+	"parse"
+]
 categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
-license = "Apache-2.0/MIT"
+license = "MIT OR Apache-2.0"
 readme = "README.md"
+
+[badges]
+is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
+is-it-maintained-open-issues = { repository = "clap-rs/clap" }
+maintenance = {status = "actively-developed"}
 
 [lib]
 proc-macro = true
@@ -32,7 +49,10 @@ rustversion = "1"
 
 [features]
 default = []
+unstable = []
 nightly = []
-lints = []
 debug = []
 doc = []
+
+[package.metadata.docs.rs]
+features = ["doc"]

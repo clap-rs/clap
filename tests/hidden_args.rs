@@ -1,9 +1,6 @@
-extern crate clap;
-extern crate regex;
+mod utils;
 
 use clap::{App, Arg};
-
-include!("../clap-test.rs");
 
 static HIDDEN_ARGS: &str = "test 1.4
 Kevin K.
@@ -32,7 +29,12 @@ fn hidden_args() {
             Arg::from("--option [opt] 'some option'"),
             Arg::with_name("DUMMY").hidden(true),
         ]);
-    assert!(test::compare_output(app, "test --help", HIDDEN_ARGS, false));
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        HIDDEN_ARGS,
+        false
+    ));
 }
 
 static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
@@ -86,7 +88,7 @@ fn hidden_short_args() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test -h",
         HIDDEN_SHORT_ARGS,
@@ -113,7 +115,7 @@ fn hidden_short_args_long_help() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         HIDDEN_SHORT_ARGS_LONG_HELP,
@@ -156,7 +158,7 @@ fn hidden_long_args() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         HIDDEN_LONG_ARGS,
@@ -195,7 +197,7 @@ fn hidden_long_args_short_help() {
                 .help("This text should be visible"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test -h",
         HIDDEN_LONG_ARGS_SHORT_HELP,

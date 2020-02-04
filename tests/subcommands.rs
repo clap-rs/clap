@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ErrorKind};
 
@@ -136,7 +133,7 @@ fn multiple_aliases() {
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output() {
     let app = App::new("dym").subcommand(App::new("subcmd"));
-    assert!(test::compare_output(app, "dym subcm", DYM_SUBCMD, true));
+    assert!(utils::compare_output(app, "dym subcm", DYM_SUBCMD, true));
 }
 
 #[test]
@@ -144,7 +141,7 @@ fn subcmd_did_you_mean_output() {
 fn subcmd_did_you_mean_output_arg() {
     let app =
         App::new("dym").subcommand(App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"));
-    assert!(test::compare_output(app, "dym --subcm foo", DYM_ARG, true));
+    assert!(utils::compare_output(app, "dym --subcm foo", DYM_ARG, true));
 }
 
 #[test]
@@ -165,7 +162,7 @@ fn visible_aliases_help_output() {
             .visible_alias("dongle")
             .visible_alias("done"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         VISIBLE_ALIAS_HELP,
@@ -178,7 +175,7 @@ fn invisible_aliases_help_output() {
     let app = App::new("clap-test")
         .version("2.6")
         .subcommand(App::new("test").about("Some help").alias("invisible"));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         INVISIBLE_ALIAS_HELP,

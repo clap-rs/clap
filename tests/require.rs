@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -424,8 +421,8 @@ fn required_unless_one_err() {
 
 #[test]
 fn missing_required_output() {
-    assert!(test::compare_output(
-        test::complex_app(),
+    assert!(utils::compare_output(
+        utils::complex_app(),
         "clap-test -F",
         MISSING_REQ,
         true
@@ -557,7 +554,7 @@ fn required_if_val_present_fail_error_output() {
                 .long("output"),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --input somepath --target file",
         COND_REQ_IN_USAGE,
@@ -657,7 +654,12 @@ fn require_eq() {
             .value_name("FILE")
             .help("some"),
     );
-    assert!(test::compare_output(app, "clap-test", REQUIRE_EQUALS, true));
+    assert!(utils::compare_output(
+        app,
+        "clap-test",
+        REQUIRE_EQUALS,
+        true
+    ));
 }
 
 static ISSUE_1158: &str = "error: The following required arguments were not provided:
@@ -692,7 +694,7 @@ fn issue_1158_app() -> App<'static> {
 fn issue_1158_conflicting_requirements() {
     let app = issue_1158_app();
 
-    assert!(test::compare_output(app, "example id", ISSUE_1158, true));
+    assert!(utils::compare_output(app, "example id", ISSUE_1158, true));
 }
 
 #[test]

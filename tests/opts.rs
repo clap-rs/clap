@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ArgMatches, ArgSettings, ErrorKind};
 
@@ -361,8 +358,8 @@ fn leading_hyphen_with_only_pos_follows() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn did_you_mean() {
-    assert!(test::compare_output(
-        test::complex_app(),
+    assert!(utils::compare_output(
+        utils::complex_app(),
         "clap-test --optio=foo",
         DYM,
         true

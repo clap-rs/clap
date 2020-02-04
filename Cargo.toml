@@ -1,31 +1,17 @@
 [package]
 name = "clap"
 version = "3.0.0-beta.1"
+edition = "2018"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-exclude = [
-	".github/*",
-	"examples/*",
-	"tests/*",
-	"benches/*",
-	"clap-perf/*",
-	"etc/*",
-	"*.png",
-	"*.dot",
-	"*.yml",
-	"*.toml",
-	"*.md",
-	"clap-test.rs"
-]
 include = [
 	"src/**/*",
 	"Cargo.toml",
 	"README.md"
 ]
+description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
-readme = "README.md"
-license = "MIT OR Apache-2.0"
 keywords = [
 	"argument",
 	"cli",
@@ -34,10 +20,8 @@ keywords = [
 	"parse"
 ]
 categories = ["command-line-interface"]
-description = """
-A simple to use, efficient, and full-featured Command Line Argument Parser
-"""
-edition = "2018"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
 
 [badges]
 travis-ci = { repository = "clap-rs/clap", branch = "master" }
@@ -75,34 +59,22 @@ color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 derive      = ["clap_derive"]
 yaml        = ["yaml-rust"]
+no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
 debug       = [] # Enables debug messages
-no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
 doc         = ["yaml"] # All the features which add to documentation
 
 [profile.dev]
-opt-level = 0
-debug = true
-rpath = false
-lto = false
-debug-assertions = true
 codegen-units = 4
 
 [profile.test]
 opt-level = 1
 debug = true
-rpath = false
-lto = false
-debug-assertions = true
 codegen-units = 4
 
 [profile.bench]
-opt-level = 3
-debug = false
-rpath = false
 lto = true
-debug-assertions = false
 codegen-units = 1
 
 [package.metadata.docs.rs]
@@ -111,4 +83,7 @@ features = ["doc"]
 [workspace]
 members = [
 	"clap_derive",
+]
+default-members = [
+	".", "clap_derive",
 ]

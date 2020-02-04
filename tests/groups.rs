@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -160,7 +157,7 @@ fn req_group_usage_string() {
                 .required(true),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test",
         REQ_GROUP_USAGE,
@@ -181,7 +178,7 @@ fn req_group_with_conflict_usage_string() {
                 .required(true),
         );
 
-    assert!(test::compare_output2(
+    assert!(utils::compare_output2(
         app,
         "clap-test --delete base",
         REQ_GROUP_CONFLICT_REV,

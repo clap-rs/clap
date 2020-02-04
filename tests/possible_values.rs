@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ErrorKind};
 
@@ -174,8 +171,8 @@ fn possible_values_of_option_multiple_fail() {
 
 #[test]
 fn possible_values_output() {
-    assert!(test::compare_output(
-        test::complex_app(),
+    assert!(utils::compare_output(
+        utils::complex_app(),
         "clap-test -O slo",
         PV_ERROR,
         true

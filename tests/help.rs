@@ -1,4 +1,4 @@
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
 
@@ -593,7 +593,7 @@ fn req_last_arg_usage() {
         (@arg FIRST: ... * "First")
         (@arg SECOND: ... * +last "Second")
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "example --help",
         LAST_ARG_REQ_MULT,
@@ -642,7 +642,7 @@ fn args_with_last_usage() {
                 ])
                 .value_name("ARGS"),
         );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "flamegraph --help",
         LAST_ARG_USAGE,
@@ -652,7 +652,7 @@ fn args_with_last_usage() {
 
 #[test]
 fn subcommand_short_help() {
-    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "-h"]);
+    let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "-h"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -660,7 +660,7 @@ fn subcommand_short_help() {
 
 #[test]
 fn subcommand_long_help() {
-    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "--help"]);
+    let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "--help"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -668,7 +668,7 @@ fn subcommand_long_help() {
 
 #[test]
 fn subcommand_help_rev() {
-    let m = test::complex_app().try_get_matches_from(vec!["clap-test", "help", "subcmd"]);
+    let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "help", "subcmd"]);
 
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
@@ -676,8 +676,8 @@ fn subcommand_help_rev() {
 
 #[test]
 fn complex_help_output() {
-    assert!(test::compare_output(
-        test::complex_app(),
+    assert!(utils::compare_output(
+        utils::complex_app(),
         "clap-test --help",
         HELP,
         false
@@ -691,7 +691,7 @@ fn after_and_before_help_output() {
         .about("tests clap library")
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         AFTER_HELP,
@@ -711,7 +711,7 @@ fn multi_level_sc_help() {
                 .arg("-o, --option [scoption]...    'tests options'"),
         ),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest help subcmd multi",
         MULTI_SC_HELP,
@@ -724,7 +724,7 @@ fn no_wrap_help() {
     let app = App::new("ctest")
         .set_term_width(0)
         .override_help(MULTI_SC_HELP);
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         MULTI_SC_HELP,
@@ -735,7 +735,7 @@ fn no_wrap_help() {
 #[test]
 fn no_wrap_default_help() {
     let app = App::new("ctest").version("1.0").set_term_width(0);
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         DEFAULT_HELP,
@@ -745,8 +745,8 @@ fn no_wrap_default_help() {
 
 #[test]
 fn complex_subcommand_help_output() {
-    let a = test::complex_app();
-    assert!(test::compare_output(
+    let a = utils::complex_app();
+    assert!(utils::compare_output(
         a,
         "clap-test subcmd --help",
         SC_HELP,
@@ -771,7 +771,7 @@ fn issue_626_unicode_cutoff() {
             )
             .takes_value(true),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         ISSUE_626_CUTOFF,
@@ -802,7 +802,7 @@ fn hide_possible_vals() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         HIDE_POS_VALS,
@@ -823,7 +823,7 @@ fn issue_626_panic() {
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         ISSUE_626_PANIC,
@@ -852,7 +852,7 @@ fn issue_626_variable_panic() {
 #[test]
 fn final_word_wrapping() {
     let app = App::new("ctest").version("0.1").set_term_width(24);
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         FINAL_WORD_WRAPPING,
@@ -870,7 +870,7 @@ fn wrapping_newline_chars() {
              l, long           Copy-friendly, 14 characters, contains symbols.{n}\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
         ));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         WRAPPING_NEWLINE_CHARS,
@@ -885,7 +885,7 @@ fn old_newline_chars() {
             .short('m')
             .help("Some help with some wrapping{n}(Defaults to something)"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         OLD_NEWLINE_CHARS,
@@ -907,7 +907,12 @@ fn issue_688_hidden_pos_vals() {
 				.long("filter")
 				.possible_values(&filter_values)
 				.takes_value(true));
-    assert!(test::compare_output(app1, "ctest --help", ISSUE_688, false));
+    assert!(utils::compare_output(
+        app1,
+        "ctest --help",
+        ISSUE_688,
+        false
+    ));
 
     let app2 = App::new("ctest")
             .version("0.1")
@@ -918,7 +923,12 @@ fn issue_688_hidden_pos_vals() {
 				.long("filter")
 				.possible_values(&filter_values)
 				.takes_value(true));
-    assert!(test::compare_output(app2, "ctest --help", ISSUE_688, false));
+    assert!(utils::compare_output(
+        app2,
+        "ctest --help",
+        ISSUE_688,
+        false
+    ));
 
     let app3 = App::new("ctest")
             .version("0.1")
@@ -928,7 +938,12 @@ fn issue_688_hidden_pos_vals() {
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.takes_value(true));
-    assert!(test::compare_output(app3, "ctest --help", ISSUE_688, false));
+    assert!(utils::compare_output(
+        app3,
+        "ctest --help",
+        ISSUE_688,
+        false
+    ));
 }
 
 #[test]
@@ -961,7 +976,7 @@ fn issue_702_multiple_values() {
                 .multiple(true)
                 .takes_value(true),
         );
-    assert!(test::compare_output(app, "myapp --help", ISSUE_702, false));
+    assert!(utils::compare_output(app, "myapp --help", ISSUE_702, false));
 }
 
 #[test]
@@ -974,7 +989,12 @@ fn long_about() {
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
         )
         .arg(Arg::with_name("arg1").help("some option"));
-    assert!(test::compare_output(app, "myapp --help", LONG_ABOUT, false));
+    assert!(utils::compare_output(
+        app,
+        "myapp --help",
+        LONG_ABOUT,
+        false
+    ));
 }
 
 #[test]
@@ -997,7 +1017,7 @@ fn issue_760() {
                 .long("opt")
                 .takes_value(true),
         );
-    assert!(test::compare_output(app, "ctest --help", ISSUE_760, false));
+    assert!(utils::compare_output(app, "ctest --help", ISSUE_760, false));
 }
 
 #[test]
@@ -1009,7 +1029,12 @@ fn ripgrep_usage() {
     rg [OPTIONS] --type-list",
     );
 
-    assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
+    assert!(utils::compare_output(
+        app,
+        "rg --help",
+        RIPGREP_USAGE,
+        false
+    ));
 }
 
 #[test]
@@ -1033,7 +1058,12 @@ FLAGS:
 {flags}",
         );
 
-    assert!(test::compare_output(app, "rg --help", RIPGREP_USAGE, false));
+    assert!(utils::compare_output(
+        app,
+        "rg --help",
+        RIPGREP_USAGE,
+        false
+    ));
 }
 
 #[test]
@@ -1044,7 +1074,7 @@ fn sc_negates_reqs() {
         .arg("-o, --opt <FILE> 'tests options'")
         .arg(Arg::with_name("PATH").help("help"))
         .subcommand(App::new("test"));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "prog --help",
         SC_NEGATES_REQS,
@@ -1059,7 +1089,12 @@ fn hidden_args() {
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("pos").hidden(true));
-    assert!(test::compare_output(app, "prog --help", HIDDEN_ARGS, false));
+    assert!(utils::compare_output(
+        app,
+        "prog --help",
+        HIDDEN_ARGS,
+        false
+    ));
 }
 
 #[test]
@@ -1071,7 +1106,7 @@ fn args_negate_sc() {
         .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("PATH").help("help"))
         .subcommand(App::new("test"));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "prog --help",
         ARGS_NEGATE_SC,
@@ -1087,7 +1122,7 @@ fn issue_1046_hidden_scs() {
         .arg("-o, --opt [FILE] 'tests options'")
         .arg(Arg::with_name("PATH").help("some"))
         .subcommand(App::new("test").setting(AppSettings::Hidden));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "prog --help",
         ISSUE_1046_HIDDEN_SCS,
@@ -1102,7 +1137,7 @@ fn issue_777_wrap_all_things() {
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
         .set_term_width(35);
-    assert!(test::compare_output(app, "ctest --help", ISSUE_777, false));
+    assert!(utils::compare_output(app, "ctest --help", ISSUE_777, false));
 }
 
 #[test]
@@ -1119,7 +1154,7 @@ fn customize_version_and_help() {
                 .long("version")
                 .help("Print version information")
         });
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "customize --help",
         CUSTOM_VERSION_AND_HELP,
@@ -1139,7 +1174,7 @@ fn last_arg_mult_usage() {
                 .last(true)
                 .help("some"),
         );
-    assert!(test::compare_output(app, "last --help", LAST_ARG, false));
+    assert!(utils::compare_output(app, "last --help", LAST_ARG, false));
 }
 
 #[test]
@@ -1155,7 +1190,7 @@ fn last_arg_mult_usage_req() {
                 .required(true)
                 .help("some"),
         );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "last --help",
         LAST_ARG_REQ,
@@ -1178,7 +1213,7 @@ fn last_arg_mult_usage_req_with_sc() {
                 .help("some"),
         )
         .subcommand(App::new("test").about("some"));
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "last --help",
         LAST_ARG_REQ_SC,
@@ -1200,7 +1235,12 @@ fn last_arg_mult_usage_with_sc() {
                 .help("some"),
         )
         .subcommand(App::new("test").about("some"));
-    assert!(test::compare_output(app, "last --help", LAST_ARG_SC, false));
+    assert!(utils::compare_output(
+        app,
+        "last --help",
+        LAST_ARG_SC,
+        false
+    ));
 }
 
 #[test]
@@ -1212,7 +1252,7 @@ fn hidden_default_val() {
             .default_value("default-argument")
             .hide_default_value(true),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app1,
         "default --help",
         HIDE_DEFAULT_VAL,
@@ -1225,7 +1265,7 @@ fn hidden_default_val() {
             .long("arg")
             .default_value("default-argument"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app2,
         "default --help",
         HIDE_DEFAULT_VAL,
@@ -1295,7 +1335,7 @@ fn issue_1052_require_delim_help() {
                 .value_delimiter(":"),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         REQUIRE_DELIM_HELP,
@@ -1329,7 +1369,7 @@ fn hide_env_vals() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         HIDE_ENV_VALS,
@@ -1363,7 +1403,7 @@ fn show_env_vals() {
                 .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest --help",
         SHOW_ENV_VALS,
@@ -1390,7 +1430,7 @@ fn custom_headers_headers() {
                 .help("Do not use system proxy settings"),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         CUSTOM_HELP_SECTION,
@@ -1452,7 +1492,7 @@ fn multiple_custom_help_headers() {
                 .takes_value(true),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         MULTIPLE_CUSTOM_HELP_SECTIONS,
@@ -1481,7 +1521,7 @@ fn show_long_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest foo --help",
         ISSUE_897,
@@ -1507,7 +1547,7 @@ fn show_short_about_issue_897() {
             .about("About foo")
             .long_about("Long about foo"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "ctest foo -h",
         ISSUE_897_SHORT,
@@ -1526,5 +1566,5 @@ fn issue_1487() {
         .group(ArgGroup::with_name("group1")
             .args(&["arg1", "arg2"])
             .required(true));
-    assert!(test::compare_output(app, "ctest -h", ISSUE_1487, false));
+    assert!(utils::compare_output(app, "ctest -h", ISSUE_1487, false));
 }

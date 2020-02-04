@@ -1,9 +1,6 @@
-extern crate clap;
-extern crate regex;
+mod utils;
 
 use clap::{App, AppSettings, Arg, ErrorKind, Propagation};
-
-include!("../clap-test.rs");
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 
@@ -204,6 +201,17 @@ fn infer_subcommands_pass_close() {
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
+#[test]
+fn infer_subcommands_pass_exact_match() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test"))
+        .subcommand(App::new("testa"))
+        .subcommand(App::new("testb"))
+        .get_matches_from(vec!["prog", "test"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
 #[cfg(feature = "suggestions")]
 #[test]
 fn infer_subcommands_fail_suggestions() {
@@ -251,7 +259,7 @@ fn unified_help() {
         .arg("[arg1] 'some pos arg'")
         .arg("--option [opt] 'some option'");
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         UNIFIED_HELP,
@@ -271,7 +279,7 @@ fn skip_possible_values() {
             Arg::from("[arg1] 'some pos arg'").possible_values(&["three", "four"]),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         SKIP_POS_VALS,
@@ -537,7 +545,7 @@ fn dont_collapse_args() {
             Arg::with_name("arg2").help("some"),
             Arg::with_name("arg3").help("some"),
         ]);
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         DONT_COLLAPSE_ARGS,
@@ -556,7 +564,7 @@ fn require_eq() {
             .value_name("FILE")
             .help("some"),
     );
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         REQUIRE_EQUALS,
@@ -758,7 +766,7 @@ fn issue_1093_allow_ext_sc() {
     let app = App::new("clap-test")
         .version("v1.4.8")
         .setting(AppSettings::AllowExternalSubcommands);
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
         ALLOW_EXT_SC,

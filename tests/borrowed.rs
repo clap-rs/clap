@@ -1,9 +1,4 @@
-extern crate clap;
-extern crate regex;
-
 use clap::{App, Arg};
-
-include!("../clap-test.rs");
 
 #[test]
 fn borrowed_args() {

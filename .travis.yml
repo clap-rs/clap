@@ -43,8 +43,8 @@ jobs:
         - rustup component add rustfmt
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
-        - cargo clippy --all --lib --features "yaml unstable" -- -D warnings
-        - cargo clippy --all --tests --examples --features "yaml unstable"
+        - cargo clippy --lib --features "yaml unstable" -- -D warnings
+        - cargo clippy --tests --examples --features "yaml unstable"
         - cargo fmt -- --check
     - rust: nightly
       env:
@@ -66,8 +66,8 @@ jobs:
       script:
         - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
 script:
-  - cargo test --all --no-default-features
-  - cargo test --all --features yaml unstable
+  - cargo test --no-default-features
+  - cargo test --features yaml unstable
 notifications:
   email: false
 env:

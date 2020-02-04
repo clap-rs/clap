@@ -1,6 +1,5 @@
-extern crate clap;
-
 use clap::{App, Arg, ErrorKind};
+
 #[test]
 fn flag_overrides_itself() {
     let res = App::new("posix")
