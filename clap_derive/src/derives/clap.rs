@@ -175,11 +175,12 @@ fn gen_app_augmentation(
     });
 
     let app_methods = parent_attribute.top_level_methods();
+    let version = parent_attribute.version();
     quote! {{
         let #app_var = #app_var#app_methods;
         #( #args )*
         #subcmd
-        #app_var
+        #app_var#version
     }}
 }
 
@@ -237,22 +238,24 @@ fn gen_augment_app_for_enum(
         let name = attrs.cased_name();
         let from_attrs = attrs.top_level_methods();
 
+        let version = attrs.version();
         quote! {
             .subcommand({
                 let #app_var = ::clap::App::new(#name);
                 let #app_var = #arg_block;
-                #app_var#from_attrs
+                #app_var#from_attrs#version
             })
         }
     });
 
     let app_methods = parent_attribute.top_level_methods();
 
+    let version = parent_attribute.version();
     quote! {
         pub fn augment_app<'b>(
             app: ::clap::App<'b>
         ) -> ::clap::App<'b> {
-            app #app_methods #( #subcommands )*
+            app #app_methods #( #subcommands )* #version
         }
     }
 }

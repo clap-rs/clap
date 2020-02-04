@@ -79,7 +79,7 @@ pub fn gen_app_builder(attrs: &[syn::Attribute]) -> GenOutput {
     let attrs = Attrs::from_struct(
         proc_macro2::Span::call_site(),
         attrs,
-        Name::Assigned(syn::LitStr::new(&name, proc_macro2::Span::call_site())),
+        Name::Assigned(quote!(#name)),
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );

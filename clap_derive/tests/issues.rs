@@ -1,10 +1,12 @@
-// https://github.com/TeXitoi/structopt/issues/151
-// https://github.com/TeXitoi/structopt/issues/289
+// https://github.com/TeXitoi/structopt/issues/{NUMBER}
+
+mod utils;
+use utils::*;
+
+use clap::{ArgGroup, Clap};
 
 #[test]
 fn issue_151() {
-    use clap::{ArgGroup, Clap};
-
     #[derive(Clap, Debug)]
     #[clap(group = ArgGroup::with_name("verb").required(true).multiple(true))]
     struct Opt {
@@ -48,4 +50,26 @@ fn issue_289() {
     assert!(Args::try_parse_from(&["test", "some", "test-command"]).is_ok());
     assert!(Args::try_parse_from(&["test", "some-command", "test"]).is_ok());
     assert!(Args::try_parse_from(&["test", "some", "test"]).is_ok());
+}
+
+#[test]
+fn issue_324() {
+    fn my_version() -> &'static str {
+        "MY_VERSION"
+    }
+
+    #[derive(Clap)]
+    #[clap(version = my_version())]
+    struct Opt {
+        #[clap(subcommand)]
+        _cmd: Option<SubCommand>,
+    }
+
+    #[derive(Clap)]
+    enum SubCommand {
+        Start,
+    }
+
+    let help = get_long_help::<Opt>();
+    assert!(help.contains("MY_VERSION"));
 }

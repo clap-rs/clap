@@ -20,7 +20,7 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Ident, LitStr, MetaNameValue, Type};
+use syn::{self, ext::IdentExt, spanned::Spanned, Ident, MetaNameValue, Type};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -78,8 +78,8 @@ pub enum CasingStyle {
 
 #[derive(Clone)]
 pub enum Name {
-    Derived(syn::Ident),
-    Assigned(syn::LitStr),
+    Derived(Ident),
+    Assigned(TokenStream),
 }
 
 #[derive(Clone)]
@@ -220,11 +220,11 @@ impl CasingStyle {
 }
 
 impl Name {
-    pub fn translate(self, style: CasingStyle) -> LitStr {
-        use self::CasingStyle::*;
+    pub fn translate(self, style: CasingStyle) -> TokenStream {
+        use CasingStyle::*;
 
         match self {
-            Name::Assigned(lit) => lit,
+            Name::Assigned(tokens) => tokens,
             Name::Derived(ident) => {
                 let s = ident.unraw().to_string();
                 let s = match style {
@@ -235,7 +235,7 @@ impl Name {
                     Snake => s.to_snake_case(),
                     Verbatim => s,
                 };
-                syn::LitStr::new(&s, ident.span())
+                quote_spanned!(ident.span()=> #s)
             }
         }
     }
@@ -268,13 +268,13 @@ impl Attrs {
         }
     }
 
-    /// push `.method("str literal")`
-    fn push_str_method(&mut self, name: Sp<String>, arg: Sp<String>) {
-        if *name == "name" {
-            self.name = Name::Assigned(arg.as_lit());
+    fn push_method(&mut self, name: Ident, arg: impl ToTokens) {
+        if name == "name" {
+            self.name = Name::Assigned(quote!(#arg));
+        } else if name == "version" {
+            self.version = Some(Method::new(name, quote!(#arg)));
         } else {
-            self.methods
-                .push(Method::new(name.as_ident(), quote!(#arg)))
+            self.methods.push(Method::new(name, quote!(#arg)))
         }
     }
 
@@ -284,17 +284,11 @@ impl Attrs {
         for attr in parse_clap_attributes(attrs) {
             match attr {
                 Short(ident) | Long(ident) => {
-                    self.push_str_method(
-                        ident.into(),
-                        self.name.clone().translate(*self.casing).into(),
-                    );
+                    self.push_method(ident, self.name.clone().translate(*self.casing));
                 }
 
                 Env(ident) => {
-                    self.push_str_method(
-                        ident.into(),
-                        self.name.clone().translate(*self.env_casing).into(),
-                    );
+                    self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
                 Subcommand(ident) => {
@@ -357,16 +351,18 @@ impl Attrs {
                 }
 
                 Version(ident, version) => {
-                    self.version = Some(Method::new(ident, quote!(#version)))
+                    self.push_method(ident, version);
                 }
 
                 NameLitStr(name, lit) => {
-                    self.push_str_method(name.into(), lit.into());
+                    self.push_method(name, lit);
                 }
 
-                NameExpr(name, expr) => self.methods.push(Method::new(name, quote!(#expr))),
+                NameExpr(name, expr) => {
+                    self.push_method(name, expr);
+                }
 
-                MethodCall(name, args) => self.methods.push(Method::new(name, quote!(#(#args),*))),
+                MethodCall(name, args) => self.push_method(name, quote!(#(#args),*)),
 
                 RenameAll(_, casing_lit) => {
                     self.casing = CasingStyle::from_lit(casing_lit);
@@ -439,7 +435,7 @@ impl Attrs {
         let name = field.ident.clone().unwrap();
         let mut res = Self::new(
             field.span(),
-            Name::Derived(name.clone()),
+            Name::Derived(name),
             Some(field.ty.clone()),
             struct_casing,
             env_casing,
@@ -584,28 +580,13 @@ impl Attrs {
     }
 
     /// generate methods from attributes on top of struct or enum
-    pub fn top_level_methods(&self) -> proc_macro2::TokenStream {
-        let version = match (&self.no_version, &self.version) {
-            (Some(no_version), Some(_)) => abort!(
-                no_version.span(),
-                "`no_version` and `version = \"version\"` can't be used together"
-            ),
-
-            (None, Some(m)) => m.to_token_stream(),
-
-            (None, None) => std::env::var("CARGO_PKG_VERSION")
-                .map(|version| quote!( .version(#version) ))
-                .unwrap_or_default(),
-
-            (Some(_), None) => quote!(),
-        };
-
+    pub fn top_level_methods(&self) -> TokenStream {
         let author = &self.author;
         let about = &self.about;
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
 
-        quote!( #(#doc_comment)* #author #version #about #(#methods)*  )
+        quote!( #(#doc_comment)* #author #about #(#methods)*  )
     }
 
     /// generate methods on top of a field
@@ -615,7 +596,19 @@ impl Attrs {
         quote!( #(#doc_comment)* #(#methods)* )
     }
 
-    pub fn cased_name(&self) -> LitStr {
+    pub fn version(&self) -> TokenStream {
+        match (&self.no_version, &self.version) {
+            (None, Some(m)) => m.to_token_stream(),
+
+            (None, None) => std::env::var("CARGO_PKG_VERSION")
+                .map(|version| quote!( .version(#version) ))
+                .unwrap_or_default(),
+
+            _ => quote!(),
+        }
+    }
+
+    pub fn cased_name(&self) -> TokenStream {
         self.name.clone().translate(*self.casing)
     }
 

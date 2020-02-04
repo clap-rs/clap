@@ -74,7 +74,7 @@ fn split_paragraphs(lines: &[&str]) -> Vec<String> {
         let len = slice
             .iter()
             .position(|s| is_blank(s))
-            .unwrap_or(slice.len());
+            .unwrap_or_else(|| slice.len());
 
         last_line += start + len;
 
