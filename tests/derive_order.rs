@@ -1,11 +1,8 @@
-extern crate clap;
-extern crate regex;
+mod utils;
 
 use std::str;
 
 use clap::{App, AppSettings, Arg};
-
-include!("../clap-test.rs");
 
 static NO_DERIVE_ORDER: &str = "test 1.2
 
@@ -132,7 +129,7 @@ fn no_derive_order() {
             .help("second option"),
     ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         NO_DERIVE_ORDER,
@@ -158,7 +155,7 @@ fn derive_order() {
                 .help("second option"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         DERIVE_ORDER,
@@ -184,7 +181,7 @@ fn unified_help() {
                 .help("second option"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         UNIFIED_HELP,
@@ -211,7 +208,7 @@ fn unified_help_and_derive_order() {
                 .help("second option"),
         ]);
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test --help",
         UNIFIED_HELP_AND_DERIVE,
@@ -239,7 +236,7 @@ fn derive_order_subcommand_propagate() {
             ]),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test sub --help",
         DERIVE_ORDER_SC_PROP,
@@ -266,7 +263,7 @@ fn unified_help_subcommand_propagate() {
             ]),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test sub --help",
         UNIFIED_SC_PROP,
@@ -294,7 +291,7 @@ fn unified_help_and_derive_order_subcommand_propagate() {
             ]),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test sub --help",
         UNIFIED_DERIVE_SC_PROP,
@@ -325,7 +322,7 @@ fn unified_help_and_derive_order_subcommand_propagate_with_explicit_display_orde
             ]),
         );
 
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "test sub --help",
         UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER,

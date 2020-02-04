@@ -1,12 +1,31 @@
-extern crate clap;
-extern crate regex;
+mod utils;
 
 use clap::App;
 
-include!("../clap-test.rs");
+static EXAMPLE1_TMPL_S: &str = "{bin} {version}
+{author}
+{about}
 
-static EXAMPLE1_TMPL_S: &str = include_str!("example1_tmpl_simple.txt");
-static EXAMPLE1_TMPS_F: &str = include_str!("example1_tmpl_full.txt");
+USAGE:
+    {usage}
+
+{all-args}";
+
+static EXAMPLE1_TMPS_F: &str = "{bin} {version}
+{author}
+{about}
+
+USAGE:
+    {usage}
+
+FLAGS:
+{flags}
+OPTIONS:
+{options}
+ARGS:
+{positionals}
+SUBCOMMANDS:
+{subcommands}";
 
 static CUSTOM_TEMPL_HELP: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
@@ -51,8 +70,8 @@ SUBCOMMANDS:
 
 #[test]
 fn with_template() {
-    let app = app_example1().help_template(EXAMPLE1_TMPL_S);
-    assert!(test::compare_output(
+    let app = get_app().help_template(EXAMPLE1_TMPL_S);
+    assert!(utils::compare_output(
         app,
         "MyApp --help",
         SIMPLE_TEMPLATE,
@@ -62,8 +81,8 @@ fn with_template() {
 
 #[test]
 fn custom_template() {
-    let app = app_example1().help_template(EXAMPLE1_TMPS_F);
-    assert!(test::compare_output(
+    let app = get_app().help_template(EXAMPLE1_TMPS_F);
+    assert!(utils::compare_output(
         app,
         "MyApp --help",
         CUSTOM_TEMPL_HELP,
@@ -78,7 +97,7 @@ fn template_empty() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("");
-    assert!(test::compare_output(app, "MyApp --help", "", false));
+    assert!(utils::compare_output(app, "MyApp --help", "", false));
 }
 
 #[test]
@@ -88,7 +107,7 @@ fn template_notag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test no tag test");
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "MyApp --help",
         "test no tag test",
@@ -103,7 +122,7 @@ fn template_unknowntag() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("test {unknown_tag} test");
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "MyApp --help",
         "test {unknown_tag} test",
@@ -118,7 +137,7 @@ fn template_author_version() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("{author}\n{version}\n{about}\n{bin}");
-    assert!(test::compare_output(
+    assert!(utils::compare_output(
         app,
         "MyApp --help",
         "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp",
@@ -128,7 +147,7 @@ fn template_author_version() {
 
 // ----------
 
-fn app_example1<'c>() -> App<'c> {
+fn get_app() -> App<'static> {
     App::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")

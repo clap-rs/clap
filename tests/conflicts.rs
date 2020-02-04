@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
@@ -101,8 +98,8 @@ fn group_conflict_2() {
 
 #[test]
 fn conflict_output() {
-    test::compare_output(
-        test::complex_app(),
+    utils::compare_output(
+        utils::complex_app(),
         "clap-test val1 --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
@@ -111,8 +108,8 @@ fn conflict_output() {
 
 #[test]
 fn conflict_output_rev() {
-    test::compare_output(
-        test::complex_app(),
+    utils::compare_output(
+        utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,

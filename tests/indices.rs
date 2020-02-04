@@ -1,7 +1,4 @@
-extern crate clap;
-extern crate regex;
-
-include!("../clap-test.rs");
+mod utils;
 
 use clap::{App, Arg};
 

@@ -1,8 +1,0 @@
-{bin} {version}
-{author}
-{about}
-
-USAGE:
-    {usage}
-
-{all-args}

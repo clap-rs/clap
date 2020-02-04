@@ -1,7 +1,7 @@
+mod utils;
+
 use std::io::Write;
 use std::str;
-
-include!("../clap-test.rs");
 
 use clap::{arg_enum, App, Arg};
 
@@ -88,7 +88,7 @@ subcmd NOT present
 
 pub fn check_complex_output(args: &str, out: &str) {
     let mut w = vec![];
-    let matches = test::complex_app().get_matches_from(args.split(' ').collect::<Vec<_>>());
+    let matches = utils::complex_app().get_matches_from(args.split(' ').collect::<Vec<_>>());
     if matches.is_present("flag") {
         writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
     } else {

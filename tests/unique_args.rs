@@ -1,5 +1,3 @@
-extern crate clap;
-
 use clap::{App, Arg};
 
 // This tests a programmer error and will only succeed with debug_assertions

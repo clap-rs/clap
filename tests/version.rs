@@ -1,11 +1,8 @@
-extern crate clap;
-extern crate regex;
+mod utils;
 
 use std::str;
 
 use clap::{App, AppSettings, ErrorKind};
-
-include!("../clap-test.rs");
 
 static VERSION: &str = "clap-test v1.4.8";
 
