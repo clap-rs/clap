@@ -8,14 +8,16 @@ fn main() {
     // displayed to the user.
 
     let matches = App::new("myapp")
-                        // Application logic goes here...
-                        .arg(Arg::with_name("input")
-                                     .help("the input file to use")
-                                     .index(1)
-                                     .required(true)
-                                     // You can pass in a closure, or a function
-                                     .validator(is_png))
-                        .get_matches();
+        // Application logic goes here...
+        .arg(
+            Arg::with_name("input")
+                .help("the input file to use")
+                .index(1)
+                .required(true)
+                // You can pass in a closure, or a function
+                .validator(is_png),
+        )
+        .get_matches();
 
     // Here we can call .unwrap() because the argument is required.
     println!("The .PNG file is: {}", matches.value_of("input").unwrap());

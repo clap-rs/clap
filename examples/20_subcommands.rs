@@ -41,40 +41,50 @@
 
 extern crate clap;
 
-use clap::{App, Arg, SubCommand, AppSettings};
+use clap::{App, AppSettings, Arg, SubCommand};
 
 fn main() {
-
     let matches = App::new("git")
         .about("A fictional versioning CLI")
         .version("1.0")
         .author("Me")
-        .subcommand(SubCommand::with_name("clone")
-            .about("clones repos")
-            .arg(Arg::with_name("repo")
-                .help("The repo to clone")
-                .required(true)))
-        .subcommand(SubCommand::with_name("push")
-            .about("pushes things")
-            .setting(AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(SubCommand::with_name("remote")  // Subcommands can have their own subcommands,
-                                                         // which in turn have their own subcommands
-                .about("pushes remote things")
-                .arg(Arg::with_name("repo")
-                    .required(true)
-                    .help("The remote repo to push things to")))
-            .subcommand(SubCommand::with_name("local")
-                .about("pushes local things")))
-        .subcommand(SubCommand::with_name("add")
-            .about("adds things")
-            .author("Someone Else")                     // Subcommands can list different authors
-            .version("v2.0 (I'm versioned differently") // or different version from their parents
-            .setting(AppSettings::ArgRequiredElseHelp)  // They can even have different settings
-            .arg(Arg::with_name("stuff")
-                .long("stuff")
-                .help("Stuff to add")
-                .takes_value(true)
-                .multiple(true)))
+        .subcommand(
+            SubCommand::with_name("clone").about("clones repos").arg(
+                Arg::with_name("repo")
+                    .help("The repo to clone")
+                    .required(true),
+            ),
+        )
+        .subcommand(
+            SubCommand::with_name("push")
+                .about("pushes things")
+                .setting(AppSettings::SubcommandRequiredElseHelp)
+                .subcommand(
+                    SubCommand::with_name("remote") // Subcommands can have their own subcommands,
+                        // which in turn have their own subcommands
+                        .about("pushes remote things")
+                        .arg(
+                            Arg::with_name("repo")
+                                .required(true)
+                                .help("The remote repo to push things to"),
+                        ),
+                )
+                .subcommand(SubCommand::with_name("local").about("pushes local things")),
+        )
+        .subcommand(
+            SubCommand::with_name("add")
+                .about("adds things")
+                .author("Someone Else") // Subcommands can list different authors
+                .version("v2.0 (I'm versioned differently") // or different version from their parents
+                .setting(AppSettings::ArgRequiredElseHelp) // They can even have different settings
+                .arg(
+                    Arg::with_name("stuff")
+                        .long("stuff")
+                        .help("Stuff to add")
+                        .takes_value(true)
+                        .multiple(true),
+                ),
+        )
         .get_matches();
 
     // At this point, the matches we have point to git. Keep this in mind...
@@ -101,8 +111,8 @@ fn main() {
         Some("clone") => println!("'git clone' was used"),
         Some("push") => println!("'git push' was used"),
         Some("add") => println!("'git add' was used"),
-        None        => println!("No subcommand was used"),
-        _           => unreachable!(), // Assuming you've listed all direct children above, this is unreachable
+        None => println!("No subcommand was used"),
+        _ => unreachable!(), // Assuming you've listed all direct children above, this is unreachable
     }
 
     // You could get the independent subcommand matches, although this is less common
@@ -114,29 +124,36 @@ fn main() {
     // The most common way to handle subcommands is via a combined approach using
     // `ArgMatches::subcommand` which returns a tuple of both the name and matches
     match matches.subcommand() {
-        ("clone", Some(clone_matches)) =>{
+        ("clone", Some(clone_matches)) => {
             // Now we have a reference to clone's matches
             println!("Cloning {}", clone_matches.value_of("repo").unwrap());
-        },
-        ("push", Some(push_matches)) =>{
+        }
+        ("push", Some(push_matches)) => {
             // Now we have a reference to push's matches
             match push_matches.subcommand() {
-                ("remote", Some(remote_matches)) =>{
+                ("remote", Some(remote_matches)) => {
                     // Now we have a reference to remote's matches
                     println!("Pushing to {}", remote_matches.value_of("repo").unwrap());
-                },
-                ("local", Some(_)) =>{
+                }
+                ("local", Some(_)) => {
                     println!("'git push local' was used");
-                },
-                _            => unreachable!(),
+                }
+                _ => unreachable!(),
             }
-        },
-        ("add", Some(add_matches)) =>{
+        }
+        ("add", Some(add_matches)) => {
             // Now we have a reference to add's matches
-            println!("Adding {}", add_matches.values_of("stuff").unwrap().collect::<Vec<_>>().join(", "));
-        },
-        ("", None)   => println!("No subcommand was used"), // If no subcommand was used it'll match the tuple ("", None)
-        _            => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
+            println!(
+                "Adding {}",
+                add_matches
+                    .values_of("stuff")
+                    .unwrap()
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
+        }
+        ("", None) => println!("No subcommand was used"), // If no subcommand was used it'll match the tuple ("", None)
+        _ => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
     }
 
     // Continued program logic goes here...

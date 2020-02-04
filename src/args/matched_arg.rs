@@ -4,9 +4,12 @@ use std::ffi::OsString;
 #[doc(hidden)]
 #[derive(Debug, Clone)]
 pub struct MatchedArg {
-    #[doc(hidden)] pub occurs: u64,
-    #[doc(hidden)] pub indices: Vec<usize>,
-    #[doc(hidden)] pub vals: Vec<OsString>,
+    #[doc(hidden)]
+    pub occurs: u64,
+    #[doc(hidden)]
+    pub indices: Vec<usize>,
+    #[doc(hidden)]
+    pub vals: Vec<OsString>,
 }
 
 impl Default for MatchedArg {
@@ -20,5 +23,7 @@ impl Default for MatchedArg {
 }
 
 impl MatchedArg {
-    pub fn new() -> Self { MatchedArg::default() }
+    pub fn new() -> Self {
+        MatchedArg::default()
+    }
 }

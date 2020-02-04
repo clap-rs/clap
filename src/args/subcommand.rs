@@ -29,8 +29,10 @@ use ArgMatches;
 /// [arguments]: ./struct.Arg.html
 #[derive(Debug, Clone)]
 pub struct SubCommand<'a> {
-    #[doc(hidden)] pub name: String,
-    #[doc(hidden)] pub matches: ArgMatches<'a>,
+    #[doc(hidden)]
+    pub name: String,
+    #[doc(hidden)]
+    pub matches: ArgMatches<'a>,
 }
 
 impl<'a> SubCommand<'a> {
@@ -46,7 +48,9 @@ impl<'a> SubCommand<'a> {
     ///         SubCommand::with_name("config"))
     /// # ;
     /// ```
-    pub fn with_name<'b>(name: &str) -> App<'a, 'b> { App::new(name) }
+    pub fn with_name<'b>(name: &str) -> App<'a, 'b> {
+        App::new(name)
+    }
 
     /// Creates a new instance of a subcommand from a YAML (.yml) document
     ///
@@ -62,5 +66,7 @@ impl<'a> SubCommand<'a> {
     /// # }
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(yaml: &Yaml) -> App { App::from_yaml(yaml) }
+    pub fn from_yaml(yaml: &Yaml) -> App {
+        App::from_yaml(yaml)
+    }
 }

@@ -1,11 +1,11 @@
 // Std
-use std::io::Write;
 #[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
+use std::io::Write;
 
 // Internal
-use app::App;
 use app::parser::Parser;
+use app::App;
 use args::{AnyArg, ArgSettings};
 use completions;
 use INTERNAL_ERROR_MSG;
@@ -56,7 +56,8 @@ _{name} \"$@\"",
                 initial_args = get_args_of(self.p),
                 subcommands = get_subcommands_of(self.p),
                 subcommand_details = subcommand_details(self.p)
-            ).as_bytes()
+            )
+            .as_bytes()
         );
     }
 }
@@ -91,9 +92,8 @@ _{name} \"$@\"",
 fn subcommand_details(p: &Parser) -> String {
     debugln!("ZshGen::subcommand_details;");
     // First we do ourself
-    let mut ret = vec![
-        format!(
-            "\
+    let mut ret = vec![format!(
+        "\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
 _{bin_name_underscore}_commands() {{
     local commands; commands=(
@@ -101,11 +101,10 @@ _{bin_name_underscore}_commands() {{
     )
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
-            bin_name = p.meta.bin_name.as_ref().unwrap(),
-            subcommands_and_args = subcommands_of(p)
-        ),
-    ];
+        bin_name_underscore = p.meta.bin_name.as_ref().unwrap().replace(" ", "__"),
+        bin_name = p.meta.bin_name.as_ref().unwrap(),
+        subcommands_and_args = subcommands_of(p)
+    )];
 
     // Next we start looping through all the children, grandchildren, etc.
     let mut all_subcommands = completions::all_subcommands(p);
@@ -150,12 +149,12 @@ fn subcommands_of(p: &Parser) -> String {
         let s = format!(
             "\"{name}:{help}\" \\",
             name = n,
-            help = sc.p
-                .meta
-                .about
-                .unwrap_or("")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
+            help =
+                sc.p.meta
+                    .about
+                    .unwrap_or("")
+                    .replace("[", "\\[")
+                    .replace("]", "\\]")
         );
         if !s.is_empty() {
             ret.push(s);
@@ -164,10 +163,7 @@ fn subcommands_of(p: &Parser) -> String {
 
     // The subcommands
     for sc in p.subcommands() {
-        debugln!(
-            "ZshGen::subcommands_of:iter: subcommand={}",
-            sc.p.meta.name
-        );
+        debugln!("ZshGen::subcommands_of:iter: subcommand={}", sc.p.meta.name);
         add_sc(sc, &sc.p.meta.name, &mut ret);
         if let Some(ref v) = sc.p.meta.aliases {
             for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
@@ -360,8 +356,14 @@ fn write_opts_of(p: &Parser) -> String {
             ""
         };
         let pv = if let Some(pv_vec) = o.possible_vals() {
-            format!(": :({})", pv_vec.iter().map(
-                |v| escape_value(*v)).collect::<Vec<String>>().join(" "))
+            format!(
+                ": :({})",
+                pv_vec
+                    .iter()
+                    .map(|v| escape_value(*v))
+                    .collect::<Vec<String>>()
+                    .join(" ")
+            )
         } else {
             String::new()
         };
@@ -451,16 +453,27 @@ fn write_positionals_of(p: &Parser) -> String {
         debugln!("write_positionals_of:iter: arg={}", arg.b.name);
         let a = format!(
             "'{optional}:{name}{help}:{action}' \\",
-            optional = if !arg.b.is_set(ArgSettings::Required) { ":" } else { "" },
+            optional = if !arg.b.is_set(ArgSettings::Required) {
+                ":"
+            } else {
+                ""
+            },
             name = arg.b.name,
-            help = arg.b
+            help = arg
+                .b
                 .help
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]"),
             action = arg.possible_vals().map_or("_files".to_owned(), |values| {
-                format!("({})",
-                    values.iter().map(|v| escape_value(*v)).collect::<Vec<String>>().join(" "))
+                format!(
+                    "({})",
+                    values
+                        .iter()
+                        .map(|v| escape_value(*v))
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                )
             })
         );
 

@@ -10,12 +10,12 @@ pub use self::subcommand::SubCommand;
 
 #[macro_use]
 mod macros;
-mod arg;
 pub mod any_arg;
-mod arg_matches;
-mod arg_matcher;
-mod subcommand;
+mod arg;
 mod arg_builder;
-mod matched_arg;
+mod arg_matcher;
+mod arg_matches;
 mod group;
+mod matched_arg;
 pub mod settings;
+mod subcommand;
