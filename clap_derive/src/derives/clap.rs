@@ -272,7 +272,7 @@ fn gen_augment_app_for_enum(
     let app_methods = parent_attribute.top_level_methods();
     let version = parent_attribute.version();
     quote! {
-        fn augment_app<'b>(
+       pub fn augment_app<'b>(
             app: ::clap::App<'b>
         ) -> ::clap::App<'b> {
             let app = app #app_methods;
@@ -447,7 +447,7 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         }
 
         impl #struct_name {
-            fn parse() -> Self {
+           pub fn parse() -> Self {
                 unimplemented!();
             }
         }
