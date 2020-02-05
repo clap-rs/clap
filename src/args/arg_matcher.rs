@@ -2,27 +2,40 @@
 use std::collections::hash_map::{Entry, Iter};
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::ops::Deref;
 use std::mem;
+use std::ops::Deref;
 
 // Internal
-use args::{ArgMatches, MatchedArg, SubCommand};
-use args::AnyArg;
 use args::settings::ArgSettings;
+use args::AnyArg;
+use args::{ArgMatches, MatchedArg, SubCommand};
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]
 pub struct ArgMatcher<'a>(pub ArgMatches<'a>);
 
 impl<'a> Default for ArgMatcher<'a> {
-    fn default() -> Self { ArgMatcher(ArgMatches::default()) }
+    fn default() -> Self {
+        ArgMatcher(ArgMatches::default())
+    }
 }
 
 impl<'a> ArgMatcher<'a> {
-    pub fn new() -> Self { ArgMatcher::default() }
+    pub fn new() -> Self {
+        ArgMatcher::default()
+    }
 
-    pub fn process_arg_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>, overrides: &mut Vec<(&'b str, &'a str)>, required: &mut Vec<&'a str>, check_all: bool) {
-        debugln!("ArgMatcher::process_arg_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
+    pub fn process_arg_overrides<'b>(
+        &mut self,
+        a: Option<&AnyArg<'a, 'b>>,
+        overrides: &mut Vec<(&'b str, &'a str)>,
+        required: &mut Vec<&'a str>,
+        check_all: bool,
+    ) {
+        debugln!(
+            "ArgMatcher::process_arg_overrides:{:?};",
+            a.map_or(None, |a| Some(a.name()))
+        );
         if let Some(aa) = a {
             let mut self_done = false;
             if let Some(a_overrides) = aa.overrides() {
@@ -32,11 +45,17 @@ impl<'a> ArgMatcher<'a> {
                         self_done = true;
                         self.handle_self_overrides(a);
                     } else if self.is_present(overr) {
-                        debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing from matches;", overr);
+                        debugln!(
+                            "ArgMatcher::process_arg_overrides:iter:{}: removing from matches;",
+                            overr
+                        );
                         self.remove(overr);
-                        for i in (0 .. required.len()).rev() {
+                        for i in (0..required.len()).rev() {
                             if &required[i] == overr {
-                                debugln!("ArgMatcher::process_arg_overrides:iter:{}: removing required;", overr);
+                                debugln!(
+                                    "ArgMatcher::process_arg_overrides:iter:{}: removing required;",
+                                    overr
+                                );
                                 required.swap_remove(i);
                                 break;
                             }
@@ -54,7 +73,10 @@ impl<'a> ArgMatcher<'a> {
     }
 
     pub fn handle_self_overrides<'b>(&mut self, a: Option<&AnyArg<'a, 'b>>) {
-        debugln!("ArgMatcher::handle_self_overrides:{:?};", a.map_or(None, |a| Some(a.name())));
+        debugln!(
+            "ArgMatcher::handle_self_overrides:{:?};",
+            a.map_or(None, |a| Some(a.name()))
+        );
         if let Some(aa) = a {
             if !aa.has_switch() || aa.is_set(ArgSettings::Multiple) {
                 // positional args can't override self or else we would never advance to the next
@@ -81,7 +103,10 @@ impl<'a> ArgMatcher<'a> {
     }
 
     pub fn propagate_globals(&mut self, global_arg_vec: &[&'a str]) {
-        debugln!( "ArgMatcher::get_global_values: global_arg_vec={:?}", global_arg_vec );
+        debugln!(
+            "ArgMatcher::get_global_values: global_arg_vec={:?}",
+            global_arg_vec
+        );
         let mut vals_map = HashMap::new();
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
@@ -122,11 +147,17 @@ impl<'a> ArgMatcher<'a> {
         }
     }
 
-    pub fn get_mut(&mut self, arg: &str) -> Option<&mut MatchedArg> { self.0.args.get_mut(arg) }
+    pub fn get_mut(&mut self, arg: &str) -> Option<&mut MatchedArg> {
+        self.0.args.get_mut(arg)
+    }
 
-    pub fn get(&self, arg: &str) -> Option<&MatchedArg> { self.0.args.get(arg) }
+    pub fn get(&self, arg: &str) -> Option<&MatchedArg> {
+        self.0.args.get(arg)
+    }
 
-    pub fn remove(&mut self, arg: &str) { self.0.args.remove(arg); }
+    pub fn remove(&mut self, arg: &str) {
+        self.0.args.remove(arg);
+    }
 
     pub fn remove_all(&mut self, args: &[&str]) {
         for &arg in args {
@@ -134,23 +165,41 @@ impl<'a> ArgMatcher<'a> {
         }
     }
 
-    pub fn insert(&mut self, name: &'a str) { self.0.args.insert(name, MatchedArg::new()); }
+    pub fn insert(&mut self, name: &'a str) {
+        self.0.args.insert(name, MatchedArg::new());
+    }
 
-    pub fn contains(&self, arg: &str) -> bool { self.0.args.contains_key(arg) }
+    pub fn contains(&self, arg: &str) -> bool {
+        self.0.args.contains_key(arg)
+    }
 
-    pub fn is_empty(&self) -> bool { self.0.args.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.0.args.is_empty()
+    }
 
-    pub fn usage(&mut self, usage: String) { self.0.usage = Some(usage); }
+    pub fn usage(&mut self, usage: String) {
+        self.0.usage = Some(usage);
+    }
 
-    pub fn arg_names(&'a self) -> Vec<&'a str> { self.0.args.keys().map(Deref::deref).collect() }
+    pub fn arg_names(&'a self) -> Vec<&'a str> {
+        self.0.args.keys().map(Deref::deref).collect()
+    }
 
-    pub fn entry(&mut self, arg: &'a str) -> Entry<&'a str, MatchedArg> { self.0.args.entry(arg) }
+    pub fn entry(&mut self, arg: &'a str) -> Entry<&'a str, MatchedArg> {
+        self.0.args.entry(arg)
+    }
 
-    pub fn subcommand(&mut self, sc: SubCommand<'a>) { self.0.subcommand = Some(Box::new(sc)); }
+    pub fn subcommand(&mut self, sc: SubCommand<'a>) {
+        self.0.subcommand = Some(Box::new(sc));
+    }
 
-    pub fn subcommand_name(&self) -> Option<&str> { self.0.subcommand_name() }
+    pub fn subcommand_name(&self) -> Option<&str> {
+        self.0.subcommand_name()
+    }
 
-    pub fn iter(&self) -> Iter<&str, MatchedArg> { self.0.args.iter() }
+    pub fn iter(&self) -> Iter<&str, MatchedArg> {
+        self.0.args.iter()
+    }
 
     pub fn inc_occurrence_of(&mut self, arg: &'a str) {
         debugln!("ArgMatcher::inc_occurrence_of: arg={}", arg);
@@ -214,5 +263,7 @@ impl<'a> ArgMatcher<'a> {
 }
 
 impl<'a> Into<ArgMatches<'a>> for ArgMatcher<'a> {
-    fn into(self) -> ArgMatches<'a> { self.0 }
+    fn into(self) -> ArgMatches<'a> {
+        self.0
+    }
 }

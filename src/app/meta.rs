@@ -22,7 +22,9 @@ pub struct AppMeta<'b> {
 }
 
 impl<'b> AppMeta<'b> {
-    pub fn new() -> Self { Default::default() }
+    pub fn new() -> Self {
+        Default::default()
+    }
     pub fn with_name(s: String) -> Self {
         AppMeta {
             name: s,

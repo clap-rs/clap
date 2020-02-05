@@ -1,23 +1,23 @@
 #[macro_use]
 mod macros;
 mod bash;
-mod fish;
-mod zsh;
-mod powershell;
 mod elvish;
+mod fish;
+mod powershell;
 mod shell;
+mod zsh;
 
 // Std
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
 use self::bash::BashGen;
-use self::fish::FishGen;
-use self::zsh::ZshGen;
-use self::powershell::PowerShellGen;
 use self::elvish::ElvishGen;
+use self::fish::FishGen;
+use self::powershell::PowerShellGen;
 pub use self::shell::Shell;
+use self::zsh::ZshGen;
+use app::parser::Parser;
 
 pub struct ComplGen<'a, 'b>
 where
@@ -27,7 +27,9 @@ where
 }
 
 impl<'a, 'b> ComplGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { ComplGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
+        ComplGen { p: p }
+    }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {
         match for_shell {
@@ -155,13 +157,13 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
     }
     for sc in &p.subcommands {
         let name = &*sc.p.meta.name;
-        let path = sc.p
-            .meta
-            .bin_name
-            .as_ref()
-            .unwrap()
-            .clone()
-            .replace(" ", "__");
+        let path =
+            sc.p.meta
+                .bin_name
+                .as_ref()
+                .unwrap()
+                .clone()
+                .replace(" ", "__");
         subcmds.push(path.clone());
         if let Some(ref aliases) = sc.p.meta.aliases {
             for &(n, _) in aliases {
@@ -169,7 +171,8 @@ pub fn get_all_subcommand_paths(p: &Parser, first: bool) -> Vec<String> {
             }
         }
     }
-    for sc_v in p.subcommands
+    for sc_v in p
+        .subcommands
         .iter()
         .map(|s| get_all_subcommand_paths(&s.p, false))
     {

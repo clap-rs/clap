@@ -1,16 +1,16 @@
 // Std
 use std::borrow::Cow;
+use std::ffi::{OsStr, OsString};
 use std::fmt::{Display, Formatter, Result};
+use std::mem;
 use std::rc::Rc;
 use std::result::Result as StdResult;
-use std::ffi::{OsStr, OsString};
-use std::mem;
 
 // Internal
-use Arg;
 use args::{AnyArg, ArgSettings, Base, DispOrder, Valued};
-use INTERNAL_ERROR_MSG;
 use map::{self, VecMap};
+use Arg;
+use INTERNAL_ERROR_MSG;
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -39,7 +39,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             v: Valued::from(a),
             index: idx,
         };
-        if a.v.max_vals.is_some() || a.v.min_vals.is_some()
+        if a.v.max_vals.is_some()
+            || a.v.min_vals.is_some()
             || (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
         {
             pb.b.settings.set(ArgSettings::Multiple);
@@ -48,7 +49,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn from_arg(mut a: Arg<'n, 'e>, idx: u64) -> Self {
-        if a.v.max_vals.is_some() || a.v.min_vals.is_some()
+        if a.v.max_vals.is_some()
+            || a.v.min_vals.is_some()
             || (a.v.num_vals.is_some() && a.v.num_vals.unwrap() > 1)
         {
             a.b.settings.set(ArgSettings::Multiple);
@@ -61,7 +63,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
     }
 
     pub fn multiple_str(&self) -> &str {
-        let mult_vals = self.v
+        let mult_vals = self
+            .v
             .val_names
             .as_ref()
             .map_or(true, |names| names.len() < 2);
@@ -132,60 +135,108 @@ impl<'n, 'e> Display for PosBuilder<'n, 'e> {
 }
 
 impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
-    fn name(&self) -> &'n str { self.b.name }
-    fn overrides(&self) -> Option<&[&'e str]> { self.b.overrides.as_ref().map(|o| &o[..]) }
+    fn name(&self) -> &'n str {
+        self.b.name
+    }
+    fn overrides(&self) -> Option<&[&'e str]> {
+        self.b.overrides.as_ref().map(|o| &o[..])
+    }
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]> {
         self.b.requires.as_ref().map(|o| &o[..])
     }
-    fn blacklist(&self) -> Option<&[&'e str]> { self.b.blacklist.as_ref().map(|o| &o[..]) }
-    fn required_unless(&self) -> Option<&[&'e str]> { self.b.r_unless.as_ref().map(|o| &o[..]) }
-    fn val_names(&self) -> Option<&VecMap<&'e str>> { self.v.val_names.as_ref() }
-    fn is_set(&self, s: ArgSettings) -> bool { self.b.settings.is_set(s) }
-    fn set(&mut self, s: ArgSettings) { self.b.settings.set(s) }
-    fn has_switch(&self) -> bool { false }
-    fn max_vals(&self) -> Option<u64> { self.v.max_vals }
-    fn val_terminator(&self) -> Option<&'e str> { self.v.terminator }
-    fn num_vals(&self) -> Option<u64> { self.v.num_vals }
-    fn possible_vals(&self) -> Option<&[&'e str]> { self.v.possible_vals.as_ref().map(|o| &o[..]) }
+    fn blacklist(&self) -> Option<&[&'e str]> {
+        self.b.blacklist.as_ref().map(|o| &o[..])
+    }
+    fn required_unless(&self) -> Option<&[&'e str]> {
+        self.b.r_unless.as_ref().map(|o| &o[..])
+    }
+    fn val_names(&self) -> Option<&VecMap<&'e str>> {
+        self.v.val_names.as_ref()
+    }
+    fn is_set(&self, s: ArgSettings) -> bool {
+        self.b.settings.is_set(s)
+    }
+    fn set(&mut self, s: ArgSettings) {
+        self.b.settings.set(s)
+    }
+    fn has_switch(&self) -> bool {
+        false
+    }
+    fn max_vals(&self) -> Option<u64> {
+        self.v.max_vals
+    }
+    fn val_terminator(&self) -> Option<&'e str> {
+        self.v.terminator
+    }
+    fn num_vals(&self) -> Option<u64> {
+        self.v.num_vals
+    }
+    fn possible_vals(&self) -> Option<&[&'e str]> {
+        self.v.possible_vals.as_ref().map(|o| &o[..])
+    }
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
     }
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
         self.v.validator_os.as_ref()
     }
-    fn min_vals(&self) -> Option<u64> { self.v.min_vals }
-    fn short(&self) -> Option<char> { None }
-    fn long(&self) -> Option<&'e str> { None }
-    fn val_delim(&self) -> Option<char> { self.v.val_delim }
-    fn takes_value(&self) -> bool { true }
-    fn help(&self) -> Option<&'e str> { self.b.help }
-    fn long_help(&self) -> Option<&'e str> { self.b.long_help }
+    fn min_vals(&self) -> Option<u64> {
+        self.v.min_vals
+    }
+    fn short(&self) -> Option<char> {
+        None
+    }
+    fn long(&self) -> Option<&'e str> {
+        None
+    }
+    fn val_delim(&self) -> Option<char> {
+        self.v.val_delim
+    }
+    fn takes_value(&self) -> bool {
+        true
+    }
+    fn help(&self) -> Option<&'e str> {
+        self.b.help
+    }
+    fn long_help(&self) -> Option<&'e str> {
+        self.b.long_help
+    }
     fn default_vals_ifs(&self) -> Option<map::Values<(&'n str, Option<&'e OsStr>, &'e OsStr)>> {
         self.v.default_vals_ifs.as_ref().map(|vm| vm.values())
     }
-    fn default_val(&self) -> Option<&'e OsStr> { self.v.default_val }
+    fn default_val(&self) -> Option<&'e OsStr> {
+        self.v.default_val
+    }
     fn env<'s>(&'s self) -> Option<(&'n OsStr, Option<&'s OsString>)> {
         self.v
             .env
             .as_ref()
             .map(|&(key, ref value)| (key, value.as_ref()))
     }
-    fn longest_filter(&self) -> bool { true }
-    fn aliases(&self) -> Option<Vec<&'e str>> { None }
+    fn longest_filter(&self) -> bool {
+        true
+    }
+    fn aliases(&self) -> Option<Vec<&'e str>> {
+        None
+    }
 }
 
 impl<'n, 'e> DispOrder for PosBuilder<'n, 'e> {
-    fn disp_ord(&self) -> usize { self.index as usize }
+    fn disp_ord(&self) -> usize {
+        self.index as usize
+    }
 }
 
 impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
-    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool { self.b == other.b }
+    fn eq(&self, other: &PosBuilder<'n, 'e>) -> bool {
+        self.b == other.b
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use args::settings::ArgSettings;
     use super::PosBuilder;
+    use args::settings::ArgSettings;
     use map::VecMap;
 
     #[test]

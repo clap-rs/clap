@@ -26,12 +26,13 @@ fn main() {
     // **NOTE:** to use the macros, you must include #[macro_use] just above the 'extern crate clap;'
     // declaration in your crate root.
     let matches = App::new("myapp")
-                        // Create two arguments, a required positional which accepts multiple values
-                        // and an optional '-l value'
-                        .args_from_usage(
-                            "<seq>... 'A sequence of whole positive numbers, i.e. 20 25 30'
-                            -l [len] 'A length to use, defaults to 10 when omitted'")
-                        .get_matches();
+        // Create two arguments, a required positional which accepts multiple values
+        // and an optional '-l value'
+        .args_from_usage(
+            "<seq>... 'A sequence of whole positive numbers, i.e. 20 25 30'
+                            -l [len] 'A length to use, defaults to 10 when omitted'",
+        )
+        .get_matches();
 
     // Here we get a value of type u32 from our optional -l argument.
     // If the value provided to len fails to parse, we default to 10

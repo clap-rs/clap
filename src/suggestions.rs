@@ -57,7 +57,7 @@ where
             "\n\tDid you mean {}{}?",
             Format::Good("--"),
             Format::Good(candidate)
-            );
+        );
         return (suffix, Some(candidate));
     }
 
@@ -73,11 +73,11 @@ where
 
             let candidate = match did_you_mean(arg, opts) {
                 Some(candidate) => candidate,
-                None => return None
+                None => return None,
             };
             let score = match args_rest.iter().position(|x| *x == subcommand.get_name()) {
                 Some(score) => score,
-                None => return None
+                None => return None,
             };
 
             let suffix = format!(

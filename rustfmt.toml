@@ -1,4 +1,0 @@
-format_strings = false
-chain_overflow_last = false
-same_line_if_else = true
-fn_single_line = true

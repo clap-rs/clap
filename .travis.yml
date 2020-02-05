@@ -1,67 +1,66 @@
-sudo: true
+os: linux
 language: rust
-cache:
-  directories:
-    - $HOME/.cargo
-    - $HOME/.rustup
+cache: cargo
 before_cache:
-  - rm -rf /home/travis/.cargo/registry
-rust:
-  - nightly
-  - nightly-2019-06-18
-  - beta
-  - stable
-  - 1.33.0
-matrix:
-    allow_failures:
-        - rust: nightly
-    nightly-2019-06-18:
-        - script: cargo clippy
-before_script:
-  - |
-    pip install git+git://github.com/kbknapp/travis-cargo.git --user &&
-    export PATH=$HOME/.local/bin:$PATH
-  - |
-    if [[ "$TRAVIS_RUST_VERSION" == "1.13.0" ]]; then
-        echo "Old Rust detected, removing version-sync dependency"
-        sed -i "/^version-sync =/d" Cargo.toml
-        rm "tests/version-numbers.rs"
-    fi
+  - find target/debug -type f -maxdepth 1 -delete
+  - rm -rf target/.rustc_info.json
+  - rm -rf target/debug/examples
+  - rm -rf target/debug/incremental
+  - rm -rf target/tests/target/debug/incremental
+  - rm -rf target/tests/target/debug/deps/{clap*, trybuild*}
+  - rm -rf target/debug/{deps,.fingerpint}/clap*
+  - find target/debug/deps -name "clap*" -exec rm -rf {} +
+  - ls -1 examples/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
+  - ls -1 tests/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
+rust: stable
+branches:
+  only:
+    # Always build master & Enable building pull requests.
+    - v2-master
+jobs:
+  allow_failures:
+    - rust: nightly
+    - env:
+        - SHARD=coverage
+  fast_finish: true
+  include:
+    - os: osx
+      rust: 1.36.0
+    - rust: 1.36.0
+    - {}
+    - rust: beta
+    - rust: nightly
+    - env:
+        - SHARD=lint
+      before_script:
+        - rustup component add clippy
+        - rustup component add rustfmt
+      script:
+        - echo "Checking codebase with Clippy release `cargo clippy --version`."
+        - cargo clippy --lib --features "yaml unstable"
+        - cargo clippy --tests --examples --features "yaml unstable"
+        - cargo fmt -- --check
+    - rust: nightly
+      env:
+        - SHARD=bench
+      script:
+        - cargo bench
+    - env:
+        - SHARD=coverage
+      addons:
+        apt:
+          packages:
+            - libssl-dev
+            - cmake
+            - pkg-config
+            - zlib1g-dev
+          update: true
+      before_script:
+        - cargo install cargo-tarpaulin
+      script:
+        - cargo tarpaulin --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
 script:
-  - |
-    travis-cargo --only stable test -- --verbose --no-default-features &&
-    travis-cargo --skip nightly test -- --verbose --features "yaml unstable" &&
-    travis-cargo --only nightly test -- --verbose --features "yaml unstable nightly" &&
-    travis-cargo --only nightly bench -- --no-run 
-addons:
-  apt:
-    packages:
-    - binutils-dev 
-    - libcurl4-openssl-dev
-    - libelf-dev
-    - libdw-dev
-    - libiberty-dev
-    - cmake
-    - gcc
-    - zlib1g-dev 
-after_success:
-  - |
-    wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-    tar xzf master.tar.gz &&
-    cd kcov-master &&
-    mkdir build &&
-    cd build &&
-    cmake .. &&
-    make &&
-    sudo make install &&
-    cd ../.. &&
-    rm -rf kcov-master &&
-    cargo clean &&
-    cargo test --no-run --features "yaml unstable" &&
-    for file in target/debug/*-*; do mkdir -p "target/cov/$(basename $file)"; kcov --exclude-pattern=/.cargo --verify "target/cov/$(basename $file)" "$file"; done &&
-    kcov --coveralls-id=$TRAVIS_JOB_ID --merge target/cov target/cov/* &&
-    echo "Uploaded code coverage"
-env:
-  global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=lints
-    - secure: JLBlgHY6OEmhJ8woewNJHmuBokTNUv7/WvLkJGV8xk0t6bXBwSU0jNloXwlH7FiQTc4TccX0PumPDD4MrMgxIAVFPmmmlQOCmdpYP4tqZJ8xo189E5zk8lKF5OyaVYCs5SMmFC3cxCsKjfwGIexNu3ck5Uhwe9jI0tqgkgM3URA=
+  - cargo test --no-default-features
+  - cargo test --features yaml unstable
+notifications:
+  email: false

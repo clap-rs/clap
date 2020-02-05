@@ -1,19 +1,19 @@
 // std
-use std::fmt::Display;
 #[allow(deprecated, unused_imports)]
 use std::ascii::AsciiExt;
+use std::fmt::Display;
 
 // Internal
+use app::parser::{ParseResult, Parser};
+use app::settings::AppSettings as AS;
+use app::usage;
+use args::settings::ArgSettings;
+use args::{AnyArg, ArgMatcher, MatchedArg};
+use errors::Result as ClapResult;
+use errors::{Error, ErrorKind};
+use fmt::{Colorizer, ColorizerOption};
 use INTERNAL_ERROR_MSG;
 use INVALID_UTF8;
-use args::{AnyArg, ArgMatcher, MatchedArg};
-use args::settings::ArgSettings;
-use errors::{Error, ErrorKind};
-use errors::Result as ClapResult;
-use app::settings::AppSettings as AS;
-use app::parser::{ParseResult, Parser};
-use fmt::{Colorizer, ColorizerOption};
-use app::usage;
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
 where
@@ -21,7 +21,9 @@ where
     'b: 'z;
 
 impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
-    pub fn new(p: &'z mut Parser<'a, 'b>) -> Self { Validator(p) }
+    pub fn new(p: &'z mut Parser<'a, 'b>) -> Self {
+        Validator(p)
+    }
 
     pub fn validate(
         &mut self,
@@ -37,11 +39,11 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             debugln!("Validator::validate: needs_val_of={:?}", a);
             let o = {
                 self.0
-                .opts
-                .iter()
-                .find(|o| o.b.name == a)
-                .expect(INTERNAL_ERROR_MSG)
-                .clone()
+                    .opts
+                    .iter()
+                    .find(|o| o.b.name == a)
+                    .expect(INTERNAL_ERROR_MSG)
+                    .clone()
             };
             self.validate_required(matcher)?;
             reqs_validated = true;
@@ -59,7 +61,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             }
         }
 
-        if matcher.is_empty() && matcher.subcommand_name().is_none()
+        if matcher.is_empty()
+            && matcher.subcommand_name().is_none()
             && self.0.is_set(AS::ArgRequiredElseHelp)
         {
             let mut out = vec![];
@@ -119,7 +122,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     ));
                 }
             }
-            if !arg.is_set(ArgSettings::EmptyValues) && val.is_empty()
+            if !arg.is_set(ArgSettings::EmptyValues)
+                && val.is_empty()
                 && matcher.contains(&*arg.name())
             {
                 debugln!("Validator::validate_arg_values: illegal empty val found");
@@ -158,15 +162,15 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     fn build_err(&self, name: &str, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0, &name, blacklist, matcher);
-        c_with = c_with.or(
-        self.0.find_any_arg(name).map_or(None, |aa| aa.blacklist())
-            .map_or(None,
-                    |bl| bl.iter().find(|arg| matcher.contains(arg)))
+        c_with = c_with.or(self
+            .0
+            .find_any_arg(name)
+            .map_or(None, |aa| aa.blacklist())
+            .map_or(None, |bl| bl.iter().find(|arg| matcher.contains(arg)))
             .map_or(None, |an| self.0.find_any_arg(an))
-            .map_or(None, |aa| Some(format!("{}", aa)))
-        );
+            .map_or(None, |aa| Some(format!("{}", aa))));
         debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
-//        matcher.remove(&name);
+        //        matcher.remove(&name);
         let usg = usage::create_error_usage(self.0, matcher, None);
         if let Some(f) = find_by_name!(self.0, name, flags, iter) {
             debugln!("build_err!: It was a flag...");
@@ -179,8 +183,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 Some(p) => {
                     debugln!("build_err!: It was a positional...");
                     Err(Error::argument_conflict(p, c_with, &*usg, self.0.color()))
-                },
-                None    => panic!(INTERNAL_ERROR_MSG)
+                }
+                None => panic!(INTERNAL_ERROR_MSG),
             }
         }
     }
@@ -219,7 +223,11 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 debugln!("Validator::validate_blacklist:iter:{}:group;", name);
                 let args = self.0.arg_names_in_group(name);
                 for arg in &args {
-                    debugln!("Validator::validate_blacklist:iter:{}:group:iter:{};", name, arg);
+                    debugln!(
+                        "Validator::validate_blacklist:iter:{}:group:iter:{};",
+                        name,
+                        arg
+                    );
                     if let Some(bl) = find_any_by_name!(self.0, *arg).unwrap().blacklist() {
                         for conf in bl {
                             if matcher.get(conf).is_some() {
@@ -293,7 +301,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                 self.validate_arg_values(pos, ma, matcher)?;
                 self.validate_arg_requires(pos, ma, matcher)?;
             } else {
-                let grp = self.0
+                let grp = self
+                    .0
                     .groups
                     .iter()
                     .find(|g| &g.name == name)
@@ -475,7 +484,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         }
         if should_err {
             for r in &to_rem {
-                'inner: for i in (0 .. self.0.required.len()).rev() {
+                'inner: for i in (0..self.0.required.len()).rev() {
                     if &self.0.required[i] == r {
                         self.0.required.swap_remove(i);
                         break 'inner;
@@ -501,7 +510,8 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         a.blacklist().map(|bl| {
             bl.iter().any(|conf| {
                 matcher.contains(conf)
-                    || self.0
+                    || self
+                        .0
                         .groups
                         .iter()
                         .find(|g| &g.name == conf)
@@ -518,7 +528,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     ru.iter().$how(|n| {
                         $m.contains(n) || {
                             if let Some(grp) = $_self.groups.iter().find(|g| &g.name == n) {
-                                     grp.args.iter().any(|arg| $m.contains(arg))
+                                grp.args.iter().any(|arg| $m.contains(arg))
                             } else {
                                 false
                             }

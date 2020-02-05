@@ -3,7 +3,7 @@ extern crate regex;
 
 include!("../clap-test.rs");
 
-use clap::{App, Arg, ErrorKind, ArgGroup};
+use clap::{App, Arg, ArgGroup, ErrorKind};
 
 static REQUIRE_EQUALS: &'static str = "error: The following required arguments were not provided:
     --opt=<FILE>
@@ -22,7 +22,8 @@ USAGE:
 
 For more information try --help";
 
-static COND_REQ_IN_USAGE: &'static str = "error: The following required arguments were not provided:
+static COND_REQ_IN_USAGE: &'static str =
+    "error: The following required arguments were not provided:
     --output <output>
 
 USAGE:
@@ -43,13 +44,17 @@ For more information try --help";
 #[test]
 fn issue_1158_conflicting_requirements() {
     let app = App::new("example")
-        .arg(Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
-             .required_unless("ID")
-             .conflicts_with("ID"))
-        .arg(Arg::from_usage("[ID] 'ID'")
-             .required_unless("config")
-             .conflicts_with("config")
-             .requires_all(&["x", "y", "z"]))
+        .arg(
+            Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+                .required_unless("ID")
+                .conflicts_with("ID"),
+        )
+        .arg(
+            Arg::from_usage("[ID] 'ID'")
+                .required_unless("config")
+                .conflicts_with("config")
+                .requires_all(&["x", "y", "z"]),
+        )
         .arg(Arg::from_usage("-x [X] 'X'"))
         .arg(Arg::from_usage("-y [Y] 'Y'"))
         .arg(Arg::from_usage("-z [Z] 'Z'"));
@@ -60,13 +65,17 @@ fn issue_1158_conflicting_requirements() {
 #[test]
 fn issue_1158_conflicting_requirements_rev() {
     let res = App::new("example")
-        .arg(Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
-             .required_unless("ID")
-             .conflicts_with("ID"))
-        .arg(Arg::from_usage("[ID] 'ID'")
-             .required_unless("config")
-             .conflicts_with("config")
-             .requires_all(&["x", "y", "z"]))
+        .arg(
+            Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+                .required_unless("ID")
+                .conflicts_with("ID"),
+        )
+        .arg(
+            Arg::from_usage("[ID] 'ID'")
+                .required_unless("config")
+                .conflicts_with("config")
+                .requires_all(&["x", "y", "z"]),
+        )
         .arg(Arg::from_usage("-x [X] 'X'"))
         .arg(Arg::from_usage("-y [Y] 'Y'"))
         .arg(Arg::from_usage("-z [Z] 'Z'"))
@@ -122,9 +131,7 @@ fn option_required_2() {
 #[test]
 fn positional_required() {
     let result = App::new("positional_required")
-        .arg(Arg::with_name("flag")
-            .index(1)
-            .required(true))
+        .arg(Arg::with_name("flag").index(1).required(true))
         .get_matches_from_safe(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -134,9 +141,7 @@ fn positional_required() {
 #[test]
 fn positional_required_2() {
     let m = App::new("positional_required")
-        .arg(Arg::with_name("flag")
-            .index(1)
-            .required(true))
+        .arg(Arg::with_name("flag").index(1).required(true))
         .get_matches_from(vec!["", "someval"]);
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "someval");
@@ -146,10 +151,12 @@ fn positional_required_2() {
 fn group_required() {
     let result = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
-            .required(true)
-            .arg("some")
-            .arg("other"))
+        .group(
+            ArgGroup::with_name("gr")
+                .required(true)
+                .arg("some")
+                .arg("other"),
+        )
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
@@ -162,10 +169,12 @@ fn group_required() {
 fn group_required_2() {
     let m = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
-            .required(true)
-            .arg("some")
-            .arg("other"))
+        .group(
+            ArgGroup::with_name("gr")
+                .required(true)
+                .arg("some")
+                .arg("other"),
+        )
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
@@ -178,10 +187,12 @@ fn group_required_2() {
 fn group_required_3() {
     let m = App::new("group_required")
         .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .group(ArgGroup::with_name("gr")
-            .required(true)
-            .arg("some")
-            .arg("other"))
+        .group(
+            ArgGroup::with_name("gr")
+                .required(true)
+                .arg("some")
+                .arg("other"),
+        )
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);
@@ -194,9 +205,7 @@ fn group_required_3() {
 fn arg_require_group() {
     let result = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr")
-            .arg("some")
-            .arg("other"))
+        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from_safe(vec!["", "-f"]);
@@ -209,9 +218,7 @@ fn arg_require_group() {
 fn arg_require_group_2() {
     let m = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr")
-            .arg("some")
-            .arg("other"))
+        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--some"]);
@@ -224,9 +231,7 @@ fn arg_require_group_2() {
 fn arg_require_group_3() {
     let m = App::new("arg_require_group")
         .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
-        .group(ArgGroup::with_name("gr")
-            .arg("some")
-            .arg("other"))
+        .group(ArgGroup::with_name("gr").arg("some").arg("other"))
         .arg(Arg::from_usage("--some 'some arg'"))
         .arg(Arg::from_usage("--other 'other arg'"))
         .get_matches_from(vec!["", "-f", "--other"]);
@@ -240,16 +245,25 @@ fn arg_require_group_3() {
 #[test]
 fn issue_753() {
     let m = App::new("test")
-        .arg(Arg::from_usage("-l, --list 'List available interfaces (and stop there)'"))
-        .arg(Arg::from_usage("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
-            .required_unless("list"))
-        .arg(Arg::from_usage("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
-            .conflicts_with("iface")
-            .required_unless("list"))
-        .arg(Arg::from_usage("-s, --server=[SERVER_IP] 'NTP server IP address'")
-            .required_unless("list"))
-        .arg(Arg::from_usage("-p, --port=[SERVER_PORT] 'NTP server port'")
-            .default_value("123"))
+        .arg(Arg::from_usage(
+            "-l, --list 'List available interfaces (and stop there)'",
+        ))
+        .arg(
+            Arg::from_usage(
+                "-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'",
+            )
+            .required_unless("list"),
+        )
+        .arg(
+            Arg::from_usage("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
+                .conflicts_with("iface")
+                .required_unless("list"),
+        )
+        .arg(
+            Arg::from_usage("-s, --server=[SERVER_IP] 'NTP server IP address'")
+                .required_unless("list"),
+        )
+        .arg(Arg::from_usage("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .get_matches_from_safe(vec!["test", "--list"]);
     assert!(m.is_ok());
 }
@@ -257,10 +271,12 @@ fn issue_753() {
 #[test]
 fn required_unless() {
     let res = App::new("unlesstest")
-        .arg(Arg::with_name("cfg")
-            .required_unless("dbg")
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless("dbg")
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
         .get_matches_from_safe(vec!["unlesstest", "--debug"]);
 
@@ -273,10 +289,12 @@ fn required_unless() {
 #[test]
 fn required_unless_err() {
     let res = App::new("unlesstest")
-        .arg(Arg::with_name("cfg")
-            .required_unless("dbg")
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless("dbg")
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
         .get_matches_from_safe(vec!["unlesstest"]);
 
@@ -289,14 +307,14 @@ fn required_unless_err() {
 #[test]
 fn required_unless_all() {
     let res = App::new("unlessall")
-        .arg(Arg::with_name("cfg")
-            .required_unless_all(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_all(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessall", "--debug", "-i", "file"]);
 
     assert!(res.is_ok());
@@ -309,14 +327,14 @@ fn required_unless_all() {
 #[test]
 fn required_unless_all_err() {
     let res = App::new("unlessall")
-        .arg(Arg::with_name("cfg")
-            .required_unless_all(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_all(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessall", "--debug"]);
 
     assert!(res.is_err());
@@ -328,14 +346,14 @@ fn required_unless_all_err() {
 #[test]
 fn required_unless_one() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .required_unless_one(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_one(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
@@ -349,14 +367,14 @@ fn required_unless_one_2() {
     // This tests that the required_unless_one works when the second arg in the array is used
     // instead of the first.
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .required_unless_one(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_one(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "-i", "file"]);
 
     assert!(res.is_ok());
@@ -374,8 +392,9 @@ fn required_unless_one_works_with_short() {
         .arg(
             Arg::with_name("x")
                 .short("x")
-                .required_unless_one(&["a", "b"])
-        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+                .required_unless_one(&["a", "b"]),
+        )
+        .get_matches_from_safe(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -388,8 +407,9 @@ fn required_unless_one_works_with_short_err() {
         .arg(
             Arg::with_name("x")
                 .short("x")
-                .required_unless_one(&["a", "b"])
-        ).get_matches_from_safe(vec!["unlessone"]);
+                .required_unless_one(&["a", "b"]),
+        )
+        .get_matches_from_safe(vec!["unlessone"]);
 
     assert!(!res.is_ok());
 }
@@ -399,10 +419,8 @@ fn required_unless_one_works_without() {
     let res = App::new("unlessone")
         .arg(Arg::with_name("a").conflicts_with("b").short("a"))
         .arg(Arg::with_name("b").short("b"))
-        .arg(
-            Arg::with_name("x")
-                .required_unless_one(&["a", "b"])
-        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+        .arg(Arg::with_name("x").required_unless_one(&["a", "b"]))
+        .get_matches_from_safe(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -415,8 +433,9 @@ fn required_unless_one_works_with_long() {
         .arg(
             Arg::with_name("x")
                 .long("x_is_the_option")
-                .required_unless_one(&["a", "b"])
-        ).get_matches_from_safe(vec!["unlessone", "-a"]);
+                .required_unless_one(&["a", "b"]),
+        )
+        .get_matches_from_safe(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
@@ -424,14 +443,14 @@ fn required_unless_one_works_with_long() {
 #[test]
 fn required_unless_one_1() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .required_unless_one(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_one(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessone", "--debug"]);
 
     assert!(res.is_ok());
@@ -444,14 +463,14 @@ fn required_unless_one_1() {
 #[test]
 fn required_unless_one_err() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .required_unless_one(&["dbg", "infile"])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_unless_one(&["dbg", "infile"])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("dbg").long("debug"))
-        .arg(Arg::with_name("infile")
-            .short("i")
-            .takes_value(true))
+        .arg(Arg::with_name("infile").short("i").takes_value(true))
         .get_matches_from_safe(vec!["unlessone"]);
 
     assert!(res.is_err());
@@ -460,7 +479,12 @@ fn required_unless_one_err() {
 
 #[test]
 fn missing_required_output() {
-    assert!(test::compare_output(test::complex_app(), "clap-test -F", MISSING_REQ, true));
+    assert!(test::compare_output(
+        test::complex_app(),
+        "clap-test -F",
+        MISSING_REQ,
+        true
+    ));
 }
 
 // Conditional external requirements
@@ -468,10 +492,12 @@ fn missing_required_output() {
 #[test]
 fn requires_if_present_val() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .requires_if("my.cfg", "extra")
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .requires_if("my.cfg", "extra")
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("extra").long("extra"))
         .get_matches_from_safe(vec!["unlessone", "--config=my.cfg"]);
 
@@ -482,10 +508,12 @@ fn requires_if_present_val() {
 #[test]
 fn requires_if_present_mult() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("extra").long("extra"))
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from_safe(vec!["unlessone", "--config=other.cfg"]);
@@ -497,10 +525,12 @@ fn requires_if_present_mult() {
 #[test]
 fn requires_if_present_mult_pass() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .requires_ifs(&[("my.cfg", "extra"), ("other.cfg", "other")])
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("extra").long("extra"))
         .arg(Arg::with_name("other").long("other"))
         .get_matches_from_safe(vec!["unlessone", "--config=some.cfg"]);
@@ -512,10 +542,12 @@ fn requires_if_present_mult_pass() {
 #[test]
 fn requires_if_present_val_no_present_pass() {
     let res = App::new("unlessone")
-        .arg(Arg::with_name("cfg")
-            .requires_if("my.cfg", "extra")
-            .takes_value(true)
-            .long("config"))
+        .arg(
+            Arg::with_name("cfg")
+                .requires_if("my.cfg", "extra")
+                .takes_value(true)
+                .long("config"),
+        )
         .arg(Arg::with_name("extra").long("extra"))
         .get_matches_from_safe(vec!["unlessone"]);
 
@@ -527,13 +559,13 @@ fn requires_if_present_val_no_present_pass() {
 #[test]
 fn required_if_val_present_pass() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_if("extra", "val")
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_if("extra", "val")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .get_matches_from_safe(vec!["ri", "--extra", "val", "--config", "my.cfg"]);
 
     assert!(res.is_ok());
@@ -542,13 +574,13 @@ fn required_if_val_present_pass() {
 #[test]
 fn required_if_val_present_fail() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_if("extra", "val")
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_if("extra", "val")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .get_matches_from_safe(vec!["ri", "--extra", "val"]);
 
     assert!(res.is_err());
@@ -561,36 +593,44 @@ fn required_if_val_present_fail_error_output() {
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
-        .arg(Arg::with_name("target")
-            .takes_value(true)
-            .required(true)
-            .possible_values(&["file", "stdout"])
-            .long("target"))
-        .arg(Arg::with_name("input")
-            .takes_value(true)
-            .required(true)
-            .long("input"))
-        .arg(Arg::with_name("output")
-            .takes_value(true)
-            .required_if("target", "file")
-            .long("output"));
+        .arg(
+            Arg::with_name("target")
+                .takes_value(true)
+                .required(true)
+                .possible_values(&["file", "stdout"])
+                .long("target"),
+        )
+        .arg(
+            Arg::with_name("input")
+                .takes_value(true)
+                .required(true)
+                .long("input"),
+        )
+        .arg(
+            Arg::with_name("output")
+                .takes_value(true)
+                .required_if("target", "file")
+                .long("output"),
+        );
 
-    assert!(test::compare_output(app,
-                                 "test --input somepath --target file",
-                                 COND_REQ_IN_USAGE,
-                                 true));
+    assert!(test::compare_output(
+        app,
+        "test --input somepath --target file",
+        COND_REQ_IN_USAGE,
+        true
+    ));
 }
 
 #[test]
 fn required_if_wrong_val() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_if("extra", "val")
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_if("extra", "val")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .get_matches_from_safe(vec!["ri", "--extra", "other"]);
 
     assert!(res.is_ok());
@@ -599,16 +639,14 @@ fn required_if_wrong_val() {
 #[test]
 fn required_ifs_val_present_pass() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_ifs(&[("extra", "val"), ("option", "spec")])
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("option")
-            .takes_value(true)
-            .long("option"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("option").takes_value(true).long("option"))
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
         .get_matches_from_safe(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
 
     assert!(res.is_ok());
@@ -618,16 +656,14 @@ fn required_ifs_val_present_pass() {
 #[test]
 fn required_ifs_val_present_fail() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_ifs(&[("extra", "val"), ("option", "spec")])
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
-        .arg(Arg::with_name("option")
-            .takes_value(true)
-            .long("option"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
+        .arg(Arg::with_name("option").takes_value(true).long("option"))
         .get_matches_from_safe(vec!["ri", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -637,16 +673,14 @@ fn required_ifs_val_present_fail() {
 #[test]
 fn required_ifs_wrong_val() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_ifs(&[("extra", "val"), ("option", "spec")])
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
-        .arg(Arg::with_name("option")
-            .takes_value(true)
-            .long("option"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
+        .arg(Arg::with_name("option").takes_value(true).long("option"))
         .get_matches_from_safe(vec!["ri", "--option", "other"]);
 
     assert!(res.is_ok());
@@ -655,16 +689,14 @@ fn required_ifs_wrong_val() {
 #[test]
 fn required_ifs_wrong_val_mult_fail() {
     let res = App::new("ri")
-        .arg(Arg::with_name("cfg")
-            .required_ifs(&[("extra", "val"), ("option", "spec")])
-            .takes_value(true)
-            .long("config"))
-        .arg(Arg::with_name("extra")
-            .takes_value(true)
-            .long("extra"))
-        .arg(Arg::with_name("option")
-            .takes_value(true)
-            .long("option"))
+        .arg(
+            Arg::with_name("cfg")
+                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::with_name("extra").takes_value(true).long("extra"))
+        .arg(Arg::with_name("option").takes_value(true).long("option"))
         .get_matches_from_safe(vec!["ri", "--extra", "other", "--option", "spec"]);
 
     assert!(res.is_err());
@@ -673,16 +705,14 @@ fn required_ifs_wrong_val_mult_fail() {
 
 #[test]
 fn require_eq() {
-    let app = App::new("clap-test")
-        .version("v1.4.8")
-        .arg(
-            Arg::with_name("opt")
+    let app = App::new("clap-test").version("v1.4.8").arg(
+        Arg::with_name("opt")
             .long("opt")
             .short("o")
             .required(true)
             .require_equals(true)
             .value_name("FILE")
-            .help("some")
-        );
+            .help("some"),
+    );
     assert!(test::compare_output(app, "clap-test", REQUIRE_EQUALS, true));
 }

@@ -12,20 +12,16 @@ fn main() {
     // information.
 
     let matches = App::new("myapp")
-                        .setting(AppSettings::SubcommandsNegateReqs)
-                                            // Negates requirement of parent command.
-
-                        .arg_from_usage("<input> 'input file to use'")
-                                            // Required positional argument called input.  This
-                                            // will be only required if subcommand is not present.
-
-                        .subcommand(SubCommand::with_name("test")
-                                                .about("does some testing"))
-                                            // if program is invoked with subcommand, you do not
-                                            // need to specify the <input> argument anymore due to
-                                            // the AppSettings::SubcommandsNegateReqs setting.
-
-                        .get_matches();
+        .setting(AppSettings::SubcommandsNegateReqs)
+        // Negates requirement of parent command.
+        .arg_from_usage("<input> 'input file to use'")
+        // Required positional argument called input.  This
+        // will be only required if subcommand is not present.
+        .subcommand(SubCommand::with_name("test").about("does some testing"))
+        // if program is invoked with subcommand, you do not
+        // need to specify the <input> argument anymore due to
+        // the AppSettings::SubcommandsNegateReqs setting.
+        .get_matches();
 
     // Calling unwrap() on "input" would not be advised here, because although it's required,
     // if the user uses a subcommand, those requirements are no longer required. Hence, we should
@@ -36,6 +32,6 @@ fn main() {
 
     match matches.subcommand() {
         ("test", _) => println!("The 'test' subcommand was used"),
-        _           => unreachable!()
+        _ => unreachable!(),
     }
 }
