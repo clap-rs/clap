@@ -849,9 +849,9 @@ macro_rules! impl_settings {
 
         impl FromStr for $settings {
             type Err = String;
-            fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+            fn from_str(s: &str) -> Result<Self, String> {
                 match &*s.to_ascii_lowercase() {
-                    $( $str => $settings::$setting, )*
+                    $( $str => Ok($settings::$setting), )*
                     _ => Err(format!("unknown AppSetting: `{}`", s)),
                 }
             }
