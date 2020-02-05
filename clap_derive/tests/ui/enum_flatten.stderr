@@ -1,11 +1,11 @@
-error: expected parentheses
-  --> $DIR/clap_derive_name_value_attr.rs:14:12
+error: `flatten` is usable only with single-typed tuple variants
+  --> $DIR/enum_flatten.rs:14:5
    |
-14 |     #[clap = "short"]
-   |            ^
+14 |     #[clap(flatten)]
+   |     ^
 
 error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/clap_derive_name_value_attr.rs:11:10
+  --> $DIR/enum_flatten.rs:11:10
    |
 11 | #[derive(Clap, Debug)]
    |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

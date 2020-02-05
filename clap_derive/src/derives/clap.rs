@@ -11,9 +11,9 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-use proc_macro2;
+use proc_macro2::Span;
 use proc_macro_error::{abort, abort_call_site, set_dummy};
-use syn::{self, punctuated, spanned::Spanned, token};
+use syn::{self, punctuated, spanned::Spanned, token, FieldsUnnamed, Ident};
 
 use super::{from_argmatches, into_app, sub_type, Attrs, Kind, Name, ParserKind, Ty};
 
@@ -25,7 +25,11 @@ fn gen_app_augmentation(
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(&field, parent_attribute.casing());
+        let attrs = Attrs::from_field(
+            &field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
         let kind = attrs.kind();
         if let Kind::Subcommand(ty) = &*kind {
             let subcmd_type = match (**ty, sub_type(&field.ty)) {
@@ -61,11 +65,15 @@ fn gen_app_augmentation(
     }
 
     let args = fields.iter().filter_map(|field| {
-        let attrs = Attrs::from_field(field, parent_attribute.casing());
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
         let kind = attrs.kind();
         match &*kind {
             Kind::Subcommand(_) | Kind::Skip(_) => None,
-            Kind::FlattenStruct => {
+            Kind::Flatten => {
                 let ty = &field.ty;
                 Some(quote_spanned! { kind.span()=>
                     let #app_var = <#ty>::augment_app(#app_var);
@@ -167,11 +175,12 @@ fn gen_app_augmentation(
     });
 
     let app_methods = parent_attribute.top_level_methods();
+    let version = parent_attribute.version();
     quote! {{
         let #app_var = #app_var#app_methods;
         #( #args )*
         #subcmd
-        #app_var
+        #app_var#version
     }}
 }
 
@@ -202,48 +211,73 @@ fn gen_augment_app_for_enum(
             &variant.attrs,
             Name::Derived(variant.ident.clone()),
             parent_attribute.casing(),
+            parent_attribute.env_casing(),
         );
-        let app_var = syn::Ident::new("subcommand", proc_macro2::Span::call_site());
-        let arg_block = match variant.fields {
-            Named(ref fields) => gen_app_augmentation(&fields.named, &app_var, &attrs),
-            Unit => quote!( #app_var ),
-            Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                let ty = &unnamed[0];
-                quote_spanned! { ty.span() =>
-                    {
-                        let #app_var = <#ty>::augment_app(#app_var);
-                        if <#ty>::is_subcommand() {
-                            #app_var.setting(
-                                ::clap::AppSettings::SubcommandRequiredElseHelp
-                            )
-                        } else {
-                            #app_var
-                        }
+        let kind = attrs.kind();
+        match &*kind {
+            Kind::Flatten => match variant.fields {
+                Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                    let ty = &unnamed[0];
+                    quote! {
+                        let app = <#ty>::augment_app(app);
                     }
                 }
+                _ => abort!(
+                    variant.span(),
+                    "`flatten` is usable only with single-typed tuple variants"
+                ),
+            },
+            _ => {
+                let app_var = Ident::new("subcommand", Span::call_site());
+                let arg_block = match variant.fields {
+                    Named(ref fields) => gen_app_augmentation(&fields.named, &app_var, &attrs),
+                    Unit => quote!( #app_var ),
+                    Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                        let ty = &unnamed[0];
+                        quote_spanned! { ty.span()=>
+                            {
+                                let #app_var = <#ty>::augment_app(
+                                    #app_var
+                                );
+                                if <#ty>::is_subcommand() {
+                                    #app_var.setting(
+                                        ::clap::AppSettings::SubcommandRequiredElseHelp
+                                    )
+                                } else {
+                                    #app_var
+                                }
+                            }
+                        }
+                    }
+                    Unnamed(..) => abort!(
+                        variant.span(),
+                        "non single-typed tuple enums are not supported"
+                    ),
+                };
+
+                let name = attrs.cased_name();
+                let from_attrs = attrs.top_level_methods();
+                let version = attrs.version();
+                quote! {
+                    let app = app.subcommand({
+                        let #app_var = ::clap::App::new(#name);
+                        let #app_var = #arg_block;
+                        #app_var#from_attrs#version
+                    });
+                }
             }
-            Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
-        };
-
-        let name = attrs.cased_name();
-        let from_attrs = attrs.top_level_methods();
-
-        quote! {
-            .subcommand({
-                let #app_var = ::clap::App::new(#name);
-                let #app_var = #arg_block;
-                #app_var#from_attrs
-            })
         }
     });
 
     let app_methods = parent_attribute.top_level_methods();
-
+    let version = parent_attribute.version();
     quote! {
-        pub fn augment_app<'b>(
+       pub fn augment_app<'b>(
             app: ::clap::App<'b>
         ) -> ::clap::App<'b> {
-            app #app_methods #( #subcommands )*
+            let app = app #app_methods;
+            #( #subcommands )*;
+            app #version
         }
     }
 }
@@ -254,14 +288,27 @@ fn gen_from_subcommand(
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     use syn::Fields::*;
+    let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
+        .iter()
+        .map(|variant| {
+            let attrs = Attrs::from_struct(
+                variant.span(),
+                &variant.attrs,
+                Name::Derived(variant.ident.clone()),
+                parent_attribute.casing(),
+                parent_attribute.env_casing(),
+            );
+            (variant, attrs)
+        })
+        .partition(|(_, attrs)| {
+            let kind = attrs.kind();
+            match &*kind {
+                Kind::Flatten => true,
+                _ => false,
+            }
+        });
 
-    let match_arms = variants.iter().map(|variant| {
-        let attrs = Attrs::from_struct(
-            variant.span(),
-            &variant.attrs,
-            Name::Derived(variant.ident.clone()),
-            parent_attribute.casing(),
-        );
+    let match_arms = variants.iter().map(|(variant, attrs)| {
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
@@ -275,8 +322,26 @@ fn gen_from_subcommand(
         };
 
         quote! {
-            (#sub_name, Some(matches)) =>
+            (#sub_name, Some(matches)) => {
                 Some(#name :: #variant_name #constructor_block)
+            }
+        }
+    });
+    let child_subcommands = flatten_variants.iter().map(|(variant, _attrs)| {
+        let variant_name = &variant.ident;
+        match variant.fields {
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
+                quote! {
+                    if let Some(res) = <#ty>::from_subcommand(other) {
+                        return Some(#name :: #variant_name (res));
+                    }
+                }
+            }
+            _ => abort!(
+                variant.span(),
+                "`flatten` is usable only with single-typed tuple variants"
+            ),
         }
     });
 
@@ -286,7 +351,10 @@ fn gen_from_subcommand(
         ) -> Option<Self> {
             match sub {
                 #( #match_arms ),*,
-                _ => None
+                other => {
+                    #( #child_subcommands )*;
+                    None
+                }
             }
         }
     }
@@ -379,7 +447,7 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         }
 
         impl #struct_name {
-            fn parse() -> Self {
+           pub fn parse() -> Self {
                 unimplemented!();
             }
         }

@@ -12,26 +12,29 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{parse::*, spanned::Sp, ty::Ty};
+use super::{doc_comments::process_doc_comment, parse::*, spanned::Sp, ty::Ty};
 
 use std::env;
 
 use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
-use proc_macro2::{self, Span};
+use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, LitStr};
+use syn::{self, ext::IdentExt, spanned::Spanned, Expr, Ident, MetaNameValue, Type};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
+
+/// Default casing style for environment variables
+pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone)]
 pub enum Kind {
     Arg(Sp<Ty>),
     Subcommand(Sp<Ty>),
-    FlattenStruct,
-    Skip(Option<syn::Expr>),
+    Flatten,
+    Skip(Option<Expr>),
 }
 
 #[derive(Clone)]
@@ -75,20 +78,24 @@ pub enum CasingStyle {
 
 #[derive(Clone)]
 pub enum Name {
-    Derived(syn::Ident),
-    Assigned(syn::LitStr),
+    Derived(Ident),
+    Assigned(TokenStream),
 }
 
 #[derive(Clone)]
 pub struct Attrs {
     name: Name,
     casing: Sp<CasingStyle>,
+    env_casing: Sp<CasingStyle>,
+    ty: Option<Type>,
+    doc_comment: Vec<Method>,
     methods: Vec<Method>,
     parser: Sp<Parser>,
     author: Option<Method>,
     about: Option<Method>,
     version: Option<Method>,
-    no_version: Option<syn::Ident>,
+    no_version: Option<Ident>,
+    verbatim_doc_comment: Option<Ident>,
     has_custom_parser: bool,
     kind: Sp<Kind>,
 }
@@ -104,7 +111,7 @@ pub struct GenOutput {
 }
 
 impl Method {
-    fn new(name: syn::Ident, args: proc_macro2::TokenStream) -> Self {
+    pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }
     }
 
@@ -213,11 +220,11 @@ impl CasingStyle {
 }
 
 impl Name {
-    pub fn translate(self, style: CasingStyle) -> LitStr {
-        use self::CasingStyle::*;
+    pub fn translate(self, style: CasingStyle) -> TokenStream {
+        use CasingStyle::*;
 
         match self {
-            Name::Assigned(lit) => lit,
+            Name::Assigned(tokens) => tokens,
             Name::Derived(ident) => {
                 let s = ident.unraw().to_string();
                 let s = match style {
@@ -228,38 +235,46 @@ impl Name {
                     Snake => s.to_snake_case(),
                     Verbatim => s,
                 };
-                syn::LitStr::new(&s, ident.span())
+                quote_spanned!(ident.span()=> #s)
             }
         }
     }
 }
 
 impl Attrs {
-    fn new(default_span: Span, name: Name, casing: Sp<CasingStyle>) -> Self {
+    fn new(
+        default_span: Span,
+        name: Name,
+        ty: Option<Type>,
+        casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
         Self {
             name,
+            ty,
             casing,
+            env_casing,
+            doc_comment: vec![],
             methods: vec![],
             parser: Parser::default_spanned(default_span),
             about: None,
             author: None,
             version: None,
             no_version: None,
+            verbatim_doc_comment: None,
 
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
     }
 
-    /// push `.method("str literal")`
-    fn push_str_method(&mut self, name: Sp<String>, arg: Sp<String>) {
-        match (&**name, &**arg) {
-            ("name", _) => {
-                self.name = Name::Assigned(arg.as_lit());
-            }
-            _ => self
-                .methods
-                .push(Method::new(name.as_ident(), quote!(#arg))),
+    fn push_method(&mut self, name: Ident, arg: impl ToTokens) {
+        if name == "name" {
+            self.name = Name::Assigned(quote!(#arg));
+        } else if name == "version" {
+            self.version = Some(Method::new(name, quote!(#arg)));
+        } else {
+            self.methods.push(Method::new(name, quote!(#arg)))
         }
     }
 
@@ -269,10 +284,11 @@ impl Attrs {
         for attr in parse_clap_attributes(attrs) {
             match attr {
                 Short(ident) | Long(ident) => {
-                    self.push_str_method(
-                        ident.into(),
-                        self.name.clone().translate(*self.casing).into(),
-                    );
+                    self.push_method(ident, self.name.clone().translate(*self.casing));
+                }
+
+                Env(ident) => {
+                    self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
                 Subcommand(ident) => {
@@ -282,7 +298,7 @@ impl Attrs {
                 }
 
                 Flatten(ident) => {
-                    let kind = Sp::new(Kind::FlattenStruct, ident.span());
+                    let kind = Sp::new(Kind::Flatten, ident.span());
                     self.set_kind(kind);
                 }
 
@@ -293,6 +309,39 @@ impl Attrs {
 
                 NoVersion(ident) => self.no_version = Some(ident),
 
+                VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
+
+                DefaultValue(ident, lit) => {
+                    let val = if let Some(lit) = lit {
+                        quote!(#lit)
+                    } else {
+                        let ty = if let Some(ty) = self.ty.as_ref() {
+                            ty
+                        } else {
+                            abort!(
+                                ident.span(),
+                                "#[structopt(default_value)] (without an argument) can be used \
+                                only on field level";
+
+                                note = "see \
+                                    https://docs.rs/structopt/0.3.5/structopt/#magical-methods")
+                        };
+
+                        quote_spanned!(ident.span()=> {
+                            ::clap::lazy_static::lazy_static! {
+                                static ref DEFAULT_VALUE: &'static str = {
+                                    let val = <#ty as ::std::default::Default>::default();
+                                    let s = ::std::string::ToString::to_string(&val);
+                                    ::std::boxed::Box::leak(s.into_boxed_str())
+                                };
+                            }
+                            *DEFAULT_VALUE
+                        })
+                    };
+
+                    self.methods.push(Method::new(ident, val));
+                }
+
                 About(ident, about) => {
                     self.about = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
                 }
@@ -302,19 +351,25 @@ impl Attrs {
                 }
 
                 Version(ident, version) => {
-                    self.version = Some(Method::new(ident, quote!(#version)))
+                    self.push_method(ident, version);
                 }
 
                 NameLitStr(name, lit) => {
-                    self.push_str_method(name.into(), lit.into());
+                    self.push_method(name, lit);
                 }
 
-                NameExpr(name, expr) => self.methods.push(Method::new(name, quote!(#expr))),
+                NameExpr(name, expr) => {
+                    self.push_method(name, expr);
+                }
 
-                MethodCall(name, args) => self.methods.push(Method::new(name, quote!(#(#args),*))),
+                MethodCall(name, args) => self.push_method(name, quote!(#(#args),*)),
 
                 RenameAll(_, casing_lit) => {
                     self.casing = CasingStyle::from_lit(casing_lit);
+                }
+
+                RenameAllEnv(_, casing_lit) => {
+                    self.env_casing = CasingStyle::from_lit(casing_lit);
                 }
 
                 Parse(ident, spec) => {
@@ -326,85 +381,25 @@ impl Attrs {
     }
 
     fn push_doc_comment(&mut self, attrs: &[syn::Attribute], name: &str) {
-        let doc_comments = attrs
+        use syn::Lit::*;
+        use syn::Meta::*;
+
+        let comment_parts: Vec<_> = attrs
             .iter()
+            .filter(|attr| attr.path.is_ident("doc"))
             .filter_map(|attr| {
-                if attr.path.is_ident("doc") {
-                    attr.parse_meta().ok()
+                if let Ok(NameValue(MetaNameValue { lit: Str(s), .. })) = attr.parse_meta() {
+                    Some(s.value())
                 } else {
+                    // non #[doc = "..."] attributes are not our concern
+                    // we leave them for rustc to handle
                     None
                 }
             })
-            .filter_map(|attr| {
-                use syn::Lit::*;
-                use syn::Meta::*;
-                if let NameValue(syn::MetaNameValue {
-                    path, lit: Str(s), ..
-                }) = attr
-                {
-                    if !path.is_ident("doc") {
-                        return None;
-                    }
-                    let value = s.value();
+            .collect();
 
-                    let text = value
-                        .trim_start_matches("//!")
-                        .trim_start_matches("///")
-                        .trim_start_matches("/*!")
-                        .trim_start_matches("/**")
-                        .trim_end_matches("*/")
-                        .trim();
-                    if text.is_empty() {
-                        Some("\n\n".to_string())
-                    } else {
-                        Some(text.to_string())
-                    }
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-        if doc_comments.is_empty() {
-            return;
-        }
-        let merged_lines = doc_comments
-            .join(" ")
-            .split('\n')
-            .map(str::trim)
-            .map(str::to_string)
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let expected_doc_comment_split = if let Some(content) = doc_comments.get(1) {
-            (doc_comments.len() > 2) && (content == "\n\n")
-        } else {
-            false
-        };
-
-        if expected_doc_comment_split {
-            let long_name = Sp::call_site(format!("long_{}", name));
-
-            self.methods
-                .push(Method::new(long_name.as_ident(), quote!(#merged_lines)));
-
-            // Remove trailing whitespace and period from short help, as rustdoc
-            // best practice is to use complete sentences, but command-line help
-            // typically omits the trailing period.
-            let short_arg = doc_comments
-                .first()
-                .map(|s| s.trim())
-                .map_or("", |s| s.trim_end_matches('.'));
-
-            self.methods.push(Method::new(
-                syn::Ident::new(name, Span::call_site()),
-                quote!(#short_arg),
-            ));
-        } else {
-            self.methods.push(Method::new(
-                syn::Ident::new(name, Span::call_site()),
-                quote!(#merged_lines),
-            ));
-        }
+        self.doc_comment =
+            process_doc_comment(comment_parts, name, self.verbatim_doc_comment.is_none());
     }
 
     pub fn from_struct(
@@ -412,8 +407,9 @@ impl Attrs {
         attrs: &[syn::Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
     ) -> Self {
-        let mut res = Self::new(span, name, argument_casing);
+        let mut res = Self::new(span, name, None, argument_casing, env_casing);
         res.push_attrs(attrs);
         res.push_doc_comment(attrs, "about");
 
@@ -425,20 +421,29 @@ impl Attrs {
         }
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
-            Kind::FlattenStruct => abort!(res.kind.span(), "flatten is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) => res,
+            Kind::Arg(_) | Kind::Flatten => res,
         }
     }
 
-    pub fn from_field(field: &syn::Field, struct_casing: Sp<CasingStyle>) -> Self {
+    pub fn from_field(
+        field: &syn::Field,
+        struct_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
         let name = field.ident.clone().unwrap();
-        let mut res = Self::new(field.span(), Name::Derived(name), struct_casing);
-        res.push_doc_comment(&field.attrs, "help");
+        let mut res = Self::new(
+            field.span(),
+            Name::Derived(name),
+            Some(field.ty.clone()),
+            struct_casing,
+            env_casing,
+        );
         res.push_attrs(&field.attrs);
+        res.push_doc_comment(&field.attrs, "help");
 
         match &*res.kind {
-            Kind::FlattenStruct => {
+            Kind::Flatten => {
                 if res.has_custom_parser {
                     abort!(
                         res.parser.span(),
@@ -574,36 +579,35 @@ impl Attrs {
     }
 
     /// generate methods from attributes on top of struct or enum
-    pub fn top_level_methods(&self) -> proc_macro2::TokenStream {
-        let version = match (&self.no_version, &self.version) {
-            (Some(no_version), Some(_)) => abort!(
-                no_version.span(),
-                "`no_version` and `version = \"version\"` can't be used together"
-            ),
+    pub fn top_level_methods(&self) -> TokenStream {
+        let author = &self.author;
+        let about = &self.about;
+        let methods = &self.methods;
+        let doc_comment = &self.doc_comment;
 
+        quote!( #(#doc_comment)* #author #about #(#methods)*  )
+    }
+
+    /// generate methods on top of a field
+    pub fn field_methods(&self) -> proc_macro2::TokenStream {
+        let methods = &self.methods;
+        let doc_comment = &self.doc_comment;
+        quote!( #(#doc_comment)* #(#methods)* )
+    }
+
+    pub fn version(&self) -> TokenStream {
+        match (&self.no_version, &self.version) {
             (None, Some(m)) => m.to_token_stream(),
 
             (None, None) => std::env::var("CARGO_PKG_VERSION")
                 .map(|version| quote!( .version(#version) ))
                 .unwrap_or_default(),
 
-            (Some(_), None) => quote!(),
-        };
-
-        let author = &self.author;
-        let about = &self.about;
-        let methods = &self.methods;
-
-        quote!( #author #version #(#methods)* #about )
+            _ => quote!(),
+        }
     }
 
-    /// generate methods on top of a field
-    pub fn field_methods(&self) -> proc_macro2::TokenStream {
-        let methods = &self.methods;
-        quote!( #(#methods)* )
-    }
-
-    pub fn cased_name(&self) -> LitStr {
+    pub fn cased_name(&self) -> TokenStream {
         self.name.clone().translate(*self.casing)
     }
 
@@ -619,6 +623,10 @@ impl Attrs {
         self.casing.clone()
     }
 
+    pub fn env_casing(&self) -> Sp<CasingStyle> {
+        self.env_casing.clone()
+    }
+
     pub fn is_positional(&self) -> bool {
         self.methods
             .iter()
@@ -632,9 +640,13 @@ impl Attrs {
     }
 
     pub fn has_doc_methods(&self) -> bool {
-        self.methods
-            .iter()
-            .any(|m| m.name == "help" || m.name == "long_help")
+        !self.doc_comment.is_empty()
+            || self.methods.iter().any(|m| {
+                m.name == "help"
+                    || m.name == "long_help"
+                    || m.name == "about"
+                    || m.name == "long_about"
+            })
     }
 }
 

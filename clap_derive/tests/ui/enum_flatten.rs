@@ -9,13 +9,13 @@
 use clap::Clap;
 
 #[derive(Clap, Debug)]
-#[clap(name = "basic", flatten)]
-struct Opt {
-    #[clap(short)]
-    s: String,
+#[clap(name = "basic")]
+enum Opt {
+    #[clap(flatten)]
+    Variant1,
 }
 
 fn main() {
-    let opt = Opt::parse();
+    let opt = Opt::from_args();
     println!("{:?}", opt);
 }

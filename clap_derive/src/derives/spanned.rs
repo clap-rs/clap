@@ -27,16 +27,6 @@ impl<T> Sp<T> {
     }
 }
 
-impl<T: ToString> Sp<T> {
-    pub fn as_ident(&self) -> Ident {
-        Ident::new(&self.to_string(), self.span)
-    }
-
-    pub fn as_lit(&self) -> LitStr {
-        LitStr::new(&self.to_string(), self.span)
-    }
-}
-
 impl<T> Deref for Sp<T> {
     type Target = T;
 
@@ -75,9 +65,9 @@ impl<'a> From<Sp<&'a str>> for Sp<String> {
     }
 }
 
-impl<T: PartialEq> PartialEq for Sp<T> {
-    fn eq(&self, other: &Sp<T>) -> bool {
-        self.val == other.val
+impl<U, T: PartialEq<U>> PartialEq<U> for Sp<T> {
+    fn eq(&self, other: &U) -> bool {
+        self.val == *other
     }
 }
 

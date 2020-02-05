@@ -1,46 +1,34 @@
 use std::iter::FromIterator;
 
-use proc_macro2::TokenStream;
 use proc_macro_error::{abort, ResultExt};
+use quote::ToTokens;
 use syn::{
     self, parenthesized,
     parse::{Parse, ParseBuffer, ParseStream},
-    parse2,
     punctuated::Punctuated,
     spanned::Spanned,
     Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
 };
-
-pub struct ClapAttributes {
-    pub paren_token: syn::token::Paren,
-    pub attrs: Punctuated<ClapAttr, Token![,]>,
-}
-
-impl Parse for ClapAttributes {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let content;
-        let paren_token = parenthesized!(content in input);
-        let attrs = content.parse_terminated(ClapAttr::parse)?;
-
-        Ok(ClapAttributes { paren_token, attrs })
-    }
-}
 
 #[allow(clippy::large_enum_variant)]
 pub enum ClapAttr {
     // single-identifier attributes
     Short(Ident),
     Long(Ident),
+    Env(Ident),
     Flatten(Ident),
     Subcommand(Ident),
     NoVersion(Ident),
+    VerbatimDocComment(Ident),
 
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
     Author(Ident, Option<LitStr>),
+    DefaultValue(Ident, Option<LitStr>),
 
     // ident = "string literal"
     Version(Ident, LitStr),
+    RenameAllEnv(Ident, LitStr),
     RenameAll(Ident, LitStr),
     NameLitStr(Ident, LitStr),
 
@@ -85,6 +73,8 @@ impl Parse for ClapAttr {
 
                 match &*name_str {
                     "rename_all" => Ok(RenameAll(name, lit)),
+                    "rename_all_env" => Ok(RenameAllEnv(name, lit)),
+                    "default_value" => Ok(DefaultValue(name, Some(lit))),
 
                     "version" => {
                         check_empty_lit("version");
@@ -177,10 +167,13 @@ impl Parse for ClapAttr {
             match name_str.as_ref() {
                 "long" => Ok(Long(name)),
                 "short" => Ok(Short(name)),
+                "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),
                 "subcommand" => Ok(Subcommand(name)),
                 "no_version" => Ok(NoVersion(name)),
+                "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
+                "default_value" => Ok(DefaultValue(name, None)),
                 "about" => (Ok(About(name, None))),
                 "author" => (Ok(Author(name, None))),
 
@@ -225,18 +218,39 @@ impl Parse for ParserSpec {
 }
 
 fn raw_method_suggestion(ts: ParseBuffer) -> String {
-    let do_parse = move || -> Result<(Ident, TokenStream), syn::Error> {
+    let do_parse = move || -> Result<(Ident, Punctuated<Expr, Token![,]>), syn::Error> {
         let name = ts.parse()?;
         let _eq: Token![=] = ts.parse()?;
         let val: LitStr = ts.parse()?;
-        Ok((name, syn::parse_str(&val.value())?))
+        let exprs = val.parse_with(Punctuated::<Expr, Token![,]>::parse_terminated)?;
+        Ok((name, exprs))
     };
-    if let Ok((name, val)) = do_parse() {
-        let val = val.to_string().replace(" ", "").replace(",", ", ");
+
+    fn to_string<T: ToTokens>(val: &T) -> String {
+        val.to_token_stream()
+            .to_string()
+            .replace(" ", "")
+            .replace(",", ", ")
+    }
+
+    if let Ok((name, exprs)) = do_parse() {
+        let suggestion = if exprs.len() == 1 {
+            let val = to_string(&exprs[0]);
+            format!(" = {}", val)
+        } else {
+            let val = exprs
+                .into_iter()
+                .map(|expr| to_string(&expr))
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            format!("({})", val)
+        };
+
         format!(
             "if you need to call `clap::Arg/App::{}` method you \
-             can do it like this: #[clap({}({}))]",
-            name, name, val
+             can do it like this: #[clap({}{})]",
+            name, name, suggestion
         )
     } else {
         "if you need to call some method from `clap::Arg/App` \
@@ -251,19 +265,8 @@ pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
         .iter()
         .filter(|attr| attr.path.is_ident("clap"))
         .flat_map(|attr| {
-            let attrs: ClapAttributes = parse2(attr.tokens.clone())
-                .map_err(|e| match &*e.to_string() {
-                    // this error message is misleading and points to Span::call_site()
-                    // so we patch it with something meaningful
-                    "unexpected end of input, expected parentheses" => {
-                        let span = attr.path.span();
-                        let patch_msg = "expected parentheses after `clap`";
-                        syn::Error::new(span, patch_msg)
-                    }
-                    _ => e,
-                })
-                .unwrap_or_abort();
-            attrs.attrs
+            attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
+                .unwrap_or_abort()
         })
         .collect()
 }
