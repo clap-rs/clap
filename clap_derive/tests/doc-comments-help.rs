@@ -56,7 +56,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     ///
     /// Bar
     #[derive(Clap, PartialEq, Debug)]
-    #[clap(name = "lorem-ipsum", no_version)]
+    #[clap(name = "lorem-ipsum")]
     struct LoremIpsum {}
 
     let help = get_long_help::<LoremIpsum>();

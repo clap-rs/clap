@@ -94,7 +94,6 @@ pub struct Attrs {
     author: Option<Method>,
     about: Option<Method>,
     version: Option<Method>,
-    no_version: Option<Ident>,
     verbatim_doc_comment: Option<Ident>,
     has_custom_parser: bool,
     kind: Sp<Kind>,
@@ -260,7 +259,6 @@ impl Attrs {
             about: None,
             author: None,
             version: None,
-            no_version: None,
             verbatim_doc_comment: None,
 
             has_custom_parser: false,
@@ -307,8 +305,6 @@ impl Attrs {
                     self.set_kind(kind);
                 }
 
-                NoVersion(ident) => self.no_version = Some(ident),
-
                 VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
 
                 DefaultValue(ident, lit) => {
@@ -351,7 +347,7 @@ impl Attrs {
                 }
 
                 Version(ident, version) => {
-                    self.push_method(ident, version);
+                    self.version = Method::from_lit_or_env(ident, version, "CARGO_PKG_VERSION");
                 }
 
                 NameLitStr(name, lit) => {
@@ -596,15 +592,10 @@ impl Attrs {
     }
 
     pub fn version(&self) -> TokenStream {
-        match (&self.no_version, &self.version) {
-            (None, Some(m)) => m.to_token_stream(),
-
-            (None, None) => std::env::var("CARGO_PKG_VERSION")
-                .map(|version| quote!( .version(#version) ))
-                .unwrap_or_default(),
-
-            _ => quote!(),
-        }
+        self.version
+            .clone()
+            .map(|m| m.to_token_stream())
+            .unwrap_or_default()
     }
 
     pub fn cased_name(&self) -> TokenStream {

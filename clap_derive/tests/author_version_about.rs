@@ -20,7 +20,7 @@ use utils::*;
 #[test]
 fn no_author_version_about() {
     #[derive(Clap, PartialEq, Debug)]
-    #[clap(name = "foo", no_version)]
+    #[clap(name = "foo")]
     struct Opt {}
 
     let output = get_long_help::<Opt>();
@@ -30,7 +30,7 @@ fn no_author_version_about() {
 #[test]
 fn use_env() {
     #[derive(Clap, PartialEq, Debug)]
-    #[clap(author, about)]
+    #[clap(author, about, version)]
     struct Opt {}
 
     let output = get_long_help::<Opt>();
@@ -40,7 +40,7 @@ fn use_env() {
 }
 
 #[test]
-fn explicit_version_not_str() {
+fn explicit_version_not_str_lit() {
     const VERSION: &str = "custom version";
 
     #[derive(Clap)]
