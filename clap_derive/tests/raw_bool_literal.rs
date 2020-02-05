@@ -11,7 +11,7 @@ use clap::Clap;
 #[test]
 fn raw_bool_literal() {
     #[derive(Clap, Debug, PartialEq)]
-    #[clap(no_version, name = "raw_bool")]
+    #[clap(name = "raw_bool")]
     struct Opt {
         #[clap(raw(false))]
         a: String,

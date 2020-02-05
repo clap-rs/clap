@@ -57,10 +57,6 @@ How to parse `key=value` pairs.
 
 How to add `no-thing` flag which is `true` by default and `false` if passed.
 
-### [No version](no_version.rs)
-
-How to completely remove version.
-
 ### [Rename all](rename_all.rs)
 
 How `#[clap(rename_all)]` works.
@@ -76,3 +72,7 @@ How to use aliases
 ### [`true` or `false`](true_or_false.rs)
 
 How to express "`"true"` or `"false"` argument.
+
+### [Author, description, and version from `Cargo.toml`](from_crate.rs)
+
+//! How to derive a author, description, and version from Cargo.toml

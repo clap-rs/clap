@@ -18,16 +18,15 @@ pub enum ClapAttr {
     Env(Ident),
     Flatten(Ident),
     Subcommand(Ident),
-    NoVersion(Ident),
     VerbatimDocComment(Ident),
 
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
     Author(Ident, Option<LitStr>),
+    Version(Ident, Option<LitStr>),
     DefaultValue(Ident, Option<LitStr>),
 
     // ident = "string literal"
-    Version(Ident, LitStr),
     RenameAllEnv(Ident, LitStr),
     RenameAll(Ident, LitStr),
     NameLitStr(Ident, LitStr),
@@ -78,7 +77,7 @@ impl Parse for ClapAttr {
 
                     "version" => {
                         check_empty_lit("version");
-                        Ok(Version(name, lit))
+                        Ok(Version(name, Some(lit)))
                     }
 
                     "author" => {
@@ -170,21 +169,15 @@ impl Parse for ClapAttr {
                 "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),
                 "subcommand" => Ok(Subcommand(name)),
-                "no_version" => Ok(NoVersion(name)),
+
                 "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
                 "default_value" => Ok(DefaultValue(name, None)),
                 "about" => (Ok(About(name, None))),
                 "author" => (Ok(Author(name, None))),
+                "version" => Ok(Version(name, None)),
 
                 "skip" => Ok(Skip(name, None)),
-
-                "version" => abort!(
-                    name.span(),
-                    "#[clap(version)] is invalid attribute, \
-                     clap_derive inherits version from Cargo.toml by default, \
-                     no attribute needed"
-                ),
 
                 _ => abort!(name.span(), "unexpected attribute: {}", name_str),
             }
