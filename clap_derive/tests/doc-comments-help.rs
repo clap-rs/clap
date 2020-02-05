@@ -169,23 +169,18 @@ fn verbatim_doc_comment() {
 
 #[test]
 fn verbatim_doc_comment_field() {
-    #[derive(StructOpt, Debug)]
+    #[derive(Clap, Debug)]
     struct App {
         /// This help ends in a period.
-        #[structopt(long, verbatim_doc_comment)]
+        #[clap(long, verbatim_doc_comment)]
         foo: bool,
         /// This help does not end in a period.
-        #[structopt(long)]
+        #[clap(long)]
         bar: bool,
     }
 
     let help = get_long_help::<App>();
-    let sample = r#"
-        --bar        
-            This help does not end in a period
 
-        --foo        
-            This help ends in a period."#;
-
-    assert!(help.contains(sample))
+    assert!(help.contains("This help ends in a period."));
+    assert!(help.contains("This help does not end in a period"));
 }
