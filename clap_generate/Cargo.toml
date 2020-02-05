@@ -1,0 +1,50 @@
+[package]
+name = "clap_generate"
+version = "3.0.0-beta.1"
+edition = "2018"
+authors = [
+	"Kevin K. <kbknapp@gmail.com>",
+	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>",
+]
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"README.md"
+]
+description = "A generator library used with clap for shell completion scripts, manpage, etc."
+repository = "https://github.com/clap-rs/clap/tree/master/clap_generate"
+documentation = "https://docs.rs/clap_generate"
+homepage = "https://clap.rs/"
+keywords = [
+	"clap",
+	"cli",
+	"generate",
+	"completion",
+	"manpage",
+	"parse"
+]
+categories = ["command-line-interface"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[badges]
+is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
+is-it-maintained-open-issues = { repository = "clap-rs/clap" }
+maintenance = {status = "actively-developed"}
+
+[dependencies]
+clap = { path = "../", version = "3.0.0-beta.1" }
+
+[dev-dependencies]
+pretty_assertions = "0.6"
+version-sync = "0.8"
+
+[features]
+default = []
+unstable = ["clap/unstable"]
+nightly = ["clap/nightly"]
+debug = ["clap/debug"]
+doc = []
+
+[package.metadata.docs.rs]
+features = ["doc"]

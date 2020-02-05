@@ -475,8 +475,11 @@ mod output;
 mod parse;
 mod util;
 
+#[doc(hidden)]
+pub use mkeymap::KeyType;
+
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
-                                  report at https://github.com/kbknapp/clap-rs/issues";
+                                  report at https://github.com/clap-rs/clap/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
 /// @TODO @release @docs
