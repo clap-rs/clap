@@ -15,9 +15,10 @@
     unused_allocation,
     trivial_numeric_casts
 )]
+#![allow(clippy::needless_doctest_main)]
 
-const INTERNAL_ERROR_MSG: &'static str = "Fatal internal error. Please consider filing a bug \
-                                          report at https://github.com/clap-rs/clap/issues";
+const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
+                                  report at https://github.com/clap-rs/clap/issues";
 
 #[macro_use]
 #[allow(missing_docs)]
@@ -106,9 +107,9 @@ pub use generators::Generator;
 ///     };
 ///
 ///     let mut app = build_cli();
-///     generate_to<Bash>(&mut app,     // We need to specify what generator to use
-///                       "myapp",      // We need to specify the bin name manually
-///                       outdir);      // We need to specify where to write to
+///     generate_to::<Bash, _>(&mut app,     // We need to specify what generator to use
+///                            "myapp",      // We need to specify the bin name manually
+///                            outdir);      // We need to specify where to write to
 /// }
 /// ```
 ///
@@ -153,13 +154,13 @@ where
 ///
 /// mod cli;
 /// use std::io;
-/// use clap_generate::{generate_to, generators::Bash};
+/// use clap_generate::{generate, generators::Bash};
 ///
 /// fn main() {
 ///     let matches = cli::build_cli().get_matches();
 ///
 ///     if matches.is_present("generate-bash-completions") {
-///         generate<Bash>(&mut cli::build_cli(), "myapp", &mut io::stdout());
+///         generate::<Bash, _>(&mut cli::build_cli(), "myapp", &mut io::stdout());
 ///     }
 ///
 ///     // normal logic continues...

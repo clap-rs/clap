@@ -76,7 +76,13 @@ fn all_subcommands(app: &App) -> String {
     debugln!("Bash::all_subcommands;");
 
     let mut subcmds = String::new();
-    let scs = Bash::all_subcommand_names(app);
+    let mut scs = Bash::all_subcommands(app)
+        .iter()
+        .map(|x| x.0.clone())
+        .collect::<Vec<_>>();
+
+    scs.sort();
+    scs.dedup();
 
     for sc in &scs {
         subcmds = format!(
@@ -97,10 +103,12 @@ fn subcommand_details(app: &App) -> String {
     debugln!("Bash::subcommand_details;");
 
     let mut subcmd_dets = String::new();
-    let mut scs = Bash::get_all_subcommand_paths(app, true);
+    let mut scs = Bash::all_subcommands(app)
+        .iter()
+        .map(|x| x.1.replace(" ", "__"))
+        .collect::<Vec<_>>();
 
     scs.sort();
-    scs.dedup();
 
     for sc in &scs {
         subcmd_dets = format!(
@@ -123,7 +131,7 @@ fn subcommand_details(app: &App) -> String {
             subcmd_dets,
             subcmd = sc.replace("-", "__"),
             sc_opts = all_options_for_path(app, &*sc),
-            level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
+            level = sc.split("__").map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(app, &*sc)
         );
     }
@@ -134,13 +142,7 @@ fn subcommand_details(app: &App) -> String {
 fn option_details_for_path(app: &App, path: &str) -> String {
     debugln!("Bash::option_details_for_path: path={}", path);
 
-    let mut p = app;
-
-    for sc in path.split("__").skip(1) {
-        debugln!("Bash::option_details_for_path:iter: sc={}", sc);
-        p = &find_subcmd!(p, sc).unwrap();
-    }
-
+    let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = String::new();
 
     for o in opts!(p) {
@@ -187,25 +189,19 @@ fn vals_for(o: &Arg) -> String {
 fn all_options_for_path(app: &App, path: &str) -> String {
     debugln!("Bash::all_options_for_path: path={}", path);
 
-    let mut p = app;
-
-    for sc in path.split("__").skip(1) {
-        debugln!("Bash::all_options_for_path:iter: sc={}", sc);
-        p = &find_subcmd!(p, sc).unwrap();
-    }
+    let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let scs: Vec<_> = Bash::subcommands(p).iter().map(|x| x.0.clone()).collect();
 
     let opts = format!(
         "{shorts} {longs} {pos} {subcmds}",
-        shorts = shorts!(p).fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        // Handles aliases too
-        longs = longs!(p).fold(String::new(), |acc, l| format!(
-            "{} --{}",
-            acc,
-            l.to_str().unwrap()
-        )),
+        shorts = Bash::shorts(p)
+            .iter()
+            .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
+        longs = Bash::longs(p)
+            .iter()
+            .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
         pos = positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p)),
-        // Handles aliases too
-        subcmds = sc_names!(p).fold(String::new(), |acc, s| format!("{} {}", acc, s))
+        subcmds = scs.join(" "),
     );
 
     opts

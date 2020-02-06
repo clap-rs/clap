@@ -112,7 +112,7 @@ fn generate_inner<'b>(
         }
     }
 
-    for flag in flags!(p) {
+    for flag in PowerShell::flags(p) {
         if let Some(data) = flag.short {
             let tooltip = get_tooltip(flag.help, data);
 

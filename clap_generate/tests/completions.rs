@@ -1,20 +1,20 @@
-use std::fmt;
 use clap::{App, Arg};
 use clap_generate::{generate, generators::*};
+use std::fmt;
 
 #[derive(PartialEq, Eq)]
 pub struct PrettyString<'a>(pub &'a str);
 
 impl<'a> fmt::Debug for PrettyString<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    f.write_str(self.0)
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(self.0)
+    }
 }
 
 macro_rules! assert_eq {
     ($left:expr, $right:expr) => {
         pretty_assertions::assert_eq!(PrettyString($left), PrettyString($right));
-    }
+    };
 }
 
 static BASH: &'static str = r#"_myapp() {
@@ -45,7 +45,7 @@ static BASH: &'static str = r#"_myapp() {
 
     case "${cmd}" in
         myapp)
-            opts=" -h -V  --help --version  <file>  test help"
+            opts=" -h -V  --help --version  <file> test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -572,7 +572,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts=" -h -V  --help --version  <file>  test some_cmd some-cmd-with-hypens help"
+            opts=" -h -V  --help --version  <file> test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
@@ -740,7 +740,7 @@ fn build_app_special_commands() -> App<'static> {
                     .help("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens"))
+        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
 fn build_app_special_help() -> App<'static> {

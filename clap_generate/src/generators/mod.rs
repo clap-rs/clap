@@ -5,7 +5,6 @@ use std::io::Write;
 
 // Internal
 use clap::*;
-
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -55,39 +54,12 @@ pub trait Generator {
     /// ```
     fn generate(app: &App, buf: &mut dyn Write);
 
-    /// Gets all subcommands including child subcommands in the form of 'name' where the name
-    /// is a single word (i.e. "install") of the path to said subcommand (i.e.
-    /// "rustup toolchain install")
+    /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
     ///
-    /// Also note, aliases are treated as their own subcommands but duplicates of whatever they're
-    /// aliasing.
-    fn all_subcommand_names(app: &App) -> Vec<String> {
-        debugln!("all_subcommand_names;");
-
-        let mut subcmds: Vec<_> = Self::subcommands_of(app)
-            .iter()
-            .map(|&(ref n, _)| n.clone())
-            .collect();
-
-        for sc_v in subcommands!(app).map(|s| Self::all_subcommand_names(&s)) {
-            subcmds.extend(sc_v);
-        }
-
-        subcmds.sort();
-        subcmds.dedup();
-        subcmds
-    }
-
-    /// Gets all subcommands including child subcommands in the form of ('name', 'bin_name') where the name
-    /// is a single word (i.e. "install") of the path and full bin_name of said subcommand (i.e.
-    /// "rustup toolchain install")
-    ///
-    /// Also note, aliases are treated as their own subcommands but duplicates of whatever they're
-    /// aliasing.
+    /// Subcommand `rustup toolchain install` would be converted to
+    /// `("install", "rustup toolchain install")`.
     fn all_subcommands(app: &App) -> Vec<(String, String)> {
-        debugln!("all_subcommands;");
-
-        let mut subcmds: Vec<_> = Self::subcommands_of(app);
+        let mut subcmds: Vec<_> = Self::subcommands(app);
 
         for sc_v in subcommands!(app).map(|s| Self::all_subcommands(&s)) {
             subcmds.extend(sc_v);
@@ -96,120 +68,256 @@ pub trait Generator {
         subcmds
     }
 
-    /// Gets all subcommands exlcuding child subcommands in the form of (name, bin_name) where the name
-    /// is a single word (i.e. "install") and the bin_name is a space deliniated list of the path to said
-    /// subcommand (i.e. "rustup toolchain install")
+    /// Finds the subcommand [`clap::App`][clap] from the given [`clap::App`][clap] with the given path.
     ///
-    /// Also note, aliases are treated as their own subcommands but duplicates of whatever they're
-    /// aliasing.
-    fn subcommands_of(p: &App) -> Vec<(String, String)> {
-        debugln!(
-            "subcommands_of: name={}, bin_name={}",
-            p.name,
-            p.bin_name.as_ref().unwrap()
-        );
-        debugln!(
-            "subcommands_of: Has subcommands...{:?}",
-            p.has_subcommands()
-        );
+    /// **NOTE:** `path` should not contain the root `bin_name`.
+    ///
+    /// [clap]: ../clap/struct.App.html
+    fn find_subcommand_with_path<'b>(p: &'b App<'b>, path: Vec<&str>) -> &'b App<'b> {
+        let mut app = p;
+
+        for sc in path {
+            app = find_subcmd!(app, sc).unwrap();
+        }
+
+        app
+    }
+
+    /// Gets subcommands of [`clap::App`](../clap/struct.App.html) in the form of `("name", "bin_name")`.
+    ///
+    /// Subcommand `rustup toolchain install` would be converted to
+    /// `("install", "rustup toolchain install")`.
+    fn subcommands(p: &App) -> Vec<(String, String)> {
+        debugln!("subcommands: name={}", p.name);
+        debugln!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
         let mut subcmds = vec![];
 
         if !p.has_subcommands() {
-            let mut ret = vec![];
-
-            debugln!("subcommands_of: Looking for aliases...");
-
-            if let Some(ref aliases) = p.aliases {
-                for &(n, _) in aliases {
-                    debugln!("subcommands_of:iter:iter: Found alias...{}", n);
-
-                    let mut als_bin_name: Vec<_> =
-                        p.bin_name.as_ref().unwrap().split(' ').collect();
-
-                    als_bin_name.push(n);
-
-                    let old = als_bin_name.len() - 2;
-
-                    als_bin_name.swap_remove(old);
-                    ret.push((n.to_owned(), als_bin_name.join(" ")));
-                }
-            }
-
-            return ret;
+            return subcmds;
         }
 
-        for sc in subcommands!(p) {
+        for sc in &p.subcommands {
+            let sc_bin_name = sc.get_bin_name().unwrap();
+
             debugln!(
-                "subcommands_of:iter: name={}, bin_name={}",
+                "subcommands:iter: name={}, bin_name={}",
                 sc.name,
-                sc.bin_name.as_ref().unwrap()
+                sc_bin_name
             );
-            debugln!("subcommands_of:iter: Looking for aliases...");
 
-            if let Some(ref aliases) = sc.aliases {
-                for &(n, _) in aliases {
-                    debugln!("subcommands_of:iter:iter: Found alias...{}", n);
-
-                    let mut als_bin_name: Vec<_> =
-                        p.bin_name.as_ref().unwrap().split(' ').collect();
-
-                    als_bin_name.push(n);
-
-                    let old = als_bin_name.len() - 2;
-
-                    als_bin_name.swap_remove(old);
-                    subcmds.push((n.to_owned(), als_bin_name.join(" ")));
-                }
-            }
-
-            subcmds.push((sc.name.clone(), sc.get_bin_name().unwrap().to_string()));
+            subcmds.push((sc.name.clone(), sc_bin_name.to_string()));
         }
 
         subcmds
     }
 
-    /// TODO
-    fn get_all_subcommand_paths(p: &App, first: bool) -> Vec<String> {
-        debugln!("get_all_subcommand_paths;");
+    /// Gets all the short options and flags of a [`clap::App`](../clap/struct.App.html).
+    /// Includes `h` and `V` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
+    fn shorts<'b>(p: &'b App<'b>) -> Vec<char> {
+        debugln!("shorts: name={}", p.name);
 
-        let mut subcmds = vec![];
-
-        if !p.has_subcommands() {
-            if !first {
-                let name = &*p.name;
-                let path = p.get_bin_name().unwrap().to_string().replace(" ", "__");
-                let mut ret = vec![path.clone()];
-
-                if let Some(ref aliases) = p.aliases {
-                    for &(n, _) in aliases {
-                        ret.push(path.replace(name, n));
-                    }
+        let mut shorts: Vec<char> = p
+            .args
+            .args
+            .iter()
+            .filter_map(|a| {
+                if a.index.is_none() && a.short.is_some() {
+                    Some(a.short.unwrap())
+                } else {
+                    None
                 }
+            })
+            .collect();
 
-                return ret;
-            }
-
-            return vec![];
+        if shorts.iter().find(|x| **x == 'h').is_none() {
+            shorts.push('h');
         }
 
-        for sc in subcommands!(p) {
-            let name = &*sc.name;
-            let path = sc.get_bin_name().unwrap().to_string().replace(" ", "__");
+        if !p.is_set(AppSettings::DisableVersion) && shorts.iter().find(|x| **x == 'V').is_none() {
+            shorts.push('V');
+        }
 
-            subcmds.push(path.clone());
+        shorts
+    }
 
-            if let Some(ref aliases) = sc.aliases {
-                for &(n, _) in aliases {
-                    subcmds.push(path.replace(name, n));
+    /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
+    /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
+    fn longs<'b>(p: &'b App<'b>) -> Vec<String> {
+        debugln!("longs: name={}", p.name);
+
+        let mut longs: Vec<String> = p
+            .args
+            .args
+            .iter()
+            .filter_map(|a| {
+                if a.index.is_none() && a.long.is_some() {
+                    Some(a.long.unwrap().to_string())
+                } else {
+                    None
                 }
-            }
+            })
+            .collect();
+
+        if longs.iter().find(|x| **x == "help").is_none() {
+            longs.push(String::from("help"));
         }
 
-        for sc_v in subcommands!(p).map(|s| Self::get_all_subcommand_paths(&s, false)) {
-            subcmds.extend(sc_v);
+        if !p.is_set(AppSettings::DisableVersion)
+            && longs.iter().find(|x| **x == "version").is_none()
+        {
+            longs.push(String::from("version"));
         }
 
-        subcmds
+        longs
+    }
+
+    /// Gets all the flags of a [`clap::App`](../clap/struct.App.html).
+    /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
+    fn flags<'b>(p: &'b App<'b>) -> Vec<Arg> {
+        debugln!("flags: name={}", p.name);
+
+        let mut flags: Vec<_> = flags!(p).cloned().collect();
+
+        if flags.iter().find(|x| x.name == "help").is_none() {
+            flags.push(
+                Arg::with_name("help")
+                    .short('h')
+                    .long("help")
+                    .help("Prints help information"),
+            );
+        }
+
+        if !p.is_set(AppSettings::DisableVersion)
+            && flags.iter().find(|x| x.name == "version").is_none()
+        {
+            flags.push(
+                Arg::with_name("version")
+                    .short('V')
+                    .long("version")
+                    .help("Prints version information"),
+            );
+        }
+
+        flags
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    struct Foo;
+
+    impl Generator for Foo {
+        fn generate(_: &App, _: &mut dyn Write) {}
+
+        fn file_name(name: &str) -> String {
+            name.to_string()
+        }
+    }
+
+    fn common() -> App<'static> {
+        let mut app = App::new("myapp")
+            .subcommand(
+                App::new("test")
+                    .subcommand(App::new("config"))
+                    .arg(Arg::with_name("file").short('f').long("file")),
+            )
+            .subcommand(App::new("hello"))
+            .bin_name("my-app");
+
+        app._build();
+        app._build_bin_names();
+        app
+    }
+
+    #[test]
+    fn test_subcommands() {
+        let app = common();
+
+        assert_eq!(
+            Foo::subcommands(&app),
+            vec![
+                ("test".to_string(), "my-app test".to_string()),
+                ("hello".to_string(), "my-app hello".to_string()),
+                ("help".to_string(), "my-app help".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_all_subcommands() {
+        let app = common();
+
+        assert_eq!(
+            Foo::all_subcommands(&app),
+            vec![
+                ("test".to_string(), "my-app test".to_string()),
+                ("hello".to_string(), "my-app hello".to_string()),
+                ("help".to_string(), "my-app help".to_string()),
+                ("config".to_string(), "my-app test config".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_find_subcommand_with_path() {
+        let app = common();
+        let sc_app = Foo::find_subcommand_with_path(&app, "test config".split(" ").collect());
+
+        assert_eq!(sc_app.name, "config");
+    }
+
+    #[test]
+    fn test_flags() {
+        let app = common();
+        let flags = Foo::flags(&app);
+
+        assert_eq!(flags.len(), 2);
+        assert_eq!(flags[0].long, Some("help"));
+        assert_eq!(flags[1].long, Some("version"));
+
+        let sc_flags = Foo::flags(Foo::find_subcommand_with_path(&app, vec!["test"]));
+
+        assert_eq!(sc_flags.len(), 3);
+        assert_eq!(sc_flags[0].long, Some("file"));
+        assert_eq!(sc_flags[1].long, Some("help"));
+        assert_eq!(sc_flags[2].long, Some("version"));
+    }
+
+    #[test]
+    fn test_shorts() {
+        let app = common();
+        let shorts = Foo::shorts(&app);
+
+        assert_eq!(shorts.len(), 2);
+        assert_eq!(shorts[0], 'h');
+        assert_eq!(shorts[1], 'V');
+
+        let sc_shorts = Foo::shorts(Foo::find_subcommand_with_path(&app, vec!["test"]));
+
+        assert_eq!(sc_shorts.len(), 3);
+        assert_eq!(sc_shorts[0], 'f');
+        assert_eq!(sc_shorts[1], 'h');
+        assert_eq!(sc_shorts[2], 'V');
+    }
+
+    #[test]
+    fn test_longs() {
+        let app = common();
+        let longs = Foo::longs(&app);
+
+        assert_eq!(longs.len(), 2);
+        assert_eq!(longs[0], "help");
+        assert_eq!(longs[1], "version");
+
+        let sc_longs = Foo::longs(Foo::find_subcommand_with_path(&app, vec!["test"]));
+
+        assert_eq!(sc_longs.len(), 3);
+        assert_eq!(sc_longs[0], "file");
+        assert_eq!(sc_longs[1], "help");
+        assert_eq!(sc_longs[2], "version");
     }
 }

@@ -216,7 +216,7 @@ fn get_subcommands_of(p: &App) -> String {
         return String::new();
     }
 
-    let sc_names = Zsh::subcommands_of(p);
+    let sc_names = Zsh::subcommands(p);
     let mut subcmds = vec![];
 
     for &(ref name, ref bin_name) in &sc_names {
@@ -262,7 +262,7 @@ fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
         return p;
     }
 
-    sc = sc.split(" ").last().unwrap();
+    sc = sc.split(' ').last().unwrap();
     find_subcmd!(p, sc).expect(INTERNAL_ERROR_MSG)
 }
 
@@ -429,7 +429,7 @@ fn write_flags_of(p: &App) -> String {
 
     let mut ret = vec![];
 
-    for f in flags!(p) {
+    for f in Zsh::flags(p) {
         debugln!("Zsh::write_flags_of:iter: f={}", f.name);
 
         let help = f.help.map_or(String::new(), escape_help);
