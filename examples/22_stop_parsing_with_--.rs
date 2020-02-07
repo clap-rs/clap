@@ -1,5 +1,3 @@
-extern crate clap;
-
 use clap::{App, Arg};
 
 /// myprog -f -p=bob -- sloppy slop slop

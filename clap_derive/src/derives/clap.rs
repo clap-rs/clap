@@ -13,6 +13,7 @@
 // MIT/Apache 2.0 license.
 use proc_macro2::Span;
 use proc_macro_error::{abort, abort_call_site, set_dummy};
+use quote::{quote, quote_spanned};
 use syn::{self, punctuated, spanned::Spanned, token, FieldsUnnamed, Ident};
 
 use super::{from_argmatches, into_app, sub_type, Attrs, Kind, Name, ParserKind, Ty};

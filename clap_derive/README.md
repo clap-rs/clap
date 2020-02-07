@@ -10,7 +10,7 @@ consumers.
 
 ## Documentation
 
-Find it on [Docs.rs](https://docs.rs/clap_derive).  You can also check the [examples](https://github.com/clap-rs/clap_derive/tree/master/examples) and the [changelog](https://github.com/clap-rs/clap_derive/blob/master/CHANGELOG.md).
+Find it on [Docs.rs](https://docs.rs/clap_derive).  You can also check the [examples](https://github.com/clap-rs/clap/tree/master/clap_derive/examples) and the [changelog](https://github.com/clap-rs/clap/blob/master/CHANGELOG.md).
 
 ## Example
 
@@ -23,9 +23,6 @@ clap = "3"
 
 And then, in your rust file:
 ```rust
-#[macro_use]
-extern crate clap;
-
 use std::path::PathBuf;
 use clap::Clap;
 

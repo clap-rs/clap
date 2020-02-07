@@ -1,10 +1,6 @@
 #![feature(test)]
 
-extern crate clap;
-extern crate test;
-
 use clap::{App, Arg};
-
 use test::Bencher;
 
 macro_rules! create_app {

@@ -1,10 +1,6 @@
 #![feature(test)]
 
-extern crate clap;
-extern crate test;
-
 use clap::App;
-
 use test::Bencher;
 
 #[bench]
