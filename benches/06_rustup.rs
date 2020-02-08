@@ -4,11 +4,7 @@
 
 #![feature(test)]
 
-extern crate clap;
-extern crate test;
-
 use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings};
-
 use test::Bencher;
 
 #[bench]

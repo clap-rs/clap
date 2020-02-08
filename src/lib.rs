@@ -186,7 +186,6 @@
 //! //
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
 //! // more clean, but takes a very small performance hit compared to the other two methods.
-//! #[macro_use]
 //! use clap::App;
 //!
 //! fn main() {

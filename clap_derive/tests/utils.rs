@@ -1,6 +1,3 @@
-#![allow(unused)]
-extern crate clap;
-
 use clap::IntoApp;
 
 pub fn get_help<T: IntoApp>() -> String {

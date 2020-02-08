@@ -1,14 +1,9 @@
 #![feature(test)]
 
-extern crate clap;
-extern crate test;
-
-use test::Bencher;
-
-use std::io::Cursor;
-
 use clap::App;
 use clap::{Arg, ArgSettings};
+use std::io::Cursor;
+use test::Bencher;
 
 fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));

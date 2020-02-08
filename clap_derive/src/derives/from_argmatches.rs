@@ -14,10 +14,9 @@
 use std::env;
 
 use proc_macro2;
-use syn;
-use syn::punctuated;
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned as _;
-use syn::token;
+use syn::{punctuated, token};
 
 use super::{
     spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING, DEFAULT_ENV_CASING,

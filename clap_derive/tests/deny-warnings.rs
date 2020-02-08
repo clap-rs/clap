@@ -14,8 +14,6 @@
 
 #![deny(warnings)]
 
-extern crate clap;
-
 use clap::Clap;
 
 fn try_str(s: &str) -> Result<String, std::convert::Infallible> {

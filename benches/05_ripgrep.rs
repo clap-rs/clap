@@ -5,11 +5,7 @@
 
 #![feature(test)]
 
-extern crate clap;
-extern crate test;
-
 use clap::{App, AppSettings, Arg, ArgSettings};
-
 use std::collections::HashMap;
 use std::io::Cursor;
 use test::Bencher;

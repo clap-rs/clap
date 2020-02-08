@@ -14,6 +14,7 @@
 use std::env;
 
 use proc_macro2;
+use quote::quote;
 use syn;
 
 use super::{spanned::Sp, Attrs, GenOutput, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};

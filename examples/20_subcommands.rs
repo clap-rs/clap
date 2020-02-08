@@ -39,8 +39,6 @@
 // Let's make a quick program to illustrate. We'll be using the same example as above but for
 // brevity sake we won't implement all of the subcommands, only a few.
 
-extern crate clap;
-
 use clap::{App, AppSettings, Arg};
 
 fn main() {
