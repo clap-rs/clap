@@ -84,7 +84,10 @@ features = ["doc"]
 [workspace]
 members = [
 	"clap_derive",
+	"clap_generate",
 ]
 default-members = [
-	".", "clap_derive",
+	".",
+	"clap_derive",
+	"clap_generate",
 ]

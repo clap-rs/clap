@@ -1,9 +1,4 @@
-# Work in Progress
-
-This crate is currently a work in progress and not meant to be used. Please use [`structopt`](https://github.com/TeXitoi/structopt)
-while this crate is being built.
-
-# clap_derive[![Build status](https://travis-ci.org/clap-rs/clap_derive.svg?branch=master)](https://travis-ci.org/clap-rs/clap_derive) [![](https://img.shields.io/crates/v/clap_derive.svg)](https://crates.io/crates/clap_derive) [![](https://docs.rs/clap_derive/badge.svg)](https://docs.rs/clap_derive)
+# clap_derive
 
 Parse command line argument by defining a struct.  It combines [structopt](https://github.com/TeXitoi/structopt) and [clap](https://crates.io/crates/clap) into a single experience. This crate is used by clap, and not meant to be used directly by
 consumers.

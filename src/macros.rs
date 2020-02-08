@@ -919,18 +919,18 @@ macro_rules! write_nspaces {
     }};
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! flags {
     ($app:expr, $how:ident) => {{
         $app.args
             .args
             .$how()
-            .filter(|a| {
-                !a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
-            })
+            .filter(|a| !a.settings.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
-        flags!($app, iter)
+        $crate::flags!($app, iter)
     };
 }
 
@@ -941,14 +941,14 @@ macro_rules! flags_mut {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! opts {
     ($app:expr, $how:ident) => {{
         $app.args
             .args
             .$how()
-            .filter(|a| {
-                a.settings.is_set(crate::build::ArgSettings::TakesValue) && a.index.is_none()
-            })
+            .filter(|a| a.settings.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -963,6 +963,8 @@ macro_rules! opts_mut {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! positionals {
     ($app:expr) => {
         $app.args
@@ -997,6 +999,8 @@ macro_rules! subcommands_cloned {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! subcommands {
     ($app:expr, $how:ident) => {
         $app.subcommands.$how()
@@ -1028,6 +1032,8 @@ macro_rules! find_subcmd_cloned {
     }};
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! find_subcmd {
     ($app:expr, $sc:expr) => {{
         subcommands!($app).find(|a| match_alias!(a, $sc, &*a.name))
@@ -1047,7 +1053,9 @@ macro_rules! longs {
     }};
 }
 
-macro_rules! _names {
+#[macro_export]
+#[doc(hidden)]
+macro_rules! names {
     (@args $app:expr) => {{
         $app.args.args.iter().map(|a| &*a.name)
     }};
@@ -1061,12 +1069,16 @@ macro_rules! _names {
     }};
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! sc_names {
     ($app:expr) => {{
-        _names!(@sc $app)
+        names!(@sc $app)
     }};
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! match_alias {
     ($a:expr, $to:expr, $what:expr) => {{
         $what == $to

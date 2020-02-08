@@ -16,6 +16,7 @@ pub struct MKeyMap<'b> {
     built: bool, // mutation isn't possible after being built
 }
 
+#[doc(hidden)]
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum KeyType {
     Short(char),
