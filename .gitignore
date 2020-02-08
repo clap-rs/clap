@@ -28,3 +28,5 @@ clap-rs.iml
 
 # Auxiliary files
 test-results.test
+expanded.rs
+clap_derive/expanded.rs

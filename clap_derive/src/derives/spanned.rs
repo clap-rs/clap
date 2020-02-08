@@ -1,7 +1,8 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::ToTokens;
-use std::ops::{Deref, DerefMut};
 use syn::LitStr;
+
+use std::ops::{Deref, DerefMut};
 
 /// An entity with a span attached.
 #[derive(Debug, Clone)]

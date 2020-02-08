@@ -7,10 +7,10 @@ struct Opt {}
 #[derive(Clap, Debug)]
 struct Opt1 {
     #[clap = "short"]
-    foo: u32
+    foo: u32,
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     println!("{:?}", opt);
 }

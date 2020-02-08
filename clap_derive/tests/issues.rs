@@ -3,7 +3,7 @@
 mod utils;
 use utils::*;
 
-use clap::{ArgGroup, Clap};
+use clap::{AppSettings, ArgGroup, Clap};
 
 #[test]
 fn issue_151() {
@@ -31,8 +31,6 @@ fn issue_151() {
 
 #[test]
 fn issue_289() {
-    use clap::{AppSettings, Clap};
-
     #[derive(Clap)]
     #[clap(setting = AppSettings::InferSubcommands)]
     enum Args {
@@ -40,6 +38,8 @@ fn issue_289() {
         AnotherCommand,
     }
 
+    // FIXME (@CreepySkeleton): current implementation requires us to
+    // derive IntoApp here while we don't really need it
     #[derive(Clap)]
     #[clap(setting = AppSettings::InferSubcommands)]
     enum SubSubCommand {

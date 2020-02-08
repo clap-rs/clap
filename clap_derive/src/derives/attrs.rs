@@ -104,10 +104,7 @@ pub struct Attrs {
 /// The output of a generation method is not only the stream of new tokens but also the attribute
 /// information of the current element. These attribute information may contain valuable information
 /// for any kind of child arguments.
-pub struct GenOutput {
-    pub tokens: proc_macro2::TokenStream,
-    pub attrs: Attrs,
-}
+pub type GenOutput = (proc_macro2::TokenStream, Attrs);
 
 impl Method {
     pub fn new(name: Ident, args: TokenStream) -> Self {

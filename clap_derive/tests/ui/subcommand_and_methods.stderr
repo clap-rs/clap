@@ -3,9 +3,3 @@ error: methods in attributes are not allowed for subcommand
    |
 16 |     #[clap(subcommand, long)]
    |            ^^^^^^^^^^
-
-error[E0277]: the trait bound `MakeCookie: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/subcommand_and_methods.rs:11:10
-   |
-11 | #[derive(Clap, Debug)]
-   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `MakeCookie`

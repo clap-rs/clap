@@ -1,3 +1,10 @@
+// Hi, future me (or whoever you are)!
+//
+// Yes, we do need this attr.
+// No, the warnings cannot be fixed otherwise.
+// Accept and endure. Do not touch.
+#![allow(unused)]
+
 use clap::IntoApp;
 
 pub fn get_help<T: IntoApp>() -> String {

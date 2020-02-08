@@ -3,9 +3,3 @@ error: subcommand is only allowed on fields
    |
 12 | #[clap(name = "basic", subcommand)]
    |                        ^^^^^^^^^^
-
-error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/struct_subcommand.rs:11:10
-   |
-11 | #[derive(Clap, Debug)]
-   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`
