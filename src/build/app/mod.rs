@@ -634,6 +634,7 @@ impl<'b> App<'b> {
         };
         let arg = a.into().help_heading(help_heading);
         self.args.push(arg);
+        self.panic_on_missing_help();
         self
     }
 
@@ -675,7 +676,34 @@ impl<'b> App<'b> {
         for arg in args.into_iter() {
             self.args.push(arg.into());
         }
+        self.panic_on_missing_help();
         self
+    }
+
+    #[cfg(not(debug_assertions))]
+    fn panic_on_missing_help(&self) {}
+
+    #[cfg(debug_assertions)]
+    fn panic_on_missing_help(&self) {
+        if self.is_set(AppSettings::HelpRequired) {
+            let args_missing_help: Vec<String> = self
+                .args
+                .args
+                .iter()
+                .filter(|arg| arg.help.is_none() && arg.long_help.is_none())
+                .map(|arg| String::from(arg.name))
+                .collect();
+
+            if args_missing_help.len() > 0 {
+                let mut abort_message = String::from(
+                    "You activated the setting AppSettings::HelpRequired in the clap crate, but then did not implement help messages for all your arguments:\n"
+                );
+                for arg_name in args_missing_help {
+                    abort_message += &format!("Argument with name {} has neither help nor long_help implemented. Implement at least one!\n", arg_name);
+                }
+                panic!(abort_message);
+            }
+        }
     }
 
     /// Allows adding a [``] alias, which function as "hidden" subcommands that
@@ -988,6 +1016,7 @@ impl<'b> App<'b> {
             ..Arg::default()
         });
         self.args.push(f(a));
+        self.panic_on_missing_help();
 
         self
     }
