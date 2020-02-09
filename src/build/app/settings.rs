@@ -684,7 +684,7 @@ pub enum AppSettings {
     ///         // Someone forgot to put .help("...") here
     ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
     ///         // a panic (if you are in debug mode)
-    ///     ).get_matches()
+    ///     )
     ///  # ;
     ///```
     ///
