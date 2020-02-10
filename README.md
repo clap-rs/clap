@@ -14,6 +14,16 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 * [website](https://clap.rs/)
 * [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U)
 
+> **IMPORTANT!**
+> This readme describes `clap v3.0.0` which is still under development and will be published soon-ish. 
+> It was not published on crates.io yet, and if you want to use this preview anyway, use 
+> ```toml
+> clap = { git = "https://github.com/clap-rs/clap/" }
+> ```
+> 
+> If you're looking for the readme for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
+
+
 Table of Contents
 =================
 
