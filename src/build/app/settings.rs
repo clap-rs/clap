@@ -670,7 +670,7 @@ pub enum AppSettings {
     ///         Arg::with_name("foo").help("It does foo stuff")
     ///         // As required via AppSettings::HelpRequired, a help message was supplied
     ///      )
-    /// # ;
+    /// #    .get_matches();
     /// ```
     ///
     /// # Panics
@@ -685,7 +685,7 @@ pub enum AppSettings {
     ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
     ///         // a panic (if you are in debug mode)
     ///     )
-    ///  # ;
+    /// #   .get_matches();
     ///```
     ///
     /// [``]: ./struct..html

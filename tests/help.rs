@@ -1568,3 +1568,73 @@ fn issue_1487() {
             .required(true));
     assert!(utils::compare_output(app, "ctest -h", ISSUE_1487, false));
 }
+
+#[test]
+#[should_panic]
+fn help_required_but_not_given() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo"))
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn help_required_but_not_given_settings_after_args() {
+    App::new("myapp")
+        .arg(Arg::with_name("foo"))
+        .setting(AppSettings::HelpRequired)
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn help_required_but_not_given_for_one_of_two_arguments() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo"))
+        .arg(Arg::with_name("bar").help("It does bar stuff"))
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn help_required_but_not_given_for_subcommand() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo").help("It does foo stuff"))
+        .subcommand(
+            App::new("bar")
+                .arg(Arg::with_name("create").help("creates bar"))
+                .arg(Arg::with_name("delete")),
+        )
+        .get_matches();
+}
+
+#[test]
+fn help_required_and_given_for_subcommand() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo").help("It does foo stuff"))
+        .subcommand(
+            App::new("bar")
+                .arg(Arg::with_name("create").help("creates bar"))
+                .arg(Arg::with_name("delete").help("deletes bar")),
+        )
+        .get_matches();
+}
+
+#[test]
+fn help_required_and_given() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo").help("It does foo stuff"))
+        .get_matches();
+}
+
+#[test]
+fn help_required_and_no_args() {
+    App::new("myapp")
+        .setting(AppSettings::HelpRequired)
+        .get_matches();
+}
