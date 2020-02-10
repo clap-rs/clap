@@ -46,6 +46,7 @@ bitflags! {
         const INFER_SUBCOMMANDS    = 1 << 37;
         const CONTAINS_LAST        = 1 << 38;
         const ARGS_OVERRIDE_SELF   = 1 << 39;
+        const HELP_REQUIRED        = 1 << 40;
     }
 }
 
@@ -112,6 +113,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::GLOBAL_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
+    HelpRequired("helprequired")
+        => Flags::HELP_REQUIRED,
     Hidden("hidden")
         => Flags::HIDDEN,
     LowIndexMultiplePositional("lowindexmultiplepositional")
@@ -655,6 +658,37 @@ pub enum AppSettings {
     /// This can be useful if there are many values, or they are explained elsewhere.
     HidePossibleValuesInHelp,
 
+    /// Tells `clap` to panic if help strings are omitted
+    ///  
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::HelpRequired)
+    ///     .arg(
+    ///         Arg::with_name("foo").help("It does foo stuff")
+    ///         // As required via AppSettings::HelpRequired, a help message was supplied
+    ///      )
+    /// #    .get_matches();
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// ```rust,should_panic
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myapp")
+    ///     .setting(AppSettings::HelpRequired)
+    ///     .arg(
+    ///         Arg::with_name("foo")
+    ///         // Someone forgot to put .help("...") here
+    ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
+    ///         // a panic (if you are in debug mode)
+    ///     )
+    /// #   .get_matches();
+    ///```
+    HelpRequired,
+
     /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to
     /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.
     ///
@@ -1027,6 +1061,10 @@ mod test {
         assert_eq!(
             "hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(),
             AppSettings::HidePossibleValuesInHelp
+        );
+        assert_eq!(
+            "helprequired".parse::<AppSettings>().unwrap(),
+            AppSettings::HelpRequired
         );
         assert_eq!(
             "lowindexmultiplePositional".parse::<AppSettings>().unwrap(),
