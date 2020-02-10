@@ -4,7 +4,7 @@ mod shells;
 use std::io::Write;
 
 // Internal
-use clap::*;
+use clap::{find_subcmd, flags, match_alias, subcommands, App, AppSettings, Arg};
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn test_find_subcommand_with_path() {
         let app = common();
-        let sc_app = Foo::find_subcommand_with_path(&app, "test config".split(" ").collect());
+        let sc_app = Foo::find_subcommand_with_path(&app, "test config".split(' ').collect());
 
         assert_eq!(sc_app.name, "config");
     }

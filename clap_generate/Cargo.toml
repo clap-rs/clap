@@ -4,7 +4,7 @@ version = "3.0.0-beta.1"
 edition = "2018"
 authors = [
 	"Kevin K. <kbknapp@gmail.com>",
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>",
+	"Clap Maintainers"
 ]
 include = [
 	"src/**/*",

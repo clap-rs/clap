@@ -4,8 +4,7 @@ version = "3.0.0-beta.1"
 edition = "2018"
 authors = [
 	"Guillaume Pinot <texitoi@texitoi.eu>",
-	"Kevin K. <kbknapp@gmail.com>",
-	"hoverbear <andrew@hoverbear.org>"
+	"Clap Maintainers"
 ]
 include = [
 	"src/**/*",
@@ -44,7 +43,7 @@ proc-macro-error = "0.4.3"
 
 [dev-dependencies]
 clap = { path = "../", version = "3.0.0-beta.1" }
-trybuild = "1.0.5"
+trybuild = "1.0"
 rustversion = "1"
 version-sync = "0.8"
 
