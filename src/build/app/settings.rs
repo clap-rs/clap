@@ -687,8 +687,6 @@ pub enum AppSettings {
     ///     )
     /// #   .get_matches();
     ///```
-    ///
-    /// [``]: ./struct..html
     HelpRequired,
 
     /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to

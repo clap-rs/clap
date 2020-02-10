@@ -1469,14 +1469,6 @@ impl<'b> App<'b> {
 
     #[cfg(debug_assertions)]
     fn _panic_on_missing_help(app: &App, help_required_globally: bool) {
-        for sub_app in &app.subcommands {
-            Self::_panic_on_missing_help(&sub_app, help_required_globally);
-        }
-        Self::_panic_on_missing_help_driver(&app, help_required_globally);
-    }
-
-    #[cfg(debug_assertions)]
-    fn _panic_on_missing_help_driver(app: &App, help_required_globally: bool) {
         if app.is_set(AppSettings::HelpRequired) || help_required_globally {
             let args_missing_help: Vec<String> = app
                 .args
@@ -1490,6 +1482,9 @@ impl<'b> App<'b> {
                 let abort_message = format!("AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}", app.name, args_missing_help.join(", "));
                 panic!(abort_message);
             }
+        }
+        for sub_app in &app.subcommands {
+            Self::_panic_on_missing_help(&sub_app, help_required_globally);
         }
     }
 
