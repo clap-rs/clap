@@ -107,9 +107,11 @@ pub use generators::Generator;
 ///     };
 ///
 ///     let mut app = build_cli();
-///     generate_to::<Bash, _>(&mut app,     // We need to specify what generator to use
-///                            "myapp",      // We need to specify the bin name manually
-///                            outdir);      // We need to specify where to write to
+///     generate_to::<Bash, _, _>(
+///         &mut app,     // We need to specify what generator to use
+///         "myapp",      // We need to specify the bin name manually
+///         outdir,       // We need to specify where to write to
+///     );
 /// }
 /// ```
 ///

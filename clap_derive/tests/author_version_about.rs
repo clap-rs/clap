@@ -35,7 +35,7 @@ fn use_env() {
 
     let output = get_long_help::<Opt>();
     assert!(output.starts_with("clap_derive"));
-    assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>, Kevin K. <kbknapp@gmail.com>"));
+    assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>, Clap Maintainers"));
     assert!(output.contains("Parse command line argument by defining a struct, derive crate"));
 }
 
