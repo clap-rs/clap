@@ -1598,10 +1598,23 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
 }
 
 #[test]
-#[should_panic]
-fn help_required_but_not_given_for_subcommand() {
+fn help_required_locally_but_not_given_for_subcommand() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
+        .arg(Arg::with_name("foo").help("It does foo stuff"))
+        .subcommand(
+            App::new("bar")
+                .arg(Arg::with_name("create").help("creates bar"))
+                .arg(Arg::with_name("delete")),
+        )
+        .get_matches();
+}
+
+#[test]
+#[should_panic]
+fn help_required_globally_but_not_given_for_subcommand() {
+    App::new("myapp")
+        .global_setting(AppSettings::HelpRequired)
         .arg(Arg::with_name("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")

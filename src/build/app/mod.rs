@@ -1461,16 +1461,24 @@ impl<'b> App<'b> {
         debug_assert!(self._app_debug_asserts());
         self.args._build();
         self.settings.set(AppSettings::Built);
-        self._panic_on_missing_help();
+        Self::_panic_on_missing_help(&self, self.g_settings.is_set(AppSettings::HelpRequired));
     }
 
     #[cfg(not(debug_assertions))]
-    fn _panic_on_missing_help(&self) {}
+    fn _panic_on_missing_help(app: &App, help_required_globally: bool) {}
 
     #[cfg(debug_assertions)]
-    fn _panic_on_missing_help(&self) {
-        if self.is_set(AppSettings::HelpRequired) {
-            let args_missing_help: Vec<String> = self
+    fn _panic_on_missing_help(app: &App, help_required_globally: bool) {
+        for sub_app in &app.subcommands {
+            Self::_panic_on_missing_help(&sub_app, help_required_globally);
+        }
+        Self::_panic_on_missing_help_driver(&app, help_required_globally);
+    }
+
+    #[cfg(debug_assertions)]
+    fn _panic_on_missing_help_driver(app: &App, help_required_globally: bool) {
+        if app.is_set(AppSettings::HelpRequired) || help_required_globally {
+            let args_missing_help: Vec<String> = app
                 .args
                 .args
                 .iter()
@@ -1479,7 +1487,7 @@ impl<'b> App<'b> {
                 .collect();
 
             if !args_missing_help.is_empty() {
-                let abort_message = format!("AppSettings::HelpRequired is enabled, but at least one of your arguments does not have either `help` or `long_help` set. List of such arguments: {}", args_missing_help.join(", "));
+                let abort_message = format!("AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}", app.name, args_missing_help.join(", "));
                 panic!(abort_message);
             }
         }
