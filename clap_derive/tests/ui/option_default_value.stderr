@@ -3,9 +3,3 @@ error: default_value is meaningless for Option
    |
 14 |     #[clap(short, default_value = 1)]
    |                   ^^^^^^^^^^^^^
-
-error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/option_default_value.rs:11:10
-   |
-11 | #[derive(Clap, Debug)]
-   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`

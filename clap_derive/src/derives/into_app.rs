@@ -11,124 +11,261 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
+
 use std::env;
 
-use proc_macro2;
-use quote::quote;
-use syn;
+use proc_macro2::TokenStream;
+use proc_macro_error::{abort, abort_call_site};
+use quote::{quote, quote_spanned};
+use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
-use super::{spanned::Sp, Attrs, GenOutput, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
+use super::{
+    spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
+    DEFAULT_ENV_CASING,
+};
+use crate::derives::ty::sub_type;
 
 pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     use syn::Data::*;
 
-    let struct_name = &input.ident;
-    let inner_impl = match input.data {
-        Struct(syn::DataStruct { .. }) => {
-            gen_into_app_impl_for_struct(struct_name, &input.attrs).tokens
-        }
-        // @TODO impl into_app for enums?
-        // Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
-        _ => panic!("clap_derive only supports non-tuple structs"), // and enums"),
-    };
-
-    quote!(#inner_impl)
+    match input.data {
+        Struct(syn::DataStruct {
+            fields: syn::Fields::Named(ref fields),
+            ..
+        }) => gen_for_struct(&input.ident, &fields.named, &input.attrs).0,
+        Enum(_) => gen_for_enum(&input.ident),
+        _ => abort_call_site!("#[derive(IntoApp)] only supports non-tuple structs and enums"),
+    }
 }
 
-pub fn gen_into_app_impl_for_struct(name: &syn::Ident, attrs: &[syn::Attribute]) -> GenOutput {
-    let into_app_fn = gen_into_app_fn_for_struct(attrs);
-    let into_app_fn_tokens = into_app_fn.tokens;
+pub fn gen_for_struct(
+    struct_name: &syn::Ident,
+    fields: &Punctuated<syn::Field, Token![,]>,
+    attrs: &[syn::Attribute],
+) -> GenOutput {
+    let (into_app, attrs) = gen_into_app_fn(attrs);
+    let augment_clap = gen_augment_clap_fn(fields, &attrs);
 
     let tokens = quote! {
-        impl ::clap::IntoApp for #name {
-            #into_app_fn_tokens
+        impl ::clap::IntoApp for #struct_name {
+            #into_app
+            #augment_clap
         }
+    };
 
-        impl<'b> Into<::clap::App<'b>> for #name {
-            fn into(self) -> ::clap::App<'b> {
-                use ::clap::IntoApp;
-                <#name as ::clap::IntoApp>::into_app()
+    (tokens, attrs)
+}
+
+pub fn gen_for_enum(name: &syn::Ident) -> TokenStream {
+    let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
+
+    quote! {
+        impl ::clap::IntoApp for #name {
+            fn into_app<'b>() -> ::clap::App<'b> {
+                let app = ::clap::App::new(#app_name)
+                    .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
+                <#name as ::clap::IntoApp>::augment_clap(app)
+            }
+
+            fn augment_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+                <#name as ::clap::Subcommand>::augment_subcommands(app)
             }
         }
-    };
-
-    GenOutput {
-        tokens,
-        attrs: into_app_fn.attrs,
     }
 }
 
-pub fn gen_into_app_fn_for_struct(struct_attrs: &[syn::Attribute]) -> GenOutput {
-    let gen = gen_app_builder(struct_attrs);
-    let app_tokens = gen.tokens;
-
-    let tokens = quote! {
-        fn into_app<'b>() -> ::clap::App<'b> {
-            Self::augment_app(#app_tokens)
-        }
-    };
-
-    GenOutput {
-        tokens,
-        attrs: gen.attrs,
-    }
-}
-
-pub fn gen_app_builder(attrs: &[syn::Attribute]) -> GenOutput {
-    let name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
+fn gen_into_app_fn(attrs: &[syn::Attribute]) -> GenOutput {
+    let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     let attrs = Attrs::from_struct(
         proc_macro2::Span::call_site(),
         attrs,
-        Name::Assigned(quote!(#name)),
+        Name::Assigned(quote!(#app_name)),
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
-    let tokens = {
-        let name = attrs.cased_name();
-        quote!(::clap::App::new(#name))
-    };
-
-    GenOutput { tokens, attrs }
-}
-
-pub fn gen_into_app_impl_for_enum(name: &syn::Ident, attrs: &[syn::Attribute]) -> GenOutput {
-    let into_app_fn = gen_into_app_fn_for_enum(attrs);
-    let into_app_fn_tokens = into_app_fn.tokens;
-
-    let tokens = quote! {
-        impl ::clap::IntoApp for #name {
-            #into_app_fn_tokens
-        }
-
-        impl<'b> Into<::clap::App<'b>> for #name {
-            fn into(self) -> ::clap::App<'b> {
-                use ::clap::IntoApp;
-                <#name as ::clap::IntoApp>::into_app()
-            }
-        }
-    };
-
-    GenOutput {
-        tokens,
-        attrs: into_app_fn.attrs,
-    }
-}
-
-pub fn gen_into_app_fn_for_enum(enum_attrs: &[syn::Attribute]) -> GenOutput {
-    let gen = gen_app_builder(enum_attrs);
-    let app_tokens = gen.tokens;
+    let name = attrs.cased_name();
 
     let tokens = quote! {
         fn into_app<'b>() -> ::clap::App<'b> {
-            let app = #app_tokens
-                .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-            Self::augment_app(app)
+            Self::augment_clap(::clap::App::new(#name))
         }
     };
 
-    GenOutput {
-        tokens,
-        attrs: gen.attrs,
+    (tokens, attrs)
+}
+
+fn gen_augment_clap_fn(
+    fields: &Punctuated<syn::Field, Token![,]>,
+    parent_attribute: &Attrs,
+) -> proc_macro2::TokenStream {
+    let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
+    let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
+    quote! {
+        fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+            #augmentation
+        }
     }
+}
+
+/// Generate a block of code to add arguments/subcommands corresponding to
+/// the `fields` to an app.
+pub fn gen_app_augmentation(
+    fields: &Punctuated<syn::Field, Token![,]>,
+    app_var: &syn::Ident,
+    parent_attribute: &Attrs,
+) -> proc_macro2::TokenStream {
+    let mut subcmds = fields.iter().filter_map(|field| {
+        let attrs = Attrs::from_field(
+            &field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
+        let kind = attrs.kind();
+        if let Kind::Subcommand(ty) = &*kind {
+            let subcmd_type = match (**ty, sub_type(&field.ty)) {
+                (Ty::Option, Some(sub_type)) => sub_type,
+                _ => &field.ty,
+            };
+            let required = if **ty == Ty::Option {
+                quote!()
+            } else {
+                quote_spanned! { kind.span()=>
+                    let #app_var = #app_var.setting(
+                        ::clap::AppSettings::SubcommandRequiredElseHelp
+                    );
+                }
+            };
+
+            let span = field.span();
+            let ts = quote! {
+                let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands( #app_var );
+                #required
+            };
+            Some((span, ts))
+        } else {
+            None
+        }
+    });
+    let subcmd = subcmds.next().map(|(_, ts)| ts);
+    if let Some((span, _)) = subcmds.next() {
+        abort!(
+            span,
+            "multiple subcommand sets are not allowed, that's the second"
+        );
+    }
+
+    let args = fields.iter().filter_map(|field| {
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
+        let kind = attrs.kind();
+        match &*kind {
+            Kind::Subcommand(_) | Kind::Skip(_) => None,
+            Kind::Flatten => {
+                let ty = &field.ty;
+                Some(quote_spanned! { kind.span()=>
+                    let #app_var = <#ty as ::clap::IntoApp>::augment_clap(#app_var);
+                })
+            }
+            Kind::Arg(ty) => {
+                let convert_type = match **ty {
+                    Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
+                    Ty::OptionOption | Ty::OptionVec => {
+                        sub_type(&field.ty).and_then(sub_type).unwrap_or(&field.ty)
+                    }
+                    _ => &field.ty,
+                };
+
+                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
+                let flag = *attrs.parser().kind == ParserKind::FromFlag;
+
+                let parser = attrs.parser();
+                let func = &parser.func;
+                let validator = match *parser.kind {
+                    ParserKind::TryFromStr => quote_spanned! { func.span()=>
+                        .validator(|s| {
+                            #func(s.as_str())
+                            .map(|_: #convert_type| ())
+                            .map_err(|e| e.to_string())
+                        })
+                    },
+                    ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
+                        .validator_os(|s| #func(&s).map(|_: #convert_type| ()))
+                    },
+                    _ => quote!(),
+                };
+
+                let modifier = match **ty {
+                    Ty::Bool => quote!(),
+
+                    Ty::Option => quote_spanned! { ty.span()=>
+                        .takes_value(true)
+                        #validator
+                    },
+
+                    Ty::OptionOption => quote_spanned! { ty.span()=>
+                        .takes_value(true)
+                        .multiple(false)
+                        .min_values(0)
+                        .max_values(1)
+                        #validator
+                    },
+
+                    Ty::OptionVec => quote_spanned! { ty.span()=>
+                        .takes_value(true)
+                        .multiple(true)
+                        .min_values(0)
+                        #validator
+                    },
+
+                    Ty::Vec => quote_spanned! { ty.span()=>
+                        .takes_value(true)
+                        .multiple(true)
+                        #validator
+                    },
+
+                    Ty::Other if occurrences => quote_spanned! { ty.span()=>
+                        .multiple_occurrences(true)
+                    },
+
+                    Ty::Other if flag => quote_spanned! { ty.span()=>
+                        .takes_value(false)
+                        .multiple(false)
+                    },
+
+                    Ty::Other => {
+                        let required = !attrs.has_method("default_value");
+                        quote_spanned! { ty.span()=>
+                            .takes_value(true)
+                            .required(#required)
+                            #validator
+                        }
+                    }
+                };
+
+                let name = attrs.cased_name();
+                let methods = attrs.field_methods();
+
+                Some(quote_spanned! { field.span()=>
+                    let #app_var = #app_var.arg(
+                        ::clap::Arg::with_name(#name)
+                            #modifier
+                            #methods
+                    );
+                })
+            }
+        }
+    });
+
+    let app_methods = parent_attribute.top_level_methods();
+    let version = parent_attribute.version();
+    quote! {{
+        let #app_var = #app_var#app_methods;
+        #( #args )*
+        #subcmd
+        #app_var#version
+    }}
 }

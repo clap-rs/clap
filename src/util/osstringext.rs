@@ -22,6 +22,7 @@ pub trait OsStrExt2 {
 
 #[cfg(target_os = "windows")]
 impl OsStrExt3 for OsStr {
+    #[allow(clippy::transmute_ptr_to_ptr)]
     fn from_bytes(b: &[u8]) -> &Self {
         use std::mem;
         unsafe { mem::transmute(b) }

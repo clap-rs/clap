@@ -13,10 +13,9 @@
 // MIT/Apache 2.0 license.
 use std::env;
 
-use proc_macro2;
+use proc_macro_error::abort_call_site;
 use quote::{quote, quote_spanned};
-use syn::spanned::Spanned as _;
-use syn::{punctuated, token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
 use super::{
     spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING, DEFAULT_ENV_CASING,
@@ -26,14 +25,12 @@ pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStr
     use syn::Data::*;
 
     let struct_name = &input.ident;
-    let inner_impl = match input.data {
+    match input.data {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
             ..
         }) => {
-            let name = env::var("CARGO_PKG_NAME")
-                .ok()
-                .unwrap_or_else(String::default);
+            let name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
             let attrs = Attrs::from_struct(
                 proc_macro2::Span::call_site(),
@@ -43,54 +40,17 @@ pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStr
                 Sp::call_site(DEFAULT_ENV_CASING),
             );
 
-            gen_from_argmatches_impl_for_struct(struct_name, &fields.named, &attrs)
+            gen_for_struct(struct_name, &fields.named, &attrs)
         }
-        // Enum(ref e) => clap_for_enum_impl(struct_name, &e.variants, &input.attrs),
-        _ => panic!("clap_derive only supports non-tuple structs"), // and enums"),
-    };
-
-    quote!(#inner_impl)
-}
-
-pub fn gen_from_argmatches_impl_for_struct(
-    name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-    parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
-    let from_argmatches_fn = gen_from_argmatches_fn_for_struct(name, fields, parent_attribute);
-
-    quote! {
-        impl ::clap::FromArgMatches for #name {
-            #from_argmatches_fn
-        }
-
-        impl From<::clap::ArgMatches> for #name {
-            fn from(m: ::clap::ArgMatches) -> Self {
-                use ::clap::FromArgMatches;
-                <Self as ::clap::FromArgMatches>::from_argmatches(&m)
-            }
-        }
-
-        // @TODO impl TryFrom once stable
-    }
-}
-
-pub fn gen_from_argmatches_fn_for_struct(
-    struct_name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-    parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
-    let field_block = gen_constructor(fields, parent_attribute);
-
-    quote! {
-        fn from_argmatches(matches: &::clap::ArgMatches) -> Self {
-            #struct_name #field_block
+        Enum(_) => gen_for_enum(struct_name),
+        _ => {
+            abort_call_site!("#[derive(FromArgMatches)] only supports non-tuple structs and enums")
         }
     }
 }
 
 pub fn gen_constructor(
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
+    fields: &Punctuated<syn::Field, Token![,]>,
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let fields = fields.iter().map(|field| {
@@ -112,12 +72,19 @@ pub fn gen_constructor(
                     _ => quote_spanned!( ty.span()=> .unwrap() ),
                 };
                 quote_spanned! { kind.span()=>
-                    #field_name: <#subcmd_type>::from_subcommand(matches.subcommand())#unwrapper
+                    #field_name: {
+                        let (name, subcmd) = matches.subcommand();
+                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(
+                            name,
+                            subcmd
+                        )
+                        #unwrapper
+                    }
                 }
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: ::clap::FromArgMatches::from_argmatches(matches)
+                #field_name: ::clap::FromArgMatches::from_arg_matches(matches)
             },
 
             Kind::Skip(val) => match val {
@@ -222,22 +189,30 @@ pub fn gen_constructor(
     }}
 }
 
-pub fn gen_from_argmatches_impl_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
+pub fn gen_for_struct(
+    struct_name: &syn::Ident,
+    fields: &Punctuated<syn::Field, Token![,]>,
+    parent_attribute: &Attrs,
+) -> proc_macro2::TokenStream {
+    let constructor = gen_constructor(fields, parent_attribute);
+
+    quote! {
+        impl ::clap::FromArgMatches for #struct_name {
+            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
+                #struct_name #constructor
+            }
+        }
+    }
+}
+
+pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
     quote! {
         impl ::clap::FromArgMatches for #name {
-            fn from_argmatches(matches: &::clap::ArgMatches) -> Self {
-                <#name>::from_subcommand(matches.subcommand())
+            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
+                let (name, subcmd) = matches.subcommand();
+                <#name as ::clap::Subcommand>::from_subcommand(name, subcmd)
                     .unwrap()
             }
         }
-
-        impl From<::clap::ArgMatches> for #name {
-            fn from(m: ::clap::ArgMatches) -> Self {
-                use ::clap::FromArgMatches;
-                <Self as ::clap::FromArgMatches>::from_argmatches(&m)
-            }
-        }
-
-        // @TODO: impl TryFrom once stable
     }
 }

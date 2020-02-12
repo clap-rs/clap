@@ -9,15 +9,3 @@ error: expected parentheses: #[clap(...)]
   |
 9 |     #[clap = "short"]
   |            ^
-
-error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
- --> $DIR/clap_empty_attr.rs:3:10
-  |
-3 | #[derive(Clap, Debug)]
-  |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`
-
-error[E0277]: the trait bound `Opt1: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
- --> $DIR/clap_empty_attr.rs:7:10
-  |
-7 | #[derive(Clap, Debug)]
-  |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt1`

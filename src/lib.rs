@@ -448,6 +448,7 @@
 compile_error!("`std` feature is currently required to build this crate");
 
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+pub use crate::derive::{Clap, FromArgMatches, IntoApp, Subcommand};
 pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
 pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
@@ -462,11 +463,14 @@ pub use clap_derive::{self, *};
 #[cfg_attr(feature = "derive", doc(hidden))]
 pub use lazy_static;
 
-use std::result::Result as StdResult;
+#[doc(hidden)]
+pub use mkeymap::KeyType;
 
 #[macro_use]
 #[allow(missing_docs)]
 pub mod macros;
+
+pub mod derive;
 
 mod build;
 mod mkeymap;
@@ -474,34 +478,6 @@ mod output;
 mod parse;
 mod util;
 
-#[doc(hidden)]
-pub use mkeymap::KeyType;
-
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                   report at https://github.com/clap-rs/clap/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
-
-/// @TODO @release @docs
-pub trait Clap: From<ArgMatches> + IntoApp + Sized {}
-
-/// @TODO @release @docs
-pub trait FromArgMatches: Sized {
-    /// @TODO @release @docs
-    fn from_argmatches(matches: &crate::parse::ArgMatches) -> Self;
-
-    /// @TODO @release @docs
-    fn try_from_argmatches(
-        matches: &crate::parse::ArgMatches,
-    ) -> StdResult<Self, crate::parse::errors::Error> {
-        Ok(<Self as FromArgMatches>::from_argmatches(matches))
-    }
-}
-
-/// @TODO @release @docs
-pub trait IntoApp: Sized {
-    /// @TODO @release @docs
-    fn into_app<'b>() -> crate::build::App<'b>;
-}
-
-/// @TODO @release @docs
-pub trait ArgEnum {}

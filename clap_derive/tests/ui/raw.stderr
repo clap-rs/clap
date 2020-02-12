@@ -17,15 +17,3 @@ error: `#[clap(raw(...))` attributes are removed, they are replaced with raw met
    |
 19 |     #[clap(raw(requires_if = r#""one", "two""#))]
    |            ^^^
-
-error[E0277]: the trait bound `Opt: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/raw.rs:11:10
-   |
-11 | #[derive(Clap, Debug)]
-   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt`
-
-error[E0277]: the trait bound `Opt2: std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not satisfied
-  --> $DIR/raw.rs:17:10
-   |
-17 | #[derive(Clap, Debug)]
-   |          ^^^^ the trait `std::convert::From<clap::parse::matches::arg_matches::ArgMatches>` is not implemented for `Opt2`

@@ -19,6 +19,7 @@ mod from_argmatches;
 mod into_app;
 pub mod parse;
 pub mod spanned;
+mod subcommand;
 pub mod ty;
 
 // pub use self::arg_enum::derive_arg_enum;
@@ -29,4 +30,5 @@ pub use self::attrs::{
 pub use self::clap::derive_clap;
 pub use self::from_argmatches::derive_from_argmatches;
 pub use self::into_app::derive_into_app;
+pub use self::subcommand::derive_subcommand;
 pub use self::ty::{sub_type, Ty};
