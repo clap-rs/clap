@@ -1,4 +1,4 @@
-//! How to use `#[structopt(skip)]`
+//! How to use `#[clap(skip)]`
 
 use clap::Clap;
 
