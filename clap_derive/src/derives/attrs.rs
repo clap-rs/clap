@@ -118,7 +118,7 @@ impl Method {
             None => match env::var(env_var) {
                 Ok(val) => syn::LitStr::new(&val, ident.span()),
                 Err(_) => {
-                    abort!(ident.span(),
+                    abort!(ident,
                         "cannot derive `{}` from Cargo.toml", ident;
                         note = "`{}` environment variable is not set", env_var;
                         help = "use `{} = \"...\"` to set {} manually", ident, ident;
@@ -186,7 +186,7 @@ impl Parser {
 
             Some(func) => match func {
                 syn::Expr::Path(_) => quote!(#func),
-                _ => abort!(func.span(), "`parse` argument must be a function path"),
+                _ => abort!(func, "`parse` argument must be a function path"),
             },
         };
 
@@ -210,7 +210,7 @@ impl CasingStyle {
             "screamingsnake" | "screamingsnakecase" => cs(ScreamingSnake),
             "snake" | "snakecase" => cs(Snake),
             "verbatim" | "verbatimcase" => cs(Verbatim),
-            s => abort!(name.span(), "unsupported casing: `{}`", s),
+            s => abort!(name, "unsupported casing: `{}`", s),
         }
     }
 }
@@ -312,7 +312,7 @@ impl Attrs {
                             ty
                         } else {
                             abort!(
-                                ident.span(),
+                                ident,
                                 "#[clap(default_value)] (without an argument) can be used \
                                 only on field level";
 
@@ -468,13 +468,13 @@ impl Attrs {
                 match *ty {
                     Ty::OptionOption => {
                         abort!(
-                            ty.span(),
+                            field.ty,
                             "Option<Option<T>> type is not allowed for subcommand"
                         );
                     }
                     Ty::OptionVec => {
                         abort!(
-                            ty.span(),
+                            field.ty,
                             "Option<Vec<T>> type is not allowed for subcommand"
                         );
                     }
@@ -503,7 +503,7 @@ impl Attrs {
                 match *ty {
                     Ty::Bool => {
                         if res.is_positional() && !res.has_custom_parser {
-                            abort!(ty.span(),
+                            abort!(field.ty,
                                 "`bool` cannot be used as positional parameter with default parser";
                                 help = "if you want to create a flag add `long` or `short`";
                                 help = "If you really want a boolean parameter \
@@ -512,24 +512,24 @@ impl Attrs {
                             )
                         }
                         if let Some(m) = res.find_method("default_value") {
-                            abort!(m.name.span(), "default_value is meaningless for bool")
+                            abort!(m.name, "default_value is meaningless for bool")
                         }
                         if let Some(m) = res.find_method("required") {
-                            abort!(m.name.span(), "required is meaningless for bool")
+                            abort!(m.name, "required is meaningless for bool")
                         }
                     }
                     Ty::Option => {
                         if let Some(m) = res.find_method("default_value") {
-                            abort!(m.name.span(), "default_value is meaningless for Option")
+                            abort!(m.name, "default_value is meaningless for Option")
                         }
                         if let Some(m) = res.find_method("required") {
-                            abort!(m.name.span(), "required is meaningless for Option")
+                            abort!(m.name, "required is meaningless for Option")
                         }
                     }
                     Ty::OptionOption => {
                         if res.is_positional() {
                             abort!(
-                                ty.span(),
+                                field.ty,
                                 "Option<Option<T>> type is meaningless for positional argument"
                             )
                         }
@@ -537,7 +537,7 @@ impl Attrs {
                     Ty::OptionVec => {
                         if res.is_positional() {
                             abort!(
-                                ty.span(),
+                                field.ty,
                                 "Option<Vec<T>> type is meaningless for positional argument"
                             )
                         }

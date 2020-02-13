@@ -2,4 +2,4 @@ error: Option<Vec<T>> type is not allowed for subcommand
   --> $DIR/subcommand_opt_vec.rs:17:10
    |
 17 |     cmd: Option<Vec<Command>>,
-   |          ^^^^^^
+   |          ^^^^^^^^^^^^^^^^^^^^
