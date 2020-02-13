@@ -18,13 +18,16 @@ use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
 use super::{
-    spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING, DEFAULT_ENV_CASING,
+    dummies, spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING,
+    DEFAULT_ENV_CASING,
 };
 
 pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     use syn::Data::*;
 
-    let struct_name = &input.ident;
+    let ident = &input.ident;
+    dummies::from_arg_matches(ident);
+
     match input.data {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
@@ -40,9 +43,9 @@ pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStr
                 Sp::call_site(DEFAULT_ENV_CASING),
             );
 
-            gen_for_struct(struct_name, &fields.named, &attrs)
+            gen_for_struct(ident, &fields.named, &attrs)
         }
-        Enum(_) => gen_for_enum(struct_name),
+        Enum(_) => gen_for_enum(ident),
         _ => {
             abort_call_site!("#[derive(FromArgMatches)] only supports non-tuple structs and enums")
         }

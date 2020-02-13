@@ -15,6 +15,7 @@ pub mod arg_enum;
 pub mod attrs;
 mod clap;
 mod doc_comments;
+mod dummies;
 mod from_argmatches;
 mod into_app;
 pub mod parse;

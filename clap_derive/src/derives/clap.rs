@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{from_argmatches, into_app, subcommand};
+use super::{dummies, from_argmatches, into_app, subcommand};
 use proc_macro2::Ident;
 use proc_macro_error::abort_call_site;
 use quote::quote;
@@ -27,8 +27,14 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
         Struct(syn::DataStruct {
             fields: syn::Fields::Named(ref fields),
             ..
-        }) => gen_for_struct(ident, &fields.named, &input.attrs),
-        Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
+        }) => {
+            dummies::clap_struct(ident);
+            gen_for_struct(ident, &fields.named, &input.attrs)
+        }
+        Enum(ref e) => {
+            dummies::clap_enum(ident);
+            gen_for_enum(ident, &input.attrs, e)
+        }
         _ => abort_call_site!("`#[derive(Clap)]` only supports non-tuple structs and enums"),
     }
 }

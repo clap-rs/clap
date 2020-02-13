@@ -20,13 +20,15 @@ use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
 use super::{
-    spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
+    dummies, spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
     DEFAULT_ENV_CASING,
 };
 use crate::derives::ty::sub_type;
 
 pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     use syn::Data::*;
+
+    dummies::into_app(&input.ident);
 
     match input.data {
         Struct(syn::DataStruct {

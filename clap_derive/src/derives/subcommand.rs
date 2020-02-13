@@ -1,8 +1,9 @@
+use super::dummies;
 use crate::derives::attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
 use crate::derives::{from_argmatches, into_app, spanned::Sp};
 
 use proc_macro2::{Ident, Span, TokenStream};
-use proc_macro_error::{abort, abort_call_site, set_dummy};
+use proc_macro_error::{abort, abort_call_site};
 use quote::{quote, quote_spanned};
 use syn::{
     punctuated::Punctuated, spanned::Spanned, Attribute, Data, DataEnum, FieldsUnnamed, Token,
@@ -11,21 +12,7 @@ use syn::{
 
 pub fn derive_subcommand(input: &syn::DeriveInput) -> TokenStream {
     let name = &input.ident;
-
-    set_dummy(quote! {
-        impl ::clap::Subcommand for #name {
-            fn from_subcommand<'b>(
-                name: &str,
-                matches: ::std::option::Option<&::clap::ArgMatches>
-            ) -> Option<Self> {
-                unimplemented!()
-            }
-
-            fn augment_subcommands<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
-                unimplemented!()
-            }
-        }
-    });
+    dummies::subcommand(name);
 
     match input.data {
         Data::Enum(ref e) => gen_for_enum(name, &input.attrs, e),
