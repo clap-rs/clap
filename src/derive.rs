@@ -66,3 +66,55 @@ pub trait Subcommand: Sized {
 
 /// @TODO @release @docs
 pub trait ArgEnum {}
+
+impl<T: Clap> Clap for Box<T> {
+    fn parse() -> Self {
+        Box::new(<T as Clap>::parse())
+    }
+
+    fn try_parse() -> Result<Self, Error> {
+        <T as Clap>::try_parse().map(Box::new)
+    }
+
+    fn parse_from<I, It>(itr: I) -> Self
+    where
+        I: IntoIterator<Item = It>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        It: Into<OsString> + Clone,
+    {
+        Box::new(<T as Clap>::parse_from(itr))
+    }
+
+    fn try_parse_from<I, It>(itr: I) -> Result<Self, Error>
+    where
+        I: IntoIterator<Item = It>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        It: Into<OsString> + Clone,
+    {
+        <T as Clap>::try_parse_from(itr).map(Box::new)
+    }
+}
+
+impl<T: IntoApp> IntoApp for Box<T> {
+    fn into_app<'b>() -> App<'b> {
+        <T as IntoApp>::into_app()
+    }
+    fn augment_clap(app: App<'_>) -> App<'_> {
+        <T as IntoApp>::augment_clap(app)
+    }
+}
+
+impl<T: FromArgMatches> FromArgMatches for Box<T> {
+    fn from_arg_matches(matches: &ArgMatches) -> Self {
+        Box::new(<T as FromArgMatches>::from_arg_matches(matches))
+    }
+}
+
+impl<T: Subcommand> Subcommand for Box<T> {
+    fn from_subcommand(name: &str, matches: Option<&ArgMatches>) -> Option<Self> {
+        <T as Subcommand>::from_subcommand(name, matches).map(Box::new)
+    }
+    fn augment_subcommands(app: App<'_>) -> App<'_> {
+        <T as Subcommand>::augment_subcommands(app)
+    }
+}
