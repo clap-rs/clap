@@ -821,12 +821,13 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         if let Some(author) = self.parser.app.author {
             write_thing!(author)
         }
-        if let Some(about) = self.parser.app.long_about {
+
+        if self.use_long && self.parser.app.long_about.is_some() {
             debugln!("Help::write_default_help: writing long about");
-            write_thing!(about)
-        } else if let Some(about) = self.parser.app.about {
+            write_thing!(self.parser.app.long_about.unwrap())
+        } else if self.parser.app.about.is_some() {
             debugln!("Help::write_default_help: writing about");
-            write_thing!(about)
+            write_thing!(self.parser.app.about.unwrap())
         }
 
         self.color(Format::Warning("\nUSAGE:"))?;
