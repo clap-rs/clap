@@ -313,7 +313,7 @@ impl Attrs {
                         } else {
                             abort!(
                                 ident.span(),
-                                "#[structopt(default_value)] (without an argument) can be used \
+                                "#[clap(default_value)] (without an argument) can be used \
                                 only on field level";
 
                                 note = "see \

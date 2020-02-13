@@ -1,4 +1,4 @@
-//! How to parse "key=value" pairs with structopt.
+//! How to parse "key=value" pairs with #[derive(Clap)].
 
 use clap::Clap;
 use std::error::Error;

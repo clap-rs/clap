@@ -1,6 +1,6 @@
 //! The preprocessing we apply to doc comments.
 //!
-//! structopt works in terms of "paragraphs". Paragraph is a sequence of
+//! #[derive(Clap)] works in terms of "paragraphs". Paragraph is a sequence of
 //! non-empty adjacent lines, delimited by sequences of blank (whitespace only) lines.
 
 use super::attrs::Method;

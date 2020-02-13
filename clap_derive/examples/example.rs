@@ -1,4 +1,4 @@
-//! Somewhat complex example of usage of structopt.
+//! Somewhat complex example of usage of #[derive(Clap)].
 
 use clap::Clap;
 
