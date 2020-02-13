@@ -2,4 +2,4 @@ error: Option<Option<T>> type is not allowed for subcommand
   --> $DIR/subcommand_opt_opt.rs:17:10
    |
 17 |     cmd: Option<Option<Command>>,
-   |          ^^^^^^
+   |          ^^^^^^^^^^^^^^^^^^^^^^^

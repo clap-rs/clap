@@ -67,7 +67,7 @@ fn gen_augment_subcommands(
                     }
                 }
                 _ => abort!(
-                    variant.span(),
+                    variant,
                     "`flatten` is usable only with single-typed tuple variants"
                 ),
             },
@@ -87,10 +87,9 @@ fn gen_augment_subcommands(
                             }
                         }
                     }
-                    Unnamed(..) => abort!(
-                        variant.span(),
-                        "non single-typed tuple enums are not supported"
-                    ),
+                    Unnamed(..) => {
+                        abort!(variant, "non single-typed tuple enums are not supported")
+                    }
                 };
 
                 let name = attrs.cased_name();
@@ -175,7 +174,7 @@ fn gen_from_subcommand(
                 }
             }
             _ => abort!(
-                variant.span(),
+                variant,
                 "`flatten` is usable only with single-typed tuple variants"
             ),
         }

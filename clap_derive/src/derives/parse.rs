@@ -6,7 +6,6 @@ use syn::{
     self, parenthesized,
     parse::{Parse, ParseBuffer, ParseStream},
     punctuated::Punctuated,
-    spanned::Spanned,
     Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
 };
 
@@ -62,7 +61,7 @@ impl Parse for ClapAttr {
                 let check_empty_lit = |s| {
                     if lit_str.is_empty() {
                         abort!(
-                            lit.span(),
+                            lit,
                             "`#[clap({} = \"\")` is deprecated, \
                              now it's default behavior",
                             s
@@ -112,7 +111,7 @@ impl Parse for ClapAttr {
                     }
 
                     Err(_) => abort! {
-                        assign_token.span(),
+                        assign_token,
                         "expected `string literal` or `expression` after `=`"
                     },
                 }
@@ -130,7 +129,7 @@ impl Parse for ClapAttr {
                     if parser_specs.len() == 1 {
                         Ok(Parse(name, parser_specs[0].clone()))
                     } else {
-                        abort!(name.span(), "parse must have exactly one argument")
+                        abort!(name, "parse must have exactly one argument")
                     }
                 }
 
@@ -145,7 +144,7 @@ impl Parse for ClapAttr {
                     }
 
                     Err(_) => {
-                        abort!(name.span(),
+                        abort!(name,
                             "`#[clap(raw(...))` attributes are removed, \
                             they are replaced with raw methods";
                             help = "if you meant to call `clap::Arg::raw()` method \
@@ -179,7 +178,7 @@ impl Parse for ClapAttr {
 
                 "skip" => Ok(Skip(name, None)),
 
-                _ => abort!(name.span(), "unexpected attribute: {}", name_str),
+                _ => abort!(name, "unexpected attribute: {}", name_str),
             }
         }
     }
