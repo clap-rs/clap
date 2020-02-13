@@ -23,6 +23,8 @@ Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.
 
 When I do like *this*, *that* is happening and I think it shouldn't.
 
+**If a project of yours is blocked due to this bug, please, mention it explicitely.** 
+
 ### Expected Behavior Summary
 
 I think *this* should happen instead.
