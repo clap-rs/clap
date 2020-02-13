@@ -17,7 +17,7 @@ Also, please follow your explanation with a snippet of code, if applicable.
 
 ### Describe the solution you'd like
 
-Please explain what the wanted solution should look like. You **strongly encouraged** to attach a snippet of (pseudo)code.
+Please explain what the wanted solution should look like. You are **strongly encouraged** to attach a snippet of (pseudo)code.
 
 ### Alternatives, if applicable
 
