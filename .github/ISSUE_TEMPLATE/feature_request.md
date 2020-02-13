@@ -13,6 +13,8 @@ Describe the problem you're trying to solve. This is not mandatory and we *do* c
 
 Also, please follow your explanation with a snippet of code, if applicable. 
 
+**If a project of yours is blocked on this feature, please, mention it explicitely.** 
+
 ### Describe the solution you'd like
 
 Please explain what the wanted solution should look like. You **strongly encouraged** to attach a snippet of (pseudo)code.
