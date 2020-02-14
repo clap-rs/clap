@@ -2,11 +2,11 @@ mod settings;
 pub use self::settings::{AppFlags, AppSettings};
 
 // Std
+use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::iter::Peekable;
 use std::path::Path;
 use std::process;
 
@@ -20,7 +20,7 @@ use crate::mkeymap::MKeyMap;
 use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
 use crate::parse::errors::Result as ClapResult;
-use crate::parse::{ArgMatcher, ArgMatches, Parser};
+use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{Key, HELP_HASH, VERSION_HASH};
 use crate::INTERNAL_ERROR_MSG;
 
@@ -109,6 +109,8 @@ pub struct App<'b> {
     pub args: MKeyMap<'b>,
     #[doc(hidden)]
     pub subcommands: Vec<App<'b>>,
+    #[doc(hidden)]
+    pub replacers: HashMap<&'b str, &'b [&'b str]>,
     #[doc(hidden)]
     pub groups: Vec<ArgGroup<'b>>,
     #[doc(hidden)]
@@ -784,6 +786,28 @@ impl<'b> App<'b> {
         self
     }
 
+    /// Replaces an argument to this application with other arguments.
+    ///
+    /// Below, when the given args are `app install`, they will be changed to `app module install`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("app")
+    ///     .replace("install", &["module", "install"])
+    ///     .subcommand(App::new("module")
+    ///         .subcommand(App::new("install")))
+    ///     .get_matches_from(vec!["app", "install"]);
+    ///
+    /// assert!(m.subcommand_matches("module").is_some());
+    /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
+    /// ```
+    pub fn replace(mut self, name: &'b str, target: &'b [&'b str]) -> Self {
+        self.replacers.insert(name, target);
+        self
+    }
+
     /// Adds an [`ArgGroup`] to the application. [`ArgGroup`]s are a family of related arguments.
     /// By placing them in a logical group, you can build easier requirement and exclusion rules.
     /// For instance, you can make an entire [`ArgGroup`] required, meaning that one (and *only*
@@ -1344,7 +1368,7 @@ impl<'b> App<'b> {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut it = itr.into_iter();
+        let mut it = Input::from(itr.into_iter());
         // Get the name of the program (argument 1 of env::args()) and determine the
         // actual file
         // that was used to execute the program. This is because a program called
@@ -1353,9 +1377,9 @@ impl<'b> App<'b> {
         // to display
         // the full path when displaying help messages and such
         if !self.settings.is_set(AppSettings::NoBinaryName) {
-            if let Some(name) = it.next() {
-                let bn_os = name.into();
-                let p = Path::new(&*bn_os);
+            if let Some((name, _)) = it.next(None) {
+                let p = Path::new(name);
+
                 if let Some(f) = p.file_name() {
                     if let Some(s) = f.to_os_string().to_str() {
                         if self.bin_name.is_none() {
@@ -1366,7 +1390,7 @@ impl<'b> App<'b> {
             }
         }
 
-        self._do_parse(&mut it.peekable())
+        self._do_parse(&mut it)
     }
 }
 
@@ -1374,11 +1398,7 @@ impl<'b> App<'b> {
 #[doc(hidden)]
 impl<'b> App<'b> {
     #[doc(hidden)]
-    fn _do_parse<I, T>(&mut self, it: &mut Peekable<I>) -> ClapResult<ArgMatches>
-    where
-        I: Iterator<Item = T>,
-        T: Into<OsString> + Clone,
-    {
+    fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
         debugln!("App::_do_parse;");
         let mut matcher = ArgMatcher::default();
 
@@ -1518,7 +1538,7 @@ impl<'b> App<'b> {
 
     pub fn _propagate(&mut self, prop: Propagation) {
         macro_rules! propagate_subcmd {
-            ($_self:ident, $sc:expr) => {{
+            ($_self:expr, $sc:expr) => {{
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
                 // done and to recursively call this method
                 {
@@ -1627,14 +1647,14 @@ impl<'b> App<'b> {
             {
                 a.disp_ord = i;
             }
-            for (i, mut sc) in &mut subcommands_mut!(self)
+            for (i, mut sc) in &mut subcommands!(self, iter_mut)
                 .enumerate()
                 .filter(|&(_, ref sc)| sc.disp_ord == 999)
             {
                 sc.disp_ord = i;
             }
         }
-        for sc in subcommands_mut!(self) {
+        for sc in subcommands!(self, iter_mut) {
             sc._derive_display_order();
         }
     }
@@ -1703,7 +1723,7 @@ impl<'b> App<'b> {
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
-        for mut sc in subcommands_mut!(self) {
+        for mut sc in subcommands!(self, iter_mut) {
             debug!("Parser::build_bin_names:iter: bin_name set...");
             if sc.bin_name.is_none() {
                 sdebugln!("No");

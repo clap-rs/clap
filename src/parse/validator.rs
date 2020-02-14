@@ -32,7 +32,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     pub fn validate(
         &mut self,
         needs_val_of: ParseResult,
-        subcmd_name: &Option<String>,
+        is_subcmd: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
         debugln!("Validator::validate;");
@@ -74,7 +74,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             });
         }
         self.validate_conflicts(matcher)?;
-        if !(self.p.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some() || reqs_validated) {
+        if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
             self.validate_required_unless(matcher)?;
         }
