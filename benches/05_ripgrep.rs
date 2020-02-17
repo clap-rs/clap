@@ -3,226 +3,239 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-#![feature(test)]
-
 use clap::{App, AppSettings, Arg, ArgSettings};
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
-use test::Bencher;
 
 use lazy_static::lazy_static;
 
-#[bench]
-fn build_app_short(b: &mut Bencher) {
-    b.iter(app_short);
+pub fn build_app_short(c: &mut Criterion) {
+    c.bench_function("build_app_short", |b| b.iter(app_short));
 }
 
-#[bench]
-fn build_app_long(b: &mut Bencher) {
-    b.iter(app_long);
+pub fn build_app_long(c: &mut Criterion) {
+    c.bench_function("build_app_long", |b| b.iter(app_long));
 }
 
-#[bench]
-fn build_help_short(b: &mut Bencher) {
+pub fn build_help_short(c: &mut Criterion) {
     let mut app = app_short();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("build_help_short", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn build_help_long(b: &mut Bencher) {
+pub fn build_help_long(c: &mut Criterion) {
     let mut app = app_long();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("build_help_long", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn parse_clean(b: &mut Bencher) {
-    b.iter(|| app_short().get_matches_from(vec!["rg", "pat"]));
-}
-
-#[bench]
-fn parse_complex(b: &mut Bencher) {
-    b.iter(|| {
-        app_short().get_matches_from(vec![
-            "rg",
-            "pat",
-            "-cFlN",
-            "-pqr=some",
-            "--null",
-            "--no-filename",
-            "--no-messages",
-            "-SH",
-            "-C5",
-            "--follow",
-            "-e some",
-        ])
+pub fn parse_clean(c: &mut Criterion) {
+    c.bench_function("parse_clean", |b| {
+        b.iter(|| app_short().get_matches_from(vec!["rg", "pat"]))
     });
 }
 
-#[bench]
-fn parse_lots(b: &mut Bencher) {
-    b.iter(|| {
-        app_short().get_matches_from(vec![
-            "rg", "pat", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
-            "some", "some", "some", "some", "some", "some", "some",
-        ])
+pub fn parse_complex(c: &mut Criterion) {
+    c.bench_function("parse_complex", |b| {
+        b.iter(|| {
+            app_short().get_matches_from(vec![
+                "rg",
+                "pat",
+                "-cFlN",
+                "-pqr=some",
+                "--null",
+                "--no-filename",
+                "--no-messages",
+                "-SH",
+                "-C5",
+                "--follow",
+                "-e some",
+            ])
+        })
+    });
+}
+
+pub fn parse_lots(c: &mut Criterion) {
+    c.bench_function("parse_lots", |b| {
+        b.iter(|| {
+            app_short().get_matches_from(vec![
+                "rg", "pat", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
+                "some", "some", "some", "some", "some", "some",
+            ])
+        })
     });
 }
 
@@ -257,12 +270,12 @@ OPTIONS:
 {unified}";
 
 /// Build a clap application with short help strings.
-pub fn app_short() -> App<'static> {
+fn app_short() -> App<'static> {
     app(false, |k| USAGES[k].short)
 }
 
 /// Build a clap application with long help strings.
-pub fn app_long() -> App<'static> {
+fn app_long() -> App<'static> {
     app(true, |k| USAGES[k].long)
 }
 
@@ -926,3 +939,15 @@ fn validate_number(s: String) -> Result<(), String> {
         .map(|_| ())
         .map_err(|err| err.to_string())
 }
+
+criterion_group!(
+    benches,
+    build_app_short,
+    build_app_long,
+    build_help_short,
+    build_help_long,
+    parse_clean,
+    parse_complex,
+    parse_lots
+);
+criterion_main!(benches);
