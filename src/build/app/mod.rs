@@ -1465,7 +1465,7 @@ impl<'b> App<'b> {
     }
 
     #[cfg(not(debug_assertions))]
-    fn _panic_on_missing_help(app: &App, help_required_globally: bool) {}
+    fn _panic_on_missing_help(_app: &App, _help_required_globally: bool) {}
 
     #[cfg(debug_assertions)]
     fn _panic_on_missing_help(app: &App, help_required_globally: bool) {

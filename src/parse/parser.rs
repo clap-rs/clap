@@ -830,11 +830,11 @@ where
         let arg_allows_tac = match needs_val_of {
             ParseResult::Opt(name) => {
                 let o = self.app.find(name).expect(INTERNAL_ERROR_MSG);
-                (o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
+                o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
             }
             ParseResult::Pos(name) => {
                 let p = self.app.find(name).expect(INTERNAL_ERROR_MSG);
-                (p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings)
+                p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
             }
             ParseResult::ValuesDone => return true,
             _ => false,

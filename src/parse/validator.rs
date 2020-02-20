@@ -427,7 +427,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     a,
                     num,
                     if a.is_set(ArgSettings::MultipleValues) {
-                        (ma.vals.len() % num as usize)
+                        ma.vals.len() % num as usize
                     } else {
                         ma.vals.len()
                     },

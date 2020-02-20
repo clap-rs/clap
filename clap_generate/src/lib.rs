@@ -127,13 +127,11 @@ where
     S: Into<String>,
     T: Into<OsString>,
 {
-    use std::error::Error;
-
     let out_dir = PathBuf::from(out_dir.into());
     let file_name = G::file_name(app.get_bin_name().unwrap());
 
     let mut file = match File::create(out_dir.join(file_name)) {
-        Err(why) => panic!("couldn't create completion file: {}", why.description()),
+        Err(why) => panic!("couldn't create completion file: {}", why),
         Ok(file) => file,
     };
 
