@@ -1,14 +1,15 @@
-#![feature(test)]
-
 use clap::App;
-use test::Bencher;
+use criterion::{criterion_group, criterion_main, Criterion};
 
-#[bench]
-fn build_app(b: &mut Bencher) {
-    b.iter(|| App::new("claptests"));
+pub fn empty_app(c: &mut Criterion) {
+    c.bench_function("build_app", |b| b.iter(|| App::new("claptests")));
 }
 
-#[bench]
-fn parse_clean(b: &mut Bencher) {
-    b.iter(|| App::new("claptests").get_matches_from(vec![""]));
+pub fn parse_clean(c: &mut Criterion) {
+    c.bench_function("parse_clean", |b| {
+        b.iter(|| App::new("claptests").get_matches_from(vec![""]))
+    });
 }
+
+criterion_group!(benches, empty_app, parse_clean);
+criterion_main!(benches);

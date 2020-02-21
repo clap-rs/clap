@@ -1,9 +1,7 @@
-#![feature(test)]
-
 use clap::App;
 use clap::{Arg, ArgSettings};
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::io::Cursor;
-use test::Bencher;
 
 fn build_help(app: &mut App) -> String {
     let mut buf = Cursor::new(Vec::with_capacity(50));
@@ -158,62 +156,68 @@ fn app_example10<'c>() -> App<'c> {
     )
 }
 
-#[bench]
-fn example1(b: &mut Bencher) {
+pub fn example1(c: &mut Criterion) {
     let mut app = app_example1();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example1", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example2(b: &mut Bencher) {
+pub fn example2(c: &mut Criterion) {
     let mut app = app_example2();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example2", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example3(b: &mut Bencher) {
+pub fn example3(c: &mut Criterion) {
     let mut app = app_example3();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example3", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example4(b: &mut Bencher) {
+pub fn example4(c: &mut Criterion) {
     let mut app = app_example4();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example4", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example5(b: &mut Bencher) {
+pub fn example5(c: &mut Criterion) {
     let mut app = app_example5();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example5", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example6(b: &mut Bencher) {
+pub fn example6(c: &mut Criterion) {
     let mut app = app_example6();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example6", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example7(b: &mut Bencher) {
+pub fn example7(c: &mut Criterion) {
     let mut app = app_example7();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example7", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example8(b: &mut Bencher) {
+pub fn example8(c: &mut Criterion) {
     let mut app = app_example8();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example8", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example10(b: &mut Bencher) {
+pub fn example10(c: &mut Criterion) {
     let mut app = app_example10();
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example10", |b| b.iter(|| build_help(&mut app)));
 }
 
-#[bench]
-fn example4_template(b: &mut Bencher) {
+pub fn example4_template(c: &mut Criterion) {
     let mut app = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
-    b.iter(|| build_help(&mut app));
+    c.bench_function("example4_template", |b| b.iter(|| build_help(&mut app)));
 }
+
+criterion_group!(
+    benches,
+    example1,
+    example2,
+    example3,
+    example4,
+    example5,
+    example6,
+    example7,
+    example8,
+    example10,
+    example4_template
+);
+
+criterion_main!(benches);

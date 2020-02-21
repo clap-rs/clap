@@ -1,7 +1,5 @@
-#![feature(test)]
-
 use clap::{App, Arg};
-use test::Bencher;
+use criterion::{criterion_group, criterion_main, Criterion};
 
 macro_rules! create_app {
     () => {{
@@ -15,95 +13,92 @@ macro_rules! create_app {
     }};
 }
 
-#[bench]
-fn build_app(b: &mut Bencher) {
-    b.iter(|| create_app!());
+pub fn build_app(c: &mut Criterion) {
+    c.bench_function("build_app", |b| b.iter(|| create_app!()));
 }
 
-#[bench]
-fn add_flag(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| build_app().arg(Arg::from("-s, --some 'something'")));
-}
-
-#[bench]
-fn add_flag_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| {
-        let arg = Arg::from("-s, --some 'something'");
-        build_app().arg(&arg)
+pub fn add_flag(c: &mut Criterion) {
+    c.bench_function("add_flag", |b| {
+        b.iter(|| App::new("claptests").arg(Arg::from("-s, --some 'something'")))
     });
 }
 
-#[bench]
-fn add_opt(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| build_app().arg(Arg::from("-s, --some <FILE> 'something'")));
-}
-
-#[bench]
-fn add_opt_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| {
-        let arg = Arg::from("-s, --some <FILE> 'something'");
-        build_app().arg(&arg)
+pub fn add_flag_ref(c: &mut Criterion) {
+    c.bench_function("add_flag_ref", |b| {
+        b.iter(|| {
+            let arg = Arg::from("-s, --some 'something'");
+            App::new("claptests").arg(&arg)
+        })
     });
 }
 
-#[bench]
-fn add_pos(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| build_app().arg(Arg::with_name("some")));
-}
-
-#[bench]
-fn add_pos_ref(b: &mut Bencher) {
-    fn build_app() -> App<'static> {
-        App::new("claptests")
-    }
-
-    b.iter(|| {
-        let arg = Arg::with_name("some");
-        build_app().arg(&arg)
+pub fn add_opt(c: &mut Criterion) {
+    c.bench_function("add_opt", |b| {
+        b.iter(|| App::new("claptests").arg(Arg::from("-s, --some <FILE> 'something'")))
     });
 }
 
-#[bench]
-fn parse_clean(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec![""]));
+pub fn add_opt_ref(c: &mut Criterion) {
+    c.bench_function("add_opt_ref", |b| {
+        b.iter(|| {
+            let arg = Arg::from("-s, --some <FILE> 'something'");
+            App::new("claptests").arg(&arg)
+        })
+    });
 }
 
-#[bench]
-fn parse_flag(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]));
+pub fn add_pos(c: &mut Criterion) {
+    c.bench_function("add_pos", |b| {
+        b.iter(|| App::new("claptests").arg(Arg::with_name("some")))
+    });
 }
 
-#[bench]
-fn parse_option(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]));
+pub fn add_pos_ref(c: &mut Criterion) {
+    c.bench_function("add_pos_ref", |b| {
+        b.iter(|| {
+            let arg = Arg::with_name("some");
+            App::new("claptests").arg(&arg)
+        })
+    });
 }
 
-#[bench]
-fn parse_positional(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]));
+pub fn parse_flag(c: &mut Criterion) {
+    c.bench_function("parse_flag", |b| {
+        b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]))
+    });
 }
 
-#[bench]
-fn parse_complex(b: &mut Bencher) {
-    b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"]));
+pub fn parse_option(c: &mut Criterion) {
+    c.bench_function("parse_option", |b| {
+        b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]))
+    });
 }
+
+pub fn parse_positional(c: &mut Criterion) {
+    c.bench_function("parse_positional", |b| {
+        b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]))
+    });
+}
+
+pub fn parse_complex(c: &mut Criterion) {
+    c.bench_function("parse_complex", |b| {
+        b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"]))
+    });
+}
+
+criterion_group!(
+    benches,
+    parse_complex,
+    parse_positional,
+    parse_option,
+    parse_flag,
+    add_pos_ref,
+    add_pos,
+    add_opt_ref,
+    add_opt,
+    add_flag_ref,
+    add_flag,
+    build_app
+);
+
+criterion_main!(benches);
