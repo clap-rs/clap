@@ -346,6 +346,7 @@ macro_rules! arg_enum {
         }
         impl $e {
             #[allow(dead_code)]
+            #[allow(missing_docs)]
             pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
                 [
                     $(stringify!($v),)+
