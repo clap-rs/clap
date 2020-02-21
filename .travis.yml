@@ -26,8 +26,7 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
-    - env:
-        - SHARD=coverage
+    - name: Coverage
   fast_finish: true
   include:
     - os: osx
@@ -36,8 +35,7 @@ jobs:
     - {}
     - rust: beta
     - rust: nightly
-    - env:
-        - SHARD=lint
+    - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
         - rustup component add rustfmt
@@ -47,12 +45,10 @@ jobs:
         - cargo clippy --tests --examples --features "yaml unstable"
         - cargo fmt -- --check
     - rust: nightly
-      env:
-        - SHARD=bench
+      name: Benchmarking
       script:
         - cargo bench
-    - env:
-        - SHARD=coverage
+    - name: Coverage
       addons:
         apt:
           packages:
