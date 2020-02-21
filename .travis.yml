@@ -44,8 +44,7 @@ jobs:
         - cargo clippy --lib --features "yaml unstable" -- -D warnings
         - cargo clippy --tests --examples --features "yaml unstable"
         - cargo fmt -- --check
-    - rust: nightly
-      name: Benchmarking
+    - name: Benchmarking
       script:
         - cargo bench
     - name: Coverage
