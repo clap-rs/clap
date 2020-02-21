@@ -6,7 +6,9 @@ pub fn empty_app(c: &mut Criterion) {
 }
 
 pub fn parse_clean(c: &mut Criterion) {
-    c.bench_function("parse_clean", |b| b.iter(|| App::new("claptests").get_matches_from(vec![""])));
+    c.bench_function("parse_clean", |b| {
+        b.iter(|| App::new("claptests").get_matches_from(vec![""]))
+    });
 }
 
 criterion_group!(benches, empty_app, parse_clean);
