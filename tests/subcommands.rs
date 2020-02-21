@@ -184,6 +184,20 @@ fn invisible_aliases_help_output() {
 }
 
 #[test]
+fn replace() {
+    let m = App::new("prog")
+        .subcommand(App::new("module").subcommand(App::new("install").about("Install module")))
+        .replace("install", &["module", "install"])
+        .get_matches_from(vec!["prog", "install"]);
+
+    assert_eq!(m.subcommand_name(), Some("module"));
+    assert_eq!(
+        m.subcommand_matches("module").unwrap().subcommand_name(),
+        Some("install")
+    );
+}
+
+#[test]
 fn issue_1031_args_with_same_name() {
     let res = App::new("prog")
         .arg(Arg::from("--ui-path=<PATH>"))

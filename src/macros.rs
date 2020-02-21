@@ -935,13 +935,6 @@ macro_rules! flags {
     };
 }
 
-#[allow(unused_macros)]
-macro_rules! flags_mut {
-    ($app:expr) => {
-        $crate::flags!($app, iter_mut)
-    };
-}
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! opts {
@@ -957,46 +950,17 @@ macro_rules! opts {
     };
 }
 
-#[allow(unused_macros)]
-macro_rules! opts_mut {
-    ($app:expr) => {
-        opts!($app, iter_mut)
-    };
-}
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! positionals {
-    ($app:expr) => {
+    ($app:expr, $how:ident) => {{
         $app.args
             .args
-            .iter()
+            .$how()
             .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! positionals_mut {
+    }};
     ($app:expr) => {
-        $app.args
-            .values_mut()
-            .filter(|a| !(a.short.is_some() || a.long.is_some()))
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! custom_headings_mut {
-    ($app:expr) => {
-        custom_headings!($app, values_mut)
-    };
-}
-
-macro_rules! subcommands_cloned {
-    ($app:expr, $how:ident) => {
-        $app.subcommands.$how().cloned()
-    };
-    ($app:expr) => {
-        subcommands_cloned!($app, iter)
+        positionals!($app, iter)
     };
 }
 
@@ -1011,12 +975,6 @@ macro_rules! subcommands {
     };
 }
 
-macro_rules! subcommands_mut {
-    ($app:expr) => {
-        subcommands!($app, iter_mut)
-    };
-}
-
 macro_rules! groups_for_arg {
     ($app:expr, $grp:expr) => {{
         debugln!("Parser::groups_for_arg: name={}", $grp);
@@ -1028,21 +986,26 @@ macro_rules! groups_for_arg {
 }
 
 macro_rules! find_subcmd_cloned {
-    ($_self:expr, $sc:expr) => {{
-        subcommands_cloned!($_self).find(|a| match_alias!(a, $sc, &*a.name))
+    ($app:expr, $sc:expr) => {{
+        subcommands!($app)
+            .cloned()
+            .find(|a| match_alias!(a, $sc, &*a.name))
     }};
 }
 
 #[macro_export]
 #[doc(hidden)]
 macro_rules! find_subcmd {
-    ($app:expr, $sc:expr) => {{
-        subcommands!($app).find(|a| match_alias!(a, $sc, &*a.name))
+    ($app:expr, $sc:expr, $how:ident) => {{
+        subcommands!($app, $how).find(|a| match_alias!(a, $sc, &*a.name))
     }};
+    ($app:expr, $sc:expr) => {
+        find_subcmd!($app, $sc, iter)
+    };
 }
 
 macro_rules! longs {
-    ($app:expr) => {{
+    ($app:expr, $how:ident) => {{
         use crate::mkeymap::KeyType;
         $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
             if let KeyType::Long(v) = a {
@@ -1052,6 +1015,9 @@ macro_rules! longs {
             }
         })
     }};
+    ($app:expr) => {
+        longs!($app, iter)
+    };
 }
 
 #[macro_export]
