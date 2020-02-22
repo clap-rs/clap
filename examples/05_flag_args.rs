@@ -27,7 +27,7 @@ fn main() {
                 .conflicts_with("output"), // Opposite of requires(), says "if the
                                            // user uses -a, they CANNOT use 'output'"
                                            // also has a conflicts_with_all(Vec<&str>)
-                                           // and a conflicts_with_everything()
+                                           // and a exclusive(true)
         )
         // NOTE: In order to compile this example, comment out requires() and
         // conflicts_with() because we have not defined an "output" or "config"
