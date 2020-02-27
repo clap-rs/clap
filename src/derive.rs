@@ -28,7 +28,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         <Self as FromArgMatches>::from_arg_matches(&matches)
     }
 
-    /// Parse from `std::env::args()`, return Err on error.
+    /// Parse from iterator, return Err on error.
     fn try_parse_from<I, T>(itr: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = T>,
