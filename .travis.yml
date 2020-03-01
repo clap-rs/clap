@@ -35,6 +35,7 @@ jobs:
     - {}
     - rust: beta
     - rust: nightly
+      cache: false
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
