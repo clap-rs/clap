@@ -547,12 +547,13 @@ where
                 || self.is_set(AS::AllowExternalSubcommands)
                 || self.is_set(AS::InferSubcommands))
             {
-                if let Some(cdate) =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
-                {
+                let cands =
+                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                if !cands.is_empty() {
+                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
                         arg_os.to_string_lossy().into_owned(),
-                        cdate,
+                        cands.join(" or "),
                         self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                         &*Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
@@ -608,8 +609,8 @@ where
 
                     if self.is_new_arg(n, needs_val_of)
                         || sc_match
-                        || suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
-                            .is_some()
+                        || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
+                            .is_empty()
                     {
                         debugln!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -728,12 +729,13 @@ where
                     self.app.color(),
                 ));
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
-                if let Some(cdate) =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app))
-                {
+                let cands =
+                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                if !cands.is_empty() {
+                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
                         arg_os.to_string_lossy().into_owned(),
-                        cdate,
+                        cands.join(" or "),
                         self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                         &*Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),

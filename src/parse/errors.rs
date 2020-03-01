@@ -628,7 +628,7 @@ impl Error {
             cause: format!("The subcommand '{}' wasn't recognized", s),
             message: format!(
                 "{} The subcommand '{}' wasn't recognized\n\t\
-                 Did you mean '{}'?\n\n\
+                 Did you mean {}?\n\n\
                  If you believe you received this message in error, try \
                  re-running with '{} {} {}'\n\n\
                  {}\n\n\

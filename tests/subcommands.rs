@@ -40,6 +40,17 @@ USAGE:
 For more information try --help";
 
 #[cfg(feature = "suggestions")]
+static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognized
+	Did you mean 'test' or 'temp'?
+
+If you believe you received this message in error, try re-running with 'dym -- te'
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
+#[cfg(feature = "suggestions")]
 static DYM_ARG: &str =
     "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
@@ -134,6 +145,20 @@ fn multiple_aliases() {
 fn subcmd_did_you_mean_output() {
     let app = App::new("dym").subcommand(App::new("subcmd"));
     assert!(utils::compare_output(app, "dym subcm", DYM_SUBCMD, true));
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+fn subcmd_did_you_mean_output_ambiguous() {
+    let app = App::new("dym")
+        .subcommand(App::new("test"))
+        .subcommand(App::new("temp"));
+    assert!(utils::compare_output(
+        app,
+        "dym te",
+        DYM_SUBCMD_AMBIGUOUS,
+        true
+    ));
 }
 
 #[test]
