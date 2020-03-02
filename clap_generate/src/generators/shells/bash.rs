@@ -31,7 +31,7 @@ impl Generator for Bash {
     do
         case \"${{i}}\" in
             {name})
-                cmd=\"{name}\"
+                cmd=\"{cmd}\"
                 ;;
             {subcmds}
             *)
@@ -40,7 +40,7 @@ impl Generator for Bash {
     done
 
     case \"${{cmd}}\" in
-        {name})
+        {cmd})
             opts=\"{name_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
@@ -62,6 +62,7 @@ impl Generator for Bash {
 complete -F _{name} -o bashdefault -o default {name}
 ",
                 name = bin_name,
+                cmd = bin_name.replace("-", "__"),
                 name_opts = all_options_for_path(app, bin_name),
                 name_opts_details = option_details_for_path(app, bin_name),
                 subcmds = all_subcommands(app),
