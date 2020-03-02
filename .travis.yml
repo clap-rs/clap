@@ -26,6 +26,7 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
+    - name: Benchmarking
     - name: Coverage
   fast_finish: true
   include:
