@@ -61,5 +61,6 @@ stages:
               rmdir /Q /S target\.rustc_info.json
               rmdir /Q /S target\debug\examples
               rmdir /Q /S target\debug\incremental
+              rmdir /Q /S target\tests\target\debug\incremental
             displayName: Cleaning for cache
             continueOnError: true

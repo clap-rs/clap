@@ -81,14 +81,14 @@ version-sync = "0.8"
 criterion = "0.3"
 
 [features]
-default     = ["suggestions", "color", "vec_map", "derive", "std"]
+default     = ["suggestions", "color", "vec_map", "derive", "std", "cargo"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
-no_cargo    = [] # Enable if you're not using Cargo, disables Cargo-env-var-dependent macros
+cargo       = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)
 debug       = [] # Enables debug messages
