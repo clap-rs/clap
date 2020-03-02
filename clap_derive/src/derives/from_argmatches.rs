@@ -11,46 +11,10 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-use std::env;
-
-use proc_macro_error::abort_call_site;
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
-use super::{
-    dummies, spanned::Sp, sub_type, Attrs, Kind, Name, ParserKind, Ty, DEFAULT_CASING,
-    DEFAULT_ENV_CASING,
-};
-
-pub fn derive_from_argmatches(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    use syn::Data::*;
-
-    let ident = &input.ident;
-    dummies::from_arg_matches(ident);
-
-    match input.data {
-        Struct(syn::DataStruct {
-            fields: syn::Fields::Named(ref fields),
-            ..
-        }) => {
-            let name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
-
-            let attrs = Attrs::from_struct(
-                proc_macro2::Span::call_site(),
-                &input.attrs,
-                Name::Assigned(quote!(#name)),
-                Sp::call_site(DEFAULT_CASING),
-                Sp::call_site(DEFAULT_ENV_CASING),
-            );
-
-            gen_for_struct(ident, &fields.named, &attrs)
-        }
-        Enum(_) => gen_for_enum(ident),
-        _ => {
-            abort_call_site!("#[derive(FromArgMatches)] only supports non-tuple structs and enums")
-        }
-    }
-}
+use super::{sub_type, Attrs, Kind, ParserKind, Ty};
 
 pub fn gen_constructor(
     fields: &Punctuated<syn::Field, Token![,]>,

@@ -1,4 +1,3 @@
-use super::dummies;
 use crate::derives::attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
 use crate::derives::{from_argmatches, into_app, spanned::Sp};
 
@@ -6,22 +5,8 @@ use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::{quote, quote_spanned};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, Attribute, Data, DataEnum, FieldsUnnamed, Token,
-    Variant,
+    punctuated::Punctuated, spanned::Spanned, Attribute, DataEnum, FieldsUnnamed, Token, Variant,
 };
-
-pub fn derive_subcommand(input: &syn::DeriveInput) -> TokenStream {
-    let name = &input.ident;
-    dummies::subcommand(name);
-
-    match input.data {
-        Data::Enum(ref e) => gen_for_enum(name, &input.attrs, e),
-        _ => abort_call_site!(
-            "`#[derive(Subcommand)]` supports only enums";
-            hint = "use `#[derive(Clap)]` for structs";
-        ),
-    }
-}
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let attrs = Attrs::from_struct(

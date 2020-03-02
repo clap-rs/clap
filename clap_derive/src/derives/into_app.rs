@@ -15,30 +15,15 @@
 use std::env;
 
 use proc_macro2::TokenStream;
-use proc_macro_error::{abort, abort_call_site};
+use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
 use super::{
-    dummies, spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
+    spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
     DEFAULT_ENV_CASING,
 };
 use crate::derives::ty::sub_type;
-
-pub fn derive_into_app(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    use syn::Data::*;
-
-    dummies::into_app(&input.ident);
-
-    match input.data {
-        Struct(syn::DataStruct {
-            fields: syn::Fields::Named(ref fields),
-            ..
-        }) => gen_for_struct(&input.ident, &fields.named, &input.attrs).0,
-        Enum(_) => gen_for_enum(&input.ident),
-        _ => abort_call_site!("#[derive(IntoApp)] only supports non-tuple structs and enums"),
-    }
-}
 
 pub fn gen_for_struct(
     struct_name: &syn::Ident,

@@ -10,4 +10,4 @@ timeout_sec = 7200
 prerun_timeout_sec = 7200
 delete_merged_branches = true
 cut_body_after = ""
-block_lables = ["R: blocked", "R: require changes"]
+block_lables = ["M: blocked", "M: require changes"]

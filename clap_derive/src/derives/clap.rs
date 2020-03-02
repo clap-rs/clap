@@ -31,6 +31,17 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
             dummies::clap_struct(ident);
             gen_for_struct(ident, &fields.named, &input.attrs)
         }
+        Struct(syn::DataStruct {
+            fields: syn::Fields::Unit,
+            ..
+        }) => {
+            dummies::clap_struct(ident);
+            gen_for_struct(
+                ident,
+                &punctuated::Punctuated::<syn::Field, token::Comma>::new(),
+                &input.attrs,
+            )
+        }
         Enum(ref e) => {
             dummies::clap_enum(ident);
             gen_for_enum(ident, &input.attrs, e)

@@ -29,7 +29,4 @@ pub use self::attrs::{
     DEFAULT_ENV_CASING,
 };
 pub use self::clap::derive_clap;
-pub use self::from_argmatches::derive_from_argmatches;
-pub use self::into_app::derive_into_app;
-pub use self::subcommand::derive_subcommand;
 pub use self::ty::{sub_type, Ty};
