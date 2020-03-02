@@ -36,27 +36,3 @@ pub fn clap(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input: syn::DeriveInput = syn::parse_macro_input!(input);
     derives::derive_clap(&input).into()
 }
-
-/// Generates the `IntoApp` impl.
-#[proc_macro_derive(IntoApp, attributes(clap))]
-#[proc_macro_error]
-pub fn into_app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input: syn::DeriveInput = syn::parse_macro_input!(input);
-    derives::derive_into_app(&input).into()
-}
-
-/// Generates the `FromArgMatches` impl.
-#[proc_macro_derive(FromArgMatches, attributes(clap))]
-#[proc_macro_error]
-pub fn from_arg_matches(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input: syn::DeriveInput = syn::parse_macro_input!(input);
-    derives::derive_from_argmatches(&input).into()
-}
-
-/// Generates the `Subcommand` impl.
-#[proc_macro_derive(Subcommand, attributes(clap))]
-#[proc_macro_error]
-pub fn subcommand(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input: syn::DeriveInput = syn::parse_macro_input!(input);
-    derives::derive_subcommand(&input).into()
-}
