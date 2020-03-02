@@ -28,3 +28,11 @@ fn basic() {
         Opt::parse_from(&["test", "-a24", "--arg", "42"])
     );
 }
+
+#[test]
+fn unit_struct() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt;
+
+    assert_eq!(Opt {}, Opt::parse_from(&["test"]));
+}
