@@ -1922,10 +1922,17 @@ impl<'b> App<'b> {
             }
         };
 
+        let mut processed = vec![];
         let mut r_vec = vec![arg];
         let mut args = vec![];
 
         while let Some(a) = r_vec.pop() {
+            if processed.contains(&a) {
+                continue;
+            }
+
+            processed.push(a);
+
             if let Some(arg) = self.find(a) {
                 if let Some(ref reqs) = arg.requires {
                     for r in reqs.iter().filter_map(requires_if_or_not) {

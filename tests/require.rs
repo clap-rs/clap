@@ -703,3 +703,30 @@ fn issue_1158_conflicting_requirements_rev() {
 
     assert!(res.is_ok());
 }
+
+#[test]
+fn issue_1643_args_mutually_require_each_other() {
+    use clap::*;
+
+    fn main() {
+        let app = App::new("test")
+            .arg(
+                Arg::with_name("relation_id")
+                    .help("The relation id to get the data from")
+                    .long("relation-id")
+                    .short('r')
+                    .takes_value(true)
+                    .requires("remote_unit_name"),
+            )
+            .arg(
+                Arg::with_name("remote_unit_name")
+                    .help("The name of the remote unit to get data from")
+                    .long("remote-unit")
+                    .short('u')
+                    .takes_value(true)
+                    .requires("relation_id"),
+            );
+
+        app.get_matches_from(&["test", "-u", "hello"]);
+    }
+}
