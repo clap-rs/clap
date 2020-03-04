@@ -5,21 +5,18 @@
 use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings};
 use criterion::{criterion_group, criterion_main, Criterion};
 
-criterion_group!(benches, build_app, parse_clean, parse_subcommands);
-criterion_main!(benches);
-
-pub fn build_app(c: &mut Criterion) {
-    c.bench_function("build_app", |b| b.iter(build_cli));
+pub fn build_rustup(c: &mut Criterion) {
+    c.bench_function("build_rustup", |b| b.iter(build_cli));
 }
 
-pub fn parse_clean(c: &mut Criterion) {
-    c.bench_function("parse_clean", |b| {
+pub fn parse_rustup(c: &mut Criterion) {
+    c.bench_function("parse_rustup", |b| {
         b.iter(|| build_cli().get_matches_from(vec![""]))
     });
 }
 
-pub fn parse_subcommands(c: &mut Criterion) {
-    c.bench_function("parse_subcommands", |b| {
+pub fn parse_rustup_with_subcommands(c: &mut Criterion) {
+    c.bench_function("parse_rustup_with_subcommands", |b| {
         b.iter(|| build_cli().get_matches_from(vec!["rustup override add stable"]))
     });
 }
@@ -457,3 +454,12 @@ default browser.
 
 By default, it opens the documentation index. Use the various flags to
 open specific pieces of documentation.";
+
+criterion_group!(
+    benches,
+    build_rustup,
+    parse_rustup,
+    parse_rustup_with_subcommands
+);
+
+criterion_main!(benches);

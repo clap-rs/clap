@@ -13,18 +13,18 @@ macro_rules! create_app {
     }};
 }
 
-pub fn build_app(c: &mut Criterion) {
-    c.bench_function("build_app", |b| b.iter(|| create_app!()));
+pub fn build_simple_app(c: &mut Criterion) {
+    c.bench_function("build_simple_app", |b| b.iter(|| create_app!()));
 }
 
-pub fn add_flag(c: &mut Criterion) {
-    c.bench_function("add_flag", |b| {
+pub fn build_app_with_flag(c: &mut Criterion) {
+    c.bench_function("build_app_with_flag", |b| {
         b.iter(|| App::new("claptests").arg(Arg::from("-s, --some 'something'")))
     });
 }
 
-pub fn add_flag_ref(c: &mut Criterion) {
-    c.bench_function("add_flag_ref", |b| {
+pub fn build_app_with_flag_ref(c: &mut Criterion) {
+    c.bench_function("build_app_with_flag_ref", |b| {
         b.iter(|| {
             let arg = Arg::from("-s, --some 'something'");
             App::new("claptests").arg(&arg)
@@ -32,14 +32,14 @@ pub fn add_flag_ref(c: &mut Criterion) {
     });
 }
 
-pub fn add_opt(c: &mut Criterion) {
-    c.bench_function("add_opt", |b| {
+pub fn build_app_with_opt(c: &mut Criterion) {
+    c.bench_function("build_app_with_opt", |b| {
         b.iter(|| App::new("claptests").arg(Arg::from("-s, --some <FILE> 'something'")))
     });
 }
 
-pub fn add_opt_ref(c: &mut Criterion) {
-    c.bench_function("add_opt_ref", |b| {
+pub fn build_app_with_opt_ref(c: &mut Criterion) {
+    c.bench_function("build_app_with_opt_ref", |b| {
         b.iter(|| {
             let arg = Arg::from("-s, --some <FILE> 'something'");
             App::new("claptests").arg(&arg)
@@ -47,14 +47,14 @@ pub fn add_opt_ref(c: &mut Criterion) {
     });
 }
 
-pub fn add_pos(c: &mut Criterion) {
-    c.bench_function("add_pos", |b| {
+pub fn build_app_with_pos(c: &mut Criterion) {
+    c.bench_function("build_app_with_pos", |b| {
         b.iter(|| App::new("claptests").arg(Arg::with_name("some")))
     });
 }
 
-pub fn add_pos_ref(c: &mut Criterion) {
-    c.bench_function("add_pos_ref", |b| {
+pub fn build_app_with_pos_ref(c: &mut Criterion) {
+    c.bench_function("build_app_with_pos_ref", |b| {
         b.iter(|| {
             let arg = Arg::with_name("some");
             App::new("claptests").arg(&arg)
@@ -62,43 +62,43 @@ pub fn add_pos_ref(c: &mut Criterion) {
     });
 }
 
-pub fn parse_flag(c: &mut Criterion) {
-    c.bench_function("parse_flag", |b| {
+pub fn parse_simple_app_with_flag(c: &mut Criterion) {
+    c.bench_function("parse_simple_app_with_flag", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]))
     });
 }
 
-pub fn parse_option(c: &mut Criterion) {
-    c.bench_function("parse_option", |b| {
+pub fn parse_simple_app_with_option(c: &mut Criterion) {
+    c.bench_function("parse_simple_app_with_option", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]))
     });
 }
 
-pub fn parse_positional(c: &mut Criterion) {
-    c.bench_function("parse_positional", |b| {
+pub fn parse_simple_app_with_positional(c: &mut Criterion) {
+    c.bench_function("parse_simple_app_with_positional", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]))
     });
 }
 
-pub fn parse_complex(c: &mut Criterion) {
-    c.bench_function("parse_complex", |b| {
+pub fn parse_simple_app_with_complex(c: &mut Criterion) {
+    c.bench_function("parse_simple_app_with_complex", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1", "-f", "arg1"]))
     });
 }
 
 criterion_group!(
     benches,
-    parse_complex,
-    parse_positional,
-    parse_option,
-    parse_flag,
-    add_pos_ref,
-    add_pos,
-    add_opt_ref,
-    add_opt,
-    add_flag_ref,
-    add_flag,
-    build_app
+    parse_simple_app_with_complex,
+    parse_simple_app_with_positional,
+    parse_simple_app_with_option,
+    parse_simple_app_with_flag,
+    build_app_with_pos_ref,
+    build_app_with_pos,
+    build_app_with_opt_ref,
+    build_app_with_opt,
+    build_app_with_flag_ref,
+    build_app_with_flag,
+    build_simple_app
 );
 
 criterion_main!(benches);

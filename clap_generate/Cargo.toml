@@ -27,6 +27,9 @@ categories = ["command-line-interface"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[lib]
+bench = false
+
 [badges]
 is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
 is-it-maintained-open-issues = { repository = "clap-rs/clap" }
