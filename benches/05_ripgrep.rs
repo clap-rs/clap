@@ -10,32 +10,32 @@ use std::io::Cursor;
 
 use lazy_static::lazy_static;
 
-pub fn build_app_short(c: &mut Criterion) {
-    c.bench_function("build_app_short", |b| b.iter(app_short));
+pub fn build_rg_with_short_help(c: &mut Criterion) {
+    c.bench_function("build_rg_with_short_help", |b| b.iter(app_short));
 }
 
-pub fn build_app_long(c: &mut Criterion) {
-    c.bench_function("build_app_long", |b| b.iter(app_long));
+pub fn build_rg_with_long_help(c: &mut Criterion) {
+    c.bench_function("build_rg_with_long_help", |b| b.iter(app_long));
 }
 
-pub fn build_help_short(c: &mut Criterion) {
+pub fn write_rg_short_help(c: &mut Criterion) {
     let mut app = app_short();
-    c.bench_function("build_help_short", |b| b.iter(|| build_help(&mut app)));
+    c.bench_function("write_rg_short_help", |b| b.iter(|| build_help(&mut app)));
 }
 
-pub fn build_help_long(c: &mut Criterion) {
+pub fn write_rg_long_help(c: &mut Criterion) {
     let mut app = app_long();
-    c.bench_function("build_help_long", |b| b.iter(|| build_help(&mut app)));
+    c.bench_function("write_rg_long_help", |b| b.iter(|| build_help(&mut app)));
 }
 
-pub fn parse_clean(c: &mut Criterion) {
-    c.bench_function("parse_clean", |b| {
+pub fn parse_rg(c: &mut Criterion) {
+    c.bench_function("parse_rg", |b| {
         b.iter(|| app_short().get_matches_from(vec!["rg", "pat"]))
     });
 }
 
-pub fn parse_complex(c: &mut Criterion) {
-    c.bench_function("parse_complex", |b| {
+pub fn parse_rg_with_complex(c: &mut Criterion) {
+    c.bench_function("parse_rg_with_complex", |b| {
         b.iter(|| {
             app_short().get_matches_from(vec![
                 "rg",
@@ -54,8 +54,8 @@ pub fn parse_complex(c: &mut Criterion) {
     });
 }
 
-pub fn parse_lots(c: &mut Criterion) {
-    c.bench_function("parse_lots", |b| {
+pub fn parse_rg_with_lots(c: &mut Criterion) {
+    c.bench_function("parse_rg_with_lots", |b| {
         b.iter(|| {
             app_short().get_matches_from(vec![
                 "rg", "pat", "some", "some", "some", "some", "some", "some", "some", "some",
@@ -942,12 +942,12 @@ fn validate_number(s: String) -> Result<(), String> {
 
 criterion_group!(
     benches,
-    build_app_short,
-    build_app_long,
-    build_help_short,
-    build_help_long,
-    parse_clean,
-    parse_complex,
-    parse_lots
+    build_rg_with_short_help,
+    build_rg_with_long_help,
+    write_rg_short_help,
+    write_rg_long_help,
+    parse_rg,
+    parse_rg_with_complex,
+    parse_rg_with_lots
 );
 criterion_main!(benches);

@@ -26,6 +26,9 @@ categories = ["command-line-interface"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[lib]
+bench = false
+
 [[bench]]
 harness = false
 name = "01_default"
