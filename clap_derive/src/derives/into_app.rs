@@ -48,13 +48,13 @@ pub fn gen_for_enum(name: &syn::Ident) -> TokenStream {
 
     quote! {
         impl ::clap::IntoApp for #name {
-            fn into_app<'b>() -> ::clap::App<'b> {
+            fn into_app<'b>() -> ::clap::App {
                 let app = ::clap::App::new(#app_name)
                     .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
                 <#name as ::clap::IntoApp>::augment_clap(app)
             }
 
-            fn augment_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+            fn augment_clap<'b>(app: ::clap::App) -> ::clap::App {
                 <#name as ::clap::Subcommand>::augment_subcommands(app)
             }
         }
@@ -74,7 +74,7 @@ fn gen_into_app_fn(attrs: &[syn::Attribute]) -> GenOutput {
     let name = attrs.cased_name();
 
     let tokens = quote! {
-        fn into_app<'b>() -> ::clap::App<'b> {
+        fn into_app<'b>() -> ::clap::App {
             Self::augment_clap(::clap::App::new(#name))
         }
     };
@@ -89,7 +89,7 @@ fn gen_augment_clap_fn(
     let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
     quote! {
-        fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn augment_clap<'b>(#app_var: ::clap::App) -> ::clap::App {
             #augmentation
         }
     }

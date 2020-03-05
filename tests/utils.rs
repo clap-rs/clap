@@ -60,7 +60,7 @@ pub fn compare_output2(l: App, args: &str, right1: &str, right2: &str, stderr: b
 
 // Legacy tests from the pyhton script days
 
-pub fn complex_app() -> App<'static> {
+pub fn complex_app() -> App {
     let opt3_vals = ["fast", "slow"];
     let pos3_vals = ["vi", "emacs"];
 

@@ -147,7 +147,7 @@ fn template_author_version() {
 
 // ----------
 
-fn get_app() -> App<'static> {
+fn get_app() -> App {
     App::new("MyApp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")

@@ -94,7 +94,7 @@ fn gen_augment_subcommands(
     let app_methods = parent_attribute.top_level_methods();
     let version = parent_attribute.version();
     quote! {
-        fn augment_subcommands<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn augment_subcommands<'b>(app: ::clap::App) -> ::clap::App {
             let app = app #app_methods;
             #( #subcommands )*;
             app #version

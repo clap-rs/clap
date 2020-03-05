@@ -36,9 +36,9 @@ const TAB: &str = "    ";
 /// `clap` Help Writer.
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
-pub struct Help<'b, 'c, 'd, 'w> {
+pub struct Help<'c, 'd, 'w> {
     writer: &'w mut dyn Write,
-    parser: &'d Parser<'b, 'c>,
+    parser: &'d Parser<'c>,
     next_line_help: bool,
     hide_pv: bool,
     term_w: usize,
@@ -50,14 +50,9 @@ pub struct Help<'b, 'c, 'd, 'w> {
 }
 
 // Public Functions
-impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(
-        w: &'w mut dyn Write,
-        parser: &'d Parser<'b, 'c>,
-        use_long: bool,
-        stderr: bool,
-    ) -> Self {
+    pub fn new(w: &'w mut dyn Write, parser: &'d Parser<'c>, use_long: bool, stderr: bool) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,
@@ -97,7 +92,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         if let Some(h) = self.parser.app.help_str {
             write!(self.writer, "{}", h).map_err(Error::from)?;
         } else if let Some(tmpl) = self.parser.app.template {
-            self.write_templated_help(tmpl)?;
+            self.write_templated_help(&tmpl)?;
         } else {
             self.write_default_help()?;
         }
@@ -109,7 +104,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 }
 
 // Methods to write Arg help.
-impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'c, 'd, 'w> {
     fn color(&mut self, f: Format<&str>) -> io::Result<()> {
         match f {
             Format::Good(g) => {
@@ -138,7 +133,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
-    fn write_args_unsorted(&mut self, args: &[&Arg<'b>]) -> io::Result<()> {
+    fn write_args_unsorted(&mut self, args: &[&Arg]) -> io::Result<()> {
         debugln!("Help::write_args_unsorted;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -164,7 +159,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg<'b>]) -> io::Result<()> {
+    fn write_args(&mut self, args: &[&Arg]) -> io::Result<()> {
         debugln!("Help::write_args;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -202,7 +197,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg<'c>, prevent_nlh: bool) -> io::Result<()> {
+    fn write_arg(&mut self, arg: &Arg, prevent_nlh: bool) -> io::Result<()> {
         debugln!("Help::write_arg;");
         self.short(arg)?;
         self.long(arg)?;
@@ -212,7 +207,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's short command to the wrapped stream.
-    fn short(&mut self, arg: &Arg<'c>) -> io::Result<()> {
+    fn short(&mut self, arg: &Arg) -> io::Result<()> {
         debugln!("Help::short;");
         write!(self.writer, "{}", TAB)?;
         if let Some(s) = arg.short {
@@ -225,7 +220,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's long command to the wrapped stream.
-    fn long(&mut self, arg: &Arg<'c>) -> io::Result<()> {
+    fn long(&mut self, arg: &Arg) -> io::Result<()> {
         debugln!("Help::long;");
         if !arg.has_switch() {
             return Ok(());
@@ -254,7 +249,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg<'c>) -> Result<String, io::Error> {
+    fn val(&mut self, arg: &Arg) -> Result<String, io::Error> {
         debugln!("Help::val: arg={}", arg.name);
         let mult =
             arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
@@ -298,8 +293,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         }
 
         let spec_vals = self.spec_vals(arg);
-        let h = arg.help.unwrap_or("");
-        let h_w = str_width(h) + str_width(&*spec_vals);
+        let h = arg.help.unwrap_or(std::borrow::Cow::Borrowed(""));
+        let h_w = str_width(&h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
         self.force_next_line = !nlh
@@ -384,12 +379,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help(&mut self, arg: &Arg<'c>, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
+    fn help(&mut self, arg: &Arg, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
         debugln!("Help::help;");
         let h = if self.use_long {
-            arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
+            arg.long_help
+                .unwrap_or_else(|| arg.help.unwrap_or(std::borrow::Cow::Borrowed("")))
         } else {
-            arg.help.unwrap_or_else(|| arg.long_help.unwrap_or(""))
+            arg.help
+                .unwrap_or_else(|| arg.long_help.unwrap_or(std::borrow::Cow::Borrowed("")))
         };
         let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
@@ -401,7 +398,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             self.longest + 12
         };
 
-        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
+        let too_long = spcs + str_width(&h) + str_width(&*spec_vals) >= self.term_w;
 
         // Is help on next line, if so then indent
         if nlh || self.force_next_line {
@@ -522,8 +519,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 }
 
 /// Methods to write a single subcommand
-impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
-    fn write_subcommand(&mut self, app: &App<'b>) -> io::Result<()> {
+impl<'b, 'c, 'd, 'w> Help<'c, 'd, 'w> {
+    fn write_subcommand(&mut self, app: &App) -> io::Result<()> {
         debugln!("Help::write_subcommand;");
         write!(self.writer, "{}", TAB)?;
         self.color(Format::Good(&*app.name))?;
@@ -532,11 +529,11 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         Ok(())
     }
 
-    fn sc_val(&mut self, app: &App<'b>) -> Result<String, io::Error> {
+    fn sc_val(&mut self, app: &App) -> Result<String, io::Error> {
         debugln!("Help::sc_val: app={}", app.name);
         let spec_vals = self.sc_spec_vals(app);
-        let h = app.about.unwrap_or("");
-        let h_w = str_width(h) + str_width(&*spec_vals);
+        let h = app.about.unwrap_or(std::borrow::Cow::Borrowed(""));
+        let h_w = str_width(&h) + str_width(&*spec_vals);
         let nlh = self.next_line_help;
         let taken = self.longest + 12;
         self.force_next_line = !nlh
@@ -580,12 +577,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         spec_vals.join(" ")
     }
 
-    fn sc_help(&mut self, app: &App<'b>, spec_vals: &str) -> io::Result<()> {
+    fn sc_help(&mut self, app: &App, spec_vals: &str) -> io::Result<()> {
         debugln!("Help::sc_help;");
         let h = if self.use_long {
-            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
+            app.long_about
+                .unwrap_or_else(|| app.about.unwrap_or(std::borrow::Cow::Borrowed("")))
         } else {
-            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
+            app.about
+                .unwrap_or_else(|| app.long_about.unwrap_or(std::borrow::Cow::Borrowed("")))
         };
         let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || self.use_long;
@@ -597,7 +596,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             self.longest + 12
         };
 
-        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
+        let too_long = spcs + str_width(&h) + str_width(&*spec_vals) >= self.term_w;
 
         // Is help on next line, if so then indent
         if nlh || self.force_next_line {
@@ -636,7 +635,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 }
 
 // Methods to write Parser help.
-impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'c, 'd, 'w> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
     pub fn write_all_args(&mut self) -> ClapResult<()> {
@@ -746,7 +745,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
-    fn write_subcommands(&mut self, app: &App<'b>) -> io::Result<()> {
+    fn write_subcommands(&mut self, app: &App) -> io::Result<()> {
         debugln!("Help::write_subcommands;");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
@@ -774,7 +773,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes version of a Parser Object to the wrapped stream.
     fn write_version(&mut self) -> io::Result<()> {
         debugln!("Help::write_version;");
-        write!(self.writer, "{}", self.parser.app.version.unwrap_or(""))?;
+        write!(
+            self.writer,
+            "{}",
+            self.parser
+                .app
+                .version
+                .unwrap_or(std::borrow::Cow::Borrowed(""))
+        )?;
         Ok(())
     }
 
@@ -807,7 +813,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     pub fn write_default_help(&mut self) -> ClapResult<()> {
         debugln!("Help::write_default_help;");
         if let Some(h) = self.parser.app.pre_help {
-            self.write_before_after_help(h)?;
+            self.write_before_after_help(&h)?;
             self.writer.write_all(b"\n\n")?;
         }
 
@@ -858,7 +864,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             if flags || opts || pos || subcmds {
                 self.writer.write_all(b"\n\n")?;
             }
-            self.write_before_after_help(h)?;
+            self.write_before_after_help(&h)?;
         }
 
         self.writer.flush().map_err(Error::from)
@@ -963,7 +969,7 @@ fn copy_and_capture<R: Read, W: Write>(
 }
 
 // Methods to write Parser help using templates.
-impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
+impl<'b, 'c, 'd, 'w> Help<'c, 'd, 'w> {
     /// Write help to stream for the parser in the format defined by the template.
     ///
     /// Tags arg given inside curly brackets:
@@ -1018,28 +1024,40 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.version.unwrap_or("unknown version")
+                        self.parser
+                            .app
+                            .version
+                            .unwrap_or(Cow::Borrowed("unknown version"))
                     )?;
                 }
                 b"author" => {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.author.unwrap_or("unknown author")
+                        self.parser
+                            .app
+                            .author
+                            .unwrap_or(Cow::Borrowed("unknown author"))
                     )?;
                 }
                 b"about" => {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.about.unwrap_or("unknown about")
+                        self.parser
+                            .app
+                            .about
+                            .unwrap_or(Cow::Borrowed("unknown about"))
                     )?;
                 }
                 b"long-about" => {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.long_about.unwrap_or("unknown about")
+                        self.parser
+                            .app
+                            .long_about
+                            .unwrap_or(Cow::Borrowed("unknown about"))
                     )?;
                 }
                 b"usage" => {
@@ -1079,14 +1097,20 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.more_help.unwrap_or("unknown after-help")
+                        self.parser
+                            .app
+                            .more_help
+                            .unwrap_or(std::borrow::Cow::Borrowed("unknown after-help"))
                     )?;
                 }
                 b"before-help" => {
                     write!(
                         self.writer,
                         "{}",
-                        self.parser.app.pre_help.unwrap_or("unknown before-help")
+                        self.parser
+                            .app
+                            .pre_help
+                            .unwrap_or(std::borrow::Cow::Borrowed("unknown before-help"))
                     )?;
                 }
                 // Unknown tag, write it back.

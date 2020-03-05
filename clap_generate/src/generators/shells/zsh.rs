@@ -255,7 +255,7 @@ esac",
     )
 }
 
-fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
+fn parser_of<'b>(p: &'b App, mut sc: &str) -> &'b App {
     debugln!("Zsh::parser_of: sc={}", sc);
 
     if sc == p.get_bin_name().unwrap_or(&String::new()) {

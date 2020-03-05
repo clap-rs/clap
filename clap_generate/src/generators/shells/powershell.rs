@@ -68,11 +68,7 @@ fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
     }
 }
 
-fn generate_inner<'b>(
-    p: &'b App<'b>,
-    previous_command_name: &str,
-    names: &mut Vec<&'b str>,
-) -> String {
+fn generate_inner<'b>(p: &'b App, previous_command_name: &str, names: &mut Vec<&'b str>) -> String {
     debugln!("PowerShell::generate_inner;");
 
     let command_name = if previous_command_name.is_empty() {

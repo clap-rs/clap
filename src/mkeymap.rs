@@ -10,9 +10,9 @@ pub struct Key {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'b> {
+pub struct MKeyMap {
     pub keys: Vec<Key>,
-    pub args: Vec<Arg<'b>>,
+    pub args: Vec<Arg>,
     built: bool, // mutation isn't possible after being built
 }
 
@@ -51,7 +51,7 @@ impl PartialEq<char> for KeyType {
     }
 }
 
-impl<'b> MKeyMap<'b> {
+impl<'b> MKeyMap {
     pub fn new() -> Self {
         MKeyMap::default()
     }
@@ -75,13 +75,13 @@ impl<'b> MKeyMap<'b> {
         self.keys.iter().any(|x| x.key == key)
     }
 
-    pub fn insert(&mut self, key: KeyType, value: Arg<'b>) -> usize {
+    pub fn insert(&mut self, key: KeyType, value: Arg) -> usize {
         let index = self.push(value);
         self.keys.push(Key { key, index });
         index
     }
 
-    pub fn push(&mut self, value: Arg<'b>) -> usize {
+    pub fn push(&mut self, value: Arg) -> usize {
         if self.built {
             panic!("Cannot add Args to the map after the map is built");
         }
@@ -104,7 +104,7 @@ impl<'b> MKeyMap<'b> {
 
     // ! Arg mutation functionality
 
-    pub fn get(&self, key: &KeyType) -> Option<&Arg<'b>> {
+    pub fn get(&self, key: &KeyType) -> Option<&Arg> {
         self.keys
             .iter()
             .find(|k| k.key == *key)
@@ -112,7 +112,7 @@ impl<'b> MKeyMap<'b> {
     }
     //TODO ::get_first([KeyA, KeyB])
 
-    pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg<'b>> {
+    pub fn get_mut(&mut self, key: &KeyType) -> Option<&mut Arg> {
         let key = self.keys.iter().find(|k| k.key == *key);
 
         match key {
@@ -185,7 +185,7 @@ impl<'b> MKeyMap<'b> {
             .expect("No such name found")
     }
 
-    pub fn remove(&mut self, key: &KeyType) -> Option<Arg<'b>> {
+    pub fn remove(&mut self, key: &KeyType) -> Option<Arg> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
@@ -206,7 +206,7 @@ impl<'b> MKeyMap<'b> {
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub fn remove_by_name(&mut self, _name: Id) -> Option<Arg<'b>> {
+    pub fn remove_by_name(&mut self, _name: Id) -> Option<Arg> {
         if self.built {
             panic!("Cannot remove args after being built");
         }

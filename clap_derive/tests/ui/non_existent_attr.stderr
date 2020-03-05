@@ -1,5 +1,5 @@
-error[E0599]: no method named `non_existing_attribute` found for type `clap::build::arg::Arg<'_>` in the current scope
+error[E0599]: no method named `non_existing_attribute` found for type `clap::build::arg::Arg` in the current scope
   --> $DIR/non_existent_attr.rs:14:19
    |
 14 |     #[clap(short, non_existing_attribute = 1)]
-   |                   ^^^^^^^^^^^^^^^^^^^^^^ method not found in `clap::build::arg::Arg<'_>`
+   |                   ^^^^^^^^^^^^^^^^^^^^^^ method not found in `clap::build::arg::Arg`

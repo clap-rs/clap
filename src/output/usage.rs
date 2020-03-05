@@ -9,16 +9,15 @@ use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
 
-pub struct Usage<'b, 'c, 'z>
+pub struct Usage<'c, 'z>
 where
-    'b: 'c,
     'c: 'z,
 {
-    p: &'z Parser<'b, 'c>,
+    p: &'z Parser<'c>,
 }
 
-impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
-    pub fn new(p: &'z Parser<'b, 'c>) -> Self {
+impl<'c, 'z> Usage<'c, 'z> {
+    pub fn new(p: &'z Parser<'c>) -> Self {
         Usage { p }
     }
 

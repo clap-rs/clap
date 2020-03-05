@@ -475,14 +475,14 @@ USAGE:
     myapp [arg1]
 
 ARGS:
-    <arg1>    
+    <arg1>
             some option
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information";
 
 static HIDE_ENV_VALS: &str = "ctest 0.1
@@ -528,20 +528,20 @@ OPTIONS:
 NETWORKING:
     -n, --no-proxy    Do not use system proxy settings";
 
-static ISSUE_1487: &str = "test 
+static ISSUE_1487: &str = "test
 
 USAGE:
     ctest <arg1|arg2>
 
 ARGS:
-    <arg1>    
-    <arg2>    
+    <arg1>
+    <arg2>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
-fn setup() -> App<'static> {
+fn setup() -> App {
     App::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1273,7 +1273,7 @@ fn hidden_default_val() {
     ));
 }
 
-fn issue_1112_setup() -> App<'static> {
+fn issue_1112_setup() -> App {
     App::new("test")
         .author("Kevin K.")
         .about("tests stuff")
@@ -1507,10 +1507,10 @@ USAGE:
     ctest foo
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information";
 
 #[test]

@@ -1,4 +1,5 @@
 // Std
+use std::borrow::Cow;
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
@@ -95,11 +96,8 @@ impl Input {
 }
 
 #[doc(hidden)]
-pub struct Parser<'b, 'c>
-where
-    'b: 'c,
-{
-    pub app: &'c mut App<'b>,
+pub struct Parser<'c> {
+    pub app: &'c mut App,
     pub required: ChildGraph<Id>,
     pub overriden: Vec<Id>,
     seen: Vec<Id>,
@@ -107,11 +105,11 @@ where
 }
 
 // Initializing Methods
-impl<'b, 'c> Parser<'b, 'c>
+impl<'b, 'c> Parser<'c>
 where
     'b: 'c,
 {
-    pub fn new(app: &'c mut App<'b>) -> Self {
+    pub fn new(app: &'c mut App) -> Self {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
@@ -410,7 +408,7 @@ where
 }
 
 // Parsing Methods
-impl<'b, 'c> Parser<'b, 'c>
+impl<'b, 'c> Parser<'c>
 where
     'b: 'c,
 {
@@ -426,7 +424,7 @@ where
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let mut replace: Option<&[&str]> = None;
+        let mut replace: Option<&[&Cow<'static, str>]> = None;
 
         while let Some((arg_os, next_arg)) = it.next(replace) {
             replace = None;
@@ -438,7 +436,7 @@ where
             );
 
             for (key, val) in &self.app.replacers {
-                let key_bytes = OsStr::new(key).as_bytes();
+                let key_bytes = key.as_bytes();
 
                 if key_bytes == arg_os.as_bytes() {
                     debugln!("found replacer: {:?}, target: {:?}", key, val);
@@ -1233,7 +1231,7 @@ where
     fn parse_opt(
         &self,
         val: Option<&OsStr>,
-        opt: &Arg<'b>,
+        opt: &Arg,
         had_eq: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
@@ -1297,7 +1295,7 @@ where
 
     fn add_val_to_arg(
         &self,
-        arg: &Arg<'b>,
+        arg: &Arg,
         val: &OsStr,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
@@ -1334,7 +1332,7 @@ where
 
     fn add_single_val_to_arg(
         &self,
-        arg: &Arg<'b>,
+        arg: &Arg,
         v: &OsStr,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
@@ -1365,7 +1363,7 @@ where
         Ok(ParseResult::ValuesDone)
     }
 
-    fn parse_flag(&self, flag: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
+    fn parse_flag(&self, flag: &Arg, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_flag;");
 
         matcher.inc_occurrence_of(flag.id);
@@ -1500,7 +1498,7 @@ where
                         for &(arg, val, default) in vm.values() {
                             let add = if let Some(a) = $m.get(arg) {
                                 if let Some(v) = val {
-                                    a.vals.iter().any(|value| v == value)
+                                    a.vals.iter().any(|value| *v == **value)
                                 } else {
                                     true
                                 }
@@ -1508,7 +1506,7 @@ where
                                 false
                             };
                             if add {
-                                $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
+                                $_self.add_val_to_arg($a, OsStr::new(&default), $m)?;
                                 done = true;
                                 break;
                             }
@@ -1549,7 +1547,7 @@ where
 }
 
 // Error, Help, and Version Methods
-impl<'b, 'c> Parser<'b, 'c>
+impl<'b, 'c> Parser<'c>
 where
     'b: 'c,
 {
@@ -1655,7 +1653,7 @@ where
 }
 
 // Query Methods
-impl<'b, 'c> Parser<'b, 'c>
+impl<'b, 'c> Parser<'c>
 where
     'b: 'c,
 {

@@ -54,7 +54,7 @@ pub use generators::Generator;
 ///
 /// use clap::{App, Arg};
 ///
-/// pub fn build_cli() -> App<'static> {
+/// pub fn build_cli() -> App {
 ///     App::new("compl")
 ///         .about("Tests completions")
 ///         .arg(Arg::with_name("file")

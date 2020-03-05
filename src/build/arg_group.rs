@@ -1,4 +1,5 @@
 // Std
+use std::borrow::Cow;
 use std::fmt::{Debug, Formatter, Result};
 
 // Third Party
@@ -81,11 +82,11 @@ type Id = u64;
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
 #[derive(Default)]
-pub struct ArgGroup<'a> {
+pub struct ArgGroup {
     #[doc(hidden)]
     pub id: Id,
     #[doc(hidden)]
-    pub name: &'a str,
+    pub name: Cow<'static, str>,
     #[doc(hidden)]
     pub args: Vec<Id>,
     #[doc(hidden)]
@@ -98,7 +99,7 @@ pub struct ArgGroup<'a> {
     pub multiple: bool,
 }
 
-impl<'a> ArgGroup<'a> {
+impl<'a> ArgGroup {
     #[doc(hidden)]
     pub fn _with_id(id: Id) -> Self {
         ArgGroup {
@@ -138,7 +139,7 @@ impl<'a> ArgGroup<'a> {
     /// let ag = ArgGroup::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
-    pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
+    pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup {
         ArgGroup::from(y.as_hash().unwrap())
     }
 
@@ -433,7 +434,7 @@ impl<'a> ArgGroup<'a> {
     }
 }
 
-impl<'a> Debug for ArgGroup<'a> {
+impl<'a> Debug for ArgGroup {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(
             f,
@@ -449,8 +450,8 @@ impl<'a> Debug for ArgGroup<'a> {
     }
 }
 
-impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
-    fn from(g: &'z ArgGroup<'a>) -> Self {
+impl<'a, 'z> From<&'z ArgGroup> for ArgGroup {
+    fn from(g: &'z ArgGroup) -> Self {
         ArgGroup {
             id: g.id,
             name: g.name,
@@ -464,7 +465,7 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
+impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup {
     fn from(b: &'a yaml_rust::yaml::Hash) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
@@ -631,7 +632,7 @@ requires:
     }
 }
 
-impl<'a> Clone for ArgGroup<'a> {
+impl<'a> Clone for ArgGroup {
     fn clone(&self) -> Self {
         ArgGroup {
             id: self.id,

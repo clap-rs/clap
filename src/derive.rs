@@ -45,9 +45,9 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
 /// Also serves for flattening
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'b>() -> App<'b>;
+    fn into_app() -> App;
     /// @TODO @release @docs
-    fn augment_clap(app: App<'_>) -> App<'_>;
+    fn augment_clap(app: App) -> App;
 }
 
 /// Extract values from ArgMatches into the struct.
@@ -61,7 +61,7 @@ pub trait Subcommand: Sized {
     /// @TODO @release @docs
     fn from_subcommand(name: &str, matches: Option<&ArgMatches>) -> Option<Self>;
     /// @TODO @release @docs
-    fn augment_subcommands(app: App<'_>) -> App<'_>;
+    fn augment_subcommands(app: App) -> App;
 }
 
 /// @TODO @release @docs
@@ -96,10 +96,10 @@ impl<T: Clap> Clap for Box<T> {
 }
 
 impl<T: IntoApp> IntoApp for Box<T> {
-    fn into_app<'b>() -> App<'b> {
+    fn into_app<'b>() -> App {
         <T as IntoApp>::into_app()
     }
-    fn augment_clap(app: App<'_>) -> App<'_> {
+    fn augment_clap(app: App) -> App {
         <T as IntoApp>::augment_clap(app)
     }
 }
@@ -114,7 +114,7 @@ impl<T: Subcommand> Subcommand for Box<T> {
     fn from_subcommand(name: &str, matches: Option<&ArgMatches>) -> Option<Self> {
         <T as Subcommand>::from_subcommand(name, matches).map(Box::new)
     }
-    fn augment_subcommands(app: App<'_>) -> App<'_> {
+    fn augment_subcommands(app: App) -> App {
         <T as Subcommand>::augment_subcommands(app)
     }
 }

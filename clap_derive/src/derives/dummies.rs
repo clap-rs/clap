@@ -20,10 +20,10 @@ pub fn clap_enum(name: &Ident) {
 pub fn into_app(name: &Ident) {
     append_dummy(quote! {
         impl ::clap::IntoApp for #name {
-            fn into_app<'b>() -> ::clap::App<'b> {
+            fn into_app<'b>() -> ::clap::App {
                 unimplemented!()
             }
-            fn augment_clap<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
+            fn augment_clap<'b>(_app: ::clap::App) -> ::clap::App {
                 unimplemented!()
             }
         }
@@ -46,7 +46,7 @@ pub fn subcommand(name: &Ident) {
             fn from_subcommand(_name: &str, _matches: Option<&::clap::ArgMatches>) -> Option<Self> {
                 unimplemented!()
             }
-            fn augment_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {
+            fn augment_subcommands(_app: ::clap::App) -> ::clap::App {
                 unimplemented!()
             }
         }

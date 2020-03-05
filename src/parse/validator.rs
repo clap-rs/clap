@@ -12,17 +12,16 @@ use crate::INVALID_UTF8;
 
 type Id = u64;
 
-pub struct Validator<'b, 'c, 'z>
+pub struct Validator<'c, 'z>
 where
-    'b: 'c,
     'c: 'z,
 {
-    p: &'z mut Parser<'b, 'c>,
+    p: &'z mut Parser<'c>,
     c: ChildGraph<Id>,
 }
 
-impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
-    pub fn new(p: &'z mut Parser<'b, 'c>) -> Self {
+impl<'c, 'z> Validator<'c, 'z> {
+    pub fn new(p: &'z mut Parser<'c>) -> Self {
         Validator {
             p,
             c: ChildGraph::with_capacity(5),
@@ -483,7 +482,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
 
     fn validate_arg_requires(
         &self,
-        a: &Arg<'b>,
+        a: &Arg,
         ma: &MatchedArg,
         matcher: &ArgMatcher,
     ) -> ClapResult<()> {
@@ -552,12 +551,12 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         Ok(())
     }
 
-    fn is_missing_required_ok(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(&self, a: &Arg, matcher: &ArgMatcher) -> bool {
         debugln!("Validator::is_missing_required_ok: {}", a.name);
         self.validate_arg_conflicts(a, matcher) || self.p.overriden.contains(&a.id)
     }
 
-    fn validate_arg_conflicts(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn validate_arg_conflicts(&self, a: &Arg, matcher: &ArgMatcher) -> bool {
         debugln!("Validator::validate_arg_conflicts: a={:?};", a.name);
         a.blacklist
             .as_ref()
@@ -597,7 +596,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
-    fn fails_arg_required_unless(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn fails_arg_required_unless(&self, a: &Arg, matcher: &ArgMatcher) -> bool {
         debugln!("Validator::fails_arg_required_unless: a={:?};", a.name);
         macro_rules! check {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{

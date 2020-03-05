@@ -53,15 +53,15 @@ type Id = u64;
 /// [`Arg`]: ./struct.Arg.html
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
-pub struct Arg<'help> {
+pub struct Arg {
     #[doc(hidden)]
     pub id: Id,
     #[doc(hidden)]
-    pub name: &'help str,
+    pub name: Cow<'static, str>,
     #[doc(hidden)]
-    pub help: Option<&'help str>,
+    pub help: Option<Cow<'static, str>>,
     #[doc(hidden)]
-    pub long_help: Option<&'help str>,
+    pub long_help: Option<Cow<'static, str>>,
     #[doc(hidden)]
     pub blacklist: Option<Vec<Id>>,
     #[doc(hidden)]
@@ -73,21 +73,21 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub groups: Option<Vec<Id>>,
     #[doc(hidden)]
-    pub requires: Option<Vec<(Option<&'help str>, Id)>>,
+    pub requires: Option<Vec<(Option<Cow<'static, str>>, Id)>>,
     #[doc(hidden)]
     pub short: Option<char>,
     #[doc(hidden)]
-    pub long: Option<&'help str>,
+    pub long: Option<Cow<'static, str>>,
     #[doc(hidden)]
-    pub aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
+    pub aliases: Option<Vec<(Cow<'static, str>, bool)>>, // (name, visible)
     #[doc(hidden)]
     pub disp_ord: usize,
     #[doc(hidden)]
     pub unified_ord: usize,
     #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
+    pub possible_vals: Option<Vec<Cow<'static, str>>>,
     #[doc(hidden)]
-    pub val_names: Option<VecMap<&'help str>>,
+    pub val_names: Option<VecMap<Cow<'static, str>>>,
     #[doc(hidden)]
     pub num_vals: Option<u64>,
     #[doc(hidden)]
@@ -101,26 +101,26 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub val_delim: Option<char>,
     #[doc(hidden)]
-    pub default_vals: Option<Vec<&'help OsStr>>,
+    pub default_vals: Option<Vec<Cow<'static, OsStr>>>,
     #[doc(hidden)]
-    pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
+    pub default_vals_ifs: Option<VecMap<(Id, Option<Cow<'static, OsStr>>, Cow<'static, OsStr>)>>,
     #[doc(hidden)]
-    pub env: Option<(&'help OsStr, Option<OsString>)>,
+    pub env: Option<(Cow<'static, OsStr>, Option<OsString>)>,
     #[doc(hidden)]
-    pub terminator: Option<&'help str>,
+    pub terminator: Option<Cow<'static, str>>,
     #[doc(hidden)]
     pub index: Option<u64>,
     #[doc(hidden)]
-    pub r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub r_ifs: Option<Vec<(Id, Cow<'static, str>)>>,
     #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
+    pub help_heading: Option<Cow<'static, str>>,
     #[doc(hidden)]
     pub global: bool,
     #[doc(hidden)]
     pub exclusive: bool,
 }
 
-impl<'help> Arg<'help> {
+impl Arg {
     /// @TODO @p2 @docs @v3-beta1: Write Docs
     pub fn new<T: Key>(t: T) -> Self {
         Arg {
@@ -147,7 +147,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name(n: &'help str) -> Self {
+    pub fn with_name<T: Into<Cow<'static, str>>>(n: T) -> Self {
         Arg {
             id: n.key(),
             name: n,
@@ -310,7 +310,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(m.is_present("cfg"));
     /// ```
-    pub fn long(mut self, l: &'help str) -> Self {
+    pub fn long<T: Into<Cow<'static, str>>>(mut self, l: T) -> Self {
         self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
     }
@@ -336,7 +336,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn alias<S: Into<Cow<'static, str>>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
             als.push((name.into(), false));
         } else {
@@ -366,7 +366,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn aliases(mut self, names: &[&'help str]) -> Self {
+    pub fn aliases<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
         if let Some(ref mut als) = self.aliases {
             for n in names {
                 als.push((n, false));
@@ -397,7 +397,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::alias`]: ./struct.Arg.html#method.alias
-    pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
+    pub fn visible_alias<S: Into<Cow<'static, str>>>(mut self, name: S) -> Self {
         if let Some(ref mut als) = self.aliases {
             als.push((name.into(), true));
         } else {
@@ -424,7 +424,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
-    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
+    pub fn visible_aliases<T: Into<Cow<'static, OsStr>>>(mut self, names: &[T]) -> Self {
         if let Some(ref mut als) = self.aliases {
             for n in names {
                 als.push((n, true));
@@ -485,7 +485,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Prints version information
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
-    pub fn help(mut self, h: &'help str) -> Self {
+    pub fn help<T: Into<Cow<'static, str>>>(mut self, h: T) -> Self {
         self.help = Some(h);
         self
     }
@@ -556,7 +556,7 @@ impl<'help> Arg<'help> {
     ///         Prints version information
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
-    pub fn long_help(mut self, h: &'help str) -> Self {
+    pub fn long_help<T: Into<Cow<'static, str>>>(mut self, h: T) -> Self {
         self.long_help = Some(h);
         self
     }
@@ -817,7 +817,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    ///     
+    ///
     /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
 
@@ -1206,7 +1206,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
+    pub fn requires_if<T: Key, V: Into<Cow<'static, str>>>(mut self, val: V, arg_id: T) -> Self {
         let arg = arg_id.key();
         if let Some(ref mut vec) = self.requires {
             vec.push((Some(val), arg));
@@ -1267,7 +1267,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
+    pub fn requires_ifs<T: Key, V: Into<Cow<'static, str>>>(mut self, ifs: &[(V, T)]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for (val, arg) in ifs {
                 vec.push((Some(val), arg.key()));
@@ -1345,7 +1345,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_if<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
+    pub fn required_if<T: Key, V: Into<Cow<'static, str>>>(mut self, arg_id: T, val: V) -> Self {
         let arg = arg_id.key();
         if let Some(ref mut vec) = self.r_ifs {
             vec.push((arg, val));
@@ -1435,7 +1435,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_ifs<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+    pub fn required_ifs<T: Key, V: Into<Cow<'static, str>>>(mut self, ifs: &[(T, V)]) -> Self {
         if let Some(ref mut vec) = self.r_ifs {
             for r_if in ifs {
                 vec.push((r_if.0.key(), r_if.1));
@@ -1624,7 +1624,7 @@ impl<'help> Arg<'help> {
     /// [`min_values`]: ./struct.Arg.html#method.min_values
     /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`max_values`]: ./struct.Arg.html#method.max_values
-    pub fn value_terminator(mut self, term: &'help str) -> Self {
+    pub fn value_terminator<T: Into<Cow<'static, str>>>(mut self, term: T) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.terminator = Some(term);
         self
@@ -1677,7 +1677,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
-    pub fn possible_values(mut self, names: &[&'help str]) -> Self {
+    pub fn possible_values<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in names {
@@ -1742,7 +1742,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
-    pub fn possible_value(mut self, name: &'help str) -> Self {
+    pub fn possible_value<T: Into<Cow<'static, str>>>(mut self, name: T) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             vec.push(name);
@@ -2109,15 +2109,11 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    pub fn value_delimiter(mut self, d: &str) -> Self {
+    pub fn value_delimiter(mut self, d: char) -> Self {
         self.unsetb(ArgSettings::ValueDelimiterNotSet);
         self.setb(ArgSettings::TakesValue);
         self.setb(ArgSettings::UseValueDelimiter);
-        self.val_delim = Some(
-            d.chars()
-                .nth(0)
-                .expect("Failed to get value_delimiter from arg"),
-        );
+        self.val_delim = Some(d);
         self
     }
 
@@ -2180,7 +2176,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    pub fn value_names(mut self, names: &[&'help str]) -> Self {
+    pub fn value_names<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
         self.setb(ArgSettings::TakesValue);
         if self.is_set(ArgSettings::ValueDelimiterNotSet) {
             self.unsetb(ArgSettings::ValueDelimiterNotSet);
@@ -2248,7 +2244,7 @@ impl<'help> Arg<'help> {
     /// [option]: ./struct.Arg.html#method.takes_value
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    pub fn value_name(mut self, name: &'help str) -> Self {
+    pub fn value_name<T: Into<Cow<'static, str>>>(mut self, name: T) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
@@ -2324,7 +2320,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
-    pub fn default_value(self, val: &'help str) -> Self {
+    pub fn default_value<T: Into<Cow<'static, str>>>(self, val: T) -> Self {
         self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
     }
 
@@ -2332,13 +2328,13 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_os(self, val: &'help OsStr) -> Self {
+    pub fn default_value_os<T: Into<Cow<'static, OsStr>>>(self, val: T) -> Self {
         self.default_values_os(&[val])
     }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_values(self, vals: &[&'help str]) -> Self {
+    pub fn default_values<T: Into<Cow<'static, str>>>(self, vals: &[T]) -> Self {
         let vals_vec: Vec<_> = vals
             .iter()
             .map(|val| OsStr::from_bytes(val.as_bytes()))
@@ -2350,7 +2346,7 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
+    pub fn default_values_os<T: Into<Cow<'static, OsStr>>>(mut self, vals: &[T]) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.default_vals = Some(vals.to_vec());
         self
@@ -2452,11 +2448,11 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if<T: Key>(
+    pub fn default_value_if<T: Key, V: Into<Cow<'static, str>>>(
         self,
         arg_id: T,
-        val: Option<&'help str>,
-        default: &'help str,
+        val: V,
+        default: V,
     ) -> Self {
         self.default_value_if_os(
             arg_id,
@@ -2469,11 +2465,11 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_if_os<T: Key>(
+    pub fn default_value_if_os<T: Key, V: Into<Cow<'static, OsStr>>>(
         mut self,
         arg_id: T,
-        val: Option<&'help OsStr>,
-        default: &'help OsStr,
+        val: V,
+        default: V,
     ) -> Self {
         let arg = arg_id.key();
         self.setb(ArgSettings::TakesValue);
@@ -2572,9 +2568,9 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_ifs<T: Key>(
+    pub fn default_value_ifs<T: Key, V: Into<Cow<'static, str>>>(
         mut self,
-        ifs: &[(T, Option<&'help str>, &'help str)],
+        ifs: &[(T, Option<V>, V)],
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(
@@ -2590,9 +2586,9 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_ifs_os<T: Key>(
+    pub fn default_value_ifs_os<T: Key, V: Into<Cow<'static, OsStr>>>(
         mut self,
-        ifs: &[(T, Option<&'help OsStr>, &'help OsStr)],
+        ifs: &[(T, Option<V>, V)],
     ) -> Self {
         for (arg, val, default) in ifs {
             self = self.default_value_if_os(arg.key(), *val, default);
@@ -2699,14 +2695,14 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    pub fn env(self, name: &'help str) -> Self {
+    pub fn env<T: Into<Cow<'static, str>>>(self, name: T) -> Self {
         self.env_os(OsStr::new(name))
     }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
-    pub fn env_os(mut self, name: &'help OsStr) -> Self {
+    pub fn env_os<T: Into<Cow<'static, OsStr>>>(mut self, name: T) -> Self {
         if !self.is_set(ArgSettings::MultipleOccurrences) {
             self.setb(ArgSettings::TakesValue);
         }
@@ -4061,7 +4057,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Set a custom heading for this arg to be printed under
-    pub fn help_heading(mut self, s: Option<&'help str>) -> Self {
+    pub fn help_heading<T: Into<Cow<'static, str>>>(mut self, s: T) -> Self {
         self.help_heading = s;
         self
     }
@@ -4160,25 +4156,26 @@ impl<'help> Arg<'help> {
     }
 }
 
-impl<'help, 'z> From<&'z Arg<'help>> for Arg<'help> {
-    fn from(a: &'z Arg<'help>) -> Self {
+impl From<&'_ Arg> for Arg {
+    fn from(a: &'_ Arg) -> Self {
         a.clone()
     }
 }
 
-impl<'help> From<&'help str> for Arg<'help> {
-    fn from(s: &'help str) -> Self {
+impl<T: Into<Cow<'static, str>>> From<T> for Arg {
+    fn from(s: T) -> Self {
         UsageParser::from_usage(s).parse()
     }
 }
 
-impl<'help> PartialEq for Arg<'help> {
-    fn eq(&self, other: &Arg<'help>) -> bool {
+// FIXME (@CreepySkeleton): Looks like a footgun
+impl PartialEq for Arg {
+    fn eq(&self, other: &Arg) -> bool {
         self.name == other.name
     }
 }
 
-impl<'help> Display for Arg<'help> {
+impl Display for Arg {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
             // Positional
@@ -4276,22 +4273,23 @@ impl<'help> Display for Arg<'help> {
     }
 }
 
-impl<'help> PartialOrd for Arg<'help> {
+impl PartialOrd for Arg {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'help> Ord for Arg<'help> {
+impl Ord for Arg {
     fn cmp(&self, other: &Arg) -> Ordering {
         self.name.cmp(&other.name)
     }
 }
 
-impl<'help> Eq for Arg<'help> {}
+impl Eq for Arg {}
 
-impl<'help> fmt::Debug for Arg<'help> {
+impl fmt::Debug for Arg {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        // FIXME (@CreepySkeleton): Rewrite using `fmt::Formatter::debug_struct`
         write!(
             f,
             "Arg {{ id: {:X?}, name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \

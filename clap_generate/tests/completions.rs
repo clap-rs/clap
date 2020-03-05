@@ -31,7 +31,7 @@ static BASH: &'static str = r#"_myapp() {
             myapp)
                 cmd="myapp"
                 ;;
-            
+
             help)
                 cmd+="__help"
                 ;;
@@ -51,7 +51,7 @@ static BASH: &'static str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 *)
                     COMPREPLY=()
                     ;;
@@ -59,7 +59,7 @@ static BASH: &'static str = r#"_myapp() {
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
-        
+
         myapp__help)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -67,7 +67,7 @@ static BASH: &'static str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 *)
                     COMPREPLY=()
                     ;;
@@ -82,7 +82,7 @@ static BASH: &'static str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 --case)
                     COMPREPLY=($(compgen -f ${cur}))
                     return 0
@@ -164,14 +164,14 @@ _myapp_commands() {
 (( $+functions[_myapp__help_commands] )) ||
 _myapp__help_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'myapp help commands' commands "$@"
 }
 (( $+functions[_myapp__test_commands] )) ||
 _myapp__test_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'myapp test commands' commands "$@"
 }
@@ -492,28 +492,28 @@ _my_app_commands() {
 (( $+functions[_my_app__help_commands] )) ||
 _my_app__help_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'my_app help commands' commands "$@"
 }
 (( $+functions[_my_app__some-cmd-with-hypens_commands] )) ||
 _my_app__some-cmd-with-hypens_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'my_app some-cmd-with-hypens commands' commands "$@"
 }
 (( $+functions[_my_app__some_cmd_commands] )) ||
 _my_app__some_cmd_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'my_app some_cmd commands' commands "$@"
 }
 (( $+functions[_my_app__test_commands] )) ||
 _my_app__test_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'my_app test commands' commands "$@"
 }
@@ -552,7 +552,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             my_app)
                 cmd="my_app"
                 ;;
-            
+
             help)
                 cmd+="__help"
                 ;;
@@ -578,7 +578,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 *)
                     COMPREPLY=()
                     ;;
@@ -586,7 +586,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
-        
+
         my_app__help)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -594,7 +594,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 *)
                     COMPREPLY=()
                     ;;
@@ -609,7 +609,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 *)
                     COMPREPLY=()
                     ;;
@@ -624,7 +624,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 --config)
                     COMPREPLY=($(compgen -f ${cur}))
                     return 0
@@ -643,7 +643,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-                
+
                 --case)
                     COMPREPLY=($(compgen -f ${cur}))
                     return 0
@@ -699,24 +699,24 @@ _my_app() {
 '-V[Prints version information]' \
 '--version[Prints version information]' \
 && ret=0
-    
+
 }
 
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-        
+
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
 
 _my_app "$@""#;
 
-fn build_app() -> App<'static> {
+fn build_app() -> App {
     build_app_with_name("myapp")
 }
 
-fn build_app_with_name(s: &'static str) -> App<'static> {
+fn build_app_with_name(s: &'static str) -> App {
     App::new(s)
         .about("Tests completions")
         .arg(Arg::with_name("file").help("some input file"))
@@ -730,7 +730,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
         )
 }
 
-fn build_app_special_commands() -> App<'static> {
+fn build_app_special_commands() -> App {
     build_app_with_name("my_app")
         .subcommand(
             App::new("some_cmd").about("tests other things").arg(
@@ -743,7 +743,7 @@ fn build_app_special_commands() -> App<'static> {
         .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
-fn build_app_special_help() -> App<'static> {
+fn build_app_special_help() -> App {
     App::new("my_app")
         .arg(
             Arg::with_name("single-quotes")

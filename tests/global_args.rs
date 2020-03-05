@@ -2,7 +2,7 @@ mod utils;
 
 use clap::{App, Arg};
 
-fn get_app() -> App<'static> {
+fn get_app() -> App {
     App::new("myprog")
         .arg(
             Arg::with_name("GLOBAL_ARG")

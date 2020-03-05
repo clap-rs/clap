@@ -2,7 +2,7 @@ mod utils;
 
 use clap::{App, Arg, ArgMatches, ArgSettings};
 
-fn get_app() -> App<'static> {
+fn get_app() -> App {
     App::new("myprog")
         .arg(
             Arg::with_name("GLOBAL_ARG")
@@ -22,7 +22,7 @@ fn get_app() -> App<'static> {
         .subcommand(App::new("outer").subcommand(App::new("inner")))
 }
 
-fn get_matches(app: App<'static>, argv: &'static str) -> ArgMatches {
+fn get_matches(app: App, argv: &'static str) -> ArgMatches {
     app.get_matches_from(argv.split(' ').collect::<Vec<_>>())
 }
 
