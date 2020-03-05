@@ -26,7 +26,6 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
-    - name: Benchmarking
     - name: Coverage
   fast_finish: true
   include:
@@ -46,9 +45,6 @@ jobs:
         - cargo clippy --lib --features "yaml unstable" -- -D warnings
         - cargo clippy --tests --examples --features "yaml unstable"
         - cargo fmt -- --check
-    - name: Benchmarking
-      script:
-        - cargo bench
     - name: Coverage
       addons:
         apt:

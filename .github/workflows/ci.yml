@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, reopened, synchronize]
+jobs:
+  Benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update rust
+        run: rustup toolchain update stable
+      - name: Run benchmarks
+        run: cargo bench -- -R bencher | tee output.txt
+      - name: Download base benchmark
+        uses: actions/cache@v1
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-benchmark-${{ github.ref }}-${{ github.sha }}
+            ${{ runner.os }}-benchmark-${{ github.ref }}
+            ${{ runner.os }}-benchmark
+      - name: Compare benchmarks
+        uses: pksunkara/github-action-benchmark@v1
+        with:
+          tool: cargo
+          output-file-path: output.txt
+          external-data-json-path: ./cache/benchmark-data.json
+          github-token: ${{ github.token }}
+          comment-always: true
+          save-on-pr: false

@@ -41,12 +41,12 @@ macro_rules! create_app {
     }};
 }
 
-pub fn build_app_from_usage(c: &mut Criterion) {
-    c.bench_function("build_app_from_usage", |b| b.iter(|| create_app!()));
+pub fn build_from_usage(c: &mut Criterion) {
+    c.bench_function("build_from_usage", |b| b.iter(|| create_app!()));
 }
 
-pub fn build_app_from_builder(c: &mut Criterion) {
-    c.bench_function("build_app_from_builder", |b| {
+pub fn build_from_builder(c: &mut Criterion) {
+    c.bench_function("build_from_builder", |b| {
         b.iter(|| {
             App::new("claptests")
                 .version("0.1")
@@ -162,8 +162,8 @@ pub fn build_app_from_builder(c: &mut Criterion) {
     });
 }
 
-pub fn build_app_from_macros(c: &mut Criterion) {
-    c.bench_function("build_app_from_macros", |b| {
+pub fn build_from_macros(c: &mut Criterion) {
+    c.bench_function("build_from_macros", |b| {
         b.iter(|| {
             clap_app!(claptests =>
                     (version: "0.1")
@@ -198,50 +198,50 @@ pub fn build_app_from_macros(c: &mut Criterion) {
     });
 }
 
-pub fn parse_complex_app(c: &mut Criterion) {
-    c.bench_function("parse_complex_app", |b| {
+pub fn parse_complex(c: &mut Criterion) {
+    c.bench_function("parse_complex", |b| {
         b.iter(|| create_app!().get_matches_from(vec![""]))
     });
 }
 
-pub fn parse_complex_app_with_flag(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_flag", |b| {
+pub fn parse_complex_with_flag(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_flag", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "-f"]))
     });
 }
 
-pub fn parse_complex_app_with_option(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_option", |b| {
+pub fn parse_complex_with_opt(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_opt", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "-o", "option1"]))
     });
 }
 
-pub fn parse_complex_app_with_positional(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_positional", |b| {
+pub fn parse_complex_with_pos(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_pos", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "arg1"]))
     });
 }
 
-pub fn parse_complex_app_with_sc(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_sc", |b| {
+pub fn parse_complex_with_sc(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_sc", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd"]))
     });
 }
 
-pub fn parse_complex_app_with_sc_flag(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_sc_flag", |b| {
+pub fn parse_complex_with_sc_flag(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_sc_flag", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "-f"]))
     });
 }
 
-pub fn parse_complex_app_with_sc_option(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_sc_option", |b| {
+pub fn parse_complex_with_sc_opt(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_sc_opt", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "-o", "option1"]))
     });
 }
 
-pub fn parse_complex_app_with_sc_positional(c: &mut Criterion) {
-    c.bench_function("parse_complex_app_with_sc_positional", |b| {
+pub fn parse_complex_with_sc_pos(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_sc_pos", |b| {
         b.iter(|| create_app!().get_matches_from(vec!["myprog", "subcmd", "arg1"]))
     });
 }
@@ -291,8 +291,8 @@ pub fn parse_complex2(c: &mut Criterion) {
     });
 }
 
-pub fn parse_complex2_with_args_negate_scs(c: &mut Criterion) {
-    c.bench_function("parse_complex2_with_args_negate_scs", |b| {
+pub fn parse_args_negate_scs(c: &mut Criterion) {
+    c.bench_function("parse_args_negate_scs", |b| {
         b.iter(|| {
             create_app!()
                 .setting(AppSettings::ArgsNegateSubcommands)
@@ -317,8 +317,8 @@ pub fn parse_complex2_with_args_negate_scs(c: &mut Criterion) {
     });
 }
 
-pub fn parse_sc_complex(c: &mut Criterion) {
-    c.bench_function("parse_sc_complex", |b| {
+pub fn parse_complex_with_sc_complex(c: &mut Criterion) {
+    c.bench_function("parse_complex_with_sc_complex", |b| {
         b.iter(|| {
             create_app!().get_matches_from(vec!["myprog", "subcmd", "-f", "-o", "option1", "arg1"])
         })
@@ -327,21 +327,21 @@ pub fn parse_sc_complex(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    build_app_from_usage,
-    build_app_from_builder,
-    build_app_from_macros,
-    parse_complex_app,
-    parse_complex_app_with_flag,
-    parse_complex_app_with_option,
-    parse_complex_app_with_positional,
-    parse_complex_app_with_sc,
-    parse_complex_app_with_sc_flag,
-    parse_complex_app_with_sc_option,
-    parse_complex_app_with_sc_positional,
+    build_from_usage,
+    build_from_builder,
+    build_from_macros,
+    parse_complex,
+    parse_complex_with_flag,
+    parse_complex_with_opt,
+    parse_complex_with_pos,
+    parse_complex_with_sc,
+    parse_complex_with_sc_flag,
+    parse_complex_with_sc_opt,
+    parse_complex_with_sc_pos,
     parse_complex1,
     parse_complex2,
-    parse_complex2_with_args_negate_scs,
-    parse_sc_complex
+    parse_args_negate_scs,
+    parse_complex_with_sc_complex
 );
 
 criterion_main!(benches);

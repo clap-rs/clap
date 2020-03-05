@@ -1,3 +1,4 @@
+#[cfg(feature = "suggestions")]
 use std::cmp::Ordering;
 
 // Third Party
