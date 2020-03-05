@@ -16,6 +16,58 @@ use syn::{punctuated::Punctuated, spanned::Spanned, Token};
 
 use super::{sub_type, Attrs, Kind, ParserKind, Ty};
 
+pub fn gen_for_struct(
+    struct_name: &syn::Ident,
+    fields: &Punctuated<syn::Field, Token![,]>,
+    parent_attribute: &Attrs,
+) -> proc_macro2::TokenStream {
+    let constructor = gen_constructor(fields, parent_attribute);
+
+    quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
+        impl ::clap::FromArgMatches for #struct_name {
+            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
+                #struct_name #constructor
+            }
+        }
+    }
+}
+
+pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
+    quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
+        impl ::clap::FromArgMatches for #name {
+            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
+                let (name, subcmd) = matches.subcommand();
+                <#name as ::clap::Subcommand>::from_subcommand(name, subcmd)
+                    .unwrap()
+            }
+        }
+    }
+}
+
 pub fn gen_constructor(
     fields: &Punctuated<syn::Field, Token![,]>,
     parent_attribute: &Attrs,
@@ -154,32 +206,4 @@ pub fn gen_constructor(
     quote! {{
         #( #fields ),*
     }}
-}
-
-pub fn gen_for_struct(
-    struct_name: &syn::Ident,
-    fields: &Punctuated<syn::Field, Token![,]>,
-    parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
-    let constructor = gen_constructor(fields, parent_attribute);
-
-    quote! {
-        impl ::clap::FromArgMatches for #struct_name {
-            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
-                #struct_name #constructor
-            }
-        }
-    }
-}
-
-pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
-    quote! {
-        impl ::clap::FromArgMatches for #name {
-            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
-                let (name, subcmd) = matches.subcommand();
-                <#name as ::clap::Subcommand>::from_subcommand(name, subcmd)
-                    .unwrap()
-            }
-        }
-    }
 }

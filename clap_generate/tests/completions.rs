@@ -17,7 +17,7 @@ macro_rules! assert_eq {
     };
 }
 
-static BASH: &'static str = r#"_myapp() {
+static BASH: &str = r#"_myapp() {
     local i cur prev opts cmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -100,7 +100,7 @@ static BASH: &'static str = r#"_myapp() {
 complete -F _myapp -o bashdefault -o default myapp
 "#;
 
-static ZSH: &'static str = r#"#compdef myapp
+static ZSH: &str = r#"#compdef myapp
 
 autoload -U is-at-least
 
@@ -178,7 +178,7 @@ _myapp__test_commands() {
 
 _myapp "$@""#;
 
-static FISH: &'static str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
+static FISH: &str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
 complete -c myapp -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
 complete -c myapp -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
@@ -189,7 +189,7 @@ complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints 
 complete -c myapp -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
 "#;
 
-static POWERSHELL: &'static str = r#"
+static POWERSHELL: &str = r#"
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
@@ -241,7 +241,7 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
 }
 "#;
 
-static ELVISH: &'static str = r#"
+static ELVISH: &str = r#"
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
@@ -283,7 +283,7 @@ edit:completion:arg-completer[my_app] = [@words]{
 }
 "#;
 
-static ELVISH_SPECIAL_CMDS: &'static str = r#"
+static ELVISH_SPECIAL_CMDS: &str = r#"
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
@@ -340,7 +340,7 @@ edit:completion:arg-completer[my_app] = [@words]{
 }
 "#;
 
-static POWERSHELL_SPECIAL_CMDS: &'static str = r#"
+static POWERSHELL_SPECIAL_CMDS: &str = r#"
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
@@ -409,7 +409,7 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
 }
 "#;
 
-static ZSH_SPECIAL_CMDS: &'static str = r#"#compdef my_app
+static ZSH_SPECIAL_CMDS: &str = r#"#compdef my_app
 
 autoload -U is-at-least
 
@@ -520,7 +520,7 @@ _my_app__test_commands() {
 
 _my_app "$@""#;
 
-static FISH_SPECIAL_CMDS: &'static str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
+static FISH_SPECIAL_CMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'tests other things'
@@ -538,7 +538,7 @@ complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints
 complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
 "#;
 
-static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
+static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
     local i cur prev opts cmds
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -661,7 +661,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
 complete -F _my_app -o bashdefault -o default my_app
 "#;
 
-static FISH_SPECIAL_HELP: &'static str = r#"complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
+static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c my_app -n "__fish_use_subcommand" -l double-quotes -d 'Can be "always", "auto", or "never"'
 complete -c my_app -n "__fish_use_subcommand" -l backticks -d 'For more information see `echo test`'
 complete -c my_app -n "__fish_use_subcommand" -l backslash -d 'Avoid \'\\n\''
@@ -671,7 +671,7 @@ complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help infor
 complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
 "#;
 
-static ZSH_SPECIAL_HELP: &'static str = r#"#compdef my_app
+static ZSH_SPECIAL_HELP: &str = r#"#compdef my_app
 
 autoload -U is-at-least
 

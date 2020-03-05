@@ -80,7 +80,7 @@ fn main() {
     if matches.is_present("config") {
         let input = matches
             .value_of("INPUT_FILE")
-            .unwrap_or(matches.value_of("SPEC_IN").unwrap());
+            .unwrap_or_else(|| matches.value_of("SPEC_IN").unwrap());
         println!(
             "Doing work using input {} and config {}",
             input,

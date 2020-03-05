@@ -21,6 +21,18 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     let augment_subcommands = gen_augment_subcommands(&e.variants, &attrs);
 
     quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
         impl ::clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
