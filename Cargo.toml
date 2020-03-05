@@ -81,7 +81,7 @@ ansi_term = { version = "0.12.1", optional = true }
 regex = "1.0"
 lazy_static = "1"
 version-sync = "0.8"
-criterion = "0.3"
+criterion = { git = "git://github.com/pksunkara/criterion.rs", version = "0.3" }
 
 [features]
 default     = ["suggestions", "color", "vec_map", "derive", "std", "cargo"]
