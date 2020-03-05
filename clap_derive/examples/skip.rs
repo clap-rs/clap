@@ -27,7 +27,7 @@ enum Kind {
 
 impl Default for Kind {
     fn default() -> Self {
-        return Kind::B;
+        Kind::B
     }
 }
 

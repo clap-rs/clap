@@ -788,7 +788,7 @@ fn external_subcommand_looks_like_built_in() {
             assert_eq!(name, "install-update");
             assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
         }
-        _ => assert!(false),
+        _ => panic!("external_subcommand didn't work"),
     }
 }
 
