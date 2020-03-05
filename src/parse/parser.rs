@@ -549,7 +549,8 @@ where
                     let cands =
                         suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
                     if !cands.is_empty() {
-                        let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                        let cands: Vec<_> =
+                            cands.iter().map(|cand| format!("'{}'", cand)).collect();
                         return Err(ClapError::invalid_subcommand(
                             arg_os.to_string_lossy().into_owned(),
                             cands.join(" or "),
