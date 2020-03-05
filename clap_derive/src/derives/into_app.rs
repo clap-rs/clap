@@ -34,6 +34,18 @@ pub fn gen_for_struct(
     let augment_clap = gen_augment_clap_fn(fields, &attrs);
 
     let tokens = quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
         impl ::clap::IntoApp for #struct_name {
             #into_app
             #augment_clap
@@ -47,6 +59,18 @@ pub fn gen_for_enum(name: &syn::Ident) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
         impl ::clap::IntoApp for #name {
             fn into_app<'b>() -> ::clap::App<'b> {
                 let app = ::clap::App::new(#app_name)
