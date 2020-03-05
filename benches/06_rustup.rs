@@ -15,8 +15,8 @@ pub fn parse_rustup(c: &mut Criterion) {
     });
 }
 
-pub fn parse_rustup_with_subcommands(c: &mut Criterion) {
-    c.bench_function("parse_rustup_with_subcommands", |b| {
+pub fn parse_rustup_with_sc(c: &mut Criterion) {
+    c.bench_function("parse_rustup_with_sc", |b| {
         b.iter(|| build_cli().get_matches_from(vec!["rustup override add stable"]))
     });
 }
@@ -455,11 +455,6 @@ default browser.
 By default, it opens the documentation index. Use the various flags to
 open specific pieces of documentation.";
 
-criterion_group!(
-    benches,
-    build_rustup,
-    parse_rustup,
-    parse_rustup_with_subcommands
-);
+criterion_group!(benches, build_rustup, parse_rustup, parse_rustup_with_sc);
 
 criterion_main!(benches);
