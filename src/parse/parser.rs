@@ -541,23 +541,24 @@ where
                     // get the next value from the iterator
                     continue;
                 }
-            }
 
-            if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
-                || self.is_set(AS::AllowExternalSubcommands)
-                || self.is_set(AS::InferSubcommands))
-            {
-                let cands =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
-                if !cands.is_empty() {
-                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
-                    return Err(ClapError::invalid_subcommand(
-                        arg_os.to_string_lossy().into_owned(),
-                        cands.join(" or "),
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
-                        &*Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
+                if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
+                    || self.is_set(AS::AllowExternalSubcommands)
+                    || self.is_set(AS::InferSubcommands))
+                {
+                    let cands =
+                        suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                    if !cands.is_empty() {
+                        let cands: Vec<_> =
+                            cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                        return Err(ClapError::invalid_subcommand(
+                            arg_os.to_string_lossy().into_owned(),
+                            cands.join(" or "),
+                            self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                            &*Usage::new(self).create_usage_with_title(&[]),
+                            self.app.color(),
+                        ));
+                    }
                 }
             }
 

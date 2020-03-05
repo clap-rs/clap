@@ -283,3 +283,12 @@ fn issue_1161_multiple_hyphen_hyphen() {
 
     assert_eq!(expected, actual);
 }
+
+#[test]
+fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
+    let m = App::new("myprog")
+        .subcommand(App::new("subcommand"))
+        .arg(Arg::with_name("argument"))
+        .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
+    assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
+}

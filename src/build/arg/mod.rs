@@ -2929,7 +2929,7 @@ impl<'help> Arg<'help> {
     /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
     /// change the delimiter to another character you can use [`Arg::value_delimiter(char)`],
     /// alternatively you can turn delimiting values **OFF** by using
-    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter`]
+    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]
     ///
     /// # Examples
     ///
@@ -2954,7 +2954,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
     /// [`Arg::value_delimiter(char)`]: ./struct.Arg.html#method.value_delimiter
-    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
+    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [multiple values]: ./enum.ArgSettings.html#variant.MultipleValues
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {

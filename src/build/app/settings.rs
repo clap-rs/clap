@@ -698,7 +698,7 @@ pub enum AppSettings {
     /// **CAUTION:** This setting can interfere with [positional/free arguments], take care when
     /// designing CLIs which allow inferred subcommands and have potential positional/free
     /// arguments whose values could start with the same characters as subcommands. If this is the
-    /// case, it's recommended to use settings such as [`AppSeettings::ArgsNegateSubcommands`] in
+    /// case, it's recommended to use settings such as [`AppSettings::ArgsNegateSubcommands`] in
     /// conjunction with this setting.
     ///
     /// # Examples
@@ -716,7 +716,7 @@ pub enum AppSettings {
     /// [`subcommands`]: ./struct..html
     /// [positional/free arguments]: ./struct.Arg.html#method.index
     /// [aliases]: ./struct.App.html#method.alias
-    /// [`AppSeettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
+    /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
     InferSubcommands,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
