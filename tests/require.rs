@@ -726,5 +726,5 @@ fn issue_1643_args_mutually_require_each_other() {
                 .requires("relation_id"),
         );
 
-    app.get_matches_from(&["test", "-u", "hello"]);
+    app.get_matches_from(&["test", "-u", "hello", "-r", "farewell"]);
 }
