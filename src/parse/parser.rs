@@ -61,7 +61,7 @@ where
 }
 
 impl Input {
-    pub fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, Option<&OsStr>)> {
+    pub fn next(&mut self, new: Option<&[Cow<'static, str>]>) -> Option<(&OsStr, Option<&OsStr>)> {
         if new.is_some() {
             let mut new_items: Vec<OsString> = new
                 .expect(INTERNAL_ERROR_MSG)
@@ -424,7 +424,7 @@ where
         let mut subcmd_name: Option<String> = None;
         let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let mut replace: Option<&[&Cow<'static, str>]> = None;
+        let mut replace: Option<&[Cow<'static, str>]> = None;
 
         while let Some((arg_os, next_arg)) = it.next(replace) {
             replace = None;
@@ -811,11 +811,11 @@ where
                 .collect::<Vec<_>>();
 
             if v.len() == 1 {
-                return Some(v[0]);
+                return Some(&*v[0]);
             }
 
             for sc in &v {
-                if OsStr::new(sc) == arg_os {
+                if **sc == *arg_os {
                     return Some(sc);
                 }
             }
@@ -1344,7 +1344,7 @@ where
 
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
-            if t == v {
+            if *t == *v {
                 return Ok(ParseResult::ValuesDone);
             }
         }

@@ -1027,12 +1027,15 @@ macro_rules! names {
         $app.args.args.iter().map(|a| &*a.name)
     }};
     (@sc $app:expr) => {{
-        $app.subcommands.iter().map(|s| &*s.name).chain(
-            $app.subcommands
-                .iter()
-                .filter(|s| s.aliases.is_some())
-                .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
-        )
+        $app.subcommands
+            .iter()
+            .map(|s| Cow::Borrowed(s.name.as_str()))
+            .chain(
+                $app.subcommands
+                    .iter()
+                    .filter(|s| s.aliases.is_some())
+                    .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
+            )
     }};
 }
 
@@ -1055,6 +1058,6 @@ macro_rules! match_alias {
                     .as_ref()
                     .unwrap()
                     .iter()
-                    .any(|alias| alias.0 == $to))
+                    .any(|alias| *alias.0 == *$to))
     }};
 }

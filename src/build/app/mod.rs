@@ -644,8 +644,8 @@ impl App {
     /// Set a custom section heading for future args. Every call to arg will
     /// have this header (instead of its default header) until a subsequent
     /// call to help_heading
-    pub fn help_heading(mut self, heading: Cow<'static, str>) -> Self {
-        self.help_headings.push(Some(heading));
+    pub fn help_heading<T: Into<Cow<'static, str>>>(mut self, heading: T) -> Self {
+        self.help_headings.push(Some(heading.into()));
         self
     }
 
@@ -727,13 +727,22 @@ impl App {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [``]: ./struct..html
-    pub fn aliases(mut self, names: &[Cow<'static, str>]) -> Self {
+    pub fn aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         if let Some(ref mut als) = self.aliases {
             for n in names {
-                als.push((n, false));
+                als.push((n.into(), false));
             }
         } else {
-            self.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
+            self.aliases = Some(
+                names
+                    .into_iter()
+                    .map(|n| (n.into(), false))
+                    .collect::<Vec<_>>(),
+            );
         }
         self
     }
@@ -777,13 +786,22 @@ impl App {
     /// ```
     /// [``]: ./struct..html
     /// [`App::aliases`]: ./struct.App.html#method.aliases
-    pub fn visible_aliases(mut self, names: &[Cow<'static, str>]) -> Self {
+    pub fn visible_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         if let Some(ref mut als) = self.aliases {
             for n in names {
-                als.push((n, true));
+                als.push((n.into(), true));
             }
         } else {
-            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+            self.aliases = Some(
+                names
+                    .into_iter()
+                    .map(|n| (n.into(), true))
+                    .collect::<Vec<_>>(),
+            );
         }
         self
     }
@@ -1599,7 +1617,7 @@ impl<'b> App {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("help") || x.id == HELP_HASH))
+            .any(|x| x.long == Some("help".into()) || x.id == HELP_HASH))
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
@@ -1615,7 +1633,7 @@ impl<'b> App {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("version") || x.id == VERSION_HASH)
+            .any(|x| x.long == Some("version".into()) || x.id == VERSION_HASH)
             || self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
@@ -1760,10 +1778,10 @@ impl<'b> App {
         debugln!("App::_write_version;");
         let ver = if use_long {
             self.long_version
-                .unwrap_or_else(|| self.version.unwrap_or(""))
+                .unwrap_or_else(|| self.version.unwrap_or("".into()))
         } else {
             self.version
-                .unwrap_or_else(|| self.long_version.unwrap_or(""))
+                .unwrap_or_else(|| self.long_version.unwrap_or("".into()))
         };
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
@@ -1784,7 +1802,7 @@ impl<'b> App {
             .filter_map(|&x| self.find(x))
             .map(|x| {
                 if x.index.is_some() {
-                    x.name.to_owned()
+                    x.name.into_owned()
                 } else {
                     x.to_string()
                 }
@@ -1913,10 +1931,13 @@ impl App {
 
     pub(crate) fn unroll_requirements_for_arg(&self, arg: Id, matcher: &ArgMatcher) -> Vec<Id> {
         let requires_if_or_not = |&(val, req_arg)| {
+            // an explicit annotation to help borrow checker
+            let val: Option<Cow<'_, str>> = val;
+
             if let Some(v) = val {
                 if matcher
                     .get(arg)
-                    .map(|ma| ma.contains_val(v))
+                    .map(|ma| ma.contains_val(&*v))
                     .unwrap_or(false)
                 {
                     Some(req_arg)

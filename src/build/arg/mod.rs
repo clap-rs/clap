@@ -22,6 +22,7 @@ use crate::build::UsageParser;
 use crate::util::Key;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
+use crate::util::_CowStrExt;
 use crate::INTERNAL_ERROR_MSG;
 
 type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
@@ -147,10 +148,10 @@ impl Arg {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
-    pub fn with_name<T: Into<Cow<'static, str>>>(n: T) -> Self {
+    pub fn with_name<T: Key + Into<Cow<'static, str>>>(n: T) -> Self {
         Arg {
             id: n.key(),
-            name: n,
+            name: n.into(),
             disp_ord: 999,
             unified_ord: 999,
             ..Default::default()
@@ -311,7 +312,15 @@ impl Arg {
     /// assert!(m.is_present("cfg"));
     /// ```
     pub fn long<T: Into<Cow<'static, str>>>(mut self, l: T) -> Self {
-        self.long = Some(l.trim_start_matches(|c| c == '-'));
+        // NEED_REVIEW
+        self.long = Some(match l.into() {
+            Cow::Borrowed(s) => Cow::Borrowed(s.trim_start_matches(|c| c == '-')),
+            Cow::Owned(mut s) => {
+                let len = s.bytes().take_while(|b| *b == b'-').count();
+                s.drain(..len);
+                Cow::Owned(s)
+            }
+        });
         self
     }
 
@@ -366,13 +375,17 @@ impl Arg {
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn aliases<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
+    pub fn aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         if let Some(ref mut als) = self.aliases {
             for n in names {
-                als.push((n, false));
+                als.push((n.into(), false));
             }
         } else {
-            self.aliases = Some(names.iter().map(|&x| (x, false)).collect());
+            self.aliases = Some(names.into_iter().map(|x| (x.into(), false)).collect());
         }
         self
     }
@@ -424,13 +437,22 @@ impl Arg {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
-    pub fn visible_aliases<T: Into<Cow<'static, OsStr>>>(mut self, names: &[T]) -> Self {
+    pub fn visible_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         if let Some(ref mut als) = self.aliases {
             for n in names {
-                als.push((n, true));
+                als.push((n.into(), true));
             }
         } else {
-            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+            self.aliases = Some(
+                names
+                    .into_iter()
+                    .map(|n| (n.into(), true))
+                    .collect::<Vec<_>>(),
+            );
         }
         self
     }
@@ -486,7 +508,7 @@ impl Arg {
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     pub fn help<T: Into<Cow<'static, str>>>(mut self, h: T) -> Self {
-        self.help = Some(h);
+        self.help = Some(h.into());
         self
     }
 
@@ -557,7 +579,7 @@ impl Arg {
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
     pub fn long_help<T: Into<Cow<'static, str>>>(mut self, h: T) -> Self {
-        self.long_help = Some(h);
+        self.long_help = Some(h.into());
         self
     }
 
@@ -1209,9 +1231,9 @@ impl Arg {
     pub fn requires_if<T: Key, V: Into<Cow<'static, str>>>(mut self, val: V, arg_id: T) -> Self {
         let arg = arg_id.key();
         if let Some(ref mut vec) = self.requires {
-            vec.push((Some(val), arg));
+            vec.push((Some(val.into()), arg));
         } else {
-            self.requires = Some(vec![(Some(val), arg)]);
+            self.requires = Some(vec![(Some(val.into()), arg)]);
         }
         self
     }
@@ -1267,17 +1289,22 @@ impl Arg {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    pub fn requires_ifs<T: Key, V: Into<Cow<'static, str>>>(mut self, ifs: &[(V, T)]) -> Self {
+    pub fn requires_ifs<T, V, I>(mut self, ifs: I) -> Self
+    where
+        I: IntoIterator<Item = (V, T)>,
+        V: Into<Cow<'static, str>>,
+        T: Key,
+    {
         if let Some(ref mut vec) = self.requires {
             for (val, arg) in ifs {
-                vec.push((Some(val), arg.key()));
+                vec.push((Some(val.into()), arg.key()));
             }
         } else {
             let mut vec = vec![];
             for (val, arg) in ifs {
-                vec.push((Some(*val), arg.key()));
+                vec.push((Some(val.into()), arg.key()));
             }
-            self.requires = Some(vec);
+            self.requires = Some(vec.into());
         }
         self
     }
@@ -1348,9 +1375,9 @@ impl Arg {
     pub fn required_if<T: Key, V: Into<Cow<'static, str>>>(mut self, arg_id: T, val: V) -> Self {
         let arg = arg_id.key();
         if let Some(ref mut vec) = self.r_ifs {
-            vec.push((arg, val));
+            vec.push((arg, val.into()));
         } else {
-            self.r_ifs = Some(vec![(arg, val)]);
+            self.r_ifs = Some(vec![(arg, val.into())]);
         }
         self
     }
@@ -1435,15 +1462,20 @@ impl Arg {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_ifs<T: Key, V: Into<Cow<'static, str>>>(mut self, ifs: &[(T, V)]) -> Self {
+    pub fn required_ifs<T, V, I>(mut self, ifs: &[(T, V)]) -> Self
+    where
+        I: IntoIterator<Item = (T, V)>,
+        V: Into<Cow<'static, str>>,
+        T: Key,
+    {
         if let Some(ref mut vec) = self.r_ifs {
             for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+                vec.push((r_if.0.key(), r_if.1.into()));
             }
         } else {
             let mut vec = vec![];
             for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+                vec.push((r_if.0.key(), r_if.1.into()));
             }
             self.r_ifs = Some(vec);
         }
@@ -1626,7 +1658,7 @@ impl Arg {
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     pub fn value_terminator<T: Into<Cow<'static, str>>>(mut self, term: T) -> Self {
         self.setb(ArgSettings::TakesValue);
-        self.terminator = Some(term);
+        self.terminator = Some(term.into());
         self
     }
 
@@ -1677,14 +1709,18 @@ impl Arg {
     /// ```
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
-    pub fn possible_values<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
+    pub fn possible_values<T, I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in names {
-                vec.push(s);
+                vec.push(s.into());
             }
         } else {
-            self.possible_vals = Some(names.to_vec());
+            self.possible_vals = Some(names.into_iter().map(|n| n.into()).collect());
         }
         self
     }
@@ -1745,9 +1781,9 @@ impl Arg {
     pub fn possible_value<T: Into<Cow<'static, str>>>(mut self, name: T) -> Self {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
-            vec.push(name);
+            vec.push(name.into());
         } else {
-            self.possible_vals = Some(vec![name]);
+            self.possible_vals = Some(vec![name.into()]);
         }
         self
     }
@@ -2176,7 +2212,11 @@ impl Arg {
     /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    pub fn value_names<T: Into<Cow<'static, str>>>(mut self, names: &[T]) -> Self {
+    pub fn value_names<T, I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
         self.setb(ArgSettings::TakesValue);
         if self.is_set(ArgSettings::ValueDelimiterNotSet) {
             self.unsetb(ArgSettings::ValueDelimiterNotSet);
@@ -2185,13 +2225,13 @@ impl Arg {
         if let Some(ref mut vals) = self.val_names {
             let mut l = vals.len();
             for s in names {
-                vals.insert(l, s);
+                vals.insert(l, s.into());
                 l += 1;
             }
         } else {
             let mut vm = VecMap::new();
-            for (i, n) in names.iter().enumerate() {
-                vm.insert(i, *n);
+            for (i, n) in names.into_iter().enumerate() {
+                vm.insert(i, n.into());
             }
             self.val_names = Some(vm);
         }
@@ -2248,10 +2288,10 @@ impl Arg {
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
-            vals.insert(l, name);
+            vals.insert(l, name.into());
         } else {
             let mut vm = VecMap::new();
-            vm.insert(0, name);
+            vm.insert(0, name.into());
             self.val_names = Some(vm);
         }
         self
@@ -2321,7 +2361,7 @@ impl Arg {
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value<T: Into<Cow<'static, str>>>(self, val: T) -> Self {
-        self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
+        self.default_values_os(std::iter::once(val.into().into_os_str()))
     }
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
@@ -2329,26 +2369,31 @@ impl Arg {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_os<T: Into<Cow<'static, OsStr>>>(self, val: T) -> Self {
-        self.default_values_os(&[val])
+        self.default_values_os(std::iter::once(val))
     }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_values<T: Into<Cow<'static, str>>>(self, vals: &[T]) -> Self {
-        let vals_vec: Vec<_> = vals
-            .iter()
-            .map(|val| OsStr::from_bytes(val.as_bytes()))
-            .collect();
-        self.default_values_os(&vals_vec[..])
+    pub fn default_values<T, I>(self, vals: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, str>>,
+    {
+        let vals = vals.into_iter().map(|val| val.into().into_os_str());
+        self.default_values_os(vals)
     }
 
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_values_os<T: Into<Cow<'static, OsStr>>>(mut self, vals: &[T]) -> Self {
+    pub fn default_values_os<T, I>(mut self, vals: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Cow<'static, OsStr>>,
+    {
         self.setb(ArgSettings::TakesValue);
-        self.default_vals = Some(vals.to_vec());
+        self.default_vals = Some(vals.into_iter().map(|v| v.into()).collect());
         self
     }
 
@@ -4057,7 +4102,7 @@ impl Arg {
     }
 
     /// Set a custom heading for this arg to be printed under
-    pub fn help_heading<T: Into<Cow<'static, str>>>(mut self, s: T) -> Self {
+    pub fn help_heading<T: Into<Cow<'static, str>>>(mut self, s: Option<T>) -> Self {
         self.help_heading = s;
         self
     }
