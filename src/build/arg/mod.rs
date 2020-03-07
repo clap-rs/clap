@@ -2496,13 +2496,13 @@ impl Arg {
     pub fn default_value_if<T: Key, V: Into<Cow<'static, str>>>(
         self,
         arg_id: T,
-        val: V,
+        val: Option<V>,
         default: V,
     ) -> Self {
         self.default_value_if_os(
             arg_id,
-            val.map(str::as_bytes).map(OsStr::from_bytes),
-            OsStr::from_bytes(default.as_bytes()),
+            val.map(|val| val.into().into_os_str()),
+            default.into().into_os_str(),
         )
     }
 
@@ -2513,17 +2513,17 @@ impl Arg {
     pub fn default_value_if_os<T: Key, V: Into<Cow<'static, OsStr>>>(
         mut self,
         arg_id: T,
-        val: V,
+        val: Option<V>,
         default: V,
     ) -> Self {
         let arg = arg_id.key();
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
-            vm.insert(l, (arg, val, default));
+            vm.insert(l, (arg, val.map(Into::into), default.into()));
         } else {
             let mut vm = VecMap::new();
-            vm.insert(0, (arg, val, default));
+            vm.insert(0, (arg, val.map(Into::into), default.into()));
             self.default_vals_ifs = Some(vm);
         }
         self
@@ -2613,16 +2613,14 @@ impl Arg {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_ifs<T: Key, V: Into<Cow<'static, str>>>(
-        mut self,
-        ifs: &[(T, Option<V>, V)],
-    ) -> Self {
+    pub fn default_value_ifs<T, V, I>(mut self, ifs: I) -> Self
+    where
+        I: IntoIterator<Item = (T, Option<V>, V)>,
+        V: Into<Cow<'static, OsStr>>,
+        T: Key,
+    {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(
-                arg,
-                val.map(str::as_bytes).map(OsStr::from_bytes),
-                OsStr::from_bytes(default.as_bytes()),
-            );
+            self = self.default_value_if_os(arg, val.map(|val| val.into()), default.into());
         }
         self
     }
@@ -2631,12 +2629,14 @@ impl Arg {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_ifs_os<T: Key, V: Into<Cow<'static, OsStr>>>(
-        mut self,
-        ifs: &[(T, Option<V>, V)],
-    ) -> Self {
+    pub fn default_value_ifs_os<T, V, I>(mut self, ifs: I) -> Self
+    where
+        I: IntoIterator<Item = (T, Option<V>, V)>,
+        V: Into<Cow<'static, OsStr>>,
+        T: Key,
+    {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg.key(), *val, default);
+            self = self.default_value_if_os(arg.key(), val.map(Into::into), default.into());
         }
         self
     }
@@ -2741,7 +2741,7 @@ impl Arg {
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
     pub fn env<T: Into<Cow<'static, str>>>(self, name: T) -> Self {
-        self.env_os(OsStr::new(name))
+        self.env_os(name.into().into_os_str())
     }
 
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
@@ -2752,7 +2752,10 @@ impl Arg {
             self.setb(ArgSettings::TakesValue);
         }
 
-        self.env = Some((name, env::var_os(name)));
+        let name = name.into();
+        let val = env::var_os(name);
+
+        self.env = Some((name, val));
         self
     }
 
@@ -4103,7 +4106,7 @@ impl Arg {
 
     /// Set a custom heading for this arg to be printed under
     pub fn help_heading<T: Into<Cow<'static, str>>>(mut self, s: Option<T>) -> Self {
-        self.help_heading = s;
+        self.help_heading = s.map(Into::into);
         self
     }
 
@@ -4196,7 +4199,7 @@ impl Arg {
             }
         } else {
             debugln!("PosBuilder:name_no_brackets: just name");
-            Cow::Borrowed(self.name)
+            self.name
         }
     }
 }
@@ -4209,7 +4212,7 @@ impl From<&'_ Arg> for Arg {
 
 impl<T: Into<Cow<'static, str>>> From<T> for Arg {
     fn from(s: T) -> Self {
-        UsageParser::from_usage(s).parse()
+        UsageParser::from_usage(&*s.into()).parse()
     }
 }
 

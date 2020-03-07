@@ -121,10 +121,11 @@ impl<'a> ArgGroup {
     /// ArgGroup::with_name("config")
     /// # ;
     /// ```
-    pub fn with_name(n: &'a str) -> Self {
+    pub fn with_name<T: Into<Cow<'static, str>>>(n: T) -> Self {
+        let name = n.into();
         ArgGroup {
-            id: n.key(),
-            name: n,
+            id: name.key(),
+            name,
             ..ArgGroup::default()
         }
     }
