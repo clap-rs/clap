@@ -170,14 +170,14 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     fn build_conflict_err(&self, name: Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let usg = Usage::new(self.p).create_usage_with_title(&[]);
-        if self.p.app.find(name).is_some() {
+        if let Some(other_arg) = self.p.app.find(name) {
             for &k in matcher.arg_names() {
                 if let Some(a) = self.p.app.find(k) {
                     if let Some(ref v) = a.blacklist {
                         if v.contains(&name) {
                             return Err(Error::argument_conflict(
                                 a,
-                                Some(a.to_string()),
+                                Some(other_arg.to_string()),
                                 &*usg,
                                 self.p.app.color(),
                             ));
