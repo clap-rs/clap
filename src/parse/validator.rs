@@ -177,7 +177,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         if v.contains(&name) {
                             return Err(Error::argument_conflict(
                                 a,
-                                Some(a.to_string()),
+                                Some(name.to_string()),
                                 &*usg,
                                 self.p.app.color(),
                             ));
