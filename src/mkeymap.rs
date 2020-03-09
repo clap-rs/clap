@@ -153,22 +153,20 @@ impl<'b> MKeyMap<'b> {
         let positional;
         let mut longs: Vec<_>;
 
-        {
-            let arg = &self.args[index];
-            short = arg.short.map(KeyType::Short);
-            positional = arg.index.map(KeyType::Position);
+        let arg = &self.args[index];
+        short = arg.short.map(KeyType::Short);
+        positional = arg.index.map(KeyType::Position);
 
-            longs = arg
-                .aliases
-                .clone()
-                .map(|v| {
-                    v.iter()
-                        .map(|(n, _)| KeyType::Long(OsString::from(n)))
-                        .collect()
-                })
-                .unwrap_or_default();
-            longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
-        }
+        longs = arg
+            .aliases
+            .clone()
+            .map(|v| {
+                v.iter()
+                    .map(|(n, _)| KeyType::Long(OsString::from(n)))
+                    .collect()
+            })
+            .unwrap_or_default();
+        longs.extend(arg.long.map(|l| KeyType::Long(OsString::from(l))));
 
         if let Some(s) = short {
             self.insert_key(s, index)

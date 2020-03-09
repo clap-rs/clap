@@ -1408,12 +1408,9 @@ impl<'b> App<'b> {
             self._build();
         }
 
-        {
-            let mut parser = Parser::new(self);
-
-            // do the real parsing
-            parser.get_matches_with(&mut matcher, it)?;
-        }
+        // do the real parsing
+        let mut parser = Parser::new(self);
+        parser.get_matches_with(&mut matcher, it)?;
 
         let global_arg_vec: Vec<Id> = self
             .args
