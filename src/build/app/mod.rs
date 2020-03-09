@@ -1435,13 +1435,12 @@ impl<'b> App<'b> {
 
         self._derive_display_order();
         self._create_help_and_version();
+
         // Perform expensive debug assertions
-        debug_assert!({
-            for a in self.args.args.iter() {
-                self._arg_debug_asserts(a);
-            }
-            true
-        });
+        #[cfg(debug_assertions)]
+        for a in self.args.args.iter() {
+            self._arg_debug_asserts(a);
+        }
 
         let mut pos_counter = 1;
         for a in self.args.args.iter_mut() {
