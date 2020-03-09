@@ -41,9 +41,8 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         self.p.add_defaults(matcher)?;
         if let ParseResult::Opt(a) = needs_val_of {
             debugln!("Validator::validate: needs_val_of={:?}", a);
-            {
-                self.validate_required(matcher)?;
-            }
+            self.validate_required(matcher)?;
+
             let o = self.p.app.find(a).expect(INTERNAL_ERROR_MSG);
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
