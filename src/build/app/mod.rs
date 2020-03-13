@@ -146,7 +146,7 @@ impl<'b> App<'b> {
 
     /// Get the name of the binary
     pub fn get_bin_name(&self) -> Option<&str> {
-        self.bin_name.as_ref().map(String::as_str)
+        self.bin_name.as_deref()
     }
 
     /// Sets a string of author(s) that will be displayed to the user when they
@@ -1957,7 +1957,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
             App::new(name)
         } else {
             let yaml_hash = yaml.as_hash().unwrap();
-            let sc_key = yaml_hash.keys().nth(0).unwrap();
+            let sc_key = yaml_hash.keys().next().unwrap();
             is_sc = Some(yaml_hash.get(sc_key).unwrap());
             App::new(sc_key.as_str().unwrap())
         };

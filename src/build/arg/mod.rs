@@ -171,7 +171,7 @@ impl<'help> Arg<'help> {
     #[allow(clippy::cognitive_complexity)]
     pub fn from_yaml(y: &yaml_rust::yaml::Hash) -> Arg {
         // We WANT this to panic on error...so expect() is good.
-        let name_yml = y.keys().nth(0).unwrap();
+        let name_yml = y.keys().next().unwrap();
         let name_str = name_yml.as_str().unwrap();
         let mut a = Arg::with_name(name_str);
         let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
@@ -817,7 +817,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    ///     
+    ///
     /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
 
@@ -2115,7 +2115,7 @@ impl<'help> Arg<'help> {
         self.setb(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
-                .nth(0)
+                .next()
                 .expect("Failed to get value_delimiter from arg"),
         );
         self

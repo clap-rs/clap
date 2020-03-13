@@ -30,8 +30,8 @@ jobs:
   fast_finish: true
   include:
     - os: osx
-      rust: 1.36.0
-    - rust: 1.36.0
+      rust: 1.40.0
+    - rust: 1.40.0
     - {}
     - rust: beta
     - rust: nightly
