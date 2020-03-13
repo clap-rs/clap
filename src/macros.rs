@@ -759,7 +759,7 @@ macro_rules! clap_app {
         $crate::clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.short(stringify!($short).chars().nth(0).unwrap())) $modes $($tail)* }
+        $crate::clap_app!{ @arg ($arg.short(stringify!($short).chars().next().unwrap())) $modes $($tail)* }
     };
     (@arg ($arg:expr) (-) <$var:ident> $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) +takes_value +required $($tail)* }

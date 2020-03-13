@@ -469,7 +469,7 @@ impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {
-            let name_yml = b.keys().nth(0).expect("failed to get name");
+            let name_yml = b.keys().next().expect("failed to get name");
             let name_str = name_yml
                 .as_str()
                 .expect("failed to convert arg YAML name to str");

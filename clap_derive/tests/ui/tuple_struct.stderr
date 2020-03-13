@@ -4,7 +4,7 @@ error: `#[derive(Clap)]` only supports non-tuple structs and enums
 11 | #[derive(Clap, Debug)]
    |          ^^^^
 
-error[E0599]: no function or associated item named `parse` found for type `Opt` in the current scope
+error[E0599]: no function or associated item named `parse` found for struct `Opt` in the current scope
   --> $DIR/tuple_struct.rs:16:20
    |
 13 | struct Opt(u32);
