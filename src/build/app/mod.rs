@@ -1,4 +1,6 @@
 mod settings;
+#[cfg(test)]
+mod tests;
 
 pub use self::settings::AppSettings;
 
@@ -1776,7 +1778,6 @@ impl<'b> App<'b> {
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
-    #[doc(hidden)]
     pub(crate) fn color(&self) -> ColorWhen {
         debugln!("App::color;");
         debug!("App::color: Color setting...");
