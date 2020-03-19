@@ -15,9 +15,8 @@ enum UsageToken {
     Default,
 }
 
-#[doc(hidden)]
 #[derive(Debug)]
-pub struct UsageParser<'a> {
+pub(crate) struct UsageParser<'a> {
     usage: &'a str,
     pos: usize,
     start: usize,
@@ -37,12 +36,12 @@ impl<'a> UsageParser<'a> {
         }
     }
 
-    pub fn from_usage(usage: &'a str) -> Self {
+    pub(crate) fn from_usage(usage: &'a str) -> Self {
         debugln!("UsageParser::from_usage;");
         UsageParser::new(usage)
     }
 
-    pub fn parse(mut self) -> Arg<'a> {
+    pub(crate) fn parse(mut self) -> Arg<'a> {
         debugln!("UsageParser::parse;");
         let mut arg = Arg::default();
         arg.disp_ord = 999;

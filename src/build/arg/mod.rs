@@ -1,5 +1,6 @@
 mod settings;
-pub use self::settings::{ArgFlags, ArgSettings};
+
+pub use self::settings::ArgSettings;
 
 // Std
 use std::borrow::Cow;
@@ -18,7 +19,7 @@ use crate::util::VecMap;
 use yaml_rust;
 
 // Internal
-use crate::build::UsageParser;
+use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};
 use crate::util::Key;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
@@ -54,70 +55,46 @@ type Id = u64;
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
-    #[doc(hidden)]
-    pub id: Id,
+    pub(crate) id: Id,
     #[doc(hidden)]
     pub name: &'help str,
     #[doc(hidden)]
     pub help: Option<&'help str>,
-    #[doc(hidden)]
-    pub long_help: Option<&'help str>,
+    pub(crate) long_help: Option<&'help str>,
     #[doc(hidden)]
     pub blacklist: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub settings: ArgFlags,
-    #[doc(hidden)]
-    pub r_unless: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub overrides: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub groups: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub requires: Option<Vec<(Option<&'help str>, Id)>>,
+    pub(crate) settings: ArgFlags,
+    pub(crate) r_unless: Option<Vec<Id>>,
+    pub(crate) overrides: Option<Vec<Id>>,
+    pub(crate) groups: Option<Vec<Id>>,
+    pub(crate) requires: Option<Vec<(Option<&'help str>, Id)>>,
     #[doc(hidden)]
     pub short: Option<char>,
     #[doc(hidden)]
     pub long: Option<&'help str>,
-    #[doc(hidden)]
-    pub aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub unified_ord: usize,
+    pub(crate) aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
+    pub(crate) disp_ord: usize,
+    pub(crate) unified_ord: usize,
     #[doc(hidden)]
     pub possible_vals: Option<Vec<&'help str>>,
-    #[doc(hidden)]
-    pub val_names: Option<VecMap<&'help str>>,
-    #[doc(hidden)]
-    pub num_vals: Option<u64>,
-    #[doc(hidden)]
-    pub max_vals: Option<u64>,
-    #[doc(hidden)]
-    pub min_vals: Option<u64>,
-    #[doc(hidden)]
-    pub validator: Option<Validator>,
-    #[doc(hidden)]
-    pub validator_os: Option<ValidatorOs>,
-    #[doc(hidden)]
-    pub val_delim: Option<char>,
-    #[doc(hidden)]
-    pub default_vals: Option<Vec<&'help OsStr>>,
-    #[doc(hidden)]
-    pub default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
-    #[doc(hidden)]
-    pub env: Option<(&'help OsStr, Option<OsString>)>,
-    #[doc(hidden)]
-    pub terminator: Option<&'help str>,
+    pub(crate) val_names: Option<VecMap<&'help str>>,
+    pub(crate) num_vals: Option<u64>,
+    pub(crate) max_vals: Option<u64>,
+    pub(crate) min_vals: Option<u64>,
+    pub(crate) validator: Option<Validator>,
+    pub(crate) validator_os: Option<ValidatorOs>,
+    pub(crate) val_delim: Option<char>,
+    pub(crate) default_vals: Option<Vec<&'help OsStr>>,
+    pub(crate) default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
+    pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
+    pub(crate) terminator: Option<&'help str>,
     #[doc(hidden)]
     pub index: Option<u64>,
-    #[doc(hidden)]
-    pub r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
     #[doc(hidden)]
     pub help_heading: Option<&'help str>,
-    #[doc(hidden)]
-    pub global: bool,
-    #[doc(hidden)]
-    pub exclusive: bool,
+    pub(crate) global: bool,
+    pub(crate) exclusive: bool,
 }
 
 impl<'help> Arg<'help> {
@@ -817,7 +794,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    ///     
+    ///
     /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
 
@@ -4066,6 +4043,7 @@ impl<'help> Arg<'help> {
         self
     }
 
+    // FIXME: (@CreepySkeleton)
     #[doc(hidden)]
     pub fn _build(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
@@ -4092,30 +4070,25 @@ impl<'help> Arg<'help> {
     }
 
     // @TODO @p6 @naming @internal: rename to set_mut
-    #[doc(hidden)]
-    pub fn setb(&mut self, s: ArgSettings) {
+    pub(crate) fn setb(&mut self, s: ArgSettings) {
         self.settings.set(s);
     }
 
     // @TODO @p6 @naming @internal: rename to unset_mut
-    #[doc(hidden)]
-    pub fn unsetb(&mut self, s: ArgSettings) {
+    pub(crate) fn unsetb(&mut self, s: ArgSettings) {
         self.settings.unset(s);
     }
 
-    #[doc(hidden)]
-    pub fn has_switch(&self) -> bool {
+    pub(crate) fn has_switch(&self) -> bool {
         self.short.is_some() || self.long.is_some()
     }
 
-    #[doc(hidden)]
-    pub fn longest_filter(&self) -> bool {
+    pub(crate) fn longest_filter(&self) -> bool {
         self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
     }
 
     // Used for positionals when printing
-    #[doc(hidden)]
-    pub fn multiple_str(&self) -> &str {
+    pub(crate) fn multiple_str(&self) -> &str {
         let mult_vals = self
             .val_names
             .as_ref()
@@ -4131,8 +4104,7 @@ impl<'help> Arg<'help> {
     }
 
     // Used for positionals when printing
-    #[doc(hidden)]
-    pub fn name_no_brackets(&self) -> Cow<str> {
+    pub(crate) fn name_no_brackets(&self) -> Cow<str> {
         debugln!("PosBuilder::name_no_brackets:{}", self.name);
         let mut delim = String::new();
         delim.push(if self.is_set(ArgSettings::RequireDelimiter) {

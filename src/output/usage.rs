@@ -9,7 +9,7 @@ use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
 
-pub struct Usage<'b, 'c, 'z>
+pub(crate) struct Usage<'b, 'c, 'z>
 where
     'b: 'c,
     'c: 'z,
@@ -18,13 +18,13 @@ where
 }
 
 impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
-    pub fn new(p: &'z Parser<'b, 'c>) -> Self {
+    pub(crate) fn new(p: &'z Parser<'b, 'c>) -> Self {
         Usage { p }
     }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
-    pub fn create_usage_with_title(&self, used: &[Id]) -> String {
+    pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> String {
         debugln!("usage::create_usage_with_title;");
         let mut usage = String::with_capacity(75);
         usage.push_str("USAGE:\n    ");
@@ -33,7 +33,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
-    pub fn create_usage_no_title(&self, used: &[Id]) -> String {
+    pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debugln!("usage::create_usage_no_title;");
         if let Some(u) = self.p.app.usage_str {
             String::from(&*u)
@@ -45,7 +45,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     }
 
     // Creates a usage string for display in help messages (i.e. not for errors)
-    pub fn create_help_usage(&self, incl_reqs: bool) -> String {
+    pub(crate) fn create_help_usage(&self, incl_reqs: bool) -> String {
         debugln!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         let mut usage = String::with_capacity(75);
         let name = self
@@ -310,7 +310,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     // `incl_last`: should we incldue args that are Arg::Last? (i.e. `prog [foo] -- [last]). We
     // can't do that for required usages being built for subcommands because it would look like:
     // `prog [foo] -- [last] <subcommand>` which is totally wrong.
-    pub fn get_required_usage_from(
+    pub(crate) fn get_required_usage_from(
         &self,
         incls: &[Id],
         matcher: Option<&ArgMatcher>,

@@ -829,19 +829,19 @@ macro_rules! impl_settings {
         $( $setting:ident($str:expr) => $flag:path ),+
     ) => {
         impl $flags {
-            pub fn set(&mut self, s: $settings) {
+            pub(crate) fn set(&mut self, s: $settings) {
                 match s {
                     $($settings::$setting => self.0.insert($flag)),*
                 }
             }
 
-            pub fn unset(&mut self, s: $settings) {
+            pub(crate) fn unset(&mut self, s: $settings) {
                 match s {
                     $($settings::$setting => self.0.remove($flag)),*
                 }
             }
 
-            pub fn is_set(&self, s: $settings) -> bool {
+            pub(crate) fn is_set(&self, s: $settings) -> bool {
                 match s {
                     $($settings::$setting => self.0.contains($flag)),*
                 }
@@ -927,7 +927,7 @@ macro_rules! flags {
         $app.args
             .args
             .$how()
-            .filter(|a| !a.settings.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| !a.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {
@@ -942,7 +942,7 @@ macro_rules! opts {
         $app.args
             .args
             .$how()
-            .filter(|a| a.settings.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
+            .filter(|a| a.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
             .filter(|a| !a.help_heading.is_some())
     }};
     ($app:expr) => {

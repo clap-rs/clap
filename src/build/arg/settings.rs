@@ -31,13 +31,7 @@ bitflags! {
 
 #[doc(hidden)]
 #[derive(Debug, Clone, Copy)]
-pub struct ArgFlags(Flags);
-
-impl ArgFlags {
-    pub fn new() -> Self {
-        ArgFlags::default()
-    }
-}
+pub(crate) struct ArgFlags(Flags);
 
 // @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,

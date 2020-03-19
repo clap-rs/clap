@@ -22,7 +22,7 @@ use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
-    pub fn dimensions() -> Option<(usize, usize)> {
+    pub(crate) fn dimensions() -> Option<(usize, usize)> {
         None
     }
 }
@@ -36,7 +36,7 @@ const TAB: &str = "    ";
 /// `clap` Help Writer.
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
-pub struct Help<'b, 'c, 'd, 'w> {
+pub(crate) struct Help<'b, 'c, 'd, 'w> {
     writer: &'w mut dyn Write,
     parser: &'d Parser<'b, 'c>,
     next_line_help: bool,
@@ -52,7 +52,7 @@ pub struct Help<'b, 'c, 'd, 'w> {
 // Public Functions
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub fn new(
+    pub(crate) fn new(
         w: &'w mut dyn Write,
         parser: &'d Parser<'b, 'c>,
         use_long: bool,
@@ -92,7 +92,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes the parser help to the wrapped stream.
-    pub fn write_help(&mut self) -> ClapResult<()> {
+    pub(crate) fn write_help(&mut self) -> ClapResult<()> {
         debugln!("Help::write_help;");
         if let Some(h) = self.parser.app.help_str {
             write!(self.writer, "{}", h).map_err(Error::from)?;
@@ -639,7 +639,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
-    pub fn write_all_args(&mut self) -> ClapResult<()> {
+    pub(crate) fn write_all_args(&mut self) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = self.parser.has_flags();
         // Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
@@ -804,7 +804,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     }
 
     /// Writes default help for a Parser Object to the wrapped stream.
-    pub fn write_default_help(&mut self) -> ClapResult<()> {
+    pub(crate) fn write_default_help(&mut self) -> ClapResult<()> {
         debugln!("Help::write_default_help;");
         if let Some(h) = self.parser.app.pre_help {
             self.write_before_after_help(h)?;

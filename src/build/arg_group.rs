@@ -82,25 +82,17 @@ type Id = u64;
 /// [requirement]: ./struct.Arg.html#method.requires
 #[derive(Default)]
 pub struct ArgGroup<'a> {
-    #[doc(hidden)]
-    pub id: Id,
-    #[doc(hidden)]
-    pub name: &'a str,
-    #[doc(hidden)]
-    pub args: Vec<Id>,
-    #[doc(hidden)]
-    pub required: bool,
-    #[doc(hidden)]
-    pub requires: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub conflicts: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub multiple: bool,
+    pub(crate) id: Id,
+    pub(crate) name: &'a str,
+    pub(crate) args: Vec<Id>,
+    pub(crate) required: bool,
+    pub(crate) requires: Option<Vec<Id>>,
+    pub(crate) conflicts: Option<Vec<Id>>,
+    pub(crate) multiple: bool,
 }
 
 impl<'a> ArgGroup<'a> {
-    #[doc(hidden)]
-    pub fn _with_id(id: Id) -> Self {
+    pub(crate) fn _with_id(id: Id) -> Self {
         ArgGroup {
             id,
             ..ArgGroup::default()
