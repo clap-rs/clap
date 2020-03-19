@@ -1,4 +1,4 @@
-name: CI
+name: Benchmark
 on:
   push:
     branches: [master]
@@ -24,12 +24,23 @@ jobs:
             ${{ runner.os }}-benchmark-${{ github.ref }}-${{ github.sha }}
             ${{ runner.os }}-benchmark-${{ github.ref }}
             ${{ runner.os }}-benchmark
-      - name: Compare benchmarks
-        uses: pksunkara/github-action-benchmark@v1
+      - name: Compare benchmarks for Pull Requests
+        uses: rhysd/github-action-benchmark@v1
+        if: github.event_name == 'pull_request'
         with:
           tool: cargo
           output-file-path: output.txt
           external-data-json-path: ./cache/benchmark-data.json
           github-token: ${{ github.token }}
           comment-always: true
-          save-on-pr: false
+          save-data-file: false
+      - name: Compare benchmarks for master branch
+        uses: rhysd/github-action-benchmark@v1
+        if: github.event_name == 'push'
+        with:
+          tool: cargo
+          output-file-path: output.txt
+          external-data-json-path: ./cache/benchmark-data.json
+          github-token: ${{ github.token }}
+          alert-threshold: 125%
+          comment-on-alert: true
