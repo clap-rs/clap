@@ -3,5 +3,5 @@ mod usage;
 
 pub mod fmt;
 
-pub use self::help::Help;
-pub use self::usage::Usage;
+pub(crate) use self::help::Help;
+pub(crate) use self::usage::Usage;

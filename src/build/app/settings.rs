@@ -52,7 +52,7 @@ bitflags! {
 
 #[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct AppFlags(Flags);
+pub(crate) struct AppFlags(Flags);
 
 impl BitOr for AppFlags {
     type Output = Self;
@@ -64,15 +64,6 @@ impl BitOr for AppFlags {
 impl Default for AppFlags {
     fn default() -> Self {
         AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO)
-    }
-}
-
-impl AppFlags {
-    pub fn new() -> Self {
-        AppFlags::default()
-    }
-    pub fn zeroed() -> Self {
-        AppFlags(Flags::empty())
     }
 }
 
@@ -659,7 +650,7 @@ pub enum AppSettings {
     HidePossibleValuesInHelp,
 
     /// Tells `clap` to panic if help strings are omitted
-    ///  
+    ///
     /// # Examples
     ///
     /// ```rust

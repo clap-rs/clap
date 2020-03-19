@@ -1,5 +1,8 @@
 mod settings;
-pub use self::settings::{AppFlags, AppSettings};
+#[cfg(test)]
+mod tests;
+
+pub use self::settings::AppSettings;
 
 // Std
 use std::collections::HashMap;
@@ -15,7 +18,7 @@ use std::process;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{Arg, ArgGroup, ArgSettings};
+use crate::build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings};
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
@@ -26,9 +29,10 @@ use crate::INTERNAL_ERROR_MSG;
 
 type Id = u64;
 
-#[doc(hidden)]
+// FIXME (@CreepySkeleton): some of this variants are never constructed
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Propagation {
+#[allow(unused)]
+pub(crate) enum Propagation {
     To(Id),
     Full,
     NextLevel,
@@ -65,56 +69,37 @@ pub enum Propagation {
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Default, Debug, Clone)]
 pub struct App<'b> {
-    #[doc(hidden)]
-    pub id: Id,
+    pub(crate) id: Id,
     #[doc(hidden)]
     pub name: String,
     #[doc(hidden)]
     pub bin_name: Option<String>,
-    #[doc(hidden)]
-    pub author: Option<&'b str>,
-    #[doc(hidden)]
-    pub version: Option<&'b str>,
-    #[doc(hidden)]
-    pub long_version: Option<&'b str>,
+    pub(crate) author: Option<&'b str>,
+    pub(crate) version: Option<&'b str>,
+    pub(crate) long_version: Option<&'b str>,
     #[doc(hidden)]
     pub about: Option<&'b str>,
-    #[doc(hidden)]
-    pub long_about: Option<&'b str>,
-    #[doc(hidden)]
-    pub more_help: Option<&'b str>,
-    #[doc(hidden)]
-    pub pre_help: Option<&'b str>,
+    pub(crate) long_about: Option<&'b str>,
+    pub(crate) more_help: Option<&'b str>,
+    pub(crate) pre_help: Option<&'b str>,
     #[doc(hidden)]
     pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
-    #[doc(hidden)]
-    pub usage_str: Option<&'b str>,
-    #[doc(hidden)]
-    pub usage: Option<String>,
-    #[doc(hidden)]
-    pub help_str: Option<&'b str>,
-    #[doc(hidden)]
-    pub disp_ord: usize,
-    #[doc(hidden)]
-    pub term_w: Option<usize>,
-    #[doc(hidden)]
-    pub max_w: Option<usize>,
-    #[doc(hidden)]
-    pub template: Option<&'b str>,
-    #[doc(hidden)]
-    pub settings: AppFlags,
-    #[doc(hidden)]
-    pub g_settings: AppFlags,
+    pub(crate) usage_str: Option<&'b str>,
+    pub(crate) usage: Option<String>,
+    pub(crate) help_str: Option<&'b str>,
+    pub(crate) disp_ord: usize,
+    pub(crate) term_w: Option<usize>,
+    pub(crate) max_w: Option<usize>,
+    pub(crate) template: Option<&'b str>,
+    pub(crate) settings: AppFlags,
+    pub(crate) g_settings: AppFlags,
     #[doc(hidden)]
     pub args: MKeyMap<'b>,
     #[doc(hidden)]
     pub subcommands: Vec<App<'b>>,
-    #[doc(hidden)]
-    pub replacers: HashMap<&'b str, &'b [&'b str]>,
-    #[doc(hidden)]
-    pub groups: Vec<ArgGroup<'b>>,
-    #[doc(hidden)]
-    pub help_headings: Vec<Option<&'b str>>,
+    pub(crate) replacers: HashMap<&'b str, &'b [&'b str]>,
+    pub(crate) groups: Vec<ArgGroup<'b>>,
+    pub(crate) help_headings: Vec<Option<&'b str>>,
 }
 
 impl<'b> App<'b> {
@@ -1532,7 +1517,7 @@ impl<'b> App<'b> {
         true
     }
 
-    pub fn _propagate(&mut self, prop: Propagation) {
+    pub(crate) fn _propagate(&mut self, prop: Propagation) {
         macro_rules! propagate_subcmd {
             ($_self:expr, $sc:expr) => {{
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
@@ -1793,8 +1778,7 @@ impl<'b> App<'b> {
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
-    #[doc(hidden)]
-    pub fn color(&self) -> ColorWhen {
+    pub(crate) fn color(&self) -> ColorWhen {
         debugln!("App::color;");
         debug!("App::color: Color setting...");
         if self.is_set(AppSettings::ColorNever) {
@@ -1821,55 +1805,31 @@ impl<'b> App<'b> {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
-    pub fn set(&mut self, s: AppSettings) {
-        self.settings.set(s)
-    }
-
-    pub fn set_global(&mut self, s: AppSettings) {
-        self.g_settings.set(s)
-    }
-
-    pub fn unset_global(&mut self, s: AppSettings) {
-        self.g_settings.unset(s)
-    }
-
-    pub fn unset(&mut self, s: AppSettings) {
-        self.settings.unset(s)
-    }
-
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
     }
 
-    pub fn has_args(&self) -> bool {
+    pub(crate) fn set(&mut self, s: AppSettings) {
+        self.settings.set(s)
+    }
+
+    pub(crate) fn unset(&mut self, s: AppSettings) {
+        self.settings.unset(s)
+    }
+
+    pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
     }
 
-    pub fn has_opts(&self) -> bool {
+    pub(crate) fn has_opts(&self) -> bool {
         opts!(self).count() > 0
     }
 
-    pub fn has_flags(&self) -> bool {
+    pub(crate) fn has_flags(&self) -> bool {
         flags!(self).count() > 0
     }
 
-    pub fn has_positionals(&self) -> bool {
-        positionals!(self).count() > 0
-    }
-
-    pub fn has_visible_opts(&self) -> bool {
-        opts!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
-
-    pub fn has_visible_flags(&self) -> bool {
-        flags!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
-
-    pub fn has_visible_positionals(&self) -> bool {
-        positionals!(self).any(|o| !o.is_set(ArgSettings::Hidden))
-    }
-
-    pub fn has_visible_subcommands(&self) -> bool {
+    pub(crate) fn has_visible_subcommands(&self) -> bool {
         subcommands!(self)
             .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))

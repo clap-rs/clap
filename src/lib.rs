@@ -445,11 +445,10 @@
 )]
 
 #[cfg(not(feature = "std"))]
-compile_error!("`std` feature is currently required to build this crate");
+compile_error!("`std` feature is currently required to build `clap`");
 
-pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings, Propagation};
+pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings};
 pub use crate::derive::{Clap, FromArgMatches, IntoApp, Subcommand};
-pub use crate::output::fmt::Format;
 pub use crate::parse::errors::{Error, ErrorKind, Result};
 pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
 
@@ -463,9 +462,6 @@ pub use clap_derive::{self, *};
 #[cfg(feature = "derive")]
 #[cfg_attr(feature = "derive", doc(hidden))]
 pub use lazy_static;
-
-#[doc(hidden)]
-pub use mkeymap::KeyType;
 
 #[macro_use]
 #[allow(missing_docs)]
