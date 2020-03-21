@@ -166,23 +166,55 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         Ok(())
     }
 
+    fn build_usg_message(&self, name: Id, matcher: &ArgMatcher) -> (Option<&Arg<'_>>, Vec<u64>) {
+        struct Cache<'a> {
+            arg: Option<&'a Arg<'a>>,
+            blacklist: Vec<u64>,
+        }
+        // Accumulate all blacklists and wanted arg
+        let result = matcher.arg_names().fold(
+            Cache {
+                arg: None,
+                blacklist: vec![],
+            },
+            |mut acc, key| {
+                if let Some(arg) = self.p.app.find(*key) {
+                    if let Some(ref v) = arg.blacklist {
+                        if v.contains(&name) && acc.arg.is_none() {
+                            acc.arg = Some(arg);
+                        }
+                        acc.blacklist = [&acc.blacklist[..], &v].concat()
+                    }
+                }
+                acc
+            },
+        );
+
+        // Get args which are not blacklisted
+        let allowed_args = matcher.arg_names().fold(vec![], |mut acc, key| {
+            if !result.blacklist.contains(&key) {
+                acc.push(*key);
+            }
+            acc
+        });
+
+        (result.arg, allowed_args)
+    }
+    
     fn build_conflict_err(&self, name: Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let usg = Usage::new(self.p).create_usage_with_title(&[]);
+
         if let Some(other_arg) = self.p.app.find(name) {
-            for &k in matcher.arg_names() {
-                if let Some(a) = self.p.app.find(k) {
-                    if let Some(ref v) = a.blacklist {
-                        if v.contains(&name) {
-                            return Err(Error::argument_conflict(
-                                a,
-                                Some(other_arg.to_string()),
-                                &*usg,
-                                self.p.app.color(),
-                            ));
-                        }
-                    }
-                }
+            let (argument, allowed_args) = self.build_usg_message(name, matcher);
+            if let Some(arg) = argument {
+                let usg = Usage::new(self.p).create_usage_with_title(&allowed_args);
+                return Err(Error::argument_conflict(
+                    arg,
+                    Some(other_arg.to_string()),
+                    &*usg,
+                    self.p.app.color(),
+                ));
             }
         } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == name) {
             let args_in_group = self.p.app.unroll_args_in_group(g.id);

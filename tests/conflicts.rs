@@ -5,14 +5,14 @@ use clap::{App, Arg, ArgGroup, ErrorKind};
 static CONFLICT_ERR: &str = "error: The argument '-F' cannot be used with '--flag'
 
 USAGE:
-    clap-test <positional> <positional2> --flag --long-option-2 <option2>
+    clap-test <positional> --long-option-2 <option2> -F
 
 For more information try --help";
 
-static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
+static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
 
 USAGE:
-    clap-test <positional> <positional2> -F --long-option-2 <option2>
+    clap-test <positional> -F --long-option-2 <option2>
 
 For more information try --help";
 
@@ -98,22 +98,22 @@ fn group_conflict_2() {
 
 #[test]
 fn conflict_output() {
-    utils::compare_output(
+    assert!(utils::compare_output(
         utils::complex_app(),
         "clap-test val1 --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
-    );
+    ));
 }
 
 #[test]
 fn conflict_output_rev() {
-    utils::compare_output(
+    assert!(utils::compare_output(
         utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
-    );
+    ));
 }
 
 #[test]
