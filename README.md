@@ -1,7 +1,7 @@
 clap
 ====
 
-[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/clap-rs/clap/badge.svg?branch=master&service=github)](https://coveralls.io/github/clap-rs/clap?branch=master) [![Join the chat at https://gitter.im/clap-rs/clap](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/clap-rs/clap)
+[![Crates.io](https://img.shields.io/crates/v/clap.svg)](https://crates.io/crates/clap) [![Crates.io](https://img.shields.io/crates/d/clap.svg)](https://crates.io/crates/clap) [![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT) [![Coverage Status](https://coveralls.io/repos/clap-rs/clap/badge.svg?branch=master&service=github)](https://coveralls.io/github/clap-rs/clap?branch=master) [![Join the chat at https://gitter.im/kbknapp/clap-rs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kbknapp/clap-rs)
 
 Linux: [![Build Status](https://travis-ci.org/clap-rs/clap.svg?branch=master)](https://travis-ci.org/clap-rs/clap)
 Windows: [![Build Status](https://dev.azure.com/clap-rs/clap/_apis/build/status/clap-rs.clap?branchName=master)](https://dev.azure.com/clap-rs/clap/_build/latest?definitionId=1&branchName=master)
