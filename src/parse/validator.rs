@@ -191,12 +191,11 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         );
 
         // Get args which are not blacklisted
-        let allowed_args = matcher.arg_names().fold(vec![], |mut acc, key| {
-            if !result.blacklist.contains(&key) {
-                acc.push(*key);
-            }
-            acc
-        });
+        let allowed_args = matcher
+            .arg_names()
+            .cloned()
+            .filter(|key| !result.blacklist.contains(&key))
+            .collect();
 
         (result.arg, allowed_args)
     }
