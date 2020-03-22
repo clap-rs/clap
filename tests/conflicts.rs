@@ -9,7 +9,7 @@ USAGE:
 
 For more information try --help";
 
-static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
+static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
     clap-test <positional> -F --long-option-2 <option2>

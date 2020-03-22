@@ -203,8 +203,6 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     
     fn build_conflict_err(&self, name: Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
-        let usg = Usage::new(self.p).create_usage_with_title(&[]);
-
         if let Some(other_arg) = self.p.app.find(name) {
             let (argument, allowed_args) = self.build_usg_message(name, matcher);
             if let Some(arg) = argument {
@@ -217,6 +215,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 ));
             }
         } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == name) {
+            let usg = Usage::new(self.p).create_usage_with_title(&[]);
             let args_in_group = self.p.app.unroll_args_in_group(g.id);
             let first = matcher
                 .arg_names()
