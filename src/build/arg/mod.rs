@@ -17,8 +17,6 @@ use std::str;
 
 // Third Party
 use crate::util::VecMap;
-#[cfg(feature = "yaml")]
-use yaml_rust;
 
 // Internal
 use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};

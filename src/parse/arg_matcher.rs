@@ -4,9 +4,6 @@ use std::ffi::OsStr;
 use std::mem;
 use std::ops::Deref;
 
-// Third Party
-use indexmap;
-
 // Internal
 use crate::build::{Arg, ArgSettings};
 use crate::parse::{ArgMatches, MatchedArg, SubCommand};

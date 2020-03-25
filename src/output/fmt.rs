@@ -4,8 +4,6 @@ use ansi_term::ANSIString;
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 use ansi_term::Colour::{Green, Red, Yellow};
 
-#[cfg(feature = "color")]
-use atty;
 use std::env;
 use std::fmt;
 
