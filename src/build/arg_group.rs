@@ -1,10 +1,6 @@
 // Std
 use std::fmt::{Debug, Formatter, Result};
 
-// Third Party
-#[cfg(feature = "yaml")]
-use yaml_rust;
-
 // Internal
 use crate::util::Key;
 

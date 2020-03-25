@@ -14,10 +14,6 @@ use crate::parse::Parser;
 use crate::util::VecMap;
 use crate::INTERNAL_ERROR_MSG;
 
-// Third Party
-#[cfg(feature = "wrap_help")]
-use term_size;
-use textwrap;
 use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]

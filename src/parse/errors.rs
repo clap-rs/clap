@@ -1004,11 +1004,7 @@ impl Error {
         });
         Error {
             cause: format!("The argument '{}' wasn't found", a),
-            message: format!(
-                "{} The argument '{}' wasn't found",
-                c.error("error:"),
-                a.clone()
-            ),
+            message: format!("{} The argument '{}' wasn't found", c.error("error:"), a),
             kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
         }

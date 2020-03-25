@@ -1,10 +1,6 @@
 #[cfg(feature = "suggestions")]
 use std::cmp::Ordering;
 
-// Third Party
-#[cfg(feature = "suggestions")]
-use strsim;
-
 // Internal
 use crate::build::App;
 use crate::output::fmt::Format;
