@@ -15,8 +15,8 @@ static BASH: &'static str = r#"_myapp() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            myapp)
-                cmd="myapp"
+            "${1}")
+                cmd="${1}"
                 ;;
             
             help)
@@ -31,7 +31,7 @@ static BASH: &'static str = r#"_myapp() {
     done
 
     case "${cmd}" in
-        myapp)
+        "${1}")
             opts=" -h -V  --help --version  <file>  test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -536,8 +536,8 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            my_app)
-                cmd="my_app"
+            "${1}")
+                cmd="${1}"
                 ;;
             
             help)
@@ -558,7 +558,7 @@ static BASH_SPECIAL_CMDS: &'static str = r#"_my_app() {
     done
 
     case "${cmd}" in
-        my_app)
+        "${1}")
             opts=" -h -V  --help --version  <file>  test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

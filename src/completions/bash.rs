@@ -33,8 +33,8 @@ impl<'a, 'b> BashGen<'a, 'b> {
     for i in ${{COMP_WORDS[@]}}
     do
         case "${{i}}" in
-            {name})
-                cmd="{name}"
+            "${{1}}")
+                cmd="${{1}}"
                 ;;
             {subcmds}
             *)
@@ -43,7 +43,7 @@ impl<'a, 'b> BashGen<'a, 'b> {
     done
 
     case "${{cmd}}" in
-        {name})
+        "${{1}}")
             opts="{name_opts}"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${{opts}}" -- "${{cur}}") )
