@@ -10,6 +10,8 @@ assignees: ''
 <!--
 MAKE SURE YOU HAVE ASKED IF THIS FEATURE IS AVAILABLE
 ON https://gitter.im/kbknapp/clap-rs FIRST!
+
+PLEASE ASLO SEARCH THE CLOSED ISSUES. GOOD CHANCE IT'S THERE!
 -->
 
 ### Describe your use case
