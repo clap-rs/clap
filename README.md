@@ -10,17 +10,18 @@ Command Line Argument Parser for Rust
 
 It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
-* [documentation](https://docs.rs/clap/)
-* [website](https://clap.rs/)
-* [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U)
+* [Documentation](https://docs.rs/clap/)
+* [Chat, questions go there](https://gitter.im/kbknapp/clap-rs)
+* [Website](https://clap.rs/)
+* [Video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U)
 
 > **IMPORTANT!**
-> This readme describes `clap v3.0.0` which is still under development and will be published soon-ish. 
-> It was not published on crates.io yet, and if you want to use this preview anyway, use 
+> This readme describes `clap v3.0.0` which is still under development and will be published soon-ish.
+> It was not published on crates.io yet, and if you want to use this preview anyway, use
 > ```toml,no_sync
 > clap = { git = "https://github.com/clap-rs/clap/" }
 > ```
-> 
+>
 > If you're looking for the readme for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
 
 

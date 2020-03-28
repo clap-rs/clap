@@ -7,13 +7,20 @@ assignees: ''
 
 ---
 
+<!--
+MAKE SURE YOU HAVE ASKED IF THIS FEATURE IS AVAILABLE
+ON https://gitter.im/kbknapp/clap-rs FIRST!
+
+PLEASE ASLO SEARCH THE CLOSED ISSUES. GOOD CHANCE IT'S THERE!
+-->
+
 ### Describe your use case
 
 Describe the problem you're trying to solve. This is not mandatory and we *do* consider features without a specific use case, but real problems have priority.
 
-Also, please follow your explanation with a snippet of code, if applicable. 
+Also, please follow your explanation with a snippet of code, if applicable.
 
-**If a project of yours is blocked on this feature, please, mention it explicitely.** 
+**If a project of yours is blocked on this feature, please, mention it explicitely.**
 
 ### Describe the solution you'd like
 

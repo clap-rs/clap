@@ -7,9 +7,14 @@ assignees: ''
 
 ---
 
+<!--
+MAKE SURE YOU HAVE ASKED YOUR QUESTION
+ON https://gitter.im/kbknapp/clap-rs FIRST!
+-->
+
 ### What are you trying to do?
 
-Explain **in detail** what your problem is. 
+Explain **in detail** what your problem is.
 
 Please include examples of the CLI you desire to make. Examples of command line invocations are **strongly encouraged**.
 
