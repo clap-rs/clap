@@ -18,7 +18,7 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 > **IMPORTANT!**
 > This readme describes `clap v3.0.0` which is still under development and will be published soon-ish.
 > It was not published on crates.io yet, and if you want to use this preview anyway, use
-> ```toml,no_sync
+> ```toml
 > clap = { git = "https://github.com/clap-rs/clap/" }
 > ```
 >
