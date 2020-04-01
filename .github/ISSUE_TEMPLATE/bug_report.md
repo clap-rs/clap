@@ -18,10 +18,10 @@ Use the output of `rustc -V`
 ### Code
 
 ```rust
-// You code goes here. Please try to write a complete program, 
+// You code goes here. Please try to write a complete program,
 // including `fn main() { ... }`
-
 ```
+
 ### Steps to reproduce the issue
 
 1. Run `cargo run -- options...`
@@ -30,17 +30,18 @@ Use the output of `rustc -V`
 
 ### Affected Version of `clap*`
 
-Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly. 
+Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
 
 ### Actual Behavior Summary
 
 When I do like *this*, *that* is happening and I think it shouldn't.
 
-**If a project of yours is blocked due to this bug, please, mention it explicitly.** 
+**If a project of yours is blocked due to this bug, please, mention it explicitly.**
 
 ### Expected Behavior Summary
 
 I think *this* should happen instead.
 
 ### Additional context
+
 Add any other context about the problem here.
