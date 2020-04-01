@@ -7,12 +7,10 @@ assignees: ''
 
 ---
 
-<!--
-MAKE SURE YOU HAVE ASKED IF THIS FEATURE IS AVAILABLE
-ON https://gitter.im/kbknapp/clap-rs FIRST!
+### Make sure you completed the following tasks
 
-PLEASE ASLO SEARCH THE CLOSED ISSUES. GOOD CHANCE IT'S THERE!
--->
+- [ ] Searched the [discussions](https://github.com/clap-rs/clap/discussions)
+- [ ] Searched the closes issues
 
 ### Describe your use case
 

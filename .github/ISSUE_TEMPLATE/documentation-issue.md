@@ -11,7 +11,7 @@ assignees: ''
 
 Can be found in Cargo.lock or Cargo.toml of your project (i.e. grep clap Cargo.lock). PLEASE DO NOT PUT "latest" HERE, use precise version. Put master (or other branch) if you're using the repo directly.
 
-### Where?
+### Where
 
 A hyperlink, file path, some item, *something*.
 
