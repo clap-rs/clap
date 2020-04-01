@@ -332,7 +332,7 @@ macro_rules! arg_enum {
                             $(stringify!($v),)+
                         ];
                         format!("valid values: {}",
-                            v.join(" ,"))
+                            v.join(", "))
                     }),
                 }
             }
