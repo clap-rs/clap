@@ -28,7 +28,6 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    Some help";
 
-
 static SUBCMD_ALPHA_ORDER: &str = "test 1
 
 USAGE:
@@ -155,12 +154,14 @@ fn subcommand_multiple() {
 
 #[test]
 fn subcommand_display_order() {
-    let app_subcmd_alpha_order = App::new("test")
-        .version("1")
-        .subcommands(vec![
-            App::new("b1").about("blah b1").arg(Arg::with_name("test").short('t')),
-            App::new("a1").about("blah a1").arg(Arg::with_name("roster").short('r')),
-        ]);
+    let app_subcmd_alpha_order = App::new("test").version("1").subcommands(vec![
+        App::new("b1")
+            .about("blah b1")
+            .arg(Arg::with_name("test").short('t')),
+        App::new("a1")
+            .about("blah a1")
+            .arg(Arg::with_name("roster").short('r')),
+    ]);
 
     assert!(utils::compare_output(
         app_subcmd_alpha_order,
@@ -173,8 +174,12 @@ fn subcommand_display_order() {
         .version("1")
         .setting(clap::AppSettings::DeriveDisplayOrder)
         .subcommands(vec![
-            App::new("b1").about("blah b1").arg(Arg::with_name("test").short('t')),
-            App::new("a1").about("blah a1").arg(Arg::with_name("roster").short('r')),
+            App::new("b1")
+                .about("blah b1")
+                .arg(Arg::with_name("test").short('t')),
+            App::new("a1")
+                .about("blah a1")
+                .arg(Arg::with_name("roster").short('r')),
         ]);
 
     assert!(utils::compare_output(
@@ -184,7 +189,6 @@ fn subcommand_display_order() {
         false,
     ));
 }
-
 
 #[test]
 fn single_alias() {
