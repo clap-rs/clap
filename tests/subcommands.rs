@@ -28,6 +28,34 @@ SUBCOMMANDS:
     help    Prints this message or the help of the given subcommand(s)
     test    Some help";
 
+static SUBCMD_ALPHA_ORDER: &str = "test 1
+
+USAGE:
+    test [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    a1      blah a1
+    b1      blah b1
+    help    Prints this message or the help of the given subcommand(s)";
+
+static SUBCMD_DECL_ORDER: &str = "test 1
+
+USAGE:
+    test [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    b1      blah b1
+    a1      blah a1
+    help    Prints this message or the help of the given subcommand(s)";
+
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
 	Did you mean 'subcmd'?
@@ -122,6 +150,44 @@ fn subcommand_multiple() {
     let sub_m = m.subcommand_matches("some").unwrap();
     assert!(sub_m.is_present("test"));
     assert_eq!(sub_m.value_of("test").unwrap(), "testing");
+}
+
+#[test]
+fn subcommand_display_order() {
+    let app_subcmd_alpha_order = App::new("test").version("1").subcommands(vec![
+        App::new("b1")
+            .about("blah b1")
+            .arg(Arg::with_name("test").short('t')),
+        App::new("a1")
+            .about("blah a1")
+            .arg(Arg::with_name("roster").short('r')),
+    ]);
+
+    assert!(utils::compare_output(
+        app_subcmd_alpha_order,
+        "test --help",
+        SUBCMD_ALPHA_ORDER,
+        false,
+    ));
+
+    let app_subcmd_decl_order = App::new("test")
+        .version("1")
+        .setting(clap::AppSettings::DeriveDisplayOrder)
+        .subcommands(vec![
+            App::new("b1")
+                .about("blah b1")
+                .arg(Arg::with_name("test").short('t')),
+            App::new("a1")
+                .about("blah a1")
+                .arg(Arg::with_name("roster").short('r')),
+        ]);
+
+    assert!(utils::compare_output(
+        app_subcmd_decl_order,
+        "test --help",
+        SUBCMD_DECL_ORDER,
+        false,
+    ));
 }
 
 #[test]

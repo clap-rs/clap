@@ -120,6 +120,7 @@ impl<'b> App<'b> {
         App {
             id,
             name,
+            disp_ord: 999,
             ..Default::default()
         }
     }
