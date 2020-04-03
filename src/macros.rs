@@ -32,7 +32,7 @@ macro_rules! load_yaml {
 }
 
 /// Convenience macro getting a typed value `T` where `T` implements [`std::str::FromStr`] from an
-/// argument value. This macro returns a `Result<T,String>` which allows you as the developer to
+/// argument value. This macro returns a [`clap::Result<T>`] which allows you as the developer to
 /// decide what you'd like to do on a failed parse. There are two types of errors, parse failures
 /// and those where the argument wasn't present (such as a non-required argument). You can use
 /// it to get a single value, or a iterator as with the [`ArgMatches::values_of`]
@@ -56,7 +56,7 @@ macro_rules! load_yaml {
 /// ```
 /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
 /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
-/// [`Result<T,String>`]: https://doc.rust-lang.org/std/result/enum.Result.html
+/// [`clap::Result<T>`]: ./type.Result.html
 #[macro_export]
 macro_rules! value_t {
     ($m:ident, $v:expr, $t:ty) => {
