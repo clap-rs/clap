@@ -317,11 +317,10 @@
 //!
 //! #### Features enabled by default
 //!
+//! * `derive`: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above
 //! * `suggestions`: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-//! * `color`: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term` and `atty`)
-//! * `wrap_help`: Wraps the help at the actual terminal width when
-//!  available, instead of 120 chracters. (builds dependency `textwrap`
-//! with feature `term_size`)
+//! * `color`: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+//! * `vec_map`: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
 //!
 //! To disable these, add this to your `Cargo.toml`:
 //!
@@ -346,6 +345,7 @@
 //!
 //! * **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 //! * **"unstable"**: Enables unstable `clap` features that may change from release to release
+//! * **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
 //!
 //! ### Dependencies Tree
 //!
