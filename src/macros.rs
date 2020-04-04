@@ -35,7 +35,7 @@ macro_rules! load_yaml {
 /// argument value. This macro returns a [`clap::Result<T>`] which allows you as the developer to
 /// decide what you'd like to do on a failed parse. There are two types of errors, parse failures
 /// and those where the argument wasn't present (such as a non-required argument). You can use
-/// it to get a single value, or a iterator as with the [`ArgMatches::values_of`]
+/// it to get a single value, or a iterator as with the [`ArgMatches::values_of`].
 ///
 /// # Examples
 ///
