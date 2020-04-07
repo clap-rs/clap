@@ -1,6 +1,6 @@
 #![cfg(feature = "yaml")]
 
-use clap::{load_yaml, App};
+use clap::{load_yaml, App, ValueHint};
 
 #[test]
 fn create_app_from_yaml() {
@@ -40,4 +40,17 @@ fn author() {
     app.write_help(&mut help_buffer).unwrap();
     let help_string = String::from_utf8(help_buffer).unwrap();
     assert!(help_string.contains("Kevin K. <kbknapp@gmail.com>"));
+}
+
+// ValueHint must be parsed correctly from Yaml
+#[test]
+fn value_hint() {
+    let yml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yml);
+
+    let arg = app
+        .get_arguments()
+        .find(|a| a.get_name() == "value_hint")
+        .unwrap();
+    assert_eq!(arg.get_value_hint(), ValueHint::FilePath);
 }

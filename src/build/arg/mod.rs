@@ -1,8 +1,10 @@
 mod settings;
 #[cfg(test)]
 mod tests;
+mod value_hint;
 
 pub use self::settings::ArgSettings;
+pub use self::value_hint::ValueHint;
 
 // Std
 use std::{
@@ -90,6 +92,7 @@ pub struct Arg<'help> {
     pub(crate) help_heading: Option<&'help str>,
     pub(crate) global: bool,
     pub(crate) exclusive: bool,
+    pub(crate) value_hint: ValueHint,
 }
 
 /// Getters
@@ -154,6 +157,11 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn get_index(&self) -> Option<u64> {
         self.index
+    }
+
+    /// Get the value hint of this argument
+    pub fn get_value_hint(&self) -> ValueHint {
+        self.value_hint
     }
 }
 
@@ -4099,6 +4107,38 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Sets a hint about the type of the value for shell completions
+    ///
+    /// Currently this is only supported by the zsh completions generator.
+    ///
+    /// For example, to take a username as argument:
+    /// ```
+    /// # use clap::{Arg, ValueHint};
+    /// Arg::new("user")
+    ///     .short('u')
+    ///     .long("user")
+    ///     .value_hint(ValueHint::Username)
+    /// # ;
+    /// ```
+    ///
+    /// To take a full command line and its arguments (for example, when writing a command wrapper):
+    /// ```
+    /// # use clap::{App, AppSettings, Arg, ValueHint};
+    /// App::new("prog")
+    ///     .setting(AppSettings::TrailingVarArg)
+    ///     .arg(
+    ///         Arg::new("command")
+    ///             .multiple(true)
+    ///             .value_hint(ValueHint::CommandWithArguments)
+    ///     )
+    /// # ;
+    /// ```
+    pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
+        self.set_mut(ArgSettings::TakesValue);
+        self.value_hint = value_hint;
+        self
+    }
+
     // FIXME: (@CreepySkeleton)
     #[doc(hidden)]
     pub fn _build(&mut self) {
@@ -4196,6 +4236,21 @@ impl Arg<'_> {
             "Argument '{}' cannot conflict with itself",
             self.name,
         );
+
+        if self.value_hint != ValueHint::Unknown {
+            assert!(
+                self.is_set(ArgSettings::TakesValue),
+                "Argument '{}' has value hint but takes no value",
+                self.name
+            );
+
+            if self.value_hint == ValueHint::CommandWithArguments {
+                assert!(
+                    self.is_set(ArgSettings::MultipleValues),
+                    "Argument '{}' uses hint CommandWithArguments and must accept multiple values",
+                )
+            }
+        }
     }
 }
 
@@ -4263,6 +4318,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
@@ -4453,6 +4509,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("help_heading", &self.help_heading)
             .field("global", &self.global)
             .field("exclusive", &self.exclusive)
+            .field("value_hint", &self.value_hint)
             .field("default_missing_vals", &self.default_missing_vals)
             .finish()
     }
