@@ -1575,7 +1575,8 @@ impl<'b> App<'b> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("help") || x.id == HELP_HASH))
+            .any(|x| x.long == Some("help") || x.id == HELP_HASH)
+            || self.is_set(AppSettings::NoAutoHelp))
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
