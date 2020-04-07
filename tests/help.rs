@@ -1323,6 +1323,21 @@ fn issue_1112_override_help_subcmd_short() {
         .is_present("help"));
 }
 
+// This test ensure that we can completely disable parsing
+// of '-h' and '--help'. This is needed for scenarios where we
+// want to pass all flags to an external command for a selected
+// subcommand.
+#[test]
+fn no_auto_help() {
+    let m = App::new("test")
+        .setting(AppSettings::NoAutoHelp)
+        .about("tests stuff")
+        .version("1.3")
+        .try_get_matches_from(vec!["test", "-h"]);
+
+    assert!(m.is_err());
+}
+
 #[test]
 fn issue_1052_require_delim_help() {
     let app = App::new("test")

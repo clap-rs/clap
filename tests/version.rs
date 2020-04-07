@@ -60,15 +60,3 @@ fn override_ver() {
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
     assert!(m.unwrap().is_present("version"));
 }
-
-
-#[test]
-fn no_auto_help() {
-    let m = App::new("test")
-        .setting(AppSettings::NoAutoHelp)
-        .about("tests stuff")
-        .version("1.3")
-        .try_get_matches_from(vec!["test", "-h"]);
-
-    assert!(m.is_err());
-}
