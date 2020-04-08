@@ -373,6 +373,7 @@ where
         }
 
         debug_assert!(self._verify_positionals());
+
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
             a.is_set(ArgSettings::MultipleValues)

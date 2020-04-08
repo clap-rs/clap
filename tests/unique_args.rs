@@ -3,7 +3,7 @@ use clap::{App, Arg};
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Arg names must be unique")]
+#[should_panic(expected = "Argument name must be unique")]
 fn unique_arg_names() {
     let _ = App::new("some")
         .args(&[

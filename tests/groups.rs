@@ -43,6 +43,7 @@ fn required_group_missing_arg() {
 
 // This tests a programmer error and will only succeed with debug_assertions
 // #[cfg(debug_assertions)]
+// TODO: Enable this
 #[test]
 // This used to provide a nice, programmer-friendly error.
 // Now the error directs the programmer to file a bug report with clap.

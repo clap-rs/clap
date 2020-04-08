@@ -347,6 +347,16 @@ FLAGS:
     -H, --help       Print help information
     -v, --version    Print version information";
 
+static HELP_CONFLICT: &str = "conflict 
+
+USAGE:
+    conflict [FLAGS]
+
+FLAGS:
+        --help       Prints help information
+    -h               
+    -V, --version    Prints version information";
+
 static LAST_ARG: &str = "last 0.1
 
 USAGE:
@@ -1160,6 +1170,27 @@ fn customize_version_and_help() {
         CUSTOM_VERSION_AND_HELP,
         false
     ));
+}
+
+#[test]
+fn arg_short_conflict_with_help() {
+    let app = App::new("conflict").arg(Arg::with_name("home").short('h'));
+
+    assert!(utils::compare_output(
+        app,
+        "conflict --help",
+        HELP_CONFLICT,
+        false
+    ));
+}
+
+#[test]
+#[should_panic(expected = "Argument short must be unique\n\n\t'-h' is already in use")]
+fn arg_short_conflict_with_help_mut_arg() {
+    let _ = App::new("conflict")
+        .arg(Arg::with_name("home").short('h'))
+        .mut_arg("help", |h| h.short('h'))
+        .try_get_matches_from(vec![""]);
 }
 
 #[test]
