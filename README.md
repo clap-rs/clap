@@ -246,7 +246,6 @@ This second method shows a method using the 'Builder Pattern' which allows more 
 //
 // This example demonstrates clap's "builder pattern" method of creating arguments
 // which the most flexible, but also most verbose.
-extern crate clap;
 use clap::{Arg, App, SubCommand};
 
 fn main() {
@@ -288,7 +287,6 @@ The next example shows a far less verbose method, but sacrifices some of the adv
 //
 // This example demonstrates clap's "usage strings" method of creating arguments
 // which is less verbose
-extern crate clap;
 use clap::{Arg, App, SubCommand};
 
 fn main() {
