@@ -1186,7 +1186,7 @@ fn arg_short_conflict_with_help() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument short must be unique\n\n\t'-h' is already in use")]
+#[should_panic = "Argument short must be unique\n\n\t'-h' is already in use"]
 fn arg_short_conflict_with_help_mut_arg() {
     let _ = App::new("conflict")
         .arg(Arg::with_name("home").short('h'))
@@ -1603,7 +1603,7 @@ fn issue_1487() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "AppSettings::HelpRequired is enabled for the App")]
+#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
 fn help_required_but_not_given() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
@@ -1613,7 +1613,7 @@ fn help_required_but_not_given() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "AppSettings::HelpRequired is enabled for the App")]
+#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
 fn help_required_but_not_given_settings_after_args() {
     App::new("myapp")
         .arg(Arg::with_name("foo"))
@@ -1623,7 +1623,7 @@ fn help_required_but_not_given_settings_after_args() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "AppSettings::HelpRequired is enabled for the App")]
+#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
 fn help_required_but_not_given_for_one_of_two_arguments() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
@@ -1647,7 +1647,7 @@ fn help_required_locally_but_not_given_for_subcommand() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "AppSettings::HelpRequired is enabled for the App")]
+#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
 fn help_required_globally_but_not_given_for_subcommand() {
     App::new("myapp")
         .global_setting(AppSettings::HelpRequired)

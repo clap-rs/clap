@@ -43,7 +43,7 @@ fn required_group_missing_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument group 'req' contains non-existent argument")]
+#[should_panic = "Argument group 'req' contains non-existent argument"]
 fn non_existing_arg() {
     let _ = App::new("group")
         .arg("-f, --flag 'some flag'")
@@ -58,7 +58,7 @@ fn non_existing_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument group name must be unique\n\n\t'req' is already in use")]
+#[should_panic = "Argument group name must be unique\n\n\t'req' is already in use"]
 fn unique_group_name() {
     let _ = App::new("group")
         .arg("-f, --flag 'some flag'")
@@ -70,7 +70,7 @@ fn unique_group_name() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument group name '' must not conflict with argument name")]
+#[should_panic = "Argument group name '' must not conflict with argument name"]
 fn groups_with_name_of_arg_name() {
     let _ = App::new("group")
         .arg(Arg::with_name("a").long("a").group("a"))
@@ -79,7 +79,7 @@ fn groups_with_name_of_arg_name() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument group name 'a' must not conflict with argument name")]
+#[should_panic = "Argument group name 'a' must not conflict with argument name"]
 fn arg_group_with_name_of_arg_name() {
     let _ = App::new("group")
         .arg(Arg::with_name("a").long("a").group("a"))

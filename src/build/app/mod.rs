@@ -1456,7 +1456,9 @@ impl<'b> App<'b> {
 
         self.args._build();
         self.settings.set(AppSettings::Built);
-        debug_assert!(self._debug_asserts());
+
+        #[cfg(debug_assertions)]
+        self._debug_asserts();
     }
 
     fn _panic_on_missing_help(&self, help_required_globally: bool) {
@@ -1485,11 +1487,11 @@ impl<'b> App<'b> {
 
     // Perform some expensive assertions on the Parser itself
     #[allow(clippy::cognitive_complexity)]
-    fn _debug_asserts(&self) -> bool {
+    fn _debug_asserts(&self) {
         debugln!("App::_debug_asserts;");
 
         for arg in &self.args.args {
-            debug_assert!(arg._debug_asserts());
+            arg._debug_asserts();
 
             // Name conflicts
             assert!(
@@ -1623,8 +1625,6 @@ impl<'b> App<'b> {
         }
 
         self._panic_on_missing_help(self.g_settings.is_set(AppSettings::HelpRequired));
-
-        true
     }
 
     pub(crate) fn _propagate(&mut self, prop: Propagation) {

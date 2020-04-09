@@ -4128,7 +4128,7 @@ impl<'help> Arg<'help> {
 }
 
 impl<'a> Arg<'a> {
-    pub(crate) fn _debug_asserts(&self) -> bool {
+    pub(crate) fn _debug_asserts(&self) {
         debugln!("Arg::_debug_asserts:{};", self.name);
 
         // Self conflict
@@ -4139,8 +4139,6 @@ impl<'a> Arg<'a> {
                 self.name,
             );
         }
-
-        true
     }
 }
 
