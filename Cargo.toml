@@ -93,7 +93,6 @@ derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
-nightly     = [] # for building with unstable Rust features (currently none)
 debug       = [] # Enables debug messages
 doc         = ["yaml"] # All the features which add to documentation
 

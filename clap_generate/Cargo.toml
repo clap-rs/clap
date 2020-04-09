@@ -45,7 +45,6 @@ version-sync = "0.8"
 [features]
 default = []
 unstable = ["clap/unstable"]
-nightly = ["clap/nightly"]
 debug = ["clap/debug"]
 doc = []
 
