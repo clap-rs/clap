@@ -1523,11 +1523,42 @@ impl<'b> App<'b> {
                     } else {
                         acc
                     }) < 2,
-                    "Argument '{}' has the same index as another positional \
-                 argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
-                 positional argument to take multiple values",
+                    "Argument '{}' has the same index as another positional argument\n\n\t \
+                    Use Arg::setting(ArgSettings::MultipleValues) to allow one \
+                    positional argument to take multiple values",
                     arg.name
                 );
+            }
+
+            // requires, r_if, r_unless
+            if let Some(reqs) = &arg.requires {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == req.1),
+                        "Argument specified in 'requires*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            if let Some(reqs) = &arg.r_ifs {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == req.0),
+                        "Argument specified in 'required_if*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            if let Some(reqs) = &arg.r_unless {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == *req),
+                        "Argument specified in 'required_unless*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
             }
 
             // blacklist
