@@ -1454,9 +1454,9 @@ impl<'b> App<'b> {
             }
         }
 
-        debug_assert!(self._debug_asserts());
         self.args._build();
         self.settings.set(AppSettings::Built);
+        debug_assert!(self._debug_asserts());
     }
 
     fn _panic_on_missing_help(&self, help_required_globally: bool) {
@@ -1488,6 +1488,8 @@ impl<'b> App<'b> {
         debugln!("App::_debug_asserts;");
 
         for arg in &self.args.args {
+            debug_assert!(arg._debug_asserts());
+
             // Name conflicts
             assert!(
                 self.args.args.iter().filter(|x| x.id == arg.id).count() < 2,
@@ -1526,6 +1528,17 @@ impl<'b> App<'b> {
                  positional argument to take multiple values",
                     arg.name
                 );
+            }
+
+            // blacklist
+            if let Some(reqs) = &arg.blacklist {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == *req),
+                        "Argument specified in 'conflicts_with*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
             }
 
             if arg.is_set(ArgSettings::Last) {

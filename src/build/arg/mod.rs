@@ -107,6 +107,7 @@ impl<'help> Arg<'help> {
             ..Default::default()
         }
     }
+
     /// Creates a new instance of [`Arg`] using a unique string name. The name will be used to get
     /// information about whether or not the argument was used at runtime, get values, set
     /// relationships with other args, etc..
@@ -4129,6 +4130,23 @@ impl<'help> Arg<'help> {
             debugln!("PosBuilder:name_no_brackets: just name");
             Cow::Borrowed(self.name)
         }
+    }
+}
+
+impl<'a> Arg<'a> {
+    pub(crate) fn _debug_asserts(&self) -> bool {
+        debugln!("Arg::_debug_asserts:{};", self.name);
+
+        // Self conflict
+        if let Some(vec) = &self.blacklist {
+            assert!(
+                !vec.iter().any(|&x| x == self.id),
+                "Argument '{}' cannot conflict with itself",
+                self.name,
+            );
+        }
+
+        true
     }
 }
 
