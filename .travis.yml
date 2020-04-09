@@ -26,7 +26,6 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
-    - name: Coverage
   fast_finish: true
   include:
     - os: osx
@@ -58,7 +57,7 @@ jobs:
             - zlib1g-dev
           update: true
       before_script:
-        - cargo install cargo-tarpaulin
+        - cargo install cargo-tarpaulin --git git://github.com/pksunkara/tarpaulin --branch develop
       script:
         - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
 script:
