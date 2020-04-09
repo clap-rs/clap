@@ -1494,7 +1494,7 @@ impl<'b> App<'b> {
             assert!(
                 self.args.args.iter().filter(|x| x.id == arg.id).count() < 2,
                 "Argument name must be unique\n\n\t'{}' is already in use",
-                arg.id,
+                arg.name,
             );
 
             // Long conflicts
@@ -1592,22 +1592,33 @@ impl<'b> App<'b> {
             );
         }
 
+        for group in &self.groups {
+            // Name conflicts
+            assert!(
+                self.groups.iter().filter(|x| x.id == group.id).count() < 2,
+                "Argument group name must be unique\n\n\t'{}' is already in use",
+                group.name,
+            );
+
+            // Groups should not have naming conflicts with Args
+            assert!(
+                !self.args.args.iter().any(|x| x.id == group.id),
+                "Argument group name '{}' must not conflict with argument name",
+                group.name,
+            );
+
+            // Args listed inside groups should exist
+            for arg in &group.args {
+                assert!(
+                    self.args.args.iter().any(|x| x.id == *arg),
+                    "Argument group '{}' contains non-existent argument",
+                    group.name,
+                )
+            }
+        }
+
         self._panic_on_missing_help(self.g_settings.is_set(AppSettings::HelpRequired));
 
-        // * Args listed inside groups should exist
-        // * Groups should not have naming conflicts with Args
-
-        // * Will be removed as a part of removing String types
-        // let g = groups!(self).find(|g| {
-        //     g.args
-        //         .iter()
-        //         .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
-        // });
-        // assert!(
-        //     g.is_none(),
-        //     "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
-        //     g.unwrap().name
-        // );
         true
     }
 
