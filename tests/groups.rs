@@ -68,6 +68,7 @@ fn unique_group_name() {
         .try_get_matches_from(vec![""]);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "Argument group name '' must not conflict with argument name")]
 fn groups_with_name_of_arg_name() {
@@ -76,6 +77,7 @@ fn groups_with_name_of_arg_name() {
         .try_get_matches_from(vec!["", "--a"]);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic(expected = "Argument group name 'a' must not conflict with argument name")]
 fn arg_group_with_name_of_arg_name() {

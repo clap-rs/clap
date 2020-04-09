@@ -731,7 +731,7 @@ fn issue_1643_args_mutually_require_each_other() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument specified in 'requires*' for 'config' does not exist")]
+#[should_panic(expected = "Argument or group specified in 'requires*' for 'config' does not exist")]
 fn requires_invalid_arg() {
     let _ = App::new("prog")
         .arg(Arg::with_name("config").requires("extra").long("config"))
@@ -740,7 +740,7 @@ fn requires_invalid_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument specified in 'requires*' for 'config' does not exist")]
+#[should_panic(expected = "Argument or group specified in 'requires*' for 'config' does not exist")]
 fn requires_if_invalid_arg() {
     let _ = App::new("prog")
         .arg(
@@ -753,7 +753,9 @@ fn requires_if_invalid_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument specified in 'required_if*' for 'config' does not exist")]
+#[should_panic(
+    expected = "Argument or group specified in 'required_if*' for 'config' does not exist"
+)]
 fn required_if_invalid_arg() {
     let _ = App::new("prog")
         .arg(
@@ -766,7 +768,9 @@ fn required_if_invalid_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument specified in 'required_unless*' for 'config' does not exist")]
+#[should_panic(
+    expected = "Argument or group specified in 'required_unless*' for 'config' does not exist"
+)]
 fn required_unless_invalid_arg() {
     let _ = App::new("prog")
         .arg(

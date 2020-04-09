@@ -666,7 +666,7 @@ pub enum AppSettings {
     ///
     /// # Panics
     ///
-    /// ```rust,should_panic
+    /// ```rust,no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myapp")
     ///     .setting(AppSettings::HelpRequired)

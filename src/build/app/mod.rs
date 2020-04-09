@@ -1484,6 +1484,7 @@ impl<'b> App<'b> {
     }
 
     // Perform some expensive assertions on the Parser itself
+    #[allow(clippy::cognitive_complexity)]
     fn _debug_asserts(&self) -> bool {
         debugln!("App::_debug_asserts;");
 
@@ -1534,8 +1535,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.requires {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == req.1),
-                        "Argument specified in 'requires*' for '{}' does not exist",
+                        self.args.args.iter().any(|x| x.id == req.1)
+                            || self.groups.iter().any(|x| x.id == req.1),
+                        "Argument or group specified in 'requires*' for '{}' does not exist",
                         arg.name,
                     );
                 }
@@ -1544,8 +1546,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.r_ifs {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == req.0),
-                        "Argument specified in 'required_if*' for '{}' does not exist",
+                        self.args.args.iter().any(|x| x.id == req.0)
+                            || self.groups.iter().any(|x| x.id == req.0),
+                        "Argument or group specified in 'required_if*' for '{}' does not exist",
                         arg.name,
                     );
                 }
@@ -1554,8 +1557,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.r_unless {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == *req),
-                        "Argument specified in 'required_unless*' for '{}' does not exist",
+                        self.args.args.iter().any(|x| x.id == *req)
+                            || self.groups.iter().any(|x| x.id == *req),
+                        "Argument or group specified in 'required_unless*' for '{}' does not exist",
                         arg.name,
                     );
                 }
@@ -1565,8 +1569,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.blacklist {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == *req),
-                        "Argument specified in 'conflicts_with*' for '{}' does not exist",
+                        self.args.args.iter().any(|x| x.id == *req)
+                            || self.groups.iter().any(|x| x.id == *req),
+                        "Argument or group specified in 'conflicts_with*' for '{}' does not exist",
                         arg.name,
                     );
                 }

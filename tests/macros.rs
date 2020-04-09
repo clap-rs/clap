@@ -39,7 +39,7 @@ fn quoted_app_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]
@@ -80,7 +80,7 @@ fn quoted_arg_long_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]
@@ -118,7 +118,7 @@ fn quoted_arg_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg ("positional-arg"): index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]

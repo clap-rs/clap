@@ -36,6 +36,7 @@ fn flatten() {
     assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic]
 fn flatten_twice() {
