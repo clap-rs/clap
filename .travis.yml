@@ -38,7 +38,7 @@ jobs:
       cache: false
     - name: Release profile tests
       script:
-        - cargo test --release --features yaml unstable
+        - cargo test -v --release --features yaml unstable
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
