@@ -964,10 +964,10 @@ fn req_delimiter_complex() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "When using a positional argument with \
+#[should_panic = "When using a positional argument with \
 .multiple(true) that is *not the last* positional argument, the last \
 positional argument (i.e the one with the highest index) *must* have \
-.required(true) or .last(true) set.")]
+.required(true) or .last(true) set."]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")
         .arg(
@@ -983,8 +983,8 @@ fn low_index_positional_not_required() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Only one positional argument with .multiple(true) \
-set is allowed per command, unless the second one also has .last(true) set")]
+#[should_panic = "Only one positional argument with .multiple(true) \
+set is allowed per command, unless the second one also has .last(true) set"]
 fn low_index_positional_last_multiple_too() {
     let _ = App::new("lip")
         .arg(
@@ -1005,8 +1005,8 @@ fn low_index_positional_last_multiple_too() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Only the last positional argument, or second to \
-last positional argument may be set to .multiple(true)")]
+#[should_panic = "Only the last positional argument, or second to \
+last positional argument may be set to .multiple(true)"]
 fn low_index_positional_too_far_back() {
     let _ = App::new("lip")
         .arg(

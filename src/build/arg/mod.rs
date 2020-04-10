@@ -64,10 +64,11 @@ pub struct Arg<'help> {
     #[doc(hidden)]
     pub blacklist: Option<Vec<Id>>,
     pub(crate) settings: ArgFlags,
-    pub(crate) r_unless: Option<Vec<Id>>,
     pub(crate) overrides: Option<Vec<Id>>,
     pub(crate) groups: Option<Vec<Id>>,
     pub(crate) requires: Option<Vec<(Option<&'help str>, Id)>>,
+    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub(crate) r_unless: Option<Vec<Id>>,
     #[doc(hidden)]
     pub short: Option<char>,
     #[doc(hidden)]
@@ -90,7 +91,6 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     #[doc(hidden)]
     pub index: Option<u64>,
-    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
     #[doc(hidden)]
     pub help_heading: Option<&'help str>,
     pub(crate) global: bool,
@@ -107,6 +107,7 @@ impl<'help> Arg<'help> {
             ..Default::default()
         }
     }
+
     /// Creates a new instance of [`Arg`] using a unique string name. The name will be used to get
     /// information about whether or not the argument was used at runtime, get values, set
     /// relationships with other args, etc..
@@ -1113,13 +1114,11 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let arg = arg_id.key();
         if let Some(ref mut vec) = self.requires {
-            vec.push((None, name));
+            vec.push((None, arg));
         } else {
-            let mut vec = vec![];
-            vec.push((None, name));
-            self.requires = Some(vec);
+            self.requires = Some(vec![(None, arg)]);
         }
         self
     }
@@ -1495,11 +1494,7 @@ impl<'help> Arg<'help> {
                 vec.push((None, s.key()));
             }
         } else {
-            let mut vec = vec![];
-            for s in names {
-                vec.push((None, s.key()));
-            }
-            self.requires = Some(vec);
+            self.requires = Some(names.iter().map(|s| (None, s.key())).collect());
         }
         self
     }
@@ -4128,6 +4123,21 @@ impl<'help> Arg<'help> {
         } else {
             debugln!("PosBuilder:name_no_brackets: just name");
             Cow::Borrowed(self.name)
+        }
+    }
+}
+
+impl<'a> Arg<'a> {
+    pub(crate) fn _debug_asserts(&self) {
+        debugln!("Arg::_debug_asserts:{};", self.name);
+
+        // Self conflict
+        if let Some(vec) = &self.blacklist {
+            assert!(
+                !vec.iter().any(|&x| x == self.id),
+                "Argument '{}' cannot conflict with itself",
+                self.name,
+            );
         }
     }
 }

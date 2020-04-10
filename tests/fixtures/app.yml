@@ -9,7 +9,7 @@ args:
         short: h
         long: help
         help: prints help with a nonstandard description
-    - opt:
+    - option:
         short: o
         long: option
         multiple: true

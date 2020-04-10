@@ -41,13 +41,9 @@ fn required_group_missing_arg() {
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
-// This tests a programmer error and will only succeed with debug_assertions
-// #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
 #[test]
-// This used to provide a nice, programmer-friendly error.
-// Now the error directs the programmer to file a bug report with clap.
-// #[should_panic(expected = "The group 'req' contains the arg 'flg' that doesn't actually exist.")]
-#[should_panic(expected = "internal error")]
+#[should_panic = "Argument group 'req' contains non-existent argument"]
 fn non_existing_arg() {
     let _ = App::new("group")
         .arg("-f, --flag 'some flag'")
@@ -58,6 +54,37 @@ fn non_existing_arg() {
                 .required(true),
         )
         .try_get_matches_from(vec![""]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name must be unique\n\n\t'req' is already in use"]
+fn unique_group_name() {
+    let _ = App::new("group")
+        .arg("-f, --flag 'some flag'")
+        .arg("-c, --color 'some other flag'")
+        .group(ArgGroup::with_name("req").args(&["flag"]).required(true))
+        .group(ArgGroup::with_name("req").args(&["color"]).required(true))
+        .try_get_matches_from(vec![""]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name '' must not conflict with argument name"]
+fn groups_with_name_of_arg_name() {
+    let _ = App::new("group")
+        .arg(Arg::with_name("a").long("a").group("a"))
+        .try_get_matches_from(vec!["", "--a"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name 'a' must not conflict with argument name"]
+fn arg_group_with_name_of_arg_name() {
+    let _ = App::new("group")
+        .arg(Arg::with_name("a").long("a").group("a"))
+        .group(ArgGroup::with_name("a"))
+        .try_get_matches_from(vec!["", "--a"]);
 }
 
 #[test]

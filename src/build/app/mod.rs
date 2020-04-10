@@ -1422,12 +1422,6 @@ impl<'b> App<'b> {
         self._derive_display_order();
         self._create_help_and_version();
 
-        // Perform expensive debug assertions
-        #[cfg(debug_assertions)]
-        for a in self.args.args.iter() {
-            self._arg_debug_asserts(a);
-        }
-
         let mut pos_counter = 1;
         for a in self.args.args.iter_mut() {
             // Fill in the groups
@@ -1460,19 +1454,16 @@ impl<'b> App<'b> {
             }
         }
 
-        debug_assert!(self._app_debug_asserts());
         self.args._build();
         self.settings.set(AppSettings::Built);
-        Self::_panic_on_missing_help(&self, self.g_settings.is_set(AppSettings::HelpRequired));
+
+        #[cfg(debug_assertions)]
+        self._debug_asserts();
     }
 
-    #[cfg(not(debug_assertions))]
-    fn _panic_on_missing_help(_app: &App, _help_required_globally: bool) {}
-
-    #[cfg(debug_assertions)]
-    fn _panic_on_missing_help(app: &App, help_required_globally: bool) {
-        if app.is_set(AppSettings::HelpRequired) || help_required_globally {
-            let args_missing_help: Vec<String> = app
+    fn _panic_on_missing_help(&self, help_required_globally: bool) {
+        if self.is_set(AppSettings::HelpRequired) || help_required_globally {
+            let args_missing_help: Vec<String> = self
                 .args
                 .args
                 .iter()
@@ -1481,41 +1472,159 @@ impl<'b> App<'b> {
                 .collect();
 
             if !args_missing_help.is_empty() {
-                let abort_message = format!("AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}", app.name, args_missing_help.join(", "));
-                panic!(abort_message);
+                panic!(format!(
+                    "AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
+                    self.name,
+                    args_missing_help.join(", ")
+                ));
             }
         }
-        for sub_app in &app.subcommands {
-            Self::_panic_on_missing_help(&sub_app, help_required_globally);
+
+        for sub_app in &self.subcommands {
+            sub_app._panic_on_missing_help(help_required_globally);
         }
     }
 
     // Perform some expensive assertions on the Parser itself
-    fn _app_debug_asserts(&self) -> bool {
-        debugln!("App::_app_debug_asserts;");
-        for name in self.args.args.iter().map(|x| x.id) {
-            if self.args.args.iter().filter(|x| x.id == name).count() > 1 {
-                panic!(format!(
-                    "Arg names must be unique, found '{}' more than once",
-                    name
-                ));
+    #[allow(clippy::cognitive_complexity)]
+    fn _debug_asserts(&self) {
+        debugln!("App::_debug_asserts;");
+
+        for arg in &self.args.args {
+            arg._debug_asserts();
+
+            // Name conflicts
+            assert!(
+                self.args.args.iter().filter(|x| x.id == arg.id).count() < 2,
+                "Argument name must be unique\n\n\t'{}' is already in use",
+                arg.name,
+            );
+
+            // Long conflicts
+            if let Some(l) = arg.long {
+                assert!(
+                    self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
+                    "Argument long must be unique\n\n\t'--{}' is already in use",
+                    l
+                );
+            }
+
+            // Short conflicts
+            if let Some(s) = arg.short {
+                assert!(
+                    self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
+                    "Argument short must be unique\n\n\t'-{}' is already in use",
+                    s
+                );
+            }
+
+            // Index conflicts
+            if let Some(idx) = arg.index {
+                assert!(
+                    positionals!(self).fold(0, |acc, p| if p.index == Some(idx) {
+                        acc + 1
+                    } else {
+                        acc
+                    }) < 2,
+                    "Argument '{}' has the same index as another positional argument\n\n\t \
+                    Use Arg::setting(ArgSettings::MultipleValues) to allow one \
+                    positional argument to take multiple values",
+                    arg.name
+                );
+            }
+
+            // requires, r_if, r_unless
+            if let Some(reqs) = &arg.requires {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == req.1)
+                            || self.groups.iter().any(|x| x.id == req.1),
+                        "Argument or group specified in 'requires*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            if let Some(reqs) = &arg.r_ifs {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == req.0)
+                            || self.groups.iter().any(|x| x.id == req.0),
+                        "Argument or group specified in 'required_if*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            if let Some(reqs) = &arg.r_unless {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == *req)
+                            || self.groups.iter().any(|x| x.id == *req),
+                        "Argument or group specified in 'required_unless*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            // blacklist
+            if let Some(reqs) = &arg.blacklist {
+                for req in reqs {
+                    assert!(
+                        self.args.args.iter().any(|x| x.id == *req)
+                            || self.groups.iter().any(|x| x.id == *req),
+                        "Argument or group specified in 'conflicts_with*' for '{}' does not exist",
+                        arg.name,
+                    );
+                }
+            }
+
+            if arg.is_set(ArgSettings::Last) {
+                assert!(
+                    arg.long.is_none(),
+                    "Flags or Options may not have last(true) set. '{}' has both a long and last(true) set.",
+                    arg.name
+                );
+                assert!(
+                    arg.short.is_none(),
+                    "Flags or Options may not have last(true) set. '{}' has both a short and last(true) set.",
+                    arg.name
+                );
+            }
+
+            assert!(
+                !(arg.is_set(ArgSettings::Required) && arg.global),
+                "Global arguments cannot be required.\n\n\t'{}' is marked as global and required",
+                arg.name
+            );
+        }
+
+        for group in &self.groups {
+            // Name conflicts
+            assert!(
+                self.groups.iter().filter(|x| x.id == group.id).count() < 2,
+                "Argument group name must be unique\n\n\t'{}' is already in use",
+                group.name,
+            );
+
+            // Groups should not have naming conflicts with Args
+            assert!(
+                !self.args.args.iter().any(|x| x.id == group.id),
+                "Argument group name '{}' must not conflict with argument name",
+                group.name,
+            );
+
+            // Args listed inside groups should exist
+            for arg in &group.args {
+                assert!(
+                    self.args.args.iter().any(|x| x.id == *arg),
+                    "Argument group '{}' contains non-existent argument",
+                    group.name,
+                )
             }
         }
-        // * Args listed inside groups should exist
-        // * Groups should not have naming conflicts with Args
 
-        // * Will be removed as a part of removing String types
-        // let g = groups!(self).find(|g| {
-        //     g.args
-        //         .iter()
-        //         .any(|arg| !(find!(self, arg).is_some() || groups!(self).any(|g| &g.name == arg)))
-        // });
-        // assert!(
-        //     g.is_none(),
-        //     "The group '{}' contains an arg that doesn't exist or has a naming conflict with a group.",
-        //     g.unwrap().name
-        // );
-        true
+        self._panic_on_missing_help(self.g_settings.is_set(AppSettings::HelpRequired));
     }
 
     pub(crate) fn _propagate(&mut self, prop: Propagation) {
@@ -1639,66 +1748,6 @@ impl<'b> App<'b> {
         for sc in subcommands!(self, iter_mut) {
             sc._derive_display_order();
         }
-    }
-
-    // Perform expensive assertions on the Arg instance
-    fn _arg_debug_asserts(&self, a: &Arg) -> bool {
-        debugln!("App::_arg_debug_asserts:{}", a.name);
-
-        // Long conflicts
-        if let Some(l) = a.long {
-            assert!(
-                self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
-                "Argument long must be unique\n\n\t'--{}' is already in use",
-                l
-            );
-        }
-
-        // Short conflicts
-        if let Some(s) = a.short {
-            assert!(
-                self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
-                "Argument short must be unique\n\n\t'-{}' is already in use",
-                s
-            );
-        }
-
-        if let Some(idx) = a.index {
-            // No index conflicts
-            assert!(
-                positionals!(self).fold(0, |acc, p| if p.index == Some(idx) {
-                    acc + 1
-                } else {
-                    acc
-                }) < 2,
-                "Argument '{}' has the same index as another positional \
-                 argument\n\n\tUse Arg::setting(ArgSettings::MultipleValues) to allow one \
-                 positional argument to take multiple values",
-                a.name
-            );
-        }
-        if a.is_set(ArgSettings::Last) {
-            assert!(
-                a.long.is_none(),
-                "Flags or Options may not have last(true) set. '{}' has both a long and \
-                 last(true) set.",
-                a.name
-            );
-            assert!(
-                a.short.is_none(),
-                "Flags or Options may not have last(true) set. '{}' has both a short and \
-                 last(true) set.",
-                a.name
-            );
-        }
-        assert!(
-            !(a.is_set(ArgSettings::Required) && a.global),
-            "Global arguments cannot be required.\n\n\t'{}' is marked as \
-             global and required",
-            a.name
-        );
-
-        true
     }
 
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
