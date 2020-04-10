@@ -96,13 +96,8 @@ unstable    = ["clap_derive/unstable"] # for building with unstable clap feature
 debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml"] # All the features which add to documentation
 
-[profile.dev]
-codegen-units = 4
-
 [profile.test]
 opt-level = 1
-debug = true
-codegen-units = 4
 
 [profile.bench]
 lto = true

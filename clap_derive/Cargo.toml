@@ -56,3 +56,4 @@ doc = []
 
 [package.metadata.docs.rs]
 features = ["doc"]
+targets = ["x86_64-unknown-linux-gnu"]
