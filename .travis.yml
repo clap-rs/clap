@@ -26,7 +26,6 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
-    - name: Coverage
   fast_finish: true
   include:
     - os: osx
@@ -36,9 +35,6 @@ jobs:
     - rust: beta
     - rust: nightly
       cache: false
-    - name: Release profile tests
-      script:
-        - cargo test -v --release --features yaml unstable
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
@@ -58,12 +54,11 @@ jobs:
             - zlib1g-dev
           update: true
       before_script:
-        - cargo install cargo-tarpaulin
+        - cargo install cargo-tarpaulin --git git://github.com/pksunkara/tarpaulin --branch develop
       script:
         - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
 script:
-  - cargo test --no-default-features
-  - cargo test --features yaml unstable
+  - cargo test --features "yaml unstable"
 notifications:
   email: false
 env:

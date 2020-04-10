@@ -45,9 +45,9 @@ version-sync = "0.8"
 [features]
 default = []
 unstable = ["clap/unstable"]
-nightly = ["clap/nightly"]
 debug = ["clap/debug"]
 doc = []
 
 [package.metadata.docs.rs]
 features = ["doc"]
+targets = ["x86_64-unknown-linux-gnu"]
