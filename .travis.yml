@@ -35,9 +35,6 @@ jobs:
     - rust: beta
     - rust: nightly
       cache: false
-    - name: Release profile tests
-      script:
-        - cargo test -v --release --features yaml unstable
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy

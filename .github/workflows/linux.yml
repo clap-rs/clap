@@ -1,0 +1,30 @@
+name: Linux
+on:
+  push:
+    branches: [master, staging, trying]
+  pull_request:
+    branches: [master, staging, trying]
+    types: [opened, reopened, synchronize]
+jobs:
+  test-release:
+    name: Release Profile Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache cargo
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --features "yaml unstable"
+      - name: Cleanup cache
+        run: rm -rf ~/.cargo/registry/src

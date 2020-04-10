@@ -17,16 +17,16 @@ stages:
           rust: 1.40.0
         strategy:
           matrix:
-            Windows 32-bit (MSVC):
+            MSVC 32-bit:
               image: vs2017-win2016
               target: i686-pc-windows-msvc
-            Windows 64-bit (MSVC):
+            MSVC 64-bit:
               image: vs2017-win2016
               target: x86_64-pc-windows-msvc
-            Windows 32-bit (MinGW):
+            MinGW 32-bit:
               image: vs2017-win2016
               target: i686-pc-windows-gnu
-            Windows 64-bit (MinGW):
+            MinGW 64-bit:
               image: vs2017-win2016
               target: x86_64-pc-windows-gnu
         pool:
@@ -40,12 +40,7 @@ stages:
             inputs:
               key: cargo | "$(rust)" | $(target) | Cargo.toml
               path: C:\Rust\.cargo
-            displayName: Caching cargo
-          - task: Cache@2
-            inputs:
-              key: compiled | "$(rust)" | $(target) | Cargo.toml
-              path: target
-            displayName: Caching compiled
+            displayName: Cache cargo
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
           - script: cargo test --no-default-features
@@ -58,9 +53,5 @@ stages:
               RUST_BACKTRACE: full
           - script: |
               rmdir /Q /S C:\Rust\.cargo\registry\src
-              rmdir /Q /S target\.rustc_info.json
-              rmdir /Q /S target\debug\examples
-              rmdir /Q /S target\debug\incremental
-              rmdir /Q /S target\tests\target\debug\incremental
-            displayName: Cleaning for cache
+            displayName: Cleanup cache
             continueOnError: true
