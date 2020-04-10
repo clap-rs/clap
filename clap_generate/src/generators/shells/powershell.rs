@@ -78,15 +78,15 @@ fn generate_inner<'b>(
     let command_name = if previous_command_name.is_empty() {
         p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()
     } else {
-        format!("{};{}", previous_command_name, &p.name)
+        format!("{};{}", previous_command_name, &p.get_name())
     };
 
     let mut completions = String::new();
     let preamble = String::from("\n            [CompletionResult]::new(");
 
     for option in opts!(p) {
-        if let Some(data) = option.short {
-            let tooltip = get_tooltip(option.help, data);
+        if let Some(data) = option.get_short() {
+            let tooltip = get_tooltip(option.get_help(), data);
 
             completions.push_str(&preamble);
             completions.push_str(
@@ -98,8 +98,8 @@ fn generate_inner<'b>(
             );
         }
 
-        if let Some(data) = option.long {
-            let tooltip = get_tooltip(option.help, data);
+        if let Some(data) = option.get_long() {
+            let tooltip = get_tooltip(option.get_help(), data);
 
             completions.push_str(&preamble);
             completions.push_str(
@@ -113,8 +113,8 @@ fn generate_inner<'b>(
     }
 
     for flag in PowerShell::flags(p) {
-        if let Some(data) = flag.short {
-            let tooltip = get_tooltip(flag.help, data);
+        if let Some(data) = flag.get_short() {
+            let tooltip = get_tooltip(flag.get_help(), data);
 
             completions.push_str(&preamble);
             completions.push_str(
@@ -126,8 +126,8 @@ fn generate_inner<'b>(
             );
         }
 
-        if let Some(data) = flag.long {
-            let tooltip = get_tooltip(flag.help, data);
+        if let Some(data) = flag.get_long() {
+            let tooltip = get_tooltip(flag.get_help(), data);
 
             completions.push_str(&preamble);
             completions.push_str(
@@ -140,9 +140,9 @@ fn generate_inner<'b>(
         }
     }
 
-    for subcommand in subcommands!(p) {
-        let data = &subcommand.name;
-        let tooltip = get_tooltip(subcommand.about, data);
+    for subcommand in p.get_subcommands() {
+        let data = &subcommand.get_name();
+        let tooltip = get_tooltip(subcommand.get_about(), data);
 
         completions.push_str(&preamble);
         completions.push_str(
@@ -162,7 +162,7 @@ fn generate_inner<'b>(
         &command_name, completions
     );
 
-    for subcommand in &p.subcommands {
+    for subcommand in p.get_subcommands() {
         let subcommand_subcommands_cases = generate_inner(&subcommand, &command_name, names);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }

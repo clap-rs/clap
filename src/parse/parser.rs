@@ -642,7 +642,14 @@ where
                     .count();
             }
 
-            if let Some(p) = positionals!(self.app).find(|p| p.index == Some(pos_counter as u64)) {
+            if let Some(p) = self
+                .app
+                .args
+                .args
+                .iter()
+                .filter(|a| a.short.is_none() && a.long.is_none())
+                .find(|p| p.index == Some(pos_counter as u64))
+            {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
                         &*arg_os.to_string_lossy(),
@@ -984,7 +991,7 @@ where
             self.app._propagate(Propagation::To(id));
         }
 
-        if let Some(sc) = subcommands!(self.app, iter_mut).find(|s| s.name == sc_name) {
+        if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::default();
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -1091,7 +1098,7 @@ where
 
         self.app.long_about.is_some()
             || self.app.args.args.iter().any(|f| should_long(&f))
-            || subcommands!(self.app).any(|s| s.long_about.is_some())
+            || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
     fn parse_long_arg(

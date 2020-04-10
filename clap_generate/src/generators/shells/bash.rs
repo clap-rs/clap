@@ -147,7 +147,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
     let mut opts = String::new();
 
     for o in opts!(p) {
-        if let Some(l) = o.long {
+        if let Some(l) = o.get_long() {
             opts = format!(
                 "{}
                 --{})
@@ -160,7 +160,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
             );
         }
 
-        if let Some(s) = o.short {
+        if let Some(s) = o.get_short() {
             opts = format!(
                 "{}
                     -{})
@@ -180,7 +180,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
 fn vals_for(o: &Arg) -> String {
     debugln!("Bash::vals_for: o={}", o.name);
 
-    if let Some(ref vals) = o.possible_vals {
+    if let Some(ref vals) = o.get_possible_values() {
         format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))
     } else {
         String::from("$(compgen -f ${cur})")

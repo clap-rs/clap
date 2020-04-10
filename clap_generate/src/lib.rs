@@ -178,7 +178,7 @@ where
     G: Generator,
     S: Into<String>,
 {
-    app.bin_name = Some(bin_name.into());
+    app.set_bin_name(bin_name);
 
     if !app.is_set(clap::AppSettings::Built) {
         app._build();

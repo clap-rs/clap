@@ -929,11 +929,10 @@ macro_rules! write_nspaces {
 #[doc(hidden)]
 macro_rules! flags {
     ($app:expr, $how:ident) => {{
-        $app.args
-            .args
+        $app.get_arguments()
             .$how()
-            .filter(|a| !a.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
-            .filter(|a| !a.help_heading.is_some())
+            .filter(|a| !a.is_set($crate::ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| !a.get_help_heading().is_some())
     }};
     ($app:expr) => {
         $crate::flags!($app, iter)
@@ -944,11 +943,10 @@ macro_rules! flags {
 #[doc(hidden)]
 macro_rules! opts {
     ($app:expr, $how:ident) => {{
-        $app.args
-            .args
+        $app.get_arguments()
             .$how()
-            .filter(|a| a.is_set($crate::ArgSettings::TakesValue) && a.index.is_none())
-            .filter(|a| !a.help_heading.is_some())
+            .filter(|a| a.is_set($crate::ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| !a.get_help_heading().is_some())
     }};
     ($app:expr) => {
         opts!($app, iter)
@@ -958,26 +956,11 @@ macro_rules! opts {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! positionals {
-    ($app:expr, $how:ident) => {{
-        $app.args
-            .args
-            .$how()
-            .filter(|a| !(a.short.is_some() || a.long.is_some()))
+    ($app:expr) => {{
+        $app.get_arguments()
+            .iter()
+            .filter(|a| !(a.get_short().is_some() || a.get_long().is_some()))
     }};
-    ($app:expr) => {
-        positionals!($app, iter)
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! subcommands {
-    ($app:expr, $how:ident) => {
-        $app.subcommands.$how()
-    };
-    ($app:expr) => {
-        subcommands!($app, iter)
-    };
 }
 
 macro_rules! groups_for_arg {
@@ -992,21 +975,30 @@ macro_rules! groups_for_arg {
 
 macro_rules! find_subcmd_cloned {
     ($app:expr, $sc:expr) => {{
-        subcommands!($app)
+        $app.get_subcommands()
+            .iter()
             .cloned()
-            .find(|a| match_alias!(a, $sc, &*a.name))
+            .find(|a| match_alias!(a, $sc, a.get_name()))
     }};
 }
 
 #[macro_export]
 #[doc(hidden)]
 macro_rules! find_subcmd {
-    ($app:expr, $sc:expr, $how:ident) => {{
-        subcommands!($app, $how).find(|a| match_alias!(a, $sc, &*a.name))
+    ($app:expr, $sc:expr) => {{
+        $app.get_subcommands()
+            .iter()
+            .find(|a| match_alias!(a, $sc, a.get_name()))
     }};
-    ($app:expr, $sc:expr) => {
-        find_subcmd!($app, $sc, iter)
-    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! find_subcmd_mut {
+    ($app:expr, $sc:expr) => {{
+        $app.get_subcommands_mut()
+            .find(|a| match_alias!(a, $sc, a.get_name()))
+    }};
 }
 
 macro_rules! longs {
@@ -1029,11 +1021,11 @@ macro_rules! longs {
 #[doc(hidden)]
 macro_rules! names {
     (@args $app:expr) => {{
-        $app.args.args.iter().map(|a| &*a.name)
+        $app.get_arguments().iter().map(|a| &*a.get_name())
     }};
     (@sc $app:expr) => {{
-        $app.subcommands.iter().map(|s| &*s.name).chain(
-            $app.subcommands
+        $app.get_subcommands().iter().map(|s| &*s.get_name()).chain(
+            $app.get_subcommands()
                 .iter()
                 .filter(|s| s.aliases.is_some())
                 .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
@@ -1053,13 +1045,6 @@ macro_rules! sc_names {
 #[doc(hidden)]
 macro_rules! match_alias {
     ($a:expr, $to:expr, $what:expr) => {{
-        $what == $to
-            || ($a.aliases.is_some()
-                && $a
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|alias| alias.0 == $to))
+        $what == $to || $a.get_all_aliases().any(|alias| alias == $to)
     }};
 }

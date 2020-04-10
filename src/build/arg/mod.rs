@@ -56,28 +56,22 @@ type Id = u64;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
-    #[doc(hidden)]
-    pub name: &'help str,
-    #[doc(hidden)]
-    pub help: Option<&'help str>,
+    pub(crate) name: &'help str,
+    pub(crate) help: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
-    #[doc(hidden)]
-    pub blacklist: Option<Vec<Id>>,
+    pub(crate) blacklist: Option<Vec<Id>>,
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Option<Vec<Id>>,
     pub(crate) groups: Option<Vec<Id>>,
     pub(crate) requires: Option<Vec<(Option<&'help str>, Id)>>,
     pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
     pub(crate) r_unless: Option<Vec<Id>>,
-    #[doc(hidden)]
-    pub short: Option<char>,
-    #[doc(hidden)]
-    pub long: Option<&'help str>,
+    pub(crate) short: Option<char>,
+    pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
-    #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
+    pub(crate) possible_vals: Option<Vec<&'help str>>,
     pub(crate) val_names: Option<VecMap<&'help str>>,
     pub(crate) num_vals: Option<u64>,
     pub(crate) max_vals: Option<u64>,
@@ -89,12 +83,48 @@ pub struct Arg<'help> {
     pub(crate) default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
+    pub(crate) index: Option<u64>,
+    pub(crate) help_heading: Option<&'help str>,
     pub(crate) global: bool,
     pub(crate) exclusive: bool,
+}
+
+/// Getters
+impl<'help> Arg<'help> {
+    /// Get the name o the argument
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    /// Get the help specified for this argument, if any
+    pub fn get_help(&self) -> Option<&str> {
+        self.help
+    }
+
+    /// Get the help heading specified for this argument, if any
+    pub fn get_help_heading(&self) -> Option<&str> {
+        self.help_heading
+    }
+
+    /// Get the short option name for this argument, if any
+    pub fn get_short(&self) -> Option<char> {
+        self.short
+    }
+
+    /// Get the long option name for this argument, if any
+    pub fn get_long(&self) -> Option<&str> {
+        self.long
+    }
+
+    /// Get the list of the possible values for this argument, if any
+    pub fn get_possible_values(&self) -> Option<&[&str]> {
+        self.possible_vals.as_deref()
+    }
+
+    /// Get the index of this argument, if any
+    pub fn get_index(&self) -> Option<u64> {
+        self.index
+    }
 }
 
 impl<'help> Arg<'help> {

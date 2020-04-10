@@ -70,20 +70,16 @@ pub(crate) enum Propagation {
 #[derive(Default, Debug, Clone)]
 pub struct App<'b> {
     pub(crate) id: Id,
-    #[doc(hidden)]
-    pub name: String,
-    #[doc(hidden)]
-    pub bin_name: Option<String>,
+    pub(crate) name: String,
+    pub(crate) bin_name: Option<String>,
     pub(crate) author: Option<&'b str>,
     pub(crate) version: Option<&'b str>,
     pub(crate) long_version: Option<&'b str>,
-    #[doc(hidden)]
-    pub about: Option<&'b str>,
+    pub(crate) about: Option<&'b str>,
     pub(crate) long_about: Option<&'b str>,
     pub(crate) more_help: Option<&'b str>,
     pub(crate) pre_help: Option<&'b str>,
-    #[doc(hidden)]
-    pub aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    pub(crate) aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
     pub(crate) usage_str: Option<&'b str>,
     pub(crate) usage: Option<String>,
     pub(crate) help_str: Option<&'b str>,
@@ -93,13 +89,86 @@ pub struct App<'b> {
     pub(crate) template: Option<&'b str>,
     pub(crate) settings: AppFlags,
     pub(crate) g_settings: AppFlags,
-    #[doc(hidden)]
-    pub args: MKeyMap<'b>,
-    #[doc(hidden)]
-    pub subcommands: Vec<App<'b>>,
+    pub(crate) args: MKeyMap<'b>,
+    pub(crate) subcommands: Vec<App<'b>>,
     pub(crate) replacers: HashMap<&'b str, &'b [&'b str]>,
     pub(crate) groups: Vec<ArgGroup<'b>>,
     pub(crate) help_headings: Vec<Option<&'b str>>,
+}
+
+impl<'b> App<'b> {
+    /// Get the name of the app
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    /// Get the name of the binary
+    pub fn get_bin_name(&self) -> Option<&str> {
+        self.bin_name.as_deref()
+    }
+
+    /// Set binary name. Uses `&mut self` instead of `self`
+    pub fn set_bin_name<S: Into<String>>(&mut self, name: S) {
+        self.bin_name = Some(name.into());
+    }
+
+    /// Get the help message specified via [`App::about`]
+    pub fn get_about(&self) -> Option<&str> {
+        self.about.as_deref()
+    }
+
+    /// Iterate through the *visible* aliases for this subcommand.
+    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
+        self.aliases
+            .as_ref()
+            .into_iter()
+            .flat_map(|aliases| aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0))
+    }
+
+    /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
+    pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
+        self.aliases
+            .as_ref()
+            .into_iter()
+            .flat_map(|aliases| aliases.iter().map(|a| a.0))
+    }
+
+    /// Get the list of subcommands
+    pub fn get_subcommands(&self) -> &[App<'b>] {
+        &self.subcommands
+    }
+
+    /// Get the list of subcommands
+    pub fn get_subcommands_mut(&mut self) -> &mut [App<'b>] {
+        &mut self.subcommands
+    }
+
+    /// Get the list of arguments
+    pub fn get_arguments(&self) -> &[Arg<'b>] {
+        &self.args.args
+    }
+
+    /// Get the list of arguments the given argument conflicts with
+    ///
+    /// ### Panics
+    ///
+    /// Panics if the given arg conflicts with an argument that is unknown to this application
+    pub fn get_arg_conflicts_with<'a, 'x, 'y>(&'a self, arg: &'x Arg<'y>) -> Vec<&Arg<'b>> // FIXME: This could probably have been an iterator
+    {
+        if let Some(black_ids) = arg.blacklist.as_ref() {
+            black_ids
+                .iter()
+                .map(|id| {
+                    self.args.args.iter().find(|arg| arg.id == *id).expect(
+                        "App::get_arg_conflicts_with: \
+                        The passed arg conflicts with an arg unknown to the app",
+                    )
+                })
+                .collect()
+        } else {
+            vec![]
+        }
+    }
 }
 
 impl<'b> App<'b> {
@@ -123,16 +192,6 @@ impl<'b> App<'b> {
             disp_ord: 999,
             ..Default::default()
         }
-    }
-
-    /// Get the name of the app
-    pub fn get_name(&self) -> &str {
-        &self.name
-    }
-
-    /// Get the name of the binary
-    pub fn get_bin_name(&self) -> Option<&str> {
-        self.bin_name.as_deref()
     }
 
     /// Sets a string of author(s) that will be displayed to the user when they
@@ -1715,7 +1774,7 @@ impl<'b> App<'b> {
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !subcommands!(self).any(|s| s.id == HELP_HASH)
+            && !self.subcommands.iter().any(|s| s.id == HELP_HASH)
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1738,14 +1797,16 @@ impl<'b> App<'b> {
             {
                 a.disp_ord = i;
             }
-            for (i, mut sc) in &mut subcommands!(self, iter_mut)
+            for (i, mut sc) in &mut self
+                .subcommands
+                .iter_mut()
                 .enumerate()
                 .filter(|&(_, ref sc)| sc.disp_ord == 999)
             {
                 sc.disp_ord = i;
             }
         }
-        for sc in subcommands!(self, iter_mut) {
+        for sc in &mut self.subcommands {
             sc._derive_display_order();
         }
     }
@@ -1754,7 +1815,7 @@ impl<'b> App<'b> {
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
         debugln!("App::_build_bin_names;");
-        for mut sc in subcommands!(self, iter_mut) {
+        for mut sc in &mut self.subcommands {
             debug!("Parser::build_bin_names:iter: bin_name set...");
             if sc.bin_name.is_none() {
                 sdebugln!("No");
@@ -1880,7 +1941,8 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {
-        subcommands!(self)
+        self.subcommands
+            .iter()
             .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }

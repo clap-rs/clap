@@ -747,7 +747,11 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         // The shortest an arg can legally be is 2 (i.e. '-x')
         self.longest = 2;
         let mut ord_m = VecMap::new();
-        for sc in subcommands!(app).filter(|s| !s.is_set(AppSettings::Hidden)) {
+        for sc in app
+            .subcommands
+            .iter()
+            .filter(|s| !s.is_set(AppSettings::Hidden))
+        {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
             self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
             btm.insert(sc.name.clone(), sc.clone());
