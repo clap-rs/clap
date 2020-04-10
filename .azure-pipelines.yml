@@ -43,14 +43,8 @@ stages:
             displayName: Cache cargo
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
-          - script: cargo test --no-default-features
-            displayName: Test without default features
-            env:
-              RUST_BACKTRACE: full
           - script: cargo test --features "yaml unstable"
             displayName: Test with most features
-            env:
-              RUST_BACKTRACE: full
           - script: |
               rmdir /Q /S C:\Rust\.cargo\registry\src
             displayName: Cleanup cache

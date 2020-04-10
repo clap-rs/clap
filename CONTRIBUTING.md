@@ -9,7 +9,6 @@ Another really great way to help is if you find an interesting, or helpful way i
 To test with all features both enabled and disabled, you can run these commands:
 
 ```sh
-$ cargo test --no-default-features
 $ cargo test --features "yaml unstable"
 ```
 

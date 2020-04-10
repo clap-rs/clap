@@ -58,8 +58,7 @@ jobs:
       script:
         - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
 script:
-  - cargo test --no-default-features
-  - cargo test --features yaml unstable
+  - cargo test --features "yaml unstable"
 notifications:
   email: false
 env:
