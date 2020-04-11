@@ -1,6 +1,6 @@
 // Internal
 use crate::build::{Arg, ArgSettings};
-use crate::util::{Key, VecMap};
+use crate::util::VecMap;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
@@ -90,7 +90,7 @@ impl<'a> UsageParser<'a> {
         let name = &self.usage[self.start..self.pos];
         if self.prev == UsageToken::Unknown {
             debugln!("UsageParser::name: setting name...{}", name);
-            arg.id = name.key();
+            arg.id = name.into();
             arg.name = name;
             if arg.long.is_none() && arg.short.is_none() {
                 debugln!("UsageParser::name: explicit name set...");
@@ -147,7 +147,7 @@ impl<'a> UsageParser<'a> {
         let name = &self.usage[self.start..self.pos];
         if !self.explicit_name_set {
             debugln!("UsageParser::long: setting name...{}", name);
-            arg.id = name.key();
+            arg.id = name.into();
             arg.name = name;
         }
         debugln!("UsageParser::long: setting long...{}", name);
@@ -165,7 +165,7 @@ impl<'a> UsageParser<'a> {
             // --long takes precedence but doesn't set self.explicit_name_set
             let name = &start[..short.len_utf8()];
             debugln!("UsageParser::short: setting name...{}", name);
-            arg.id = name.key();
+            arg.id = name.into();
             arg.name = name;
         }
         self.prev = UsageToken::Short;

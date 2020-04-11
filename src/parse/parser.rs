@@ -20,13 +20,11 @@ use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
-use crate::util::{self, ChildGraph, Key, OsStrExt2, EMPTY_HASH};
+use crate::util::{ChildGraph, Id, OsStrExt2};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
-type Id = u64;
-
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ParseResult {
     Flag,
     Opt(Id),
@@ -114,7 +112,7 @@ where
             .args
             .iter()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
-            .map(|a| a.id)
+            .map(|a| a.id.clone())
         {
             reqs.insert(a);
         }
@@ -352,13 +350,13 @@ where
             // Add args with default requirements
             if a.is_set(ArgSettings::Required) {
                 debugln!("Parser::_build: adding {} to default requires", a.name);
-                let idx = self.required.insert(a.id);
+                let idx = self.required.insert(a.id.clone());
                 // If the arg is required, add all it's requirements to master required list
                 if let Some(ref areqs) = a.requires {
                     for name in areqs
                         .iter()
-                        .filter(|&&(val, _)| val.is_none())
-                        .map(|&(_, name)| name)
+                        .filter(|(val, _)| val.is_none())
+                        .map(|(_, name)| name.clone())
                     {
                         self.required.insert_child(idx, name);
                     }
@@ -386,7 +384,7 @@ where
         }) && positionals!(self.app).last().map_or(false, |p_name| {
             !self
                 .app
-                .find(p_name.id)
+                .find(&p_name.id)
                 .expect(INTERNAL_ERROR_MSG)
                 .is_set(ArgSettings::Last)
         }) {
@@ -395,10 +393,10 @@ where
 
         for group in &self.app.groups {
             if group.required {
-                let idx = self.required.insert(group.id);
+                let idx = self.required.insert(group.id.clone());
                 if let Some(ref reqs) = group.requires {
-                    for &a in reqs {
-                        self.required.insert_child(idx, a);
+                    for a in reqs {
+                        self.required.insert_child(idx, a.clone());
                     }
                 }
             }
@@ -454,7 +452,7 @@ where
             self.unset(AS::ValidNegNumFound);
 
             // Is this a new argument, or values from a previous option?
-            let starts_new_arg = self.is_new_arg(arg_os, needs_val_of);
+            let starts_new_arg = self.is_new_arg(arg_os, needs_val_of.clone());
 
             if !self.is_set(AS::TrailingValues)
                 && arg_os.starts_with(b"--")
@@ -536,7 +534,7 @@ where
                     }
                 } else if let ParseResult::Opt(name) = needs_val_of {
                     // Check to see if parsing a value from a previous arg
-                    let arg = self.app.find(name).expect(INTERNAL_ERROR_MSG);
+                    let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
                     // get the option so we can check the settings
                     needs_val_of = self.add_val_to_arg(arg, arg_os, matcher)?;
                     // get the next value from the iterator
@@ -599,7 +597,7 @@ where
                         if let Some(p) =
                             positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
                         {
-                            ParseResult::Pos(p.id)
+                            ParseResult::Pos(p.id.clone())
                         } else {
                             ParseResult::ValuesDone
                         }
@@ -609,7 +607,7 @@ where
 
                     let sc_match = { self.possible_subcommand(n).is_some() };
 
-                    if self.is_new_arg(n, needs_val_of)
+                    if self.is_new_arg(n, needs_val_of.clone())
                         || sc_match
                         || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
                             .is_empty()
@@ -675,12 +673,12 @@ where
                     self.app.settings.set(AS::TrailingValues);
                 }
 
-                self.seen.push(p.id);
+                self.seen.push(p.id.clone());
                 let _ = self.add_val_to_arg(p, arg_os, matcher)?;
 
-                matcher.inc_occurrence_of(p.id);
+                matcher.inc_occurrence_of(&p.id);
                 for grp in groups_for_arg!(self.app, p.id) {
-                    matcher.inc_occurrence_of(grp);
+                    matcher.inc_occurrence_of(&grp);
                 }
 
                 self.app.settings.set(AS::ValidArgFound);
@@ -714,14 +712,12 @@ where
                             self.app.color(),
                         ));
                     }
-                    sc_m.add_val_to(EMPTY_HASH, &v);
+                    sc_m.add_val_to(&Id::empty_hash(), &v);
                 }
 
-                let id = sc_name.key();
-
                 matcher.subcommand(SubCommand {
-                    name: sc_name,
-                    id,
+                    name: sc_name.clone(),
+                    id: sc_name.into(),
                     matches: sc_m.into_inner(),
                 });
 
@@ -852,7 +848,7 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(id) = find_subcmd!(sc, cmd).map(|x| x.id) {
+                if let Some(id) = find_subcmd!(sc, cmd).map(|x| x.id.clone()) {
                     sc._propagate(Propagation::To(id));
                 }
 
@@ -927,11 +923,11 @@ where
 
         let arg_allows_tac = match needs_val_of {
             ParseResult::Opt(name) => {
-                let o = self.app.find(name).expect(INTERNAL_ERROR_MSG);
+                let o = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
                 o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
             }
             ParseResult::Pos(name) => {
-                let p = self.app.find(name).expect(INTERNAL_ERROR_MSG);
+                let p = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
                 p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
             }
             ParseResult::ValuesDone => return true,
@@ -988,7 +984,7 @@ where
 
         mid_string.push_str(" ");
 
-        if let Some(id) = find_subcmd!(self.app, sc_name).map(|x| x.id) {
+        if let Some(id) = find_subcmd!(self.app, sc_name).map(|x| x.id.clone()) {
             self.app._propagate(Propagation::To(id));
         }
 
@@ -1022,11 +1018,10 @@ where
                 let mut p = Parser::new(sc);
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
-            let name = sc.name.clone();
-            let sc_id = name.key();
+            let name = &sc.name;
             matcher.subcommand(SubCommand {
-                id: sc_id, // @TODO @maybe: should be sc.id?
-                name,
+                id: Id::from_ref(&*name), // @TODO @maybe: should be sc.id?
+                name: name.to_string(),
                 matches: sc_matcher.into_inner(),
             });
         }
@@ -1065,7 +1060,7 @@ where
         );
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
         // both global and local settings, we only want to check local
-        if let Some(help) = self.app.find(util::HELP_HASH) {
+        if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.short {
                 if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
                     sdebugln!("Help");
@@ -1073,7 +1068,7 @@ where
                 }
             }
         }
-        if let Some(version) = self.app.find(util::VERSION_HASH) {
+        if let Some(version) = self.app.find(&Id::version_hash()) {
             if let Some(v) = version.short {
                 if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
                     sdebugln!("Version");
@@ -1131,7 +1126,7 @@ where
             );
             self.app.settings.set(AS::ValidArgFound);
 
-            self.seen.push(opt.id);
+            self.seen.push(opt.id.clone());
 
             if opt.is_set(ArgSettings::TakesValue) {
                 return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
@@ -1194,7 +1189,7 @@ where
                     c
                 );
                 self.app.settings.set(AS::ValidArgFound);
-                self.seen.push(opt.id);
+                self.seen.push(opt.id.clone());
                 if !opt.is_set(ArgSettings::TakesValue) {
                     self.check_for_help_and_version_char(c)?;
                     ret = self.parse_flag(opt, matcher)?;
@@ -1284,10 +1279,10 @@ where
             sdebugln!("None");
         }
 
-        matcher.inc_occurrence_of(opt.id);
+        matcher.inc_occurrence_of(&opt.id);
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, opt.id) {
-            matcher.inc_occurrence_of(grp);
+            matcher.inc_occurrence_of(&grp);
         }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
@@ -1298,7 +1293,7 @@ where
             return Ok(ParseResult::ValuesDone);
         } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
             debugln!("Parser::parse_opt: More arg vals required...");
-            return Ok(ParseResult::Opt(opt.id));
+            return Ok(ParseResult::Opt(opt.id.clone()));
         }
         debugln!("Parser::parse_opt: More arg vals not required...");
         Ok(ParseResult::ValuesDone)
@@ -1360,16 +1355,16 @@ where
             }
         }
 
-        matcher.add_val_to(arg.id, v);
-        matcher.add_index_to(arg.id, self.cur_idx.get());
+        matcher.add_val_to(&arg.id, v);
+        matcher.add_index_to(&arg.id, self.cur_idx.get());
 
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, arg.id) {
-            matcher.add_val_to(grp, v);
+            matcher.add_val_to(&grp, v);
         }
 
         if matcher.needs_more_vals(arg) {
-            return Ok(ParseResult::Opt(arg.id));
+            return Ok(ParseResult::Opt(arg.id.clone()));
         }
         Ok(ParseResult::ValuesDone)
     }
@@ -1377,11 +1372,11 @@ where
     fn parse_flag(&self, flag: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
         debugln!("Parser::parse_flag;");
 
-        matcher.inc_occurrence_of(flag.id);
-        matcher.add_index_to(flag.id, self.cur_idx.get());
+        matcher.inc_occurrence_of(&flag.id);
+        matcher.add_index_to(&flag.id, self.cur_idx.get());
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, flag.id) {
-            matcher.inc_occurrence_of(grp);
+            matcher.inc_occurrence_of(&grp);
         }
 
         Ok(ParseResult::Flag)
@@ -1392,10 +1387,10 @@ where
         let mut to_rem: Vec<Id> = Vec::new();
         let mut self_override: Vec<Id> = Vec::new();
         let mut arg_overrides = Vec::new();
-        for &name in matcher.arg_names() {
-            debugln!("Parser::remove_overrides:iter:{};", name);
+        for name in matcher.arg_names() {
+            debugln!("Parser::remove_overrides:iter:{:?};", name);
             if let Some(arg) = self.app.find(name) {
-                let mut handle_self_override = |o| {
+                let mut handle_self_override = |o: &Id| {
                     if (arg.is_set(ArgSettings::MultipleValues)
                         || arg.is_set(ArgSettings::MultipleOccurrences))
                         || !arg.has_switch()
@@ -1403,44 +1398,44 @@ where
                         return true;
                     }
                     debugln!(
-                        "Parser::remove_overrides:iter:{}:iter:{}: self override;",
+                        "Parser::remove_overrides:iter:{:?}:iter:{:?}: self override;",
                         name,
                         o
                     );
-                    self_override.push(o);
+                    self_override.push(o.clone());
                     false
                 };
                 if let Some(ref overrides) = arg.overrides {
-                    debugln!("Parser::remove_overrides:iter:{}:{:?};", name, overrides);
-                    for &o in overrides {
-                        if o == arg.id {
+                    debugln!("Parser::remove_overrides:iter:{:?}:{:?};", name, overrides);
+                    for o in overrides {
+                        if *o == arg.id {
                             if handle_self_override(o) {
                                 continue;
                             }
                         } else {
-                            arg_overrides.push((arg.id, o));
-                            arg_overrides.push((o, arg.id));
+                            arg_overrides.push((arg.id.clone(), o));
+                            arg_overrides.push((o.clone(), &arg.id));
                         }
                     }
                 }
                 if self.is_set(AS::AllArgsOverrideSelf) {
-                    let _ = handle_self_override(arg.id);
+                    let _ = handle_self_override(&arg.id);
                 }
             }
         }
 
         // remove future overrides in reverse seen order
-        for &arg in self.seen.iter().rev() {
-            for &(a, overr) in arg_overrides.iter().filter(|&&(a, _)| a == arg) {
+        for arg in self.seen.iter().rev() {
+            for (a, overr) in arg_overrides.iter().filter(|(a, _)| a == arg) {
                 if !to_rem.contains(&a) {
-                    to_rem.push(overr);
+                    to_rem.push((*overr).clone());
                 }
             }
         }
 
         // Do self overrides
-        for &name in &self_override {
-            debugln!("Parser::remove_overrides:iter:self:{}: resetting;", name);
+        for name in &self_override {
+            debugln!("Parser::remove_overrides:iter:self:{:?}: resetting;", name);
             if let Some(ma) = matcher.get_mut(name) {
                 if ma.occurs < 2 {
                     continue;
@@ -1455,22 +1450,24 @@ where
         }
 
         // Finally remove conflicts
-        for &name in &to_rem {
-            debugln!("Parser::remove_overrides:iter:{}: removing;", name);
+        for name in &to_rem {
+            debugln!("Parser::remove_overrides:iter:{:?}: removing;", name);
             matcher.remove(name);
-            self.overriden.push(name);
+            self.overriden.push(name.clone());
         }
     }
 
     #[allow(clippy::cognitive_complexity)]
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
+
+        // FIXME: Refactor into function (or at least most of it)
         macro_rules! add_val {
             (@default $_self:ident, $a:ident, $m:ident) => {
                 if let Some(ref vals) = $a.default_vals {
                     debugln!("Parser::add_defaults:iter:{}: has default vals", $a.name);
                     if $m
-                        .get($a.id)
+                        .get(&$a.id)
                         .map(|ma| ma.vals.len())
                         .map(|len| len == 0)
                         .unwrap_or(false)
@@ -1482,7 +1479,7 @@ where
                         for val in vals {
                             $_self.add_val_to_arg($a, val, $m)?;
                         }
-                    } else if $m.get($a.id).is_some() {
+                    } else if $m.get(&$a.id).is_some() {
                         debugln!(
                             "Parser::add_defaults:iter:{}: has user defined vals",
                             $a.name
@@ -1505,9 +1502,9 @@ where
                 if let Some(ref vm) = $a.default_vals_ifs {
                     sdebugln!(" has conditional defaults");
                     let mut done = false;
-                    if $m.get($a.id).is_none() {
-                        for &(arg, val, default) in vm.values() {
-                            let add = if let Some(a) = $m.get(arg) {
+                    if $m.get(&$a.id).is_none() {
+                        for (arg, val, default) in vm.values() {
+                            let add = if let Some(a) = $m.get(&arg) {
                                 if let Some(v) = val {
                                     a.vals.iter().any(|value| v == value)
                                 } else {
@@ -1588,17 +1585,17 @@ where
         if let Some(ref name) = suffix.1 {
             if let Some(opt) = self.app.args.get(&KeyType::Long(OsString::from(name))) {
                 for g in groups_for_arg!(self.app, opt.id) {
-                    matcher.inc_occurrence_of(g);
+                    matcher.inc_occurrence_of(&g);
                 }
-                matcher.insert(opt.id);
+                matcher.insert(&opt.id);
             }
         }
 
         let used: Vec<Id> = matcher
             .arg_names()
             .filter(|n| {
-                if let Some(a) = self.app.find(**n) {
-                    !(self.required.contains(a.id) || a.is_set(ArgSettings::Hidden))
+                if let Some(a) = self.app.find(n) {
+                    !(self.required.contains(&a.id) || a.is_set(ArgSettings::Hidden))
                 } else {
                     true
                 }

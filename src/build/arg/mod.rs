@@ -20,15 +20,13 @@ use crate::util::VecMap;
 
 // Internal
 use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};
-use crate::util::Key;
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
+use crate::util::{Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
 type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
 type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
-
-type Id = u64;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -129,9 +127,9 @@ impl<'help> Arg<'help> {
 
 impl<'help> Arg<'help> {
     /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(t: T) -> Self {
+    pub fn new<T: Key + ToString>(t: T) -> Self {
         Arg {
-            id: t.key(),
+            id: t.into(),
             disp_ord: 999,
             unified_ord: 999,
             ..Default::default()
@@ -157,7 +155,7 @@ impl<'help> Arg<'help> {
     /// [`Arg`]: ./struct.Arg.html
     pub fn with_name(n: &'help str) -> Self {
         Arg {
-            id: n.key(),
+            id: n.into(),
             name: n,
             disp_ord: 999,
             unified_ord: 999,
@@ -626,11 +624,11 @@ impl<'help> Arg<'help> {
     /// [`Arg::required`]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
     pub fn required_unless<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let id = arg_id.into();
         if let Some(ref mut vec) = self.r_unless {
-            vec.push(name);
+            vec.push(id);
         } else {
-            self.r_unless = Some(vec![name]);
+            self.r_unless = Some(vec![id]);
         }
         self
     }
@@ -701,10 +699,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(Into::into).collect());
         }
         self.setting(ArgSettings::RequiredUnlessAll)
     }
@@ -776,10 +774,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_one(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -830,7 +828,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
 
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let name = arg_id.into();
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -887,10 +885,10 @@ impl<'help> Arg<'help> {
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.blacklist {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.blacklist = Some(names.iter().map(Key::key).collect());
+            self.blacklist = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -1041,7 +1039,7 @@ impl<'help> Arg<'help> {
     /// [`Multiple*`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let name = arg_id.into();
         if let Some(ref mut vec) = self.overrides {
             vec.push(name);
         } else {
@@ -1080,10 +1078,10 @@ impl<'help> Arg<'help> {
     pub fn overrides_with_all<T: Key>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.overrides {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.overrides = Some(names.iter().map(Key::key).collect());
+            self.overrides = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -1144,7 +1142,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.requires {
             vec.push((None, arg));
         } else {
@@ -1213,7 +1211,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.requires {
             vec.push((Some(val), arg));
         } else {
@@ -1276,12 +1274,12 @@ impl<'help> Arg<'help> {
     pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for (val, arg) in ifs {
-                vec.push((Some(val), arg.key()));
+                vec.push((Some(val), arg.into()));
             }
         } else {
             let mut vec = vec![];
             for (val, arg) in ifs {
-                vec.push((Some(*val), arg.key()));
+                vec.push((Some(*val), arg.into()));
             }
             self.requires = Some(vec);
         }
@@ -1352,7 +1350,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_if<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.r_ifs {
             vec.push((arg, val));
         } else {
@@ -1443,13 +1441,13 @@ impl<'help> Arg<'help> {
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_ifs<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         if let Some(ref mut vec) = self.r_ifs {
-            for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+            for (id, val) in ifs {
+                vec.push((Id::from_ref(id), *val));
             }
         } else {
             let mut vec = vec![];
-            for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+            for (id, val) in ifs {
+                vec.push((Id::from_ref(id), *val));
             }
             self.r_ifs = Some(vec);
         }
@@ -1521,10 +1519,10 @@ impl<'help> Arg<'help> {
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for s in names {
-                vec.push((None, s.key()));
+                vec.push((None, s.into()));
             }
         } else {
-            self.requires = Some(names.iter().map(|s| (None, s.key())).collect());
+            self.requires = Some(names.iter().map(|s| (None, s.into())).collect());
         }
         self
     }
@@ -1785,7 +1783,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group<T: Key>(mut self, group_id: T) -> Self {
-        let name = group_id.key();
+        let name = group_id.into();
         if let Some(ref mut vec) = self.groups {
             vec.push(name);
         } else {
@@ -1828,10 +1826,10 @@ impl<'help> Arg<'help> {
     pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
         if let Some(ref mut vec) = self.groups {
             for s in group_ids {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.groups = Some(group_ids.iter().map(Key::key).collect());
+            self.groups = Some(group_ids.iter().map(Into::into).collect());
         }
         self
     }
@@ -2477,7 +2475,7 @@ impl<'help> Arg<'help> {
         val: Option<&'help OsStr>,
         default: &'help OsStr,
     ) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         self.setb(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
@@ -4164,7 +4162,7 @@ impl<'a> Arg<'a> {
         // Self conflict
         if let Some(vec) = &self.blacklist {
             assert!(
-                !vec.iter().any(|&x| x == self.id),
+                !vec.iter().any(|x| *x == self.id),
                 "Argument '{}' cannot conflict with itself",
                 self.name,
             );

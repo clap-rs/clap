@@ -11,10 +11,8 @@ use indexmap::IndexMap;
 
 // Internal
 use crate::parse::{MatchedArg, SubCommand};
-use crate::util::Key;
+use crate::util::{Id, Key};
 use crate::{Error, INVALID_UTF8};
-
-type Id = u64;
 
 /// Used to get information about the arguments that were supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -107,7 +105,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        if let Some(arg) = self.args.get(&id.key()) {
+        if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -139,7 +137,7 @@ impl ArgMatches {
     /// ```
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        if let Some(arg) = self.args.get(&id.key()) {
+        if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
             }
@@ -176,7 +174,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
-            .get(&id.key())
+            .get(&Id::from(id))
             .and_then(|arg| arg.vals.get(0).map(OsString::as_os_str))
     }
 
@@ -206,7 +204,7 @@ impl ArgMatches {
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
-        self.args.get(&id.key()).map(|arg| {
+        self.args.get(&Id::from(id)).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str {
                 o.to_str().expect(INVALID_UTF8)
             }
@@ -243,7 +241,7 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        self.args.get(&id.key()).map(|arg| {
+        self.args.get(&Id::from(id)).map(|arg| {
             arg.vals
                 .iter()
                 .map(|v| v.to_string_lossy().into_owned())
@@ -288,7 +286,7 @@ impl ArgMatches {
         }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
 
-        self.args.get(&id.key()).map(|arg| OsValues {
+        self.args.get(&Id::from(id)).map(|arg| OsValues {
             iter: arg.vals.iter().map(to_str_slice),
         })
     }
@@ -489,7 +487,7 @@ impl ArgMatches {
     /// assert!(m.is_present("debug"));
     /// ```
     pub fn is_present<T: Key>(&self, id: T) -> bool {
-        let id = id.key();
+        let id = Id::from(id);
 
         if let Some(ref sc) = self.subcommand {
             if sc.id == id {
@@ -539,7 +537,7 @@ impl ArgMatches {
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        self.args.get(&id.key()).map_or(0, |a| a.occurs)
+        self.args.get(&Id::from(id)).map_or(0, |a| a.occurs)
     }
 
     /// Gets the starting index of the argument in respect to all other arguments. Indices are
@@ -673,7 +671,7 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
-        if let Some(arg) = self.args.get(&name.key()) {
+        if let Some(arg) = self.args.get(&Id::from(name)) {
             if let Some(i) = arg.indices.get(0) {
                 return Some(*i);
             }
@@ -755,7 +753,7 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        self.args.get(&id.key()).map(|arg| Indices {
+        self.args.get(&Id::from(id)).map(|arg| Indices {
             iter: arg.indices.iter().cloned(),
         })
     }
@@ -793,7 +791,7 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
-            if s.id == id.key() {
+            if s.id == id.into() {
                 return Some(&s.matches);
             }
         }

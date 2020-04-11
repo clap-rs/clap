@@ -1,7 +1,6 @@
 use crate::build::Arg;
+use crate::util::Id;
 use std::ffi::{OsStr, OsString};
-
-type Id = u64;
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
@@ -112,14 +111,14 @@ impl<'b> MKeyMap<'b> {
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub(crate) fn remove_by_name(&mut self, _name: Id) -> Option<Arg<'b>> {
+    pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'b>> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
 
         self.args
             .iter()
-            .position(|arg| arg.id == _name)
+            .position(|arg| arg.id == *name)
             .map(|i| self.args.swap_remove(i))
     }
 }
