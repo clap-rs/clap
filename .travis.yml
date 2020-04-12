@@ -58,6 +58,7 @@ jobs:
       script:
         - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID --timeout 300
 script:
+  - cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
   - cargo test --features "yaml unstable"
 notifications:
   email: false

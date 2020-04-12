@@ -359,7 +359,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let too_long = str_width(h) >= self.term_w;
 
         debug!("Help::write_before_after_help: Too long...");
-        if too_long || h.contains("{n}") {
+        if too_long {
             sdebugln!("Yes");
             debugln!("Help::write_before_after_help: help: {}", help);
             debugln!(
@@ -371,7 +371,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 "Help::write_before_after_help: Usable space: {}",
                 self.term_w
             );
-            help = wrap_help(&help.replace("{n}", "\n"), self.term_w);
+            help = wrap_help(&help, self.term_w);
         } else {
             sdebugln!("No");
         }
@@ -405,14 +405,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         }
 
         debug!("Help::help: Too long...");
-        if too_long && spcs <= self.term_w || h.contains("{n}") {
+        if too_long && spcs <= self.term_w {
             sdebugln!("Yes");
             debugln!("Help::help: help...{}", help);
             debugln!("Help::help: help width...{}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::help: Usable space...{}", avail_chars);
-            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
+            help = wrap_help(&help, avail_chars);
         } else {
             sdebugln!("No");
         }
@@ -601,14 +601,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         }
 
         debug!("Help::sc_help: Too long...");
-        if too_long && spcs <= self.term_w || h.contains("{n}") {
+        if too_long && spcs <= self.term_w {
             sdebugln!("Yes");
             debugln!("Help::sc_help: help...{}", help);
             debugln!("Help::sc_help: help width...{}", str_width(&*help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spcs;
             debugln!("Help::sc_help: Usable space...{}", avail_chars);
-            help = wrap_help(&help.replace("{n}", "\n"), avail_chars);
+            help = wrap_help(&help, avail_chars);
         } else {
             sdebugln!("No");
         }
@@ -784,10 +784,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let term_w = self.term_w;
         macro_rules! write_name {
             () => {{
-                self.color(Format::Good(&*wrap_help(
-                    &self.parser.app.name.replace("{n}", "\n"),
-                    term_w,
-                )))?;
+                self.color(Format::Good(&*wrap_help(&self.parser.app.name, term_w)))?;
             }};
         }
         if let Some(bn) = self.parser.app.bin_name.as_ref() {
@@ -813,11 +810,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         macro_rules! write_thing {
             ($thing:expr) => {{
-                write!(
-                    self.writer,
-                    "{}\n",
-                    wrap_help(&$thing.replace("{n}", "\n"), self.term_w)
-                )?
+                write!(self.writer, "{}\n", wrap_help(&$thing, self.term_w))?
             }};
         }
         // Print the version
