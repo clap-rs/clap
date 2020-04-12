@@ -7,13 +7,10 @@ assignees: ''
 
 ---
 
-<!--
-Please use the following template to assist with creating an issue and to ensure a speedy resolution. If an area is not applicable, feel free to delete the area or mark with `N/A`
--->
+### Make sure you completed the following tasks
 
-### Rust Version
-
-Use the output of `rustc -V`
+- [ ] Searched the [discussions](https://github.com/clap-rs/clap/discussions)
+- [ ] Searched the closes issues
 
 ### Code
 
@@ -28,9 +25,10 @@ Use the output of `rustc -V`
 2. ???
 3. PROFIT!!!
 
-### Affected Version of `clap*`
+### Version
 
-Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
+* **Rust**: Output of `rustc -V`
+* **Clap**: Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
 
 ### Actual Behavior Summary
 

@@ -589,7 +589,7 @@ macro_rules! app_from_crate {
     };
 }
 
-/// Build `App`, `Arg`s, ``s and `Group`s with Usage-string like input
+/// Build `App`, `Arg` and `Group` with Usage-string like input
 /// but without the associated parsing runtime cost.
 ///
 /// `clap_app!` also supports several shorthand syntaxes.
@@ -621,12 +621,11 @@ macro_rules! app_from_crate {
 /// );
 /// # }
 /// ```
+///
 /// # Shorthand Syntax for Args
 ///
 /// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
 /// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
-///   * If one wishes to use a [`Arg::long`] with a hyphen inside (i.e. `--config-file`), you
-///     must use `--("config-file")` due to limitations of the Rust macro system.
 /// * Three dots (`...`) sets [`Arg::multiple(true)`]
 /// * Angled brackets after either a short or long will set [`Arg::value_name`] and
 /// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
@@ -661,6 +660,10 @@ macro_rules! app_from_crate {
 /// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
 /// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`
 ///
+/// Or it can be even simpler by using the literal directly
+/// * `(@arg "something-else": --"something-else")`
+/// * `(@subcommand "something-else" => ...)`
+///
 /// [`Arg::short`]: ./struct.Arg.html#method.short
 /// [`Arg::long`]: ./struct.Arg.html#method.long
 /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
@@ -679,6 +682,13 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
+    (@app ($builder:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @app
+            ($builder.arg(
+                $crate::clap_app!{ @arg ($crate::Arg::with_name(stringify!($name).trim_matches('"'))) (-) $($tail)* }))
+            $($tt)*
+        }
+    };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
@@ -686,16 +696,18 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
+    // Settings
     (@app ($builder:expr) (@setting $setting:ident) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.setting($crate::AppSettings::$setting))
             $($tt)*
         }
     };
-// Treat the application builder as an argument to set its attributes
+    // Treat the application builder as an argument to set its attributes
     (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app ($crate::clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
+    // ArgGroup
     (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name))) $($tail)* })
@@ -714,7 +726,23 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-// Handle subcommand creation
+    // Handle subcommand creation
+    (@app ($builder:expr) (@subcommand ($name:expr) => $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @app
+            ($builder.subcommand(
+                $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
+            ))
+            $($tt)*
+        }
+    };
+    (@app ($builder:expr) (@subcommand $name:literal => $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @app
+            ($builder.subcommand(
+                $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
+            ))
+            $($tt)*
+        }
+    };
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.subcommand(
@@ -723,28 +751,32 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    (@app ($builder:expr) (@subcommand ($name:expr) => $($tail:tt)*) $($tt:tt)*) => {
-        clap_app!{ @app
-            ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
-            ))
-            $($tt)*
-        }
-    };
-// Yaml like function calls - used for setting various meta directly against the app
+    // Yaml like function calls - used for setting various meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
-// clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
         $crate::clap_app!{ @app
             ($builder.$ident($($v),*))
             $($tt)*
         }
     };
-
-// Add members to group and continue argument handling with the parent builder
+    // Add members to group and continue argument handling with the parent builder
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     // Treat the group builder as an argument to set its attributes
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @group ($builder, $crate::clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
+    };
+    (@group ($builder:expr, $group:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @group
+            ($crate::clap_app!{ @app ($builder) (@arg ($name): $($tail)*) },
+             $group.arg($name))
+            $($tt)*
+        }
+    };
+    (@group ($builder:expr, $group:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @group
+            ($crate::clap_app!{ @app ($builder) (@arg $name: $($tail)*) },
+             $group.arg(stringify!($name).trim_matches('"')))
+            $($tt)*
+        }
     };
     (@group ($builder:expr, $group:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @group
@@ -753,15 +785,23 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-
-// No more tokens to munch
+    // No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
-// Shorthand tokens influenced by the usage_string
+    // Shorthand tokens influenced by the usage_string
     (@arg ($arg:expr) $modes:tt --($long:expr) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long($long)) $modes $($tail)* }
     };
+    (@arg ($arg:expr) $modes:tt --$long:literal $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg.long(stringify!($long).trim_matches('"'))) $modes $($tail)* }
+    };
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
+    };
+    (@arg ($arg:expr) $modes:tt -($short:expr) $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg.short($short)) $modes $($tail)* }
+    };
+    (@arg ($arg:expr) $modes:tt -$short:literal $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg.short($short.to_string().chars().next().expect(r#""" is not allowed here"#))) $modes $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.short(stringify!($short).chars().next().unwrap())) $modes $($tail)* }
@@ -781,49 +821,56 @@ macro_rules! clap_app {
     (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes +multiple $($tail)* }
     };
-// Shorthand magic
+    // Shorthand magic
     (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes min_values($n) max_values($m) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt * $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes +required $($tail)* }
     };
-// !foo -> .foo(false)
+    // !foo -> .foo(false)
     (@arg ($arg:expr) $modes:tt !$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
-// +foo -> .foo(true)
+    // +foo -> .foo(true)
     (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
     };
-// Validator
+    // Validator
     (@arg ($arg:expr) $modes:tt {$fn_:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.validator($fn_)) $modes $($tail)* }
     };
     (@as_expr $expr:expr) => { $expr };
-// Help
+    // Help
     (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help(clap_app!{ @as_expr $desc }) };
-// Handle functions that need to be called multiple times for each argument
+    // Handle functions that need to be called multiple times for each argument
+    (@arg ($arg:expr) $modes:tt $ident:ident[$($target:literal)*] $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target).trim_matches('"')) )*) $modes $($tail)* }
+    };
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
     };
-// Inherit builder's functions
+    // Inherit builder's functions
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr)*) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident($($expr)*)) $modes $($tail)* }
     };
-
-// Build a subcommand outside of an app.
-    (@subcommand $name:ident => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
-    };
+    // Build a subcommand outside of an app.
     (@subcommand ($name:expr) => $($tail:tt)*) => {
         $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
     };
-// Start the magic
+    (@subcommand $name:literal => $($tail:tt)*) => {
+        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
+    };
+    (@subcommand $name:ident => $($tail:tt)*) => {
+        $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
+    };
+    // Start the magic
     (($name:expr) => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)*}
     }};
-
+    ($name:literal => $($tail:tt)*) => {{
+        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)*}
+    }};
     ($name:ident => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};

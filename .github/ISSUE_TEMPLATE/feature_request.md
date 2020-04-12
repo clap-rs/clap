@@ -10,7 +10,7 @@ assignees: ''
 ### Make sure you completed the following tasks
 
 - [ ] Searched the [discussions](https://github.com/clap-rs/clap/discussions)
-- [ ] Searched the closes issues
+- [ ] Searched the closed issues
 
 ### Describe your use case
 
@@ -29,4 +29,5 @@ Please explain what the wanted solution should look like. You are **strongly enc
 A clear and concise description of any alternative solutions or features you've managed to come up with.
 
 ### Additional context
+
 Add any other context about the feature request here.
