@@ -768,19 +768,6 @@ mod debug_macros {
     }
 }
 
-// Helper/deduplication macro for printing the correct number of spaces in help messages
-// used in:
-//    src/args/arg_builder/*.rs
-//    src/app/mod.rs
-macro_rules! write_nspaces {
-    ($dst:expr, $num:expr) => {{
-        debugln!("write_spaces!: num={}", $num);
-        for _ in 0..$num {
-            $dst.write_all(b" ")?;
-        }
-    }};
-}
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! flags {
@@ -853,6 +840,7 @@ macro_rules! find_subcmd {
 macro_rules! find_subcmd_mut {
     ($app:expr, $sc:expr) => {{
         $app.get_subcommands_mut()
+            .iter_mut()
             .find(|a| match_alias!(a, $sc, a.get_name()))
     }};
 }

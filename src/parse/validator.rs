@@ -1,7 +1,6 @@
 // Internal
 use crate::build::app::AppSettings as AS;
 use crate::build::{Arg, ArgSettings};
-use crate::output::fmt::{Colorizer, ColorizerOption};
 use crate::output::Usage;
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::errors::{Error, ErrorKind};
@@ -53,7 +52,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     o,
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
         }
 
@@ -61,11 +60,10 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             && matcher.subcommand_name().is_none()
             && self.p.is_set(AS::ArgRequiredElseHelp)
         {
-            let mut out = vec![];
-            self.p.write_help_err(&mut out)?;
+            let message = self.p.write_help_err()?;
             return Err(Error {
                 cause: String::new(),
-                message: String::from_utf8_lossy(&*out).into_owned(),
+                message,
                 kind: ErrorKind::MissingArgumentOrSubcommand,
                 info: None,
             });
@@ -96,7 +94,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 return Err(Error::invalid_utf8(
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
             if let Some(ref p_vals) = arg.possible_vals {
                 debugln!("Validator::validate_arg_values: possible_vals={:?}", p_vals);
@@ -124,7 +122,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         arg,
                         &*Usage::new(self.p).create_usage_with_title(&*used),
                         self.p.app.color(),
-                    ));
+                    )?);
                 }
             }
             if !arg.is_set(ArgSettings::AllowEmptyValues)
@@ -136,13 +134,13 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     arg,
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
             if let Some(ref vtor) = arg.validator {
                 debug!("Validator::validate_arg_values: checking validator...");
                 if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
                     sdebugln!("error");
-                    return Err(Error::value_validation(Some(arg), &e, self.p.app.color()));
+                    return Err(Error::value_validation(Some(arg), &e, self.p.app.color())?);
                 } else {
                     sdebugln!("good");
                 }
@@ -155,7 +153,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                         Some(arg),
                         &(*e).to_string(),
                         self.p.app.color(),
-                    ));
+                    )?);
                 } else {
                     sdebugln!("good");
                 }
@@ -177,7 +175,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                                 Some(other_arg.to_string()),
                                 &*usg,
                                 self.p.app.color(),
-                            ));
+                            )?);
                         }
                     }
                 }
@@ -198,7 +196,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 c_with,
                 &*usg,
                 self.p.app.color(),
-            ));
+            )?);
         }
 
         panic!(INTERNAL_ERROR_MSG);
@@ -269,17 +267,12 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             if let Some(arg) = self.p.app.find(name) {
                 if arg.exclusive && args_count > 1 {
                     let c_with: Option<String> = None;
-                    let err = Err(Error::argument_conflict(
+                    return Err(Error::argument_conflict(
                         arg,
                         c_with,
                         Usage::new(self.p).create_usage_with_title(&[]),
                         self.p.app.color(),
-                    ));
-                    debugln!(
-                        "Validator::validate_conflicts_with_everything; ERROR: {:?}",
-                        err
-                    );
-                    return err;
+                    )?);
                 }
             }
         }
@@ -407,7 +400,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 a,
                 &*Usage::new(self.p).create_usage_with_title(&[]),
                 self.p.app.color(),
-            ));
+            )?);
         }
         Ok(())
     }
@@ -433,7 +426,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     },
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
         }
         if let Some(num) = a.max_vals {
@@ -450,7 +443,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     a,
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
         }
         let min_vals_zero = if let Some(num) = a.min_vals {
@@ -463,7 +456,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     ma.vals.len(),
                     &*Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
-                ));
+                )?);
             }
             num == 0
         } else {
@@ -476,7 +469,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 a,
                 &*Usage::new(self.p).create_usage_with_title(&[]),
                 self.p.app.color(),
-            ));
+            )?);
         }
         Ok(())
     }
@@ -619,32 +612,24 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     // `incl`: an arg to include in the error even if not used
     fn missing_required_error(&self, matcher: &ArgMatcher, incl: Option<&Id>) -> ClapResult<()> {
         debugln!("Validator::missing_required_error; incl={:?}", incl);
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: self.p.app.color(),
-        });
         debugln!(
             "Validator::missing_required_error: reqs={:?}",
             self.p.required
         );
+
         let usg = Usage::new(self.p);
+
         let req_args = if let Some(x) = incl {
             usg.get_required_usage_from(&[x.clone()], Some(matcher), true)
-                .iter()
-                .fold(String::new(), |acc, s| {
-                    acc + &format!("\n    {}", c.error(s))[..]
-                })
         } else {
             usg.get_required_usage_from(&[], None, true)
-                .iter()
-                .fold(String::new(), |acc, s| {
-                    acc + &format!("\n    {}", c.error(s))[..]
-                })
         };
+
         debugln!(
             "Validator::missing_required_error: req_args={:#?}",
             req_args
         );
+
         let used: Vec<Id> = matcher
             .arg_names()
             .filter(|&n| {
@@ -657,10 +642,11 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             .cloned()
             .chain(incl.cloned())
             .collect();
+
         Err(Error::missing_required_argument(
-            &*req_args,
+            req_args,
             &*usg.create_usage_with_title(&*used),
             self.p.app.color(),
-        ))
+        )?)
     }
 }

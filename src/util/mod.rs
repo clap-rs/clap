@@ -11,3 +11,9 @@ pub(crate) use self::{graph::ChildGraph, id::Id, map::VecMap, osstringext::OsStr
 
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 pub(crate) use self::osstringext::OsStrExt3;
+
+#[cfg(feature = "color")]
+pub(crate) use termcolor;
+
+#[cfg(not(feature = "color"))]
+pub(crate) mod termcolor;

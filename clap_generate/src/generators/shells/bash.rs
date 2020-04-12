@@ -178,7 +178,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
 }
 
 fn vals_for(o: &Arg) -> String {
-    debugln!("Bash::vals_for: o={}", o.name);
+    debugln!("Bash::vals_for: o={}", o.get_name());
 
     if let Some(ref vals) = o.get_possible_values() {
         format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))

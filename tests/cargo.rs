@@ -31,7 +31,10 @@ fn crate_version() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
-    assert_eq!(err.message, format!("prog {}", env!("CARGO_PKG_VERSION")));
+    assert_eq!(
+        err.to_string(),
+        format!("prog {}", env!("CARGO_PKG_VERSION"))
+    );
 }
 
 #[test]
@@ -44,7 +47,7 @@ fn crate_description() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::HelpDisplayed);
-    assert_eq!(err.message, DESCRIPTION_ONLY);
+    assert_eq!(err.to_string(), DESCRIPTION_ONLY);
 }
 
 #[test]
@@ -57,7 +60,7 @@ fn crate_authors() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::HelpDisplayed);
-    assert_eq!(err.message, AUTHORS_ONLY);
+    assert_eq!(err.to_string(), AUTHORS_ONLY);
 }
 
 #[test]
@@ -67,5 +70,5 @@ fn crate_name() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
-    assert_eq!(err.message, "clap ");
+    assert_eq!(err.to_string(), "clap ");
 }

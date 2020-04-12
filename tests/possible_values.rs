@@ -17,7 +17,6 @@ For more information try --help";
 static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
 \t[possible values: fast, slow]
 
-
 USAGE:
     clap-test --Option <option3>
 

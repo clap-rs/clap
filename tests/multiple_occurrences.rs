@@ -87,18 +87,18 @@ fn multiple_occurrences_of_before_env() {
     );
 
     let m = app.clone().try_get_matches_from(vec![""]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
 
     let m = app.clone().try_get_matches_from(vec!["", "-v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
     let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
     let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }
 
@@ -114,17 +114,17 @@ fn multiple_occurrences_of_after_env() {
     );
 
     let m = app.clone().try_get_matches_from(vec![""]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 0);
 
     let m = app.clone().try_get_matches_from(vec!["", "-v"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
 
     let m = app.clone().try_get_matches_from(vec!["", "-vv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
     let m = app.clone().try_get_matches_from(vec!["", "-vvv"]);
-    assert!(m.is_ok(), "{}", m.unwrap_err().message);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }

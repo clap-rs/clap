@@ -7,8 +7,7 @@ use std::usize;
 
 // Internal
 use crate::build::{App, AppSettings, Arg, ArgSettings};
-use crate::output::fmt::{Colorizer, ColorizerOption, Format};
-use crate::output::Usage;
+use crate::output::{fmt::Colorizer, Usage};
 use crate::parse::errors::{Error, Result as ClapResult};
 use crate::parse::Parser;
 use crate::util::VecMap;
@@ -29,17 +28,36 @@ fn str_width(s: &str) -> usize {
 
 const TAB: &str = "    ";
 
+pub(crate) enum HelpWriter<'w> {
+    Normal(&'w mut dyn Write),
+    Buffer(&'w mut Colorizer),
+}
+
+impl<'w> Write for HelpWriter<'w> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self {
+            HelpWriter::Normal(n) => n.write(buf),
+            HelpWriter::Buffer(c) => c.write(buf),
+        }
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        match self {
+            HelpWriter::Normal(n) => n.flush(),
+            HelpWriter::Buffer(c) => c.flush(),
+        }
+    }
+}
+
 /// `clap` Help Writer.
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
 pub(crate) struct Help<'b, 'c, 'd, 'w> {
-    writer: &'w mut dyn Write,
+    writer: HelpWriter<'w>,
     parser: &'d Parser<'b, 'c>,
     next_line_help: bool,
     hide_pv: bool,
     term_w: usize,
-    color: bool,
-    cizer: Colorizer,
     longest: usize,
     force_next_line: bool,
     use_long: bool,
@@ -48,12 +66,7 @@ pub(crate) struct Help<'b, 'c, 'd, 'w> {
 // Public Functions
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Create a new `Help` instance.
-    pub(crate) fn new(
-        w: &'w mut dyn Write,
-        parser: &'d Parser<'b, 'c>,
-        use_long: bool,
-        stderr: bool,
-    ) -> Self {
+    pub(crate) fn new(w: HelpWriter<'w>, parser: &'d Parser<'b, 'c>, use_long: bool) -> Self {
         debugln!("Help::new;");
         let term_w = match parser.app.term_w {
             Some(0) => usize::MAX,
@@ -68,21 +81,15 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         };
         let nlh = parser.is_set(AppSettings::NextLineHelp);
         let hide_pv = parser.is_set(AppSettings::HidePossibleValuesInHelp);
-        let color = parser.is_set(AppSettings::ColoredHelp);
-        let cizer = Colorizer::new(&ColorizerOption {
-            use_stderr: stderr,
-            when: parser.app.color(),
-        });
+
         Help {
             writer: w,
             parser,
             next_line_help: nlh,
             hide_pv,
             term_w,
-            color,
             longest: 0,
             force_next_line: false,
-            cizer,
             use_long,
         }
     }
@@ -90,47 +97,56 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes the parser help to the wrapped stream.
     pub(crate) fn write_help(&mut self) -> ClapResult<()> {
         debugln!("Help::write_help;");
+
         if let Some(h) = self.parser.app.help_str {
-            write!(self.writer, "{}", h).map_err(Error::from)?;
+            self.none(h).map_err(Error::from)?;
         } else if let Some(tmpl) = self.parser.app.template {
             self.write_templated_help(tmpl)?;
         } else {
             self.write_default_help()?;
         }
 
-        writeln!(self.writer)?;
+        self.none("\n")?;
 
         Ok(())
     }
 }
 
+macro_rules! write_method {
+    ($_self:ident, $msg:ident, $meth:ident) => {
+        match &mut $_self.writer {
+            HelpWriter::Buffer(c) => c.$meth($msg),
+            HelpWriter::Normal(w) => write!(w, "{}", $msg),
+        }
+    };
+}
+
+macro_rules! write_nspaces {
+    ($_self:ident, $num:expr) => {{
+        debugln!("write_nspaces!: num={}", $num);
+        for _ in 0..$num {
+            $_self.none(" ")?;
+        }
+    }};
+}
+
 // Methods to write Arg help.
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
-    fn color(&mut self, f: Format<&str>) -> io::Result<()> {
-        match f {
-            Format::Good(g) => {
-                if self.color {
-                    write!(self.writer, "{}", self.cizer.good(g))
-                } else {
-                    write!(self.writer, "{}", g)
-                }
-            }
-            Format::Warning(w) => {
-                if self.color {
-                    write!(self.writer, "{}", self.cizer.warning(w))
-                } else {
-                    write!(self.writer, "{}", w)
-                }
-            }
-            Format::Error(e) => {
-                if self.color {
-                    write!(self.writer, "{}", self.cizer.error(e))
-                } else {
-                    write!(self.writer, "{}", e)
-                }
-            }
-            _ => unreachable!(),
-        }
+    fn good(&mut self, msg: &str) -> io::Result<()> {
+        write_method!(self, msg, good)
+    }
+
+    fn warning(&mut self, msg: &str) -> io::Result<()> {
+        write_method!(self, msg, warning)
+    }
+
+    #[allow(dead_code)]
+    fn error(&mut self, msg: &str) -> io::Result<()> {
+        write_method!(self, msg, error)
+    }
+
+    fn none(&mut self, msg: &str) -> io::Result<()> {
+        write_method!(self, msg, none)
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
@@ -152,7 +168,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             if first {
                 first = false;
             } else {
-                self.writer.write_all(b"\n")?;
+                self.none("\n")?;
             }
             self.write_arg(arg, i < arg_c)?;
         }
@@ -189,7 +205,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 if first {
                     first = false;
                 } else {
-                    self.writer.write_all(b"\n")?;
+                    self.none("\n")?;
                 }
                 self.write_arg(arg, false)?;
             }
@@ -210,11 +226,13 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes argument's short command to the wrapped stream.
     fn short(&mut self, arg: &Arg<'c>) -> io::Result<()> {
         debugln!("Help::short;");
-        write!(self.writer, "{}", TAB)?;
+
+        self.none(TAB)?;
+
         if let Some(s) = arg.short {
-            self.color(Format::Good(&*format!("-{}", s)))
+            self.good(&format!("-{}", s))
         } else if arg.has_switch() {
-            write!(self.writer, "{}", TAB)
+            self.none(TAB)
         } else {
             Ok(())
         }
@@ -229,9 +247,9 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         if arg.is_set(ArgSettings::TakesValue) {
             if let Some(l) = arg.long {
                 if arg.short.is_some() {
-                    write!(self.writer, ", ")?;
+                    self.none(", ")?;
                 }
-                self.color(Format::Good(&*format!("--{}", l)))?
+                self.good(&format!("--{}", l))?
             }
 
             let sep = if arg.is_set(ArgSettings::RequireEquals) {
@@ -239,12 +257,12 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             } else {
                 " "
             };
-            write!(self.writer, "{}", sep)?;
+            self.none(sep)?;
         } else if let Some(l) = arg.long {
             if arg.short.is_some() {
-                write!(self.writer, ", ")?;
+                self.none(", ")?;
             }
-            self.color(Format::Good(&*format!("--{}", l)))?;
+            self.good(&format!("--{}", l))?;
         }
         Ok(())
     }
@@ -263,33 +281,33 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             if let Some(ref vec) = arg.val_names {
                 let mut it = vec.iter().peekable();
                 while let Some((_, val)) = it.next() {
-                    self.color(Format::Good(&*format!("<{}>", val)))?;
+                    self.good(&format!("<{}>", val))?;
                     if it.peek().is_some() {
-                        write!(self.writer, "{}", delim)?;
+                        self.none(&delim.to_string())?;
                     }
                 }
                 let num = vec.len();
                 if mult && num == 1 {
-                    self.color(Format::Good("..."))?;
+                    self.good("...")?;
                 }
             } else if let Some(num) = arg.num_vals {
                 let mut it = (0..num).peekable();
                 while let Some(_) = it.next() {
-                    self.color(Format::Good(&*format!("<{}>", arg.name)))?;
+                    self.good(&format!("<{}>", arg.name))?;
                     if it.peek().is_some() {
-                        write!(self.writer, "{}", delim)?;
+                        self.none(&delim.to_string())?;
                     }
                 }
                 if mult && num == 1 {
-                    self.color(Format::Good("..."))?;
+                    self.good("...")?;
                 }
             } else if arg.has_switch() {
-                self.color(Format::Good(&*format!("<{}>", arg.name)))?;
+                self.good(&format!("<{}>", arg.name))?;
                 if mult {
-                    self.color(Format::Good("..."))?;
+                    self.good("...")?;
                 }
             } else {
-                self.color(Format::Good(&*arg.to_string()))?;
+                self.good(&arg.to_string())?;
             }
         }
 
@@ -332,14 +350,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     spcs += 8;
                 }
 
-                write_nspaces!(self.writer, spcs);
+                write_nspaces!(self, spcs);
             } else {
                 sdebugln!("Yes");
             }
         } else if !(nlh || self.force_next_line) {
             sdebugln!("No, and not next_line");
             write_nspaces!(
-                self.writer,
+                self,
                 self.longest + 4 - (str_width(arg.to_string().as_str()))
             );
         } else {
@@ -375,7 +393,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         } else {
             sdebugln!("No");
         }
-        write!(self.writer, "{}", help)?;
+        self.none(&help)?;
         Ok(())
     }
 
@@ -401,7 +419,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         // Is help on next line, if so then indent
         if nlh || self.force_next_line {
-            write!(self.writer, "\n{}{}{}", TAB, TAB, TAB)?;
+            self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
         }
 
         debug!("Help::help: Too long...");
@@ -417,21 +435,21 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             sdebugln!("No");
         }
         if let Some(part) = help.lines().next() {
-            write!(self.writer, "{}", part)?;
+            self.none(part)?;
         }
         for part in help.lines().skip(1) {
-            writeln!(self.writer)?;
+            self.none("\n")?;
             if nlh || self.force_next_line {
-                write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
+                self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
             } else if arg.has_switch() {
-                write_nspaces!(self.writer, self.longest + 12);
+                write_nspaces!(self, self.longest + 12);
             } else {
-                write_nspaces!(self.writer, self.longest + 8);
+                write_nspaces!(self, self.longest + 8);
             }
-            write!(self.writer, "{}", part)?;
+            self.none(part)?;
         }
         if !prevent_nlh && !help.contains('\n') && (nlh || self.force_next_line) {
-            writeln!(self.writer)?;
+            self.none("\n")?;
         }
         Ok(())
     }
@@ -462,37 +480,25 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             if let Some(ref pv) = a.default_vals {
                 debugln!("Help::spec_vals: Found default value...[{:?}]", pv);
 
-                let pvs = if self.color {
-                    pv.iter()
-                        .map(|&pvs| format!("{}", self.cizer.good(pvs.to_string_lossy())))
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                } else {
-                    pv.iter()
-                        .map(|&pvs| format!("{}", Format::None(pvs.to_string_lossy())))
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                };
+                let pvs = pv
+                    .iter()
+                    .map(|&pvs| pvs.to_string_lossy())
+                    .collect::<Vec<_>>()
+                    .join(" ");
+
                 spec_vals.push(format!(" [default: {}]", pvs));
             }
         }
         if let Some(ref aliases) = a.aliases {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
-            let als = if self.color {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1) // visible
-                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            } else {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1)
-                    .map(|&als| als.0)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
+
+            let als = aliases
+                .iter()
+                .filter(|&als| als.1) // visible
+                .map(|&als| als.0) // name
+                .collect::<Vec<_>>()
+                .join(", ");
+
             if !als.is_empty() {
                 spec_vals.push(format!(" [aliases: {}]", als));
             }
@@ -500,17 +506,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
             if let Some(ref pv) = a.possible_vals {
                 debugln!("Help::spec_vals: Found possible vals...{:?}", pv);
-                spec_vals.push(if self.color {
-                    format!(
-                        " [possible values: {}]",
-                        pv.iter()
-                            .map(|v| format!("{}", self.cizer.good(v)))
-                            .collect::<Vec<_>>()
-                            .join(", ")
-                    )
-                } else {
-                    format!(" [possible values: {}]", pv.join(", "))
-                });
+
+                spec_vals.push(format!(" [possible values: {}]", pv.join(", ")));
             }
         }
         spec_vals.join(" ")
@@ -521,8 +518,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn write_subcommand(&mut self, app: &App<'b>) -> io::Result<()> {
         debugln!("Help::write_subcommand;");
-        write!(self.writer, "{}", TAB)?;
-        self.color(Format::Good(&*app.name))?;
+        self.none(TAB)?;
+        self.good(&app.name)?;
         let spec_vals = self.sc_val(app)?;
         self.sc_help(app, &*spec_vals)?;
         Ok(())
@@ -541,10 +538,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             && h_w > (self.term_w - taken);
 
         if !(nlh || self.force_next_line) {
-            write_nspaces!(
-                self.writer,
-                self.longest + 4 - (str_width(app.to_string().as_str()))
-            );
+            write_nspaces!(self, self.longest + 4 - (str_width(&app.name)));
         }
         Ok(spec_vals)
     }
@@ -554,21 +548,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let mut spec_vals = vec![];
         if let Some(ref aliases) = a.aliases {
             debugln!("Help::spec_vals: Found aliases...{:?}", aliases);
-            let als = if self.color {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1) // visible
-                    .map(|&als| format!("{}", self.cizer.good(als.0))) // name
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            } else {
-                aliases
-                    .iter()
-                    .filter(|&als| als.1)
-                    .map(|&als| als.0)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
+
+            let als = aliases
+                .iter()
+                .filter(|&als| als.1) // visible
+                .map(|&als| als.0) // name
+                .collect::<Vec<_>>()
+                .join(", ");
+
             if !als.is_empty() {
                 spec_vals.push(format!(" [aliases: {}]", als));
             }
@@ -597,7 +584,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         // Is help on next line, if so then indent
         if nlh || self.force_next_line {
-            write!(self.writer, "\n{}{}{}", TAB, TAB, TAB)?;
+            self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
         }
 
         debug!("Help::sc_help: Too long...");
@@ -613,19 +600,19 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             sdebugln!("No");
         }
         if let Some(part) = help.lines().next() {
-            write!(self.writer, "{}", part)?;
+            self.none(part)?;
         }
         for part in help.lines().skip(1) {
-            writeln!(self.writer)?;
+            self.none("\n")?;
             if nlh || self.force_next_line {
-                write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
+                self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
             } else {
-                write_nspaces!(self.writer, self.longest + 8);
+                write_nspaces!(self, self.longest + 8);
             }
-            write!(self.writer, "{}", part)?;
+            self.none(part)?;
         }
         if !help.contains('\n') && (nlh || self.force_next_line) {
-            writeln!(self.writer)?;
+            self.none("\n")?;
         }
         Ok(())
     }
@@ -657,16 +644,13 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             }
         }) > 0;
 
-        let mut first = true;
-
-        if pos {
-            if !first {
-                self.writer.write_all(b"\n\n")?;
-            }
-            self.color(Format::Warning("ARGS:\n"))?;
+        let mut first = if pos {
+            self.warning("ARGS:\n")?;
             self.write_args_unsorted(&*positionals!(self.parser.app).collect::<Vec<_>>())?;
-            first = false;
-        }
+            false
+        } else {
+            true
+        };
 
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
 
@@ -680,26 +664,26 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 .filter(|a| a.has_switch())
                 .collect::<Vec<_>>();
             if !first {
-                self.writer.write_all(b"\n\n")?;
+                self.none("\n\n")?;
             }
-            self.color(Format::Warning("OPTIONS:\n"))?;
+            self.warning("OPTIONS:\n")?;
             self.write_args(&*opts_flags)?;
             first = false;
         } else {
             if flags {
                 if !first {
-                    self.writer.write_all(b"\n\n")?;
+                    self.none("\n\n")?;
                 }
-                self.color(Format::Warning("FLAGS:\n"))?;
+                self.warning("FLAGS:\n")?;
                 let flags_v: Vec<_> = flags!(self.parser.app).collect();
                 self.write_args(&*flags_v)?;
                 first = false;
             }
             if opts {
                 if !first {
-                    self.writer.write_all(b"\n\n")?;
+                    self.none("\n\n")?;
                 }
-                self.color(Format::Warning("OPTIONS:\n"))?;
+                self.warning("OPTIONS:\n")?;
                 self.write_args(&*opts!(self.parser.app).collect::<Vec<_>>())?;
                 first = false;
             }
@@ -713,9 +697,9 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     .map(|heading| heading.unwrap())
                 {
                     if !first {
-                        self.writer.write_all(b"\n\n")?;
+                        self.none("\n\n")?;
                     }
-                    self.color(Format::Warning(&*format!("{}:\n", heading)))?;
+                    self.warning(&*format!("{}:\n", heading))?;
                     let args = self
                         .parser
                         .app
@@ -732,9 +716,9 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         if subcmds {
             if !first {
-                self.writer.write_all(b"\n\n")?;
+                self.none("\n\n")?;
             }
-            self.color(Format::Warning("SUBCOMMANDS:\n"))?;
+            self.warning("SUBCOMMANDS:\n")?;
             self.write_subcommands(&self.parser.app)?;
         }
 
@@ -763,7 +747,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 if first {
                     first = false;
                 } else {
-                    self.writer.write_all(b"\n")?;
+                    self.none("\n")?;
                 }
                 self.write_subcommand(sc)?;
             }
@@ -774,7 +758,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes version of a Parser Object to the wrapped stream.
     fn write_version(&mut self) -> io::Result<()> {
         debugln!("Help::write_version;");
-        write!(self.writer, "{}", self.parser.app.version.unwrap_or(""))?;
+        self.none(self.parser.app.version.unwrap_or(""))?;
         Ok(())
     }
 
@@ -784,13 +768,13 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let term_w = self.term_w;
         macro_rules! write_name {
             () => {{
-                self.color(Format::Good(&*wrap_help(&self.parser.app.name, term_w)))?;
+                self.good(&*wrap_help(&self.parser.app.name, term_w))?;
             }};
         }
         if let Some(bn) = self.parser.app.bin_name.as_ref() {
             if bn.contains(' ') {
                 // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
-                self.color(Format::Good(&*bn.replace(" ", "-")))?
+                self.good(&bn.replace(" ", "-"))?
             } else {
                 write_name!();
             }
@@ -805,38 +789,41 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         debugln!("Help::write_default_help;");
         if let Some(h) = self.parser.app.pre_help {
             self.write_before_after_help(h)?;
-            self.writer.write_all(b"\n\n")?;
+            self.none("\n\n")?;
         }
 
         macro_rules! write_thing {
             ($thing:expr) => {{
-                write!(self.writer, "{}\n", wrap_help(&$thing, self.term_w))?
+                self.none(&wrap_help(&$thing, self.term_w))?;
+                self.none("\n")?
             }};
         }
+
         // Print the version
         self.write_bin_name()?;
-        self.writer.write_all(b" ")?;
+        self.none(" ")?;
         self.write_version()?;
-        self.writer.write_all(b"\n")?;
+        self.none("\n")?;
+
         if let Some(author) = self.parser.app.author {
-            write_thing!(author)
+            write_thing!(author);
         }
 
         if self.use_long && self.parser.app.long_about.is_some() {
             debugln!("Help::write_default_help: writing long about");
-            write_thing!(self.parser.app.long_about.unwrap())
+            write_thing!(self.parser.app.long_about.unwrap());
         } else if self.parser.app.about.is_some() {
             debugln!("Help::write_default_help: writing about");
-            write_thing!(self.parser.app.about.unwrap())
+            write_thing!(self.parser.app.about.unwrap());
         }
 
-        self.color(Format::Warning("\nUSAGE:"))?;
-        write!(
-            self.writer,
+        self.none("\n")?;
+        self.warning("USAGE:")?;
+        self.none(&format!(
             "\n{}{}\n\n",
             TAB,
             Usage::new(self.parser).create_usage_no_title(&[])
-        )?;
+        ))?;
 
         let flags = self.parser.has_flags();
         let pos = self.parser.has_positionals();
@@ -849,7 +836,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         if let Some(h) = self.parser.app.more_help {
             if flags || opts || pos || subcmds {
-                self.writer.write_all(b"\n\n")?;
+                self.none("\n\n")?;
             }
             self.write_before_after_help(h)?;
         }
@@ -1002,45 +989,25 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             );
             match &tag_buf.get_ref()[0..tag_length] {
                 b"?" => {
-                    self.writer.write_all(b"Could not decode tag name")?;
+                    self.none("Could not decode tag name")?;
                 }
                 b"bin" => {
                     self.write_bin_name()?;
                 }
                 b"version" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.version.unwrap_or("unknown version")
-                    )?;
+                    self.none(self.parser.app.version.unwrap_or("unknown version"))?;
                 }
                 b"author" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.author.unwrap_or("unknown author")
-                    )?;
+                    self.none(self.parser.app.author.unwrap_or("unknown author"))?;
                 }
                 b"about" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.about.unwrap_or("unknown about")
-                    )?;
+                    self.none(self.parser.app.about.unwrap_or("unknown about"))?;
                 }
                 b"long-about" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.long_about.unwrap_or("unknown about")
-                    )?;
+                    self.none(self.parser.app.long_about.unwrap_or("unknown about"))?;
                 }
                 b"usage" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        Usage::new(self.parser).create_usage_no_title(&[])
-                    )?;
+                    self.none(&Usage::new(self.parser).create_usage_no_title(&[]))?;
                 }
                 b"all-args" => {
                     self.write_all_args()?;
@@ -1069,24 +1036,16 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     self.write_subcommands(self.parser.app)?;
                 }
                 b"after-help" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.more_help.unwrap_or("unknown after-help")
-                    )?;
+                    self.none(self.parser.app.more_help.unwrap_or("unknown after-help"))?;
                 }
                 b"before-help" => {
-                    write!(
-                        self.writer,
-                        "{}",
-                        self.parser.app.pre_help.unwrap_or("unknown before-help")
-                    )?;
+                    self.none(self.parser.app.pre_help.unwrap_or("unknown before-help"))?;
                 }
                 // Unknown tag, write it back.
                 r => {
-                    self.writer.write_all(b"{")?;
+                    self.none("{")?;
                     self.writer.write_all(r)?;
-                    self.writer.write_all(b"}")?;
+                    self.none("}")?;
                 }
             }
         }
