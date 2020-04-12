@@ -351,11 +351,9 @@ pub enum ErrorKind {
     /// ```
     VersionDisplayed,
 
-    /// Occurs when using the [`value_t!`] and [`values_t!`] macros to convert an argument value
+    /// Occurs when using the [`ArgMathes::value_of_t`] and friends to convert an argument value
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
     /// with name `config` to be converted, but `config` wasn't used by the user.
-    /// [`value_t!`]: ./macro.value_t!.html
-    /// [`values_t!`]: ./macro.values_t!.html
     ArgumentNotFound,
 
     /// Represents an [I/O error].

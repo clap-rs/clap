@@ -1,8 +1,10 @@
 // Std
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
+use std::fmt::Display;
 use std::iter::{Cloned, Map};
 use std::slice::Iter;
+use std::str::FromStr;
 
 // Third Party
 use indexmap::IndexMap;
@@ -10,7 +12,7 @@ use indexmap::IndexMap;
 // Internal
 use crate::parse::{MatchedArg, SubCommand};
 use crate::util::Key;
-use crate::INVALID_UTF8;
+use crate::{Error, INVALID_UTF8};
 
 type Id = u64;
 
@@ -298,6 +300,186 @@ impl ArgMatches {
         self.args.get(&id.key()).map(|arg| OsValues {
             iter: arg.vals.iter().map(to_str_slice),
         })
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using [`std::str::FromStr`].
+    ///
+    /// There are two types of errors, parse failures and those where the argument wasn't present
+    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::values_of_t`] as this method will only return the *first*
+    /// value.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: u32 = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, 12);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
+    /// // Something that expects u32
+    /// let _: u32 = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`ErrorKind`]: enum.ErrorKind.html
+    /// [`ArgMatches::values_of_t`]: ./struct.ArgMatches.html#method.values_of_t
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        if let Some(v) = self.value_of(name) {
+            v.parse::<R>().map_err(|e| {
+                Error::value_validation_auto(&format!(
+                    "The argument '{}' isn't a valid value: {}",
+                    v, e
+                ))
+            })
+        } else {
+            Err(Error::argument_not_found_auto(name))
+        }
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using [`std::str::FromStr`].
+    ///
+    /// If either the value is not present or parsing failed, exits the program.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: u32 = matches.value_of_t_or_exit("length");
+    /// assert_eq!(len, 12);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.value_of_t_or_exit("length");
+    /// // Something that expects u32
+    /// let _: u32 = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        self.value_of_t(name).unwrap_or_else(|e| e.exit())
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using [`std::str::FromStr`].
+    ///
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length...] 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Vec<u32> = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, vec![12, 77, 40]);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
+    /// // Something that expects Vec<u32>
+    /// let _: Vec<u32> = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        if let Some(vals) = self.values_of(name) {
+            vals.map(|v| {
+                v.parse::<R>().map_err(|e| {
+                    Error::value_validation_auto(&format!(
+                        "The argument '{}' isn't a valid value: {}",
+                        v, e
+                    ))
+                })
+            })
+            .collect()
+        } else {
+            Err(Error::argument_not_found_auto(name))
+        }
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using [`std::str::FromStr`].
+    ///
+    /// If parsing (of any value) has failed, exits the program.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length...] 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Vec<u32> = matches.values_of_t_or_exit("length");
+    /// assert_eq!(len, vec![12, 77, 40]);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.values_of_t_or_exit("length");
+    /// // Something that expects Vec<u32>
+    /// let _: Vec<u32> = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
     /// Returns `true` if an argument was present at runtime, otherwise `false`.
