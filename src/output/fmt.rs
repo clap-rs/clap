@@ -1,8 +1,8 @@
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-use ansi_term::ANSIString;
-
-#[cfg(all(feature = "color", not(target_os = "windows")))]
-use ansi_term::Colour::{Green, Red, Yellow};
+#[cfg(feature = "color")]
+use ansi_term::{
+    ANSIString,
+    Colour::{Green, Red, Yellow},
+};
 
 use std::env;
 use std::fmt;
@@ -124,7 +124,7 @@ pub(crate) enum Format<T> {
     None(T),
 }
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 impl<T: AsRef<str>> Format<T> {
     fn format(&self) -> ANSIString {
         match *self {
@@ -136,7 +136,7 @@ impl<T: AsRef<str>> Format<T> {
     }
 }
 
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(not(feature = "color"))]
 impl<T: fmt::Display> Format<T> {
     fn format(&self) -> &T {
         match *self {
@@ -148,21 +148,21 @@ impl<T: fmt::Display> Format<T> {
     }
 }
 
-#[cfg(all(feature = "color", not(target_os = "windows")))]
+#[cfg(feature = "color")]
 impl<T: AsRef<str>> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
 
-#[cfg(any(not(feature = "color"), target_os = "windows"))]
+#[cfg(not(feature = "color"))]
 impl<T: fmt::Display> fmt::Display for Format<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", &self.format())
     }
 }
 
-#[cfg(all(test, feature = "color", not(target_os = "windows")))]
+#[cfg(all(test, feature = "color"))]
 mod test {
     use super::Format;
     use ansi_term::ANSIString;

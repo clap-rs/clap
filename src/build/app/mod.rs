@@ -1475,6 +1475,10 @@ impl<'b> App<'b> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         debugln!("App::_build;");
+
+        #[cfg(all(feature = "color", windows))]
+        ansi_term::enable_ansi_support();
+
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
 
