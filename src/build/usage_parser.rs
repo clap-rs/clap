@@ -1291,11 +1291,11 @@ mod test {
     #[test]
     fn pos_help_newline() {
         let a = Arg::from(
-            "[pos]... 'some help{n}\
+            "[pos]... 'some help\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help{n}info");
+        assert_eq!(a.help.unwrap(), "some help\ninfo");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1307,11 +1307,11 @@ mod test {
     #[test]
     fn pos_help_newline_lit_sq() {
         let a = Arg::from(
-            "[pos]... 'some help\' stuff{n}\
+            "[pos]... 'some help\' stuff\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help' stuff{n}info");
+        assert_eq!(a.help.unwrap(), "some help' stuff\ninfo");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );

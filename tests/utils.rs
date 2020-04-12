@@ -54,7 +54,13 @@ pub fn compare_output2(l: App, args: &str, right1: &str, right2: &str, stderr: b
     err.write_to(&mut buf).unwrap();
     let content = buf.into_inner();
     let left = String::from_utf8(content).unwrap();
-    assert_eq!(stderr, err.use_stderr());
+    assert_eq!(
+        stderr,
+        err.use_stderr(),
+        "Should Use STDERR failed. Should be {} but is {}",
+        stderr,
+        err.use_stderr()
+    );
     compare(&*left, right1) || compare(&*left, right2)
 }
 

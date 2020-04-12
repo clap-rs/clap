@@ -43,6 +43,8 @@ stages:
             displayName: Cache cargo
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
+          - script: cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+            displayName: Test with almost no features
           - script: cargo test --features "yaml unstable"
             displayName: Test with most features
           - script: |
