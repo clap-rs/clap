@@ -13,6 +13,17 @@ USAGE:
 
 For more information try --help";
 
+#[cfg(feature = "suggestions")]
+static DYM_ISSUE_1073: &str =
+    "error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
+\tDid you mean --files-without-match?
+If you tried to supply `--files-without-matches` as a PATTERN use `-- --files-without-matches`
+
+USAGE:
+    ripgrep-616 --files-without-match
+
+For more information try --help";
+
 #[test]
 fn require_equals_fail() {
     let res = App::new("prog")
@@ -453,4 +464,18 @@ fn issue_1105_empty_value_short_explicit_no_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+fn issue_1073_suboptimal_flag_suggestion() {
+    let app = App::new("ripgrep-616")
+        .arg(Arg::with_name("files-with-matches").long("files-with-matches"))
+        .arg(Arg::with_name("files-without-match").long("files-without-match"));
+    assert!(utils::compare_output(
+        app,
+        "ripgrep-616 --files-without-matches",
+        DYM_ISSUE_1073,
+        true
+    ));
 }
