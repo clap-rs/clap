@@ -409,7 +409,7 @@ impl ArgMatches {
     /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
-    ///               .arg("[length...] 'A sequence of integers because integers are neat!'")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -459,7 +459,7 @@ impl ArgMatches {
     /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
-    ///               .arg("[length...] 'A sequence of integers because integers are neat!'")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
