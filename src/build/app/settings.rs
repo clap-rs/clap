@@ -50,7 +50,6 @@ bitflags! {
     }
 }
 
-#[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub(crate) struct AppFlags(Flags);
 

@@ -26,10 +26,7 @@ type Id = u64;
 /// [arguments]: ./struct.Arg.html
 #[derive(Debug, Clone)]
 pub struct SubCommand {
-    #[doc(hidden)]
-    pub id: Id,
-    #[doc(hidden)]
-    pub name: String,
-    #[doc(hidden)]
-    pub matches: ArgMatches,
+    pub(crate) id: Id,
+    pub(crate) name: String,
+    pub(crate) matches: ArgMatches,
 }

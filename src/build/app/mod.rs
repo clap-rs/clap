@@ -169,6 +169,16 @@ impl<'b> App<'b> {
             vec![]
         }
     }
+
+    /// Check if the setting was set either with [`App::setting`] or [`App::global_setting`]
+    pub fn is_set(&self, s: AppSettings) -> bool {
+        self.settings.is_set(s) || self.g_settings.is_set(s)
+    }
+
+    /// Check whether this app has subcommands
+    pub fn has_subcommands(&self) -> bool {
+        !self.subcommands.is_empty()
+    }
 }
 
 impl<'b> App<'b> {
@@ -1440,9 +1450,7 @@ impl<'b> App<'b> {
 }
 
 // Internally used only
-#[doc(hidden)]
 impl<'b> App<'b> {
-    #[doc(hidden)]
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
         debugln!("App::_do_parse;");
         let mut matcher = ArgMatcher::default();
@@ -1470,7 +1478,6 @@ impl<'b> App<'b> {
         Ok(matcher.into_inner())
     }
 
-    #[allow(clippy::debug_assert_with_mut_call)]
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
     pub fn _build(&mut self) {
@@ -1886,7 +1893,6 @@ impl<'b> App<'b> {
 }
 
 // Internal Query Methods
-#[doc(hidden)]
 impl<'b> App<'b> {
     pub(crate) fn find(&self, arg_id: Id) -> Option<&Arg<'b>> {
         self.args.args.iter().find(|a| a.id == arg_id)
@@ -1914,14 +1920,6 @@ impl<'b> App<'b> {
         }
 
         self.args.contains(s)
-    }
-
-    pub fn is_set(&self, s: AppSettings) -> bool {
-        self.settings.is_set(s) || self.g_settings.is_set(s)
-    }
-
-    pub fn has_subcommands(&self) -> bool {
-        !self.subcommands.is_empty()
     }
 
     pub(crate) fn set(&mut self, s: AppSettings) {

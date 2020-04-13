@@ -65,10 +65,8 @@ type Id = u64;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches {
-    #[doc(hidden)]
-    pub args: IndexMap<Id, MatchedArg>,
-    #[doc(hidden)]
-    pub subcommand: Option<Box<SubCommand>>,
+    pub(crate) args: IndexMap<Id, MatchedArg>,
+    pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
 impl<'a> Default for ArgMatches {
@@ -81,13 +79,6 @@ impl<'a> Default for ArgMatches {
 }
 
 impl ArgMatches {
-    #[doc(hidden)]
-    pub fn new() -> Self {
-        ArgMatches {
-            ..Default::default()
-        }
-    }
-
     /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
     /// it returns `None`.
@@ -498,17 +489,14 @@ impl ArgMatches {
     /// assert!(m.is_present("debug"));
     /// ```
     pub fn is_present<T: Key>(&self, id: T) -> bool {
-        self._id_is_present(id.key())
-    }
+        let id = id.key();
 
-    #[doc(hidden)]
-    pub fn _id_is_present(&self, arg_id: Id) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.id == arg_id {
+            if sc.id == id {
                 return true;
             }
         }
-        self.args.contains_key(&arg_id)
+        self.args.contains_key(&id)
     }
 
     /// Returns the number of times an argument was used at runtime. If an argument isn't present
@@ -1123,7 +1111,7 @@ mod tests {
 
     #[test]
     fn test_default_values_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut values = matches.values_of("").unwrap_or_default();
         assert_eq!(values.next(), None);
     }
@@ -1136,7 +1124,7 @@ mod tests {
 
     #[test]
     fn test_default_osvalues_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut values = matches.values_of_os("").unwrap_or_default();
         assert_eq!(values.next(), None);
     }
@@ -1149,7 +1137,7 @@ mod tests {
 
     #[test]
     fn test_default_indices_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut indices = matches.indices_of("").unwrap_or_default();
         assert_eq!(indices.next(), None);
     }

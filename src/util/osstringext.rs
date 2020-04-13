@@ -5,13 +5,12 @@ use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-pub trait OsStrExt3 {
+pub(crate) trait OsStrExt3 {
     fn from_bytes(b: &[u8]) -> &Self;
     fn as_bytes(&self) -> &[u8];
 }
 
-#[doc(hidden)]
-pub trait OsStrExt2 {
+pub(crate) trait OsStrExt2 {
     fn starts_with(&self, s: &[u8]) -> bool;
     fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
@@ -92,9 +91,8 @@ impl OsStrExt2 for OsStr {
     }
 }
 
-#[doc(hidden)]
 #[derive(Clone, Debug)]
-pub struct OsSplit<'a> {
+pub(crate) struct OsSplit<'a> {
     sep: u8,
     val: &'a [u8],
     pos: usize,
