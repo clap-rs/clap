@@ -19,12 +19,17 @@ jobs:
       - name: Cache cargo
         uses: actions/cache@v1
         with:
-          path: ~/.cargo
+          path: /home/runner/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --release --features "yaml unstable"
+      - name: Install cargo-cache
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-cache
+          use-tool-cache: true
       - name: Cleanup cache
-        run: rm -rf ~/.cargo/registry/src
+        run: cargo cache -a

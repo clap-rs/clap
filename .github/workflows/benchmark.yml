@@ -18,7 +18,7 @@ jobs:
       - name: Cache cargo
         uses: actions/cache@v1
         with:
-          path: ~/.cargo
+          path: /home/runner/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Bench base
         run: cargo bench -- -R bencher | tee output.txt
@@ -36,12 +36,17 @@ jobs:
       - name: Bench pull request
         run: cargo bench -- -R bencher | tee output.txt
       - name: Compare benchmarks
-        uses: pksunkara/github-action-benchmark@v1
+        uses: pksunkara/github-action-benchmark@v2
         with:
           tool: cargo
           output-file-path: output.txt
           external-data-json-path: ./benchmark-data.json
           github-token: ${{ github.token }}
-          comment-always: true
+          annotate-always: true
+      - name: Install cargo-cache
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-cache
+          use-tool-cache: true
       - name: Cleanup cache
-        run: rm -rf ~/.cargo/registry/src
+        run: cargo cache -a
