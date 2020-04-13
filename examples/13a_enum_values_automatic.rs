@@ -1,5 +1,6 @@
-// You can use clap's value_t! macro with a custom enum by implementing the std::str::FromStr
-// trait which is very straight forward. There are three ways to do this, for simple enums
+// You can use clap's `ArgMatches::value_of_t` method with a custom enum
+// by implementing the std::str::FromStr trait which is very straight forward.
+// There are three ways to do this, for simple enums
 // meaning those that don't require 'pub' or any '#[derive()]' directives you can use clap's
 // simple_enum! macro. For those that require 'pub' or any '#[derive()]'s you can use clap's
 // arg_enum! macro. The third way is to implement std::str::FromStr manually.
@@ -10,7 +11,7 @@
 // that accepts only one of those values, and use clap to parse the argument.
 
 // Add clap like normal
-use clap::{arg_enum, value_t, App, Arg};
+use clap::{arg_enum, App, Arg};
 
 // Using arg_enum! is more like traditional enum declarations
 //
@@ -50,8 +51,9 @@ fn main() {
         .arg("<oof> 'The Oof to use'")
         .get_matches();
 
-    let t = value_t!(m.value_of("foo"), Foo).unwrap_or_else(|e| e.exit());
-    let t2 = value_t!(m.value_of("oof"), Oof).unwrap_or_else(|e| e.exit());
+    // Note that you don't have to specify the type since rustc can infer it for you
+    let t = m.value_of_t("foo").unwrap_or_else(|e| e.exit());
+    let t2: Oof = m.value_of_t("oof").unwrap_or_else(|e| e.exit());
 
     // Now we can use our enum like normal.
     match t {
