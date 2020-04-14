@@ -15,14 +15,14 @@ pub struct ChildGraph<T>(Vec<Child<T>>);
 
 impl<T> ChildGraph<T>
 where
-    T: Sized + PartialEq + Copy + Clone,
+    T: Sized + PartialEq + Clone,
 {
     pub fn with_capacity(s: usize) -> Self {
         ChildGraph(Vec::with_capacity(s))
     }
 
     pub fn insert(&mut self, req: T) -> usize {
-        if !self.contains(req) {
+        if !self.contains(&req) {
             let idx = self.0.len();
             self.0.push(Child::new(req));
             idx
@@ -55,7 +55,7 @@ where
         self.0.iter().map(|r| &r.id)
     }
 
-    pub fn contains(&self, req: T) -> bool {
-        self.0.iter().any(|r| r.id == req)
+    pub fn contains(&self, req: &T) -> bool {
+        self.0.iter().any(|r| r.id == *req)
     }
 }

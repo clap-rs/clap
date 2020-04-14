@@ -24,13 +24,11 @@ use crate::output::fmt::ColorWhen;
 use crate::output::{Help, Usage};
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
-use crate::util::{Key, HELP_HASH, VERSION_HASH};
+use crate::util::{Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
-type Id = u64;
-
 // FIXME (@CreepySkeleton): some of this variants are never constructed
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 #[allow(unused)]
 pub(crate) enum Propagation {
     To(Id),
@@ -195,9 +193,8 @@ impl<'b> App<'b> {
     /// ```
     pub fn new<S: Into<String>>(n: S) -> Self {
         let name = n.into();
-        let id = name.key();
         App {
-            id,
+            id: Id::from(&*name),
             name,
             disp_ord: 999,
             ..Default::default()
@@ -1060,10 +1057,11 @@ impl<'b> App<'b> {
         F: FnOnce(Arg<'b>) -> Arg<'b>,
         T: Key + Into<&'b str>,
     {
-        let id = arg_id.key();
-        let a = self.args.remove_by_name(id).unwrap_or_else(|| Arg {
+        let arg_id: &str = arg_id.into();
+        let id = Id::from(arg_id);
+        let a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
             id,
-            name: arg_id.into(),
+            name: arg_id,
             ..Arg::default()
         });
         self.args.push(f(a));
@@ -1470,7 +1468,7 @@ impl<'b> App<'b> {
             .args
             .iter()
             .filter(|a| a.global)
-            .map(|ga| ga.id)
+            .map(|ga| ga.id.clone())
             .collect();
 
         matcher.propagate_globals(&global_arg_vec);
@@ -1484,7 +1482,7 @@ impl<'b> App<'b> {
         debugln!("App::_build;");
 
         #[cfg(all(feature = "color", windows))]
-        ansi_term::enable_ansi_support();
+        let _ = ansi_term::enable_ansi_support();
 
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
@@ -1496,15 +1494,15 @@ impl<'b> App<'b> {
         for a in self.args.args.iter_mut() {
             // Fill in the groups
             if let Some(ref grps) = a.groups {
-                for &g in grps {
+                for g in grps {
                     let mut found = false;
-                    if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == g) {
-                        ag.args.push(a.id);
+                    if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
+                        ag.args.push(a.id.clone());
                         found = true;
                     }
                     if !found {
-                        let mut ag = ArgGroup::_with_id(g);
-                        ag.args.push(a.id);
+                        let mut ag = ArgGroup::_with_id(g.clone());
+                        ag.args.push(a.id.clone());
                         self.groups.push(ag);
                     }
                 }
@@ -1732,7 +1730,7 @@ impl<'b> App<'b> {
                 for sc in &mut self.subcommands {
                     propagate_subcmd!(self, sc);
                     if prop == Propagation::Full {
-                        sc._propagate(prop);
+                        sc._propagate(prop.clone());
                     }
                 }
             }
@@ -1754,7 +1752,7 @@ impl<'b> App<'b> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("help") || x.id == HELP_HASH))
+            .any(|x| x.long == Some("help") || x.id == Id::help_hash()))
         {
             debugln!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
@@ -1770,7 +1768,7 @@ impl<'b> App<'b> {
             .args
             .args
             .iter()
-            .any(|x| x.long == Some("version") || x.id == VERSION_HASH)
+            .any(|x| x.long == Some("version") || x.id == Id::version_hash())
             || self.is_set(AppSettings::DisableVersion))
         {
             debugln!("App::_create_help_and_version: Building --version");
@@ -1785,7 +1783,7 @@ impl<'b> App<'b> {
         }
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
-            && !self.subcommands.iter().any(|s| s.id == HELP_HASH)
+            && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debugln!("App::_create_help_and_version: Building help");
             self.subcommands.push(
@@ -1874,11 +1872,11 @@ impl<'b> App<'b> {
         }
     }
 
-    pub(crate) fn format_group(&self, g: Id) -> String {
+    pub(crate) fn format_group(&self, g: &Id) -> String {
         let g_string = self
             .unroll_args_in_group(g)
             .iter()
-            .filter_map(|&x| self.find(x))
+            .filter_map(|x| self.find(x))
             .map(|x| {
                 if x.index.is_some() {
                     x.name.to_owned()
@@ -1894,8 +1892,8 @@ impl<'b> App<'b> {
 
 // Internal Query Methods
 impl<'b> App<'b> {
-    pub(crate) fn find(&self, arg_id: Id) -> Option<&Arg<'b>> {
-        self.args.args.iter().find(|a| a.id == arg_id)
+    pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'b>> {
+        self.args.args.iter().find(|a| a.id == *arg_id)
     }
 
     // Should we color the output? None=determined by output location, true=yes, false=no
@@ -1949,22 +1947,22 @@ impl<'b> App<'b> {
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
-    pub(crate) fn unroll_args_in_group(&self, group: Id) -> Vec<Id> {
+    pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         let mut g_vec = vec![group];
         let mut args = vec![];
 
         while let Some(ref g) = g_vec.pop() {
-            for &n in self
+            for n in self
                 .groups
                 .iter()
-                .find(|grp| &grp.id == g)
+                .find(|grp| grp.id == **g)
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
             {
-                if !args.contains(&n) {
+                if !args.contains(n) {
                     if self.find(n).is_some() {
-                        args.push(n)
+                        args.push(n.clone())
                     } else {
                         g_vec.push(n);
                     }
@@ -1975,20 +1973,20 @@ impl<'b> App<'b> {
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(&self, arg: Id, matcher: &ArgMatcher) -> Vec<Id> {
-        let requires_if_or_not = |&(val, req_arg)| {
+    pub(crate) fn unroll_requirements_for_arg(&self, arg: &Id, matcher: &ArgMatcher) -> Vec<Id> {
+        let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| -> Option<Id> {
             if let Some(v) = val {
                 if matcher
                     .get(arg)
                     .map(|ma| ma.contains_val(v))
                     .unwrap_or(false)
                 {
-                    Some(req_arg)
+                    Some(req_arg.clone())
                 } else {
                     None
                 }
             } else {
-                Some(req_arg)
+                Some(req_arg.clone())
             }
         };
 
@@ -2006,9 +2004,9 @@ impl<'b> App<'b> {
             if let Some(arg) = self.find(a) {
                 if let Some(ref reqs) = arg.requires {
                     for r in reqs.iter().filter_map(requires_if_or_not) {
-                        if let Some(req) = self.find(r) {
+                        if let Some(req) = self.find(&r) {
                             if req.requires.is_some() {
-                                r_vec.push(req.id)
+                                r_vec.push(&req.id)
                             }
                         }
                         args.push(r);

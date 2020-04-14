@@ -805,11 +805,11 @@ macro_rules! positionals {
 
 macro_rules! groups_for_arg {
     ($app:expr, $grp:expr) => {{
-        debugln!("Parser::groups_for_arg: name={}", $grp);
+        debugln!("Parser::groups_for_arg: name={:?}", $grp);
         $app.groups
             .iter()
-            .filter(|grp| grp.args.iter().any(|&a| a == $grp))
-            .map(|grp| grp.id)
+            .filter(|grp| grp.args.iter().any(|a| *a == $grp))
+            .map(|grp| grp.id.clone())
     }};
 }
 

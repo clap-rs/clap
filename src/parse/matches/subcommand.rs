@@ -1,7 +1,6 @@
 // Internal
+use crate::util::Id;
 use crate::ArgMatches;
-
-type Id = u64;
 
 /// The abstract representation of a command line subcommand.
 ///

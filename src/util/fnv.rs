@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 
 // precompute some common values
@@ -6,13 +7,13 @@ pub static VERSION_HASH: u64 = 0x30FF_0B7C_4D07_9478;
 pub static EMPTY_HASH: u64 = 0x1C9D_3ADB_639F_298E;
 const MAGIC_INIT: u64 = 0x811C_9DC5;
 
-pub trait Key: Hash {
+pub trait Key: Hash + Display {
     fn key(&self) -> u64;
 }
 
 impl<T> Key for T
 where
-    T: Hash,
+    T: Hash + Display,
 {
     fn key(&self) -> u64 {
         let mut hasher = FnvHasher::new();
