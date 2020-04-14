@@ -10,9 +10,8 @@ use crate::parse::{ArgMatches, MatchedArg, SubCommand};
 
 type Id = u64;
 
-#[doc(hidden)]
 #[derive(Debug)]
-pub struct ArgMatcher(pub ArgMatches);
+pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
 
 impl Default for ArgMatcher {
     fn default() -> Self {
@@ -30,11 +29,6 @@ impl Deref for ArgMatcher {
 impl ArgMatcher {
     pub fn into_inner(self) -> ArgMatches {
         self.0
-    }
-
-    #[allow(dead_code)]
-    pub fn is_present(&self, name: Id) -> bool {
-        self.0._id_is_present(name)
     }
 
     pub fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
@@ -72,7 +66,7 @@ impl ArgMatcher {
             }
         }
         if let Some(ref mut sc) = self.0.subcommand {
-            let mut am = ArgMatcher(mem::replace(&mut sc.matches, ArgMatches::new()));
+            let mut am = ArgMatcher(mem::take(&mut sc.matches));
             am.fill_in_global_values(global_arg_vec, vals_map);
             mem::swap(&mut am.0, &mut sc.matches);
         }

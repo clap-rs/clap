@@ -22,14 +22,14 @@ where
 }
 
 impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
-    pub fn new(p: &'z mut Parser<'b, 'c>) -> Self {
+    pub(crate) fn new(p: &'z mut Parser<'b, 'c>) -> Self {
         Validator {
             p,
             c: ChildGraph::with_capacity(5),
         }
     }
 
-    pub fn validate(
+    pub(crate) fn validate(
         &mut self,
         needs_val_of: ParseResult,
         is_subcmd: bool,

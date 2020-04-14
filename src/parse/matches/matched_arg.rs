@@ -1,15 +1,11 @@
 // Std
 use std::ffi::{OsStr, OsString};
 
-#[doc(hidden)]
 #[derive(Debug, Clone)]
 pub struct MatchedArg {
-    #[doc(hidden)]
-    pub occurs: u64,
-    #[doc(hidden)]
-    pub indices: Vec<usize>,
-    #[doc(hidden)]
-    pub vals: Vec<OsString>,
+    pub(crate) occurs: u64,
+    pub(crate) indices: Vec<usize>,
+    pub(crate) vals: Vec<OsString>,
 }
 
 impl Default for MatchedArg {

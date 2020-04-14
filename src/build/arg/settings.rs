@@ -29,7 +29,6 @@ bitflags! {
     }
 }
 
-#[doc(hidden)]
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct ArgFlags(Flags);
 

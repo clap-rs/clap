@@ -8,8 +8,7 @@ use std::env;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-#[doc(hidden)]
-pub enum ColorWhen {
+pub(crate) enum ColorWhen {
     Auto,
     Always,
     Never,

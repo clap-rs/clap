@@ -27,8 +27,7 @@ use crate::INVALID_UTF8;
 type Id = u64;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
-#[doc(hidden)]
-pub enum ParseResult {
+pub(crate) enum ParseResult {
     Flag,
     Opt(Id),
     Pos(Id),
@@ -39,8 +38,7 @@ pub enum ParseResult {
 }
 
 #[derive(Debug)]
-#[doc(hidden)]
-pub struct Input {
+pub(crate) struct Input {
     items: Vec<OsString>,
     cursor: usize,
 }
@@ -59,7 +57,7 @@ where
 }
 
 impl Input {
-    pub fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, Option<&OsStr>)> {
+    pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, Option<&OsStr>)> {
         if new.is_some() {
             let mut new_items: Vec<OsString> = new
                 .expect(INTERNAL_ERROR_MSG)
@@ -93,16 +91,15 @@ impl Input {
     }
 }
 
-#[doc(hidden)]
-pub struct Parser<'b, 'c>
+pub(crate) struct Parser<'b, 'c>
 where
     'b: 'c,
 {
-    pub app: &'c mut App<'b>,
-    pub required: ChildGraph<Id>,
-    pub overriden: Vec<Id>,
-    seen: Vec<Id>,
-    cur_idx: Cell<usize>,
+    pub(crate) app: &'c mut App<'b>,
+    pub(crate) required: ChildGraph<Id>,
+    pub(crate) overriden: Vec<Id>,
+    pub(crate) seen: Vec<Id>,
+    pub(crate) cur_idx: Cell<usize>,
 }
 
 // Initializing Methods
@@ -416,7 +413,11 @@ where
 {
     // The actual parsing function
     #[allow(clippy::cognitive_complexity)]
-    pub fn get_matches_with(&mut self, matcher: &mut ArgMatcher, it: &mut Input) -> ClapResult<()> {
+    pub(crate) fn get_matches_with(
+        &mut self,
+        matcher: &mut ArgMatcher,
+        it: &mut Input,
+    ) -> ClapResult<()> {
         debugln!("Parser::get_matches_with;");
         // Verify all positional assertions pass
         self._build();
