@@ -587,8 +587,30 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             .filter(|a| !matcher.contains(a.id))
         {
             debugln!("Validator::validate_required_unless:iter:{};", a.name);
-            if self.fails_arg_required_unless(a, matcher) {
+            if self.fails_arg_required_unless(
+                a.name,
+                a.r_unless.as_ref(),
+                a.is_set(ArgSettings::RequiredUnlessAll),
+                matcher,
+            ) {
                 return self.missing_required_error(matcher, Some(a.id));
+            }
+        }
+
+        for ag in self
+            .p
+            .app
+            .groups
+            .iter()
+            .filter(|ag| ag.r_unless.is_some())
+            .filter(|ag| ag.args.iter().all(|&arg_id| !matcher.contains(arg_id)))
+        {
+            debugln!(
+                "Validator::validate_required_unless:arg_group_iter:{};",
+                ag.name
+            );
+            if self.fails_arg_required_unless(ag.name, ag.r_unless.as_ref(), false, matcher) {
+                return self.missing_required_error(matcher, None);
             }
         }
 
@@ -596,22 +618,28 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
-    fn fails_arg_required_unless(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
-        debugln!("Validator::fails_arg_required_unless: a={:?};", a.name);
+    fn fails_arg_required_unless(
+        &self,
+        _name: &str,
+        r_unless: Option<&Vec<u64>>,
+        required_unless_all: bool,
+        matcher: &ArgMatcher,
+    ) -> bool {
+        debugln!("Validator::fails_arg_required_unless: a={:?};", name);
         macro_rules! check {
-            ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
-                $a.r_unless
+            ($how:ident, $_self:expr, $r_unless:ident, $m:ident) => {{
+                $r_unless
                     .as_ref()
                     .map(|ru| !ru.iter().$how(|&n| $m.contains(n)))
                     .unwrap_or(false)
             }};
         }
-        if a.is_set(ArgSettings::RequiredUnlessAll) {
-            debugln!("Validator::fails_arg_required_unless:{}:All;", a.name);
-            check!(all, self.p, a, matcher)
+        if required_unless_all {
+            debugln!("Validator::fails_arg_required_unless:{}:All;", name);
+            check!(all, self.p, r_unless, matcher)
         } else {
-            debugln!("Validator::fails_arg_required_unless:{}:Any;", a.name);
-            check!(any, self.p, a, matcher)
+            debugln!("Validator::fails_arg_required_unless:{}:Any;", name);
+            check!(any, self.p, r_unless, matcher)
         }
     }
 

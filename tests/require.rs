@@ -244,6 +244,79 @@ fn required_unless_err() {
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
+#[test]
+fn required_unless_arg_group() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("input-file")
+                .long("input-file")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("input-url")
+                .long("input-url")
+                .takes_value(true),
+        )
+        .arg(Arg::with_name("no-input").long("no-input"))
+        .group(
+            ArgGroup::with_name("inputs")
+                .args(&["input-file", "input-url"])
+                .required_unless("no-input"),
+        )
+        .try_get_matches_from(vec!["prog", "--no-input"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_unless_arg_group_2() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("input-file")
+                .long("input-file")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("input-url")
+                .long("input-url")
+                .takes_value(true),
+        )
+        .arg(Arg::with_name("no-input").long("no-input"))
+        .group(
+            ArgGroup::with_name("inputs")
+                .args(&["input-file", "input-url"])
+                .required_unless("no-input"),
+        )
+        .try_get_matches_from(vec!["prog", "--input-file", "info.txt"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_unless_arg_group_err() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("input-file")
+                .long("input-file")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("input-url")
+                .long("input-url")
+                .takes_value(true),
+        )
+        .arg(Arg::with_name("no-input").long("no-input"))
+        .group(
+            ArgGroup::with_name("inputs")
+                .args(&["input-file", "input-url"])
+                .required_unless("no-input"),
+        )
+        .try_get_matches_from(vec!["prog"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
 // REQUIRED_UNLESS_ALL
 
 #[test]
