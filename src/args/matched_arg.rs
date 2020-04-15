@@ -5,6 +5,8 @@ use std::ffi::OsString;
 #[derive(Debug, Clone)]
 pub struct MatchedArg {
     #[doc(hidden)]
+    pub env_set: bool,
+    #[doc(hidden)]
     pub occurs: u64,
     #[doc(hidden)]
     pub indices: Vec<usize>,
@@ -15,6 +17,7 @@ pub struct MatchedArg {
 impl Default for MatchedArg {
     fn default() -> Self {
         MatchedArg {
+            env_set: false,
             occurs: 1,
             indices: Vec::new(),
             vals: Vec::new(),

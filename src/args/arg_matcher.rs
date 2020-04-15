@@ -218,8 +218,14 @@ impl<'a> ArgMatcher<'a> {
         }
     }
 
+    pub fn set_env_set(&mut self, arg: &'a str) {
+        let ma = self.entry(arg).or_insert(MatchedArg::new());
+        ma.env_set = true;
+    }
+
     pub fn add_val_to(&mut self, arg: &'a str, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
+            env_set: false,
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
@@ -229,6 +235,7 @@ impl<'a> ArgMatcher<'a> {
 
     pub fn add_index_to(&mut self, arg: &'a str, idx: usize) {
         let ma = self.entry(arg).or_insert(MatchedArg {
+            env_set: false,
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::new(),

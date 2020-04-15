@@ -596,6 +596,45 @@ impl<'a> ArgMatches<'a> {
         None
     }
 
+    /// Returns true if this arguments environment variable was set.
+    /// 
+    /// This is useful for determining if the argument's value came from the default value or the
+    /// environment variable.
+    /// 
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// # use std::env;
+    /// let app = App::new("myapp")
+    ///     .arg(Arg::with_name("arg")
+    ///         .long("arg")
+    ///         .takes_value(true)
+    ///         .env("ENV_ARG"));
+    /// let m = app.clone().get_matches_from(vec!["myapp"]);
+    /// assert!(!m.env_set("arg"));
+    /// ```
+    /// 
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// # use std::env;
+    /// env::set_var("ENV_ARG", "from_env");
+    /// let app = App::new("myapp")
+    ///     .arg(Arg::with_name("arg")
+    ///         .long("arg")
+    ///         .takes_value(true)
+    ///         .env("ENV_ARG"));
+    /// let m = app.clone().get_matches_from(vec!["myapp"]);
+    /// assert!(m.env_set("arg"));
+    /// ```
+    pub fn env_set<S: AsRef<str>>(&self, name: S) -> bool {
+        if let Some(arg) = self.args.get(name.as_ref()) {
+            arg.env_set
+        } else {
+            false
+        }
+    }
+
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
     /// as well. This method returns the [`ArgMatches`] for a particular subcommand or `None` if
     /// the subcommand wasn't present at runtime.
