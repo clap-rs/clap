@@ -756,13 +756,13 @@ mod debug_macros {
 
         // name = expr
         ($name:ident = $val:expr $( , $($ts:tt)* )?) => {
-            let _ = $val;
+            let _ = &$val;
             ignore_fmt_args!($($($ts)*)*);
         };
 
         // expr
         ($val:expr $( , $($ts:tt)* )?) => {
-            let _ = $val;
+            let _ = &$val;
             ignore_fmt_args!($($($ts)*)*);
         };
     }
