@@ -69,7 +69,7 @@ indexmap              = "1.0.1"
 strsim      = { version = "0.9.0",  optional = true }
 yaml-rust   = { version = "0.4.1",  optional = true }
 atty        = { version = "0.2",  optional = true }
-ansi_term   = { version = "0.12", optional = true }
+termcolor   = { version = "1.1", optional = true }
 vec_map     = { version = "0.8", optional = true }
 term_size   = { version = "1.0.0-beta1", optional = true }
 lazy_static = { version = "1", optional = true }
@@ -85,7 +85,7 @@ criterion = { git = "git://github.com/pksunkara/criterion.rs", version = "0.3" }
 default     = ["suggestions", "color", "vec_map", "derive", "std", "cargo"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
-color       = ["ansi_term", "atty"]
+color       = ["atty", "termcolor"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]

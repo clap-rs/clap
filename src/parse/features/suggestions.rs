@@ -3,7 +3,6 @@ use std::cmp::Ordering;
 
 // Internal
 use crate::build::App;
-use crate::output::fmt::Format;
 
 /// Produces multiple strings from a given list of possible values which are similar
 /// to the passed in value `v` within a certain confidence by least confidence.
@@ -34,23 +33,18 @@ where
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-pub(crate) fn did_you_mean_flag_suffix<I, T>(
+pub(crate) fn did_you_mean_flag<I, T>(
     arg: &str,
     longs: I,
     subcommands: &mut [App],
-) -> (String, Option<String>)
+) -> Option<(String, Option<String>)>
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
     match did_you_mean(arg, longs).pop() {
         Some(ref candidate) => {
-            let suffix = format!(
-                "\n\tDid you mean {}{}?",
-                Format::Good("--"),
-                Format::Good(candidate)
-            );
-            return (suffix, Some(candidate.to_owned()));
+            return Some((candidate.to_owned(), None));
         }
         None => {
             for subcommand in subcommands {
@@ -61,33 +55,13 @@ where
                 )
                 .pop()
                 {
-                    let suffix = format!(
-                        "\n\tDid you mean to put '{}{}' after the subcommand '{}'?",
-                        Format::Good("--"),
-                        Format::Good(candidate),
-                        Format::Good(subcommand.get_name())
-                    );
-                    return (suffix, Some(candidate.clone()));
+                    return Some((candidate.to_owned(), Some(subcommand.get_name().to_owned())));
                 }
             }
         }
     }
-    (String::new(), None)
-}
 
-/// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-pub(crate) fn did_you_mean_value_suffix<T, I>(arg: &str, values: I) -> (String, Option<String>)
-where
-    T: AsRef<str>,
-    I: IntoIterator<Item = T>,
-{
-    match did_you_mean(arg, values).pop() {
-        Some(ref candidate) => {
-            let suffix = format!("\n\tDid you mean '{}'?", Format::Good(candidate));
-            (suffix, Some(candidate.to_owned()))
-        }
-        None => (String::new(), None),
-    }
+    None
 }
 
 #[cfg(all(test, features = "suggestions"))]
@@ -113,22 +87,11 @@ mod test {
     }
 
     #[test]
-    fn suffix_long() {
+    fn flag() {
         let p_vals = ["test", "possible", "values"];
-        let suffix = "\n\tDid you mean \'--test\'?";
         assert_eq!(
-            did_you_mean_flag_suffix("tst", p_vals.iter(), []),
-            (suffix, Some("test"))
-        );
-    }
-
-    #[test]
-    fn suffix_enum() {
-        let p_vals = ["test", "possible", "values"];
-        let suffix = "\n\tDid you mean \'test\'?";
-        assert_eq!(
-            did_you_mean_value_suffix("tst", p_vals.iter()),
-            (suffix, Some("test"))
+            did_you_mean_flag("tst", p_vals.iter(), []),
+            Some(("test", None))
         );
     }
 }

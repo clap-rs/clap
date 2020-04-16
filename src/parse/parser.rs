@@ -11,7 +11,7 @@ use crate::build::app::Propagation;
 use crate::build::AppSettings as AS;
 use crate::build::{App, Arg, ArgSettings};
 use crate::mkeymap::KeyType;
-use crate::output::{Help, Usage};
+use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::errors::Error as ClapError;
 use crate::parse::errors::ErrorKind;
 use crate::parse::errors::Result as ClapResult;
@@ -20,7 +20,7 @@ use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use crate::util::OsStrExt3;
-use crate::util::{ChildGraph, Id, OsStrExt2};
+use crate::util::{termcolor::ColorChoice, ChildGraph, Id, OsStrExt2};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -523,7 +523,7 @@ where
                                         None,
                                         &*Usage::new(self).create_usage_with_title(&[]),
                                         self.app.color(),
-                                    ));
+                                    )?);
                                 }
                             }
                             ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
@@ -556,7 +556,7 @@ where
                             self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                             &*Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
-                        ));
+                        )?);
                     }
                 }
             }
@@ -655,7 +655,7 @@ where
                         None,
                         &*Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
-                    ));
+                    )?);
                 }
 
                 if !self.is_set(AS::TrailingValues)
@@ -696,7 +696,7 @@ where
                             return Err(ClapError::invalid_utf8(
                                 &*Usage::new(self).create_usage_with_title(&[]),
                                 self.app.color(),
-                            ));
+                            )?);
                         }
                         arg_os.to_string_lossy().into_owned()
                     }
@@ -710,7 +710,7 @@ where
                         return Err(ClapError::invalid_utf8(
                             &*Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
-                        ));
+                        )?);
                     }
                     sc_m.add_val_to(&Id::empty_hash(), &v);
                 }
@@ -732,7 +732,7 @@ where
                     None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                ));
+                )?);
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 let cands =
                     suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
@@ -744,13 +744,13 @@ where
                         self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                         &*Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
-                    ));
+                    )?);
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
                         arg_os.to_string_lossy().into_owned(),
                         self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                         self.app.color(),
-                    ));
+                    )?);
                 }
             } else {
                 return Err(ClapError::unknown_argument(
@@ -758,7 +758,7 @@ where
                     None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                ));
+                )?);
             }
         }
 
@@ -776,14 +776,13 @@ where
                 bn,
                 &Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
-            ));
+            )?);
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debugln!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
-            let mut out = vec![];
-            self.write_help_err(&mut out)?;
+            let message = self.write_help_err()?;
             return Err(ClapError {
                 cause: String::new(),
-                message: String::from_utf8_lossy(&*out).into_owned(),
+                message,
                 kind: ErrorKind::MissingArgumentOrSubcommand,
                 info: None,
             });
@@ -792,6 +791,17 @@ where
         self.remove_overrides(matcher);
 
         Validator::new(self).validate(needs_val_of, subcmd_name.is_some(), matcher)
+    }
+
+    // Should we color the help?
+    pub(crate) fn color_help(&self) -> ColorChoice {
+        debugln!("App::color_help;");
+
+        if self.is_set(AS::ColoredHelp) {
+            self.app.color()
+        } else {
+            ColorChoice::Never
+        }
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
@@ -871,7 +881,7 @@ where
                         cmd.to_string_lossy().into_owned(),
                         self.app.bin_name.as_ref().unwrap_or(&self.app.name),
                         self.app.color(),
-                    ));
+                    )?);
                 }
 
                 bin_name = format!("{} {}", bin_name, &*sc.name);
@@ -1228,7 +1238,7 @@ where
                     None,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                ));
+                )?);
             }
         }
         Ok(ret)
@@ -1259,7 +1269,7 @@ where
                     opt,
                     &*Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                ));
+                )?);
             }
             sdebugln!("Found - {:?}, len: {}", v, v.len());
             debugln!(
@@ -1274,7 +1284,7 @@ where
                 opt,
                 &*Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
-            ));
+            )?);
         } else {
             sdebugln!("None");
         }
@@ -1575,15 +1585,19 @@ where
             .collect::<Vec<_>>();
         debugln!("Parser::did_you_mean_error: longs={:?}", longs);
 
-        let suffix = suggestions::did_you_mean_flag_suffix(
+        let did_you_mean = suggestions::did_you_mean_flag(
             arg,
             longs.iter().map(|ref x| &x[..]),
             self.app.subcommands.as_mut_slice(),
         );
 
         // Add the arg to the matches to build a proper usage string
-        if let Some(ref name) = suffix.1 {
-            if let Some(opt) = self.app.args.get(&KeyType::Long(OsString::from(name))) {
+        if let Some(ref name) = did_you_mean {
+            if let Some(opt) = self
+                .app
+                .args
+                .get(&KeyType::Long(OsString::from(name.0.clone())))
+            {
                 for g in groups_for_arg!(self.app, opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
@@ -1603,18 +1617,12 @@ where
             .cloned()
             .collect();
 
-        let did_you_mean_msg = if suffix.0.is_empty() {
-            None
-        } else {
-            Some(suffix.0)
-        };
-
         Err(ClapError::unknown_argument(
             &*format!("--{}", arg),
-            did_you_mean_msg,
+            did_you_mean,
             &*Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
-        ))
+        )?)
     }
 
     // Prints the version to the user and exits if quit=true
@@ -1623,8 +1631,12 @@ where
         w.flush().map_err(ClapError::from)
     }
 
-    pub(crate) fn write_help_err<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        Help::new(w, self, false, true).write_help()
+    pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
+        let mut c = Colorizer::new(true, self.color_help());
+
+        Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
+
+        Ok(c)
     }
 
     fn help_err(&self, mut use_long: bool) -> ClapError {
@@ -1632,13 +1644,15 @@ where
             "Parser::help_err: use_long={:?}",
             use_long && self.use_long_help()
         );
+
         use_long = use_long && self.use_long_help();
-        let mut buf = vec![];
-        match Help::new(&mut buf, self, use_long, false).write_help() {
+        let mut c = Colorizer::new(false, self.color_help());
+
+        match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e,
             _ => ClapError {
                 cause: String::new(),
-                message: String::from_utf8(buf).unwrap_or_default(),
+                message: c,
                 kind: ErrorKind::HelpDisplayed,
                 info: None,
             },
@@ -1647,12 +1661,14 @@ where
 
     fn version_err(&self, use_long: bool) -> ClapError {
         debugln!("Parser::version_err: ");
-        let mut buf = vec![];
-        match self.print_version(&mut buf, use_long) {
+
+        let mut c = Colorizer::new(false, self.app.color());
+
+        match self.print_version(&mut c, use_long) {
             Err(e) => e,
             _ => ClapError {
                 cause: String::new(),
-                message: String::from_utf8(buf).unwrap_or_default(),
+                message: c,
                 kind: ErrorKind::VersionDisplayed,
                 info: None,
             },

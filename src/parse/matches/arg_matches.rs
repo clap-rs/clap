@@ -1,7 +1,7 @@
 // Std
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::iter::{Cloned, Map};
 use std::slice::Iter;
 use std::str::FromStr;
@@ -334,14 +334,14 @@ impl ArgMatches {
         <R as FromStr>::Err: Display,
     {
         if let Some(v) = self.value_of(name) {
-            v.parse::<R>().map_err(|e| {
-                Error::value_validation_auto(&format!(
+            v.parse::<R>().or_else(|e| {
+                Err(Error::value_validation_auto(&format!(
                     "The argument '{}' isn't a valid value: {}",
                     v, e
-                ))
+                ))?)
             })
         } else {
-            Err(Error::argument_not_found_auto(name))
+            Err(Error::argument_not_found_auto(name)?)
         }
     }
 
@@ -420,16 +420,16 @@ impl ArgMatches {
     {
         if let Some(vals) = self.values_of(name) {
             vals.map(|v| {
-                v.parse::<R>().map_err(|e| {
-                    Error::value_validation_auto(&format!(
+                v.parse::<R>().or_else(|e| {
+                    Err(Error::value_validation_auto(&format!(
                         "The argument '{}' isn't a valid value: {}",
                         v, e
-                    ))
+                    ))?)
                 })
             })
             .collect()
         } else {
-            Err(Error::argument_not_found_auto(name))
+            Err(Error::argument_not_found_auto(name)?)
         }
     }
 

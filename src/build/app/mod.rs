@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
 use std::fmt;
-use std::io::{self, BufRead, BufWriter, Write};
+use std::io::{self, BufRead, Write};
 use std::path::Path;
 use std::process;
 
@@ -20,11 +20,10 @@ use yaml_rust::Yaml;
 // Internal
 use crate::build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings};
 use crate::mkeymap::MKeyMap;
-use crate::output::fmt::ColorWhen;
-use crate::output::{Help, Usage};
+use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
-use crate::util::{Id, Key};
+use crate::util::{termcolor::ColorChoice, Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
 // FIXME (@CreepySkeleton): some of this variants are never constructed
@@ -1087,13 +1086,14 @@ impl<'b> App<'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_help(&mut self) -> ClapResult<()> {
-        // If there are global arguments, or settings we need to propagate them down to subcommands
-        // before parsing incase we run into a subcommand
         self._build();
 
-        let out = io::stdout();
-        let mut buf_w = BufWriter::new(out.lock());
-        self.write_help(&mut buf_w)
+        let p = Parser::new(self);
+        let mut c = Colorizer::new(false, p.color_help());
+
+        Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
+
+        Ok(c.print()?)
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
@@ -1114,13 +1114,14 @@ impl<'b> App<'b> {
     /// [`-h` (short)]: ./struct.Arg.html#method.help
     /// [`--help` (long)]: ./struct.Arg.html#method.long_help
     pub fn print_long_help(&mut self) -> ClapResult<()> {
-        // If there are global arguments, or settings we need to propagate them down to subcommands
-        // before parsing incase we run into a subcommand
         self._build();
 
-        let out = io::stdout();
-        let mut buf_w = BufWriter::new(out.lock());
-        self.write_long_help(&mut buf_w)
+        let p = Parser::new(self);
+        let mut c = Colorizer::new(false, p.color_help());
+
+        Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
+
+        Ok(c.print()?)
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1145,7 +1146,7 @@ impl<'b> App<'b> {
         self._build();
 
         let p = Parser::new(self);
-        Help::new(w, &p, false, false).write_help()
+        Help::new(HelpWriter::Normal(w), &p, false).write_help()
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1170,7 +1171,7 @@ impl<'b> App<'b> {
         self._build();
 
         let p = Parser::new(self);
-        Help::new(w, &p, true, false).write_help()
+        Help::new(HelpWriter::Normal(w), &p, true).write_help()
     }
 
     /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.
@@ -1264,13 +1265,15 @@ impl<'b> App<'b> {
             .unwrap_or_else(|e| {
                 // Otherwise, write to stderr and exit
                 if e.use_stderr() {
-                    wlnerr!("{}", e.message);
+                    e.message.print().expect("Error writing Error to stderr");
+
                     if self.settings.is_set(AppSettings::WaitOnError) {
                         wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                         let mut s = String::new();
                         let i = io::stdin();
                         i.lock().read_line(&mut s).unwrap();
                     }
+
                     drop(e);
                     process::exit(2);
                 }
@@ -1294,7 +1297,7 @@ impl<'b> App<'b> {
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
     ///     .try_get_matches()
-    ///     .unwrap_or_else( |e| e.exit() );
+    ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
     /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
@@ -1338,13 +1341,15 @@ impl<'b> App<'b> {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
-                wlnerr!("{}", e.message);
+                e.message.print().expect("Error writing Error to stderr");
+
                 if self.settings.is_set(AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                     let mut s = String::new();
                     let i = io::stdin();
                     i.lock().read_line(&mut s).unwrap();
                 }
+
                 drop(self);
                 drop(e);
                 process::exit(2);
@@ -1375,7 +1380,7 @@ impl<'b> App<'b> {
     /// let matches = App::new("myprog")
     ///     // Args and options go here...
     ///     .try_get_matches_from(arg_vec)
-    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
     /// [`App::try_get_matches`]: ./struct.App.html#method.try_get_matches
@@ -1411,7 +1416,7 @@ impl<'b> App<'b> {
     /// let mut app = App::new("myprog");
     ///     // Args and options go here...
     /// let matches = app.try_get_matches_from_mut(arg_vec)
-    ///     .unwrap_or_else( |e| { panic!("An error occurs: {}", e) });
+    ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`App`]: ./struct.App.html
     /// [`App::try_get_matches_from`]: ./struct.App.html#method.try_get_matches_from
@@ -1480,9 +1485,6 @@ impl<'b> App<'b> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         debugln!("App::_build;");
-
-        #[cfg(all(feature = "color", windows))]
-        let _ = ansi_term::enable_ansi_support();
 
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
@@ -1896,19 +1898,20 @@ impl<'b> App<'b> {
         self.args.args.iter().find(|a| a.id == *arg_id)
     }
 
-    // Should we color the output? None=determined by output location, true=yes, false=no
-    pub(crate) fn color(&self) -> ColorWhen {
+    // Should we color the output?
+    pub(crate) fn color(&self) -> ColorChoice {
         debugln!("App::color;");
         debug!("App::color: Color setting...");
+
         if self.is_set(AppSettings::ColorNever) {
             sdebugln!("Never");
-            ColorWhen::Never
+            ColorChoice::Never
         } else if self.is_set(AppSettings::ColorAlways) {
             sdebugln!("Always");
-            ColorWhen::Always
+            ColorChoice::Always
         } else {
             sdebugln!("Auto");
-            ColorWhen::Auto
+            ColorChoice::Auto
         }
     }
 

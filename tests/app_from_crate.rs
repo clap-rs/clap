@@ -20,7 +20,7 @@ fn app_from_crate() {
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::HelpDisplayed);
     assert_eq!(
-        err.message,
+        err.to_string(),
         EVERYTHING.replace("{{version}}", env!("CARGO_PKG_VERSION"))
     );
 }

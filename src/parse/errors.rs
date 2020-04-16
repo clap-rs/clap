@@ -1,16 +1,16 @@
 // Std
+use std::collections::VecDeque;
 use std::convert::From;
-use std::error::Error as StdError;
-use std::fmt as std_fmt;
-use std::fmt::Display;
-use std::io::{self, Write};
+use std::fmt::{self, Debug, Display, Formatter};
+use std::io;
 use std::process;
 use std::result::Result as StdResult;
 
 // Internal
 use crate::build::{Arg, ArgGroup};
-use crate::output::fmt::{ColorWhen, Colorizer, ColorizerOption};
+use crate::output::fmt::Colorizer;
 use crate::parse::features::suggestions;
+use crate::util::termcolor::ColorChoice;
 
 /// Short hand for [`Result`] type
 ///
@@ -375,11 +375,36 @@ pub struct Error {
     /// The cause of the error
     pub cause: String,
     /// Formatted error message, enhancing the cause message with extra information
-    pub message: String,
+    pub(crate) message: Colorizer,
     /// The type of error
     pub kind: ErrorKind,
     /// Any additional information passed along, such as the argument name that caused the error
     pub info: Option<Vec<String>>,
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        self.message.fmt(f)
+    }
+}
+
+fn start_error(c: &mut Colorizer, msg: &str) -> io::Result<()> {
+    c.error("error:")?;
+    c.none(" ")?;
+    c.none(msg)
+}
+
+fn put_usage<U>(c: &mut Colorizer, usage: U) -> io::Result<()>
+where
+    U: Display,
+{
+    c.none(&format!("\n\n{}", usage))
+}
+
+fn try_help(c: &mut Colorizer) -> io::Result<()> {
+    c.none("\n\nFor more information try ")?;
+    c.good("--help")?;
+    c.none("\n")
 }
 
 impl Error {
@@ -403,17 +428,12 @@ impl Error {
     /// Prints the error to `stderr` and exits with a status of `1`
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
-            wlnerr!("{}", self.message);
+            self.message.print().expect("Error writing Error to stderr");
             process::exit(1);
         }
-        let out = io::stdout();
-        writeln!(&mut out.lock(), "{}", self.message).expect("Error writing Error to stdout");
-        process::exit(0);
-    }
 
-    /// Render and write the error into `w`.
-    pub fn write_to<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        write!(w, "{}", self.message)
+        self.message.print().expect("Error writing Error to stdout");
+        process::exit(0);
     }
 
     #[allow(unused)] // requested by @pksunkara
@@ -421,136 +441,119 @@ impl Error {
         group: &ArgGroup,
         other: Option<O>,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         O: Into<String>,
         U: Display,
     {
         let mut v = vec![group.name.to_owned()];
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        let (plain_cause, colored_cause) = match other {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(group.name)?;
+        c.none("' cannot be used with ")?;
+
+        let cause = match other {
             Some(name) => {
                 let n = name.into();
                 v.push(n.clone());
-                (
-                    format!("The argument '{}' cannot be used with '{}'", group.name, n),
-                    format!(
-                        "The argument '{}' cannot be used with '{}'",
-                        group.name,
-                        c.warning(n)
-                    ),
-                )
+
+                c.none("'")?;
+                c.warning(&*n)?;
+                c.none("'")?;
+
+                format!("The argument '{}' cannot be used with '{}'", group.name, n)
             }
             None => {
                 let n = "one or more of the other specified arguments";
-                (
-                    format!("The argument '{}' cannot be used with {}", group.name, n),
-                    format!(
-                        "The argument '{}' cannot be used with {}",
-                        group.name,
-                        c.none(n)
-                    ),
-                )
+
+                c.none(n)?;
+
+                format!("The argument '{}' cannot be used with {}", group.name, n)
             }
         };
-        Error {
-            cause: plain_cause,
-            message: format!(
-                "{} {}\n\n{}\n\nFor more information try {}",
-                c.error("error:"),
-                colored_cause,
-                usage,
-                c.good("--help")
-            ),
+
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause,
+            message: c,
             kind: ErrorKind::ArgumentConflict,
             info: Some(v),
-        }
+        })
     }
 
     pub(crate) fn argument_conflict<O, U>(
         arg: &Arg,
         other: Option<O>,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         O: Into<String>,
         U: Display,
     {
         let mut v = vec![arg.name.to_owned()];
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        let (plain_cause, colored_cause) = match other {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' cannot be used with ")?;
+
+        let cause = match other {
             Some(name) => {
                 let n = name.into();
                 v.push(n.clone());
-                (
-                    format!("The argument '{}' cannot be used with '{}'", arg, n),
-                    format!(
-                        "The argument '{}' cannot be used with {}",
-                        c.warning(arg.to_string()),
-                        c.warning(format!("'{}'", n))
-                    ),
-                )
+
+                c.none("'")?;
+                c.warning(&*n)?;
+                c.none("'")?;
+
+                format!("The argument '{}' cannot be used with '{}'", arg, n)
             }
             None => {
                 let n = "one or more of the other specified arguments";
-                (
-                    format!("The argument '{}' cannot be used with {}", arg, n),
-                    format!(
-                        "The argument '{}' cannot be used with {}",
-                        c.warning(arg.to_string()),
-                        c.none(n)
-                    ),
-                )
+
+                c.none(n)?;
+
+                format!("The argument '{}' cannot be used with {}", arg, n)
             }
         };
-        Error {
-            cause: plain_cause,
-            message: format!(
-                "{} {}\n\n{}\n\nFor more information try {}",
-                c.error("error:"),
-                colored_cause,
-                usage,
-                c.good("--help")
-            ),
+
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause,
+            message: c,
             kind: ErrorKind::ArgumentConflict,
             info: Some(v),
-        }
+        })
     }
 
-    pub(crate) fn empty_value<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub(crate) fn empty_value<U>(arg: &Arg, usage: U, color: ColorChoice) -> io::Result<Self>
     where
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' requires a value but none was supplied")?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "The argument '{}' requires a value but none was supplied",
                 arg
             ),
-            message: format!(
-                "{} The argument '{}' requires a value but none was supplied\
-                 \n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(arg.to_string()),
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::EmptyValue,
             info: Some(vec![arg.name.to_owned()]),
-        }
+        })
     }
 
     pub(crate) fn invalid_value<B, G, U>(
@@ -558,51 +561,57 @@ impl Error {
         good_vals: &[G],
         arg: &Arg,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         B: AsRef<str>,
         G: AsRef<str> + Display,
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        let suffix = suggestions::did_you_mean_value_suffix(bad_val.as_ref(), good_vals.iter());
+        let mut c = Colorizer::new(true, color);
+        let suffix = suggestions::did_you_mean(bad_val.as_ref(), good_vals.iter()).pop();
 
-        let mut sorted = vec![];
-        for v in good_vals {
-            let val = format!("{}", c.good(v));
-            sorted.push(val);
-        }
+        let mut sorted: Vec<String> = good_vals.iter().map(|v| v.to_string()).collect();
         sorted.sort();
-        let valid_values = sorted.join(", ");
-        Error {
+
+        start_error(&mut c, "'")?;
+        c.warning(bad_val.as_ref())?;
+        c.none("' isn't a valid value for '")?;
+        c.warning(&arg.to_string())?;
+        c.none("'\n\t[possible values: ")?;
+
+        if let Some((last, elements)) = sorted.split_last() {
+            for v in elements {
+                c.good(v)?;
+                c.none(", ")?;
+            }
+
+            c.good(last)?;
+        }
+
+        c.none("]")?;
+
+        if let Some(val) = suffix {
+            c.none("\n\n\tDid you mean '")?;
+            c.good(&val)?;
+            c.none("'?")?;
+        }
+
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "'{}' isn't a valid value for '{}'\n\t\
                  [possible values: {}]",
                 bad_val.as_ref(),
                 arg,
-                valid_values
+                sorted.join(", ")
             ),
-            message: format!(
-                "{} '{}' isn't a valid value for '{}'\n\t\
-                 [possible values: {}]\n\
-                 {}\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(bad_val.as_ref()),
-                c.warning(arg.to_string()),
-                valid_values,
-                suffix.0,
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::InvalidValue,
             info: Some(vec![arg.name.to_owned(), bad_val.as_ref().to_owned()]),
-        }
+        })
     }
 
     pub(crate) fn invalid_subcommand<S, D, N, U>(
@@ -610,8 +619,8 @@ impl Error {
         did_you_mean: D,
         name: N,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         S: Into<String>,
         D: AsRef<str> + Display,
@@ -619,166 +628,173 @@ impl Error {
         U: Display,
     {
         let s = subcmd.into();
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The subcommand '")?;
+        c.warning(&*s)?;
+        c.none("' wasn't recognized\n\n\tDid you mean ")?;
+        c.good(did_you_mean.as_ref())?;
+        c.none("")?;
+        c.none(&format!(
+            "?\n\nIf you believe you received this message in error, try re-running with '{} ",
+            name
+        ))?;
+        c.good("--")?;
+        c.none(&format!(" {}'", &*s))?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!("The subcommand '{}' wasn't recognized", s),
-            message: format!(
-                "{} The subcommand '{}' wasn't recognized\n\t\
-                 Did you mean {}?\n\n\
-                 If you believe you received this message in error, try \
-                 re-running with '{} {} {}'\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(&*s),
-                c.good(did_you_mean.as_ref()),
-                name,
-                c.good("--"),
-                &*s,
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::InvalidSubcommand,
             info: Some(vec![s]),
-        }
+        })
     }
 
-    pub(crate) fn unrecognized_subcommand<S, N>(subcmd: S, name: N, color: ColorWhen) -> Self
+    pub(crate) fn unrecognized_subcommand<S, N>(
+        subcmd: S,
+        name: N,
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         S: Into<String>,
         N: Display,
     {
         let s = subcmd.into();
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, " The subcommand '")?;
+        c.warning(&*s)?;
+        c.none("' wasn't recognized\n\n")?;
+        c.warning("USAGE:")?;
+        c.none(&format!("\n\t{} help <subcommands>...", name))?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!("The subcommand '{}' wasn't recognized", s),
-            message: format!(
-                "{} The subcommand '{}' wasn't recognized\n\n\
-                 {}\n\t\
-                 {} help <subcommands>...\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(&*s),
-                c.warning("USAGE:"),
-                name,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::UnrecognizedSubcommand,
             info: Some(vec![s]),
-        }
+        })
     }
 
-    pub(crate) fn missing_required_argument<R, U>(required: R, usage: U, color: ColorWhen) -> Self
+    pub(crate) fn missing_required_argument<R, U>(
+        required: VecDeque<R>,
+        usage: U,
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         R: Display,
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
-            cause: format!(
-                "The following required arguments were not provided:{}",
-                required
-            ),
-            message: format!(
-                "{} The following required arguments were not provided:{}\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                required,
-                usage,
-                c.good("--help")
-            ),
+        let mut c = Colorizer::new(true, color);
+
+        let cause = format!(
+            "The following required arguments were not provided:{}",
+            required
+                .iter()
+                .map(|x| format!("\n    {}", x))
+                .collect::<Vec<_>>()
+                .join(""),
+        );
+
+        start_error(
+            &mut c,
+            "The following required arguments were not provided:",
+        )?;
+
+        for v in required {
+            c.none("\n    ")?;
+            c.good(&v.to_string())?;
+        }
+
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause,
+            message: c,
             kind: ErrorKind::MissingRequiredArgument,
             info: None,
-        }
+        })
     }
 
-    pub(crate) fn missing_subcommand<N, U>(name: N, usage: U, color: ColorWhen) -> Self
+    pub(crate) fn missing_subcommand<N, U>(
+        name: N,
+        usage: U,
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         N: AsRef<str> + Display,
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "'")?;
+        c.warning(name.as_ref())?;
+        c.none("' requires a subcommand, but one was not provided")?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!("'{}' requires a subcommand, but one was not provided", name),
-            message: format!(
-                "{} '{}' requires a subcommand, but one was not provided\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(name),
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::MissingSubcommand,
             info: None,
-        }
+        })
     }
 
-    pub(crate) fn invalid_utf8<U>(usage: U, color: ColorWhen) -> Self
+    pub(crate) fn invalid_utf8<U>(usage: U, color: ColorChoice) -> io::Result<Self>
     where
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
-            cause: "Invalid UTF-8 was detected in one or more arguments".to_string(),
-            message: format!(
-                "{} Invalid UTF-8 was detected in one or more arguments\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                usage,
-                c.good("--help")
-            ),
+        let mut c = Colorizer::new(true, color);
+
+        let cause = "Invalid UTF-8 was detected in one or more arguments";
+
+        start_error(&mut c, cause)?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause: cause.to_string(),
+            message: c,
             kind: ErrorKind::InvalidUtf8,
             info: None,
-        }
+        })
     }
 
-    pub(crate) fn too_many_values<V, U>(val: V, arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub(crate) fn too_many_values<V, U>(
+        val: V,
+        arg: &Arg,
+        usage: U,
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         V: AsRef<str> + Display + ToOwned,
         U: Display,
     {
         let v = val.as_ref();
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The value '")?;
+        c.warning(v)?;
+        c.none("' was provided to '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' but it wasn't expecting any more values")?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "The value '{}' was provided to '{}', but it wasn't expecting any more values",
                 v, arg
             ),
-            message: format!(
-                "{} The value '{}' was provided to '{}', but it wasn't expecting \
-                 any more values\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(v),
-                c.warning(arg.to_string()),
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::TooManyValues,
             info: Some(vec![arg.name.to_owned(), v.to_owned()]),
-        }
+        })
     }
 
     pub(crate) fn too_few_values<U>(
@@ -786,45 +802,53 @@ impl Error {
         min_vals: u64,
         curr_vals: usize,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
+        let mut c = Colorizer::new(true, color);
         let verb = Error::singular_or_plural(curr_vals);
-        Error {
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' requires at least ")?;
+        c.warning(&min_vals.to_string())?;
+        c.none("values, but only ")?;
+        c.warning(&curr_vals.to_string())?;
+        c.none(&format!(" {} provided", verb))?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "The argument '{}' requires at least {} values, but only {} {} provided",
                 arg, min_vals, curr_vals, verb
             ),
-            message: format!(
-                "{} The argument '{}' requires at least {} values, but only {} {} \
-                 provided\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(arg.to_string()),
-                c.warning(min_vals.to_string()),
-                c.warning(curr_vals.to_string()),
-                verb,
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::TooFewValues,
             info: Some(vec![arg.name.to_owned()]),
-        }
+        })
     }
 
-    pub(crate) fn value_validation(arg: Option<&Arg>, err: &str, color: ColorWhen) -> Self {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+    pub(crate) fn value_validation(
+        arg: Option<&Arg>,
+        err: &str,
+        color: ColorChoice,
+    ) -> io::Result<Self> {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "Invalid value")?;
+
+        if let Some(a) = arg {
+            c.none(" for '")?;
+            c.warning(&a.to_string())?;
+            c.none("'")?;
+        }
+
+        c.none(&format!(": {}", err))?;
+
+        Ok(Error {
             cause: format!(
                 "Invalid value{}: {}",
                 if let Some(a) = arg {
@@ -834,24 +858,15 @@ impl Error {
                 },
                 err
             ),
-            message: format!(
-                "{} Invalid value{}: {}",
-                c.error("error:"),
-                if let Some(a) = arg {
-                    format!(" for '{}'", c.warning(a.to_string()))
-                } else {
-                    "".to_string()
-                },
-                err
-            ),
+            message: c,
             kind: ErrorKind::ValueValidation,
             info: None,
-        }
+        })
     }
 
-    pub(crate) fn value_validation_auto(err: &str) -> Self {
+    pub(crate) fn value_validation_auto(err: &str) -> io::Result<Self> {
         let n: Option<&Arg> = None;
-        Error::value_validation(n, err, ColorWhen::Auto)
+        Error::value_validation(n, err, ColorChoice::Auto)
     }
 
     pub(crate) fn wrong_number_of_values<U>(
@@ -859,168 +874,163 @@ impl Error {
         num_vals: u64,
         curr_vals: usize,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
+        let mut c = Colorizer::new(true, color);
         let verb = Error::singular_or_plural(curr_vals);
-        Error {
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' requires ")?;
+        c.warning(&num_vals.to_string())?;
+        c.none(" values, but ")?;
+        c.warning(&curr_vals.to_string())?;
+        c.none(&format!(" {} provided", verb))?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "The argument '{}' requires {} values, but {} {} provided",
                 arg, num_vals, curr_vals, verb
             ),
-            message: format!(
-                "{} The argument '{}' requires {} values, but {} {}
-                 provided\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(arg.to_string()),
-                c.warning(num_vals.to_string()),
-                c.warning(curr_vals.to_string()),
-                verb,
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::WrongNumberOfValues,
             info: Some(vec![arg.name.to_owned()]),
-        }
+        })
     }
 
-    pub(crate) fn unexpected_multiple_usage<U>(arg: &Arg, usage: U, color: ColorWhen) -> Self
+    pub(crate) fn unexpected_multiple_usage<U>(
+        arg: &Arg,
+        usage: U,
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         U: Display,
     {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
-        Error {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' was provided more than once, but cannot be used multiple times")?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
                 "The argument '{}' was provided more than once, but cannot be used multiple times",
                 arg
             ),
-            message: format!(
-                "{} The argument '{}' was provided more than once, but cannot \
-                 be used multiple times\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(arg.to_string()),
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::UnexpectedMultipleUsage,
             info: Some(vec![arg.name.to_owned()]),
-        }
+        })
     }
 
     pub(crate) fn unknown_argument<A, U>(
         arg: A,
-        did_you_mean: Option<String>,
+        did_you_mean: Option<(String, Option<String>)>,
         usage: U,
-        color: ColorWhen,
-    ) -> Self
+        color: ColorChoice,
+    ) -> io::Result<Self>
     where
         A: Into<String>,
         U: Display,
     {
         let a = arg.into();
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: color,
-        });
+        let mut c = Colorizer::new(true, color);
 
-        let suggest_pattern = format!("If you tried to supply `{}` as a PATTERN use `-- {}`", a, a);
+        start_error(&mut c, "Found argument '")?;
+        c.warning(&*a)?;
+        c.none("' which wasn't expected, or isn't valid in this context")?;
 
-        let did_you_mean_message = match did_you_mean {
-            Some(s) => format!("{}\n", s),
-            _ => "\n".to_owned(),
-        };
+        if let Some(s) = did_you_mean {
+            c.none("\n\n\tDid you mean ")?;
 
-        Error {
+            if let Some(subcmd) = s.1 {
+                c.none("to put '")?;
+                c.good(&format!("--{}", &s.0))?;
+                c.none("' after the subcommand '")?;
+                c.good(&subcmd)?;
+                c.none("'?")?;
+            } else {
+                c.none("'")?;
+                c.good(&format!("--{}", &s.0))?;
+                c.none("'?")?;
+            }
+        }
+
+        c.none(&format!(
+            "\n\nIf you tried to supply `{}` as a PATTERN use `-- {}`",
+            a, a
+        ))?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!(
-                "Found argument '{}' which wasn't expected, or isn't valid in this context{}",
-                a, did_you_mean_message
+                "Found argument '{}' which wasn't expected, or isn't valid in this context",
+                a
             ),
-            message: format!(
-                "{} Found argument '{}' which wasn't expected, or isn't valid in \
-                 this context{}\
-                 {}\n\n\
-                 {}\n\n\
-                 For more information try {}",
-                c.error("error:"),
-                c.warning(&*a),
-                did_you_mean_message,
-                suggest_pattern,
-                usage,
-                c.good("--help")
-            ),
+            message: c,
             kind: ErrorKind::UnknownArgument,
             info: Some(vec![a]),
-        }
+        })
     }
 
-    pub(crate) fn argument_not_found_auto<A>(arg: A) -> Self
+    pub(crate) fn argument_not_found_auto<A>(arg: A) -> io::Result<Self>
     where
         A: Into<String>,
     {
         let a = arg.into();
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: ColorWhen::Auto,
-        });
-        Error {
+        let mut c = Colorizer::new(true, ColorChoice::Auto);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&*a)?;
+        c.none("' wasn't found")?;
+        try_help(&mut c)?;
+
+        Ok(Error {
             cause: format!("The argument '{}' wasn't found", a),
-            message: format!("{} The argument '{}' wasn't found", c.error("error:"), a),
+            message: c,
             kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
-        }
+        })
     }
 
     /// Create an error with a custom description.
     ///
     /// This can be used in combination with `Error::exit` to exit your program
     /// with a custom error message.
-    pub fn with_description(description: impl Into<String>, kind: ErrorKind) -> Self {
-        let c = Colorizer::new(&ColorizerOption {
-            use_stderr: true,
-            when: ColorWhen::Auto,
-        });
+    pub fn with_description(description: impl Into<String>, kind: ErrorKind) -> io::Result<Self> {
+        let mut c = Colorizer::new(true, ColorChoice::Auto);
 
         let cause = description.into();
-        let message = format!("{} {}", c.error("error:"), cause);
 
-        Error {
+        start_error(&mut c, &*cause)?;
+
+        Ok(Error {
             cause,
-            message,
+            message: c,
             kind,
             info: None,
-        }
-    }
-}
-
-impl StdError for Error {}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut std_fmt::Formatter) -> std_fmt::Result {
-        writeln!(f, "{}", self.message)
+        })
     }
 }
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
         Error::with_description(e.to_string(), ErrorKind::Io)
+            .expect("Unable to build error message")
     }
 }
 
-impl From<std_fmt::Error> for Error {
-    fn from(e: std_fmt::Error) -> Self {
+impl From<fmt::Error> for Error {
+    fn from(e: fmt::Error) -> Self {
         Error::with_description(e.to_string(), ErrorKind::Format)
+            .expect("Unable to build error message")
     }
 }
