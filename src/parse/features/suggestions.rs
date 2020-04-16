@@ -10,7 +10,7 @@ use crate::output::fmt::Format;
 /// Thus in a list of possible values like ["foo", "bar"], the value "fop" will yield
 /// `Some("foo")`, whereas "blark" would yield `None`.
 #[cfg(feature = "suggestions")]
-pub fn did_you_mean<T, I>(v: &str, possible_values: I) -> Vec<String>
+pub(crate) fn did_you_mean<T, I>(v: &str, possible_values: I) -> Vec<String>
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
@@ -25,7 +25,7 @@ where
 }
 
 #[cfg(not(feature = "suggestions"))]
-pub fn did_you_mean<T, I>(_: &str, _: I) -> Vec<String>
+pub(crate) fn did_you_mean<T, I>(_: &str, _: I) -> Vec<String>
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
@@ -34,7 +34,7 @@ where
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-pub fn did_you_mean_flag_suffix<I, T>(
+pub(crate) fn did_you_mean_flag_suffix<I, T>(
     arg: &str,
     longs: I,
     subcommands: &mut [App],
@@ -76,7 +76,7 @@ where
 }
 
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
-pub fn did_you_mean_value_suffix<T, I>(arg: &str, values: I) -> (String, Option<String>)
+pub(crate) fn did_you_mean_value_suffix<T, I>(arg: &str, values: I) -> (String, Option<String>)
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,

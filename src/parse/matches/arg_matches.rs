@@ -1063,7 +1063,6 @@ impl<'a> Default for OsValues<'a> {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Indices<'a> {
-    // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
     iter: Cloned<Iter<'a, usize>>,
 }
 

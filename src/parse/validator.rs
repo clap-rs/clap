@@ -10,7 +10,7 @@ use crate::util::{ChildGraph, Id};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
-pub struct Validator<'b, 'c, 'z>
+pub(crate) struct Validator<'b, 'c, 'z>
 where
     'b: 'c,
     'c: 'z,

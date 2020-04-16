@@ -9,9 +9,9 @@ pub(crate) struct Key {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'b> {
+pub(crate) struct MKeyMap<'b> {
     pub(crate) keys: Vec<Key>,
-    pub args: Vec<Arg<'b>>,
+    pub(crate) args: Vec<Arg<'b>>,
 
     // FIXME (@CreepySkeleton): this seems useless
     built: bool, // mutation isn't possible after being built

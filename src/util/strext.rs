@@ -1,4 +1,4 @@
-pub trait _StrExt {
+pub(crate) trait _StrExt {
     fn _is_char_boundary(&self, index: usize) -> bool;
 }
 
