@@ -551,6 +551,19 @@ FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information";
 
+static ISSUE_1364: &str = "demo 
+
+USAGE:
+    demo [FLAGS] [OPTIONS] [FILES]...
+
+ARGS:
+    <FILES>...    
+
+FLAGS:
+    -f               
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
 fn setup() -> App<'static> {
     App::new("test")
         .author("Kevin K.")
@@ -1585,6 +1598,21 @@ fn show_short_about_issue_897() {
         ISSUE_897_SHORT,
         false
     ));
+}
+
+#[test]
+fn issue_1364_no_short_options() {
+    let app = App::new("demo")
+        .arg(Arg::with_name("foo").short('f'))
+        .arg(
+            Arg::with_name("baz")
+                .short('z')
+                .value_name("BAZ")
+                .hidden_short_help(true),
+        )
+        .arg(Arg::with_name("files").value_name("FILES").multiple(true));
+
+    assert!(utils::compare_output(app, "demo -h", ISSUE_1364, false));
 }
 
 #[rustfmt::skip]

@@ -633,7 +633,9 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 acc
             }
         }) > 0;
-        let opts = self.parser.has_opts();
+        let opts = opts!(self.parser.app)
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
         let subcmds = self.parser.has_visible_subcommands();
 
         let custom_headings = self.parser.app.args.args.iter().fold(0, |acc, arg| {
@@ -654,7 +656,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
 
-        if unified_help && (flags || opts) {
+        if unified_help && (flags || !opts.is_empty()) {
             let opts_flags = self
                 .parser
                 .app
@@ -679,12 +681,12 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 self.write_args(&*flags_v)?;
                 first = false;
             }
-            if opts {
+            if !opts.is_empty() {
                 if !first {
                     self.none("\n\n")?;
                 }
                 self.warning("OPTIONS:\n")?;
-                self.write_args(&*opts!(self.parser.app).collect::<Vec<_>>())?;
+                self.write_args(&opts)?;
                 first = false;
             }
             if custom_headings {
