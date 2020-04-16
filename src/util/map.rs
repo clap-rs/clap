@@ -1,8 +1,8 @@
 #[cfg(feature = "vec_map")]
-pub use vec_map::{Values, VecMap};
+pub(crate) use vec_map::VecMap;
 
 #[cfg(not(feature = "vec_map"))]
-pub use self::vec_map::{Values, VecMap};
+pub(crate) use self::vec_map::VecMap;
 
 #[cfg(not(feature = "vec_map"))]
 mod vec_map {
@@ -11,62 +11,62 @@ mod vec_map {
     use std::fmt::{self, Debug, Formatter};
 
     #[derive(Clone, Default, Debug)]
-    pub struct VecMap<V> {
+    pub(crate) struct VecMap<V> {
         inner: BTreeMap<usize, V>,
     }
 
     impl<V> VecMap<V> {
-        pub fn new() -> Self {
+        pub(crate) fn new() -> Self {
             VecMap {
                 inner: Default::default(),
             }
         }
 
-        pub fn len(&self) -> usize {
+        pub(crate) fn len(&self) -> usize {
             self.inner.len()
         }
 
-        pub fn is_empty(&self) -> bool {
+        pub(crate) fn is_empty(&self) -> bool {
             self.inner.is_empty()
         }
 
-        pub fn insert(&mut self, key: usize, value: V) -> Option<V> {
+        pub(crate) fn insert(&mut self, key: usize, value: V) -> Option<V> {
             self.inner.insert(key, value)
         }
 
-        pub fn values(&self) -> Values<V> {
+        pub(crate) fn values(&self) -> Values<V> {
             self.inner.values()
         }
 
-        pub fn keys(&self) -> btree_map::Keys<usize, V> {
+        pub(crate) fn keys(&self) -> btree_map::Keys<usize, V> {
             self.inner.keys()
         }
 
-        pub fn iter(&self) -> Iter<V> {
+        pub(crate) fn iter(&self) -> Iter<V> {
             Iter {
                 inner: self.inner.iter(),
             }
         }
 
-        pub fn contains_key(&self, key: usize) -> bool {
+        pub(crate) fn contains_key(&self, key: usize) -> bool {
             self.inner.contains_key(&key)
         }
 
-        pub fn entry(&mut self, key: usize) -> Entry<V> {
+        pub(crate) fn entry(&mut self, key: usize) -> Entry<V> {
             self.inner.entry(key)
         }
 
-        pub fn get(&self, key: usize) -> Option<&V> {
+        pub(crate) fn get(&self, key: usize) -> Option<&V> {
             self.inner.get(&key)
         }
     }
 
-    pub type Values<'a, V> = btree_map::Values<'a, usize, V>;
+    pub(crate) type Values<'a, V> = btree_map::Values<'a, usize, V>;
 
-    pub type Entry<'a, V> = btree_map::Entry<'a, usize, V>;
+    pub(crate) type Entry<'a, V> = btree_map::Entry<'a, usize, V>;
 
     #[derive(Clone)]
-    pub struct Iter<'a, V: 'a> {
+    pub(crate) struct Iter<'a, V: 'a> {
         inner: btree_map::Iter<'a, usize, V>,
     }
 

@@ -2,7 +2,7 @@
 use std::ffi::{OsStr, OsString};
 
 #[derive(Debug, Clone)]
-pub struct MatchedArg {
+pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
     pub(crate) indices: Vec<usize>,
     pub(crate) vals: Vec<OsString>,
@@ -19,7 +19,7 @@ impl Default for MatchedArg {
 }
 
 impl MatchedArg {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         MatchedArg::default()
     }
     pub(crate) fn contains_val(&self, val: &str) -> bool {

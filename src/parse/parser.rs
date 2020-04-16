@@ -84,7 +84,7 @@ impl Input {
         }
     }
 
-    pub fn remaining(&self) -> &[OsString] {
+    pub(crate) fn remaining(&self) -> &[OsString] {
         &self.items[self.cursor..]
     }
 }
@@ -105,7 +105,7 @@ impl<'b, 'c> Parser<'b, 'c>
 where
     'b: 'c,
 {
-    pub fn new(app: &'c mut App<'b>) -> Self {
+    pub(crate) fn new(app: &'c mut App<'b>) -> Self {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args

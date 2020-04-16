@@ -5,7 +5,7 @@ mod map;
 mod osstringext;
 mod strext;
 
-pub use self::{fnv::Key, map::Values};
+pub use self::fnv::Key;
 
 pub(crate) use self::{graph::ChildGraph, id::Id, map::VecMap, osstringext::OsStrExt2};
 

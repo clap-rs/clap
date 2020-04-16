@@ -1,4 +1,4 @@
-use crate::util::fnv::{Key, EMPTY_HASH, HELP_HASH, VERSION_HASH};
+use crate::util::fnv::Key;
 use std::fmt::{Debug, Formatter, Result};
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
@@ -12,14 +12,14 @@ pub(crate) struct Id {
 }
 
 macro_rules! precomputed_hashes {
-    ($($fn_name:ident, $const_name:ident, $name:expr;)*) => {
+    ($($fn_name:ident, $const:expr, $name:expr;)*) => {
         impl Id {
             $(
                 pub(crate) fn $fn_name() -> Self {
                     Id {
                         #[cfg(debug_assertions)]
                         name: $name.into(),
-                        id: $const_name,
+                        id: $const,
                     }
                 }
             )*
@@ -27,10 +27,11 @@ macro_rules! precomputed_hashes {
     };
 }
 
+// precompute some common values
 precomputed_hashes! {
-    empty_hash, EMPTY_HASH, "";
-    help_hash, HELP_HASH, "help";
-    version_hash, VERSION_HASH, "version";
+    empty_hash,   0x1C9D_3ADB_639F_298E, "";
+    help_hash,    0x5963_6393_CFFB_FE5F, "help";
+    version_hash, 0x30FF_0B7C_4D07_9478, "version";
 }
 
 impl Id {
