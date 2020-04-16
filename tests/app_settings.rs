@@ -124,6 +124,36 @@ fn arg_required_else_help_over_reqs() {
     assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
 }
 
+#[test]
+fn arg_precedence_over_subcommand() {
+    let app = App::new("app").subcommand(App::new("sub")).arg(
+        Arg::with_name("arg")
+            .long("arg")
+            .multiple(true)
+            .takes_value(true),
+    );
+
+    let matches = app
+        .clone()
+        .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+        .unwrap();
+    assert_eq!(
+        matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+        &["1", "2", "3"]
+    );
+    assert!(matches.subcommand_matches("sub").is_some());
+
+    let app = app.setting(AppSettings::ArgPrecedenceOverSubcommand);
+    let matches = app
+        .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+        .unwrap();
+    assert_eq!(
+        matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+        &["1", "2", "3", "sub"]
+    );
+    assert!(matches.subcommand_matches("sub").is_none());
+}
+
 #[cfg(not(feature = "suggestions"))]
 #[test]
 fn infer_subcommands_fail_no_args() {

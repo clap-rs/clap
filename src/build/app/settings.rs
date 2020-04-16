@@ -6,47 +6,48 @@ use std::str::FromStr;
 
 bitflags! {
     struct Flags: u64 {
-        const SC_NEGATE_REQS       = 1;
-        const SC_REQUIRED          = 1 << 1;
-        const A_REQUIRED_ELSE_HELP = 1 << 2;
-        const GLOBAL_VERSION       = 1 << 3;
-        const VERSIONLESS_SC       = 1 << 4;
-        const UNIFIED_HELP         = 1 << 5;
-        const WAIT_ON_ERROR        = 1 << 6;
-        const SC_REQUIRED_ELSE_HELP= 1 << 7;
-        const NO_AUTO_HELP         = 1 << 8;
-        const NO_AUTO_VERSION      = 1 << 9;
-        const DISABLE_VERSION      = 1 << 10;
-        const HIDDEN               = 1 << 11;
-        const TRAILING_VARARG      = 1 << 12;
-        const NO_BIN_NAME          = 1 << 13;
-        const ALLOW_UNK_SC         = 1 << 14;
-        const UTF8_STRICT          = 1 << 15;
-        const UTF8_NONE            = 1 << 16;
-        const LEADING_HYPHEN       = 1 << 17;
-        const NO_POS_VALUES        = 1 << 18;
-        const NEXT_LINE_HELP       = 1 << 19;
-        const DERIVE_DISP_ORDER    = 1 << 20;
-        const COLORED_HELP         = 1 << 21;
-        const COLOR_ALWAYS         = 1 << 22;
-        const COLOR_AUTO           = 1 << 23;
-        const COLOR_NEVER          = 1 << 24;
-        const DONT_DELIM_TRAIL     = 1 << 25;
-        const ALLOW_NEG_NUMS       = 1 << 26;
-        const LOW_INDEX_MUL_POS    = 1 << 27;
-        const DISABLE_HELP_SC      = 1 << 28;
-        const DONT_COLLAPSE_ARGS   = 1 << 29;
-        const ARGS_NEGATE_SCS      = 1 << 30;
-        const PROPAGATE_VALS_DOWN  = 1 << 31;
-        const ALLOW_MISSING_POS    = 1 << 32;
-        const TRAILING_VALUES      = 1 << 33;
-        const VALID_NEG_NUM_FOUND  = 1 << 34;
-        const BUILT                = 1 << 35;
-        const VALID_ARG_FOUND      = 1 << 36;
-        const INFER_SUBCOMMANDS    = 1 << 37;
-        const CONTAINS_LAST        = 1 << 38;
-        const ARGS_OVERRIDE_SELF   = 1 << 39;
-        const HELP_REQUIRED        = 1 << 40;
+        const SC_NEGATE_REQS                 = 1;
+        const SC_REQUIRED                    = 1 << 1;
+        const A_REQUIRED_ELSE_HELP           = 1 << 2;
+        const GLOBAL_VERSION                 = 1 << 3;
+        const VERSIONLESS_SC                 = 1 << 4;
+        const UNIFIED_HELP                   = 1 << 5;
+        const WAIT_ON_ERROR                  = 1 << 6;
+        const SC_REQUIRED_ELSE_HELP          = 1 << 7;
+        const NO_AUTO_HELP                   = 1 << 8;
+        const NO_AUTO_VERSION                = 1 << 9;
+        const DISABLE_VERSION                = 1 << 10;
+        const HIDDEN                         = 1 << 11;
+        const TRAILING_VARARG                = 1 << 12;
+        const NO_BIN_NAME                    = 1 << 13;
+        const ALLOW_UNK_SC                   = 1 << 14;
+        const UTF8_STRICT                    = 1 << 15;
+        const UTF8_NONE                      = 1 << 16;
+        const LEADING_HYPHEN                 = 1 << 17;
+        const NO_POS_VALUES                  = 1 << 18;
+        const NEXT_LINE_HELP                 = 1 << 19;
+        const DERIVE_DISP_ORDER              = 1 << 20;
+        const COLORED_HELP                   = 1 << 21;
+        const COLOR_ALWAYS                   = 1 << 22;
+        const COLOR_AUTO                     = 1 << 23;
+        const COLOR_NEVER                    = 1 << 24;
+        const DONT_DELIM_TRAIL               = 1 << 25;
+        const ALLOW_NEG_NUMS                 = 1 << 26;
+        const LOW_INDEX_MUL_POS              = 1 << 27;
+        const DISABLE_HELP_SC                = 1 << 28;
+        const DONT_COLLAPSE_ARGS             = 1 << 29;
+        const ARGS_NEGATE_SCS                = 1 << 30;
+        const PROPAGATE_VALS_DOWN            = 1 << 31;
+        const ALLOW_MISSING_POS              = 1 << 32;
+        const TRAILING_VALUES                = 1 << 33;
+        const VALID_NEG_NUM_FOUND            = 1 << 34;
+        const BUILT                          = 1 << 35;
+        const VALID_ARG_FOUND                = 1 << 36;
+        const INFER_SUBCOMMANDS              = 1 << 37;
+        const CONTAINS_LAST                  = 1 << 38;
+        const ARGS_OVERRIDE_SELF             = 1 << 39;
+        const HELP_REQUIRED                  = 1 << 40;
+        const ARG_PRECEDENCE_OVER_SUBCOMMAND = 1 << 41;
     }
 }
 
@@ -69,6 +70,8 @@ impl Default for AppFlags {
 impl_settings! { AppSettings, AppFlags,
     ArgRequiredElseHelp("argrequiredelsehelp")
         => Flags::A_REQUIRED_ELSE_HELP,
+    ArgPrecedenceOverSubcommand("argprecedenceoversubcommand")
+        => Flags::ARG_PRECEDENCE_OVER_SUBCOMMAND,
     ArgsNegateSubcommands("argsnegatesubcommands")
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
@@ -435,6 +438,19 @@ pub enum AppSettings {
     /// [``]: ./struct..html
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     ArgRequiredElseHelp,
+
+    /// Specifies argument values should be greedily consumed instead of stopping when encountering
+    /// a subcommand during parsing.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::ArgPrecedenceOverSubcommand)
+    /// # ;
+    /// ```
+    ArgPrecedenceOverSubcommand,
 
     /// Uses colorized help messages.
     ///
@@ -987,6 +1003,12 @@ mod test {
         assert_eq!(
             "argrequiredelsehelp".parse::<AppSettings>().unwrap(),
             AppSettings::ArgRequiredElseHelp
+        );
+        assert_eq!(
+            "argprecedenceoversubcommand"
+                .parse::<AppSettings>()
+                .unwrap(),
+            AppSettings::ArgPrecedenceOverSubcommand
         );
         assert_eq!(
             "allowexternalsubcommands".parse::<AppSettings>().unwrap(),
