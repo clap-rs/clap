@@ -740,15 +740,31 @@ mod debug_macros {
 mod debug_macros {
     macro_rules! debugln {
         ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => {};
+        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
     }
     macro_rules! sdebugln {
         ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => {};
+        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
     }
     macro_rules! debug {
         ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => {};
+        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
+    }
+
+    macro_rules! ignore_fmt_args {
+        () => {};
+
+        // name = expr
+        ($name:ident = $val:expr $( , $($ts:tt)* )?) => {
+            let _ = $val;
+            ignore_fmt_args!($($($ts)*)*);
+        };
+
+        // expr
+        ($val:expr $( , $($ts:tt)* )?) => {
+            let _ = $val;
+            ignore_fmt_args!($($($ts)*)*);
+        };
     }
 }
 
