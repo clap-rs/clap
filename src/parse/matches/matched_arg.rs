@@ -6,6 +6,7 @@ pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
     pub(crate) indices: Vec<usize>,
     pub(crate) vals: Vec<OsString>,
+    pub(crate) env_set: bool,
 }
 
 impl Default for MatchedArg {
@@ -14,6 +15,7 @@ impl Default for MatchedArg {
             occurs: 1,
             indices: Vec::new(),
             vals: Vec::new(),
+            env_set: false,
         }
     }
 }

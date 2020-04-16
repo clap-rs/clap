@@ -136,8 +136,14 @@ impl ArgMatcher {
         self.insert(arg);
     }
 
+    pub(crate) fn set_env_set(&mut self, arg: &Id) {
+        let ma = self.entry(arg).or_insert(MatchedArg::new());
+        ma.env_set = true;
+    }
+
     pub(crate) fn add_val_to(&mut self, arg: &Id, val: &OsStr) {
         let ma = self.entry(arg).or_insert(MatchedArg {
+            env_set: false,
             occurs: 0, // @TODO @question Shouldn't this be 1 if we're already adding a value to this arg?
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
@@ -147,6 +153,7 @@ impl ArgMatcher {
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize) {
         let ma = self.entry(arg).or_insert(MatchedArg {
+            env_set: false,
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::new(),

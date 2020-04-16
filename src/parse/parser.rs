@@ -1357,6 +1357,9 @@ where
 
         matcher.add_val_to(&arg.id, v);
         matcher.add_index_to(&arg.id, self.cur_idx.get());
+        if let Some((_, Some(_))) = arg.env {
+            matcher.set_env_set(&arg.id);
+        }
 
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, arg.id) {
