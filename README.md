@@ -113,7 +113,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Auto-generated Help, Version, and Usage information**
   - Can optionally be fully, or partially overridden if you want a custom help, version, or usage statements
 * **Auto-generated completion scripts (Bash, Zsh, Fish, Elvish and PowerShell)**
-  - Using [`clap_generate`](https://github.com/clap-rs/clap_generate)
+  - Using [`clap_generate`](https://github.com/clap-rs/clap/tree/master/clap_generate)
   - Even works through many multiple levels of subcommands
   - Works with options which only accept certain values
   - Works with subcommand aliases
