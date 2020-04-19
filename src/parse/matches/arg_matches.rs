@@ -856,6 +856,7 @@ impl ArgMatches {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
+    #[inline]
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)
     }
@@ -907,6 +908,7 @@ impl ArgMatches {
     /// ```
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
+    #[inline]
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
         self.subcommand
             .as_ref()

@@ -95,11 +95,13 @@ pub struct App<'b> {
 
 impl<'b> App<'b> {
     /// Get the name of the app
+    #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
     /// Get the name of the binary
+    #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
         self.bin_name.as_deref()
     }
@@ -110,11 +112,13 @@ impl<'b> App<'b> {
     }
 
     /// Get the help message specified via [`App::about`]
+    #[inline]
     pub fn get_about(&self) -> Option<&str> {
         self.about.as_deref()
     }
 
     /// Iterate through the *visible* aliases for this subcommand.
+    #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
         self.aliases
             .as_ref()
@@ -123,6 +127,7 @@ impl<'b> App<'b> {
     }
 
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
+    #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
         self.aliases
             .as_ref()
@@ -131,16 +136,19 @@ impl<'b> App<'b> {
     }
 
     /// Get the list of subcommands
+    #[inline]
     pub fn get_subcommands(&self) -> &[App<'b>] {
         &self.subcommands
     }
 
     /// Get the list of subcommands
+    #[inline]
     pub fn get_subcommands_mut(&mut self) -> &mut [App<'b>] {
         &mut self.subcommands
     }
 
     /// Get the list of arguments
+    #[inline]
     pub fn get_arguments(&self) -> &[Arg<'b>] {
         &self.args.args
     }
@@ -168,11 +176,13 @@ impl<'b> App<'b> {
     }
 
     /// Check if the setting was set either with [`App::setting`] or [`App::global_setting`]
+    #[inline]
     pub fn is_set(&self, s: AppSettings) -> bool {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
     /// Check whether this app has subcommands
+    #[inline]
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
     }
@@ -531,6 +541,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     /// [`AppSettings`]: ./enum.AppSettings.html
+    #[inline]
     pub fn setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self
@@ -551,6 +562,7 @@ impl<'b> App<'b> {
     /// [``]: ./struct..html
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
+    #[inline]
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
@@ -572,6 +584,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`AppSettings`]: ./enum.AppSettings.html
+    #[inline]
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
@@ -594,6 +607,7 @@ impl<'b> App<'b> {
     /// ```
     /// [`AppSettings`]: ./enum.AppSettings.html
     /// [global]: ./struct.App.html#method.global_setting
+    #[inline]
     pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
@@ -625,6 +639,7 @@ impl<'b> App<'b> {
     ///     .set_term_width(80)
     /// # ;
     /// ```
+    #[inline]
     pub fn set_term_width(mut self, width: usize) -> Self {
         self.term_w = Some(width);
         self
@@ -653,6 +668,7 @@ impl<'b> App<'b> {
     ///     .max_term_width(100)
     /// # ;
     /// ```
+    #[inline]
     pub fn max_term_width(mut self, w: usize) -> Self {
         self.max_w = Some(w);
         self
@@ -693,12 +709,14 @@ impl<'b> App<'b> {
     /// Set a custom section heading for future args. Every call to arg will
     /// have this header (instead of its default header) until a subsequent
     /// call to help_heading
+    #[inline]
     pub fn help_heading(mut self, heading: &'b str) -> Self {
         self.help_headings.push(Some(heading));
         self
     }
 
     /// Stop using custom section headings.
+    #[inline]
     pub fn stop_custom_headings(mut self) -> Self {
         self.help_headings.push(None);
         self
@@ -854,6 +872,7 @@ impl<'b> App<'b> {
     /// assert!(m.subcommand_matches("module").is_some());
     /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
     /// ```
+    #[inline]
     pub fn replace(mut self, name: &'b str, target: &'b [&'b str]) -> Self {
         self.replacers.insert(name, target);
         self
@@ -892,6 +911,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
+    #[inline]
     pub fn group(mut self, group: ArgGroup<'b>) -> Self {
         self.groups.push(group);
         self
@@ -945,6 +965,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
+    #[inline]
     pub fn subcommand(mut self, subcmd: App<'b>) -> Self {
         self.subcommands.push(subcmd);
         self
@@ -1023,6 +1044,7 @@ impl<'b> App<'b> {
     ///     alpha   Some help and text
     /// ```
     /// [``]: ./struct..html
+    #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
         self
@@ -1243,6 +1265,7 @@ impl<'b> App<'b> {
     ///     .get_matches();
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
+    #[inline]
     pub fn get_matches(self) -> ArgMatches {
         self.get_matches_from(&mut env::args_os())
     }
@@ -1307,6 +1330,7 @@ impl<'b> App<'b> {
     /// [`clap::Result`]: ./type.Result.html
     /// [`clap::Error`]: ./struct.Error.html
     /// [`kind`]: ./struct.Error.html
+    #[inline]
     pub fn try_get_matches(self) -> ClapResult<ArgMatches> {
         // Start the parsing
         self.try_get_matches_from(&mut env::args_os())
