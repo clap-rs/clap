@@ -51,7 +51,12 @@ type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 pub struct Arg<'help> {
     pub(crate) id: Id,
     pub(crate) name: &'help str,
+    #[deprecated(
+        since = "3.0.0",
+        note = "Please use `about` field instead"
+    )]
     pub(crate) help: Option<&'help str>,
+    pub(crate) about: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
     pub(crate) blacklist: Option<Vec<Id>>,
     pub(crate) settings: ArgFlags,
@@ -92,9 +97,17 @@ impl<'help> Arg<'help> {
     }
 
     /// Get the help specified for this argument, if any
-    #[inline]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Please use `get_about` method instead"
+    )]
     pub fn get_help(&self) -> Option<&str> {
-        self.help
+        self.about
+    }
+
+    /// Get the help specified for this argument, if any
+    pub fn get_about(&self) -> Option<&str> {
+        self.about
     }
 
     /// Get the help heading specified for this argument, if any
@@ -500,7 +513,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     #[inline]
     pub fn help(mut self, h: &'help str) -> Self {
-        self.help = Some(h);
+        self.about = Some(h);
         self
     }
 
@@ -4353,7 +4366,7 @@ impl<'help> fmt::Debug for Arg<'help> {
              }}",
             self.id,
             self.name,
-            self.help,
+            self.about,
             self.long_help,
             self.blacklist,
             self.settings,

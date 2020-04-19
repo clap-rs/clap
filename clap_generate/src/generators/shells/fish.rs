@@ -65,7 +65,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
             template.push_str(format!(" -l {}", data).as_str());
         }
 
-        if let Some(data) = option.get_help() {
+        if let Some(data) = option.get_about() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
@@ -88,7 +88,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
             template.push_str(format!(" -l {}", data).as_str());
         }
 
-        if let Some(data) = flag.get_help() {
+        if let Some(data) = flag.get_about() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
