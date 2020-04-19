@@ -1467,88 +1467,93 @@ where
         }
     }
 
-    #[allow(clippy::cognitive_complexity)]
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debugln!("Parser::add_defaults;");
 
-        // FIXME: Refactor into function (or at least most of it)
-        macro_rules! add_val {
-            (@default $_self:ident, $a:ident, $m:ident) => {
-                if let Some(ref vals) = $a.default_vals {
-                    debugln!("Parser::add_defaults:iter:{}: has default vals", $a.name);
-                    if $m
-                        .get(&$a.id)
-                        .map(|ma| ma.vals.len())
-                        .map(|len| len == 0)
-                        .unwrap_or(false)
-                    {
-                        debugln!(
-                            "Parser::add_defaults:iter:{}: has no user defined vals",
-                            $a.name
-                        );
-                        for val in vals {
-                            $_self.add_val_to_arg($a, val, $m)?;
-                        }
-                    } else if $m.get(&$a.id).is_some() {
-                        debugln!(
-                            "Parser::add_defaults:iter:{}: has user defined vals",
-                            $a.name
-                        );
-                    } else {
-                        debugln!("Parser::add_defaults:iter:{}: wasn't used", $a.name);
-
-                        for val in vals {
-                            $_self.add_val_to_arg($a, val, $m)?;
-                        }
-                    }
-                } else {
-                    debugln!(
-                        "Parser::add_defaults:iter:{}: doesn't have default vals",
-                        $a.name
-                    );
-                }
-            };
-            ($_self:ident, $a:ident, $m:ident) => {
-                if let Some(ref vm) = $a.default_vals_ifs {
-                    sdebugln!(" has conditional defaults");
-                    let mut done = false;
-                    if $m.get(&$a.id).is_none() {
-                        for (arg, val, default) in vm.values() {
-                            let add = if let Some(a) = $m.get(&arg) {
-                                if let Some(v) = val {
-                                    a.vals.iter().any(|value| v == value)
-                                } else {
-                                    true
-                                }
-                            } else {
-                                false
-                            };
-                            if add {
-                                $_self.add_val_to_arg($a, OsStr::new(default), $m)?;
-                                done = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if done {
-                        continue; // outer loop (outside macro)
-                    }
-                } else {
-                    sdebugln!(" doesn't have conditional defaults");
-                }
-                add_val!(@default $_self, $a, $m)
-            };
-        }
-
         for o in opts!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            add_val!(self, o, matcher);
+            self.add_value(o, matcher)?;
         }
+
         for p in positionals!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            add_val!(self, p, matcher);
+            self.add_value(p, matcher)?;
         }
+
+        Ok(())
+    }
+
+    fn add_value(&self, arg: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        if let Some(ref vm) = arg.default_vals_ifs {
+            sdebugln!(" has conditional defaults");
+
+            let mut done = false;
+            if matcher.get(&arg.id).is_none() {
+                for (id, val, default) in vm.values() {
+                    let add = if let Some(a) = matcher.get(&id) {
+                        if let Some(v) = val {
+                            a.vals.iter().any(|value| v == value)
+                        } else {
+                            true
+                        }
+                    } else {
+                        false
+                    };
+
+                    if add {
+                        self.add_val_to_arg(arg, OsStr::new(default), matcher)?;
+                        done = true;
+                        break;
+                    }
+                }
+            }
+
+            if done {
+                return Ok(());
+            }
+        } else {
+            sdebugln!(" doesn't have conditional defaults");
+        }
+
+        if let Some(ref vals) = arg.default_vals {
+            debugln!("Parser::add_defaults:iter:{}: has default vals", arg.name);
+            if matcher
+                .get(&arg.id)
+                .map(|ma| ma.vals.len())
+                .map(|len| len == 0)
+                .unwrap_or(false)
+            {
+                debugln!(
+                    "Parser::add_defaults:iter:{}: has no user defined vals",
+                    arg.name
+                );
+
+                for val in vals {
+                    self.add_val_to_arg(arg, val, matcher)?;
+                }
+            } else if matcher.get(&arg.id).is_some() {
+                debugln!(
+                    "Parser::add_defaults:iter:{}: has user defined vals",
+                    arg.name
+                );
+
+            // do nothing
+            } else {
+                debugln!("Parser::add_defaults:iter:{}: wasn't used", arg.name);
+
+                for val in vals {
+                    self.add_val_to_arg(arg, val, matcher)?;
+                }
+            }
+        } else {
+            debugln!(
+                "Parser::add_defaults:iter:{}: doesn't have default vals",
+                arg.name
+            );
+
+            // do nothing
+        }
+
         Ok(())
     }
 
