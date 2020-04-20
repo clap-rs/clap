@@ -16,10 +16,13 @@ jobs:
           toolchain: stable
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Ready cache
+        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
       - name: Cache cargo
         uses: actions/cache@v1
+        id: cache
         with:
-          path: /home/runner/.cargo
+          path: ~/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Test
         uses: actions-rs/cargo@v1
@@ -28,8 +31,10 @@ jobs:
           args: --release --features "yaml unstable"
       - name: Install cargo-cache
         uses: actions-rs/install@v0.1
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           crate: cargo-cache
           use-tool-cache: true
       - name: Cleanup cache
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cargo cache -a
