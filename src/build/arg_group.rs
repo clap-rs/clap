@@ -125,6 +125,7 @@ impl<'a> ArgGroup<'a> {
     /// let ag = ArgGroup::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
+    #[inline]
     pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
         ArgGroup::from(y.as_hash().unwrap())
     }
@@ -222,6 +223,7 @@ impl<'a> ArgGroup<'a> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// ['Arg']: ./struct.Arg.html
+    #[inline]
     pub fn multiple(mut self, m: bool) -> Self {
         self.multiple = m;
         self
@@ -261,6 +263,7 @@ impl<'a> ArgGroup<'a> {
     /// [`App`]: ./struct.App.html
     /// [``]: ./struct..html
     /// [`ArgGroup::multiple`]: ./struct.ArgGroup.html#method.multiple
+    #[inline]
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self

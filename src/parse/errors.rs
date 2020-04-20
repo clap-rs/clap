@@ -418,6 +418,7 @@ impl Error {
     }
 
     /// Should the message be written to `stdout` or not
+    #[inline]
     pub fn use_stderr(&self) -> bool {
         match self.kind {
             ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => false,

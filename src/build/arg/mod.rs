@@ -90,36 +90,43 @@ pub struct Arg<'help> {
 /// Getters
 impl<'help> Arg<'help> {
     /// Get the name o the argument
+    #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
     /// Get the help specified for this argument, if any
+    #[inline]
     pub fn get_help(&self) -> Option<&str> {
         self.help
     }
 
     /// Get the help heading specified for this argument, if any
+    #[inline]
     pub fn get_help_heading(&self) -> Option<&str> {
         self.help_heading
     }
 
     /// Get the short option name for this argument, if any
+    #[inline]
     pub fn get_short(&self) -> Option<char> {
         self.short
     }
 
     /// Get the long option name for this argument, if any
+    #[inline]
     pub fn get_long(&self) -> Option<&str> {
         self.long
     }
 
     /// Get the list of the possible values for this argument, if any
+    #[inline]
     pub fn get_possible_values(&self) -> Option<&[&str]> {
         self.possible_vals.as_deref()
     }
 
     /// Get the index of this argument, if any
+    #[inline]
     pub fn get_index(&self) -> Option<u64> {
         self.index
     }
@@ -153,6 +160,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
+    #[inline]
     pub fn with_name(n: &'help str) -> Self {
         Arg {
             id: n.into(),
@@ -272,6 +280,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("config"));
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
+    #[inline]
     pub fn short(mut self, s: char) -> Self {
         if s == '-' {
             panic!("short option name cannot be `-`");
@@ -316,6 +325,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(m.is_present("cfg"));
     /// ```
+    #[inline]
     pub fn long(mut self, l: &'help str) -> Self {
         self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
@@ -491,6 +501,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Prints version information
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
+    #[inline]
     pub fn help(mut self, h: &'help str) -> Self {
         self.help = Some(h);
         self
@@ -562,6 +573,7 @@ impl<'help> Arg<'help> {
     ///         Prints version information
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
+    #[inline]
     pub fn long_help(mut self, h: &'help str) -> Self {
         self.long_help = Some(h);
         self
@@ -932,6 +944,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
+    #[inline]
     pub fn exclusive(mut self, exclusive: bool) -> Self {
         self.exclusive = exclusive;
         self
@@ -1574,6 +1587,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    #[inline]
     pub fn index(mut self, idx: u64) -> Self {
         self.index = Some(idx);
         self
@@ -1624,6 +1638,7 @@ impl<'help> Arg<'help> {
     /// [`min_values`]: ./struct.Arg.html#method.min_values
     /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`max_values`]: ./struct.Arg.html#method.max_values
+    #[inline]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.terminator = Some(term);
@@ -1870,6 +1885,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
     pub fn number_of_values(mut self, qty: u64) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
@@ -2017,6 +2033,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
+    #[inline]
     pub fn max_values(mut self, qty: u64) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.setb(ArgSettings::MultipleValues);
@@ -2081,6 +2099,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
         self.setting(ArgSettings::TakesValue)
@@ -2109,6 +2128,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
         self.unsetb(ArgSettings::ValueDelimiterNotSet);
         self.setb(ArgSettings::TakesValue);
@@ -2324,6 +2344,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
+    #[inline]
     pub fn default_value(self, val: &'help str) -> Self {
         self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
     }
@@ -2332,12 +2353,14 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
     pub fn default_value_os(self, val: &'help OsStr) -> Self {
         self.default_values_os(&[val])
     }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals
             .iter()
@@ -2350,6 +2373,7 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.setb(ArgSettings::TakesValue);
         self.default_vals = Some(vals.to_vec());
@@ -2699,6 +2723,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
+    #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
     }
@@ -2706,6 +2731,7 @@ impl<'help> Arg<'help> {
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
+    #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         if !self.is_set(ArgSettings::MultipleOccurrences) {
             self.setb(ArgSettings::TakesValue);
@@ -2770,6 +2796,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [positional arguments]: ./struct.Arg.html#method.index
     /// [index]: ./struct.Arg.html#method.index
+    #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
         self
@@ -2850,6 +2877,7 @@ impl<'help> Arg<'help> {
     /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
     /// [`ArgSettings::Required`]: ./enum.ArgSetings.html#variant.Required
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
             self.setting(ArgSettings::Last)
@@ -2909,6 +2937,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Required`]: ./enum.ArgSettings.html#variant.Required
+    #[inline]
     pub fn required(self, r: bool) -> Self {
         if r {
             self.setting(ArgSettings::Required)
@@ -2956,6 +2985,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::value_delimiter(char)`]: ./struct.Arg.html#method.value_delimiter
     /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [multiple values]: ./enum.ArgSettings.html#variant.MultipleValues
+    #[inline]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
             self.setting(ArgSettings::TakesValue)
@@ -3023,6 +3053,7 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings::MultipleValues`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`ArgSettings::MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
             self.setting(ArgSettings::AllowHyphenValues)
@@ -3081,6 +3112,7 @@ impl<'help> Arg<'help> {
     /// [`RequireEquals`]: ./enum.ArgSettings.html#variant.RequireEquals
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.EmptyValues
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
             self.unsetb(ArgSettings::AllowEmptyValues);
@@ -3133,6 +3165,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::is_present("flag")`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg`]: ./struct.Arg.html
+    #[inline]
     pub fn global(mut self, g: bool) -> Self {
         self.global = g;
         self
@@ -3207,6 +3240,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`ArgSettings::UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
             self.setb(ArgSettings::UseValueDelimiter);
@@ -3247,6 +3281,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
     /// the help text would be omitted.
+    #[inline]
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HidePossibleValues)
@@ -3282,6 +3317,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
+    #[inline]
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HideDefaultValue)
@@ -3328,6 +3364,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden(self, h: bool) -> Self {
         if h {
             self.setting(ArgSettings::Hidden)
@@ -3378,6 +3415,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     /// [`arg_enum!`]: ./macro.arg_enum.html
+    #[inline]
     pub fn case_insensitive(self, ci: bool) -> Self {
         if ci {
             self.setting(ArgSettings::IgnoreCase)
@@ -3433,6 +3471,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
+    #[inline]
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
             if self.val_delim.is_none() {
@@ -3476,6 +3515,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `$ CONNECT=super_secret connect --help` the
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
+    #[inline]
     pub fn hide_env_values(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HideEnvValues)
@@ -3528,6 +3568,7 @@ impl<'help> Arg<'help> {
     ///         on a line after the option
     /// ```
     /// [`AppSettings::NextLineHelp`]: ./enum.AppSettings.html#variant.NextLineHelp
+    #[inline]
     pub fn next_line_help(mut self, nlh: bool) -> Self {
         if nlh {
             self.setb(ArgSettings::NextLineHelp);
@@ -3716,6 +3757,7 @@ impl<'help> Arg<'help> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn multiple(mut self, multi: bool) -> Self {
         if multi {
             self.setb(ArgSettings::MultipleOccurrences);
@@ -3775,6 +3817,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap().value_of("config"), None);
     /// ```
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleValues)
@@ -3844,6 +3887,7 @@ impl<'help> Arg<'help> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn multiple_occurrences(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -3871,6 +3915,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
+    #[inline]
     pub fn raw(self, raw: bool) -> Self {
         self.multiple(raw).allow_hyphen_values(raw).last(raw)
     }
@@ -3944,6 +3989,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden_short_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenShortHelp)
@@ -4021,6 +4067,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden_long_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenLongHelp)
@@ -4032,12 +4079,14 @@ impl<'help> Arg<'help> {
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn setting(mut self, s: ArgSettings) -> Self {
         self.setb(s);
         self
@@ -4055,12 +4104,14 @@ impl<'help> Arg<'help> {
 
     /// Unsets one of the [`ArgSettings`] for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {
         self.unsetb(s);
         self
     }
 
     /// Set a custom heading for this arg to be printed under
+    #[inline]
     pub fn help_heading(mut self, s: Option<&'help str>) -> Self {
         self.help_heading = s;
         self
