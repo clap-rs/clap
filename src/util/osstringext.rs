@@ -51,14 +51,11 @@ impl OsStrExt2 for OsStr {
             if b == &byte {
                 return (
                     OsStr::from_bytes(&self.as_bytes()[..i]),
-                    OsStr::from_bytes(&self.as_bytes()[i + 1..]),
+                    OsStr::from_bytes(&self.as_bytes()[i..]),
                 );
             }
         }
-        (
-            &*self,
-            OsStr::from_bytes(&self.as_bytes()[self.len()..self.len()]),
-        )
+        (&*self, OsStr::from_bytes(&[]))
     }
 
     fn trim_start_matches(&self, byte: u8) -> &OsStr {
