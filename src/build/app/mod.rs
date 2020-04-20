@@ -1804,7 +1804,7 @@ impl<'b> App<'b> {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
                 .long("help")
-                .help("Prints help information");
+                .about("Prints help information");
             if !self.args.args.iter().any(|x| x.short == Some('h')) {
                 help = help.short('h');
             }
@@ -1821,7 +1821,7 @@ impl<'b> App<'b> {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::with_name("version")
                 .long("version")
-                .help("Prints version information");
+                .about("Prints version information");
             if !self.args.args.iter().any(|x| x.short == Some('V')) {
                 version = version.short('V');
             }

@@ -893,7 +893,7 @@ where
             let mut pb = Arg::with_name("subcommand")
                 .index(1)
                 .setting(ArgSettings::MultipleValues)
-                .help("The subcommand whose help message to display");
+                .about("The subcommand whose help message to display");
 
             pb._build();
             //parser.positionals.insert(1, pb.name);

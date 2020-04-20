@@ -51,11 +51,6 @@ type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 pub struct Arg<'help> {
     pub(crate) id: Id,
     pub(crate) name: &'help str,
-    #[deprecated(
-        since = "3.0.0",
-        note = "Please use `about` field instead"
-    )]
-    pub(crate) help: Option<&'help str>,
     pub(crate) about: Option<&'help str>,
     pub(crate) long_help: Option<&'help str>,
     pub(crate) blacklist: Option<Vec<Id>>,
@@ -94,15 +89,6 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
-    }
-
-    /// Get the help specified for this argument, if any
-    #[deprecated(
-        since = "3.0.0",
-        note = "Please use `get_about` method instead"
-    )]
-    pub fn get_help(&self) -> Option<&str> {
-        self.about
     }
 
     /// Get the help specified for this argument, if any
@@ -511,8 +497,65 @@ impl<'help> Arg<'help> {
     /// -V, --version    Prints version information
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
-    #[inline]
-    pub fn help(mut self, h: &'help str) -> Self {
+    #[deprecated(
+        since = "3.0.0",
+        note = "Please use `about` method instead"
+    )]
+    pub fn help(self, h: &'help str) -> Self {
+        self.about(h)
+    }
+
+    /// Sets the short help text of the argument that will be displayed to the user when they print
+    /// the help information with `-h`. Typically, this is a short (one line) description of the
+    /// arg.
+    ///
+    /// **NOTE:** If only `Arg::about` is provided, and not [`Arg::long_about`] but the user requests
+    /// `--help` clap will still display the contents of `help` appropriately
+    ///
+    /// **NOTE:** Only `Arg::about` is used in completion script generation in order to be concise
+    ///
+    /// # Examples
+    ///
+    /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
+    /// include a newline in the help text and have the following text be properly aligned with all
+    /// the other help text.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("config")
+    ///     .about("The config file used by the myprog")
+    /// # ;
+    /// ```
+    ///
+    /// Setting `about` displays a short message to the side of the argument when the user passes
+    /// `-h` or `--help` (by default).
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .about("Some help text describing the --config arg"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```notrust
+    /// helptest
+    ///
+    /// USAGE:
+    ///    helptest [FLAGS]
+    ///
+    /// FLAGS:
+    ///     --config     Some help text describing the --config arg
+    /// -h, --help       Prints help information
+    /// -V, --version    Prints version information
+    /// ```
+    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    pub fn about(mut self, h: &'help str) -> Self {
         self.about = Some(h);
         self
     }
