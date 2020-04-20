@@ -78,7 +78,7 @@ impl OsStrExt2 for OsStr {
     fn trim_start_n_matches(&self, n: usize, ch: u8) -> &OsStr {
         let i = self
             .as_bytes()
-            .into_iter()
+            .iter()
             .take(n)
             .take_while(|c| **c == ch)
             .enumerate()
