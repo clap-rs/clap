@@ -47,7 +47,7 @@ bitflags! {
         const CONTAINS_LAST                  = 1 << 38;
         const ARGS_OVERRIDE_SELF             = 1 << 39;
         const HELP_REQUIRED                  = 1 << 40;
-        const ARG_PRECEDENCE_OVER_SUBCOMMAND = 1 << 41;
+        const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
     }
 }
 
@@ -70,8 +70,8 @@ impl Default for AppFlags {
 impl_settings! { AppSettings, AppFlags,
     ArgRequiredElseHelp("argrequiredelsehelp")
         => Flags::A_REQUIRED_ELSE_HELP,
-    ArgPrecedenceOverSubcommand("argprecedenceoversubcommand")
-        => Flags::ARG_PRECEDENCE_OVER_SUBCOMMAND,
+    SubcommandPrecedenceOverArg("subcommandprecedenceoverarg")
+        => Flags::SUBCOMMAND_PRECEDENCE_OVER_ARG,
     ArgsNegateSubcommands("argsnegatesubcommands")
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
@@ -439,18 +439,18 @@ pub enum AppSettings {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     ArgRequiredElseHelp,
 
-    /// Specifies argument values should be greedily consumed instead of stopping when encountering
-    /// a subcommand during parsing.
+    /// Instructs the parser to stop when encountering a subcommand instead of greedily consuming
+    /// args.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ArgPrecedenceOverSubcommand)
+    ///     .setting(AppSettings::SubcommandPrecedenceOverArg)
     /// # ;
     /// ```
-    ArgPrecedenceOverSubcommand,
+    SubcommandPrecedenceOverArg,
 
     /// Uses colorized help messages.
     ///
@@ -1005,10 +1005,10 @@ mod test {
             AppSettings::ArgRequiredElseHelp
         );
         assert_eq!(
-            "argprecedenceoversubcommand"
+            "subcommandprecedenceoverarg"
                 .parse::<AppSettings>()
                 .unwrap(),
-            AppSettings::ArgPrecedenceOverSubcommand
+            AppSettings::SubcommandPrecedenceOverArg
         );
         assert_eq!(
             "allowexternalsubcommands".parse::<AppSettings>().unwrap(),

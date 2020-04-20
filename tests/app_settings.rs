@@ -125,7 +125,7 @@ fn arg_required_else_help_over_reqs() {
 }
 
 #[test]
-fn arg_precedence_over_subcommand() {
+fn subcommand_precedence_over_arg() {
     let app = App::new("app").subcommand(App::new("sub")).arg(
         Arg::with_name("arg")
             .long("arg")
@@ -139,19 +139,19 @@ fn arg_precedence_over_subcommand() {
         .unwrap();
     assert_eq!(
         matches.values_of("arg").unwrap().collect::<Vec<_>>(),
-        &["1", "2", "3"]
+        &["1", "2", "3", "sub"]
     );
-    assert!(matches.subcommand_matches("sub").is_some());
+    assert!(matches.subcommand_matches("sub").is_none());
 
-    let app = app.setting(AppSettings::ArgPrecedenceOverSubcommand);
+    let app = app.setting(AppSettings::SubcommandPrecedenceOverArg);
     let matches = app
         .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
         .unwrap();
     assert_eq!(
         matches.values_of("arg").unwrap().collect::<Vec<_>>(),
-        &["1", "2", "3", "sub"]
+        &["1", "2", "3"]
     );
-    assert!(matches.subcommand_matches("sub").is_none());
+    assert!(matches.subcommand_matches("sub").is_some());
 }
 
 #[cfg(not(feature = "suggestions"))]
