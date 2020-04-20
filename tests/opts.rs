@@ -483,3 +483,30 @@ fn issue_1073_suboptimal_flag_suggestion() {
         true
     ));
 }
+
+#[test]
+fn short_non_ascii_no_space() {
+    let matches = App::new("app")
+        .arg("<opt> -磨 <opt>")
+        .get_matches_from(&["test", "-磨VALUE"]);
+
+    assert_eq!("VALUE", matches.value_of("opt").unwrap());
+}
+
+#[test]
+fn short_eq_val_starts_with_eq() {
+    let matches = App::new("app")
+        .arg("<opt> -f <opt>")
+        .get_matches_from(&["test", "-f==value"]);
+
+    assert_eq!("=value", matches.value_of("opt").unwrap());
+}
+
+#[test]
+fn long_eq_val_starts_with_eq() {
+    let matches = App::new("app")
+        .arg("<opt> --foo <opt>")
+        .get_matches_from(&["test", "--foo==value"]);
+
+    assert_eq!("=value", matches.value_of("opt").unwrap());
+}

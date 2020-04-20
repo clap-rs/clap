@@ -367,7 +367,8 @@ where
             self.app.args.insert_key(k, i);
         }
 
-        debug_assert!(self._verify_positionals());
+        #[cfg(debug_assertions)]
+        self._verify_positionals();
 
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
@@ -1214,8 +1215,8 @@ where
                     p[0].as_bytes(),
                     p[1].as_bytes()
                 );
-                let i = p[0].as_bytes().len() + 1;
-                let val = if !p[1].as_bytes().is_empty() {
+                let i = p[0].as_bytes().len() + c.len_utf8();
+                let val = if !p[1].is_empty() {
                     debugln!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
@@ -1228,11 +1229,10 @@ where
                 };
 
                 // Default to "we're expecting a value later"
-                let ret = self.parse_opt(val, opt, false, matcher)?;
-
-                return Ok(ret);
+                return self.parse_opt(val, opt, false, matcher);
             } else {
                 let arg = format!("-{}", c);
+
                 return Err(ClapError::unknown_argument(
                     &*arg,
                     None,
@@ -1262,7 +1262,7 @@ where
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
-            let v = fv.trim_start_matches(b'=');
+            let v = fv.trim_start_n_matches(1, b'=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(ClapError::empty_value(
