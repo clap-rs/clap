@@ -1,0 +1,132 @@
+name: CI
+on:
+  push:
+    branches: [staging, trying]
+  pull_request:
+    branches: [master]
+    types: [opened, reopened, synchronize]
+jobs:
+  test:
+    name: Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        rust: [1.40.0]
+        target:
+          - i686-pc-windows-msvc
+          - x86_64-pc-windows-msvc
+          # - i686-pc-windows-gnu
+          # - x86_64-pc-windows-gnu
+          # - i686-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+          - x86_64-apple-darwin
+        features: [all, none]
+        exclude:
+          - os: windows-latest
+            target: x86_64-apple-darwin
+          # - os: windows-latest
+          #   target: i686-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: i686-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-pc-windows-msvc
+          # - os: macos-latest
+          #   target: i686-pc-windows-gnu
+          # - os: macos-latest
+          #   target: x86_64-pc-windows-gnu
+          # - os: macos-latest
+          #   target: i686-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: i686-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-msvc
+          # - os: ubuntu-latest
+          #   target: i686-pc-windows-gnu
+          # - os: ubuntu-latest
+          #   target: x86_64-pc-windows-gnu
+          - os: ubuntu-latest
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          override: true
+      - name: Ready cache
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - name: Cache cargo
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Test almost no features
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'none'
+        with:
+          command: test
+          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+      - name: Test all features
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'all'
+        with:
+          command: test
+          args: --target ${{ matrix.target }} --features "yaml unstable"
+      - name: Install cargo-cache
+        uses: actions-rs/install@v0.1
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          crate: cargo-cache
+          use-tool-cache: true
+      - name: Cleanup cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo cache -a
+      # https://github.com/rust-lang/rust/issues/29497
+      - name: Cleanup windows cache
+        if: steps.cache.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          rm -rf ~/.cargo/git/checkouts
+          rm -rf ~/.cargo/registry/index
+  test-release:
+    name: Release Profile Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Ready cache
+        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - name: Cache cargo
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --features "yaml unstable"
+      - name: Install cargo-cache
+        uses: actions-rs/install@v0.1
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          crate: cargo-cache
+          use-tool-cache: true
+      - name: Cleanup cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo cache -a

@@ -1,11 +1,13 @@
 status = [
 	"continuous-integration/travis-ci/push",
 	"clap-rs.clap",
+	"Tests",
 	"Release Profile Tests",
 ]
 pr_status = [
 	"continuous-integration/travis-ci/pr",
 	"clap-rs.clap",
+	"Tests",
 	"Release Profile Tests",
 ]
 timeout_sec = 7200

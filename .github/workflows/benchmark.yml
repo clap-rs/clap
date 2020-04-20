@@ -46,8 +46,6 @@ jobs:
           external-data-json-path: ./benchmark-data.json
           github-token: ${{ github.token }}
           annotate-always: true
-      - name: temporary
-        run: rm ~/.cargo/bin/cargo-cache
       - name: Install cargo-cache
         uses: actions-rs/install@v0.1
         if: steps.cache.outputs.cache-hit != 'true'

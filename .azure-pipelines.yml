@@ -17,12 +17,6 @@ stages:
           rust: 1.40.0
         strategy:
           matrix:
-            MSVC 32-bit:
-              image: vs2017-win2016
-              target: i686-pc-windows-msvc
-            MSVC 64-bit:
-              image: vs2017-win2016
-              target: x86_64-pc-windows-msvc
             MinGW 32-bit:
               image: vs2017-win2016
               target: i686-pc-windows-gnu
@@ -36,18 +30,9 @@ stages:
             fetchDepth: 1
             path: clap
             displayName: Checkout repository
-          - task: Cache@2
-            inputs:
-              key: cargo | "$(rust)" | $(target) | Cargo.toml
-              path: C:\Rust\.cargo
-            displayName: Cache cargo
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
           - script: cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
             displayName: Test with almost no features
           - script: cargo test --features "yaml unstable"
             displayName: Test with most features
-          - script: |
-              rmdir /Q /S C:\Rust\.cargo\registry\src
-            displayName: Cleanup cache
-            continueOnError: true
