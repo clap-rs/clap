@@ -367,7 +367,8 @@ where
             self.app.args.insert_key(k, i);
         }
 
-        debug_assert!(self._verify_positionals());
+        #[cfg(debug_assertions)]
+        self._verify_positionals();
 
         // Set the LowIndexMultiple flag if required
         if positionals!(self.app).any(|a| {
@@ -1214,7 +1215,7 @@ where
                     p[0].as_bytes(),
                     p[1].as_bytes()
                 );
-                let i = p[0].as_bytes().len() + 1;
+                let i = p[0].as_bytes().len() + c.len_utf8();
                 let val = if !p[1].is_empty() {
                     debugln!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
