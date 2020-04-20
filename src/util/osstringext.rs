@@ -15,6 +15,7 @@ pub(crate) trait OsStrExt2 {
     fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
     fn trim_start_matches(&self, b: u8) -> &OsStr;
+    fn trim_start_n_matches(&self, n: usize, ch: u8) -> &OsStr;
     fn contains_byte(&self, b: u8) -> bool;
     fn split(&self, b: u8) -> OsSplit;
 }
@@ -73,6 +74,22 @@ impl OsStrExt2 for OsStr {
             return OsStr::from_bytes(&self.as_bytes()[self.len()..]);
         }
         &*self
+    }
+
+    // Like `trim_start_matches`, but trims no more than `n` matches
+    #[inline]
+    fn trim_start_n_matches(&self, n: usize, ch: u8) -> &OsStr {
+        let i = self
+            .as_bytes()
+            .into_iter()
+            .take(n)
+            .take_while(|c| **c == ch)
+            .enumerate()
+            .last()
+            .map(|(i, _)| i + 1)
+            .unwrap_or(0);
+
+        self.split_at(i).1
     }
 
     fn split_at(&self, i: usize) -> (&OsStr, &OsStr) {
