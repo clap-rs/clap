@@ -53,7 +53,7 @@ fn override_ver() {
         .about("tests stuff")
         .version("1.3")
         .mut_arg("version", |a| {
-            a.short('v').long("version").help("some version")
+            a.short('v').long("version").about("some version")
         })
         .try_get_matches_from(vec!["test", "--version"]);
 

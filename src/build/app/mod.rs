@@ -1562,7 +1562,7 @@ impl<'b> App<'b> {
                 .args
                 .args
                 .iter()
-                .filter(|arg| arg.about.is_none() && arg.long_help.is_none())
+                .filter(|arg| arg.about.is_none() && arg.long_about.is_none())
                 .map(|arg| String::from(arg.name))
                 .collect();
 

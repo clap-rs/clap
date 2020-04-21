@@ -41,7 +41,7 @@ type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 ///       .long("config")
 ///       .takes_value(true)
 ///       .value_name("FILE")
-///       .help("Provides a config file to myprog");
+///       .about("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
 /// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
@@ -52,7 +52,7 @@ pub struct Arg<'help> {
     pub(crate) id: Id,
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
-    pub(crate) long_help: Option<&'help str>,
+    pub(crate) long_about: Option<&'help str>,
     pub(crate) blacklist: Option<Vec<Id>>,
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Option<Vec<Id>>,
@@ -496,13 +496,87 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
+    /// [`Arg::help`]: ./struct.Arg.html#method.help
     #[deprecated(
         since = "3.0.0",
         note = "Please use `about` method instead"
     )]
     pub fn help(self, h: &'help str) -> Self {
         self.about(h)
+    }
+
+    /// Sets the long help text of the argument that will be displayed to the user when they print
+    /// the help information with `--help`. Typically this a more detailed (multi-line) message
+    /// that describes the arg.
+    ///
+    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
+    /// clap will still display the contents of `long_help` appropriately
+    ///
+    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
+    ///
+    /// # Examples
+    ///
+    /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
+    /// include a newline in the help text and have the following text be properly aligned with all
+    /// the other help text.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::with_name("config")
+    ///     .long_help(
+    /// "The config file used by the myprog must be in JSON format
+    /// with only valid keys and may not contain other nonsense
+    /// that cannot be read by this program. Obviously I'm going on
+    /// and on, so I'll stop now.")
+    /// # ;
+    /// ```
+    ///
+    /// Setting `help` displays a short message to the side of the argument when the user passes
+    /// `-h` or `--help` (by default).
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::with_name("cfg")
+    ///         .long("config")
+    ///         .long_help(
+    /// "The config file used by the myprog must be in JSON format
+    /// with only valid keys and may not contain other nonsense
+    /// that cannot be read by this program. Obviously I'm going on
+    /// and on, so I'll stop now."))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help"
+    ///     ]);
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```notrust
+    /// helptest
+    ///
+    /// USAGE:
+    ///    helptest [FLAGS]
+    ///
+    /// FLAGS:
+    ///    --config
+    ///         The config file used by the myprog must be in JSON format
+    ///         with only valid keys and may not contain other nonsense
+    ///         that cannot be read by this program. Obviously I'm going on
+    ///         and on, so I'll stop now.
+    ///
+    /// -h, --help
+    ///         Prints help information
+    ///
+    /// -V, --version
+    ///         Prints version information
+    /// ```
+    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
+    #[deprecated(
+        since = "3.0.0",
+        note = "Please use `long_about` method instead"
+    )]
+    pub fn long_help(self, h: &'help str) -> Self {
+        self.long_about(h)
     }
 
     /// Sets the short help text of the argument that will be displayed to the user when they print
@@ -554,7 +628,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    /// [`Arg::about`]: ./struct.Arg.html#method.about
     pub fn about(mut self, h: &'help str) -> Self {
         self.about = Some(h);
         self
@@ -578,7 +652,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
-    ///     .long_help(
+    ///     .long_about(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -594,7 +668,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
-    ///         .long_help(
+    ///         .long_about(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -624,11 +698,10 @@ impl<'help> Arg<'help> {
     ///
     /// -V, --version
     ///         Prints version information
-    /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
-    #[inline]
-    pub fn long_help(mut self, h: &'help str) -> Self {
-        self.long_help = Some(h);
+    ///
+    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    pub fn long_about(mut self, h: &'help str) -> Self {
+        self.long_about = Some(h);
         self
     }
 
@@ -4410,7 +4483,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.id,
             self.name,
             self.about,
-            self.long_help,
+            self.long_about,
             self.blacklist,
             self.settings,
             self.r_unless,

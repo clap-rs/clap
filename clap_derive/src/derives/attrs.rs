@@ -439,7 +439,7 @@ impl Attrs {
             env_casing,
         );
         res.push_attrs(&field.attrs);
-        res.push_doc_comment(&field.attrs, "help");
+        res.push_doc_comment(&field.attrs, "about");
 
         match &*res.kind {
             Kind::Flatten => {
@@ -655,16 +655,13 @@ impl Attrs {
     pub fn has_explicit_methods(&self) -> bool {
         self.methods
             .iter()
-            .any(|m| m.name != "help" && m.name != "long_help")
+            .any(|m| m.name != "about" && m.name != "long_about")
     }
 
     pub fn has_doc_methods(&self) -> bool {
         !self.doc_comment.is_empty()
             || self.methods.iter().any(|m| {
-                m.name == "help"
-                    || m.name == "long_help"
-                    || m.name == "about"
-                    || m.name == "long_about"
+                m.name == "about" || m.name == "long_about"
             })
     }
 }

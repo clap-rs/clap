@@ -11,7 +11,7 @@ fn main() {
         .about("does awesome things")
         .arg(
             Arg::with_name("INPUT")
-                .help("The input file to use") // Note, we don't need to specify
+                .about("The input file to use") // Note, we don't need to specify
                 // anything like, "Defaults to..."
                 // because clap will automatically
                 // generate that for us, and place
@@ -24,7 +24,7 @@ fn main() {
             Arg::with_name("CONFIG")
                 // Note that we have to manaully include some verbage to the user
                 // telling them what the default will be.
-                .help("The config file to use (default is \"config.json\")")
+                .about("The config file to use (default is \"config.json\")")
                 .short('c')
                 .takes_value(true),
         )

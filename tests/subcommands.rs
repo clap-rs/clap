@@ -102,7 +102,7 @@ fn subcommand() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
         )
         .arg(Arg::with_name("other").long("other"))
@@ -123,7 +123,7 @@ fn subcommand_none_given() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
         )
         .arg(Arg::with_name("other").long("other"))
@@ -141,7 +141,7 @@ fn subcommand_multiple() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
             App::new("add").arg(Arg::with_name("roster").short('r')),
         ])

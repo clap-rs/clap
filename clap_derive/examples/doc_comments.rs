@@ -37,7 +37,7 @@ struct Opt {
     #[clap(
         short,
         long,
-        long_help = r"This is a raw string.
+        long_about = r"This is a raw string.
 
 It can be used to pass well formatted content (e.g. lists or source
 code) in the description:

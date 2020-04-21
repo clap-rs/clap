@@ -24,7 +24,7 @@ fn issue_946() {
             clap::Arg::with_name("filter")
                 .index(1)
                 .takes_value(true)
-                .help("filters to apply to output"),
+                .about("filters to apply to output"),
         )
         .try_get_matches_from(vec!["compiletest", "--exact"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -171,7 +171,7 @@ fn positional_possible_values() {
 #[test]
 fn create_positional() {
     let _ = App::new("test")
-        .arg(Arg::with_name("test").index(1).help("testing testing"))
+        .arg(Arg::with_name("test").index(1).about("testing testing"))
         .get_matches_from(vec![""]);
 }
 

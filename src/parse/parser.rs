@@ -1089,7 +1089,7 @@ where
         // specified by the user is sent through. If HiddenShortHelp is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_help.is_some()
+            v.long_about.is_some()
                 || v.is_set(ArgSettings::HiddenLongHelp)
                 || v.is_set(ArgSettings::HiddenShortHelp)
         };
