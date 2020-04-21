@@ -469,7 +469,8 @@ where
             if !self.is_set(AS::TrailingValues) {
                 // Does the arg match a subcommand name, or any of it's aliases (if defined)
                 match needs_val_of {
-                    ParseResult::Opt(_) | ParseResult::Pos(_) => (),
+                    ParseResult::Opt(_) | ParseResult::Pos(_)
+                        if !self.is_set(AS::SubcommandPrecedenceOverArg) => {}
                     _ => {
                         let sc_name = self.possible_subcommand(arg_os);
                         debugln!(
