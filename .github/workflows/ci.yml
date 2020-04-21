@@ -6,6 +6,13 @@ on:
     branches: [master]
     types: [opened, reopened, synchronize]
 jobs:
+  ci:
+    name: CI
+    needs: [test, test-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Done
+        run: exit 0
   test:
     name: Tests
     strategy:
