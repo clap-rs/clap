@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{App, Arg, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 

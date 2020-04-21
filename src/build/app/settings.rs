@@ -442,13 +442,57 @@ pub enum AppSettings {
     /// Instructs the parser to stop when encountering a subcommand instead of greedily consuming
     /// args.
     ///
+    /// By default, if an option taking multiple values is followed by a subcommand, the
+    /// subcommand will be parsed as another value.
+    ///
+    /// ```text
+    /// app --foo val1 val2 subcommand
+    ///           --------- ----------
+    ///             values   another value
+    /// ```
+    ///
+    /// This setting instructs the parser to stop when encountering a subcommand instead of
+    /// greedily consuming arguments.
+    ///
+    /// ```text
+    /// app --foo val1 val2 subcommand
+    ///           --------- ----------
+    ///             values   subcommand
+    /// ```
+    ///
+    /// **Note:** Make sure you apply it as `global_setting` if you want it to be propagated to
+    /// sub-sub commands!
+    ///
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandPrecedenceOverArg)
-    /// # ;
+    /// # use clap::{App, AppSettings, Arg};
+    /// let app = App::new("app").subcommand(App::new("sub")).arg(
+    /// Arg::with_name("arg")
+    ///     .long("arg")
+    ///     .multiple(true)
+    ///     .takes_value(true),
+    /// );
+    ///
+    /// let matches = app
+    ///     .clone()
+    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+    ///     .unwrap();
+    /// assert_eq!(
+    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+    ///     &["1", "2", "3", "sub"]
+    /// );
+    /// assert!(matches.subcommand_matches("sub").is_none());
+    ///
+    /// let app = app.setting(AppSettings::SubcommandPrecedenceOverArg);
+    /// let matches = app
+    ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
+    ///     .unwrap();
+    /// assert_eq!(
+    ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
+    ///     &["1", "2", "3"]
+    /// );
+    /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
     SubcommandPrecedenceOverArg,
 
