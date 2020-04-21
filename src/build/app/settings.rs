@@ -468,10 +468,10 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, Arg};
     /// let app = App::new("app").subcommand(App::new("sub")).arg(
-    /// Arg::with_name("arg")
-    ///     .long("arg")
-    ///     .multiple(true)
-    ///     .takes_value(true),
+    ///     Arg::with_name("arg")
+    ///         .long("arg")
+    ///         .multiple(true)
+    ///         .takes_value(true),
     /// );
     ///
     /// let matches = app
