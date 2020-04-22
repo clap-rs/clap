@@ -65,7 +65,13 @@ pub trait Subcommand: Sized {
 }
 
 /// @TODO @release @docs
-pub trait ArgEnum {}
+pub trait ArgEnum: Sized {
+    /// @TODO @release @docs
+    const VARIANTS: &'static [&'static str];
+
+    /// @TODO @release @docs
+    fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
+}
 
 impl<T: Clap> Clap for Box<T> {
     fn parse() -> Self {

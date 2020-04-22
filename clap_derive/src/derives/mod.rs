@@ -11,7 +11,7 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-pub mod arg_enum;
+mod arg_enum;
 pub mod attrs;
 mod clap;
 mod doc_comments;

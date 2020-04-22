@@ -12,13 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Field, Ident, Token};
 
 use super::{sub_type, Attrs, Kind, ParserKind, Ty};
 
 pub fn gen_for_struct(
-    struct_name: &syn::Ident,
-    fields: &Punctuated<syn::Field, Token![,]>,
+    struct_name: &Ident,
+    fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let constructor = gen_constructor(fields, parent_attribute);
@@ -44,7 +44,7 @@ pub fn gen_for_struct(
     }
 }
 
-pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
+pub fn gen_for_enum(name: &Ident) -> proc_macro2::TokenStream {
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
         #[allow(
@@ -69,7 +69,7 @@ pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
 }
 
 pub fn gen_constructor(
-    fields: &Punctuated<syn::Field, Token![,]>,
+    fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let fields = fields.iter().map(|field| {
@@ -149,6 +149,7 @@ pub fn gen_constructor(
                 let flag = *attrs.parser().kind == ParserKind::FromFlag;
                 let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
                 let name = attrs.cased_name();
+
                 let field_value = match **ty {
                     Ty::Bool => quote_spanned! { ty.span()=>
                         matches.is_present(#name)
@@ -191,11 +192,24 @@ pub fn gen_constructor(
                         #parse(matches.is_present(#name))
                     },
 
-                    Ty::Other => quote_spanned! { ty.span()=>
-                        matches.#value_of(#name)
-                            .map(#parse)
-                            .unwrap()
-                    },
+                    Ty::Other => {
+                        let parse = if attrs.is_enum() {
+                            let field_ty = &field.ty;
+                            let ci = attrs.case_insensitive();
+
+                            quote_spanned! { field_ty.span()=>
+                                |s| <#field_ty as ::clap::ArgEnum>::from_str(s, #ci).unwrap()
+                            }
+                        } else {
+                            parse
+                        };
+
+                        quote_spanned! { ty.span()=>
+                            matches.#value_of(#name)
+                                .map(#parse)
+                                .unwrap()
+                        }
+                    }
                 };
 
                 quote_spanned!(field.span()=> #field_name: #field_value )

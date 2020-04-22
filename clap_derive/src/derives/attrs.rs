@@ -20,7 +20,10 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Expr, Ident, MetaNameValue, Type};
+use syn::{
+    self, ext::IdentExt, spanned::Spanned, Attribute, Expr, Field, Ident, LitStr, MetaNameValue,
+    Type,
+};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -39,14 +42,14 @@ pub enum Kind {
 
 #[derive(Clone)]
 pub struct Method {
-    name: syn::Ident,
-    args: proc_macro2::TokenStream,
+    name: Ident,
+    args: TokenStream,
 }
 
 #[derive(Clone)]
 pub struct Parser {
     pub kind: Sp<ParserKind>,
-    pub func: proc_macro2::TokenStream,
+    pub func: TokenStream,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -95,6 +98,7 @@ pub struct Attrs {
     about: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    is_enum: bool,
     has_custom_parser: bool,
     kind: Sp<Kind>,
 }
@@ -104,19 +108,19 @@ pub struct Attrs {
 /// The output of a generation method is not only the stream of new tokens but also the attribute
 /// information of the current element. These attribute information may contain valuable information
 /// for any kind of child arguments.
-pub type GenOutput = (proc_macro2::TokenStream, Attrs);
+pub type GenOutput = (TokenStream, Attrs);
 
 impl Method {
     pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }
     }
 
-    fn from_lit_or_env(ident: syn::Ident, lit: Option<syn::LitStr>, env_var: &str) -> Option<Self> {
+    fn from_lit_or_env(ident: Ident, lit: Option<LitStr>, env_var: &str) -> Option<Self> {
         let mut lit = match lit {
             Some(lit) => lit,
 
             None => match env::var(env_var) {
-                Ok(val) => syn::LitStr::new(&val, ident.span()),
+                Ok(val) => LitStr::new(&val, ident.span()),
                 Err(_) => {
                     abort!(ident,
                         "cannot derive `{}` from Cargo.toml", ident;
@@ -129,7 +133,7 @@ impl Method {
 
         if ident == "author" {
             let edited = process_author_str(&lit.value());
-            lit = syn::LitStr::new(&edited, lit.span());
+            lit = LitStr::new(&edited, lit.span());
         }
 
         Some(Method::new(ident, quote!(#lit)))
@@ -157,7 +161,7 @@ impl Parser {
         Sp::new(Parser { kind, func }, span)
     }
 
-    fn from_spec(parse_ident: syn::Ident, spec: ParserSpec) -> Sp<Self> {
+    fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
         use self::ParserKind::*;
 
         let kind = match &*spec.kind.to_string() {
@@ -185,7 +189,7 @@ impl Parser {
             },
 
             Some(func) => match func {
-                syn::Expr::Path(_) => quote!(#func),
+                Expr::Path(_) => quote!(#func),
                 _ => abort!(func, "`parse` argument must be a function path"),
             },
         };
@@ -197,7 +201,7 @@ impl Parser {
 }
 
 impl CasingStyle {
-    fn from_lit(name: syn::LitStr) -> Sp<Self> {
+    fn from_lit(name: LitStr) -> Sp<Self> {
         use self::CasingStyle::*;
 
         let normalized = name.value().to_camel_case().to_lowercase();
@@ -257,7 +261,7 @@ impl Attrs {
             author: None,
             version: None,
             verbatim_doc_comment: None,
-
+            is_enum: false,
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
@@ -273,7 +277,7 @@ impl Attrs {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[syn::Attribute]) {
+    fn push_attrs(&mut self, attrs: &[Attribute]) {
         use ClapAttr::*;
 
         for attr in parse_clap_attributes(attrs) {
@@ -285,6 +289,8 @@ impl Attrs {
                 Env(ident) => {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
+
+                ArgEnum(_) => self.is_enum = true,
 
                 Subcommand(ident) => {
                     let ty = Sp::call_site(Ty::Other);
@@ -373,7 +379,7 @@ impl Attrs {
         }
     }
 
-    fn push_doc_comment(&mut self, attrs: &[syn::Attribute], name: &str) {
+    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
         use syn::Lit::*;
         use syn::Meta::*;
 
@@ -397,7 +403,7 @@ impl Attrs {
 
     pub fn from_struct(
         span: Span,
-        attrs: &[syn::Attribute],
+        attrs: &[Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -420,7 +426,7 @@ impl Attrs {
     }
 
     pub fn from_field(
-        field: &syn::Field,
+        field: &Field,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {
@@ -510,6 +516,9 @@ impl Attrs {
                                     add an explicit parser, for example `parse(try_from_str)`";
                                 note = "see also https://github.com/clap-rs/clap_derive/tree/master/examples/true_or_false.rs";
                             )
+                        }
+                        if res.is_enum {
+                            abort!(field.ty, "`arg_enum` is meaningless for bool")
                         }
                         if let Some(m) = res.find_method("default_value") {
                             abort!(m.name, "default_value is meaningless for bool")
@@ -605,6 +614,28 @@ impl Attrs {
 
     pub fn kind(&self) -> Sp<Kind> {
         self.kind.clone()
+    }
+
+    pub fn is_enum(&self) -> bool {
+        self.is_enum
+    }
+
+    pub fn case_insensitive(&self) -> TokenStream {
+        let method = self.find_method("case_insensitive");
+
+        if let Some(method) = method {
+            method.args.clone()
+        } else {
+            quote! { false }
+        }
+    }
+
+    pub fn enum_aliases(&self) -> Vec<TokenStream> {
+        self.methods
+            .iter()
+            .filter(|m| m.name == "alias")
+            .map(|m| m.args.clone())
+            .collect()
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {

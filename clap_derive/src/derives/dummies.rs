@@ -14,6 +14,7 @@ pub fn clap_enum(name: &Ident) {
     into_app(name);
     from_arg_matches(name);
     subcommand(name);
+    arg_enum(name);
     append_dummy(quote!( impl ::clap::Clap for #name {} ));
 }
 
@@ -51,4 +52,15 @@ pub fn subcommand(name: &Ident) {
             }
         }
     });
+}
+
+pub fn arg_enum(name: &Ident) {
+    append_dummy(quote! {
+        impl ::clap::ArgEnum for #name {
+            const VARIANTS: &'static [&'static str] = &[];
+            fn from_str(_input: &str, _case_insensitive: bool) -> Result<Self, String> {
+                unimplemented!()
+            }
+        }
+    })
 }

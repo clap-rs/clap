@@ -41,9 +41,9 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 }
 
 fn gen_augment_subcommands(
-    variants: &Punctuated<syn::Variant, Token![,]>,
+    variants: &Punctuated<Variant, Token![,]>,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     use syn::Fields::*;
 
     let subcommands = variants.iter().map(|variant| {
@@ -115,10 +115,10 @@ fn gen_augment_subcommands(
 }
 
 fn gen_from_subcommand(
-    name: &syn::Ident,
+    name: &Ident,
     variants: &Punctuated<Variant, Token![,]>,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     use syn::Fields::*;
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()

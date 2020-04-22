@@ -17,7 +17,7 @@ use std::env;
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token};
 
 use super::{
     spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
@@ -26,9 +26,9 @@ use super::{
 use crate::derives::ty::sub_type;
 
 pub fn gen_for_struct(
-    struct_name: &syn::Ident,
-    fields: &Punctuated<syn::Field, Token![,]>,
-    attrs: &[syn::Attribute],
+    struct_name: &Ident,
+    fields: &Punctuated<Field, Token![,]>,
+    attrs: &[Attribute],
 ) -> GenOutput {
     let (into_app, attrs) = gen_into_app_fn(attrs);
     let augment_clap = gen_augment_clap_fn(fields, &attrs);
@@ -55,7 +55,7 @@ pub fn gen_for_struct(
     (tokens, attrs)
 }
 
-pub fn gen_for_enum(name: &syn::Ident) -> TokenStream {
+pub fn gen_for_enum(name: &Ident) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     quote! {
@@ -85,7 +85,7 @@ pub fn gen_for_enum(name: &syn::Ident) -> TokenStream {
     }
 }
 
-fn gen_into_app_fn(attrs: &[syn::Attribute]) -> GenOutput {
+fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     let attrs = Attrs::from_struct(
@@ -107,10 +107,10 @@ fn gen_into_app_fn(attrs: &[syn::Attribute]) -> GenOutput {
 }
 
 fn gen_augment_clap_fn(
-    fields: &Punctuated<syn::Field, Token![,]>,
+    fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
-    let app_var = syn::Ident::new("app", proc_macro2::Span::call_site());
+    let app_var = Ident::new("app", proc_macro2::Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
     quote! {
         fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
@@ -122,8 +122,8 @@ fn gen_augment_clap_fn(
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 pub fn gen_app_augmentation(
-    fields: &Punctuated<syn::Field, Token![,]>,
-    app_var: &syn::Ident,
+    fields: &Punctuated<Field, Token![,]>,
+    app_var: &Ident,
     parent_attribute: &Attrs,
 ) -> proc_macro2::TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
@@ -196,6 +196,7 @@ pub fn gen_app_augmentation(
                 let parser = attrs.parser();
                 let func = &parser.func;
                 let validator = match *parser.kind {
+                    _ if attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
                         .validator(|s| {
                             #func(s.as_str())
@@ -249,9 +250,21 @@ pub fn gen_app_augmentation(
 
                     Ty::Other => {
                         let required = !attrs.has_method("default_value");
+
+                        let possible_values = if attrs.is_enum() {
+                            let field_ty = &field.ty;
+
+                            quote_spanned! { field_ty.span()=>
+                                .possible_values(&<#field_ty as ::clap::ArgEnum>::VARIANTS)
+                            }
+                        } else {
+                            quote!()
+                        };
+
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .required(#required)
+                            #possible_values
                             #validator
                         }
                     }

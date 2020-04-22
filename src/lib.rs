@@ -448,7 +448,7 @@
 compile_error!("`std` feature is currently required to build `clap`");
 
 pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings};
-pub use crate::derive::{Clap, FromArgMatches, IntoApp, Subcommand};
+pub use crate::derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand};
 pub use crate::parse::errors::{Error, ErrorKind, Result};
 pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
 
