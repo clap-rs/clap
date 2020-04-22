@@ -66,7 +66,7 @@ fn generate_inner<'b>(
     previous_command_name: &str,
     names: &mut Vec<&'b str>,
 ) -> String {
-    debugln!("Elvish::generate_inner;");
+    debug!("generate_inner");
 
     let command_name = if previous_command_name.is_empty() {
         p.get_bin_name().expect(INTERNAL_ERROR_MSG).to_string()

@@ -31,7 +31,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn propagate_globals(&mut self, global_arg_vec: &[Id]) {
-        debugln!(
+        debug!(
             "ArgMatcher::get_global_values: global_arg_vec={:?}",
             global_arg_vec
         );
@@ -127,12 +127,12 @@ impl ArgMatcher {
     }
 
     pub(crate) fn inc_occurrence_of(&mut self, arg: &Id) {
-        debugln!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
+        debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
         if let Some(a) = self.get_mut(arg) {
             a.occurs += 1;
             return;
         }
-        debugln!("ArgMatcher::inc_occurrence_of: first instance");
+        debug!("ArgMatcher::inc_occurrence_of: first instance");
         self.insert(arg);
     }
 
@@ -155,20 +155,20 @@ impl ArgMatcher {
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
-        debugln!("ArgMatcher::needs_more_vals: o={}", o.name);
+        debug!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(&o.id) {
             if let Some(num) = o.num_vals {
-                debugln!("ArgMatcher::needs_more_vals: num_vals...{}", num);
+                debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::MultipleValues) {
                     ((ma.vals.len() as u64) % num) != 0
                 } else {
                     num != (ma.vals.len() as u64)
                 };
             } else if let Some(num) = o.max_vals {
-                debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
+                debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
                 return (ma.vals.len() as u64) < num;
             } else if o.min_vals.is_some() {
-                debugln!("ArgMatcher::needs_more_vals: min_vals...true");
+                debug!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
             }
             return o.is_set(ArgSettings::MultipleValues);

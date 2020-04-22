@@ -4176,7 +4176,7 @@ impl<'help> Arg<'help> {
 
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
-        debugln!("PosBuilder::name_no_brackets:{}", self.name);
+        debug!("Arg::name_no_brackets:{}", self.name);
         let mut delim = String::new();
         delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -4184,7 +4184,8 @@ impl<'help> Arg<'help> {
             ' '
         });
         if let Some(ref names) = self.val_names {
-            debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
+            debug!("Arg::name_no_brackets: val_names={:#?}", names);
+
             if names.len() > 1 {
                 Cow::Owned(
                     names
@@ -4197,7 +4198,7 @@ impl<'help> Arg<'help> {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
             }
         } else {
-            debugln!("PosBuilder:name_no_brackets: just name");
+            debug!("Arg::name_no_brackets: just name");
             Cow::Borrowed(self.name)
         }
     }
@@ -4205,7 +4206,7 @@ impl<'help> Arg<'help> {
 
 impl<'a> Arg<'a> {
     pub(crate) fn _debug_asserts(&self) {
-        debugln!("Arg::_debug_asserts:{};", self.name);
+        debug!("Arg::_debug_asserts:{}", self.name);
 
         // Self conflict
         if let Some(vec) = &self.blacklist {

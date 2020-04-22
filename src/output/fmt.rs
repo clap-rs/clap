@@ -7,7 +7,7 @@ use std::io::{Result, Write};
 
 #[cfg(feature = "color")]
 fn is_a_tty(stderr: bool) -> bool {
-    debugln!("is_a_tty: stderr={:?}", stderr);
+    debug!("is_a_tty: stderr={:?}", stderr);
 
     let stream = if stderr {
         atty::Stream::Stderr
@@ -20,7 +20,7 @@ fn is_a_tty(stderr: bool) -> bool {
 
 #[cfg(not(feature = "color"))]
 fn is_a_tty(_: bool) -> bool {
-    debugln!("is_a_tty;");
+    debug!("is_a_tty");
     false
 }
 

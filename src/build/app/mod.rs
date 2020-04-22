@@ -1479,7 +1479,7 @@ impl<'b> App<'b> {
 // Internally used only
 impl<'b> App<'b> {
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
-        debugln!("App::_do_parse;");
+        debug!("App::_do_parse");
         let mut matcher = ArgMatcher::default();
 
         // If there are global arguments, or settings we need to propgate them down to subcommands
@@ -1508,7 +1508,7 @@ impl<'b> App<'b> {
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
     pub fn _build(&mut self) {
-        debugln!("App::_build;");
+        debug!("App::_build");
 
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
@@ -1582,7 +1582,7 @@ impl<'b> App<'b> {
     // Perform some expensive assertions on the Parser itself
     #[allow(clippy::cognitive_complexity)]
     fn _debug_asserts(&self) {
-        debugln!("App::_debug_asserts;");
+        debug!("App::_debug_asserts");
 
         for arg in &self.args.args {
             arg._debug_asserts();
@@ -1750,7 +1750,8 @@ impl<'b> App<'b> {
             }};
         }
 
-        debugln!("App::_propagate:{}", self.name);
+        debug!("App::_propagate:{}", self.name);
+
         match prop {
             Propagation::NextLevel | Propagation::Full => {
                 for sc in &mut self.subcommands {
@@ -1773,14 +1774,15 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn _create_help_and_version(&mut self) {
-        debugln!("App::_create_help_and_version;");
+        debug!("App::_create_help_and_version");
+
         if !(self
             .args
             .args
             .iter()
             .any(|x| x.long == Some("help") || x.id == Id::help_hash()))
         {
-            debugln!("App::_create_help_and_version: Building --help");
+            debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::with_name("help")
                 .long("help")
                 .help("Prints help information");
@@ -1797,7 +1799,7 @@ impl<'b> App<'b> {
             .any(|x| x.long == Some("version") || x.id == Id::version_hash())
             || self.is_set(AppSettings::DisableVersion))
         {
-            debugln!("App::_create_help_and_version: Building --version");
+            debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::with_name("version")
                 .long("version")
                 .help("Prints version information");
@@ -1811,7 +1813,7 @@ impl<'b> App<'b> {
             && !self.is_set(AppSettings::DisableHelpSubcommand)
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
-            debugln!("App::_create_help_and_version: Building help");
+            debug!("App::_create_help_and_version: Building help");
             self.subcommands.push(
                 App::new("help")
                     .about("Prints this message or the help of the given subcommand(s)"),
@@ -1820,7 +1822,8 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn _derive_display_order(&mut self) {
-        debugln!("App::_derive_display_order:{}", self.name);
+        debug!("App::_derive_display_order:{}", self.name);
+
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             for (i, a) in self
                 .args
@@ -1849,28 +1852,29 @@ impl<'b> App<'b> {
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
-        debugln!("App::_build_bin_names;");
+        debug!("App::_build_bin_names");
+
         for mut sc in &mut self.subcommands {
-            debug!("Parser::build_bin_names:iter: bin_name set...");
+            debug!("App::_build_bin_names:iter: bin_name set...");
+
             if sc.bin_name.is_none() {
-                sdebugln!("No");
+                debug!("No");
                 let bin_name = format!(
                     "{}{}{}",
                     self.bin_name.as_ref().unwrap_or(&self.name.clone()),
                     if self.bin_name.is_some() { " " } else { "" },
                     &*sc.name
                 );
-                debugln!(
-                    "Parser::build_bin_names:iter: Setting bin_name of {} to {}",
-                    self.name,
-                    bin_name
+                debug!(
+                    "App::_build_bin_names:iter: Setting bin_name of {} to {}",
+                    self.name, bin_name
                 );
                 sc.bin_name = Some(bin_name);
             } else {
-                sdebugln!("yes ({:?})", sc.bin_name);
+                debug!("yes ({:?})", sc.bin_name);
             }
-            debugln!(
-                "Parser::build_bin_names:iter: Calling build_bin_names from...{}",
+            debug!(
+                "App::_build_bin_names:iter: Calling build_bin_names from...{}",
                 sc.name
             );
             sc._build_bin_names();
@@ -1878,7 +1882,8 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
-        debugln!("App::_write_version;");
+        debug!("App::_write_version");
+
         let ver = if use_long {
             self.long_version
                 .unwrap_or_else(|| self.version.unwrap_or(""))
@@ -1924,17 +1929,16 @@ impl<'b> App<'b> {
 
     // Should we color the output?
     pub(crate) fn color(&self) -> ColorChoice {
-        debugln!("App::color;");
         debug!("App::color: Color setting...");
 
         if self.is_set(AppSettings::ColorNever) {
-            sdebugln!("Never");
+            debug!("Never");
             ColorChoice::Never
         } else if self.is_set(AppSettings::ColorAlways) {
-            sdebugln!("Always");
+            debug!("Always");
             ColorChoice::Always
         } else {
-            sdebugln!("Auto");
+            debug!("Auto");
             ColorChoice::Auto
         }
     }
@@ -1975,7 +1979,7 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
-        debugln!("App::unroll_args_in_group: group={:?}", group);
+        debug!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
         let mut args = vec![];
 
@@ -1988,13 +1992,13 @@ impl<'b> App<'b> {
                 .args
                 .iter()
             {
-                debugln!("App::unroll_args_in_group:iter: entity={:?}", n);
+                debug!("App::unroll_args_in_group:iter: entity={:?}", n);
                 if !args.contains(n) {
                     if self.find(n).is_some() {
-                        debugln!("App::unroll_args_in_group:iter: this is an arg");
+                        debug!("App::unroll_args_in_group:iter: this is an arg");
                         args.push(n.clone())
                     } else {
-                        debugln!("App::unroll_args_in_group:iter: this is a group");
+                        debug!("App::unroll_args_in_group:iter: this is a group");
                         g_vec.push(n);
                     }
                 }

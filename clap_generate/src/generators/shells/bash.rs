@@ -74,7 +74,7 @@ complete -F _{name} -o bashdefault -o default {name}
 }
 
 fn all_subcommands(app: &App) -> String {
-    debugln!("Bash::all_subcommands;");
+    debug!("all_subcommands");
 
     let mut subcmds = String::new();
     let mut scs = Bash::all_subcommands(app)
@@ -101,7 +101,7 @@ fn all_subcommands(app: &App) -> String {
 }
 
 fn subcommand_details(app: &App) -> String {
-    debugln!("Bash::subcommand_details;");
+    debug!("subcommand_details");
 
     let mut subcmd_dets = String::new();
     let mut scs = Bash::all_subcommands(app)
@@ -141,7 +141,7 @@ fn subcommand_details(app: &App) -> String {
 }
 
 fn option_details_for_path(app: &App, path: &str) -> String {
-    debugln!("Bash::option_details_for_path: path={}", path);
+    debug!("option_details_for_path: path={}", path);
 
     let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = String::new();
@@ -178,7 +178,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
 }
 
 fn vals_for(o: &Arg) -> String {
-    debugln!("Bash::vals_for: o={}", o.get_name());
+    debug!("vals_for: o={}", o.get_name());
 
     if let Some(ref vals) = o.get_possible_values() {
         format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))
@@ -188,7 +188,7 @@ fn vals_for(o: &Arg) -> String {
 }
 
 fn all_options_for_path(app: &App, path: &str) -> String {
-    debugln!("Bash::all_options_for_path: path={}", path);
+    debug!("all_options_for_path: path={}", path);
 
     let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let scs: Vec<_> = Bash::subcommands(p).iter().map(|x| x.0.clone()).collect();

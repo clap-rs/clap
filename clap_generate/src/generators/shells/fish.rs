@@ -28,7 +28,7 @@ fn escape_string(string: &str) -> String {
 }
 
 fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
-    debugln!("Fish::gen_fish_inner;");
+    debug!("gen_fish_inner");
     // example :
     //
     // complete
@@ -52,7 +52,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
         basic_template.push_str(format!("\"__fish_seen_subcommand_from {}\"", bin_name).as_str());
     }
 
-    debugln!("Fish::gen_fish_inner; bin_name={}", bin_name);
+    debug!("gen_fish_inner: bin_name={}", bin_name);
 
     for option in opts!(app) {
         let mut template = basic_template.clone();
