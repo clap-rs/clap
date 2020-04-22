@@ -848,7 +848,7 @@ where
             let mut sc = self.app.clone();
 
             for (i, cmd) in cmds.iter().enumerate() {
-                if &*cmd.to_string_lossy() == "help" {
+                if cmd == OsStr::new("help") {
                     // cmd help help
                     help_help = true;
                     break; // Maybe?
@@ -1202,24 +1202,21 @@ where
                 }
 
                 // Check for trailing concatenated value
-                let p: Vec<_> = arg.splitn(2, c).collect();
+                let i = arg_os.split(c).next().unwrap().len() + c.len_utf8();
                 debug!(
-                    "Parser::parse_short_arg:iter:{}: p[0]={:?}, p[1]={:?}",
-                    c,
-                    p[0].as_bytes(),
-                    p[1].as_bytes()
+                    "Parser::parse_short_arg:iter:{}: i={}, arg_os={:?}",
+                    c, i, arg_os
                 );
-                // This is always a valid place to split, because the separator
-                // is UTF-8.
-                let i = p[0].as_bytes().len() + c.len_utf8();
-                let val = if !p[1].is_empty() {
+                let val = if i != arg_os.len() {
+                    // This is always a valid place to split, because the separator is UTF-8.
+                    let val = arg_os.split_at_unchecked(i).1;
                     debug!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
-                        arg_os.split_at_unchecked(i).1.as_raw_bytes(),
-                        arg_os.split_at_unchecked(i).1
+                        val.as_raw_bytes(),
+                        val
                     );
-                    Some(arg_os.split_at_unchecked(i).1)
+                    Some(val)
                 } else {
                     None
                 };
