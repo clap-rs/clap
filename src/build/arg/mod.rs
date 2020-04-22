@@ -3376,8 +3376,6 @@ impl<'help> Arg<'help> {
     /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even
     /// if the case differs from that of the specified `possible_value`.
     ///
-    /// **Pro Tip:** Use this setting with [`arg_enum!`]
-    ///
     /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
     ///
     /// # Examples
@@ -3414,7 +3412,6 @@ impl<'help> Arg<'help> {
     /// let matched_vals = m.values_of("option").unwrap().collect::<Vec<_>>();
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
-    /// [`arg_enum!`]: ./macro.arg_enum.html
     #[inline]
     pub fn case_insensitive(self, ci: bool) -> Self {
         if ci {

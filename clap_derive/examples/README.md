@@ -4,6 +4,10 @@
 
 How to append a postscript to the help message generated.
 
+### [Arg Enum](arg_enum.rs)
+
+How to use `ArgEnum`
+
 ### [At least N](at_least_two.rs)
 
 How to require presence of at least N values, like `val1 val2 ... valN ... valM`.
