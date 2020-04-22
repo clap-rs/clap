@@ -192,11 +192,24 @@ pub fn gen_constructor(
                         #parse(matches.is_present(#name))
                     },
 
-                    Ty::Other => quote_spanned! { ty.span()=>
-                        matches.#value_of(#name)
-                            .map(#parse)
-                            .unwrap()
-                    },
+                    Ty::Other => {
+                        let parse = if attrs.is_enum() {
+                            let field_ty = &field.ty;
+                            let ci = attrs.case_insensitive();
+
+                            quote! {
+                                |s| <#field_ty as ::clap::ArgEnum>::from_str(s, #ci).unwrap()
+                            }
+                        } else {
+                            parse
+                        };
+
+                        quote_spanned! { ty.span()=>
+                            matches.#value_of(#name)
+                                .map(#parse)
+                                .unwrap()
+                        }
+                    }
                 };
 
                 quote_spanned!(field.span()=> #field_name: #field_value )

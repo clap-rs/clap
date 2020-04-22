@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{dummies, from_argmatches, into_app, subcommand};
+use super::{arg_enum, dummies, from_argmatches, into_app, subcommand};
 use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
@@ -70,11 +70,25 @@ fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream 
     let into_app = into_app::gen_for_enum(name);
     let from_arg_matches = from_argmatches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
+
+    let arg_enum = if e.variants.iter().all(|v| {
+        if let syn::Fields::Unit = v.fields {
+            true
+        } else {
+            false
+        }
+    }) {
+        arg_enum::gen_for_enum(name, attrs, e)
+    } else {
+        quote!()
+    };
+
     quote! {
         impl ::clap::Clap for #name { }
 
         #into_app
         #from_arg_matches
         #subcommand
+        #arg_enum
     }
 }

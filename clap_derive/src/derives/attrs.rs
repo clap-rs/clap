@@ -98,6 +98,7 @@ pub struct Attrs {
     about: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    is_enum: bool,
     has_custom_parser: bool,
     kind: Sp<Kind>,
 }
@@ -260,7 +261,7 @@ impl Attrs {
             author: None,
             version: None,
             verbatim_doc_comment: None,
-
+            is_enum: false,
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
@@ -288,6 +289,8 @@ impl Attrs {
                 Env(ident) => {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
+
+                ArgEnum(_) => self.is_enum = true,
 
                 Subcommand(ident) => {
                     let ty = Sp::call_site(Ty::Other);
@@ -514,6 +517,9 @@ impl Attrs {
                                 note = "see also https://github.com/clap-rs/clap_derive/tree/master/examples/true_or_false.rs";
                             )
                         }
+                        if res.is_enum {
+                            abort!(field.ty, "enum is meaningless for bool")
+                        }
                         if let Some(m) = res.find_method("default_value") {
                             abort!(m.name, "default_value is meaningless for bool")
                         }
@@ -608,6 +614,20 @@ impl Attrs {
 
     pub fn kind(&self) -> Sp<Kind> {
         self.kind.clone()
+    }
+
+    pub fn is_enum(&self) -> bool {
+        self.is_enum
+    }
+
+    pub fn case_insensitive(&self) -> TokenStream {
+        let method = self.find_method("case_insensitive");
+
+        if let Some(method) = method {
+            method.args.clone()
+        } else {
+            quote! { false }
+        }
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {

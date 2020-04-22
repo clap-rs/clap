@@ -21,10 +21,6 @@ as soon as [this](https://github.com/rust-lang/rust/issues/24584) is fixed (if e
 
 How to use doc comments in place of `help/long_help`.
 
-### [Enums as arguments](enum_in_args.rs)
-
-How to use `arg_enum!` with `clap_derive`.
-
 ### [Arguments of subcommands in separate `struct`](enum_tuple.rs)
 
 How to extract subcommands' args into external structs.
@@ -75,4 +71,4 @@ How to express "`"true"` or `"false"` argument.
 
 ### [Author, description, and version from `Cargo.toml`](from_crate.rs)
 
-//! How to derive a author, description, and version from Cargo.toml
+How to derive a author, description, and version from Cargo.toml

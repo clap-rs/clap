@@ -1,0 +1,5 @@
+error: enum is meaningless for bool
+ --> $DIR/bool_arg_enum.rs:7:11
+  |
+7 |     opts: bool,
+  |           ^^^^

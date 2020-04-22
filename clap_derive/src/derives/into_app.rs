@@ -196,6 +196,7 @@ pub fn gen_app_augmentation(
                 let parser = attrs.parser();
                 let func = &parser.func;
                 let validator = match *parser.kind {
+                    _ if attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
                         .validator(|s| {
                             #func(s.as_str())
@@ -249,9 +250,21 @@ pub fn gen_app_augmentation(
 
                     Ty::Other => {
                         let required = !attrs.has_method("default_value");
+
+                        let possible_values = if attrs.is_enum() {
+                            let field_ty = &field.ty;
+
+                            quote! {
+                                .possible_values(&<#field_ty as ::clap::ArgEnum>::VARIANTS)
+                            }
+                        } else {
+                            quote!()
+                        };
+
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .required(#required)
+                            #possible_values
                             #validator
                         }
                     }

@@ -7,86 +7,86 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-/*
-use proc_macro2;
-use quote;
-use syn;
-use syn::punctuated;
-use syn::token;
+use crate::derives::attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
+use crate::derives::spanned::Sp;
 
-pub fn derive_arg_enum(_ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    let from_str_block = impl_from_str(ast)?;
-    let variants_block = impl_variants(ast)?;
+use proc_macro2::{Span, TokenStream};
+use quote::quote;
+use syn::{
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, DataEnum, Ident, Variant,
+};
+
+pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
+    let attrs = Attrs::from_struct(
+        Span::call_site(),
+        attrs,
+        Name::Derived(name.clone()),
+        Sp::call_site(DEFAULT_CASING),
+        Sp::call_site(DEFAULT_ENV_CASING),
+    );
+
+    let lits = lits(&e.variants, &attrs);
+    let variants = gen_variants(&lits);
+    let from_str = gen_from_str(&e.variants, &lits);
 
     quote! {
-        #from_str_block
-        #variants_block
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
+        impl ::clap::ArgEnum for #name {
+            #variants
+            #from_str
+        }
     }
 }
 
-fn impl_from_str(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    let ident = &ast.ident;
-    let is_case_sensitive = ast.attrs.iter().any(|v| v.name() == "case_sensitive");
-    let variants = variants(ast)?;
-
-    let strings = variants
+fn lits(variants: &Punctuated<Variant, Comma>, parent_attribute: &Attrs) -> Vec<TokenStream> {
+    variants
         .iter()
-        .map(|ref variant| String::from(variant.ident.as_ref()))
-        .collect::<Vec<_>>();
+        .map(|variant| {
+            let attrs = Attrs::from_struct(
+                variant.span(),
+                &variant.attrs,
+                Name::Derived(variant.ident.clone()),
+                parent_attribute.casing(),
+                parent_attribute.env_casing(),
+            );
 
-    // All of these need to be iterators.
-    let ident_slice = [ident.clone()];
-    let idents = ident_slice.iter().cycle();
-
-    let for_error_message = strings.clone();
-
-    let condition_function_slice = [match is_case_sensitive {
-        true => quote! { str::eq },
-        false => quote! { ::std::ascii::AsciiExt::eq_ignore_ascii_case },
-    }];
-    let condition_function = condition_function_slice.iter().cycle();
-
-    Ok(quote! {
-        impl ::std::str::FromStr for #ident {
-            type Err = String;
-
-            fn from_str(input: &str) -> ::std::result::Result<Self, Self::Err> {
-                match input {
-                    #(val if #condition_function(val, #strings) => Ok(#idents::#variants),)*
-                    _ => Err({
-                        let v = #for_error_message;
-                        format!("valid values: {}",
-                            v.join(" ,"))
-                    }),
-                }
-            }
-        }
-    })
+            attrs.cased_name()
+        })
+        .collect::<Vec<_>>()
 }
 
-fn impl_variants(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
-    let ident = &ast.ident;
-    let variants = variants(ast)?
-        .iter()
-        .map(|ref variant| String::from(variant.ident.as_ref()))
-        .collect::<Vec<_>>();
-    let length = variants.len();
-
-    Ok(quote! {
-        impl #ident {
-            fn variants() -> [&'static str; #length] {
-                #variants
-            }
-        }
-    })
-}
-
-fn variants(ast: &syn::DeriveInput) -> &punctuated::Punctuated<syn::Variant, token::Comma> {
-    use syn::Data::*;
-
-    match ast.data {
-        Enum(ref data) => data.variants,
-        _ => panic!("Only enums are supported for deriving the ArgEnum trait"),
+fn gen_variants(lits: &Vec<TokenStream>) -> TokenStream {
+    quote! {
+        const VARIANTS: &'static [&'static str] = &[#(#lits),*];
     }
 }
-*/
+
+fn gen_from_str(variants: &Punctuated<Variant, Comma>, lits: &Vec<TokenStream>) -> TokenStream {
+    let matches = variants.iter().map(|v| &v.ident).collect::<Vec<_>>();
+
+    quote! {
+        fn from_str(input: &str, case_insensitive: bool) -> ::std::result::Result<Self, String> {
+            let func = if case_insensitive {
+                ::std::ascii::AsciiExt::eq_ignore_ascii_case
+            } else {
+                str::eq
+            };
+
+            match input {
+                #(val if func(val, #lits) => Ok(Self::#matches),)*
+                _ => Err(String::from("something went wrong parsing the value")),
+            }
+        }
+    }
+}
