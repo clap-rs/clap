@@ -630,6 +630,14 @@ impl Attrs {
         }
     }
 
+    pub fn enum_aliases(&self) -> Vec<TokenStream> {
+        self.methods
+            .iter()
+            .filter(|m| m.name == "alias")
+            .map(|m| m.args.clone())
+            .collect()
+    }
+
     pub fn casing(&self) -> Sp<CasingStyle> {
         self.casing.clone()
     }

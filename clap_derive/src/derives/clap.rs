@@ -71,12 +71,9 @@ fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream 
     let from_arg_matches = from_argmatches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
 
-    let arg_enum = if e.variants.iter().all(|v| {
-        if let syn::Fields::Unit = v.fields {
-            true
-        } else {
-            false
-        }
+    let arg_enum = if e.variants.iter().all(|v| match v.fields {
+        syn::Fields::Unit => true,
+        _ => false,
     }) {
         arg_enum::gen_for_enum(name, attrs, e)
     } else {

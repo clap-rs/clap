@@ -27,7 +27,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 
     let lits = lits(&e.variants, &attrs);
     let variants = gen_variants(&lits);
-    let from_str = gen_from_str(&e.variants, &lits);
+    let from_str = gen_from_str(&lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -49,10 +49,13 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     }
 }
 
-fn lits(variants: &Punctuated<Variant, Comma>, parent_attribute: &Attrs) -> Vec<TokenStream> {
+fn lits(
+    variants: &Punctuated<Variant, Comma>,
+    parent_attribute: &Attrs,
+) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
-        .map(|variant| {
+        .flat_map(|variant| {
             let attrs = Attrs::from_struct(
                 variant.span(),
                 &variant.attrs,
@@ -61,19 +64,28 @@ fn lits(variants: &Punctuated<Variant, Comma>, parent_attribute: &Attrs) -> Vec<
                 parent_attribute.env_casing(),
             );
 
-            attrs.cased_name()
+            let mut ret = vec![(attrs.cased_name(), variant.ident.clone())];
+
+            attrs
+                .enum_aliases()
+                .into_iter()
+                .for_each(|x| ret.push((x, variant.ident.clone())));
+
+            ret
         })
         .collect::<Vec<_>>()
 }
 
-fn gen_variants(lits: &Vec<TokenStream>) -> TokenStream {
+fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
+    let lit = lits.iter().map(|l| l.0.clone()).collect::<Vec<_>>();
+
     quote! {
-        const VARIANTS: &'static [&'static str] = &[#(#lits),*];
+        const VARIANTS: &'static [&'static str] = &[#(#lit),*];
     }
 }
 
-fn gen_from_str(variants: &Punctuated<Variant, Comma>, lits: &Vec<TokenStream>) -> TokenStream {
-    let matches = variants.iter().map(|v| &v.ident).collect::<Vec<_>>();
+fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
+    let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
         fn from_str(input: &str, case_insensitive: bool) -> ::std::result::Result<Self, String> {
@@ -84,7 +96,7 @@ fn gen_from_str(variants: &Punctuated<Variant, Comma>, lits: &Vec<TokenStream>) 
             };
 
             match input {
-                #(val if func(val, #lits) => Ok(Self::#matches),)*
+                #(val if func(val, #lit) => Ok(Self::#variant),)*
                 _ => Err(String::from("something went wrong parsing the value")),
             }
         }

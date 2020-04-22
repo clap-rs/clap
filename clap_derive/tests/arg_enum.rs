@@ -187,3 +187,65 @@ fn case_insensitive_set_to_false() {
     );
     assert!(Opt::try_parse_from(&["", "fOo"]).is_err());
 }
+
+#[test]
+fn alias() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum ArgChoice {
+        #[clap(alias = "TOTP")]
+        TOTP,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(arg_enum, case_insensitive(false))]
+        arg: ArgChoice,
+    };
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::TOTP
+        },
+        Opt::parse_from(&["", "totp"])
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::TOTP
+        },
+        Opt::parse_from(&["", "TOTP"])
+    );
+}
+
+#[test]
+fn multiple_alias() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum ArgChoice {
+        #[clap(alias = "TOTP", alias = "t")]
+        TOTP,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(arg_enum, case_insensitive(false))]
+        arg: ArgChoice,
+    };
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::TOTP
+        },
+        Opt::parse_from(&["", "totp"])
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::TOTP
+        },
+        Opt::parse_from(&["", "TOTP"])
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::TOTP
+        },
+        Opt::parse_from(&["", "t"])
+    );
+}
