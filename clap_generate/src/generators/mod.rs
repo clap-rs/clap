@@ -92,8 +92,8 @@ pub trait Generator {
     /// Subcommand `rustup toolchain install` would be converted to
     /// `("install", "rustup toolchain install")`.
     fn subcommands(p: &App) -> Vec<(String, String)> {
-        debugln!("subcommands: name={}", p.get_name());
-        debugln!("subcommands: Has subcommands...{:?}", p.has_subcommands());
+        debug!("subcommands: name={}", p.get_name());
+        debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
         let mut subcmds = vec![];
 
@@ -104,7 +104,7 @@ pub trait Generator {
         for sc in p.get_subcommands() {
             let sc_bin_name = sc.get_bin_name().unwrap();
 
-            debugln!(
+            debug!(
                 "subcommands:iter: name={}, bin_name={}",
                 sc.get_name(),
                 sc_bin_name
@@ -119,7 +119,7 @@ pub trait Generator {
     /// Gets all the short options and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `h` and `V` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn shorts<'b>(p: &'b App<'b>) -> Vec<char> {
-        debugln!("shorts: name={}", p.get_name());
+        debug!("shorts: name={}", p.get_name());
 
         let mut shorts: Vec<char> = p
             .get_arguments()
@@ -147,7 +147,7 @@ pub trait Generator {
     /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn longs<'b>(p: &'b App<'b>) -> Vec<String> {
-        debugln!("longs: name={}", p.get_name());
+        debug!("longs: name={}", p.get_name());
 
         let mut longs: Vec<String> = p
             .get_arguments()
@@ -177,7 +177,7 @@ pub trait Generator {
     /// Gets all the flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn flags<'b>(p: &'b App<'b>) -> Vec<Arg> {
-        debugln!("flags: name={}", p.get_name());
+        debug!("flags: name={}", p.get_name());
 
         let mut flags: Vec<_> = flags!(p).cloned().collect();
 

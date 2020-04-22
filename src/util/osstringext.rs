@@ -116,7 +116,8 @@ impl<'a> Iterator for OsSplit<'a> {
     type Item = &'a OsStr;
 
     fn next(&mut self) -> Option<&'a OsStr> {
-        debugln!("OsSplit::next: self={:?}", self);
+        debug!("OsSplit::next: self={:?}", self);
+
         if self.pos == self.val.len() {
             return None;
         }

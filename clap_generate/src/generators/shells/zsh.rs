@@ -80,7 +80,7 @@ _{name} \"$@\"",
 //     _describe -t commands 'rustup commands' commands "$@"
 //
 fn subcommand_details(p: &App) -> String {
-    debugln!("ZshGen::subcommand_details;");
+    debug!("subcommand_details");
 
     let name = p.get_bin_name().unwrap();
 
@@ -106,7 +106,7 @@ _{bin_name_underscore}_commands() {{
     all_subcommands.dedup();
 
     for &(_, ref bin_name) in &all_subcommands {
-        debugln!("Zsh::subcommand_details:iter: bin_name={}", bin_name);
+        debug!("subcommand_details:iter: bin_name={}", bin_name);
 
         ret.push(format!(
             "\
@@ -138,12 +138,12 @@ _{bin_name_underscore}_commands() {{
 //         'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
 fn subcommands_of(p: &App) -> String {
-    debugln!("Zsh::subcommands_of;");
+    debug!("subcommands_of");
 
     let mut ret = vec![];
 
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
-        debugln!("Zsh::add_sc;");
+        debug!("add_sc");
 
         let s = format!(
             "\"{name}:{help}\" \\",
@@ -162,7 +162,7 @@ fn subcommands_of(p: &App) -> String {
 
     // The subcommands
     for sc in p.get_subcommands() {
-        debugln!("Zsh::subcommands_of:iter: subcommand={}", sc.get_name());
+        debug!("subcommands_of:iter: subcommand={}", sc.get_name());
 
         add_sc(sc, &sc.get_name(), &mut ret);
 
@@ -204,9 +204,8 @@ fn subcommands_of(p: &App) -> String {
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
 fn get_subcommands_of(p: &App) -> String {
-    debugln!("Zsh::get_subcommands_of;");
-    debugln!(
-        "Zsh::get_subcommands_of: Has subcommands...{:?}",
+    debug!(
+        "get_subcommands_of: Has subcommands...{:?}",
         p.has_subcommands()
     );
 
@@ -254,7 +253,7 @@ esac",
 }
 
 fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
-    debugln!("Zsh::parser_of: sc={}", sc);
+    debug!("parser_of: sc={}", sc);
 
     if sc == p.get_bin_name().unwrap_or(&String::new()) {
         return p;
@@ -285,7 +284,7 @@ fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
 fn get_args_of(p: &App) -> String {
-    debugln!("Zsh::get_args_of;");
+    debug!("get_args_of");
 
     let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
     let opts = write_opts_of(p);
@@ -351,12 +350,12 @@ fn escape_value(string: &str) -> String {
 }
 
 fn write_opts_of(p: &App) -> String {
-    debugln!("Zsh::write_opts_of;");
+    debug!("write_opts_of");
 
     let mut ret = vec![];
 
     for o in opts!(p) {
-        debugln!("Zsh::write_opts_of:iter: o={}", o.get_name());
+        debug!("write_opts_of:iter: o={}", o.get_name());
 
         let help = o.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o);
@@ -394,7 +393,7 @@ fn write_opts_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("write_opts_of:iter: Wrote...{}", &*s);
+            debug!("write_opts_of:iter: Wrote...{}", &*s);
             ret.push(s);
         }
 
@@ -408,7 +407,7 @@ fn write_opts_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("write_opts_of:iter: Wrote...{}", &*l);
+            debug!("write_opts_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
     }
@@ -438,12 +437,12 @@ fn arg_conflicts(app: &App, arg: &Arg) -> String {
 }
 
 fn write_flags_of(p: &App) -> String {
-    debugln!("Zsh::write_flags_of;");
+    debug!("write_flags_of;");
 
     let mut ret = vec![];
 
     for f in Zsh::flags(p) {
-        debugln!("Zsh::write_flags_of:iter: f={}", f.get_name());
+        debug!("write_flags_of:iter: f={}", f.get_name());
 
         let help = f.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f);
@@ -463,7 +462,7 @@ fn write_flags_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("Zsh::write_flags_of:iter: Wrote...{}", &*s);
+            debug!("write_flags_of:iter: Wrote...{}", &*s);
 
             ret.push(s);
         }
@@ -477,7 +476,7 @@ fn write_flags_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("Zsh::write_flags_of:iter: Wrote...{}", &*l);
+            debug!("write_flags_of:iter: Wrote...{}", &*l);
 
             ret.push(l);
         }
@@ -487,12 +486,12 @@ fn write_flags_of(p: &App) -> String {
 }
 
 fn write_positionals_of(p: &App) -> String {
-    debugln!("Zsh::write_positionals_of;");
+    debug!("write_positionals_of;");
 
     let mut ret = vec![];
 
     for arg in positionals!(p) {
-        debugln!("Zsh::write_positionals_of:iter: arg={}", arg.get_name());
+        debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
         let optional = if !arg.is_set(ArgSettings::Required) {
             ":"
@@ -524,7 +523,7 @@ fn write_positionals_of(p: &App) -> String {
                 })
         );
 
-        debugln!("Zsh::write_positionals_of:iter: Wrote...{}", a);
+        debug!("write_positionals_of:iter: Wrote...{}", a);
 
         ret.push(a);
     }

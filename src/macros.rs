@@ -706,66 +706,24 @@ macro_rules! impl_settings {
 }
 
 // Convenience for writing to stderr thanks to https://github.com/BurntSushi
-macro_rules! wlnerr(
+macro_rules! wlnerr {
     ($($arg:tt)*) => ({
         use std::io::{Write, stderr};
         writeln!(&mut stderr(), $($arg)*).ok();
     })
-);
+}
 
 #[cfg(feature = "debug")]
-#[cfg_attr(feature = "debug", macro_use)]
-#[cfg_attr(feature = "debug", allow(unused_macros))]
-mod debug_macros {
-    macro_rules! debugln {
-        ($fmt:expr) => (println!(concat!("DEBUG:clap:", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (println!(concat!("DEBUG:clap:",$fmt), $($arg)*));
-    }
-    macro_rules! sdebugln {
-        ($fmt:expr) => (println!($fmt));
-        ($fmt:expr, $($arg:tt)*) => (println!($fmt, $($arg)*));
-    }
-    macro_rules! debug {
-        ($fmt:expr) => (print!(concat!("DEBUG:clap:", $fmt)));
-        ($fmt:expr, $($arg:tt)*) => (print!(concat!("DEBUG:clap:",$fmt), $($arg)*));
-    }
-    macro_rules! sdebug {
-        ($fmt:expr) => (print!($fmt));
-        ($fmt:expr, $($arg:tt)*) => (print!($fmt, $($arg)*));
+macro_rules! debug {
+    ($($arg:tt)*) => {
+        print!("[{:>w$}] \t", module_path!(), w = 28);
+        println!($($arg)*)
     }
 }
 
 #[cfg(not(feature = "debug"))]
-#[cfg_attr(not(feature = "debug"), macro_use)]
-mod debug_macros {
-    macro_rules! debugln {
-        ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
-    }
-    macro_rules! sdebugln {
-        ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
-    }
-    macro_rules! debug {
-        ($fmt:expr) => {};
-        ($fmt:expr, $($arg:tt)*) => { ignore_fmt_args!($($arg)*); };
-    }
-
-    macro_rules! ignore_fmt_args {
-        () => {};
-
-        // name = expr
-        ($name:ident = $val:expr $( , $($ts:tt)* )?) => {
-            let _ = &$val;
-            ignore_fmt_args!($($($ts)*)*);
-        };
-
-        // expr
-        ($val:expr $( , $($ts:tt)* )?) => {
-            let _ = &$val;
-            ignore_fmt_args!($($($ts)*)*);
-        };
-    }
+macro_rules! debug {
+    ($($arg:tt)*) => {};
 }
 
 #[macro_export]
@@ -808,7 +766,7 @@ macro_rules! positionals {
 
 macro_rules! groups_for_arg {
     ($app:expr, $grp:expr) => {{
-        debugln!("Parser::groups_for_arg: name={:?}", $grp);
+        debug!("groups_for_arg: name={:?}", $grp);
         $app.groups
             .iter()
             .filter(|grp| grp.args.iter().any(|a| *a == $grp))

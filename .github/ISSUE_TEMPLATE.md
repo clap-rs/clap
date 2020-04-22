@@ -24,12 +24,13 @@ Please use the following template to assist with creating an issue and to ensure
 
 ### Debug output
 
-Compile clap with cargo features `"debug"` such as:
+Compile clap with `debug` feature:
 
 ```toml
 [dependencies]
-clap = { version = "2", features = ["debug"] }
+clap = { version = "*", features = ["debug"] }
 ```
+
 The output may be very long, so feel free to link to a gist or attach a text file
 
 <details>
