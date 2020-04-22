@@ -307,7 +307,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 // args in that group to the conflicts, as well as any args those args conflict
                 // with
 
-                // // FIXME: probably no need to cone the id here. Review the macro
+                // // FIXME: probably no need to clone the id here. Review the macro
                 for grp in groups_for_arg!(self.p.app, name.clone()) {
                     if let Some(g) = self
                         .p
@@ -508,10 +508,12 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debugln!("Validator::validate_required:iter:aog={:?};", arg_or_group);
             if let Some(arg) = self.p.app.find(&arg_or_group) {
+                debugln!("Validator::validate_required:iter: This is an arg");
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, None);
                 }
             } else if let Some(group) = self.p.app.groups.iter().find(|g| g.id == *arg_or_group) {
+                debugln!("Validator::validate_required:iter: This is a group");
                 if !self
                     .p
                     .app

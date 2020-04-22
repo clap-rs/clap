@@ -1975,22 +1975,26 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
+        debugln!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
         let mut args = vec![];
 
-        while let Some(ref g) = g_vec.pop() {
+        while let Some(g) = g_vec.pop() {
             for n in self
                 .groups
                 .iter()
-                .find(|grp| grp.id == **g)
+                .find(|grp| grp.id == *g)
                 .expect(INTERNAL_ERROR_MSG)
                 .args
                 .iter()
             {
+                debugln!("App::unroll_args_in_group:iter: entity={:?}", n);
                 if !args.contains(n) {
                     if self.find(n).is_some() {
+                        debugln!("App::unroll_args_in_group:iter: this is an arg");
                         args.push(n.clone())
                     } else {
+                        debugln!("App::unroll_args_in_group:iter: this is a group");
                         g_vec.push(n);
                     }
                 }

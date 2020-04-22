@@ -913,8 +913,6 @@ where
         Err(parser.help_err(false))
     }
 
-    // allow wrong self convention due to self.valid_neg_num = true and it's a private method
-    #[allow(clippy::wrong_self_convention)]
     fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
         debugln!("Parser::is_new_arg:{:?}:{:?}", arg_os, needs_val_of);
 
@@ -1560,9 +1558,12 @@ where
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         for a in self.app.args.args.iter() {
-            if let Some(ref val) = a.env {
-                if let Some(ref val) = val.1 {
-                    self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+            // Use env only if the arg was not present among command line args
+            if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
+                if let Some(ref val) = a.env {
+                    if let Some(ref val) = val.1 {
+                        self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+                    }
                 }
             }
         }
