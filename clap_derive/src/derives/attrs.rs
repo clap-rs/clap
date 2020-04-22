@@ -20,7 +20,10 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Expr, Ident, MetaNameValue, Type};
+use syn::{
+    self, ext::IdentExt, spanned::Spanned, Attribute, Expr, Field, Ident, LitStr, MetaNameValue,
+    Type,
+};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -39,14 +42,14 @@ pub enum Kind {
 
 #[derive(Clone)]
 pub struct Method {
-    name: syn::Ident,
-    args: proc_macro2::TokenStream,
+    name: Ident,
+    args: TokenStream,
 }
 
 #[derive(Clone)]
 pub struct Parser {
     pub kind: Sp<ParserKind>,
-    pub func: proc_macro2::TokenStream,
+    pub func: TokenStream,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -104,19 +107,19 @@ pub struct Attrs {
 /// The output of a generation method is not only the stream of new tokens but also the attribute
 /// information of the current element. These attribute information may contain valuable information
 /// for any kind of child arguments.
-pub type GenOutput = (proc_macro2::TokenStream, Attrs);
+pub type GenOutput = (TokenStream, Attrs);
 
 impl Method {
     pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }
     }
 
-    fn from_lit_or_env(ident: syn::Ident, lit: Option<syn::LitStr>, env_var: &str) -> Option<Self> {
+    fn from_lit_or_env(ident: Ident, lit: Option<LitStr>, env_var: &str) -> Option<Self> {
         let mut lit = match lit {
             Some(lit) => lit,
 
             None => match env::var(env_var) {
-                Ok(val) => syn::LitStr::new(&val, ident.span()),
+                Ok(val) => LitStr::new(&val, ident.span()),
                 Err(_) => {
                     abort!(ident,
                         "cannot derive `{}` from Cargo.toml", ident;
@@ -129,7 +132,7 @@ impl Method {
 
         if ident == "author" {
             let edited = process_author_str(&lit.value());
-            lit = syn::LitStr::new(&edited, lit.span());
+            lit = LitStr::new(&edited, lit.span());
         }
 
         Some(Method::new(ident, quote!(#lit)))
@@ -157,7 +160,7 @@ impl Parser {
         Sp::new(Parser { kind, func }, span)
     }
 
-    fn from_spec(parse_ident: syn::Ident, spec: ParserSpec) -> Sp<Self> {
+    fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
         use self::ParserKind::*;
 
         let kind = match &*spec.kind.to_string() {
@@ -185,7 +188,7 @@ impl Parser {
             },
 
             Some(func) => match func {
-                syn::Expr::Path(_) => quote!(#func),
+                Expr::Path(_) => quote!(#func),
                 _ => abort!(func, "`parse` argument must be a function path"),
             },
         };
@@ -197,7 +200,7 @@ impl Parser {
 }
 
 impl CasingStyle {
-    fn from_lit(name: syn::LitStr) -> Sp<Self> {
+    fn from_lit(name: LitStr) -> Sp<Self> {
         use self::CasingStyle::*;
 
         let normalized = name.value().to_camel_case().to_lowercase();
@@ -273,7 +276,7 @@ impl Attrs {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[syn::Attribute]) {
+    fn push_attrs(&mut self, attrs: &[Attribute]) {
         use ClapAttr::*;
 
         for attr in parse_clap_attributes(attrs) {
@@ -373,7 +376,7 @@ impl Attrs {
         }
     }
 
-    fn push_doc_comment(&mut self, attrs: &[syn::Attribute], name: &str) {
+    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
         use syn::Lit::*;
         use syn::Meta::*;
 
@@ -397,7 +400,7 @@ impl Attrs {
 
     pub fn from_struct(
         span: Span,
-        attrs: &[syn::Attribute],
+        attrs: &[Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -420,7 +423,7 @@ impl Attrs {
     }
 
     pub fn from_field(
-        field: &syn::Field,
+        field: &Field,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {

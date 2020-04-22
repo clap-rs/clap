@@ -13,12 +13,12 @@
 // MIT/Apache 2.0 license.
 
 use super::{dummies, from_argmatches, into_app, subcommand};
-use proc_macro2::Ident;
+use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::{self, punctuated, token, Attribute, DataEnum};
+use syn::{self, punctuated, token, Attribute, DataEnum, DeriveInput, Field, Ident};
 
-pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn derive_clap(input: &DeriveInput) -> TokenStream {
     use syn::Data::*;
 
     let ident = &input.ident;
@@ -38,7 +38,7 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
             dummies::clap_struct(ident);
             gen_for_struct(
                 ident,
-                &punctuated::Punctuated::<syn::Field, token::Comma>::new(),
+                &punctuated::Punctuated::<Field, token::Comma>::new(),
                 &input.attrs,
             )
         }
@@ -51,10 +51,10 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 }
 
 fn gen_for_struct(
-    name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-    attrs: &[syn::Attribute],
-) -> proc_macro2::TokenStream {
+    name: &Ident,
+    fields: &punctuated::Punctuated<Field, token::Comma>,
+    attrs: &[Attribute],
+) -> TokenStream {
     let (into_app, attrs) = into_app::gen_for_struct(name, fields, attrs);
     let from_arg_matches = from_argmatches::gen_for_struct(name, fields, &attrs);
 
@@ -66,7 +66,7 @@ fn gen_for_struct(
     }
 }
 
-fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> proc_macro2::TokenStream {
+fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let into_app = into_app::gen_for_enum(name);
     let from_arg_matches = from_argmatches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
