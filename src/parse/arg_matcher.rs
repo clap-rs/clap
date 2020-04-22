@@ -1,6 +1,6 @@
 // Std
 use std::collections::HashMap;
-use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::mem;
 use std::ops::Deref;
 
@@ -136,13 +136,13 @@ impl ArgMatcher {
         self.insert(arg);
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: &OsStr) {
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0, // @TODO @question Shouldn't this be 1 if we're already adding a value to this arg?
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
         });
-        ma.vals.push(val.to_owned());
+        ma.vals.push(val);
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize) {

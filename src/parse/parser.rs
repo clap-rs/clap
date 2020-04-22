@@ -3,8 +3,6 @@ use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
 use std::mem;
-#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-use std::os::unix::ffi::OsStrExt;
 
 // Internal
 use crate::build::app::Propagation;
@@ -18,9 +16,7 @@ use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
 use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use crate::util::OsStrExt3;
-use crate::util::{termcolor::ColorChoice, ChildGraph, Id, OsStrExt2};
+use crate::util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
 
@@ -431,16 +427,15 @@ where
         while let Some((arg_os, next_arg)) = it.next(replace) {
             replace = None;
 
+            let arg_os = ArgStr::new(arg_os);
             debug!(
                 "Parser::get_matches_with: Begin parsing '{:?}' ({:?})",
                 arg_os,
-                &*arg_os.as_bytes()
+                arg_os.as_raw_bytes()
             );
 
             for (key, val) in &self.app.replacers {
-                let key_bytes = OsStr::new(key).as_bytes();
-
-                if key_bytes == arg_os.as_bytes() {
+                if *key == arg_os {
                     debug!(
                         "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
                         key, val
@@ -456,13 +451,9 @@ where
             self.unset(AS::ValidNegNumFound);
 
             // Is this a new argument, or values from a previous option?
-            let starts_new_arg = self.is_new_arg(arg_os, needs_val_of.clone());
+            let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of.clone());
 
-            if !self.is_set(AS::TrailingValues)
-                && arg_os.starts_with(b"--")
-                && arg_os.len() == 2
-                && starts_new_arg
-            {
+            if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
                 debug!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
                 continue;
@@ -475,7 +466,7 @@ where
                     ParseResult::Opt(_) | ParseResult::Pos(_)
                         if !self.is_set(AS::SubcommandPrecedenceOverArg) => {}
                     _ => {
-                        let sc_name = self.possible_subcommand(arg_os);
+                        let sc_name = self.possible_subcommand(&arg_os);
                         debug!(
                             "Parser::get_matches_with: possible_sc={:?}, sc={:?}",
                             sc_name.is_some(),
@@ -496,8 +487,8 @@ where
                 }
 
                 if starts_new_arg {
-                    if arg_os.starts_with(b"--") {
-                        needs_val_of = self.parse_long_arg(matcher, arg_os)?;
+                    if arg_os.starts_with("--") {
+                        needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
                         debug!(
                             "Parser::get_matches_with: After parse_long_arg {:?}",
                             needs_val_of
@@ -508,11 +499,11 @@ where
                             }
                             _ => (),
                         }
-                    } else if arg_os.starts_with(b"-") && arg_os.len() != 1 {
+                    } else if arg_os.starts_with("-") && arg_os.len() != 1 {
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
-                        needs_val_of = self.parse_short_arg(matcher, arg_os)?;
+                        needs_val_of = self.parse_short_arg(matcher, &arg_os)?;
                         // If it's None, we then check if one of those two AppSettings was set
                         debug!(
                             "Parser::get_matches_with: After parse_short_arg {:?}",
@@ -520,11 +511,12 @@ where
                         );
                         match needs_val_of {
                             ParseResult::MaybeNegNum => {
-                                if !(arg_os.to_string_lossy().parse::<i64>().is_ok()
-                                    || arg_os.to_string_lossy().parse::<f64>().is_ok())
+                                let lossy_arg = arg_os.to_string_lossy();
+                                if !(lossy_arg.parse::<i64>().is_ok()
+                                    || lossy_arg.parse::<f64>().is_ok())
                                 {
                                     return Err(ClapError::unknown_argument(
-                                        &*arg_os.to_string_lossy(),
+                                        lossy_arg,
                                         None,
                                         &*Usage::new(self).create_usage_with_title(&[]),
                                         self.app.color(),
@@ -541,7 +533,7 @@ where
                     // Check to see if parsing a value from a previous arg
                     let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
                     // get the option so we can check the settings
-                    needs_val_of = self.add_val_to_arg(arg, arg_os, matcher)?;
+                    needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
                     // get the next value from the iterator
                     continue;
                 }
@@ -610,9 +602,10 @@ where
                         ParseResult::ValuesDone
                     };
 
-                    let sc_match = { self.possible_subcommand(n).is_some() };
+                    let n = ArgStr::new(n);
+                    let sc_match = { self.possible_subcommand(&n).is_some() };
 
-                    if self.is_new_arg(n, needs_val_of.clone())
+                    if self.is_new_arg(&n, needs_val_of.clone())
                         || sc_match
                         || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
                             .is_empty()
@@ -679,7 +672,7 @@ where
                 }
 
                 self.seen.push(p.id.clone());
-                let _ = self.add_val_to_arg(p, arg_os, matcher)?;
+                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(&p.id);
                 for grp in groups_for_arg!(self.app, p.id) {
@@ -717,7 +710,7 @@ where
                             self.app.color(),
                         )?);
                     }
-                    sc_m.add_val_to(&Id::empty_hash(), &v);
+                    sc_m.add_val_to(&Id::empty_hash(), v.to_os_string());
                 }
 
                 matcher.subcommand(SubCommand {
@@ -729,7 +722,7 @@ where
                 break;
             } else if !((self.is_set(AS::AllowLeadingHyphen)
                 || self.is_set(AS::AllowNegativeNumbers))
-                && arg_os.starts_with(b"-"))
+                && arg_os.starts_with("-"))
                 && !self.is_set(AS::InferSubcommands)
             {
                 return Err(ClapError::unknown_argument(
@@ -810,13 +803,10 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &OsStr) -> Option<&str> {
+    fn possible_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
-        fn starts(h: &str, n: &OsStr) -> bool {
-            let n_bytes = n.as_bytes();
-            let h_bytes = OsStr::new(h).as_bytes();
-
-            h_bytes.starts_with(n_bytes)
+        fn starts(h: &str, n: &ArgStr<'_>) -> bool {
+            h.is_char_boundary(n.len()) && h.as_bytes().starts_with(n.as_raw_bytes())
         }
 
         if self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) {
@@ -837,7 +827,7 @@ where
             }
 
             for sc in &v {
-                if OsStr::new(sc) == arg_os {
+                if sc == arg_os {
                     return Some(sc);
                 }
             }
@@ -916,7 +906,7 @@ where
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &OsStr, needs_val_of: ParseResult) -> bool {
+    fn is_new_arg(&mut self, arg_os: &ArgStr<'_>, needs_val_of: ParseResult) -> bool {
         debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, needs_val_of);
 
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
@@ -950,7 +940,7 @@ where
         debug!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
 
         // Is this a new argument, or values from a previous option?
-        let mut ret = if arg_os.starts_with(b"--") {
+        let mut ret = if arg_os.starts_with("--") {
             debug!("Parser::is_new_arg: -- found");
 
             if arg_os.len() == 2 && !arg_allows_tac {
@@ -960,7 +950,7 @@ where
             }
 
             true
-        } else if arg_os.starts_with(b"-") {
+        } else if arg_os.starts_with("-") {
             debug!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
             arg_os.len() != 1
@@ -1043,11 +1033,11 @@ where
 
     // Retrieves the names of all args the user has supplied thus far, except required ones
     // because those will be listed in self.required
-    fn check_for_help_and_version_str(&self, arg: &OsStr) -> ClapResult<()> {
+    fn check_for_help_and_version_str(&self, arg: &ArgStr<'_>) -> ClapResult<()> {
         debug!("Parser::check_for_help_and_version_str");
         debug!(
-            "Parser::check_for_help_and_version_str: Checking if --{} is help or version...",
-            arg.to_str().unwrap()
+            "Parser::check_for_help_and_version_str: Checking if --{:?} is help or version...",
+            arg
         );
 
         // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
@@ -1113,7 +1103,7 @@ where
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &OsStr,
+        full_arg: &ArgStr<'_>,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -1123,8 +1113,10 @@ where
 
         let mut val = None;
         debug!("Parser::parse_long_arg: Does it contain '='...");
+        let matches;
         let arg = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = full_arg.trim_start_matches(b'-').split_at_byte(b'=');
+            matches = full_arg.trim_start_matches(b'-');
+            let (p0, p1) = matches.split_at_byte(b'=');
             debug!("Yes '{:?}'", p1);
             val = Some(p1);
             p0
@@ -1132,7 +1124,7 @@ where
             debug!("No");
             full_arg.trim_start_matches(b'-')
         };
-        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.into())) {
+        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.to_os_string())) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1142,9 +1134,9 @@ where
             self.seen.push(opt.id.clone());
 
             if opt.is_set(ArgSettings::TakesValue) {
-                return Ok(self.parse_opt(val, opt, val.is_some(), matcher)?);
+                return Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?);
             }
-            self.check_for_help_and_version_str(arg)?;
+            self.check_for_help_and_version_str(&arg)?;
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag);
@@ -1162,7 +1154,7 @@ where
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &OsStr,
+        full_arg: &ArgStr<'_>,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
@@ -1217,21 +1209,23 @@ where
                     p[0].as_bytes(),
                     p[1].as_bytes()
                 );
+                // This is always a valid place to split, because the separator
+                // is UTF-8.
                 let i = p[0].as_bytes().len() + c.len_utf8();
                 let val = if !p[1].is_empty() {
                     debug!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
-                        arg_os.split_at(i).1.as_bytes(),
-                        arg_os.split_at(i).1
+                        arg_os.split_at_unchecked(i).1.as_raw_bytes(),
+                        arg_os.split_at_unchecked(i).1
                     );
-                    Some(arg_os.split_at(i).1)
+                    Some(arg_os.split_at_unchecked(i).1)
                 } else {
                     None
                 };
 
                 // Default to "we're expecting a value later"
-                return self.parse_opt(val, opt, false, matcher);
+                return self.parse_opt(&val, opt, false, matcher);
             } else {
                 let arg = format!("-{}", c);
 
@@ -1248,7 +1242,7 @@ where
 
     fn parse_opt(
         &self,
-        val: Option<&OsStr>,
+        val: &Option<ArgStr<'_>>,
         opt: &Arg<'b>,
         had_eq: bool,
         matcher: &mut ArgMatcher,
@@ -1263,7 +1257,7 @@ where
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with(&[b'=']) || had_eq;
+            has_eq = fv.starts_with("=") || had_eq;
             let v = fv.trim_start_n_matches(1, b'=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 debug!("Found Empty - Error");
@@ -1277,9 +1271,9 @@ where
             debug!(
                 "Parser::parse_opt: {:?} contains '='...{:?}",
                 fv,
-                fv.starts_with(&[b'='])
+                fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, v, matcher)?;
+            self.add_val_to_arg(opt, &v, matcher)?;
         } else if needs_eq && !(empty_vals || min_vals_zero) {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1314,7 +1308,7 @@ where
     fn add_val_to_arg(
         &self,
         arg: &Arg<'b>,
-        val: &OsStr,
+        val: &ArgStr<'_>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
@@ -1329,13 +1323,11 @@ where
                     Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone;
-                    for v in val.split(delim as u32 as u8) {
-                        iret = self.add_single_val_to_arg(arg, v, matcher)?;
+                    for v in val.split(delim) {
+                        iret = self.add_single_val_to_arg(arg, &v, matcher)?;
                     }
                     // If there was a delimiter used, we're not looking for more values
-                    if val.contains_byte(delim as u32 as u8)
-                        || arg.is_set(ArgSettings::RequireDelimiter)
-                    {
+                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
                         iret = ParseResult::ValuesDone;
                     }
                     Ok(iret)
@@ -1351,7 +1343,7 @@ where
     fn add_single_val_to_arg(
         &self,
         arg: &Arg<'b>,
-        v: &OsStr,
+        v: &ArgStr<'_>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", v);
@@ -1366,12 +1358,12 @@ where
             }
         }
 
-        matcher.add_val_to(&arg.id, v);
+        matcher.add_val_to(&arg.id, v.to_os_string());
         matcher.add_index_to(&arg.id, self.cur_idx.get());
 
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, arg.id) {
-            matcher.add_val_to(&grp, v);
+            matcher.add_val_to(&grp, v.to_os_string());
         }
 
         if matcher.needs_more_vals(arg) {
@@ -1501,7 +1493,7 @@ where
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, OsStr::new(default), matcher)?;
+                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher)?;
                         done = true;
                         break;
                     }
@@ -1529,7 +1521,7 @@ where
                 );
 
                 for val in vals {
-                    self.add_val_to_arg(arg, val, matcher)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher)?;
                 }
             } else if matcher.get(&arg.id).is_some() {
                 debug!("Parser::add_value:iter:{}: has user defined vals", arg.name);
@@ -1539,7 +1531,7 @@ where
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
                 for val in vals {
-                    self.add_val_to_arg(arg, val, matcher)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher)?;
                 }
             }
         } else {
@@ -1560,7 +1552,7 @@ where
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
                 if let Some(ref val) = a.env {
                     if let Some(ref val) = val.1 {
-                        self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+                        self.add_val_to_arg(a, &ArgStr::new(val), matcher)?;
                     }
                 }
             }

@@ -63,6 +63,7 @@ bitflags              = "1.2"
 unicode-width         = "0.1"
 textwrap              = "0.11"
 indexmap              = "1.0"
+os_str_bytes          = "2.1"
 strsim      = { version = "0.10",  optional = true }
 yaml-rust   = { version = "0.4.1",  optional = true }
 atty        = { version = "0.2",  optional = true }

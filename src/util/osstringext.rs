@@ -1,83 +1,77 @@
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use crate::INVALID_UTF8;
-use std::ffi::OsStr;
-#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-use std::os::unix::ffi::OsStrExt;
+use std::borrow::Cow;
+use std::ffi::{OsStr, OsString};
+use std::str;
 
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-pub(crate) trait OsStrExt3 {
-    fn from_bytes(b: &[u8]) -> &Self;
-    fn as_bytes(&self) -> &[u8];
-}
+use os_str_bytes::{OsStrBytes, OsStringBytes};
 
-pub(crate) trait OsStrExt2 {
-    fn starts_with(&self, s: &[u8]) -> bool;
-    fn split_at_byte(&self, b: u8) -> (&OsStr, &OsStr);
-    fn split_at(&self, i: usize) -> (&OsStr, &OsStr);
-    fn trim_start_matches(&self, b: u8) -> &OsStr;
-    fn trim_start_n_matches(&self, n: usize, ch: u8) -> &OsStr;
-    fn contains_byte(&self, b: u8) -> bool;
-    fn split(&self, b: u8) -> OsSplit;
-}
+#[derive(Debug)]
+pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
 
-#[cfg(target_os = "windows")]
-impl OsStrExt3 for OsStr {
-    #[allow(clippy::transmute_ptr_to_ptr)]
-    fn from_bytes(b: &[u8]) -> &Self {
-        use std::mem;
-        unsafe { mem::transmute(b) }
-    }
-    fn as_bytes(&self) -> &[u8] {
-        self.to_str().map(|s| s.as_bytes()).expect(INVALID_UTF8)
-    }
-}
-
-impl OsStrExt2 for OsStr {
-    fn starts_with(&self, s: &[u8]) -> bool {
-        self.as_bytes().starts_with(s)
+impl<'a> ArgStr<'a> {
+    pub(crate) fn new(s: &'a OsStr) -> Self {
+        Self(s.to_bytes())
     }
 
-    fn contains_byte(&self, byte: u8) -> bool {
-        for b in self.as_bytes() {
-            if b == &byte {
+    pub(crate) fn starts_with(&self, s: &str) -> bool {
+        self.0.starts_with(s.as_bytes())
+    }
+
+    fn to_borrowed(&'a self) -> Self {
+        Self(Cow::Borrowed(&self.0))
+    }
+
+    pub(crate) fn contains_byte(&self, byte: u8) -> bool {
+        assert!(byte.is_ascii());
+
+        self.0.contains(&byte)
+    }
+
+    pub(crate) fn contains_char(&self, ch: char) -> bool {
+        let mut bytes = [0; 4];
+        let bytes = ch.encode_utf8(&mut bytes).as_bytes();
+        for i in 0..self.0.len().saturating_sub(bytes.len() - 1) {
+            if self.0[i..].starts_with(bytes) {
                 return true;
             }
         }
         false
     }
 
-    fn split_at_byte(&self, byte: u8) -> (&OsStr, &OsStr) {
-        for (i, b) in self.as_bytes().iter().enumerate() {
+    pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr<'_>, ArgStr<'_>) {
+        assert!(byte.is_ascii());
+
+        for (i, b) in self.0.iter().enumerate() {
             if b == &byte {
-                return (
-                    OsStr::from_bytes(&self.as_bytes()[..i]),
-                    OsStr::from_bytes(&self.as_bytes()[i..]),
-                );
+                return self.split_at_unchecked(i);
             }
         }
-        (&*self, OsStr::from_bytes(&[]))
+        (self.to_borrowed(), Self(Cow::Borrowed(&[])))
     }
 
-    fn trim_start_matches(&self, byte: u8) -> &OsStr {
+    pub(crate) fn trim_start_matches(&self, byte: u8) -> ArgStr<'_> {
+        assert!(byte.is_ascii());
+
         let mut found = false;
-        for (i, b) in self.as_bytes().iter().enumerate() {
+        for (i, b) in self.0.iter().enumerate() {
             if b != &byte {
-                return OsStr::from_bytes(&self.as_bytes()[i..]);
+                return Self(Cow::Borrowed(&self.0[i..]));
             } else {
                 found = true;
             }
         }
         if found {
-            return OsStr::from_bytes(&self.as_bytes()[self.len()..]);
+            return Self(Cow::Borrowed(&[]));
         }
-        &*self
+        self.to_borrowed()
     }
 
     // Like `trim_start_matches`, but trims no more than `n` matches
     #[inline]
-    fn trim_start_n_matches(&self, n: usize, ch: u8) -> &OsStr {
+    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr<'_> {
+        assert!(ch.is_ascii());
+
         let i = self
-            .as_bytes()
+            .0
             .iter()
             .take(n)
             .take_while(|c| **c == ch)
@@ -86,48 +80,101 @@ impl OsStrExt2 for OsStr {
             .map(|(i, _)| i + 1)
             .unwrap_or(0);
 
-        self.split_at(i).1
+        self.split_at_unchecked(i).1
     }
 
-    fn split_at(&self, i: usize) -> (&OsStr, &OsStr) {
+    pub(crate) fn split_at_unchecked(&self, i: usize) -> (ArgStr<'_>, ArgStr<'_>) {
         (
-            OsStr::from_bytes(&self.as_bytes()[..i]),
-            OsStr::from_bytes(&self.as_bytes()[i..]),
+            Self(Cow::Borrowed(&self.0[..i])),
+            Self(Cow::Borrowed(&self.0[i..])),
         )
     }
 
-    fn split(&self, b: u8) -> OsSplit {
-        OsSplit {
-            sep: b,
-            val: self.as_bytes(),
+    pub(crate) fn split(&self, ch: char) -> ArgSplit<'_> {
+        let mut sep = [0; 4];
+        ArgSplit {
+            sep_len: ch.encode_utf8(&mut sep).as_bytes().len(),
+            sep,
+            val: &self.0,
             pos: 0,
         }
+    }
+
+    pub(crate) fn as_raw_bytes(&self) -> &[u8] {
+        &self.0
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub(crate) fn to_str(&self) -> Option<&str> {
+        str::from_utf8(&self.0).ok()
+    }
+
+    pub(crate) fn to_string_lossy(&self) -> Cow<'_, str> {
+        String::from_utf8_lossy(&self.0)
+    }
+
+    pub(crate) fn to_os_string(&self) -> OsString {
+        OsString::from_bytes(&self.0).unwrap()
+    }
+}
+
+impl<'a> PartialEq<str> for ArgStr<'a> {
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other.as_bytes()
+    }
+}
+
+impl<'a> PartialEq<&str> for ArgStr<'a> {
+    fn eq(&self, other: &&str) -> bool {
+        self.eq(*other)
+    }
+}
+
+impl<'a> PartialEq<ArgStr<'a>> for str {
+    fn eq(&self, other: &ArgStr<'a>) -> bool {
+        other.eq(self)
+    }
+}
+
+impl<'a> PartialEq<ArgStr<'a>> for &str {
+    fn eq(&self, other: &ArgStr<'a>) -> bool {
+        other.eq(self)
     }
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct OsSplit<'a> {
-    sep: u8,
+pub(crate) struct ArgSplit<'a> {
+    sep: [u8; 4],
+    sep_len: usize,
     val: &'a [u8],
     pos: usize,
 }
 
-impl<'a> Iterator for OsSplit<'a> {
-    type Item = &'a OsStr;
+impl<'a> Iterator for ArgSplit<'a> {
+    type Item = ArgStr<'a>;
 
-    fn next(&mut self) -> Option<&'a OsStr> {
-        debug!("OsSplit::next: self={:?}", self);
+    fn next(&mut self) -> Option<ArgStr<'a>> {
+        debug!("ArgSplit::next: self={:?}", self);
 
         if self.pos == self.val.len() {
             return None;
         }
         let start = self.pos;
-        for b in &self.val[start..] {
-            self.pos += 1;
-            if *b == self.sep {
-                return Some(OsStr::from_bytes(&self.val[start..self.pos - 1]));
+        while self.pos < self.val.len() {
+            if self.val[self.pos..].starts_with(&self.sep[..self.sep_len]) {
+                let arg = ArgStr(Cow::Borrowed(&self.val[start..self.pos]));
+                self.pos += self.sep_len;
+                return Some(arg);
             }
+            self.pos += 1;
         }
-        Some(OsStr::from_bytes(&self.val[start..]))
+        Some(ArgStr(Cow::Borrowed(&self.val[start..])))
     }
 }
