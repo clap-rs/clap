@@ -1557,9 +1557,12 @@ where
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         for a in self.app.args.args.iter() {
-            if let Some(ref val) = a.env {
-                if let Some(ref val) = val.1 {
-                    self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+            // Use env only if the arg was not present among command line args
+            if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
+                if let Some(ref val) = a.env {
+                    if let Some(ref val) = val.1 {
+                        self.add_val_to_arg(a, OsStr::new(val), matcher)?;
+                    }
                 }
             }
         }

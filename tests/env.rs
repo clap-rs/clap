@@ -82,6 +82,10 @@ fn opt_user_override() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
     assert_eq!(m.value_of("arg").unwrap(), "opt");
+
+    // see https://github.com/clap-rs/clap/issues/1835
+    let values: Vec<_> = m.values_of("arg").unwrap().collect();
+    assert_eq!(values, vec!["opt"]);
 }
 
 #[test]
@@ -112,6 +116,10 @@ fn positionals_user_override() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
     assert_eq!(m.value_of("arg").unwrap(), "opt");
+
+    // see https://github.com/clap-rs/clap/issues/1835
+    let values: Vec<_> = m.values_of("arg").unwrap().collect();
+    assert_eq!(values, vec!["opt"]);
 }
 
 #[test]

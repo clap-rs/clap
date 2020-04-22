@@ -489,7 +489,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -553,7 +553,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -2183,7 +2183,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// Running the above program produces the following output
     ///
-    /// ```notrust
+    /// ```text
     /// valnames
     ///
     /// USAGE:
@@ -2252,7 +2252,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// Running the above program produces the following output
     ///
-    /// ```notrust
+    /// ```text
     /// valnames
     ///
     /// USAGE:
@@ -2780,7 +2780,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```notrust
+    /// ```text
     /// cust-ord
     ///
     /// USAGE:
@@ -3354,7 +3354,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3551,7 +3551,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```notrust
+    /// ```text
     /// nlh
     ///
     /// USAGE:
@@ -3610,7 +3610,7 @@ impl<'help> Arg<'help> {
     ///
     /// The following would be parsed as values to `--ui-paths`.
     ///
-    /// ```notrust
+    /// ```text
     /// $ program --ui-paths path1 path2 signer
     /// ```
     ///
@@ -3622,7 +3622,7 @@ impl<'help> Arg<'help> {
     /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
     /// case.
     ///
-    /// ```notrust
+    /// ```text
     /// $ program --ui-paths path1 signer
     /// $ program --ui-paths path1 --ui-paths signer signer
     /// ```
@@ -3901,7 +3901,7 @@ impl<'help> Arg<'help> {
     /// that setting this requires all values to come after a `--` to indicate they
     /// should all be captured. For example:
     ///
-    /// ```notrust
+    /// ```text
     /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
     /// ```
     /// Will result in everything after `--` to be considered one raw argument. This behavior
@@ -3951,7 +3951,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3978,7 +3978,7 @@ impl<'help> Arg<'help> {
     ///
     /// Then the following would be displayed
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -4029,7 +4029,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -4056,7 +4056,7 @@ impl<'help> Arg<'help> {
     ///
     /// Then the following would be displayed
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
