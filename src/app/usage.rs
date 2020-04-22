@@ -2,11 +2,11 @@
 use std::collections::{BTreeMap, VecDeque};
 
 // Internal
-use INTERNAL_ERROR_MSG;
-use args::{AnyArg, ArgMatcher, PosBuilder};
-use args::settings::ArgSettings;
-use app::settings::AppSettings as AS;
 use app::parser::Parser;
+use app::settings::AppSettings as AS;
+use args::settings::ArgSettings;
+use args::{AnyArg, ArgMatcher, PosBuilder};
+use INTERNAL_ERROR_MSG;
 
 // Creates a usage string for display. This happens just after all arguments were parsed, but before
 // any subcommands have been parsed (so as to give subcommands their own usage recursively)
@@ -59,7 +59,8 @@ pub fn create_usage_no_title(p: &Parser, used: &[&str]) -> String {
 // Creates a usage string for display in help messages (i.e. not for errors)
 pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     let mut usage = String::with_capacity(75);
-    let name = p.meta
+    let name = p
+        .meta
         .usage
         .as_ref()
         .unwrap_or_else(|| p.meta.bin_name.as_ref().unwrap_or(&p.meta.name));
@@ -81,9 +82,11 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     } else if flags {
         usage.push_str(" [OPTIONS]");
     }
-    if !p.is_set(AS::UnifiedHelpMessage) && p.opts.iter().any(|o| {
-        !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden)
-    }) {
+    if !p.is_set(AS::UnifiedHelpMessage)
+        && p.opts
+            .iter()
+            .any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden))
+    {
         usage.push_str(" [OPTIONS]");
     }
 
@@ -112,7 +115,8 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
             usage.push_str(" [ARGS]");
         }
         if has_last && incl_reqs {
-            let pos = p.positionals
+            let pos = p
+                .positionals
                 .values()
                 .find(|p| p.b.is_set(ArgSettings::Last))
                 .expect(INTERNAL_ERROR_MSG);
@@ -191,7 +195,8 @@ fn create_smart_usage(p: &Parser, used: &[&str]) -> String {
 fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
     debugln!("usage::get_args_tag;");
     let mut count = 0;
-    'outer: for pos in p.positionals
+    'outer: for pos in p
+        .positionals
         .values()
         .filter(|pos| !pos.is_set(ArgSettings::Required))
         .filter(|pos| !pos.is_set(ArgSettings::Hidden))
@@ -217,10 +222,12 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
         debugln!("usage::get_args_tag:iter: More than one, returning [ARGS]");
         return None; // [ARGS]
     } else if count == 1 && incl_reqs {
-        let pos = p.positionals
+        let pos = p
+            .positionals
             .values()
             .find(|pos| {
-                !pos.is_set(ArgSettings::Required) && !pos.is_set(ArgSettings::Hidden)
+                !pos.is_set(ArgSettings::Required)
+                    && !pos.is_set(ArgSettings::Hidden)
                     && !pos.is_set(ArgSettings::Last)
             })
             .expect(INTERNAL_ERROR_MSG);
@@ -241,15 +248,14 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
                 .filter(|pos| !pos.is_set(ArgSettings::Required))
                 .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                 .filter(|pos| !pos.is_set(ArgSettings::Last))
-                .map(|pos| {
-                    format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str())
-                })
+                .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                 .collect::<Vec<_>>()
                 .join(""),
         );
     } else if !incl_reqs {
         debugln!("usage::get_args_tag:iter: incl_reqs=false, building secondary usage string");
-        let highest_req_pos = p.positionals
+        let highest_req_pos = p
+            .positionals
             .iter()
             .filter_map(|(idx, pos)| {
                 if pos.b.is_set(ArgSettings::Required) && !pos.b.is_set(ArgSettings::Last) {
@@ -273,9 +279,7 @@ fn get_args_tag(p: &Parser, incl_reqs: bool) -> Option<String> {
                 .filter(|pos| !pos.is_set(ArgSettings::Required))
                 .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                 .filter(|pos| !pos.is_set(ArgSettings::Last))
-                .map(|pos| {
-                    format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str())
-                })
+                .map(|pos| format!(" [{}]{}", pos.name_no_brackets(), pos.multiple_str()))
                 .collect::<Vec<_>>()
                 .join(""),
         );
@@ -332,28 +336,40 @@ pub fn get_required_usage_from<'a, 'b>(
     let mut new_reqs: Vec<&str> = vec![];
     macro_rules! get_requires {
         (@group $a: ident, $v:ident, $p:ident) => {{
-            if let Some(rl) = p.groups.iter()
-                                            .filter(|g| g.requires.is_some())
-                                            .find(|g| &g.name == $a)
-                                            .map(|g| g.requires.as_ref().unwrap()) {
+            if let Some(rl) = p
+                .groups
+                .iter()
+                .filter(|g| g.requires.is_some())
+                .find(|g| &g.name == $a)
+                .map(|g| g.requires.as_ref().unwrap())
+            {
                 for r in rl {
                     if !$p.contains(&r) {
-                        debugln!("usage::get_required_usage_from:iter:{}: adding group req={:?}",
-                            $a, r);
+                        debugln!(
+                            "usage::get_required_usage_from:iter:{}: adding group req={:?}",
+                            $a,
+                            r
+                        );
                         $v.push(r);
                     }
                 }
             }
         }};
         ($a:ident, $what:ident, $how:ident, $v:ident, $p:ident) => {{
-            if let Some(rl) = p.$what.$how()
-                                        .filter(|a| a.b.requires.is_some())
-                                        .find(|arg| &arg.b.name == $a)
-                                        .map(|a| a.b.requires.as_ref().unwrap()) {
+            if let Some(rl) = p
+                .$what
+                .$how()
+                .filter(|a| a.b.requires.is_some())
+                .find(|arg| &arg.b.name == $a)
+                .map(|a| a.b.requires.as_ref().unwrap())
+            {
                 for &(_, r) in rl.iter() {
                     if !$p.contains(&r) {
-                        debugln!("usage::get_required_usage_from:iter:{}: adding arg req={:?}",
-                            $a, r);
+                        debugln!(
+                            "usage::get_required_usage_from:iter:{}: adding arg req={:?}",
+                            $a,
+                            r
+                        );
                         $v.push(r);
                     }
                 }
@@ -406,7 +422,8 @@ pub fn get_required_usage_from<'a, 'b>(
         desc_reqs
     );
     let mut ret_val = VecDeque::new();
-    let args_in_groups = p.groups
+    let args_in_groups = p
+        .groups
         .iter()
         .filter(|gn| desc_reqs.contains(&gn.name))
         .flat_map(|g| p.arg_names_in_group(g.name))
@@ -447,9 +464,8 @@ pub fn get_required_usage_from<'a, 'b>(
         .filter(|name| !p.positionals.values().any(|p| &&p.b.name == name))
         .filter(|name| !p.groups.iter().any(|g| &&g.name == name))
         .filter(|name| !args_in_groups.contains(name))
-        .filter(|name| {
-            !(matcher.is_some() && matcher.as_ref().unwrap().contains(name))
-        }) {
+        .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
+    {
         debugln!("usage::get_required_usage_from:iter:{}:", a);
         let arg = find_by_name!(p, *a, flags, iter)
             .map(|f| f.to_string())

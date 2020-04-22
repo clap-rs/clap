@@ -24,15 +24,25 @@ impl<'n, 'e> Base<'n, 'e> {
         }
     }
 
-    pub fn set(&mut self, s: ArgSettings) { self.settings.set(s); }
-    pub fn unset(&mut self, s: ArgSettings) { self.settings.unset(s); }
-    pub fn is_set(&self, s: ArgSettings) -> bool { self.settings.is_set(s) }
+    pub fn set(&mut self, s: ArgSettings) {
+        self.settings.set(s);
+    }
+    pub fn unset(&mut self, s: ArgSettings) {
+        self.settings.unset(s);
+    }
+    pub fn is_set(&self, s: ArgSettings) -> bool {
+        self.settings.is_set(s)
+    }
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Base<'n, 'e> {
-    fn from(a: &'z Arg<'n, 'e>) -> Self { a.b.clone() }
+    fn from(a: &'z Arg<'n, 'e>) -> Self {
+        a.b.clone()
+    }
 }
 
 impl<'n, 'e> PartialEq for Base<'n, 'e> {
-    fn eq(&self, other: &Base<'n, 'e>) -> bool { self.name == other.name }
+    fn eq(&self, other: &Base<'n, 'e>) -> bool {
+        self.name == other.name
+    }
 }

@@ -22,7 +22,9 @@ impl<'e> Default for Switched<'e> {
 }
 
 impl<'n, 'e, 'z> From<&'z Arg<'n, 'e>> for Switched<'e> {
-    fn from(a: &'z Arg<'n, 'e>) -> Self { a.s.clone() }
+    fn from(a: &'z Arg<'n, 'e>) -> Self {
+        a.s.clone()
+    }
 }
 
 impl<'e> Clone for Switched<'e> {

@@ -1,8 +1,8 @@
 // Internal
-use INTERNAL_ERROR_MSG;
-use args::Arg;
 use args::settings::ArgSettings;
+use args::Arg;
 use map::VecMap;
+use INTERNAL_ERROR_MSG;
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -76,10 +76,13 @@ impl<'a> UsageParser<'a> {
 
     fn name(&mut self, arg: &mut Arg<'a, 'a>) {
         debugln!("UsageParser::name;");
-        if *self.usage
+        if *self
+            .usage
             .as_bytes()
             .get(self.pos)
-            .expect(INTERNAL_ERROR_MSG) == b'<' && !self.explicit_name_set
+            .expect(INTERNAL_ERROR_MSG)
+            == b'<'
+            && !self.explicit_name_set
         {
             arg.setb(ArgSettings::Required);
         }
@@ -124,10 +127,12 @@ impl<'a> UsageParser<'a> {
     fn short_or_long(&mut self, arg: &mut Arg<'a, 'a>) {
         debugln!("UsageParser::short_or_long;");
         self.pos += 1;
-        if *self.usage
+        if *self
+            .usage
             .as_bytes()
             .get(self.pos)
-            .expect(INTERNAL_ERROR_MSG) == b'-'
+            .expect(INTERNAL_ERROR_MSG)
+            == b'-'
         {
             self.pos += 1;
             self.long(arg);
@@ -206,10 +211,14 @@ impl<'a> UsageParser<'a> {
 }
 
 #[inline]
-fn name_end(b: u8) -> bool { b != b']' && b != b'>' }
+fn name_end(b: u8) -> bool {
+    b != b']' && b != b'>'
+}
 
 #[inline]
-fn token(b: u8) -> bool { b != b'\'' && b != b'.' && b != b'<' && b != b'[' && b != b'-' }
+fn token(b: u8) -> bool {
+    b != b'\'' && b != b'.' && b != b'<' && b != b'[' && b != b'-'
+}
 
 #[inline]
 fn long_end(b: u8) -> bool {
@@ -217,7 +226,9 @@ fn long_end(b: u8) -> bool {
 }
 
 #[inline]
-fn help_start(b: u8) -> bool { b != b'\'' }
+fn help_start(b: u8) -> bool {
+    b != b'\''
+}
 
 #[cfg(test)]
 mod test {

@@ -13,16 +13,18 @@ where
 }
 
 impl<'a, 'b> PowerShellGen<'a, 'b> {
-    pub fn new(p: &'b Parser<'a, 'b>) -> Self { PowerShellGen { p: p } }
+    pub fn new(p: &'b Parser<'a, 'b>) -> Self {
+        PowerShellGen { p: p }
+    }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
         let bin_name = self.p.meta.bin_name.as_ref().unwrap();
 
         let mut names = vec![];
-        let subcommands_cases =
-            generate_inner(self.p, "", &mut names);
+        let subcommands_cases = generate_inner(self.p, "", &mut names);
 
-        let result = format!(r#"
+        let result = format!(
+            r#"
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
 
@@ -58,12 +60,14 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
 }
 
 // Escape string inside single quotes
-fn escape_string(string: &str) -> String { string.replace("'", "''") }
+fn escape_string(string: &str) -> String {
+    string.replace("'", "''")
+}
 
-fn get_tooltip<T : ToString>(help: Option<&str>, data: T) -> String {
+fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
     match help {
         Some(help) => escape_string(help),
-        _ => data.to_string()
+        _ => data.to_string(),
     }
 }
 
@@ -86,14 +90,24 @@ fn generate_inner<'a, 'b, 'p>(
         if let Some(data) = option.s.short {
             let tooltip = get_tooltip(option.b.help, data);
             completions.push_str(&preamble);
-            completions.push_str(format!("'-{}', '{}', {}, '{}')",
-                                         data, data, "[CompletionResultType]::ParameterName", tooltip).as_str());
+            completions.push_str(
+                format!(
+                    "'-{}', '{}', {}, '{}')",
+                    data, data, "[CompletionResultType]::ParameterName", tooltip
+                )
+                .as_str(),
+            );
         }
         if let Some(data) = option.s.long {
             let tooltip = get_tooltip(option.b.help, data);
             completions.push_str(&preamble);
-            completions.push_str(format!("'--{}', '{}', {}, '{}')",
-                                         data, data, "[CompletionResultType]::ParameterName", tooltip).as_str());
+            completions.push_str(
+                format!(
+                    "'--{}', '{}', {}, '{}')",
+                    data, data, "[CompletionResultType]::ParameterName", tooltip
+                )
+                .as_str(),
+            );
         }
     }
 
@@ -101,14 +115,24 @@ fn generate_inner<'a, 'b, 'p>(
         if let Some(data) = flag.s.short {
             let tooltip = get_tooltip(flag.b.help, data);
             completions.push_str(&preamble);
-            completions.push_str(format!("'-{}', '{}', {}, '{}')",
-                                         data, data, "[CompletionResultType]::ParameterName", tooltip).as_str());
+            completions.push_str(
+                format!(
+                    "'-{}', '{}', {}, '{}')",
+                    data, data, "[CompletionResultType]::ParameterName", tooltip
+                )
+                .as_str(),
+            );
         }
         if let Some(data) = flag.s.long {
             let tooltip = get_tooltip(flag.b.help, data);
             completions.push_str(&preamble);
-            completions.push_str(format!("'--{}', '{}', {}, '{}')",
-                                         data, data, "[CompletionResultType]::ParameterName", tooltip).as_str());
+            completions.push_str(
+                format!(
+                    "'--{}', '{}', {}, '{}')",
+                    data, data, "[CompletionResultType]::ParameterName", tooltip
+                )
+                .as_str(),
+            );
         }
     }
 
@@ -116,8 +140,13 @@ fn generate_inner<'a, 'b, 'p>(
         let data = &subcommand.p.meta.name;
         let tooltip = get_tooltip(subcommand.p.meta.about, data);
         completions.push_str(&preamble);
-        completions.push_str(format!("'{}', '{}', {}, '{}')",
-                                     data, data, "[CompletionResultType]::ParameterValue", tooltip).as_str());
+        completions.push_str(
+            format!(
+                "'{}', '{}', {}, '{}')",
+                data, data, "[CompletionResultType]::ParameterValue", tooltip
+            )
+            .as_str(),
+        );
     }
 
     let mut subcommands_cases = format!(
@@ -125,13 +154,11 @@ fn generate_inner<'a, 'b, 'p>(
         '{}' {{{}
             break
         }}",
-        &command_name,
-        completions
+        &command_name, completions
     );
 
     for subcommand in &p.subcommands {
-        let subcommand_subcommands_cases =
-            generate_inner(&subcommand.p, &command_name, names);
+        let subcommand_subcommands_cases = generate_inner(&subcommand.p, &command_name, names);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }
 

@@ -1,5 +1,5 @@
-use std::rc::Rc;
 use std::ffi::{OsStr, OsString};
+use std::rc::Rc;
 
 use map::VecMap;
 

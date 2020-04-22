@@ -1,20 +1,20 @@
-#[cfg(feature = "yaml")]
-use std::collections::BTreeMap;
-use std::rc::Rc;
-use std::ffi::{OsStr, OsString};
 #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
 use osstringext::OsStrExt3;
+#[cfg(feature = "yaml")]
+use std::collections::BTreeMap;
+use std::env;
+use std::ffi::{OsStr, OsString};
 #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
-use std::env;
+use std::rc::Rc;
 
+use map::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
-use map::VecMap;
 
-use usage_parser::UsageParser;
-use args::settings::ArgSettings;
 use args::arg_builder::{Base, Switched, Valued};
+use args::settings::ArgSettings;
+use usage_parser::UsageParser;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -44,11 +44,16 @@ pub struct Arg<'a, 'b>
 where
     'a: 'b,
 {
-    #[doc(hidden)] pub b: Base<'a, 'b>,
-    #[doc(hidden)] pub s: Switched<'b>,
-    #[doc(hidden)] pub v: Valued<'a, 'b>,
-    #[doc(hidden)] pub index: Option<u64>,
-    #[doc(hidden)] pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
+    #[doc(hidden)]
+    pub b: Base<'a, 'b>,
+    #[doc(hidden)]
+    pub s: Switched<'b>,
+    #[doc(hidden)]
+    pub v: Valued<'a, 'b>,
+    #[doc(hidden)]
+    pub index: Option<u64>,
+    #[doc(hidden)]
+    pub r_ifs: Option<Vec<(&'a str, &'b str)>>,
 }
 
 impl<'a, 'b> Arg<'a, 'b> {

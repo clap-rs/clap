@@ -26,9 +26,9 @@
 #[cfg(feature = "yaml")]
 #[macro_export]
 macro_rules! load_yaml {
-    ($yml:expr) => (
+    ($yml:expr) => {
         &::clap::YamlLoader::load_from_str(include_str!($yml)).expect("failed to load YAML file")[0]
-    );
+    };
 }
 
 /// Convenience macro getting a typed value `T` where `T` implements [`std::str::FromStr`] from an
@@ -66,9 +66,10 @@ macro_rules! value_t {
         if let Some(v) = $m.value_of($v) {
             match v.parse::<$t>() {
                 Ok(val) => Ok(val),
-                Err(_)  =>
-                    Err(::clap::Error::value_validation_auto(
-                        format!("The argument '{}' isn't a valid value", v))),
+                Err(_) => Err(::clap::Error::value_validation_auto(format!(
+                    "The argument '{}' isn't a valid value",
+                    v
+                ))),
             }
         } else {
             Err(::clap::Error::argument_not_found_auto($v))
@@ -111,9 +112,11 @@ macro_rules! value_t_or_exit {
         if let Some(v) = $m.value_of($v) {
             match v.parse::<$t>() {
                 Ok(val) => val,
-                Err(_)  =>
-                    ::clap::Error::value_validation_auto(
-                        format!("The argument '{}' isn't a valid value", v)).exit(),
+                Err(_) => ::clap::Error::value_validation_auto(format!(
+                    "The argument '{}' isn't a valid value",
+                    v
+                ))
+                .exit(),
             }
         } else {
             ::clap::Error::argument_not_found_auto($v).exit()
@@ -163,9 +166,11 @@ macro_rules! values_t {
                 match pv.parse::<$t>() {
                     Ok(rv) => tmp.push(rv),
                     Err(..) => {
-                        err = Some(::clap::Error::value_validation_auto(
-                                format!("The argument '{}' isn't a valid value", pv)));
-                        break
+                        err = Some(::clap::Error::value_validation_auto(format!(
+                            "The argument '{}' isn't a valid value",
+                            pv
+                        )));
+                        break;
                     }
                 }
             }
@@ -218,10 +223,15 @@ macro_rules! values_t_or_exit {
     };
     ($m:ident.values_of($v:expr), $t:ty) => {
         if let Some(vals) = $m.values_of($v) {
-            vals.map(|v| v.parse::<$t>().unwrap_or_else(|_|{
-                ::clap::Error::value_validation_auto(
-                    format!("One or more arguments aren't valid values")).exit()
-            })).collect::<Vec<$t>>()
+            vals.map(|v| {
+                v.parse::<$t>().unwrap_or_else(|_| {
+                    ::clap::Error::value_validation_auto(format!(
+                        "One or more arguments aren't valid values"
+                    ))
+                    .exit()
+                })
+            })
+            .collect::<Vec<$t>>()
         } else {
             ::clap::Error::argument_not_found_auto($v).exit()
         }
@@ -460,7 +470,9 @@ macro_rules! crate_authors {
 
         #[allow(missing_copy_implementations)]
         #[allow(dead_code)]
-        struct CargoAuthors { __private_field: () };
+        struct CargoAuthors {
+            __private_field: (),
+        };
 
         impl Deref for CargoAuthors {
             type Target = str;
@@ -481,7 +493,9 @@ macro_rules! crate_authors {
             }
         }
 
-        &*CargoAuthors { __private_field: () }
+        &*CargoAuthors {
+            __private_field: (),
+        }
     }};
     () => {
         env!("CARGO_PKG_AUTHORS")
@@ -855,16 +869,16 @@ mod debug_macros {
 #[cfg_attr(not(feature = "debug"), macro_use)]
 mod debug_macros {
     macro_rules! debugln {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
+        ($fmt:expr) => {};
+        ($fmt:expr, $($arg:tt)*) => {};
     }
     macro_rules! sdebugln {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
+        ($fmt:expr) => {};
+        ($fmt:expr, $($arg:tt)*) => {};
     }
     macro_rules! debug {
-        ($fmt:expr) => ();
-        ($fmt:expr, $($arg:tt)*) => ();
+        ($fmt:expr) => {};
+        ($fmt:expr, $($arg:tt)*) => {};
     }
 }
 
@@ -873,12 +887,12 @@ mod debug_macros {
 //    src/args/arg_builder/*.rs
 //    src/app/mod.rs
 macro_rules! write_nspaces {
-    ($dst:expr, $num:expr) => ({
+    ($dst:expr, $num:expr) => {{
         debugln!("write_spaces!: num={}", $num);
         for _ in 0..$num {
             $dst.write_all(b" ")?;
         }
-    })
+    }};
 }
 
 // convenience macro for remove an item from a vec
@@ -951,24 +965,23 @@ macro_rules! find_from {
 //    }};
 //}
 
-
 macro_rules! find_any_by_name {
-    ($p:expr, $name:expr) => {
-        {
-            fn as_trait_obj<'a, 'b, T: AnyArg<'a, 'b>>(x: &T) -> &AnyArg<'a, 'b> { x }
-            find_by_name!($p, $name, flags, iter).map(as_trait_obj).or(
-                find_by_name!($p, $name, opts, iter).map(as_trait_obj).or(
-                    find_by_name!($p, $name, positionals, values).map(as_trait_obj)
-                )
-            )
+    ($p:expr, $name:expr) => {{
+        fn as_trait_obj<'a, 'b, T: AnyArg<'a, 'b>>(x: &T) -> &AnyArg<'a, 'b> {
+            x
         }
-    }
+        find_by_name!($p, $name, flags, iter)
+            .map(as_trait_obj)
+            .or(find_by_name!($p, $name, opts, iter)
+                .map(as_trait_obj)
+                .or(find_by_name!($p, $name, positionals, values).map(as_trait_obj)))
+    }};
 }
 // Finds an arg by name
 macro_rules! find_by_name {
     ($p:expr, $name:expr, $what:ident, $how:ident) => {
         $p.$what.$how().find(|o| o.b.name == $name)
-    }
+    };
 }
 
 // Finds an option including if it's aliased
@@ -992,59 +1005,59 @@ macro_rules! find_flag_by_long {
 
 macro_rules! _find_by_long {
     ($_self:ident, $long:expr, $what:ident) => {{
-        $_self.$what
+        $_self
+            .$what
             .iter()
             .filter(|a| a.s.long.is_some())
             .find(|a| {
-                a.s.long.unwrap() == $long ||
-                (a.s.aliases.is_some() &&
-                 a.s
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(alias, _)| alias == $long))
+                a.s.long.unwrap() == $long
+                    || (a.s.aliases.is_some()
+                        && a.s
+                            .aliases
+                            .as_ref()
+                            .unwrap()
+                            .iter()
+                            .any(|&(alias, _)| alias == $long))
             })
-    }}
+    }};
 }
 
 // Finds an option
 macro_rules! find_opt_by_short {
     ($_self:ident, $short:expr) => {{
         _find_by_short!($_self, $short, opts)
-    }}
+    }};
 }
 
 macro_rules! find_flag_by_short {
     ($_self:ident, $short:expr) => {{
         _find_by_short!($_self, $short, flags)
-    }}
+    }};
 }
 
 macro_rules! _find_by_short {
     ($_self:ident, $short:expr, $what:ident) => {{
-        $_self.$what
+        $_self
+            .$what
             .iter()
             .filter(|a| a.s.short.is_some())
             .find(|a| a.s.short.unwrap() == $short)
-    }}
+    }};
 }
 
 macro_rules! find_subcmd {
     ($_self:expr, $sc:expr) => {{
-        $_self.subcommands
-            .iter()
-            .find(|s| {
-                &*s.p.meta.name == $sc ||
-                (s.p.meta.aliases.is_some() &&
-                 s.p
-                    .meta
-                    .aliases
-                    .as_ref()
-                    .unwrap()
-                    .iter()
-                    .any(|&(n, _)| n == $sc))
-            })
+        $_self.subcommands.iter().find(|s| {
+            &*s.p.meta.name == $sc
+                || (s.p.meta.aliases.is_some()
+                    && s.p
+                        .meta
+                        .aliases
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .any(|&(n, _)| n == $sc))
+        })
     }};
 }
 
@@ -1054,7 +1067,6 @@ macro_rules! shorts {
     }};
 }
 
-
 macro_rules! longs {
     ($_self:ident) => {{
         _shorts_longs!($_self, long)
@@ -1063,13 +1075,18 @@ macro_rules! longs {
 
 macro_rules! _shorts_longs {
     ($_self:ident, $what:ident) => {{
-        $_self.flags
-                .iter()
-                .filter(|f| f.s.$what.is_some())
-                .map(|f| f.s.$what.as_ref().unwrap())
-                .chain($_self.opts.iter()
-                                  .filter(|o| o.s.$what.is_some())
-                                  .map(|o| o.s.$what.as_ref().unwrap()))
+        $_self
+            .flags
+            .iter()
+            .filter(|f| f.s.$what.is_some())
+            .map(|f| f.s.$what.as_ref().unwrap())
+            .chain(
+                $_self
+                    .opts
+                    .iter()
+                    .filter(|o| o.s.$what.is_some())
+                    .map(|o| o.s.$what.as_ref().unwrap()),
+            )
     }};
 }
 
@@ -1087,22 +1104,21 @@ macro_rules! sc_names {
 
 macro_rules! _names {
     (@args $_self:ident) => {{
-        $_self.flags
+        $_self.flags.iter().map(|f| &*f.b.name).chain(
+            $_self
+                .opts
                 .iter()
-                .map(|f| &*f.b.name)
-                .chain($_self.opts.iter()
-                                  .map(|o| &*o.b.name)
-                                  .chain($_self.positionals.values()
-                                                           .map(|p| &*p.b.name)))
+                .map(|o| &*o.b.name)
+                .chain($_self.positionals.values().map(|p| &*p.b.name)),
+        )
     }};
     (@sc $_self:ident) => {{
-        $_self.subcommands
-            .iter()
-            .map(|s| &*s.p.meta.name)
-            .chain($_self.subcommands
-                         .iter()
-                         .filter(|s| s.p.meta.aliases.is_some())
-                         .flat_map(|s| s.p.meta.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)))
-
-    }}
+        $_self.subcommands.iter().map(|s| &*s.p.meta.name).chain(
+            $_self
+                .subcommands
+                .iter()
+                .filter(|s| s.p.meta.aliases.is_some())
+                .flat_map(|s| s.p.meta.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
+        )
+    }};
 }
