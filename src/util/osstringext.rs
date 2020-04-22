@@ -48,7 +48,7 @@ impl<'a> ArgStr<'a> {
         (self.to_borrowed(), Self(Cow::Borrowed(&[])))
     }
 
-    pub(crate) fn trim_start_matches(&self, byte: u8) -> ArgStr<'_> {
+    pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr<'_> {
         assert!(byte.is_ascii());
 
         let mut found = false;
@@ -83,7 +83,7 @@ impl<'a> ArgStr<'a> {
         self.split_at_unchecked(i).1
     }
 
-    pub(crate) fn split_at_unchecked(&self, i: usize) -> (ArgStr<'_>, ArgStr<'_>) {
+    pub(crate) fn split_at_unchecked(&'a self, i: usize) -> (ArgStr<'_>, ArgStr<'_>) {
         (
             Self(Cow::Borrowed(&self.0[..i])),
             Self(Cow::Borrowed(&self.0[i..])),
