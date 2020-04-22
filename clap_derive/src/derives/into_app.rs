@@ -254,7 +254,7 @@ pub fn gen_app_augmentation(
                         let possible_values = if attrs.is_enum() {
                             let field_ty = &field.ty;
 
-                            quote! {
+                            quote_spanned! { field_ty.span()=>
                                 .possible_values(&<#field_ty as ::clap::ArgEnum>::VARIANTS)
                             }
                         } else {

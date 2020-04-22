@@ -197,7 +197,7 @@ pub fn gen_constructor(
                             let field_ty = &field.ty;
                             let ci = attrs.case_insensitive();
 
-                            quote! {
+                            quote_spanned! { field_ty.span()=>
                                 |s| <#field_ty as ::clap::ArgEnum>::from_str(s, #ci).unwrap()
                             }
                         } else {

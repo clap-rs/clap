@@ -77,7 +77,7 @@ fn lits(
 }
 
 fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let lit = lits.iter().map(|l| l.0.clone()).collect::<Vec<_>>();
+    let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
 
     quote! {
         const VARIANTS: &'static [&'static str] = &[#(#lit),*];
@@ -97,7 +97,7 @@ fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
 
             match input {
                 #(val if func(val, #lit) => Ok(Self::#variant),)*
-                _ => Err(String::from("something went wrong parsing the value")),
+                e => unreachable!("The impossible variant have been spotted: {}", e),
             }
         }
     }

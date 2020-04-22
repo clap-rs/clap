@@ -518,7 +518,7 @@ impl Attrs {
                             )
                         }
                         if res.is_enum {
-                            abort!(field.ty, "enum is meaningless for bool")
+                            abort!(field.ty, "`arg_enum` is meaningless for bool")
                         }
                         if let Some(m) = res.find_method("default_value") {
                             abort!(m.name, "default_value is meaningless for bool")
