@@ -10,8 +10,6 @@ use std::cmp::{Ord, Ordering};
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{self, Display, Formatter};
-#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-use std::os::unix::ffi::OsStrExt;
 use std::rc::Rc;
 use std::str;
 
@@ -20,8 +18,6 @@ use crate::util::VecMap;
 
 // Internal
 use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use crate::util::OsStrExt3;
 use crate::util::{Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
@@ -2346,7 +2342,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     #[inline]
     pub fn default_value(self, val: &'help str) -> Self {
-        self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
+        self.default_values_os(&[OsStr::new(val)])
     }
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
@@ -2362,10 +2358,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
-        let vals_vec: Vec<_> = vals
-            .iter()
-            .map(|val| OsStr::from_bytes(val.as_bytes()))
-            .collect();
+        let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_values_os(&vals_vec[..])
     }
 
@@ -2482,11 +2475,7 @@ impl<'help> Arg<'help> {
         val: Option<&'help str>,
         default: &'help str,
     ) -> Self {
-        self.default_value_if_os(
-            arg_id,
-            val.map(str::as_bytes).map(OsStr::from_bytes),
-            OsStr::from_bytes(default.as_bytes()),
-        )
+        self.default_value_if_os(arg_id, val.map(OsStr::new), OsStr::new(default))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2601,11 +2590,7 @@ impl<'help> Arg<'help> {
         ifs: &[(T, Option<&'help str>, &'help str)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(
-                arg,
-                val.map(str::as_bytes).map(OsStr::from_bytes),
-                OsStr::from_bytes(default.as_bytes()),
-            );
+            self = self.default_value_if_os(arg, val.map(OsStr::new), OsStr::new(*default));
         }
         self
     }
