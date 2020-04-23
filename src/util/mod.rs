@@ -1,3 +1,5 @@
+#![allow(clippy::single_component_path_imports)]
+
 mod argstr;
 mod fnv;
 mod graph;
