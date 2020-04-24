@@ -47,8 +47,11 @@ impl Id {
 impl Debug for Id {
     fn fmt(&self, f: &mut Formatter) -> Result {
         #[cfg(debug_assertions)]
-        write!(f, "{:?} ", self.name)?;
-        write!(f, "[hash: {}]", self.id)
+        write!(f, "{}", self.name)?;
+        #[cfg(not(debug_assertions))]
+        write!(f, "[hash: {}]", self.id)?;
+
+        Ok(())
     }
 }
 
