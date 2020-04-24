@@ -127,15 +127,9 @@ where
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
         //
-        // Firt we verify that the index highest supplied index, is equal to the number of
+        // First we verify that the index highest supplied index, is equal to the number of
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
-
-        // #[cfg(feature = "vec_map")]
-        // fn _highest_idx(map: &VecMap<&str>) -> usize { map.keys().last().unwrap_or(0) }
-
-        // #[cfg(not(feature = "vec_map"))]
-        // fn _highest_idx(map: &VecMap<&str>) -> usize { *map.keys().last().unwrap_or(&0) }
 
         let highest_idx = *self
             .app
