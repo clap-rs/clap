@@ -4143,6 +4143,10 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
     }
 
+    pub(crate) fn is_positional(&self) -> bool {
+        self.long.is_none() && self.short.is_none()
+    }
+
     // Used for positionals when printing
     pub(crate) fn multiple_str(&self) -> &str {
         let mult_vals = self

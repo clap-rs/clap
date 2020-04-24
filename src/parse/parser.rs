@@ -22,13 +22,13 @@ use crate::INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ParseResult {
-    Flag,
+    Flag(Id),
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
     MaybeNegNum,
     NotFound,
-    ValuesDone,
+    ValuesDone(Id),
 }
 
 #[derive(Debug)]
@@ -494,9 +494,13 @@ where
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::Flag | ParseResult::Opt(..) | ParseResult::ValuesDone => {
-                                continue
+                            ParseResult::Flag(ref id)
+                            | ParseResult::Opt(ref id)
+                            | ParseResult::ValuesDone(ref id) => {
+                                self.maybe_inc_pos_counter(&mut pos_counter, id);
+                                continue;
                             }
+
                             _ => (),
                         }
                     } else if arg_os.starts_with("-") && arg_os.len() != 1 {
@@ -523,8 +527,11 @@ where
                                     )?);
                                 }
                             }
-                            ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
-                                continue
+                            ParseResult::Opt(ref id)
+                            | ParseResult::Flag(ref id)
+                            | ParseResult::ValuesDone(ref id) => {
+                                self.maybe_inc_pos_counter(&mut pos_counter, id);
+                                continue;
                             }
                             _ => (),
                         }
@@ -590,16 +597,18 @@ where
 
             if low_index_mults || missing_pos {
                 if let Some(n) = next_arg {
-                    needs_val_of = if needs_val_of != ParseResult::ValuesDone {
-                        if let Some(p) =
-                            positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
-                        {
-                            ParseResult::Pos(p.id.clone())
-                        } else {
-                            ParseResult::ValuesDone
+                    needs_val_of = match needs_val_of {
+                        ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
+
+                        _ => {
+                            if let Some(p) =
+                                positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
+                            {
+                                ParseResult::Pos(p.id.clone())
+                            } else {
+                                ParseResult::ValuesDone(Id::empty_hash())
+                            }
                         }
-                    } else {
-                        ParseResult::ValuesDone
                     };
 
                     let n = ArgStr::new(n);
@@ -620,7 +629,7 @@ where
             } else if (self.is_set(AS::AllowMissingPositional) && self.is_set(AS::TrailingValues))
                 || (self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues))
             {
-                // Came to -- and one postional has .last(true) set, so we go immediately
+                // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
                 pos_counter = self
@@ -802,6 +811,58 @@ where
         }
     }
 
+    // HACK:
+    // When we have a group that is NOT multiple AND has both
+    // an option and a positional arg, only one of them must be passed.
+    //
+    // The problem here is that clap decides which positional arg it's looking at
+    // (the one from group or the following one) based on the counter that is incremented
+    // every time clap stores a positional arg.
+    //
+    // When a non positional option is passed, this counter is not incremented.
+    // In other words, the group has already been "occupied" by the option, but the
+    // counter still points to the positional argument that belongs to this group.
+    // If the option is followed by yet another positional arg, it will land in
+    // the group, erroneously.
+    //
+    // This is a pretty much fundamental problem with the current parsing algorithm
+    // and the function below is simply a hack that solves the problem at hand,
+    // but it does so at cost of minor regression in error messages (see tests/groups.rs).
+    //
+    // In order to resolve it properly, we need to rewrite the parser entirely.
+    // I don't really feel like it right now, sorry.
+    // The parser is big and scary and full of legacy.
+    fn maybe_inc_pos_counter(&self, pos_counter: &mut usize, id: &Id) {
+        debug!("Parser::maybe_inc_pos_counter: arg = {:?}", id);
+
+        let arg = self.app.find(id).expect(INTERNAL_ERROR_MSG);
+
+        debug!("Parser::maybe_inc_pos_counter: is it positional?");
+        // will be incremented by other means.
+        if arg.is_positional() {
+            debug!("Yes");
+            return;
+        }
+        debug!("No");
+
+        for group in groups_for_arg!(self.app, arg.id.clone()) {
+            debug!("Parser::maybe_inc_pos_counter: group={:?}", group);
+            let group = self.app.groups.iter().find(|g| g.id == group);
+
+            debug!("Parser::maybe_inc_pos_counter: Checking args in the group...");
+            if let Some(group) = group {
+                for arg in group.args.iter() {
+                    debug!("Parser::maybe_inc_pos_counter: arg={:?}", arg);
+                    let arg = self.app.find(arg).expect(INTERNAL_ERROR_MSG);
+                    if arg.is_positional() {
+                        debug!("Parser::maybe_inc_pos_counter: Incrementing counter!");
+                        *pos_counter += 1;
+                    }
+                }
+            }
+        }
+    }
+
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
     fn possible_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
@@ -933,7 +994,7 @@ where
                 let p = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
                 p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
             }
-            ParseResult::ValuesDone => return true,
+            ParseResult::ValuesDone(..) => return true,
             _ => false,
         };
 
@@ -1139,7 +1200,7 @@ where
             self.check_for_help_and_version_str(&arg)?;
             self.parse_flag(opt, matcher)?;
 
-            return Ok(ParseResult::Flag);
+            return Ok(ParseResult::Flag(opt.id.clone()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self.is_set(AS::ValidNegNumFound) {
@@ -1293,13 +1354,13 @@ where
         // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
         if no_val && min_vals_zero && !has_eq && needs_eq {
             debug!("Parser::parse_opt: More arg vals not required...");
-            return Ok(ParseResult::ValuesDone);
+            return Ok(ParseResult::ValuesDone(opt.id.clone()));
         } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
             debug!("Parser::parse_opt: More arg vals required...");
             return Ok(ParseResult::Opt(opt.id.clone()));
         }
         debug!("Parser::parse_opt: More arg vals not required...");
-        Ok(ParseResult::ValuesDone)
+        Ok(ParseResult::ValuesDone(opt.id.clone()))
     }
 
     fn add_val_to_arg(
@@ -1319,13 +1380,13 @@ where
                 if val.is_empty() {
                     Ok(self.add_single_val_to_arg(arg, val, matcher)?)
                 } else {
-                    let mut iret = ParseResult::ValuesDone;
+                    let mut iret = ParseResult::ValuesDone(arg.id.clone());
                     for v in val.split(delim) {
                         iret = self.add_single_val_to_arg(arg, &v, matcher)?;
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                        iret = ParseResult::ValuesDone;
+                        iret = ParseResult::ValuesDone(arg.id.clone());
                     }
                     Ok(iret)
                 }
@@ -1351,7 +1412,7 @@ where
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
-                return Ok(ParseResult::ValuesDone);
+                return Ok(ParseResult::ValuesDone(arg.id.clone()));
             }
         }
 
@@ -1366,7 +1427,7 @@ where
         if matcher.needs_more_vals(arg) {
             return Ok(ParseResult::Opt(arg.id.clone()));
         }
-        Ok(ParseResult::ValuesDone)
+        Ok(ParseResult::ValuesDone(arg.id.clone()))
     }
 
     fn parse_flag(&self, flag: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
@@ -1379,7 +1440,7 @@ where
             matcher.inc_occurrence_of(&grp);
         }
 
-        Ok(ParseResult::Flag)
+        Ok(ParseResult::Flag(flag.id.clone()))
     }
 
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
