@@ -3,6 +3,8 @@ error: `#[derive(Clap)]` only supports non-tuple structs and enums
    |
 11 | #[derive(Clap, Debug)]
    |          ^^^^
+   |
+   = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no function or associated item named `parse` found for struct `Opt` in the current scope
   --> $DIR/tuple_struct.rs:16:20
