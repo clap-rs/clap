@@ -1606,7 +1606,7 @@ impl<'b> App<'b> {
             // Name conflicts
             assert!(
                 self.two_args_of(|x| x.name == arg.name).is_none(),
-                "Argument names must be unique, but '{}' is in use by more than one argument/group",
+                "Argument names must be unique, but '{}' is in use by more than one argument or group",
                 arg.name,
             );
 
@@ -1614,8 +1614,8 @@ impl<'b> App<'b> {
             if let Some(l) = arg.long {
                 if let Some((first, second)) = self.two_args_of(|x| x.long == Some(l)) {
                     panic!(
-                        "Long option' names must be unique for each argument, \
-                            but '--{}' is in use by both '{:?}' and '{:?}'",
+                        "Long option names must be unique for each argument, \
+                            but '--{}' is in use by both '{}' and '{}'",
                         l, first.name, second.name
                     )
                 }
@@ -1625,8 +1625,8 @@ impl<'b> App<'b> {
             if let Some(s) = arg.short {
                 if let Some((first, second)) = self.two_args_of(|x| x.short == Some(s)) {
                     panic!(
-                        "Short option' names must be unique for each argument, \
-                            but '-{}' is in use by both '{:?}' and '{:?}'",
+                        "Short option names must be unique for each argument, \
+                            but '-{}' is in use by both '{}' and '{}'",
                         s, first.name, second.name
                     )
                 }
