@@ -5,9 +5,14 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 
-#[rustversion::attr(any(not(stable), before(1.42)), ignore)]
 #[test]
 fn ui() {
+    if std::env::var("CLAP_TRYBUILD_RUN") != Ok("yes".into()) {
+        // This is not the latest rustc. Skipping trybuild tests
+        // because they likely won't match.
+        return;
+    }
+
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/*.rs");
 }

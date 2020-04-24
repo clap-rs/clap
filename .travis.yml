@@ -14,7 +14,6 @@ before_cache:
   - ls -1 clap_derive/examples/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
   - ls -1 tests/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
   - ls -1 clap_derive/tests/ | sed -e 's/\.rs$//' | xargs -I "{{}}" find target/debug/deps -name "{{}}*" -exec rm -rf {} +
-rust: stable
 branches:
   only:
     # This is where pull requests from "bors r+" are built.
@@ -28,7 +27,8 @@ jobs:
     - rust: nightly
   fast_finish: true
   include:
-    - {}
+    - rust: stable
+      env: CLAP_TRYBUILD_RUN=yes
     - rust: beta
     - rust: nightly
       cache: false
