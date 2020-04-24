@@ -5,7 +5,7 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 
-#[rustversion::attr(any(not(stable), before(1.42)), ignore)]
+#[rustversion::attr(not(stable), ignore)]
 #[test]
 fn ui() {
     let t = trybuild::TestCases::new();
