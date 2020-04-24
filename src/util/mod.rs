@@ -4,7 +4,6 @@ mod argstr;
 mod fnv;
 mod graph;
 mod id;
-mod strext;
 
 pub use self::fnv::Key;
 

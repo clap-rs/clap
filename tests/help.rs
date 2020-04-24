@@ -1199,7 +1199,7 @@ fn arg_short_conflict_with_help() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument short must be unique\n\n\t'-h' is already in use"]
+#[should_panic = "Short option names must be unique for each argument, but '-h' is in use by both 'home' and 'help'"]
 fn arg_short_conflict_with_help_mut_arg() {
     let _ = App::new("conflict")
         .arg(Arg::with_name("home").short('h'))
