@@ -1579,6 +1579,22 @@ impl<'b> App<'b> {
         }
     }
 
+    fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
+    where
+        F: Fn(&Arg<'_>) -> bool,
+    {
+        two_elements_of(self.args.args.iter().filter(|a| condition(a)))
+    }
+
+    // just in case
+    #[allow(unused)]
+    fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup, &ArgGroup)>
+    where
+        F: Fn(&ArgGroup<'_>) -> bool,
+    {
+        two_elements_of(self.groups.iter().filter(|a| condition(a)))
+    }
+
     // Perform some expensive assertions on the Parser itself
     #[allow(clippy::cognitive_complexity)]
     fn _debug_asserts(&self) {
@@ -1589,51 +1605,55 @@ impl<'b> App<'b> {
 
             // Name conflicts
             assert!(
-                self.args.args.iter().filter(|x| x.id == arg.id).count() < 2,
-                "Argument name must be unique\n\n\t'{}' is already in use",
+                self.two_args_of(|x| x.name == arg.name).is_none(),
+                "Argument names must be unique, but '{}' is in use by more than one argument/group",
                 arg.name,
             );
 
             // Long conflicts
             if let Some(l) = arg.long {
-                assert!(
-                    self.args.args.iter().filter(|x| x.long == Some(l)).count() < 2,
-                    "Argument long must be unique\n\n\t'--{}' is already in use",
-                    l
-                );
+                if let Some((first, second)) = self.two_args_of(|x| x.long == Some(l)) {
+                    panic!(
+                        "Long option' names must be unique for each argument, \
+                            but '--{}' is in use by both '{:?}' and '{:?}'",
+                        l, first.name, second.name
+                    )
+                }
             }
 
             // Short conflicts
             if let Some(s) = arg.short {
-                assert!(
-                    self.args.args.iter().filter(|x| x.short == Some(s)).count() < 2,
-                    "Argument short must be unique\n\n\t'-{}' is already in use",
-                    s
-                );
+                if let Some((first, second)) = self.two_args_of(|x| x.short == Some(s)) {
+                    panic!(
+                        "Short option' names must be unique for each argument, \
+                            but '-{}' is in use by both '{:?}' and '{:?}'",
+                        s, first.name, second.name
+                    )
+                }
             }
 
             // Index conflicts
             if let Some(idx) = arg.index {
-                assert!(
-                    positionals!(self).fold(0, |acc, p| if p.index == Some(idx) {
-                        acc + 1
-                    } else {
-                        acc
-                    }) < 2,
-                    "Argument '{}' has the same index as another positional argument\n\n\t \
-                    Use Arg::setting(ArgSettings::MultipleValues) to allow one \
-                    positional argument to take multiple values",
-                    arg.name
-                );
+                if let Some((first, second)) =
+                    self.two_args_of(|x| x.is_positional() && x.index == Some(idx))
+                {
+                    panic!(
+                        "Argument '{}' has the same index as '{}' \
+                        and they are both positional arguments\n\n\t \
+                        Use Arg::multiple_values(true) to allow one \
+                        positional argument to take multiple values",
+                        first.name, second.name
+                    )
+                }
             }
 
             // requires, r_if, r_unless
             if let Some(reqs) = &arg.requires {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == req.1)
-                            || self.groups.iter().any(|x| x.id == req.1),
-                        "Argument or group specified in 'requires*' for '{}' does not exist",
+                        self.id_exists(&req.1),
+                        "Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
+                        req.1,
                         arg.name,
                     );
                 }
@@ -1642,10 +1662,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.r_ifs {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == req.0)
-                            || self.groups.iter().any(|x| x.id == req.0),
-                        "Argument or group specified in 'required_if*' for '{}' does not exist",
-                        arg.name,
+                        self.id_exists(&req.0),
+                        "Argument or group '{:?}' specified in 'required_if*' for '{}' does not exist",
+                        req.0, arg.name
                     );
                 }
             }
@@ -1653,10 +1672,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.r_unless {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == *req)
-                            || self.groups.iter().any(|x| x.id == *req),
-                        "Argument or group specified in 'required_unless*' for '{}' does not exist",
-                        arg.name,
+                        self.id_exists(req),
+                        "Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                        req, arg.name,
                     );
                 }
             }
@@ -1665,10 +1683,9 @@ impl<'b> App<'b> {
             if let Some(reqs) = &arg.blacklist {
                 for req in reqs {
                     assert!(
-                        self.args.args.iter().any(|x| x.id == *req)
-                            || self.groups.iter().any(|x| x.id == *req),
-                        "Argument or group specified in 'conflicts_with*' for '{}' does not exist",
-                        arg.name,
+                        self.id_exists(req),
+                        "Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
+                        req, arg.name,
                     );
                 }
             }
@@ -1676,19 +1693,19 @@ impl<'b> App<'b> {
             if arg.is_set(ArgSettings::Last) {
                 assert!(
                     arg.long.is_none(),
-                    "Flags or Options may not have last(true) set. '{}' has both a long and last(true) set.",
+                    "Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
                     arg.name
                 );
                 assert!(
                     arg.short.is_none(),
-                    "Flags or Options may not have last(true) set. '{}' has both a short and last(true) set.",
+                    "Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
                     arg.name
                 );
             }
 
             assert!(
                 !(arg.is_set(ArgSettings::Required) && arg.global),
-                "Global arguments cannot be required.\n\n\t'{}' is marked as global and required",
+                "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
                 arg.name
             );
         }
@@ -1712,8 +1729,9 @@ impl<'b> App<'b> {
             for arg in &group.args {
                 assert!(
                     self.args.args.iter().any(|x| x.id == *arg),
-                    "Argument group '{}' contains non-existent argument",
+                    "Argument group '{}' contains non-existent argument '{:?}'",
                     group.name,
+                    arg
                 )
             }
         }
@@ -1978,6 +1996,10 @@ impl<'b> App<'b> {
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
+    pub(crate) fn id_exists(&self, id: &Id) -> bool {
+        self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
+    }
+
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         debug!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
@@ -2196,5 +2218,18 @@ impl<'a> From<&'a Yaml> for App<'a> {
 impl<'e> fmt::Display for App<'e> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
+    }
+}
+
+fn two_elements_of<I, T>(mut iter: I) -> Option<(T, T)>
+where
+    I: Iterator<Item = T>,
+{
+    let first = iter.next();
+    let second = iter.next();
+
+    match (first, second) {
+        (Some(first), Some(second)) => Some((first, second)),
+        _ => None,
     }
 }

@@ -194,7 +194,7 @@ fn self_conflicting_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument or group specified in 'conflicts_with*' for 'config' does not exist"]
+#[should_panic = "Argument or group 'extra' specified in 'conflicts_with*' for 'config' does not exist"]
 fn conflicts_with_invalid_arg() {
     let _ = App::new("prog")
         .arg(
