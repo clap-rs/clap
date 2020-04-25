@@ -24,7 +24,7 @@ jobs:
           path: ~/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Bench base
-        run: cargo bench -- -R bencher | tee output.txt
+        run: cargo bench -- --output-format bencher | tee output.txt
       - name: Save base benchmark
         uses: pksunkara/github-action-benchmark@v1
         with:
@@ -37,7 +37,7 @@ jobs:
         with:
           clean: false
       - name: Bench pull request
-        run: cargo bench -- -R bencher | tee output.txt
+        run: cargo bench -- --output-format bencher | tee output.txt
       - name: Compare benchmarks
         uses: pksunkara/github-action-benchmark@v2
         with:

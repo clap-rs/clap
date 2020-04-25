@@ -77,7 +77,7 @@ clap_derive = { path = "./clap_derive", version = "3.0.0-beta.1", optional = tru
 regex = "1.0"
 lazy_static = "1"
 version-sync = "0.8"
-criterion = { git = "git://github.com/pksunkara/criterion.rs", version = "0.3" }
+criterion = { git = "git://github.com/bheisler/criterion.rs", version = "0.3" }
 
 [features]
 default     = ["suggestions", "color", "derive", "std", "cargo"]
