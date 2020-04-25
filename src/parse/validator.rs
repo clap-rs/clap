@@ -40,7 +40,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
 
-            let o = self.p.app.find(&a).expect(INTERNAL_ERROR_MSG);
+            let o = &self.p.app[&a];
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
                 v.vals.is_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
@@ -100,7 +100,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 debug!("Validator::validate_arg_values: possible_vals={:?}", p_vals);
                 let val_str = val.to_string_lossy();
                 let ok = if arg.is_set(ArgSettings::IgnoreCase) {
-                    p_vals.iter().any(|pv| pv.eq_ignore_ascii_case(&*val_str))
+                    p_vals.iter().any(|pv| pv.eq_ignore_ascii_case(&val_str))
                 } else {
                     p_vals.contains(&&*val_str)
                 };
@@ -108,11 +108,9 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     let used: Vec<Id> = matcher
                         .arg_names()
                         .filter(|&n| {
-                            if let Some(a) = self.p.app.find(n) {
-                                !(self.p.required.contains(&a.id) || a.is_set(ArgSettings::Hidden))
-                            } else {
-                                true
-                            }
+                            self.p.app.find(n).map_or(true, |a| {
+                                !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
+                            })
                         })
                         .cloned()
                         .collect();
@@ -189,10 +187,10 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             let c_with = matcher
                 .arg_names()
                 .find(|x| x != &first && args_in_group.contains(x))
-                .map(|x| self.p.app.find(x).expect(INTERNAL_ERROR_MSG).to_string());
+                .map(|x| self.p.app[x].to_string());
             debug!("Validator::build_conflict_err: c_with={:?}:group", c_with);
             return Err(Error::argument_conflict(
-                self.p.app.find(first).expect(INTERNAL_ERROR_MSG),
+                &self.p.app[first],
                 c_with,
                 &*usg,
                 self.p.app.color(),
@@ -204,11 +202,9 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
 
     fn validate_conflicts(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
-        let validate_result = self.validate_exclusive(matcher);
-        if validate_result.is_err() {
-            return validate_result;
-        }
+        self.validate_exclusive(matcher)?;
         self.gather_conflicts(matcher);
+
         for name in self.c.iter() {
             debug!("Validator::validate_conflicts:iter:{:?}", name);
             let mut should_err = false;
@@ -229,11 +225,10 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     .count()
                     > 1;
 
-                let conf_with_arg = if let Some(ref c) = g.conflicts {
-                    c.iter().any(|x| matcher.contains(x))
-                } else {
-                    false
-                };
+                let conf_with_arg = g
+                    .conflicts
+                    .as_ref()
+                    .map_or(false, |c| c.iter().any(|x| matcher.contains(x)));
 
                 let arg_conf_with_gr = matcher
                     .arg_names()
@@ -300,12 +295,11 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                     }
                 }
 
-                // Now we need to know which groups this arg was a memeber of, to add all other
+                // Now we need to know which groups this arg was a member of, to add all other
                 // args in that group to the conflicts, as well as any args those args conflict
                 // with
 
-                // // FIXME: probably no need to clone the id here. Review the macro
-                for grp in groups_for_arg!(self.p.app, name.clone()) {
+                for grp in groups_for_arg!(self.p.app, name) {
                     if let Some(g) = self
                         .p
                         .app
@@ -477,15 +471,13 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     ) -> ClapResult<()> {
         debug!("Validator::validate_arg_requires:{:?}", a.name);
         if let Some(ref a_reqs) = a.requires {
-            for (val, name) in a_reqs.iter().filter(|(val, _)| val.is_some()) {
-                let missing_req =
-                    |v| v == val.expect(INTERNAL_ERROR_MSG) && !matcher.contains(&name);
-                if ma.vals.iter().any(missing_req) {
-                    return self.missing_required_error(matcher, Some(&a.id));
-                }
-            }
-            for (_, name) in a_reqs.iter().filter(|(val, _)| val.is_none()) {
-                if !matcher.contains(&name) {
+            for (val, name) in a_reqs.iter() {
+                if let Some(val) = val {
+                    let missing_req = |v| v == val && !matcher.contains(&name);
+                    if ma.vals.iter().any(missing_req) {
+                        return self.missing_required_error(matcher, Some(&a.id));
+                    }
+                } else if !matcher.contains(&name) {
                     return self.missing_required_error(matcher, Some(&name));
                 }
             }
@@ -593,8 +585,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             ($how:ident, $_self:expr, $a:ident, $m:ident) => {{
                 $a.r_unless
                     .as_ref()
-                    .map(|ru| !ru.iter().$how(|n| $m.contains(n)))
-                    .unwrap_or(false)
+                    .map_or(false, |ru| !ru.iter().$how(|n| $m.contains(n)))
             }};
         }
         if a.is_set(ArgSettings::RequiredUnlessAll) {
@@ -629,12 +620,10 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
 
         let used: Vec<Id> = matcher
             .arg_names()
-            .filter(|&n| {
-                if let Some(a) = self.p.app.find(n) {
-                    !(self.p.required.contains(&a.id) || a.is_set(ArgSettings::Hidden))
-                } else {
-                    true
-                }
+            .filter(|n| {
+                self.p.app.find(n).map_or(true, |a| {
+                    !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
+                })
             })
             .cloned()
             .chain(incl.cloned())

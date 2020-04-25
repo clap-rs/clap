@@ -185,7 +185,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
-            for grp_s in groups_for_arg!(self.p.app, pos.id) {
+            for grp_s in groups_for_arg!(self.p.app, &pos.id) {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
                 if self
@@ -281,7 +281,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                     continue;
                 }
             }
-            for grp_s in groups_for_arg!(self.p.app, f.id) {
+            for grp_s in groups_for_arg!(self.p.app, &f.id) {
                 debug!("Usage::needs_flags_tag:iter:iter: grp_s={:?}", grp_s);
                 if self
                     .p

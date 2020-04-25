@@ -10,6 +10,7 @@ use std::env;
 use std::ffi::OsString;
 use std::fmt;
 use std::io::{self, BufRead, Write};
+use std::ops::Index;
 use std::path::Path;
 use std::process;
 
@@ -26,7 +27,7 @@ use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{termcolor::ColorChoice, Id, Key};
 use crate::INTERNAL_ERROR_MSG;
 
-// FIXME (@CreepySkeleton): some of this variants are never constructed
+// FIXME (@CreepySkeleton): some of these variants are never constructed
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[allow(unused)]
 pub(crate) enum Propagation {
@@ -2073,6 +2074,14 @@ impl<'b> App<'b> {
         }
 
         args
+    }
+}
+
+impl<'b> Index<&'_ Id> for App<'b> {
+    type Output = Arg<'b>;
+
+    fn index(&self, key: &'_ Id) -> &Self::Output {
+        self.find(key).expect(INTERNAL_ERROR_MSG)
     }
 }
 
