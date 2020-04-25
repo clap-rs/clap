@@ -1,6 +1,8 @@
 use crate::build::Arg;
 use crate::util::Id;
+use crate::INTERNAL_ERROR_MSG;
 use std::ffi::{OsStr, OsString};
+use std::ops::Index;
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
@@ -120,6 +122,14 @@ impl<'b> MKeyMap<'b> {
             .iter()
             .position(|arg| arg.id == *name)
             .map(|i| self.args.swap_remove(i))
+    }
+}
+
+impl<'b> Index<&'_ KeyType> for MKeyMap<'b> {
+    type Output = Arg<'b>;
+
+    fn index(&self, key: &'_ KeyType) -> &Self::Output {
+        self.get(key).expect(INTERNAL_ERROR_MSG)
     }
 }
 

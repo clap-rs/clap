@@ -620,7 +620,7 @@ macro_rules! groups_for_arg {
         debug!("groups_for_arg: name={:?}", $grp);
         $app.groups
             .iter()
-            .filter(|grp| grp.args.iter().any(|a| *a == $grp))
+            .filter(|grp| grp.args.iter().any(|a| a == $grp))
             .map(|grp| grp.id.clone())
     }};
 }

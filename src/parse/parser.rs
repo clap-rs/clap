@@ -2,7 +2,6 @@
 use std::cell::Cell;
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
-use std::mem;
 
 // Internal
 use crate::build::app::Propagation;
@@ -52,12 +51,8 @@ where
 
 impl Input {
     pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, Option<&OsStr>)> {
-        if new.is_some() {
-            let mut new_items: Vec<OsString> = new
-                .expect(INTERNAL_ERROR_MSG)
-                .iter()
-                .map(OsString::from)
-                .collect();
+        if let Some(new) = new {
+            let mut new_items: Vec<OsString> = new.iter().map(OsString::from).collect();
 
             for i in self.cursor..self.items.len() {
                 new_items.push(self.items[i].clone());
@@ -108,9 +103,8 @@ where
             .args
             .iter()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
-            .map(|a| a.id.clone())
         {
-            reqs.insert(a);
+            reqs.insert(a.id.clone());
         }
 
         Parser {
@@ -131,21 +125,20 @@ where
         // positional arguments to verify there are no gaps (i.e. supplying an index of 1 and 3
         // but no 2)
 
-        let highest_idx = *self
+        let highest_idx = self
             .app
             .args
             .keys
             .iter()
-            .map(|x| &x.key)
             .filter_map(|x| {
-                if let KeyType::Position(n) = x {
+                if let KeyType::Position(n) = x.key {
                     Some(n)
                 } else {
                     None
                 }
             })
             .max()
-            .unwrap_or(&0);
+            .unwrap_or(0);
 
         //_highest_idx(&self.positionals);
 
@@ -155,13 +148,7 @@ where
             .keys
             .iter()
             .map(|x| &x.key)
-            .filter(|x| {
-                if let KeyType::Position(_) = x {
-                    true
-                } else {
-                    false
-                }
-            })
+            .filter(|x| x.is_position())
             .count();
 
         assert!(
@@ -185,17 +172,8 @@ where
 
             // We can't pass the closure (it.next()) to the macro directly because each call to
             // find() (iterator, not macro) gets called repeatedly.
-            let last = self
-                .app
-                .args
-                .get(&KeyType::Position(highest_idx))
-                .expect(INTERNAL_ERROR_MSG);
-
-            let second_to_last = self
-                .app
-                .args
-                .get(&KeyType::Position(highest_idx - 1))
-                .expect(INTERNAL_ERROR_MSG);
+            let last = &self.app.args[&KeyType::Position(highest_idx)];
+            let second_to_last = &self.app.args[&KeyType::Position(highest_idx - 1)];
 
             // Either the final positional is required
             // Or the second to last has a terminator or .last(true) set
@@ -220,13 +198,9 @@ where
             );
 
             // Next we check how many have both Multiple and not a specific number of values set
-            let count = positionals!(self.app).fold(0, |acc, p| {
-                if p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none() {
-                    acc + 1
-                } else {
-                    acc
-                }
-            });
+            let count = positionals!(self.app)
+                .filter(|p| p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
+                .count();
             let ok = count <= 1
                 || (last.is_set(ArgSettings::Last)
                     && last.is_set(ArgSettings::MultipleValues)
@@ -301,11 +275,10 @@ where
             }
         }
         assert!(
-            positionals!(self.app).fold(0, |acc, p| if p.is_set(ArgSettings::Last) {
-                acc + 1
-            } else {
-                acc
-            }) < 2,
+            positionals!(self.app)
+                .filter(|p| p.is_set(ArgSettings::Last))
+                .count()
+                < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
         if positionals!(self.app)
@@ -328,10 +301,10 @@ where
         debug!("Parser::_build");
 
         //I wonder whether this part is even needed if we insert all Args using make_entries
-        let mut key: Vec<(KeyType, usize)> = Vec::new();
+        let mut key = Vec::new();
         let mut counter = 0;
         for (i, a) in self.app.args.args.iter_mut().enumerate() {
-            if a.index == None && a.short == None && a.long == None {
+            if a.index == None && a.is_positional() {
                 counter += 1;
                 a.index = Some(counter);
                 key.push((KeyType::Position(counter), i));
@@ -343,12 +316,8 @@ where
                 let idx = self.required.insert(a.id.clone());
                 // If the arg is required, add all it's requirements to master required list
                 if let Some(ref areqs) = a.requires {
-                    for name in areqs
-                        .iter()
-                        .filter(|(val, _)| val.is_none())
-                        .map(|(_, name)| name.clone())
-                    {
-                        self.required.insert_child(idx, name);
+                    for (_, name) in areqs.iter().filter(|(val, _)| val.is_none()) {
+                        self.required.insert_child(idx, name.clone());
                     }
                 }
             }
@@ -369,15 +338,10 @@ where
                         .args
                         .keys
                         .iter()
-                        .map(|x| &x.key)
-                        .filter(|x| x.is_position())
+                        .filter(|x| x.key.is_position())
                         .count())
         }) && positionals!(self.app).last().map_or(false, |p_name| {
-            !self
-                .app
-                .find(&p_name.id)
-                .expect(INTERNAL_ERROR_MSG)
-                .is_set(ArgSettings::Last)
+            !self.app[&p_name.id].is_set(ArgSettings::Last)
         }) {
             self.app.settings.set(AS::LowIndexMultiplePositional);
         }
@@ -445,7 +409,7 @@ where
             self.unset(AS::ValidNegNumFound);
 
             // Is this a new argument, or values from a previous option?
-            let starts_new_arg = self.is_new_arg(&arg_os, needs_val_of.clone());
+            let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
 
             if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
                 debug!("Parser::get_matches_with: setting TrailingVals=true");
@@ -467,9 +431,7 @@ where
                             sc_name
                         );
 
-                        if sc_name.is_some() {
-                            let sc_name = sc_name.expect(INTERNAL_ERROR_MSG);
-
+                        if let Some(sc_name) = sc_name {
                             if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
                                 self.parse_help_subcommand(it.remaining())?;
                             }
@@ -530,11 +492,11 @@ where
                             _ => (),
                         }
                     }
-                } else if let ParseResult::Opt(name) = needs_val_of {
+                } else if let ParseResult::Opt(id) = needs_val_of {
                     // Check to see if parsing a value from a previous arg
-                    let arg = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
+
                     // get the option so we can check the settings
-                    needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
+                    needs_val_of = self.add_val_to_arg(&self.app[&id], &arg_os, matcher)?;
                     // get the next value from the iterator
                     continue;
                 }
@@ -564,14 +526,7 @@ where
                 .args
                 .keys
                 .iter()
-                .map(|x| &x.key)
-                .filter(|x| {
-                    if let KeyType::Position(_) = x {
-                        true
-                    } else {
-                        false
-                    }
-                })
+                .filter(|x| x.key.is_position())
                 .count();
             let is_second_to_last = positional_count > 1 && (pos_counter == (positional_count - 1));
 
@@ -608,7 +563,7 @@ where
                     let n = ArgStr::new(n);
                     let sc_match = { self.possible_subcommand(&n).is_some() };
 
-                    if self.is_new_arg(&n, needs_val_of.clone())
+                    if self.is_new_arg(&n, &needs_val_of)
                         || sc_match
                         || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
                             .is_empty()
@@ -631,14 +586,7 @@ where
                     .args
                     .keys
                     .iter()
-                    .map(|x| &x.key)
-                    .filter(|x| {
-                        if let KeyType::Position(_) = x {
-                            true
-                        } else {
-                            false
-                        }
-                    })
+                    .filter(|x| x.key.is_position())
                     .count();
             }
 
@@ -647,7 +595,7 @@ where
                 .args
                 .args
                 .iter()
-                .filter(|a| a.short.is_none() && a.long.is_none())
+                .filter(|a| a.is_positional())
                 .find(|p| p.index == Some(pos_counter as u64))
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -667,18 +615,17 @@ where
                                 .args
                                 .keys
                                 .iter()
-                                .map(|x| &x.key)
-                                .filter(|x| x.is_position())
+                                .filter(|x| x.key.is_position())
                                 .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
 
                 self.seen.push(p.id.clone());
-                let _ = self.add_val_to_arg(p, &arg_os, matcher)?;
+                self.add_val_to_arg(p, &arg_os, matcher)?;
 
                 matcher.inc_occurrence_of(&p.id);
-                for grp in groups_for_arg!(self.app, p.id) {
+                for grp in groups_for_arg!(self.app, &p.id) {
                     matcher.inc_occurrence_of(&grp);
                 }
 
@@ -764,13 +711,11 @@ where
         }
 
         if let Some(ref pos_sc_name) = subcmd_name {
-            let sc_name = {
-                find_subcmd!(self.app, *pos_sc_name)
-                    .expect(INTERNAL_ERROR_MSG)
-                    .name
-                    .clone()
-            };
-            self.parse_subcommand(&*sc_name, matcher, it)?;
+            let sc_name = find_subcmd!(self.app, *pos_sc_name)
+                .expect(INTERNAL_ERROR_MSG)
+                .name
+                .clone();
+            self.parse_subcommand(&sc_name, matcher, it)?;
         } else if self.is_set(AS::SubcommandRequired) {
             let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
             return Err(ClapError::missing_subcommand(
@@ -829,7 +774,7 @@ where
     fn maybe_inc_pos_counter(&self, pos_counter: &mut usize, id: &Id) {
         debug!("Parser::maybe_inc_pos_counter: arg = {:?}", id);
 
-        let arg = self.app.find(id).expect(INTERNAL_ERROR_MSG);
+        let arg = &self.app[id];
 
         debug!("Parser::maybe_inc_pos_counter: is it positional?");
         // will be incremented by other means.
@@ -839,7 +784,7 @@ where
         }
         debug!("No");
 
-        for group in groups_for_arg!(self.app, arg.id.clone()) {
+        for group in groups_for_arg!(self.app, &arg.id) {
             debug!("Parser::maybe_inc_pos_counter: group={:?}", group);
             let group = self.app.groups.iter().find(|g| g.id == group);
 
@@ -847,8 +792,7 @@ where
             if let Some(group) = group {
                 for arg in group.args.iter() {
                     debug!("Parser::maybe_inc_pos_counter: arg={:?}", arg);
-                    let arg = self.app.find(arg).expect(INTERNAL_ERROR_MSG);
-                    if arg.is_positional() {
+                    if self.app[arg].is_positional() {
                         debug!("Parser::maybe_inc_pos_counter: Incrementing counter!");
                         *pos_counter += 1;
                     }
@@ -868,11 +812,7 @@ where
             return None;
         }
 
-        if !self.is_set(AS::InferSubcommands) {
-            if let Some(sc) = find_subcmd!(self.app, arg_os) {
-                return Some(&sc.name);
-            }
-        } else {
+        if self.is_set(AS::InferSubcommands) {
             let v = sc_names!(self.app)
                 .filter(|s| starts(s, &*arg_os))
                 .collect::<Vec<_>>();
@@ -886,6 +826,8 @@ where
                     return Some(sc);
                 }
             }
+        } else if let Some(sc) = find_subcmd!(self.app, arg_os) {
+            return Some(&sc.name);
         }
 
         None
@@ -898,7 +840,7 @@ where
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
 
         let mut sc = {
-            // @TODO @perf: cloning all these Apps ins't great, but since it's just displaying the
+            // @TODO @perf: cloning all these Apps isn't great, but since it's just displaying the
             // help message there are bigger fish to fry
             let mut sc = self.app.clone();
 
@@ -919,7 +861,7 @@ where
                     if i == cmds.len() - 1 {
                         break;
                     }
-                } else if let Some(mut c) = find_subcmd_cloned!(sc, &*cmd.to_string_lossy()) {
+                } else if let Some(mut c) = find_subcmd_cloned!(sc, &cmd.to_string_lossy()) {
                     c._build();
                     sc = c;
 
@@ -934,7 +876,7 @@ where
                     )?);
                 }
 
-                bin_name = format!("{} {}", bin_name, &*sc.name);
+                bin_name = format!("{} {}", bin_name, &sc.name);
             }
 
             sc
@@ -961,7 +903,7 @@ where
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr<'_>, needs_val_of: ParseResult) -> bool {
+    fn is_new_arg(&mut self, arg_os: &ArgStr<'_>, needs_val_of: &ParseResult) -> bool {
         debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, needs_val_of);
 
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
@@ -980,14 +922,10 @@ where
         };
 
         let arg_allows_tac = match needs_val_of {
-            ParseResult::Opt(name) => {
-                let o = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
-                o.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
+            ParseResult::Opt(name) | ParseResult::Pos(name) => {
+                app_wide_settings || self.app[name].is_set(ArgSettings::AllowHyphenValues)
             }
-            ParseResult::Pos(name) => {
-                let p = self.app.find(&name).expect(INTERNAL_ERROR_MSG);
-                p.is_set(ArgSettings::AllowHyphenValues) || app_wide_settings
-            }
+
             ParseResult::ValuesDone(..) => return true,
             _ => false,
         };
@@ -1042,7 +980,8 @@ where
 
         mid_string.push_str(" ");
 
-        if let Some(id) = find_subcmd!(self.app, sc_name).map(|x| x.id.clone()) {
+        if let Some(x) = find_subcmd!(self.app, sc_name) {
+            let id = x.id.clone();
             self.app._propagate(Propagation::To(id));
         }
 
@@ -1151,7 +1090,7 @@ where
         };
 
         self.app.long_about.is_some()
-            || self.app.args.args.iter().any(|f| should_long(&f))
+            || self.app.args.args.iter().any(should_long)
             || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
@@ -1339,7 +1278,7 @@ where
 
         matcher.inc_occurrence_of(&opt.id);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, opt.id) {
+        for grp in groups_for_arg!(self.app, &opt.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1414,7 +1353,7 @@ where
         matcher.add_index_to(&arg.id, self.cur_idx.get());
 
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, arg.id) {
+        for grp in groups_for_arg!(self.app, &arg.id) {
             matcher.add_val_to(&grp, v.to_os_string());
         }
 
@@ -1430,7 +1369,7 @@ where
         matcher.inc_occurrence_of(&flag.id);
         matcher.add_index_to(&flag.id, self.cur_idx.get());
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, flag.id) {
+        for grp in groups_for_arg!(self.app, &flag.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1495,11 +1434,9 @@ where
                     continue;
                 }
                 ma.occurs = 1;
-                if !ma.vals.is_empty() {
-                    // This avoids a clone
-                    let mut v = vec![ma.vals.pop().expect(INTERNAL_ERROR_MSG)];
-                    mem::swap(&mut v, &mut ma.vals);
-                }
+
+                let len = ma.vals.len().saturating_sub(1);
+                ma.vals.drain(0..len);
             }
         }
 
@@ -1647,7 +1584,7 @@ where
                 .args
                 .get(&KeyType::Long(OsString::from(name.0.clone())))
             {
-                for g in groups_for_arg!(self.app, opt.id) {
+                for g in groups_for_arg!(self.app, &opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
                 matcher.insert(&opt.id);
@@ -1657,11 +1594,9 @@ where
         let used: Vec<Id> = matcher
             .arg_names()
             .filter(|n| {
-                if let Some(a) = self.app.find(n) {
+                self.app.find(n).map_or(true, |a| {
                     !(self.required.contains(&a.id) || a.is_set(ArgSettings::Hidden))
-                } else {
-                    true
-                }
+                })
             })
             .cloned()
             .collect();
