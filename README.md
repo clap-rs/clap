@@ -279,6 +279,32 @@ fn main() {
     // Same as above examples...
 }
 ```
+The next example shows how to read positional args and flags, as in ``app -F a -F b file1.txt file2.txt file3.txt``.
+
+```rust
+let matches = App::new("My Super Program")
+        .arg(Arg::with_name("flags")
+            .short("F")
+            .takes_value(true)
+            .number_of_values(1)
+            .multiple(true)
+            .help("Flag to indicate something important."))
+        .arg(Arg::with_name("files")
+            .multiple(true)
+            .help("file to process"))
+        .get_matches();
+
+let iterator = matches.values_of("flags");
+for el in iterator.unwrap() {
+    println!("Flag: {:?}", el);
+};
+
+let iterator = matches.values_of("files");
+for el in iterator.unwrap() {
+    println!("File: {:?}", el);
+};
+
+```
 
 The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
 
