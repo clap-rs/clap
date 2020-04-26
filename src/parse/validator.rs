@@ -276,7 +276,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     fn gather_conflicts(&mut self, matcher: &mut ArgMatcher) {
         debug!("Validator::gather_conflicts");
         for name in matcher.arg_names() {
-            debug!("Validator::gather_conflicts:iter:{:?}", name);
+            debug!("Validator::gather_conflicts:iter: id={:?}", name);
             // if arg is "present" only because it got default value
             // it doesn't conflict with anything
             //
@@ -285,6 +285,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 .get(name)
                 .map_or(false, |a| a.ty == ValueType::DefaultValue)
             {
+                debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
                 continue;
             }
 

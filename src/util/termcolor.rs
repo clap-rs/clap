@@ -28,9 +28,9 @@ impl BufferWriter {
 
     pub(crate) fn print(&self, buf: &Buffer) -> Result<()> {
         if self.use_stderr {
-            stderr().lock().write(buf)?;
+            stderr().lock().write_all(buf)?;
         } else {
-            stdout().lock().write(buf)?;
+            stdout().lock().write_all(buf)?;
         }
 
         Ok(())
