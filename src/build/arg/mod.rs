@@ -225,6 +225,7 @@ impl<'help> Arg<'help> {
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
                 "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),

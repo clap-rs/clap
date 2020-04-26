@@ -49,7 +49,7 @@ impl Debug for Id {
         #[cfg(debug_assertions)]
         write!(f, "{}", self.name)?;
         #[cfg(not(debug_assertions))]
-        write!(f, "[hash: {}]", self.id)?;
+        write!(f, "[hash: {:X}]", self.id)?;
 
         Ok(())
     }
