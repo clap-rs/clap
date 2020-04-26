@@ -6,7 +6,7 @@ use std::ops::Deref;
 
 // Internal
 use crate::build::{Arg, ArgSettings};
-use crate::parse::{ArgMatches, MatchedArg, SubCommand};
+use crate::parse::{ArgMatches, MatchedArg, SubCommand, ValueType};
 use crate::util::Id;
 
 #[derive(Debug)]
@@ -136,20 +136,22 @@ impl ArgMatcher {
         self.insert(arg);
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString) {
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0, // @TODO @question Shouldn't this be 1 if we're already adding a value to this arg?
+            ty,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
         });
         ma.vals.push(val);
     }
 
-    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize) {
+    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
         let ma = self.entry(arg).or_insert(MatchedArg {
             occurs: 0,
             indices: Vec::with_capacity(1),
             vals: Vec::new(),
+            ty,
         });
         ma.indices.push(idx);
     }

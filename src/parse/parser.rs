@@ -13,8 +13,8 @@ use crate::parse::errors::Error as ClapError;
 use crate::parse::errors::ErrorKind;
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::features::suggestions;
-use crate::parse::Validator;
 use crate::parse::{ArgMatcher, SubCommand};
+use crate::parse::{Validator, ValueType};
 use crate::util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
@@ -496,7 +496,12 @@ where
                     // Check to see if parsing a value from a previous arg
 
                     // get the option so we can check the settings
-                    needs_val_of = self.add_val_to_arg(&self.app[&id], &arg_os, matcher)?;
+                    needs_val_of = self.add_val_to_arg(
+                        &self.app[&id],
+                        &arg_os,
+                        matcher,
+                        ValueType::CommandLine,
+                    )?;
                     // get the next value from the iterator
                     continue;
                 }
@@ -622,7 +627,7 @@ where
                 }
 
                 self.seen.push(p.id.clone());
-                self.add_val_to_arg(p, &arg_os, matcher)?;
+                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine)?;
 
                 matcher.inc_occurrence_of(&p.id);
                 for grp in groups_for_arg!(self.app, &p.id) {
@@ -660,7 +665,7 @@ where
                             self.app.color(),
                         )?);
                     }
-                    sc_m.add_val_to(&Id::empty_hash(), v.to_os_string());
+                    sc_m.add_val_to(&Id::empty_hash(), v.to_os_string(), ValueType::CommandLine);
                 }
 
                 matcher.subcommand(SubCommand {
@@ -1264,7 +1269,7 @@ where
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, &v, matcher)?;
+            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine)?;
         } else if needs_eq && !(empty_vals || min_vals_zero) {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1301,6 +1306,7 @@ where
         arg: &Arg<'b>,
         val: &ArgStr<'_>,
         matcher: &mut ArgMatcher,
+        ty: ValueType,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debug!(
@@ -1311,11 +1317,11 @@ where
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
                 if val.is_empty() {
-                    Ok(self.add_single_val_to_arg(arg, val, matcher)?)
+                    Ok(self.add_single_val_to_arg(arg, val, matcher, ty)?)
                 } else {
                     let mut iret = ParseResult::ValuesDone(arg.id.clone());
                     for v in val.split(delim) {
-                        iret = self.add_single_val_to_arg(arg, &v, matcher)?;
+                        iret = self.add_single_val_to_arg(arg, &v, matcher, ty)?;
                     }
                     // If there was a delimiter used, we're not looking for more values
                     if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
@@ -1324,10 +1330,10 @@ where
                     Ok(iret)
                 }
             } else {
-                self.add_single_val_to_arg(arg, val, matcher)
+                self.add_single_val_to_arg(arg, val, matcher, ty)
             }
         } else {
-            self.add_single_val_to_arg(arg, val, matcher)
+            self.add_single_val_to_arg(arg, val, matcher, ty)
         }
     }
 
@@ -1336,6 +1342,7 @@ where
         arg: &Arg<'b>,
         v: &ArgStr<'_>,
         matcher: &mut ArgMatcher,
+        ty: ValueType,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", v);
 
@@ -1349,12 +1356,12 @@ where
             }
         }
 
-        matcher.add_val_to(&arg.id, v.to_os_string());
-        matcher.add_index_to(&arg.id, self.cur_idx.get());
+        matcher.add_val_to(&arg.id, v.to_os_string(), ty);
+        matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, &arg.id) {
-            matcher.add_val_to(&grp, v.to_os_string());
+            matcher.add_val_to(&grp, v.to_os_string(), ty);
         }
 
         if matcher.needs_more_vals(arg) {
@@ -1367,7 +1374,7 @@ where
         debug!("Parser::parse_flag");
 
         matcher.inc_occurrence_of(&flag.id);
-        matcher.add_index_to(&flag.id, self.cur_idx.get());
+        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         // Increment or create the group "args"
         for grp in groups_for_arg!(self.app, &flag.id) {
             matcher.inc_occurrence_of(&grp);
@@ -1453,18 +1460,18 @@ where
 
         for o in opts!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_value(o, matcher)?;
+            self.add_value(o, matcher, ValueType::DefaultValue)?;
         }
 
         for p in positionals!(self.app) {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_value(p, matcher)?;
+            self.add_value(p, matcher, ValueType::DefaultValue)?;
         }
 
         Ok(())
     }
 
-    fn add_value(&self, arg: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_value(&self, arg: &Arg<'b>, matcher: &mut ArgMatcher, ty: ValueType) -> ClapResult<()> {
         if let Some(ref vm) = arg.default_vals_ifs {
             debug!("Parser::add_value: has conditional defaults");
 
@@ -1482,7 +1489,7 @@ where
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher)?;
+                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty)?;
                         done = true;
                         break;
                     }
@@ -1510,7 +1517,7 @@ where
                 );
 
                 for val in vals {
-                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
                 }
             } else if matcher.get(&arg.id).is_some() {
                 debug!("Parser::add_value:iter:{}: has user defined vals", arg.name);
@@ -1520,7 +1527,7 @@ where
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
                 for val in vals {
-                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
                 }
             }
         } else {
@@ -1541,7 +1548,7 @@ where
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
                 if let Some(ref val) = a.env {
                     if let Some(ref val) = val.1 {
-                        self.add_val_to_arg(a, &ArgStr::new(val), matcher)?;
+                        self.add_val_to_arg(a, &ArgStr::new(val), matcher, ValueType::EnvVariable)?;
                     }
                 }
             }
