@@ -7,7 +7,11 @@ mod parser;
 mod validator;
 
 pub(crate) use self::parser::{Input, ParseResult, Parser};
-pub(crate) use self::{arg_matcher::ArgMatcher, matches::MatchedArg, validator::Validator};
+pub(crate) use self::{
+    arg_matcher::ArgMatcher,
+    matches::{MatchedArg, ValueType},
+    validator::Validator,
+};
 
 pub use self::matches::ArgMatches;
 pub use self::matches::{OsValues, SubCommand, Values};

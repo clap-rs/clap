@@ -4,7 +4,7 @@ use crate::build::{Arg, ArgSettings};
 use crate::output::Usage;
 use crate::parse::errors::Result as ClapResult;
 use crate::parse::errors::{Error, ErrorKind};
-use crate::parse::{ArgMatcher, MatchedArg, ParseResult, Parser};
+use crate::parse::{ArgMatcher, MatchedArg, ParseResult, Parser, ValueType};
 use crate::util::{ChildGraph, Id};
 use crate::INTERNAL_ERROR_MSG;
 use crate::INVALID_UTF8;
@@ -276,7 +276,19 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     fn gather_conflicts(&mut self, matcher: &mut ArgMatcher) {
         debug!("Validator::gather_conflicts");
         for name in matcher.arg_names() {
-            debug!("Validator::gather_conflicts:iter:{:?}", name);
+            debug!("Validator::gather_conflicts:iter: id={:?}", name);
+            // if arg is "present" only because it got default value
+            // it doesn't conflict with anything
+            //
+            // TODO: @refactor Do it in a more elegant way
+            if matcher
+                .get(name)
+                .map_or(false, |a| a.ty == ValueType::DefaultValue)
+            {
+                debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
+                continue;
+            }
+
             if let Some(arg) = self.p.app.find(name) {
                 // Since an arg was used, every arg it conflicts with is added to the conflicts
                 if let Some(ref bl) = arg.blacklist {

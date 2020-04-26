@@ -204,3 +204,21 @@ fn conflicts_with_invalid_arg() {
         )
         .try_get_matches_from(vec!["", "--config"]);
 }
+
+#[test]
+fn conflicts_with_default() {
+    let result = App::new("conflict")
+        .arg(
+            Arg::from("-o, --opt=[opt] 'some opt'")
+                .default_value("default")
+                .conflicts_with("flag"),
+        )
+        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("opt"))
+        .try_get_matches_from(vec!["myprog", "-f"]);
+
+    assert!(result.is_ok(), "{:?}", result.unwrap());
+    let m = result.unwrap();
+
+    assert_eq!(m.value_of("opt"), Some("default"));
+    assert!(m.is_present("flag"));
+}
