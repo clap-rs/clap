@@ -1,16 +1,19 @@
 // Std
-use std::collections::VecDeque;
-use std::convert::From;
-use std::fmt::{self, Debug, Display, Formatter};
-use std::io;
-use std::process;
-use std::result::Result as StdResult;
+use std::{
+    collections::VecDeque,
+    convert::From,
+    fmt::{self, Debug, Display, Formatter},
+    io,
+    result::Result as StdResult,
+};
 
 // Internal
-use crate::build::{Arg, ArgGroup};
-use crate::output::fmt::Colorizer;
-use crate::parse::features::suggestions;
-use crate::util::termcolor::ColorChoice;
+use crate::{
+    build::{Arg, ArgGroup},
+    output::fmt::Colorizer,
+    parse::features::suggestions,
+    util::{safe_exit, termcolor::ColorChoice},
+};
 
 /// Short hand for [`Result`] type
 ///
@@ -430,11 +433,11 @@ impl Error {
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
             self.message.print().expect("Error writing Error to stderr");
-            process::exit(1);
+            safe_exit(1);
         }
 
         self.message.print().expect("Error writing Error to stdout");
-        process::exit(0);
+        safe_exit(0)
     }
 
     #[allow(unused)] // requested by @pksunkara

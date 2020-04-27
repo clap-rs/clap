@@ -1,8 +1,9 @@
-use crate::build::Arg;
-use crate::util::Id;
-use crate::INTERNAL_ERROR_MSG;
-use std::ffi::{OsStr, OsString};
-use std::ops::Index;
+use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
+
+use std::{
+    ffi::{OsStr, OsString},
+    ops::Index,
+};
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {

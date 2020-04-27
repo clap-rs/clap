@@ -1,6 +1,7 @@
 //! This module contains traits that are usable with `#[derive(...)].`
 
 use crate::{App, ArgMatches, Error};
+
 use std::ffi::OsString;
 
 /// This trait is just a convenience on top of FromArgMatches + IntoApp

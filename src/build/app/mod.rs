@@ -5,27 +5,29 @@ mod tests;
 pub use self::settings::AppSettings;
 
 // Std
-use std::collections::HashMap;
-use std::env;
-use std::ffi::OsString;
-use std::fmt;
-use std::io::{self, BufRead, Write};
-use std::ops::Index;
-use std::path::Path;
-use std::process;
+use std::{
+    collections::HashMap,
+    env,
+    ffi::OsString,
+    fmt,
+    io::{self, BufRead, Write},
+    ops::Index,
+    path::Path,
+};
 
 // Third Party
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings};
-use crate::mkeymap::MKeyMap;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::errors::Result as ClapResult;
-use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
-use crate::util::{termcolor::ColorChoice, Id, Key};
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings},
+    mkeymap::MKeyMap,
+    output::{fmt::Colorizer, Help, HelpWriter, Usage},
+    parse::{ArgMatcher, ArgMatches, Input, Parser},
+    util::{safe_exit, termcolor::ColorChoice, Id, Key},
+    Result as ClapResult, INTERNAL_ERROR_MSG,
+};
 
 // FIXME (@CreepySkeleton): some of these variants are never constructed
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1299,7 +1301,7 @@ impl<'b> App<'b> {
                     }
 
                     drop(e);
-                    process::exit(2);
+                    safe_exit(2);
                 }
 
                 e.exit()
@@ -1377,7 +1379,7 @@ impl<'b> App<'b> {
 
                 drop(self);
                 drop(e);
-                process::exit(2);
+                safe_exit(2);
             }
 
             drop(self);
@@ -1912,7 +1914,7 @@ impl<'b> App<'b> {
         };
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
-                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
+                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
                 write!(w, "{} {}", bn.replace(" ", "-"), ver)
             } else {
                 write!(w, "{} {}", &self.name[..], ver)

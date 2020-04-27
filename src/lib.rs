@@ -446,10 +446,12 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
-pub use crate::build::{App, AppSettings, Arg, ArgGroup, ArgSettings};
-pub use crate::derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand};
-pub use crate::parse::errors::{Error, ErrorKind, Result};
-pub use crate::parse::{ArgMatches, OsValues, SubCommand, Values};
+pub use crate::{
+    build::{App, AppSettings, Arg, ArgGroup, ArgSettings},
+    derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand},
+    parse::errors::{Error, ErrorKind, Result},
+    parse::{ArgMatches, OsValues, SubCommand, Values},
+};
 
 #[cfg(feature = "yaml")]
 pub use yaml_rust::YamlLoader;

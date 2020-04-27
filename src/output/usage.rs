@@ -1,12 +1,14 @@
 // std
-use crate::util::Id;
 use std::collections::{BTreeMap, VecDeque};
 
 // Internal
-use crate::build::AppSettings as AS;
-use crate::build::{Arg, ArgSettings};
-use crate::parse::{ArgMatcher, Parser};
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::AppSettings as AS,
+    build::{Arg, ArgSettings},
+    parse::{ArgMatcher, Parser},
+    util::Id,
+    INTERNAL_ERROR_MSG,
+};
 
 pub(crate) struct Usage<'b, 'c, 'z>
 where

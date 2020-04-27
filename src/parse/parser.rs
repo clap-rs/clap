@@ -1,23 +1,26 @@
 // Std
-use std::cell::Cell;
-use std::ffi::{OsStr, OsString};
-use std::io::Write;
+use std::{
+    cell::Cell,
+    ffi::{OsStr, OsString},
+    io::Write,
+};
 
 // Internal
-use crate::build::app::Propagation;
-use crate::build::AppSettings as AS;
-use crate::build::{App, Arg, ArgSettings};
-use crate::mkeymap::KeyType;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::errors::Error as ClapError;
-use crate::parse::errors::ErrorKind;
-use crate::parse::errors::Result as ClapResult;
-use crate::parse::features::suggestions;
-use crate::parse::{ArgMatcher, SubCommand};
-use crate::parse::{Validator, ValueType};
-use crate::util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id};
-use crate::INTERNAL_ERROR_MSG;
-use crate::INVALID_UTF8;
+use crate::{
+    build::app::Propagation,
+    build::AppSettings as AS,
+    build::{App, Arg, ArgSettings},
+    mkeymap::KeyType,
+    output::{fmt::Colorizer, Help, HelpWriter, Usage},
+    parse::errors::Error as ClapError,
+    parse::errors::ErrorKind,
+    parse::errors::Result as ClapResult,
+    parse::features::suggestions,
+    parse::{ArgMatcher, SubCommand},
+    parse::{Validator, ValueType},
+    util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id},
+    INTERNAL_ERROR_MSG, INVALID_UTF8,
+};
 
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ParseResult {

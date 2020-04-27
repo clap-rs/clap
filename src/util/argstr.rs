@@ -1,6 +1,8 @@
-use std::borrow::Cow;
-use std::ffi::{OsStr, OsString};
-use std::str;
+use std::{
+    borrow::Cow,
+    ffi::{OsStr, OsString},
+    str,
+};
 
 use os_str_bytes::{OsStrBytes, OsStringBytes};
 

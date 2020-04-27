@@ -1,18 +1,22 @@
 // Std
-use std::borrow::Cow;
-use std::ffi::{OsStr, OsString};
-use std::fmt::{Debug, Display};
-use std::iter::{Cloned, Map};
-use std::slice::Iter;
-use std::str::FromStr;
+use std::{
+    borrow::Cow,
+    ffi::{OsStr, OsString},
+    fmt::{Debug, Display},
+    iter::{Cloned, Map},
+    slice::Iter,
+    str::FromStr,
+};
 
 // Third Party
 use indexmap::IndexMap;
 
 // Internal
-use crate::parse::{MatchedArg, SubCommand};
-use crate::util::{Id, Key};
-use crate::{Error, INVALID_UTF8};
+use crate::{
+    parse::{MatchedArg, SubCommand},
+    util::{Id, Key},
+    {Error, INVALID_UTF8},
+};
 
 /// Used to get information about the arguments that were supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of

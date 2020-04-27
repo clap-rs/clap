@@ -1,7 +1,10 @@
 use crate::util::fnv::Key;
-use std::fmt::{Debug, Formatter, Result};
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
+
+use std::{
+    fmt::{Debug, Formatter, Result},
+    hash::{Hash, Hasher},
+    ops::Deref,
+};
 
 #[derive(Clone, Eq, Default)]
 #[cfg_attr(not(debug_assertions), derive(Copy), repr(transparent))]

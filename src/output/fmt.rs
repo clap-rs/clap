@@ -2,8 +2,10 @@ use crate::util::termcolor::{Buffer, BufferWriter, ColorChoice};
 #[cfg(feature = "color")]
 use crate::util::termcolor::{Color, ColorSpec, WriteColor};
 
-use std::fmt::{self, Debug, Formatter};
-use std::io::{Result, Write};
+use std::{
+    fmt::{self, Debug, Formatter},
+    io::{Result, Write},
+};
 
 #[cfg(feature = "color")]
 fn is_a_tty(stderr: bool) -> bool {

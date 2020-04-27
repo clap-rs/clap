@@ -5,21 +5,25 @@ mod tests;
 pub use self::settings::ArgSettings;
 
 // Std
-use std::borrow::Cow;
-use std::cmp::{Ord, Ordering};
-use std::env;
-use std::ffi::{OsStr, OsString};
-use std::fmt::{self, Display, Formatter};
-use std::rc::Rc;
-use std::str;
+use std::{
+    borrow::Cow,
+    cmp::{Ord, Ordering},
+    env,
+    ffi::{OsStr, OsString},
+    fmt::{self, Display, Formatter},
+    rc::Rc,
+    str,
+};
 
 // Third Party
-use crate::util::VecMap;
 
 // Internal
-use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};
-use crate::util::{Id, Key};
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{arg::settings::ArgFlags, usage_parser::UsageParser},
+    util::VecMap,
+    util::{Id, Key},
+    INTERNAL_ERROR_MSG,
+};
 
 type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
 type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
