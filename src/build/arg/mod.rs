@@ -92,6 +92,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Get the help specified for this argument, if any
+    #[inline]
     pub fn get_about(&self) -> Option<&str> {
         self.about
     }
@@ -190,8 +191,8 @@ impl<'help> Arg<'help> {
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
                 "aliases" => yaml_vec_or_str!(v, a, alias),
-                "help" => yaml_to_str!(a, v, help),
-                "long_help" => yaml_to_str!(a, v, long_help),
+                "about" => yaml_to_str!(a, v, about),
+                "long_about" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if" => yaml_tuple2!(a, v, required_if),
                 "required_ifs" => yaml_tuple2!(a, v, required_if),
@@ -496,11 +497,12 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
+    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
     #[deprecated(
         since = "3.0.0",
         note = "Please use `about` method instead"
     )]
+    #[inline]
     pub fn help(self, h: &'help str) -> Self {
         self.about(h)
     }
@@ -570,11 +572,12 @@ impl<'help> Arg<'help> {
     /// -V, --version
     ///         Prints version information
     /// ```
-    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
+    /// [`Arg::help`]: ./struct.Arg.html#method.help
     #[deprecated(
         since = "3.0.0",
         note = "Please use `long_about` method instead"
     )]
+    #[inline]
     pub fn long_help(self, h: &'help str) -> Self {
         self.long_about(h)
     }
@@ -628,7 +631,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::about`]: ./struct.Arg.html#method.about
+    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
     pub fn about(mut self, h: &'help str) -> Self {
         self.about = Some(h);
         self
@@ -638,10 +641,10 @@ impl<'help> Arg<'help> {
     /// the help information with `--help`. Typically this a more detailed (multi-line) message
     /// that describes the arg.
     ///
-    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
-    /// clap will still display the contents of `long_help` appropriately
+    /// **NOTE:** If only `long_about` is provided, and not [`Arg::about`] but the user requests `-h`
+    /// clap will still display the contents of `long_about` appropriately
     ///
-    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
+    /// **NOTE:** Only [`Arg::about`] is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -699,7 +702,7 @@ impl<'help> Arg<'help> {
     /// -V, --version
     ///         Prints version information
     ///
-    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    /// [`Arg::about`]: ./struct.Arg.html#method.about
     pub fn long_about(mut self, h: &'help str) -> Self {
         self.long_about = Some(h);
         self
