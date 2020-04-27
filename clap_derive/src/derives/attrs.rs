@@ -660,9 +660,10 @@ impl Attrs {
 
     pub fn has_doc_methods(&self) -> bool {
         !self.doc_comment.is_empty()
-            || self.methods.iter().any(|m| {
-                m.name == "about" || m.name == "long_about"
-            })
+            || self
+                .methods
+                .iter()
+                .any(|m| m.name == "about" || m.name == "long_about")
     }
 }
 

@@ -885,14 +885,15 @@ fn final_word_wrapping() {
 
 #[test]
 fn wrapping_newline_chars() {
-    let app = App::new("ctest")
-        .version("0.1")
-        .set_term_width(60)
-        .arg(Arg::with_name("mode").about(
-            "x, max, maximum   20 characters, contains symbols.\n\
+    let app =
+        App::new("ctest")
+            .version("0.1")
+            .set_term_width(60)
+            .arg(Arg::with_name("mode").about(
+                "x, max, maximum   20 characters, contains symbols.\n\
              l, long           Copy-friendly, 14 characters, contains symbols.\n\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
-        ));
+            ));
     assert!(utils::compare_output(
         app,
         "ctest --help",

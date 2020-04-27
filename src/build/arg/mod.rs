@@ -498,10 +498,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Prints version information
     /// ```
     /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
-    #[deprecated(
-        since = "3.0.0",
-        note = "Please use `about` method instead"
-    )]
+    #[deprecated(since = "3.0.0", note = "Please use `about` method instead")]
     #[inline]
     pub fn help(self, h: &'help str) -> Self {
         self.about(h)
@@ -573,10 +570,7 @@ impl<'help> Arg<'help> {
     ///         Prints version information
     /// ```
     /// [`Arg::help`]: ./struct.Arg.html#method.help
-    #[deprecated(
-        since = "3.0.0",
-        note = "Please use `long_about` method instead"
-    )]
+    #[deprecated(since = "3.0.0", note = "Please use `long_about` method instead")]
     #[inline]
     pub fn long_help(self, h: &'help str) -> Self {
         self.long_about(h)
