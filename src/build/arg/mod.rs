@@ -632,6 +632,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Prints version information
     /// ```
     /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    #[inline]
     pub fn about(mut self, h: &'help str) -> Self {
         self.about = Some(h);
         self
@@ -703,6 +704,7 @@ impl<'help> Arg<'help> {
     ///         Prints version information
     ///
     /// [`Arg::about`]: ./struct.Arg.html#method.about
+    #[inline]
     pub fn long_about(mut self, h: &'help str) -> Self {
         self.long_about = Some(h);
         self

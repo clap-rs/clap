@@ -31,7 +31,7 @@ fn build_cli() -> App<'static> {
         // .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
             Arg::with_name("verbose")
-                .help("Enable verbose output")
+                .about("Enable verbose output")
                 .short('v')
                 .long("verbose"),
         )
@@ -54,7 +54,7 @@ fn build_cli() -> App<'static> {
                 .arg(Arg::with_name("toolchain").setting(ArgSettings::Required))
                 .arg(
                     Arg::with_name("no-self-update")
-                        .help("Don't perform self update when running the `rustup` command")
+                        .about("Don't perform self update when running the `rustup` command")
                         .long("no-self-update")
                         .setting(ArgSettings::Hidden),
                 ),
@@ -227,12 +227,12 @@ fn build_cli() -> App<'static> {
                             Arg::with_name("path")
                                 .long("path")
                                 .setting(ArgSettings::TakesValue)
-                                .help("Path to the directory"),
+                                .about("Path to the directory"),
                         )
                         .arg(
                             Arg::with_name("nonexistent")
                                 .long("nonexistent")
-                                .help("Remove override toolchain for all nonexistent directories"),
+                                .about("Remove override toolchain for all nonexistent directories"),
                         ),
                 )
                 .subcommand(
@@ -252,7 +252,7 @@ fn build_cli() -> App<'static> {
                         .arg(
                             Arg::with_name("nonexistent")
                                 .long("nonexistent")
-                                .help("Remove override toolchain for all nonexistent directories"),
+                                .about("Remove override toolchain for all nonexistent directories"),
                         ),
                 ),
         )
@@ -280,12 +280,12 @@ fn build_cli() -> App<'static> {
                 .arg(
                     Arg::with_name("book")
                         .long("book")
-                        .help("The Rust Programming Language book"),
+                        .about("The Rust Programming Language book"),
                 )
                 .arg(
                     Arg::with_name("std")
                         .long("std")
-                        .help("Standard library API documentation"),
+                        .about("Standard library API documentation"),
                 )
                 .group(ArgGroup::with_name("page").args(&["book", "std"])),
         )
