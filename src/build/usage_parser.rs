@@ -1,7 +1,9 @@
 // Internal
-use crate::build::{Arg, ArgSettings};
-use crate::util::VecMap;
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{Arg, ArgSettings},
+    util::VecMap,
+    INTERNAL_ERROR_MSG,
+};
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {

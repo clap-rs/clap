@@ -1,8 +1,8 @@
 // Std
+use std::{ops::BitOr, str::FromStr};
+
+// Third party
 use bitflags::bitflags;
-#[allow(unused_imports)]
-use std::ops::BitOr;
-use std::str::FromStr;
 
 bitflags! {
     struct Flags: u64 {

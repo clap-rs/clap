@@ -1,13 +1,12 @@
 // Std
-use std::collections::HashMap;
-use std::ffi::OsString;
-use std::mem;
-use std::ops::Deref;
+use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
-use crate::build::{Arg, ArgSettings};
-use crate::parse::{ArgMatches, MatchedArg, SubCommand, ValueType};
-use crate::util::Id;
+use crate::{
+    build::{Arg, ArgSettings},
+    parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
+    util::Id,
+};
 
 #[derive(Debug)]
 pub(crate) struct ArgMatcher(pub(crate) ArgMatches);

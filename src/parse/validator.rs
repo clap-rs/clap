@@ -1,13 +1,14 @@
 // Internal
-use crate::build::app::AppSettings as AS;
-use crate::build::{Arg, ArgSettings};
-use crate::output::Usage;
-use crate::parse::errors::Result as ClapResult;
-use crate::parse::errors::{Error, ErrorKind};
-use crate::parse::{ArgMatcher, MatchedArg, ParseResult, Parser, ValueType};
-use crate::util::{ChildGraph, Id};
-use crate::INTERNAL_ERROR_MSG;
-use crate::INVALID_UTF8;
+use crate::{
+    build::{AppSettings as AS, Arg, ArgSettings},
+    output::Usage,
+    parse::{
+        errors::{Error, ErrorKind, Result as ClapResult},
+        ArgMatcher, MatchedArg, ParseResult, Parser, ValueType,
+    },
+    util::{ChildGraph, Id},
+    INTERNAL_ERROR_MSG, INVALID_UTF8,
+};
 
 pub(crate) struct Validator<'b, 'c, 'z>
 where

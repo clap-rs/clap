@@ -1,5 +1,7 @@
-use std::fmt::Display;
-use std::hash::{Hash, Hasher};
+use std::{
+    fmt::Display,
+    hash::{Hash, Hasher},
+};
 
 const MAGIC_INIT: u64 = 0x811C_9DC5;
 

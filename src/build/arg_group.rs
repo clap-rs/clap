@@ -1,5 +1,4 @@
 // Std
-
 use std::fmt::{Debug, Formatter, Result};
 
 // Internal

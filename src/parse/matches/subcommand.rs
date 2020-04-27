@@ -1,6 +1,5 @@
 // Internal
-use crate::util::Id;
-use crate::ArgMatches;
+use crate::{util::Id, ArgMatches};
 
 /// The abstract representation of a command line subcommand.
 ///

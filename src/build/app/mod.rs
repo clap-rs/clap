@@ -5,27 +5,29 @@ mod tests;
 pub use self::settings::AppSettings;
 
 // Std
-use std::collections::HashMap;
-use std::env;
-use std::ffi::OsString;
-use std::fmt;
-use std::io::{self, BufRead, Write};
-use std::ops::Index;
-use std::path::Path;
-use std::process;
+use std::{
+    collections::HashMap,
+    env,
+    ffi::OsString,
+    fmt,
+    io::{self, BufRead, Write},
+    ops::Index,
+    path::Path,
+};
 
 // Third Party
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings};
-use crate::mkeymap::MKeyMap;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
-use crate::parse::errors::Result as ClapResult;
-use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
-use crate::util::{termcolor::ColorChoice, Id, Key};
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings},
+    mkeymap::MKeyMap,
+    output::{fmt::Colorizer, Help, HelpWriter, Usage},
+    parse::{ArgMatcher, ArgMatches, Input, Parser},
+    util::{safe_exit, termcolor::ColorChoice, Id, Key},
+    Result as ClapResult, INTERNAL_ERROR_MSG,
+};
 
 // FIXME (@CreepySkeleton): some of these variants are never constructed
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -1,18 +1,23 @@
 // Std
-use std::borrow::Cow;
-use std::cmp;
-use std::collections::BTreeMap;
-use std::io::{self, Cursor, Read, Write};
-use std::usize;
+use std::{
+    borrow::Cow,
+    cmp,
+    collections::BTreeMap,
+    io::{self, Cursor, Read, Write},
+    usize,
+};
 
 // Internal
-use crate::build::{App, AppSettings, Arg, ArgSettings};
-use crate::output::{fmt::Colorizer, Usage};
-use crate::parse::errors::{Error, Result as ClapResult};
-use crate::parse::Parser;
-use crate::util::VecMap;
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{App, AppSettings, Arg, ArgSettings},
+    output::{fmt::Colorizer, Usage},
+    parse::errors::{Error, Result as ClapResult},
+    parse::Parser,
+    util::VecMap,
+    INTERNAL_ERROR_MSG,
+};
 
+// Third party
 use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
