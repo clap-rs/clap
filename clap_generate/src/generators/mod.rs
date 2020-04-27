@@ -186,7 +186,7 @@ pub trait Generator {
                 Arg::with_name("help")
                     .short('h')
                     .long("help")
-                    .help("Prints help information"),
+                    .about("Prints help information"),
             );
         }
 
@@ -197,7 +197,7 @@ pub trait Generator {
                 Arg::with_name("version")
                     .short('V')
                     .long("version")
-                    .help("Prints version information"),
+                    .about("Prints version information"),
             );
         }
 

@@ -95,7 +95,6 @@ pub struct Attrs {
     methods: Vec<Method>,
     parser: Sp<Parser>,
     author: Option<Method>,
-    about: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
     is_enum: bool,
@@ -257,7 +256,6 @@ impl Attrs {
             doc_comment: vec![],
             methods: vec![],
             parser: Parser::default_spanned(default_span),
-            about: None,
             author: None,
             version: None,
             verbatim_doc_comment: None,
@@ -342,7 +340,10 @@ impl Attrs {
                 }
 
                 About(ident, about) => {
-                    self.about = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
+                    let method = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
+                    if let Some(m) = method {
+                        self.methods.push(m);
+                    }
                 }
 
                 Author(ident, author) => {
@@ -439,7 +440,7 @@ impl Attrs {
             env_casing,
         );
         res.push_attrs(&field.attrs);
-        res.push_doc_comment(&field.attrs, "help");
+        res.push_doc_comment(&field.attrs, "about");
 
         match &*res.kind {
             Kind::Flatten => {
@@ -583,11 +584,10 @@ impl Attrs {
     /// generate methods from attributes on top of struct or enum
     pub fn top_level_methods(&self) -> TokenStream {
         let author = &self.author;
-        let about = &self.about;
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
 
-        quote!( #(#doc_comment)* #author #about #(#methods)*  )
+        quote!( #(#doc_comment)* #author #(#methods)*)
     }
 
     /// generate methods on top of a field
@@ -655,17 +655,15 @@ impl Attrs {
     pub fn has_explicit_methods(&self) -> bool {
         self.methods
             .iter()
-            .any(|m| m.name != "help" && m.name != "long_help")
+            .any(|m| m.name != "about" && m.name != "long_about")
     }
 
     pub fn has_doc_methods(&self) -> bool {
         !self.doc_comment.is_empty()
-            || self.methods.iter().any(|m| {
-                m.name == "help"
-                    || m.name == "long_help"
-                    || m.name == "about"
-                    || m.name == "long_about"
-            })
+            || self
+                .methods
+                .iter()
+                .any(|m| m.name == "about" || m.name == "long_about")
     }
 }
 

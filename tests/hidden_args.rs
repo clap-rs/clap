@@ -81,11 +81,11 @@ fn hidden_short_args() {
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .help("Some help text describing the --config arg"),
+                .about("Some help text describing the --config arg"),
             Arg::with_name("visible")
                 .short('v')
                 .long("visible")
-                .help("This text should be visible"),
+                .about("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -108,11 +108,11 @@ fn hidden_short_args_long_help() {
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .help("Some help text describing the --config arg"),
+                .about("Some help text describing the --config arg"),
             Arg::with_name("visible")
                 .short('v')
                 .long("visible")
-                .help("This text should be visible"),
+                .about("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -151,11 +151,11 @@ fn hidden_long_args() {
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .help("Some help text describing the --config arg"),
+                .about("Some help text describing the --config arg"),
             Arg::with_name("visible")
                 .short('v')
                 .long("visible")
-                .help("This text should be visible"),
+                .about("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -190,11 +190,11 @@ fn hidden_long_args_short_help() {
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .help("Some help text describing the --config arg"),
+                .about("Some help text describing the --config arg"),
             Arg::with_name("visible")
                 .short('v')
                 .long("visible")
-                .help("This text should be visible"),
+                .about("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(

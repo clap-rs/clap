@@ -357,7 +357,7 @@ fn write_opts_of(p: &App) -> String {
     for o in opts!(p) {
         debug!("write_opts_of:iter: o={}", o.get_name());
 
-        let help = o.get_help().map_or(String::new(), escape_help);
+        let help = o.get_about().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o);
 
         // @TODO @soundness should probably be either multiple occurrences or multiple values and
@@ -444,7 +444,7 @@ fn write_flags_of(p: &App) -> String {
     for f in Zsh::flags(p) {
         debug!("write_flags_of:iter: f={}", f.get_name());
 
-        let help = f.get_help().map_or(String::new(), escape_help);
+        let help = f.get_about().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f);
 
         let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
@@ -504,7 +504,7 @@ fn write_positionals_of(p: &App) -> String {
             optional = optional,
             name = arg.get_name(),
             help = arg
-                .get_help()
+                .get_about()
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]")

@@ -40,24 +40,24 @@ fn main() {
                 .short('c')
                 .long("config")
                 .value_name("FILE")
-                .help("Sets a custom config file")
+                .about("Sets a custom config file")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name("output")
-                .help("Sets an optional output file")
+                .about("Sets an optional output file")
                 .index(1),
         )
         .arg(
             Arg::with_name("debug")
                 .short('d')
                 .multiple(true)
-                .help("Turn debugging information on"),
+                .about("Turn debugging information on"),
         )
         .subcommand(
             App::new("test")
                 .about("does testing things")
-                .arg(Arg::with_name("list").short('l').help("lists test values")),
+                .arg(Arg::with_name("list").short('l').about("lists test values")),
         )
         .get_matches();
 

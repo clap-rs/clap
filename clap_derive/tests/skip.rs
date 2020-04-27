@@ -96,10 +96,10 @@ fn skip_enum() {
 fn skip_help_doc_comments() {
     #[derive(Clap, Debug, PartialEq)]
     pub struct Opt {
-        #[clap(skip, help = "internal_stuff")]
+        #[clap(skip, about = "internal_stuff")]
         a: u32,
 
-        #[clap(skip, long_help = "internal_stuff\ndo not touch")]
+        #[clap(skip, long_about = "internal_stuff\ndo not touch")]
         b: u32,
 
         /// Not meant to be used by clap.

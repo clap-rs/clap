@@ -312,7 +312,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         }
 
         let spec_vals = self.spec_vals(arg);
-        let h = arg.help.unwrap_or("");
+        let h = arg.about.unwrap_or("");
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
         let taken = self.longest + 12;
@@ -399,9 +399,9 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn help(&mut self, arg: &Arg<'c>, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
         debug!("Help::help");
         let h = if self.use_long {
-            arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
+            arg.long_about.unwrap_or_else(|| arg.about.unwrap_or(""))
         } else {
-            arg.help.unwrap_or_else(|| arg.long_help.unwrap_or(""))
+            arg.about.unwrap_or_else(|| arg.long_about.unwrap_or(""))
         };
         let mut help = String::from(h) + spec_vals;
         let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;

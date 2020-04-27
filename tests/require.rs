@@ -652,7 +652,7 @@ fn require_eq() {
             .required(true)
             .require_equals(true)
             .value_name("FILE")
-            .help("some"),
+            .about("some"),
     );
     assert!(utils::compare_output(
         app,
@@ -711,7 +711,7 @@ fn issue_1643_args_mutually_require_each_other() {
     let app = App::new("test")
         .arg(
             Arg::with_name("relation_id")
-                .help("The relation id to get the data from")
+                .about("The relation id to get the data from")
                 .long("relation-id")
                 .short('r')
                 .takes_value(true)
@@ -719,7 +719,7 @@ fn issue_1643_args_mutually_require_each_other() {
         )
         .arg(
             Arg::with_name("remote_unit_name")
-                .help("The name of the remote unit to get data from")
+                .about("The name of the remote unit to get data from")
                 .long("remote-unit")
                 .short('u')
                 .takes_value(true)

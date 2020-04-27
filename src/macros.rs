@@ -486,7 +486,7 @@ macro_rules! clap_app {
     };
     (@as_expr $expr:expr) => { $expr };
     // Help
-    (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help(clap_app!{ @as_expr $desc }) };
+    (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.about(clap_app!{ @as_expr $desc }) };
     // Handle functions that need to be called multiple times for each argument
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:literal)*] $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target).trim_matches('"')) )*) $modes $($tail)* }
