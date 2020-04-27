@@ -1301,7 +1301,7 @@ impl<'b> App<'b> {
                     }
 
                     drop(e);
-                    process::exit(2);
+                    safe_exit(2);
                 }
 
                 e.exit()
@@ -1379,7 +1379,7 @@ impl<'b> App<'b> {
 
                 drop(self);
                 drop(e);
-                process::exit(2);
+                safe_exit(2);
             }
 
             drop(self);
@@ -1914,7 +1914,7 @@ impl<'b> App<'b> {
         };
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
-                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
+                // In case we're dealing with subcommands i.e. git mv is translated to git-mv
                 write!(w, "{} {}", bn.replace(" ", "-"), ver)
             } else {
                 write!(w, "{} {}", &self.name[..], ver)

@@ -15,3 +15,12 @@ pub(crate) use termcolor;
 
 #[cfg(not(feature = "color"))]
 pub(crate) mod termcolor;
+
+pub(crate) fn safe_exit(code: i32) -> ! {
+    use std::io::Write;
+
+    let _ = std::io::stdout().lock().flush();
+    let _ = std::io::stderr().lock().flush();
+
+    std::process::exit(code)
+}

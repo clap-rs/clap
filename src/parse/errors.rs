@@ -433,11 +433,11 @@ impl Error {
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
             self.message.print().expect("Error writing Error to stderr");
-            process::exit(1);
+            safe_exit(1);
         }
 
         self.message.print().expect("Error writing Error to stdout");
-        process::exit(0);
+        safe_exit(0)
     }
 
     #[allow(unused)] // requested by @pksunkara
