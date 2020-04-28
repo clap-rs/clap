@@ -17,13 +17,12 @@ use std::env;
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token, Type};
 
 use super::{
-    spanned::Sp, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING,
-    DEFAULT_ENV_CASING,
+    spanned::Sp, sub_type, subty_if_name, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind,
+    DEFAULT_CASING, DEFAULT_ENV_CASING,
 };
-use crate::derives::ty::sub_type;
 
 pub fn gen_for_struct(
     struct_name: &Ident,
@@ -109,7 +108,7 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
 fn gen_augment_clap_fn(
     fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     let app_var = Ident::new("app", proc_macro2::Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
     quote! {
@@ -119,13 +118,19 @@ fn gen_augment_clap_fn(
     }
 }
 
+fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
+    quote_spanned! { ty.span()=>
+        .possible_values(&<#ty as ::clap::ArgEnum>::VARIANTS)
+    }
+}
+
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 pub fn gen_app_augmentation(
     fields: &Punctuated<Field, Token![,]>,
     app_var: &Ident,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
         let attrs = Attrs::from_field(
             &field,
@@ -195,6 +200,7 @@ pub fn gen_app_augmentation(
 
                 let parser = attrs.parser();
                 let func = &parser.func;
+
                 let validator = match *parser.kind {
                     _ if attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
@@ -213,10 +219,21 @@ pub fn gen_app_augmentation(
                 let modifier = match **ty {
                     Ty::Bool => quote!(),
 
-                    Ty::Option => quote_spanned! { ty.span()=>
-                        .takes_value(true)
-                        #validator
-                    },
+                    Ty::Option => {
+                        let mut possible_values = quote!();
+
+                        if attrs.is_enum() {
+                            if let Some(subty) = subty_if_name(&field.ty, "Option") {
+                                possible_values = gen_arg_enum_possible_values(subty);
+                            }
+                        };
+
+                        quote_spanned! { ty.span()=>
+                            .takes_value(true)
+                            #possible_values
+                            #validator
+                        }
+                    }
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .takes_value(true)
@@ -233,11 +250,22 @@ pub fn gen_app_augmentation(
                         #validator
                     },
 
-                    Ty::Vec => quote_spanned! { ty.span()=>
-                        .takes_value(true)
-                        .multiple(true)
-                        #validator
-                    },
+                    Ty::Vec => {
+                        let mut possible_values = quote!();
+
+                        if attrs.is_enum() {
+                            if let Some(subty) = subty_if_name(&field.ty, "Vec") {
+                                possible_values = gen_arg_enum_possible_values(subty);
+                            }
+                        };
+
+                        quote_spanned! { ty.span()=>
+                            .takes_value(true)
+                            .multiple(true)
+                            #possible_values
+                            #validator
+                        }
+                    }
 
                     Ty::Other if occurrences => quote_spanned! { ty.span()=>
                         .multiple_occurrences(true)
@@ -250,15 +278,10 @@ pub fn gen_app_augmentation(
 
                     Ty::Other => {
                         let required = !attrs.has_method("default_value");
+                        let mut possible_values = quote!();
 
-                        let possible_values = if attrs.is_enum() {
-                            let field_ty = &field.ty;
-
-                            quote_spanned! { field_ty.span()=>
-                                .possible_values(&<#field_ty as ::clap::ArgEnum>::VARIANTS)
-                            }
-                        } else {
-                            quote!()
+                        if attrs.is_enum() {
+                            possible_values = gen_arg_enum_possible_values(&field.ty);
                         };
 
                         quote_spanned! { ty.span()=>

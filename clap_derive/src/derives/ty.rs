@@ -80,7 +80,7 @@ where
         })
 }
 
-fn subty_if_name<'a>(ty: &'a syn::Type, name: &str) -> Option<&'a syn::Type> {
+pub fn subty_if_name<'a>(ty: &'a syn::Type, name: &str) -> Option<&'a syn::Type> {
     subty_if(ty, |seg| seg.ident == name)
 }
 

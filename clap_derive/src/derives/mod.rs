@@ -23,10 +23,9 @@ pub mod spanned;
 mod subcommand;
 pub mod ty;
 
-// pub use self::arg_enum::derive_arg_enum;
 pub use self::attrs::{
     Attrs, CasingStyle, GenOutput, Kind, Name, Parser, ParserKind, DEFAULT_CASING,
     DEFAULT_ENV_CASING,
 };
 pub use self::clap::derive_clap;
-pub use self::ty::{sub_type, Ty};
+pub use self::ty::{sub_type, subty_if_name, Ty};
