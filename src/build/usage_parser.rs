@@ -69,7 +69,7 @@ impl<'a> UsageParser<'a> {
         };
         if !arg.has_switch() && arg.is_set(ArgSettings::MultipleOccurrences) {
             // We had a positional and need to set mult vals too
-            arg.setb(ArgSettings::MultipleValues);
+            arg.set_mut(ArgSettings::MultipleValues);
         }
         debug!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
@@ -85,7 +85,7 @@ impl<'a> UsageParser<'a> {
             == b'<'
             && !self.explicit_name_set
         {
-            arg.setb(ArgSettings::Required);
+            arg.set_mut(ArgSettings::Required);
         }
         self.pos += 1;
         self.stop_at(name_end);
@@ -108,7 +108,7 @@ impl<'a> UsageParser<'a> {
                 let mut v = VecMap::new();
                 v.insert(0, name);
                 arg.val_names = Some(v);
-                arg.setb(ArgSettings::TakesValue);
+                arg.set_mut(ArgSettings::TakesValue);
             }
             self.prev = UsageToken::ValName;
         }
@@ -185,9 +185,9 @@ impl<'a> UsageParser<'a> {
             if dot_counter == 3 {
                 debug!("UsageParser::multiple: setting multiple");
                 if arg.is_set(ArgSettings::TakesValue) {
-                    arg.setb(ArgSettings::MultipleValues);
+                    arg.set_mut(ArgSettings::MultipleValues);
                 }
-                arg.setb(ArgSettings::MultipleOccurrences);
+                arg.set_mut(ArgSettings::MultipleOccurrences);
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
                 break;
@@ -220,7 +220,7 @@ impl<'a> UsageParser<'a> {
             "UsageParser::default: setting default...\"{}\"",
             &self.usage[self.start..self.pos]
         );
-        arg.setb(ArgSettings::TakesValue);
+        arg.set_mut(ArgSettings::TakesValue);
         arg.default_vals = Some(vec![std::ffi::OsStr::new(
             &self.usage[self.start..self.pos],
         )]);
