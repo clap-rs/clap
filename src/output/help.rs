@@ -791,7 +791,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes default help for a Parser Object to the wrapped stream.
     pub(crate) fn write_default_help(&mut self) -> ClapResult<()> {
         debug!("Help::write_default_help");
-        if let Some(h) = self.parser.app.pre_help {
+        if let Some(h) = self.parser.app.before_help {
             self.write_before_after_help(h)?;
             self.none("\n\n")?;
         }
@@ -838,7 +838,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             self.write_all_args()?;
         }
 
-        if let Some(h) = self.parser.app.more_help {
+        if let Some(h) = self.parser.app.after_help {
             if flags || opts || pos || subcmds {
                 self.none("\n\n")?;
             }
@@ -1040,10 +1040,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     self.write_subcommands(self.parser.app)?;
                 }
                 b"after-help" => {
-                    self.none(self.parser.app.more_help.unwrap_or("unknown after-help"))?;
+                    self.none(self.parser.app.after_help.unwrap_or("unknown after-help"))?;
                 }
                 b"before-help" => {
-                    self.none(self.parser.app.pre_help.unwrap_or("unknown before-help"))?;
+                    self.none(self.parser.app.before_help.unwrap_or("unknown before-help"))?;
                 }
                 // Unknown tag, write it back.
                 r => {

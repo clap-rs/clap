@@ -77,8 +77,8 @@ pub struct App<'b> {
     pub(crate) long_version: Option<&'b str>,
     pub(crate) about: Option<&'b str>,
     pub(crate) long_about: Option<&'b str>,
-    pub(crate) more_help: Option<&'b str>,
-    pub(crate) pre_help: Option<&'b str>,
+    pub(crate) before_help: Option<&'b str>,
+    pub(crate) after_help: Option<&'b str>,
     pub(crate) aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
     pub(crate) usage_str: Option<&'b str>,
     pub(crate) usage: Option<String>,
@@ -345,7 +345,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.more_help = Some(help.into());
+        self.after_help = Some(help.into());
         self
     }
 
@@ -362,7 +362,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
-        self.pre_help = Some(help.into());
+        self.before_help = Some(help.into());
         self
     }
 

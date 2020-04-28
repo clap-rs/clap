@@ -235,7 +235,7 @@ impl<'help> Arg<'help> {
                 "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
                 "required_unless_all" => {
                     a = yaml_vec_or_str!(v, a, required_unless);
-                    a.setb(ArgSettings::RequiredUnlessAll);
+                    a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }
                 s => panic!(
@@ -452,128 +452,14 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets the short help text of the argument that will be displayed to the user when they print
-    /// the help information with `-h`. Typically, this is a short (one line) description of the
-    /// arg.
-    ///
-    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
-    /// `--help` clap will still display the contents of `help` appropriately
-    ///
-    /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
-    ///
-    /// # Examples
-    ///
-    /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
-    /// include a newline in the help text and have the following text be properly aligned with all
-    /// the other help text.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::with_name("config")
-    ///     .help("The config file used by the myprog")
-    /// # ;
-    /// ```
-    ///
-    /// Setting `help` displays a short message to the side of the argument when the user passes
-    /// `-h` or `--help` (by default).
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
-    ///         .long("config")
-    ///         .help("Some help text describing the --config arg"))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--help"
-    ///     ]);
-    /// ```
-    ///
-    /// The above example displays
-    ///
-    /// ```text
-    /// helptest
-    ///
-    /// USAGE:
-    ///    helptest [FLAGS]
-    ///
-    /// FLAGS:
-    ///     --config     Some help text describing the --config arg
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
-    /// ```
-    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
+    /// See [`Arg::about`](./struct.Arg.html#method.about)
     #[deprecated(since = "3.0.0", note = "Please use `about` method instead")]
     #[inline]
     pub fn help(self, h: &'help str) -> Self {
         self.about(h)
     }
 
-    /// Sets the long help text of the argument that will be displayed to the user when they print
-    /// the help information with `--help`. Typically this a more detailed (multi-line) message
-    /// that describes the arg.
-    ///
-    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
-    /// clap will still display the contents of `long_help` appropriately
-    ///
-    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
-    ///
-    /// # Examples
-    ///
-    /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
-    /// include a newline in the help text and have the following text be properly aligned with all
-    /// the other help text.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::with_name("config")
-    ///     .long_help(
-    /// "The config file used by the myprog must be in JSON format
-    /// with only valid keys and may not contain other nonsense
-    /// that cannot be read by this program. Obviously I'm going on
-    /// and on, so I'll stop now.")
-    /// # ;
-    /// ```
-    ///
-    /// Setting `help` displays a short message to the side of the argument when the user passes
-    /// `-h` or `--help` (by default).
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::with_name("cfg")
-    ///         .long("config")
-    ///         .long_help(
-    /// "The config file used by the myprog must be in JSON format
-    /// with only valid keys and may not contain other nonsense
-    /// that cannot be read by this program. Obviously I'm going on
-    /// and on, so I'll stop now."))
-    ///     .get_matches_from(vec![
-    ///         "prog", "--help"
-    ///     ]);
-    /// ```
-    ///
-    /// The above example displays
-    ///
-    /// ```notrust
-    /// helptest
-    ///
-    /// USAGE:
-    ///    helptest [FLAGS]
-    ///
-    /// FLAGS:
-    ///    --config
-    ///         The config file used by the myprog must be in JSON format
-    ///         with only valid keys and may not contain other nonsense
-    ///         that cannot be read by this program. Obviously I'm going on
-    ///         and on, so I'll stop now.
-    ///
-    /// -h, --help
-    ///         Prints help information
-    ///
-    /// -V, --version
-    ///         Prints version information
-    /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
+    /// See [`Arg::long_about`](./struct.Arg.html#method.long_about)
     #[deprecated(since = "3.0.0", note = "Please use `long_about` method instead")]
     #[inline]
     pub fn long_help(self, h: &'help str) -> Self {
@@ -1769,7 +1655,7 @@ impl<'help> Arg<'help> {
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     #[inline]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.terminator = Some(term);
         self
     }
@@ -1822,7 +1708,7 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_values(mut self, names: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in names {
                 vec.push(s);
@@ -1887,7 +1773,7 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_value(mut self, name: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             vec.push(name);
         } else {
@@ -2016,7 +1902,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
         self
     }
@@ -2163,10 +2049,9 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
-    #[inline]
     pub fn max_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::MultipleValues);
+        self.set_mut(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::MultipleValues);
         self.max_vals = Some(qty);
         self
     }
@@ -2259,9 +2144,9 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unsetb(ArgSettings::ValueDelimiterNotSet);
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::UseValueDelimiter);
+        self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+        self.set_mut(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
                 .next()
@@ -2330,10 +2215,10 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+            self.set_mut(ArgSettings::UseValueDelimiter);
         }
         if let Some(ref mut vals) = self.val_names {
             let mut l = vals.len();
@@ -2398,7 +2283,7 @@ impl<'help> Arg<'help> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_name(mut self, name: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
             vals.insert(l, name);
@@ -2501,7 +2386,7 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.default_vals = Some(vals.to_vec());
         self
     }
@@ -2622,7 +2507,7 @@ impl<'help> Arg<'help> {
         default: &'help OsStr,
     ) -> Self {
         let arg = arg_id.into();
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
             vm.insert(l, (arg, val, default));
@@ -2852,7 +2737,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         if !self.is_set(ArgSettings::MultipleOccurrences) {
-            self.setb(ArgSettings::TakesValue);
+            self.set_mut(ArgSettings::TakesValue);
         }
 
         self.env = Some((name, env::var_os(name)));
@@ -3233,7 +3118,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
-            self.unsetb(ArgSettings::AllowEmptyValues);
+            self.unset_mut(ArgSettings::AllowEmptyValues);
             self.setting(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
@@ -3361,13 +3246,13 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
-            self.setb(ArgSettings::UseValueDelimiter);
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.set_mut(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+            self.set_mut(ArgSettings::UseValueDelimiter);
             self.setting(ArgSettings::RequireDelimiter)
         } else {
-            self.unsetb(ArgSettings::UseValueDelimiter);
-            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
     }
@@ -3592,12 +3477,12 @@ impl<'help> Arg<'help> {
             if self.val_delim.is_none() {
                 self.val_delim = Some(',');
             }
-            self.setb(ArgSettings::TakesValue);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.set_mut(ArgSettings::TakesValue);
+            self.set_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::ValueDelimiterNotSet)
         } else {
             self.val_delim = None;
-            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::ValueDelimiterNotSet)
         }
     }
@@ -3686,9 +3571,9 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn next_line_help(mut self, nlh: bool) -> Self {
         if nlh {
-            self.setb(ArgSettings::NextLineHelp);
+            self.set_mut(ArgSettings::NextLineHelp);
         } else {
-            self.unsetb(ArgSettings::NextLineHelp);
+            self.unset_mut(ArgSettings::NextLineHelp);
         }
         self
     }
@@ -3875,10 +3760,10 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn multiple(mut self, multi: bool) -> Self {
         if multi {
-            self.setb(ArgSettings::MultipleOccurrences);
+            self.set_mut(ArgSettings::MultipleOccurrences);
             self.setting(ArgSettings::MultipleValues)
         } else {
-            self.unsetb(ArgSettings::MultipleOccurrences);
+            self.unset_mut(ArgSettings::MultipleOccurrences);
             self.unset_setting(ArgSettings::MultipleValues)
         }
     }
@@ -4203,7 +4088,7 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn setting(mut self, s: ArgSettings) -> Self {
-        self.setb(s);
+        self.set_mut(s);
         self
     }
 
@@ -4221,7 +4106,7 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {
-        self.unsetb(s);
+        self.unset_mut(s);
         self
     }
 
@@ -4246,8 +4131,8 @@ impl<'help> Arg<'help> {
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
             {
-                self.setb(ArgSettings::MultipleValues);
-                self.setb(ArgSettings::MultipleOccurrences);
+                self.set_mut(ArgSettings::MultipleValues);
+                self.set_mut(ArgSettings::MultipleOccurrences);
             }
         } else if self.is_set(ArgSettings::TakesValue) {
             if let Some(ref vec) = self.val_names {
@@ -4258,13 +4143,11 @@ impl<'help> Arg<'help> {
         }
     }
 
-    // @TODO @p6 @naming @internal: rename to set_mut
-    pub(crate) fn setb(&mut self, s: ArgSettings) {
+    pub(crate) fn set_mut(&mut self, s: ArgSettings) {
         self.settings.set(s);
     }
 
-    // @TODO @p6 @naming @internal: rename to unset_mut
-    pub(crate) fn unsetb(&mut self, s: ArgSettings) {
+    pub(crate) fn unset_mut(&mut self, s: ArgSettings) {
         self.settings.unset(s);
     }
 
@@ -4616,7 +4499,7 @@ mod test {
     #[test]
     fn positiona_display_mult() {
         let mut p = Arg::with_name("pos").index(1);
-        p.setb(ArgSettings::MultipleValues);
+        p.set_mut(ArgSettings::MultipleValues);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
     }
