@@ -249,3 +249,63 @@ fn multiple_alias() {
         Opt::parse_from(&["", "t"])
     );
 }
+
+#[test]
+fn option() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum ArgChoice {
+        Foo,
+        Bar,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(arg_enum)]
+        arg: Option<ArgChoice>,
+    };
+
+    assert_eq!(Opt { arg: None }, Opt::parse_from(&[""]));
+    assert_eq!(
+        Opt {
+            arg: Some(ArgChoice::Foo)
+        },
+        Opt::parse_from(&["", "foo"])
+    );
+    assert_eq!(
+        Opt {
+            arg: Some(ArgChoice::Bar)
+        },
+        Opt::parse_from(&["", "bar"])
+    );
+    assert!(Opt::try_parse_from(&["", "fOo"]).is_err());
+}
+
+#[test]
+fn vector() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum ArgChoice {
+        Foo,
+        Bar,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(arg_enum, short, long)]
+        arg: Vec<ArgChoice>,
+    };
+
+    assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&[""]));
+    assert_eq!(
+        Opt {
+            arg: vec![ArgChoice::Foo]
+        },
+        Opt::parse_from(&["", "-a", "foo"])
+    );
+    assert_eq!(
+        Opt {
+            arg: vec![ArgChoice::Foo, ArgChoice::Bar]
+        },
+        Opt::parse_from(&["", "-a", "foo", "bar"])
+    );
+    assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
+}
