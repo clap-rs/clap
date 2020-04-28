@@ -197,6 +197,8 @@ impl<'help> Arg<'help> {
                 "aliases" => yaml_vec_or_str!(v, a, alias),
                 "about" => yaml_to_str!(a, v, about),
                 "long_about" => yaml_to_str!(a, v, long_about),
+                "help" => yaml_to_str!(a, v, about),
+                "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if" => yaml_tuple2!(a, v, required_if),
                 "required_ifs" => yaml_tuple2!(a, v, required_if),
