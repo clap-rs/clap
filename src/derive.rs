@@ -111,9 +111,36 @@ pub trait IntoApp: Sized {
     fn augment_clap(app: App<'_>) -> App<'_>;
 }
 
-/// Extract values from ArgMatches into the struct.
+/// Converts an instance of [`ArgMatches`] to a consumer defined struct.
 pub trait FromArgMatches: Sized {
-    /// @TODO @release @docs
+    /// It's common to have an "application context" struct (sometimes called
+    /// config) that represents all the normalized values after being processed by
+    /// the CLI.
+    ///
+    /// For instance, if an application we made had two CLI options, `--name
+    /// <STRING>` and a flag `--debug` to distinguish "debugging mode" for our made
+    /// up CLI, we may create a context struct as follows:
+    ///
+    /// ```no_run
+    /// struct Context {
+    ///     name: String,
+    ///     debug: bool
+    /// }
+    /// ```
+    ///
+    /// And after letting `clap` parse the CLI, we get back and instance of
+    /// `ArgMatches`, we may create a `From` implementation like so:
+    ///
+    /// ```no_run
+    /// impl From<ArgMatches> for Context {
+    ///    fn from(m: ArgMatches) -> Self {
+    ///        Context {
+    ///            name: m.value_of("name").unwrap(),
+    ///            debug: m.is_present("debug"),
+    ///        }
+    ///    }
+    /// }
+    /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Self;
 }
 
