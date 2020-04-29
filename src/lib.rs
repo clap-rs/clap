@@ -27,26 +27,92 @@
 //!
 //! ## Quick Example
 //!
-//! The following examples show a quick example of some of the very basic functionality of `clap`.
-//! For more advanced usage, such as requirements, conflicts, groups, multiple values and
-//! occurrences see the [documentation](https://docs.rs/clap/), [examples/] directory of
-//! this repository or the [video tutorials].
-//!
-//! **NOTE:** All of these examples are functionally the same, but show different styles in which to
-//! use `clap`
-//!
-//! The first example shows a method that allows more advanced configuration options (not shown in
-//! this small example), or even dynamically generating arguments when desired. The downside is it's
-//! more verbose.
-//!
-//! ```no_run
-//! // (Full example with detailed comments in examples/01b_quick_example.rs)
+//! The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation](https://docs.rs/clap/), [examples/](examples) directory of this repository or the [video tutorials](https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U).
+//! 
+//! **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`. These different styles are purely a matter of personal preference.
+//! 
+//! The first example shows the simplest way to use `clap`, by defining a struct. If you're familiar with the `structopt` crate you're in luck, it's the same! (In fact it's the exact same code running under the covers!)
+//! 
+//! ```rust
+//! // (Full example with detailed comments in examples/01d_quick_example.rs)
 //! //
-//! // This example demonstrates clap's full 'builder pattern' style of creating arguments which is
-//! // more verbose, but allows easier editing, and at times more advanced options, or the possibility
-//! // to generate arguments dynamically.
-//! use clap::{Arg, App, };
-//!
+//! // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
+//! // simplest method of use, but sacrifices some flexibility.
+//! use clap::Clap;
+//! 
+//! /// This doc string acts as a help message when the user runs '--help'
+//! /// as do all doc strings on fields
+//! #[derive(Clap)]
+//! #[clap(version = "1.0", author = "Kevin K.")]
+//! struct Opts {
+//!     /// Sets a custom config file. Could have been an Option<T> with no default too
+//!     #[clap(short = "c", long = "config", default_value = "default.conf")]
+//!     config: String,
+//!     /// Some input. Because this isn't an Option<T> it's required to be used
+//!     input: String,
+//!     /// A level of verbosity, and can be used multiple times
+//!     #[clap(short = "v", long = "verbose", parse(from_occurrences))]
+//!     verbose: i32,
+//!     #[clap(subcommand)]
+//!     subcmd: SubCommand,
+//! }
+//! 
+//! #[derive(Clap)]
+//! enum SubCommand {
+//!     /// A help message for the Test subcommand
+//!     #[clap(name = "test", version = "1.3", author = "Someone Else")]
+//!     Test(Test),
+//! }
+//! 
+//! /// A subcommand for controlling testing
+//! #[derive(Clap)]
+//! struct Test {
+//!     /// Print debug info
+//!     #[clap(short = "d")]
+//!     debug: bool
+//! }
+//! 
+//! fn main() {
+//!     let opts: Opts = Opts::parse();
+//! 
+//!     // Gets a value for config if supplied by user, or defaults to "default.conf"
+//!     println!("Value for config: {}", opts.config);
+//!     println!("Using input file: {}", opts.input);
+//! 
+//!     // Vary the output based on how many times the user used the "verbose" flag
+//!     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
+//!     match opts.verbose {
+//!         0 => println!("No verbose info"),
+//!         1 => println!("Some verbose info"),
+//!         2 => println!("Tons of verbose info"),
+//!         3 | _ => println!("Don't be crazy"),
+//!     }
+//! 
+//!     // You can handle information about subcommands by requesting their matches by name
+//!     // (as below), requesting just the name used, or both at the same time
+//!     match opts.subcmd {
+//!         SubCommand::Test(t) => {
+//!             if t.debug {
+//!                 println!("Printing debug info...");
+//!             } else {
+//!                 println!("Printing normally...");
+//!             }
+//!         }
+//!     }
+//! 
+//!     // more program logic goes here...
+//! }
+//! ```
+//! 
+//! This second method shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
+//! 
+//! ```rust
+//! // (Full example with detailed comments in examples/01a_quick_example.rs)
+//! //
+//! // This example demonstrates clap's "builder pattern" method of creating arguments
+//! // which the most flexible, but also most verbose.
+//! use clap::{Arg, App, SubCommand};
+//! 
 //! fn main() {
 //!     let matches = App::new("My Super Program")
 //!                           .version("1.0")
@@ -66,7 +132,7 @@
 //!                                .short('v')
 //!                                .multiple(true)
 //!                                .help("Sets the level of verbosity"))
-//!                           .subcommand(App::new("test")
+//!                           .subcommand(SubCommand::with_name("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
@@ -74,75 +140,45 @@
 //!                                           .short('d')
 //!                                           .help("print debug information verbosely")))
 //!                           .get_matches();
-//!
-//!     // Gets a value for config if supplied by user, or defaults to "default.conf"
-//!     let config = matches.value_of("config").unwrap_or("default.conf");
-//!     println!("Value for config: {}", config);
-//!
-//!     // Calling .unwrap() is safe here because "INPUT" is required (if "INPUT" wasn't
-//!     // required we could have used an 'if let' to conditionally get the value)
-//!     println!("Using input file: {}", matches.value_of("INPUT").unwrap());
-//!
-//!     // Vary the output based on how many times the user used the "verbose" flag
-//!     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-//!     match matches.occurrences_of("v") {
-//!         0 => println!("No verbose info"),
-//!         1 => println!("Some verbose info"),
-//!         2 => println!("Tons of verbose info"),
-//!         3 | _ => println!("Don't be crazy"),
-//!     }
-//!
-//!     // You can handle information about subcommands by requesting their matches by name
-//!     // (as below), requesting just the name used, or both at the same time
-//!     if let Some(matches) = matches.subcommand_matches("test") {
-//!         if matches.is_present("debug") {
-//!             println!("Printing debug info...");
-//!         } else {
-//!             println!("Printing normally...");
-//!         }
-//!     }
-//!
-//!     // more program logic goes here...
+//! 
+//!     // Same as above examples...
 //! }
 //! ```
-//!
-//! The next example shows a far less verbose method, but sacrifices some of the advanced
-//! configuration options (not shown in this small example). This method also takes a *very* minor
-//! runtime penalty.
-//!
-//! ```no_run
+//! 
+//! The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
+//! 
+//! ```rust
 //! // (Full example with detailed comments in examples/01a_quick_example.rs)
 //! //
 //! // This example demonstrates clap's "usage strings" method of creating arguments
 //! // which is less verbose
-//! use clap::{Arg, App, };
-//!
+//! use clap::{Arg, App, SubCommand};
+//! 
 //! fn main() {
 //!     let matches = App::new("myapp")
 //!                           .version("1.0")
 //!                           .author("Kevin K. <kbknapp@gmail.com>")
 //!                           .about("Does awesome things")
-//!                           .arg("-c, --config=[FILE] 'Sets a custom config file'")
-//!                           .arg("<INPUT>              'Sets the input file to use'")
-//!                           .arg("-v...                'Sets the level of verbosity'")
-//!                           .subcommand(App::new("test")
+//!                           .args_from_usage(
+//!                               "-c, --config=[FILE] 'Sets a custom config file'
+//!                               <INPUT>              'Sets the input file to use'
+//!                               -v...                'Sets the level of verbosity'")
+//!                           .subcommand(SubCommand::with_name("test")
 //!                                       .about("controls testing features")
 //!                                       .version("1.3")
 //!                                       .author("Someone E. <someone_else@other.com>")
 //!                                       .arg("-d, --debug 'Print debug information'"))
 //!                           .get_matches();
-//!
+//! 
 //!     // Same as previous example...
 //! }
 //! ```
-//!
-//! This third method shows how you can use a YAML file to build your CLI and keep your Rust source
-//! tidy or support multiple localized translations by having different YAML files for each
-//! localization.
-//!
-//! First, create the `cli.yml` file to hold your CLI options, but it could be called anything we
-//! like:
-//!
+//! 
+//! This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
+//! or support multiple localized translations by having different YAML files for each localization.
+//! 
+//! First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
+//! 
 //! ```yaml
 //! name: myapp
 //! version: "1.0"
@@ -173,85 +209,57 @@
 //!                 short: d
 //!                 help: print debug information
 //! ```
-//!
-//! Since this feature requires additional dependencies that not everyone may want, it is *not*
-//! compiled in by default and we need to enable a feature flag in Cargo.toml:
-//!
-//! Simply change your `clap = "~2.27.0"` to `clap = {version = "~2.27.0", features = ["yaml"]}`.
-//!
-//! At last we create our `main.rs` file just like we would have with the previous two examples:
-//!
-//! ```ignore
+//! 
+//! Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
+//! 
+//! Simply change your `clap = "3.0.0-beta.1"` to `clap = {version = "3.0.0-beta.1", features = ["yaml"]}`.
+//! 
+//! Finally we create our `main.rs` file just like we would have with the previous two examples:
+//! 
+//! ```rust
 //! // (Full example with detailed comments in examples/17_yaml.rs)
 //! //
 //! // This example demonstrates clap's building from YAML style of creating arguments which is far
 //! // more clean, but takes a very small performance hit compared to the other two methods.
-//! use clap::App;
-//!
+//! use clap::{App, load_yaml};
+//! 
 //! fn main() {
 //!     // The YAML file is found relative to the current file, similar to how modules are found
 //!     let yaml = load_yaml!("cli.yml");
-//!     let matches = App::from_yaml(yaml).get_matches();
-//!
+//!     let matches = App::from(yaml).get_matches();
+//! 
 //!     // Same as previous examples...
 //! }
 //! ```
-//!
-//! Finally there is a macro version, which is like a hybrid approach offering the speed of the
-//! builder pattern (the first example), but without all the verbosity.
-//!
-//! ```no_run
-//! use clap::clap_app;
-//! fn main() {
-//!     let matches = clap_app!(myapp =>
-//!         (version: "1.0")
-//!         (author: "Kevin K. <kbknapp@gmail.com>")
-//!         (about: "Does awesome things")
-//!         (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
-//!         (@arg INPUT: +required "Sets the input file to use")
-//!         (@arg debug: -d ... "Sets the level of debugging information")
-//!         (@subcommand test =>
-//!             (about: "controls testing features")
-//!             (version: "1.3")
-//!             (author: "Someone E. <someone_else@other.com>")
-//!             (@arg verbose: -v --verbose "Print test information verbosely")
-//!         )
-//!     ).get_matches();
-//!
-//!     // Same as before...
-//! }
-//! ```
-//!
-//! If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or
-//! `help` subcommand, since we defined `test` as a subcommand) the following would be output
-//!
-//! ```text
+//! 
+//! If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output (except the first example where the help message sort of explains the Rust code).
+//! 
+//! ```sh
 //! $ myprog --help
 //! My Super Program 1.0
 //! Kevin K. <kbknapp@gmail.com>
 //! Does awesome things
-//!
-//! USAGE:
-//!     MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
-//!
-//! FLAGS:
-//!     -h, --help       Prints this message
-//!     -v               Sets the level of verbosity
-//!     -V, --version    Prints version information
-//!
-//! OPTIONS:
-//!     -c, --config <FILE>    Sets a custom config file
-//!
+//! 
 //! ARGS:
 //!     INPUT    The input file to use
-//!
+//! 
+//! USAGE:
+//!     MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
+//! 
+//! FLAGS:
+//!     -h, --help       Prints help information
+//!     -v               Sets the level of verbosity
+//!     -V, --version    Prints version information
+//! 
+//! OPTIONS:
+//!     -c, --config <FILE>    Sets a custom config file
+//! 
 //! SUBCOMMANDS:
-//!     help    Prints this message
+//!     help    Prints this message or the help of the given subcommand(s)
 //!     test    Controls testing features
 //! ```
-//!
-//! **NOTE:** You could also run `myapp test --help` to see similar output and options for the
-//! `test` subcommand.
+//! 
+//! **NOTE:** You could also run `myapp test --help` or `myapp help test` to see the help message for the `test` subcommand.
 //!
 //! ## Try it!
 //!
