@@ -1,18 +1,78 @@
-//! This module contains traits that are usable with `#[derive(...)].`
+//! This module contains traits that are usable with the `#[derive(...)].`
+//! macros in [`clap_derive`].
 
 use crate::{App, ArgMatches, Error};
 
 use std::ffi::OsString;
 
-/// This trait is just a convenience on top of FromArgMatches + IntoApp
+/// The primary one-stop-shop trait used to create an instance of a `clap`
+/// [`App`], conduct the parsing, and turn the resulting [`ArgMatches`] back
+/// into concrete instance of the user struct.
+///
+/// This trait is primarily A convenience on top of [`FromArgMatches`] +
+/// [`IntoApp`] which uses those two underlying traits to build the two
+/// fundamental functions `parse` which uses the `std::env::args_os` iterator,
+/// and `parse_from` which allows the consumer to supply the iterator (along
+/// with fallible options for each).
+///
+/// # Examples
+///
+/// The following example creates a `Context` struct that would be used
+/// throughout the application representing the normalized values coming from
+/// the CLI.
+///
+/// ```rust
+/// # use clap::{Clap};
+/// /// My super CLI
+/// #[derive(Clap)]
+/// #[clap(name = "demo")]
+/// struct Context {
+///     /// More verbose output
+///     #[clap(long)]
+///     verbose: bool,
+///     /// An optional name
+///     #[clap(short, long)]
+///     name: Option<String>,
+/// }
+/// ```
+///
+/// The equivilant [`App`] struct + `From` implementation:
+///
+/// ```rust
+/// # use clap::{App, Arg, ArgMatches};
+/// App::new("demo")
+///     .about("My super CLI")
+///     .arg(Arg::with_name("verbose")
+///         .long("verbose")
+///         .help("More verbose output"))
+///     .arg(Arg::with_name("name")
+///         .long("name")
+///         .long("n")
+///         .help("An optional name")
+///         .takes_value(true));
+///
+/// struct Context {
+///     verbose: bool,
+///     name: Option<String>,
+/// }
+///
+/// impl From<ArgMatches> for Context {
+///     fn from(m: ArgMatches) -> Self {
+///         Context {
+///             verbose: m.is_present("verbose"),
+///             name: m.value_of("name").map(|n| n.to_owned()),
+///         }
+///     }
+/// }
+/// ```
 pub trait Clap: FromArgMatches + IntoApp + Sized {
-    /// Parse from `std::env::args()`, exit on error
+    /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
         let matches = <Self as IntoApp>::into_app().get_matches();
         <Self as FromArgMatches>::from_arg_matches(&matches)
     }
 
-    /// Parse from `std::env::args()`, return Err on error.
+    /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
         let matches = <Self as IntoApp>::into_app().try_get_matches()?;
         Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
