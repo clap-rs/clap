@@ -13,10 +13,17 @@ use indexmap::IndexMap;
 
 // Internal
 use crate::{
-    parse::{MatchedArg, SubCommand},
+    parse::MatchedArg,
     util::{Id, Key},
     {Error, INVALID_UTF8},
 };
+
+#[derive(Debug, Clone)]
+pub(crate) struct SubCommand {
+    pub(crate) id: Id,
+    pub(crate) name: String,
+    pub(crate) matches: ArgMatches,
+}
 
 /// Used to get information about the arguments that were supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of

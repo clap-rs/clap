@@ -450,7 +450,7 @@ pub use crate::{
     build::{App, AppSettings, Arg, ArgGroup, ArgSettings},
     derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand},
     parse::errors::{Error, ErrorKind, Result},
-    parse::{ArgMatches, OsValues, SubCommand, Values},
+    parse::{ArgMatches, OsValues, Values},
 };
 
 #[cfg(feature = "yaml")]
