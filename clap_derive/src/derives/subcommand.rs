@@ -35,6 +35,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 
     let from_subcommand = gen_from_subcommand(name, &e.variants, &attrs);
     let augment_subcommands = gen_augment_subcommands(&e.variants, &attrs);
+    let update_from_subcommand = gen_update_from_subcommand(name, &e.variants, &attrs);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -52,6 +53,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         impl ::clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
+            #update_from_subcommand
         }
     }
 }
@@ -286,6 +288,186 @@ fn gen_from_subcommand(
                     match other {
                         #wildcard
                     }
+                }
+            }
+        }
+    }
+}
+
+fn gen_update_from_subcommand(
+    name: &Ident,
+    variants: &Punctuated<Variant, Token![,]>,
+    parent_attribute: &Attrs,
+) -> TokenStream {
+    use syn::Fields::*;
+
+    let mut ext_subcmd = None;
+    let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
+        .iter()
+        .filter_map(|variant| {
+            let attrs = Attrs::from_struct(
+                variant.span(),
+                &variant.attrs,
+                Name::Derived(variant.ident.clone()),
+                parent_attribute.casing(),
+                parent_attribute.env_casing(),
+            );
+
+            if let Kind::ExternalSubcommand = &*attrs.kind() {
+                if ext_subcmd.is_some() {
+                    abort!(
+                        attrs.kind().span(),
+                        "Only one variant can be marked with `external_subcommand`, \
+                         this is the second"
+                    );
+                }
+
+                let ty = match variant.fields {
+                    Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
+
+                    _ => abort!(
+                        variant,
+                        "The enum variant marked with `external_attribute` must be \
+                         a single-typed tuple, and the type must be either `Vec<String>` \
+                         or `Vec<OsString>`."
+                    ),
+                };
+
+                let (span, str_ty, values_of) = match subty_if_name(ty, "Vec") {
+                    Some(subty) => {
+                        if is_simple_ty(subty, "String") {
+                            (
+                                subty.span(),
+                                quote!(::std::string::String),
+                                quote!(values_of),
+                            )
+                        } else if is_simple_ty(subty, "OsString") {
+                            (
+                                subty.span(),
+                                quote!(::std::ffi::OsString),
+                                quote!(values_of_os),
+                            )
+                        } else {
+                            abort!(
+                                ty.span(),
+                                "The type must be either `Vec<String>` or `Vec<OsString>` \
+                         to be used with `external_subcommand`."
+                            )
+                        }
+                    }
+
+                    None => abort!(
+                        ty.span(),
+                        "The type must be either `Vec<String>` or `Vec<OsString>` \
+                         to be used with `external_subcommand`."
+                    ),
+                };
+
+                ext_subcmd = Some((span, &variant.ident, str_ty, values_of));
+                None
+            } else {
+                Some((variant, attrs))
+            }
+        })
+        .partition(|(_, attrs)| {
+            let kind = attrs.kind();
+            match &*kind {
+                Kind::Flatten => true,
+                _ => false,
+            }
+        });
+
+    let subcommands = variants.iter().map(|(variant, attrs)| {
+        let sub_name = attrs.cased_name();
+        let variant_name = &variant.ident;
+        let (pattern, updater) = match variant.fields {
+            Named(ref fields) => {
+                let (fields, update): (Vec<_>, Vec<_>) = fields
+                    .named
+                    .iter()
+                    .map(|field| {
+                        let attrs = Attrs::from_field(
+                            field,
+                            parent_attribute.casing(),
+                            parent_attribute.env_casing(),
+                        );
+                        let field_name = field.ident.as_ref().unwrap();
+                        (
+                            quote!( ref mut #field_name ),
+                            from_arg_matches::gen_updater(&fields.named, &attrs, false),
+                        )
+                    })
+                    .unzip();
+                (quote!( { #( #fields, )* }), quote!( { #( #update )* } ))
+            }
+            Unit => (quote!(), quote!({})),
+            Unnamed(ref fields) => {
+                if fields.unnamed.len() == 1 {
+                    (
+                        quote!((ref mut arg)),
+                        quote!(::clap::FromArgMatches::update_from_arg_matches(
+                            arg, matches
+                        )),
+                    )
+                } else {
+                    abort_call_site!("{}: tuple enums are not supported", variant.ident)
+                }
+            }
+        };
+
+        quote! {
+            (#sub_name, #name :: #variant_name #pattern) => { #updater }
+        }
+    });
+
+    let child_subcommands = flatten_variants.iter().map(|(variant, attrs)| {
+        let sub_name = attrs.cased_name();
+        let variant_name = &variant.ident;
+        let (pattern, updater) = match variant.fields {
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => (
+                quote!((ref mut arg)),
+                quote! {
+                    println!("child");
+                },
+            ),
+            _ => abort!(
+                variant,
+                "`flatten` is usable only with single-typed tuple variants"
+            ),
+        };
+        quote! {
+            (#sub_name, #name :: #variant_name #pattern) => { #updater }
+        }
+    });
+
+    let external = if let Some((span, variant_name, str_ty, values_of)) = ext_subcmd {
+        quote_spanned! { span=>
+            (external, #name :: #variant_name (ref mut ext)) => {
+                if ext.len() == 0 {
+                    ext.push(#str_ty::from(external));
+                    ext.extend(matches.#values_of("").into_iter().flatten().map(#str_ty::from));
+                }
+            }
+        }
+    } else {
+        quote!()
+    };
+
+    quote! {
+        fn update_from_subcommand<'b>(
+            &mut self,
+            name: &'b str,
+            sub: Option<&'b ::clap::ArgMatches>)
+        {
+            if let Some(matches) = sub {
+                match (name, self) {
+                    #( #subcommands ),*
+                    #( #child_subcommands ),*
+                    #external
+                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(name, sub) {
+                        *s = sub;
+                    }
+
                 }
             }
         }

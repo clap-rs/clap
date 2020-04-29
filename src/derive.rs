@@ -154,12 +154,17 @@ pub trait FromArgMatches: Sized {
     /// }
     /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Self;
+
+    /// @TODO@ @release @docs
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches);
 }
 
 /// @TODO @release @docs
 pub trait Subcommand: Sized {
     /// @TODO @release @docs
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
+    /// @TODO @release @docs
+    fn update_from_subcommand(&mut self, name: &str, matches: Option<&ArgMatches>);
     /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
 }
@@ -214,11 +219,17 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
     fn from_arg_matches(matches: &ArgMatches) -> Self {
         Box::new(<T as FromArgMatches>::from_arg_matches(matches))
     }
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
+        <T as FromArgMatches>::update_from_arg_matches(self, matches);
+    }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
         <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
+    }
+    fn update_from_subcommand(&mut self, name: &str, matches: Option<&ArgMatches>) {
+        <T as Subcommand>::update_from_subcommand(self, name, matches);
     }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)
