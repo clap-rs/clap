@@ -30,3 +30,7 @@ clap-rs.iml
 test-results.test
 expanded.rs
 clap_derive/expanded.rs
+
+# ctags files
+*.vi
+*.emacs
