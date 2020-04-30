@@ -1,15 +1,20 @@
 #!/bin/bash
 
-rg -h 1>/dev/null || (echo "ripgrep not found" && false)
+# exit on error (-e), unset var (-u), and failed command in pipe line (-o pipefail)
+set -euo pipefail
 
-IFS=$'\n'
+command -v rg 1>/dev/null || (echo 2>"error: ripgrep not found" && false)
 
-mv TODO.md TODO.bak || true
+mv TODO.{md,bak} || true
 touch TODO.md
 
-for FILE in $(rg '@TODO' --ignore-file='update-todo.sh' --files-with-matches); do
+IFS=$'\n'
+for FILE in $(rg '@TODO|FIXME' --glob='!update-todo.sh' --files-with-matches); do
     echo "- [ ] $FILE" >> TODO.md
     for LINE in $(rg -noe '@TODO([ @a-zA-Z-]+):?(.*)$' $FILE); do
+        echo "    -[ ] $LINE" >> TODO.md
+    done;
+    for LINE in $(rg -noe 'FIXME([ @a-zA-Z-]+):?(.*)$' $FILE | rg -vi '@TODO'); do
         echo "    -[ ] $LINE" >> TODO.md
     done;
 done;
