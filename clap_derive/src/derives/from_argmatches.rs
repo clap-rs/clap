@@ -15,7 +15,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Field, Ident, Token, Type};
 
-use super::{sub_type, subty_if_name, Attrs, Kind, ParserKind, Ty};
+use crate::{
+    attrs::{Attrs, Kind, ParserKind},
+    utils::{sub_type, subty_if_name, Ty},
+};
 
 pub fn gen_for_struct(
     struct_name: &Ident,

@@ -19,9 +19,9 @@ use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token, Type};
 
-use super::{
-    spanned::Sp, sub_type, subty_if_name, ty::Ty, Attrs, GenOutput, Kind, Name, ParserKind,
-    DEFAULT_CASING, DEFAULT_ENV_CASING,
+use crate::{
+    attrs::{Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    utils::{sub_type, subty_if_name, Sp, Ty},
 };
 
 pub fn gen_for_struct(

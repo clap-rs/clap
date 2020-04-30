@@ -1,5 +1,8 @@
-use crate::derives::attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
-use crate::derives::{from_argmatches, into_app, spanned::Sp};
+use crate::{
+    attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    derives::{from_argmatches, into_app},
+    utils::Sp,
+};
 
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
