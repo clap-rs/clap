@@ -5,7 +5,7 @@ use clap::clap_app;
 
 fn main() {
     // Validation example testing that a file exists
-    let file_exists = |path| {
+    let file_exists = |path: &str| {
         if std::fs::metadata(path).is_ok() {
             Ok(())
         } else {

@@ -934,7 +934,7 @@ lazy_static! {
     };
 }
 
-fn validate_number(s: String) -> Result<(), String> {
+fn validate_number(s: &str) -> Result<(), String> {
     s.parse::<usize>()
         .map(|_| ())
         .map_err(|err| err.to_string())

@@ -1711,6 +1711,13 @@ impl<'b> App<'b> {
                 "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
                 arg.name
             );
+
+            // validators
+            assert!(
+                arg.validator.is_none() || arg.validator_os.is_none(),
+                "Argument '{}' has both `validator` and `validator_os` set which is not allowed",
+                arg.name
+            );
         }
 
         for group in &self.groups {

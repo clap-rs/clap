@@ -137,7 +137,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
             }
             if let Some(ref vtor) = arg.validator {
                 debug!("Validator::validate_arg_values: checking validator...");
-                if let Err(e) = vtor(val.to_string_lossy().into_owned()) {
+                if let Err(e) = vtor(&*val.to_string_lossy()) {
                     debug!("error");
                     return Err(Error::value_validation(Some(arg), &e, self.p.app.color())?);
                 } else {
