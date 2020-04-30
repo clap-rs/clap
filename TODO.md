@@ -1,19 +1,46 @@
-- [ ] update-todo.sh
-- [ ] src/lib.rs
-    -[ ] 578:@TODO @release @docs
-    -[ ] 580:@TODO @release @docs
-    -[ ] 583:@TODO @release @docs
-    -[ ] 592:@TODO @release @docs
-    -[ ] 598:@TODO @release @docs
-    -[ ] 608:@TODO @release @docs
-    -[ ] 610:@TODO @release @docs
-    -[ ] 614:@TODO @release @docs
-    -[ ] 616:@TODO @release @docs
-    -[ ] 619:@TODO @release @docs
-    -[ ] 623:@TODO @release @docs
-- [ ] src/app/parser.rs
-    -[ ] 678:@TODO @perf: cloning all these Apps ins't great, but since it's just displaying the help
-- [ ] src/app/mod.rs
-    -[ ] 1760:@TODO @v3-alpha @perf: should only propagate globals to subcmd we find, or for help
-- [ ] src/args/arg.rs
-    -[ ] 3545:@TODO @p2 @docs @release: write docs
+- [ ] README.md
+    -[ ] 493:@TODO-v3-beta: update
+- [ ] rusty-tags.vi
+- [ ] src/derive.rs
+    -[ ] 48:@TODO @release @docs
+    -[ ] 50:@TODO @release @docs
+    -[ ] 56:@TODO @release @docs
+    -[ ] 60:@TODO @release @docs
+    -[ ] 62:@TODO @release @docs
+    -[ ] 64:@TODO @release @docs
+    -[ ] 68:@TODO @release @docs
+    -[ ] 70:@TODO @release @docs
+    -[ ] 73:@TODO @release @docs
+- [ ] src/mkeymap.rs
+    -[ ] 19:FIXME (@CreepySkeleton): this seems useless
+- [ ] tests/groups.rs
+- [ ] clap_derive/tests/subcommands.rs
+    -[ ] 165:FIXME (@CreepySkeleton)
+- [ ] src/parse/parser.rs
+    -[ ] 851:@TODO @perf: cloning all these Apps isn't great, but since it's just displaying the
+    -[ ] 1028:@TODO @maybe: should be sc.id?
+    -[ ] 1295:@TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
+    -[ ] 1355:@TODO @docs @p4 docs should probably note that terminator doesn't get an index
+- [ ] src/parse/arg_matcher.rs
+    -[ ] 140:@TODO @question Shouldn't this be 1 if we're already adding a value to this arg?
+- [ ] clap_derive/tests/issues.rs
+    -[ ] 41:FIXME (@CreepySkeleton): current implementation requires us to
+- [ ] src/output/help.rs
+    -[ ] 204:@TODO @maybe perhaps we could do some sort of ordering off of keys?
+- [ ] src/build/arg_group.rs
+    -[ ] 95:@TODO @p2 @docs @v3-beta1: Write Docs
+- [ ] src/build/arg/settings.rs
+    -[ ] 36:@TODO @p6 @internal: Reorder alphabetically
+- [ ] src/build/arg/mod.rs
+    -[ ] 136:@TODO @p2 @docs @v3-beta1: Write Docs
+    -[ ] 4081:@TODO @docs @v3-beta: write better docs as ArgSettings is now critical
+    -[ ] 4097:@TODO @docs @v3-beta: write better docs as ArgSettings is now critical
+- [ ] src/build/app/mod.rs
+    -[ ] 747:@TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
+    -[ ] 1244:@TODO-v3-alpha @docs @p2: write docs
+    -[ ] 32:FIXME (@CreepySkeleton): some of these variants are never constructed
+- [ ] src/build/app/settings.rs
+    -[ ] 1011:@TODO-v3: @docs write them...maybe rename
+    -[ ] 1014:@TODO-v3: @docs write them...maybe rename
+- [ ] clap_generate/src/generators/shells/zsh.rs
+    -[ ] 363:@TODO @soundness should probably be either multiple occurrences or multiple values and
