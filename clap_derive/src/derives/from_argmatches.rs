@@ -12,6 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 use proc_macro2::TokenStream;
+use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, Field, Ident, Token, Type};
 
@@ -92,7 +93,12 @@ pub fn gen_constructor(
         );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
-        match &*attrs.kind() {
+        match &*kind {
+            Kind::ExternalSubcommand => {
+                abort! { kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
             Kind::Subcommand(ty) => {
                 let subcmd_type = match (**ty, sub_type(&field.ty)) {
                     (Ty::Option, Some(sub_type)) => sub_type,

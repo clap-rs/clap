@@ -1,12 +1,12 @@
 use std::{
     borrow::Cow,
     ffi::{OsStr, OsString},
+    fmt::{self, Debug},
     str,
 };
 
 use os_str_bytes::{OsStrBytes, OsStringBytes};
 
-#[derive(Debug)]
 pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
 
 impl<'a> ArgStr<'a> {
@@ -124,6 +124,12 @@ impl<'a> ArgStr<'a> {
 
     pub(crate) fn to_os_string(&self) -> OsString {
         OsString::from_bytes(&self.0).unwrap()
+    }
+}
+
+impl<'a> Debug for ArgStr<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.to_string_lossy())
     }
 }
 

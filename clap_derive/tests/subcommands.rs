@@ -161,6 +161,98 @@ fn test_tuple_commands() {
     assert!(!output.contains("Not shown"));
 }
 
+#[test]
+#[ignore]
+fn external_subcommand() {
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(subcommand)]
+        sub: Subcommands,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        // Add,
+        // Remove,
+        #[clap(external_subcommand)]
+        Other(Vec<String>),
+    }
+
+    // assert_eq!(
+    //     Opt::parse_from(&["test", "add"]),
+    //     Opt {
+    //         sub: Subcommands::Add
+    //     }
+    // );
+
+    // assert_eq!(
+    //     Opt::parse_from(&["test", "remove"]),
+    //     Opt {
+    //         sub: Subcommands::Remove
+    //     }
+    // );
+
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+
+    assert_eq!(
+        Opt::try_parse_from(&["test", "git", "status"]).unwrap(),
+        Opt {
+            sub: Subcommands::Other(vec!["git".into(), "status".into()])
+        }
+    );
+}
+
+#[test]
+#[ignore]
+fn external_subcommand_os_string() {
+    use std::ffi::OsString;
+
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(subcommand)]
+        sub: Subcommands,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        #[clap(external_subcommand)]
+        Other(Vec<OsString>),
+    }
+
+    assert_eq!(
+        Opt::try_parse_from(&["test", "git", "status"]).unwrap(),
+        Opt {
+            sub: Subcommands::Other(vec!["git".into(), "status".into()])
+        }
+    );
+
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+}
+
+#[test]
+fn external_subcommand_optional() {
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(subcommand)]
+        sub: Option<Subcommands>,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        #[clap(external_subcommand)]
+        Other(Vec<String>),
+    }
+
+    assert_eq!(
+        Opt::try_parse_from(&["test", "git", "status"]).unwrap(),
+        Opt {
+            sub: Some(Subcommands::Other(vec!["git".into(), "status".into()]))
+        }
+    );
+
+    assert_eq!(Opt::try_parse_from(&["test"]).unwrap(), Opt { sub: None });
+}
+
 // #[test]
 // #[ignore] // FIXME (@CreepySkeleton)
 // fn enum_in_enum_subsubcommand() {

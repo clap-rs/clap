@@ -84,7 +84,7 @@ pub fn subty_if_name<'a>(ty: &'a syn::Type, name: &str) -> Option<&'a syn::Type>
     subty_if(ty, |seg| seg.ident == name)
 }
 
-fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
+pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
     only_last_segment(ty)
         .map(|segment| {
             if let PathArguments::None = segment.arguments {
