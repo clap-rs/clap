@@ -160,7 +160,7 @@ fn gen_from_subcommand(
                     Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
 
                     _ => abort!(
-                        variant.span(),
+                        variant,
                         "The enum variant marked with `external_attribute` must be \
                          a single-typed tuple, and the type must be either `Vec<String>` \
                          or `Vec<OsString>`."

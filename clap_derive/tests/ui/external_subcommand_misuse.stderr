@@ -1,0 +1,5 @@
+error: `external_subcommand` can be used only on enum variants
+ --> $DIR/external_subcommand_misuse.rs:5:12
+  |
+5 |     #[clap(external_subcommand)]
+  |            ^^^^^^^^^^^^^^^^^^^
