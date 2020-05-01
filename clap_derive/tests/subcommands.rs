@@ -162,7 +162,6 @@ fn test_tuple_commands() {
 }
 
 #[test]
-#[ignore]
 fn external_subcommand() {
     #[derive(Debug, PartialEq, Clap)]
     struct Opt {
@@ -172,25 +171,25 @@ fn external_subcommand() {
 
     #[derive(Debug, PartialEq, Clap)]
     enum Subcommands {
-        // Add,
-        // Remove,
+        Add,
+        Remove,
         #[clap(external_subcommand)]
         Other(Vec<String>),
     }
 
-    // assert_eq!(
-    //     Opt::parse_from(&["test", "add"]),
-    //     Opt {
-    //         sub: Subcommands::Add
-    //     }
-    // );
+    assert_eq!(
+        Opt::parse_from(&["test", "add"]),
+        Opt {
+            sub: Subcommands::Add
+        }
+    );
 
-    // assert_eq!(
-    //     Opt::parse_from(&["test", "remove"]),
-    //     Opt {
-    //         sub: Subcommands::Remove
-    //     }
-    // );
+    assert_eq!(
+        Opt::parse_from(&["test", "remove"]),
+        Opt {
+            sub: Subcommands::Remove
+        }
+    );
 
     assert!(Opt::try_parse_from(&["test"]).is_err());
 
@@ -203,7 +202,6 @@ fn external_subcommand() {
 }
 
 #[test]
-#[ignore]
 fn external_subcommand_os_string() {
     use std::ffi::OsString;
 

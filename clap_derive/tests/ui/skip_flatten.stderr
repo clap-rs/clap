@@ -1,4 +1,4 @@
-error: subcommand, flatten and skip cannot be used together
+error: `subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together
   --> $DIR/skip_flatten.rs:17:18
    |
 17 |     #[clap(skip, flatten)]
