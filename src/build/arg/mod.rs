@@ -25,7 +25,7 @@ use crate::{
     INTERNAL_ERROR_MSG,
 };
 
-type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
+type Validator = Rc<dyn Fn(&str) -> Result<(), String>>;
 type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 
 /// The abstract representation of a command line argument. Used to set all the options and
@@ -1927,7 +1927,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// fn has_at(v: String) -> Result<(), String> {
+    /// fn has_at(v: &str) -> Result<(), String> {
     ///     if v.contains("@") { return Ok(()); }
     ///     Err(String::from("The value did not contain the required @ sigil"))
     /// }
@@ -1947,7 +1947,7 @@ impl<'help> Arg<'help> {
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator<F, O, E>(mut self, f: F) -> Self
     where
-        F: Fn(String) -> Result<O, E> + 'static,
+        F: Fn(&str) -> Result<O, E> + 'static,
         E: ToString,
     {
         self.validator = Some(Rc::new(move |s| {

@@ -130,7 +130,7 @@ pub enum ErrorKind {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
-    /// fn is_numeric(val: String) -> Result<(), String> {
+    /// fn is_numeric(val: &str) -> Result<(), String> {
     ///     match val.parse::<i64>() {
     ///         Ok(..) => Ok(()),
     ///         Err(..) => Err(String::from("Value wasn't a number!")),

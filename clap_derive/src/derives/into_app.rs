@@ -205,13 +205,13 @@ pub fn gen_app_augmentation(
                     _ if attrs.is_enum() => quote!(),
                     ParserKind::TryFromStr => quote_spanned! { func.span()=>
                         .validator(|s| {
-                            #func(s.as_str())
+                            #func(s)
                             .map(|_: #convert_type| ())
                             .map_err(|e| e.to_string())
                         })
                     },
                     ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
-                        .validator_os(|s| #func(&s).map(|_: #convert_type| ()))
+                        .validator_os(|s| #func(s).map(|_: #convert_type| ()))
                     },
                     _ => quote!(),
                 };
