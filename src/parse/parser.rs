@@ -817,9 +817,6 @@ where
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
     fn possible_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
-        fn starts(h: &str, n: &ArgStr<'_>) -> bool {
-            h.is_char_boundary(n.len()) && h.as_bytes().starts_with(n.as_raw_bytes())
-        }
 
         if self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) {
             return None;
@@ -827,7 +824,7 @@ where
 
         if self.is_set(AS::InferSubcommands) {
             let v = sc_names!(self.app)
-                .filter(|s| starts(s, &*arg_os))
+                .filter(|s| arg_os.is_prefix_of(s))
                 .collect::<Vec<_>>();
 
             if v.len() == 1 {

@@ -5,7 +5,7 @@ use std::{
     str,
 };
 
-use os_str_bytes::{OsStrBytes, OsStringBytes};
+use os_str_bytes::{raw, OsStrBytes, OsStringBytes};
 
 pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
 
@@ -16,6 +16,10 @@ impl<'a> ArgStr<'a> {
 
     pub(crate) fn starts_with(&self, s: &str) -> bool {
         self.0.starts_with(s.as_bytes())
+    }
+
+    pub(crate) fn is_prefix_of(&self, s: &str) -> bool {
+        raw::starts_with(s, &self.0)
     }
 
     fn to_borrowed(&'a self) -> Self {
@@ -102,6 +106,7 @@ impl<'a> ArgStr<'a> {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) fn as_raw_bytes(&self) -> &[u8] {
         &self.0
     }
