@@ -1,0 +1,21 @@
+error: The type must be either `Vec<String>` or `Vec<OsString>` to be used with `external_subcommand`.
+  --> $DIR/external_subcommand_wrong_type.rs:13:11
+   |
+13 |     Other(String),
+   |           ^^^^^^
+
+error: The enum variant marked with `external_attribute` must be a single-typed tuple, and the type must be either `Vec<String>` or `Vec<OsString>`.
+  --> $DIR/external_subcommand_wrong_type.rs:18:5
+   |
+18 | /     #[clap(external_subcommand)]
+19 | |     Other { a: String },
+   | |_______________________^
+
+error[E0308]: mismatched types
+ --> $DIR/external_subcommand_wrong_type.rs:7:15
+  |
+7 |     Other(Vec<CString>),
+  |               ^^^^^^^ expected struct `std::ffi::CString`, found struct `std::ffi::OsString`
+  |
+  = note: expected struct `std::vec::Vec<std::ffi::CString>`
+             found struct `std::vec::Vec<std::ffi::OsString>`

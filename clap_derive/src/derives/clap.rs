@@ -12,7 +12,11 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{arg_enum, dummies, from_argmatches, into_app, subcommand};
+use crate::{
+    derives::{arg_enum, from_argmatches, into_app, subcommand},
+    dummies,
+};
+
 use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;

@@ -381,6 +381,7 @@ where
         let has_args = self.has_args();
 
         let mut subcmd_name: Option<String> = None;
+        let mut external_subcommand = false;
         let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
         let mut replace: Option<&[&str]> = None;
@@ -677,6 +678,8 @@ where
                     matches: sc_m.into_inner(),
                 });
 
+                external_subcommand = true;
+
                 break;
             } else if !((self.is_set(AS::AllowLeadingHyphen)
                 || self.is_set(AS::AllowNegativeNumbers))
@@ -718,28 +721,30 @@ where
             }
         }
 
-        if let Some(ref pos_sc_name) = subcmd_name {
-            let sc_name = find_subcmd!(self.app, *pos_sc_name)
-                .expect(INTERNAL_ERROR_MSG)
-                .name
-                .clone();
-            self.parse_subcommand(&sc_name, matcher, it)?;
-        } else if self.is_set(AS::SubcommandRequired) {
-            let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
-            return Err(ClapError::missing_subcommand(
-                bn,
-                &Usage::new(self).create_usage_with_title(&[]),
-                self.app.color(),
-            )?);
-        } else if self.is_set(AS::SubcommandRequiredElseHelp) {
-            debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
-            let message = self.write_help_err()?;
-            return Err(ClapError {
-                cause: String::new(),
-                message,
-                kind: ErrorKind::MissingArgumentOrSubcommand,
-                info: None,
-            });
+        if !external_subcommand {
+            if let Some(ref pos_sc_name) = subcmd_name {
+                let sc_name = find_subcmd!(self.app, *pos_sc_name)
+                    .expect(INTERNAL_ERROR_MSG)
+                    .name
+                    .clone();
+                self.parse_subcommand(&sc_name, matcher, it)?;
+            } else if self.is_set(AS::SubcommandRequired) {
+                let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
+                return Err(ClapError::missing_subcommand(
+                    bn,
+                    &Usage::new(self).create_usage_with_title(&[]),
+                    self.app.color(),
+                )?);
+            } else if self.is_set(AS::SubcommandRequiredElseHelp) {
+                debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
+                let message = self.write_help_err()?;
+                return Err(ClapError {
+                    cause: String::new(),
+                    message,
+                    kind: ErrorKind::MissingArgumentOrSubcommand,
+                    info: None,
+                });
+            }
         }
 
         self.remove_overrides(matcher);

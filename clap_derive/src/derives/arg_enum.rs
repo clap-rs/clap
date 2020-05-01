@@ -7,8 +7,11 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use crate::derives::attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING};
-use crate::derives::spanned::Sp;
+
+use crate::{
+    attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    utils::Sp,
+};
 
 use proc_macro2::{Span, TokenStream};
 use quote::quote;

@@ -20,7 +20,11 @@ extern crate proc_macro;
 
 use proc_macro_error::proc_macro_error;
 
+mod attrs;
 mod derives;
+mod dummies;
+mod parse;
+mod utils;
 
 // /// It is required to have this seperate and specificly defined.
 // #[proc_macro_derive(ArgEnum, attributes(case_sensitive))]

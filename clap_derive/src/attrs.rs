@@ -12,7 +12,10 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{doc_comments::process_doc_comment, parse::*, spanned::Sp, ty::Ty};
+use crate::{
+    parse::*,
+    utils::{process_doc_comment, Sp, Ty},
+};
 
 use std::env;
 
@@ -38,6 +41,7 @@ pub enum Kind {
     Subcommand(Sp<Ty>),
     Flatten,
     Skip(Option<Expr>),
+    ExternalSubcommand,
 }
 
 #[derive(Clone)]
@@ -296,6 +300,11 @@ impl Attrs {
                     self.set_kind(kind);
                 }
 
+                ExternalSubcommand(ident) => {
+                    let kind = Sp::new(Kind::ExternalSubcommand, ident.span());
+                    self.set_kind(kind);
+                }
+
                 Flatten(ident) => {
                     let kind = Sp::new(Kind::Flatten, ident.span());
                     self.set_kind(kind);
@@ -422,7 +431,7 @@ impl Attrs {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) | Kind::Flatten => res,
+            Kind::Arg(_) | Kind::Flatten | Kind::ExternalSubcommand => res,
         }
     }
 
@@ -457,6 +466,13 @@ impl Attrs {
                     );
                 }
             }
+
+            Kind::ExternalSubcommand => {
+                abort! { res.kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
+
             Kind::Subcommand(_) => {
                 if res.has_custom_parser {
                     abort!(
@@ -568,7 +584,7 @@ impl Attrs {
         } else {
             abort!(
                 kind.span(),
-                "subcommand, flatten and skip cannot be used together"
+                "`subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together"
             );
         }
     }

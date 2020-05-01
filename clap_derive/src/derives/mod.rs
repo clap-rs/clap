@@ -12,20 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 mod arg_enum;
-pub mod attrs;
 mod clap;
-mod doc_comments;
-mod dummies;
 mod from_argmatches;
 mod into_app;
-pub mod parse;
-pub mod spanned;
 mod subcommand;
-pub mod ty;
 
-pub use self::attrs::{
-    Attrs, CasingStyle, GenOutput, Kind, Name, Parser, ParserKind, DEFAULT_CASING,
-    DEFAULT_ENV_CASING,
-};
 pub use self::clap::derive_clap;
-pub use self::ty::{sub_type, subty_if_name, Ty};
