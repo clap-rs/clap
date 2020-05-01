@@ -52,8 +52,5 @@ count-warnings:
 find-warnings:
 	@cargo check 2>&1 | grep -A1 -e 'warning' | grep --only-matching -e '-->[^:]*' | sort | uniq -c | sort -nr
 
-@update-todo:
-	./etc/update-todo.sh
-
 @count-failures:
-	./etc/count-tests.sh
+	./count-tests.sh
