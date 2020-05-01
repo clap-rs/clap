@@ -1116,7 +1116,7 @@ impl<'b> App<'b> {
         let p = Parser::new(self);
         let mut c = Colorizer::new(false, p.color_help());
 
-        Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
+        Help::new(HelpWriter::Buffer(&mut c), &p, false).write_help()?;
 
         Ok(c.print()?)
     }
