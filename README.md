@@ -506,7 +506,7 @@ These videos slowly trickle out as I finish them and currently a work in progres
 
 ## How to Contribute
 
-Details on how to contribute can be found in the [CONTRIBUTING.md](.github/CONTRIBUTING.md) file.
+Details on how to contribute can be found in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ### Compatibility Policy
 
