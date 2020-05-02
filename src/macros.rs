@@ -113,7 +113,7 @@ macro_rules! crate_authors {
         use std::cell::Cell;
 
         #[allow(missing_copy_implementations)]
-        #[allow(dead_code)]
+        #[allow(unused)]
         struct CargoAuthors {
             authors: Cell<Option<&'static str>>,
             __private_field: (),

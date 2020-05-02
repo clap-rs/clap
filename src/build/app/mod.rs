@@ -31,11 +31,12 @@ use crate::{
 
 // FIXME (@CreepySkeleton): some of these variants are never constructed
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[allow(unused)]
 pub(crate) enum Propagation {
     To(Id),
     Full,
+    #[cfg_attr(not(test), allow(unused))]
     NextLevel,
+    #[allow(unused)]
     None,
 }
 
@@ -1582,6 +1583,7 @@ impl<'b> App<'b> {
         }
     }
 
+    #[cfg(debug_assertions)]
     fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
     where
         F: Fn(&Arg<'_>) -> bool,
@@ -1600,6 +1602,7 @@ impl<'b> App<'b> {
 
     // Perform some expensive assertions on the Parser itself
     #[allow(clippy::cognitive_complexity)]
+    #[cfg(debug_assertions)]
     fn _debug_asserts(&self) {
         debug!("App::_debug_asserts");
 
@@ -2006,6 +2009,7 @@ impl<'b> App<'b> {
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
+    #[cfg(debug_assertions)]
     pub(crate) fn id_exists(&self, id: &Id) -> bool {
         self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
     }
