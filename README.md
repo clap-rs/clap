@@ -129,7 +129,7 @@ clap = "3.0.0-beta.1"
 
 The first example shows the simplest way to use `clap`, by defining a struct. If you're familiar with the `structopt` crate you're in luck, it's the same! (In fact it's the exact same code running under the covers!)
 
-```rust
+```rust,no_run
 // (Full example with detailed comments in examples/01d_quick_example.rs)
 //
 // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
@@ -203,7 +203,7 @@ fn main() {
 
 This second method shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
 
-```rust
+```rust,no_run
 // (Full example with detailed comments in examples/01a_quick_example.rs)
 //
 // This example demonstrates clap's "builder pattern" method of creating arguments
@@ -219,23 +219,23 @@ fn main() {
             .short('c')
             .long("config")
             .value_name("FILE")
-            .help("Sets a custom config file")
+            .about("Sets a custom config file")
             .takes_value(true))
         .arg(Arg::with_name("INPUT")
-            .help("Sets the input file to use")
+            .about("Sets the input file to use")
             .required(true)
             .index(1))
         .arg(Arg::with_name("v")
             .short('v')
             .multiple(true)
-            .help("Sets the level of verbosity"))
+            .about("Sets the level of verbosity"))
         .subcommand(App::new("test")
             .about("controls testing features")
             .version("1.3")
             .author("Someone E. <someone_else@other.com>")
             .arg(Arg::with_name("debug")
                 .short('d')
-                .help("print debug information verbosely")))
+                .about("print debug information verbosely")))
         .get_matches();
 
     // Same as above examples...
@@ -244,7 +244,7 @@ fn main() {
 
 The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
 
-```rust
+```rust,no_run
 // (Full example with detailed comments in examples/01a_quick_example.rs)
 //
 // This example demonstrates clap's "usage strings" method of creating arguments
@@ -256,10 +256,9 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .args_from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'
-            <INPUT>              'Sets the input file to use'
-            -v...                'Sets the level of verbosity'")
+        .arg("-c, --config=[FILE] 'Sets a custom config file'")
+        .arg("<INPUT>              'Sets the input file to use'")
+        .arg("-v...                'Sets the level of verbosity'")
         .subcommand(App::new("test")
             .about("controls testing features")
             .version("1.3")
@@ -320,7 +319,7 @@ clap = { version = "3.0.0-beta.1", features = ["yaml"] }
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
 
-```rust
+```rust,ignore
 // (Full example with detailed comments in examples/17_yaml.rs)
 //
 // This example demonstrates clap's building from YAML style of creating arguments which is far
@@ -341,7 +340,7 @@ fn main() {
 Finally there is a macro version, which is like a hybrid approach offering the speed of the
 builder pattern (the first example), but without all the verbosity.
 
-```rust
+```rust,no_run
 use clap::clap_app;
 
 fn main() {
@@ -368,7 +367,7 @@ fn main() {
 
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output (except the first example where the help message sort of explains the Rust code).
 
-```sh
+```bash
 $ myprog --help
 My Super Program 1.0
 Kevin K. <kbknapp@gmail.com>
