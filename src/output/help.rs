@@ -145,11 +145,6 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         write_method!(self, msg, warning)
     }
 
-    #[allow(dead_code)]
-    fn error(&mut self, msg: &str) -> io::Result<()> {
-        write_method!(self, msg, error)
-    }
-
     fn none(&mut self, msg: &str) -> io::Result<()> {
         write_method!(self, msg, none)
     }

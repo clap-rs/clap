@@ -58,7 +58,7 @@ fn main() {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),
-        3 | _ => println!("Don't be crazy"),
+        _ => println!("Don't be crazy"),
     }
 
     // You can information about subcommands by requesting their matches by name

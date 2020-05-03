@@ -86,13 +86,6 @@ impl ArgMatcher {
         self.0.args.swap_remove(arg);
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn remove_all(&mut self, args: &[Id]) {
-        for arg in args {
-            self.0.args.swap_remove(arg);
-        }
-    }
-
     pub(crate) fn insert(&mut self, name: &Id) {
         self.0.args.insert(name.clone(), MatchedArg::new());
     }

@@ -39,7 +39,7 @@ jobs:
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
         - cargo clippy --lib --features "yaml unstable" -- -D warnings
-        - cargo clippy --tests --examples --features "yaml unstable"
+        - cargo clippy --tests --examples --features "yaml unstable" -- -D warnings
         - cargo fmt -- --check
     - name: Coverage
       addons:
