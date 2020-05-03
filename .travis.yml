@@ -32,6 +32,9 @@ jobs:
     - rust: beta
     - rust: nightly
       cache: false
+      script:
+        - cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+        - cargo test --features "yaml unstable doc"
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
