@@ -88,6 +88,28 @@ macro_rules! yaml_char {
 }
 
 #[cfg(feature = "yaml")]
+macro_rules! yaml_chars {
+    ($v:expr) => {{
+        &$v.as_vec()
+            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a list", $v))
+            .into_iter()
+            .map(|s| {
+                s.as_str()
+                    .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", s))
+            })
+            .map(|s| {
+                let mut chars = s.chars();
+                let c = chars.next().expect("short aliases must be a single char");
+                if chars.next().is_some() {
+                    panic!("short aliases must be a single char");
+                }
+                c
+            })
+            .collect::<Vec<char>>()
+    }};
+}
+
+#[cfg(feature = "yaml")]
 macro_rules! yaml_str {
     ($v:expr) => {{
         $v.as_str()
@@ -99,6 +121,13 @@ macro_rules! yaml_str {
 macro_rules! yaml_to_char {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c(yaml_char!($v))
+    }};
+}
+
+#[cfg(feature = "yaml")]
+macro_rules! yaml_to_chars {
+    ($a:ident, $v:ident, $c:ident) => {{
+        $a.$c(yaml_chars!($v))
     }};
 }
 

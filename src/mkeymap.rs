@@ -140,6 +140,9 @@ fn _get_keys(arg: &Arg) -> Vec<KeyType> {
     }
 
     let mut keys = vec![];
+    for short in arg.short_aliases.iter().map(|(c, _)| KeyType::Short(*c)) {
+        keys.push(short);
+    }
     if let Some(c) = arg.short {
         keys.push(KeyType::Short(c));
     }
