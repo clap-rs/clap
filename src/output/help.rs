@@ -278,15 +278,15 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             } else {
                 ' '
             };
-            if let Some(ref vec) = arg.val_names {
-                let mut it = vec.iter().peekable();
+            if !arg.val_names.is_empty() {
+                let mut it = arg.val_names.iter().peekable();
                 while let Some((_, val)) = it.next() {
                     self.good(&format!("<{}>", val))?;
                     if it.peek().is_some() {
                         self.none(&delim.to_string())?;
                     }
                 }
-                let num = vec.len();
+                let num = arg.val_names.len();
                 if mult && num == 1 {
                     self.good("...")?;
                 }
@@ -474,10 +474,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) {
-            if let Some(ref pv) = a.default_vals {
-                debug!("Help::spec_vals: Found default value...[{:?}]", pv);
+            if !a.default_vals.is_empty() {
+                debug!(
+                    "Help::spec_vals: Found default value...[{:?}]",
+                    a.default_vals
+                );
 
-                let pvs = pv
+                let pvs = a
+                    .default_vals
                     .iter()
                     .map(|&pvs| pvs.to_string_lossy())
                     .collect::<Vec<_>>()
@@ -486,10 +490,11 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 spec_vals.push(format!(" [default: {}]", pvs));
             }
         }
-        if let Some(ref aliases) = a.aliases {
-            debug!("Help::spec_vals: Found aliases...{:?}", aliases);
+        if !a.aliases.is_empty() {
+            debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
 
-            let als = aliases
+            let als = a
+                .aliases
                 .iter()
                 .filter(|&als| als.1) // visible
                 .map(|&als| als.0) // name
@@ -521,10 +526,16 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         }
 
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
-            if let Some(ref pv) = a.possible_vals {
-                debug!("Help::spec_vals: Found possible vals...{:?}", pv);
+            if !a.possible_vals.is_empty() {
+                debug!(
+                    "Help::spec_vals: Found possible vals...{:?}",
+                    a.possible_vals
+                );
 
-                spec_vals.push(format!(" [possible values: {}]", pv.join(", ")));
+                spec_vals.push(format!(
+                    " [possible values: {}]",
+                    a.possible_vals.join(", ")
+                ));
             }
         }
         spec_vals.join(" ")
@@ -563,10 +574,11 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn sc_spec_vals(&self, a: &App) -> String {
         debug!("Help::sc_spec_vals: a={}", a.name);
         let mut spec_vals = vec![];
-        if let Some(ref aliases) = a.aliases {
-            debug!("Help::spec_vals: Found aliases...{:?}", aliases);
+        if !a.aliases.is_empty() {
+            debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
 
-            let als = aliases
+            let als = a
+                .aliases
                 .iter()
                 .filter(|&als| als.1) // visible
                 .map(|&als| als.0) // name

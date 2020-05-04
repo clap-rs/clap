@@ -146,14 +146,15 @@ fn _get_keys(arg: &Arg) -> Vec<KeyType> {
     if let Some(c) = arg.short {
         keys.push(KeyType::Short(c));
     }
-    if let Some(ref aliases) = arg.aliases {
-        for long in aliases
-            .iter()
-            .map(|(a, _)| KeyType::Long(OsString::from(a)))
-        {
-            keys.push(long);
-        }
+
+    for long in arg
+        .aliases
+        .iter()
+        .map(|(a, _)| KeyType::Long(OsString::from(a)))
+    {
+        keys.push(long);
     }
+
     if let Some(long) = arg.long {
         keys.push(KeyType::Long(OsString::from(long)));
     }

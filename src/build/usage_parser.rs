@@ -1,7 +1,6 @@
 // Internal
 use crate::{
     build::{Arg, ArgSettings},
-    util::VecMap,
     INTERNAL_ERROR_MSG,
 };
 
@@ -63,9 +62,10 @@ impl<'a> UsageParser<'a> {
                 break;
             }
         }
-        arg.num_vals = match arg.val_names {
-            Some(ref v) if v.len() >= 2 => Some(v.len() as u64),
-            _ => None,
+        arg.num_vals = if arg.val_names.len() > 1 {
+            Some(arg.val_names.len() as u64)
+        } else {
+            None
         };
         if !arg.has_switch() && arg.is_set(ArgSettings::MultipleOccurrences) {
             // We had a positional and need to set mult vals too
@@ -101,15 +101,11 @@ impl<'a> UsageParser<'a> {
             }
         } else {
             debug!("UsageParser::name: setting val name...{}", name);
-            if let Some(ref mut v) = arg.val_names {
-                let len = v.len();
-                v.insert(len, name);
-            } else {
-                let mut v = VecMap::new();
-                v.insert(0, name);
-                arg.val_names = Some(v);
+            if arg.val_names.is_empty() {
                 arg.set_mut(ArgSettings::TakesValue);
             }
+            let len = arg.val_names.len();
+            arg.val_names.insert(len, name);
             self.prev = UsageToken::ValName;
         }
     }
@@ -221,9 +217,7 @@ impl<'a> UsageParser<'a> {
             &self.usage[self.start..self.pos]
         );
         arg.set_mut(ArgSettings::TakesValue);
-        arg.default_vals = Some(vec![std::ffi::OsStr::new(
-            &self.usage[self.start..self.pos],
-        )]);
+        arg.default_vals = vec![std::ffi::OsStr::new(&self.usage[self.start..self.pos])];
         self.prev = UsageToken::Default;
     }
 }

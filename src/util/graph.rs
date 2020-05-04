@@ -1,12 +1,15 @@
 #[derive(Debug)]
 struct Child<T> {
     id: T,
-    children: Option<Vec<usize>>,
+    children: Vec<usize>,
 }
 
 impl<T> Child<T> {
     fn new(id: T) -> Self {
-        Child { id, children: None }
+        Child {
+            id,
+            children: vec![],
+        }
     }
 }
 
@@ -39,15 +42,7 @@ where
     pub(crate) fn insert_child(&mut self, parent: usize, child: T) -> usize {
         let c_idx = self.0.len();
         self.0.push(Child::new(child));
-        let parent = &mut self.0[parent];
-        if let Some(ref mut v) = parent.children {
-            v.push(c_idx);
-        } else {
-            let mut v = Vec::with_capacity(5);
-            v.push(c_idx);
-            parent.children = Some(v);
-        }
-
+        self.0[parent].children.push(c_idx);
         c_idx
     }
 
