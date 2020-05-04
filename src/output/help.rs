@@ -473,22 +473,20 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             let env_info = format!(" [env: {}{}]", env.0.to_string_lossy(), env_val);
             spec_vals.push(env_info);
         }
-        if !a.is_set(ArgSettings::HideDefaultValue) {
-            if !a.default_vals.is_empty() {
-                debug!(
-                    "Help::spec_vals: Found default value...[{:?}]",
-                    a.default_vals
-                );
+        if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
+            debug!(
+                "Help::spec_vals: Found default value...[{:?}]",
+                a.default_vals
+            );
 
-                let pvs = a
-                    .default_vals
-                    .iter()
-                    .map(|&pvs| pvs.to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(" ");
+            let pvs = a
+                .default_vals
+                .iter()
+                .map(|&pvs| pvs.to_string_lossy())
+                .collect::<Vec<_>>()
+                .join(" ");
 
-                spec_vals.push(format!(" [default: {}]", pvs));
-            }
+            spec_vals.push(format!(" [default: {}]", pvs));
         }
         if !a.aliases.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
@@ -525,18 +523,19 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             }
         }
 
-        if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
-            if !a.possible_vals.is_empty() {
-                debug!(
-                    "Help::spec_vals: Found possible vals...{:?}",
-                    a.possible_vals
-                );
+        if !self.hide_pv
+            && !a.is_set(ArgSettings::HidePossibleValues)
+            && !a.possible_vals.is_empty()
+        {
+            debug!(
+                "Help::spec_vals: Found possible vals...{:?}",
+                a.possible_vals
+            );
 
-                spec_vals.push(format!(
-                    " [possible values: {}]",
-                    a.possible_vals.join(", ")
-                ));
-            }
+            spec_vals.push(format!(
+                " [possible values: {}]",
+                a.possible_vals.join(", ")
+            ));
         }
         spec_vals.join(" ")
     }
