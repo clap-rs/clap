@@ -1,1 +1,1 @@
-pub mod suggestions;
+pub(crate) mod suggestions;

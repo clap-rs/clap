@@ -28,19 +28,19 @@ fn main() {
         // A simple "Flag" argument example (i.e. "-d") using the builder pattern
         .arg(
             Arg::with_name("debug")
-                .help("turn on debugging information")
+                .about("turn on debugging information")
                 .short('d'),
         )
         // Two arguments, one "Option" argument (i.e. one that takes a value) such
         // as "-c some", and one positional argument (i.e. "myapp some_file")
         .args(&[
             Arg::with_name("config")
-                .help("sets the config file to use")
+                .about("sets the config file to use")
                 .takes_value(true)
                 .short('c')
                 .long("config"),
             Arg::with_name("input")
-                .help("the input file to use")
+                .about("the input file to use")
                 .index(1)
                 .required(true),
         ])

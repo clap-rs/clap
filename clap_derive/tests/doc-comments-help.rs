@@ -40,7 +40,7 @@ fn help_is_better_than_comments() {
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
-        #[clap(short, long, help = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
+        #[clap(short, long, about = "DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES")]
         foo: bool,
     }
 
@@ -107,7 +107,7 @@ fn top_long_doc_comment_both_help_long_help() {
         ///
         /// Or something else
         Foo {
-            #[clap(help = "foo")]
+            #[clap(about = "foo")]
             bars: Vec<String>,
         },
     }

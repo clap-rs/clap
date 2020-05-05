@@ -13,7 +13,7 @@ fn main() {
         // ones that apply to your individual case.
         .arg(
             Arg::with_name("input")
-                .help("the input file to use") // Displayed when showing help info
+                .about("the input file to use") // Displayed when showing help info
                 .index(1) // Set the order in which the user must
                 // specify this argument (Starts at 1)
                 .requires("config") // Says, "If the user uses "input", they MUST
@@ -30,7 +30,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("config")
-                .help("the config file to use")
+                .about("the config file to use")
                 .index(2),
         ) // Note, we do not need to specify required(true)
         // if we don't want to, because "input" already

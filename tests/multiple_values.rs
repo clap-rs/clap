@@ -6,7 +6,7 @@ fn option_long() {
         .arg(
             Arg::with_name("option")
                 .long("option")
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
@@ -31,7 +31,7 @@ fn option_short() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
@@ -55,7 +55,7 @@ fn option_mixed() {
             Arg::with_name("option")
                 .long("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
@@ -80,7 +80,7 @@ fn option_exact_exact() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
@@ -104,7 +104,7 @@ fn option_exact_exact_not_mult() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .number_of_values(3),
         )
@@ -127,7 +127,7 @@ fn option_exact_exact_mult() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
@@ -153,7 +153,7 @@ fn option_exact_less() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
@@ -170,7 +170,7 @@ fn option_exact_more() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .number_of_values(3),
@@ -189,7 +189,7 @@ fn option_min_exact() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .min_values(3),
@@ -213,7 +213,7 @@ fn option_min_less() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .min_values(3),
@@ -231,7 +231,7 @@ fn option_short_min_more_mult_occurs() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .min_values(3),
@@ -260,7 +260,7 @@ fn option_short_min_more_single_occur() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .min_values(3),
@@ -286,7 +286,7 @@ fn option_max_exact() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .max_values(3),
@@ -310,7 +310,7 @@ fn option_max_less() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .max_values(3),
@@ -334,7 +334,7 @@ fn option_max_more() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true)
                 .max_values(3),
@@ -352,7 +352,7 @@ fn positional() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .multiple(true),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
@@ -373,7 +373,7 @@ fn positional_exact_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .number_of_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
@@ -394,7 +394,7 @@ fn positional_exact_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .number_of_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
@@ -408,7 +408,7 @@ fn positional_exact_more() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .number_of_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -422,7 +422,7 @@ fn positional_min_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .min_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
@@ -443,7 +443,7 @@ fn positional_min_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .min_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
@@ -457,7 +457,7 @@ fn positional_min_more() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .min_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -478,7 +478,7 @@ fn positional_max_exact() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .max_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
@@ -499,7 +499,7 @@ fn positional_max_less() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .max_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
@@ -520,7 +520,7 @@ fn positional_max_more() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("pos")
-                .help("multiple positionals")
+                .about("multiple positionals")
                 .max_values(3),
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
@@ -536,7 +536,7 @@ fn sep_long_equals() {
             Arg::with_name("option")
                 .long("option")
                 .use_delimiter(true)
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
@@ -560,7 +560,7 @@ fn sep_long_space() {
             Arg::with_name("option")
                 .long("option")
                 .use_delimiter(true)
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .multiple(true),
         )
@@ -583,7 +583,7 @@ fn sep_short_equals() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true),
@@ -607,7 +607,7 @@ fn sep_short_space() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true),
@@ -631,7 +631,7 @@ fn sep_short_no_space() {
         .arg(
             Arg::with_name("option")
                 .short('o')
-                .help("multiple options")
+                .about("multiple options")
                 .use_delimiter(true)
                 .takes_value(true)
                 .multiple(true),
@@ -654,7 +654,7 @@ fn sep_positional() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .help("multiple options")
+                .about("multiple options")
                 .use_delimiter(true)
                 .multiple(true),
         )
@@ -677,7 +677,7 @@ fn different_sep() {
         .arg(
             Arg::with_name("option")
                 .long("option")
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .value_delimiter(";"),
         )
@@ -699,7 +699,7 @@ fn different_sep_positional() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .help("multiple options")
+                .about("multiple options")
                 .value_delimiter(";"),
         )
         .try_get_matches_from(vec!["", "val1;val2;val3"]);
@@ -721,7 +721,7 @@ fn no_sep() {
         .arg(
             Arg::with_name("option")
                 .long("option")
-                .help("multiple options")
+                .about("multiple options")
                 .takes_value(true)
                 .use_delimiter(false),
         )
@@ -740,7 +740,7 @@ fn no_sep_positional() {
     let m = App::new("multiple_values")
         .arg(
             Arg::with_name("option")
-                .help("multiple options")
+                .about("multiple options")
                 .use_delimiter(false),
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
@@ -964,10 +964,10 @@ fn req_delimiter_complex() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "When using a positional argument with \
+#[should_panic = "When using a positional argument with \
 .multiple(true) that is *not the last* positional argument, the last \
 positional argument (i.e the one with the highest index) *must* have \
-.required(true) or .last(true) set.")]
+.required(true) or .last(true) set."]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")
         .arg(
@@ -983,8 +983,8 @@ fn low_index_positional_not_required() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Only one positional argument with .multiple(true) \
-set is allowed per command, unless the second one also has .last(true) set")]
+#[should_panic = "Only one positional argument with .multiple(true) \
+set is allowed per command, unless the second one also has .last(true) set"]
 fn low_index_positional_last_multiple_too() {
     let _ = App::new("lip")
         .arg(
@@ -1005,8 +1005,8 @@ fn low_index_positional_last_multiple_too() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Only the last positional argument, or second to \
-last positional argument may be set to .multiple(true)")]
+#[should_panic = "Only the last positional argument, or second to \
+last positional argument may be set to .multiple(true)"]
 fn low_index_positional_too_far_back() {
     let _ = App::new("lip")
         .arg(
@@ -1211,4 +1211,52 @@ fn multiple_vals_with_hyphen() {
     let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
     assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     assert_eq!(m.value_of("location"), Some("/home/clap"));
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_1() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .arg(Arg::with_name("positional").required(true).index(1))
+        .try_get_matches_from(vec!["prog", "--field", "1", "file"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_2() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .try_get_matches_from(vec!["prog", "--field", "1", "2"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_1480_max_values_consumes_extra_arg_3() {
+    let res = App::new("prog")
+        .arg(
+            Arg::with_name("field")
+                .takes_value(true)
+                .multiple(false)
+                .max_values(1)
+                .long("field"),
+        )
+        .try_get_matches_from(vec!["prog", "--field", "1", "2", "3"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
 }

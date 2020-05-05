@@ -4,6 +4,10 @@
 
 How to append a postscript to the help message generated.
 
+### [Arg Enum](arg_enum.rs)
+
+How to use `ArgEnum`
+
 ### [At least N](at_least_two.rs)
 
 How to require presence of at least N values, like `val1 val2 ... valN ... valM`.
@@ -20,10 +24,6 @@ as soon as [this](https://github.com/rust-lang/rust/issues/24584) is fixed (if e
 ### [Doc comments](doc_comments.rs)
 
 How to use doc comments in place of `help/long_help`.
-
-### [Enums as arguments](enum_in_args.rs)
-
-How to use `arg_enum!` with `clap_derive`.
 
 ### [Arguments of subcommands in separate `struct`](enum_tuple.rs)
 
@@ -75,4 +75,4 @@ How to express "`"true"` or `"false"` argument.
 
 ### [Author, description, and version from `Cargo.toml`](from_crate.rs)
 
-//! How to derive a author, description, and version from Cargo.toml
+How to derive a author, description, and version from Cargo.toml

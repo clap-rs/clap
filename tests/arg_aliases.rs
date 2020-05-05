@@ -37,7 +37,7 @@ fn single_alias_of_option() {
             Arg::with_name("alias")
                 .long("alias")
                 .takes_value(true)
-                .help("single alias")
+                .about("single alias")
                 .alias("new-opt"),
         )
         .try_get_matches_from(vec!["", "--new-opt", "cool"]);
@@ -53,7 +53,7 @@ fn multiple_aliases_of_option() {
         Arg::with_name("aliases")
             .long("aliases")
             .takes_value(true)
-            .help("multiple aliases")
+            .about("multiple aliases")
             .aliases(&["alias1", "alias2", "alias3"]),
     );
     let long = a
@@ -142,7 +142,7 @@ fn alias_on_a_subcommand_option() {
                     .long("test")
                     .takes_value(true)
                     .alias("opt")
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
         )
         .arg(

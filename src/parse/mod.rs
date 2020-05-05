@@ -6,8 +6,12 @@ pub mod matches;
 mod parser;
 mod validator;
 
-pub use self::arg_matcher::ArgMatcher;
+pub(crate) use self::{
+    arg_matcher::ArgMatcher,
+    matches::{MatchedArg, SubCommand, ValueType},
+    parser::{Input, ParseResult, Parser},
+    validator::Validator,
+};
+
 pub use self::matches::ArgMatches;
-pub use self::matches::{MatchedArg, OsValues, SubCommand, Values};
-pub use self::parser::{Input, ParseResult, Parser};
-pub use self::validator::Validator;
+pub use self::matches::{OsValues, Values};

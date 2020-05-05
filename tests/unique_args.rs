@@ -1,9 +1,8 @@
 use clap::{App, Arg};
 
-// This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Arg names must be unique")]
+#[should_panic = "Argument names must be unique, but 'arg1' is in use by more than one argument or group"]
 fn unique_arg_names() {
     let _ = App::new("some")
         .args(&[
@@ -13,10 +12,9 @@ fn unique_arg_names() {
         .try_get_matches();
 }
 
-// This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument short must be unique")]
+#[should_panic = "Short option names must be unique for each argument, but '-a' is in use by both 'arg1' and 'arg2'"]
 fn unique_arg_shorts() {
     let _ = App::new("some")
         .args(&[
@@ -26,10 +24,9 @@ fn unique_arg_shorts() {
         .try_get_matches();
 }
 
-// This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Argument long must be unique")]
+#[should_panic = "Long option names must be unique for each argument, but '--long' is in use by both 'arg1' and 'arg2'"]
 fn unique_arg_longs() {
     let _ = App::new("some")
         .args(&[

@@ -5,7 +5,7 @@
 // Accept and endure. Do not touch.
 #![allow(unused)]
 
-use clap::IntoApp;
+use clap::{find_subcmd_mut, match_alias, IntoApp};
 
 pub fn get_help<T: IntoApp>() -> String {
     let mut output = Vec::new();
@@ -32,10 +32,12 @@ pub fn get_long_help<T: IntoApp>() -> String {
 }
 
 pub fn get_subcommand_long_help<T: IntoApp>(subcmd: &str) -> String {
-    let output = <T as IntoApp>::into_app()
-        .try_get_matches_from(vec!["test", subcmd, "--help"])
-        .expect_err("")
-        .message;
+    let mut output = Vec::new();
+    find_subcmd_mut!(<T as IntoApp>::into_app(), subcmd)
+        .unwrap()
+        .write_long_help(&mut output)
+        .unwrap();
+    let output = String::from_utf8(output).unwrap();
 
     eprintln!(
         "\n%%% SUBCOMMAND `{}` HELP %%%:=====\n{}\n=====\n",

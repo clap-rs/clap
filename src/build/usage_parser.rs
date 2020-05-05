@@ -1,7 +1,9 @@
 // Internal
-use crate::build::{Arg, ArgSettings};
-use crate::util::{Key, VecMap};
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{Arg, ArgSettings},
+    util::VecMap,
+    INTERNAL_ERROR_MSG,
+};
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -26,7 +28,7 @@ pub(crate) struct UsageParser<'a> {
 
 impl<'a> UsageParser<'a> {
     fn new(usage: &'a str) -> Self {
-        debugln!("UsageParser::new: usage={:?}", usage);
+        debug!("new: usage={:?}", usage);
         UsageParser {
             usage,
             pos: 0,
@@ -37,17 +39,17 @@ impl<'a> UsageParser<'a> {
     }
 
     pub(crate) fn from_usage(usage: &'a str) -> Self {
-        debugln!("UsageParser::from_usage;");
+        debug!("UsageParser::from_usage");
         UsageParser::new(usage)
     }
 
     pub(crate) fn parse(mut self) -> Arg<'a> {
-        debugln!("UsageParser::parse;");
+        debug!("UsageParser::parse");
         let mut arg = Arg::default();
         arg.disp_ord = 999;
         arg.unified_ord = 999;
         loop {
-            debugln!("UsageParser::parse:iter: pos={};", self.pos);
+            debug!("UsageParser::parse:iter: pos={}", self.pos);
             self.stop_at(token);
             if let Some(&c) = self.usage.as_bytes().get(self.pos) {
                 match c {
@@ -67,14 +69,14 @@ impl<'a> UsageParser<'a> {
         };
         if !arg.has_switch() && arg.is_set(ArgSettings::MultipleOccurrences) {
             // We had a positional and need to set mult vals too
-            arg.setb(ArgSettings::MultipleValues);
+            arg.set_mut(ArgSettings::MultipleValues);
         }
-        debugln!("UsageParser::parse: vals...{:?}", arg.val_names);
+        debug!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
     }
 
     fn name(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::name;");
+        debug!("UsageParser::name");
         if *self
             .usage
             .as_bytes()
@@ -83,22 +85,22 @@ impl<'a> UsageParser<'a> {
             == b'<'
             && !self.explicit_name_set
         {
-            arg.setb(ArgSettings::Required);
+            arg.set_mut(ArgSettings::Required);
         }
         self.pos += 1;
         self.stop_at(name_end);
         let name = &self.usage[self.start..self.pos];
         if self.prev == UsageToken::Unknown {
-            debugln!("UsageParser::name: setting name...{}", name);
-            arg.id = name.key();
+            debug!("UsageParser::name: setting name...{}", name);
+            arg.id = name.into();
             arg.name = name;
             if arg.long.is_none() && arg.short.is_none() {
-                debugln!("UsageParser::name: explicit name set...");
+                debug!("name: explicit name set...");
                 self.explicit_name_set = true;
                 self.prev = UsageToken::Name;
             }
         } else {
-            debugln!("UsageParser::name: setting val name...{}", name);
+            debug!("UsageParser::name: setting val name...{}", name);
             if let Some(ref mut v) = arg.val_names {
                 let len = v.len();
                 v.insert(len, name);
@@ -106,7 +108,7 @@ impl<'a> UsageParser<'a> {
                 let mut v = VecMap::new();
                 v.insert(0, name);
                 arg.val_names = Some(v);
-                arg.setb(ArgSettings::TakesValue);
+                arg.set_mut(ArgSettings::TakesValue);
             }
             self.prev = UsageToken::ValName;
         }
@@ -116,7 +118,7 @@ impl<'a> UsageParser<'a> {
     where
         F: Fn(u8) -> bool,
     {
-        debugln!("UsageParser::stop_at;");
+        debug!("UsageParser::stop_at");
         self.start = self.pos;
         self.pos += self.usage[self.start..]
             .bytes()
@@ -125,7 +127,7 @@ impl<'a> UsageParser<'a> {
     }
 
     fn short_or_long(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::short_or_long;");
+        debug!("UsageParser::short_or_long");
         self.pos += 1;
         if *self
             .usage
@@ -142,30 +144,30 @@ impl<'a> UsageParser<'a> {
     }
 
     fn long(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::long;");
+        debug!("UsageParser::long");
         self.stop_at(long_end);
         let name = &self.usage[self.start..self.pos];
         if !self.explicit_name_set {
-            debugln!("UsageParser::long: setting name...{}", name);
-            arg.id = name.key();
+            debug!("UsageParser::long: setting name...{}", name);
+            arg.id = name.into();
             arg.name = name;
         }
-        debugln!("UsageParser::long: setting long...{}", name);
+        debug!("UsageParser::long: setting long...{}", name);
         arg.long = Some(name);
         self.prev = UsageToken::Long;
     }
 
     fn short(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::short;");
+        debug!("UsageParser::short");
         let start = &self.usage[self.pos..];
         let short = start.chars().next().expect(INTERNAL_ERROR_MSG);
-        debugln!("UsageParser::short: setting short...{}", short);
+        debug!("UsageParser::short: setting short...{}", short);
         arg.short = Some(short);
         if arg.name.is_empty() {
             // --long takes precedence but doesn't set self.explicit_name_set
             let name = &start[..short.len_utf8()];
-            debugln!("UsageParser::short: setting name...{}", name);
-            arg.id = name.key();
+            debug!("UsageParser::short: setting name...{}", name);
+            arg.id = name.into();
             arg.name = name;
         }
         self.prev = UsageToken::Short;
@@ -173,7 +175,7 @@ impl<'a> UsageParser<'a> {
 
     // "something..."
     fn multiple(&mut self, arg: &mut Arg) {
-        debugln!("UsageParser::multiple;");
+        debug!("UsageParser::multiple");
         let mut dot_counter = 1;
         let start = self.pos;
         let mut bytes = self.usage[start..].bytes();
@@ -181,11 +183,11 @@ impl<'a> UsageParser<'a> {
             dot_counter += 1;
             self.pos += 1;
             if dot_counter == 3 {
-                debugln!("UsageParser::multiple: setting multiple");
+                debug!("UsageParser::multiple: setting multiple");
                 if arg.is_set(ArgSettings::TakesValue) {
-                    arg.setb(ArgSettings::MultipleValues);
+                    arg.set_mut(ArgSettings::MultipleValues);
                 }
-                arg.setb(ArgSettings::MultipleOccurrences);
+                arg.set_mut(ArgSettings::MultipleOccurrences);
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
                 break;
@@ -194,31 +196,31 @@ impl<'a> UsageParser<'a> {
     }
 
     fn help(&mut self, arg: &mut Arg<'a>) {
-        debugln!("UsageParser::help;");
+        debug!("UsageParser::help");
         self.stop_at(help_start);
         self.start = self.pos + 1;
         self.pos = self.usage.len() - 1;
-        debugln!(
+        debug!(
             "UsageParser::help: setting help...{}",
             &self.usage[self.start..self.pos]
         );
-        arg.help = Some(&self.usage[self.start..self.pos]);
+        arg.about = Some(&self.usage[self.start..self.pos]);
         self.pos += 1; // Move to next byte to keep from thinking ending ' is a start
         self.prev = UsageToken::Help;
     }
 
     fn default(&mut self, arg: &mut Arg<'a>) {
-        debugln!(
-            "UsageParser::default; from: \"{}\"",
+        debug!(
+            "UsageParser::default: from=\"{}\"",
             &self.usage[self.pos..self.usage.len()]
         );
         self.pos += 1; // Skip @
         self.stop_at(default_value_end); // Find first space after value
-        debugln!(
+        debug!(
             "UsageParser::default: setting default...\"{}\"",
             &self.usage[self.start..self.pos]
         );
-        arg.setb(ArgSettings::TakesValue);
+        arg.set_mut(ArgSettings::TakesValue);
         arg.default_vals = Some(vec![std::ffi::OsStr::new(
             &self.usage[self.start..self.pos],
         )]);
@@ -262,7 +264,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -271,7 +273,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -280,7 +282,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -289,7 +291,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert_eq!(a.long.unwrap(), "flag");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -298,7 +300,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -307,7 +309,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -316,7 +318,7 @@ mod test {
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -351,7 +353,7 @@ mod test {
         assert_eq!(a.name, "f");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_none());
         assert!(a.num_vals.is_none());
@@ -377,7 +379,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -392,7 +394,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -407,7 +409,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -422,7 +424,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -437,7 +439,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -452,7 +454,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -466,7 +468,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -481,7 +483,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -496,7 +498,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -510,7 +512,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -525,7 +527,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -540,7 +542,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -558,7 +560,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -573,7 +575,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -591,7 +593,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -606,7 +608,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -620,7 +622,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -638,7 +640,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -653,7 +655,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -667,7 +669,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -686,7 +688,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -702,7 +704,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -721,7 +723,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -737,7 +739,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -756,7 +758,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -772,7 +774,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -786,7 +788,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -805,7 +807,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -821,7 +823,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -835,7 +837,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -854,7 +856,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -873,7 +875,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -892,7 +894,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -908,7 +910,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -927,7 +929,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -944,7 +946,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -963,7 +965,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -977,7 +979,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -996,7 +998,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1015,7 +1017,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1034,7 +1036,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1050,7 +1052,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1069,7 +1071,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1086,7 +1088,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1105,7 +1107,7 @@ mod test {
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1119,7 +1121,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1138,7 +1140,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1157,7 +1159,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1176,7 +1178,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1195,7 +1197,7 @@ mod test {
         assert_eq!(a.name, "myopt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1214,7 +1216,7 @@ mod test {
         assert_eq!(a.name, "opt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1227,7 +1229,7 @@ mod test {
     fn create_positional_usage() {
         let a = Arg::from("[pos] 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1240,7 +1242,7 @@ mod test {
     fn create_positional_usage0() {
         let a = Arg::from("<pos> 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1253,7 +1255,7 @@ mod test {
     fn pos_mult_help() {
         let a = Arg::from("[pos]... 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1266,7 +1268,7 @@ mod test {
     fn pos_help_lit_single_quote() {
         let a = Arg::from("[pos]... 'some help\' info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help' info");
+        assert_eq!(a.about.unwrap(), "some help' info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1279,7 +1281,7 @@ mod test {
     fn pos_help_double_lit_single_quote() {
         let a = Arg::from("[pos]... 'some \'help\' info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some 'help' info");
+        assert_eq!(a.about.unwrap(), "some 'help' info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1291,11 +1293,11 @@ mod test {
     #[test]
     fn pos_help_newline() {
         let a = Arg::from(
-            "[pos]... 'some help{n}\
+            "[pos]... 'some help\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help{n}info");
+        assert_eq!(a.about.unwrap(), "some help\ninfo");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1307,11 +1309,11 @@ mod test {
     #[test]
     fn pos_help_newline_lit_sq() {
         let a = Arg::from(
-            "[pos]... 'some help\' stuff{n}\
+            "[pos]... 'some help\' stuff\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help' stuff{n}info");
+        assert_eq!(a.about.unwrap(), "some help' stuff\ninfo");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1324,7 +1326,7 @@ mod test {
     fn pos_req_mult_help() {
         let a = Arg::from("<pos>... 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1361,7 +1363,7 @@ mod test {
     fn pos_req_mult_def_help() {
         let a = Arg::from("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
         );
@@ -1377,7 +1379,7 @@ mod test {
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1397,7 +1399,7 @@ mod test {
         assert_eq!(a.name, "myopt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.help.unwrap(), "some help info");
+        assert_eq!(a.about.unwrap(), "some help info");
         assert!(
             !(a.is_set(ArgSettings::MultipleValues) || a.is_set(ArgSettings::MultipleOccurrences))
         );
@@ -1415,21 +1417,21 @@ mod test {
     fn nonascii() {
         let a = Arg::from("<ASCII> 'üñíčöĐ€'");
         assert_eq!(a.name, "ASCII");
-        assert_eq!(a.help, Some("üñíčöĐ€"));
+        assert_eq!(a.about, Some("üñíčöĐ€"));
         let a = Arg::from("<üñíčöĐ€> 'ASCII'");
         assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.help, Some("ASCII"));
+        assert_eq!(a.about, Some("ASCII"));
         let a = Arg::from("<üñíčöĐ€> 'üñíčöĐ€'");
         assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.help, Some("üñíčöĐ€"));
+        assert_eq!(a.about, Some("üñíčöĐ€"));
         let a = Arg::from("-ø 'ø'");
         assert_eq!(a.name, "ø");
         assert_eq!(a.short, Some('ø'));
-        assert_eq!(a.help, Some("ø"));
+        assert_eq!(a.about, Some("ø"));
         let a = Arg::from("--üñíčöĐ€ 'Nōṫ ASCII'");
         assert_eq!(a.name, "üñíčöĐ€");
         assert_eq!(a.long, Some("üñíčöĐ€"));
-        assert_eq!(a.help, Some("Nōṫ ASCII"));
+        assert_eq!(a.about, Some("Nōṫ ASCII"));
         let a = Arg::from("[ñämê] --ôpt=[üñíčöĐ€] 'hælp'");
         assert_eq!(a.name, "ñämê");
         assert_eq!(a.long, Some("ôpt"));
@@ -1437,6 +1439,6 @@ mod test {
             a.val_names.unwrap().values().collect::<Vec<_>>(),
             [&"üñíčöĐ€"]
         );
-        assert_eq!(a.help, Some("hælp"));
+        assert_eq!(a.about, Some("hælp"));
     }
 }

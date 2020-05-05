@@ -12,13 +12,17 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{dummies, from_argmatches, into_app, subcommand};
-use proc_macro2::Ident;
+use crate::{
+    derives::{arg_enum, from_argmatches, into_app, subcommand},
+    dummies,
+};
+
+use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::{self, punctuated, token, Attribute, DataEnum};
+use syn::{self, punctuated, token, Attribute, DataEnum, DeriveInput, Field, Ident};
 
-pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn derive_clap(input: &DeriveInput) -> TokenStream {
     use syn::Data::*;
 
     let ident = &input.ident;
@@ -38,7 +42,7 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
             dummies::clap_struct(ident);
             gen_for_struct(
                 ident,
-                &punctuated::Punctuated::<syn::Field, token::Comma>::new(),
+                &punctuated::Punctuated::<Field, token::Comma>::new(),
                 &input.attrs,
             )
         }
@@ -51,10 +55,10 @@ pub fn derive_clap(input: &syn::DeriveInput) -> proc_macro2::TokenStream {
 }
 
 fn gen_for_struct(
-    name: &syn::Ident,
-    fields: &punctuated::Punctuated<syn::Field, token::Comma>,
-    attrs: &[syn::Attribute],
-) -> proc_macro2::TokenStream {
+    name: &Ident,
+    fields: &punctuated::Punctuated<Field, token::Comma>,
+    attrs: &[Attribute],
+) -> TokenStream {
     let (into_app, attrs) = into_app::gen_for_struct(name, fields, attrs);
     let from_arg_matches = from_argmatches::gen_for_struct(name, fields, &attrs);
 
@@ -66,15 +70,26 @@ fn gen_for_struct(
     }
 }
 
-fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> proc_macro2::TokenStream {
+fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let into_app = into_app::gen_for_enum(name);
     let from_arg_matches = from_argmatches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
+
+    let arg_enum = if e.variants.iter().all(|v| match v.fields {
+        syn::Fields::Unit => true,
+        _ => false,
+    }) {
+        arg_enum::gen_for_enum(name, attrs, e)
+    } else {
+        quote!()
+    };
+
     quote! {
         impl ::clap::Clap for #name { }
 
         #into_app
         #from_arg_matches
         #subcommand
+        #arg_enum
     }
 }

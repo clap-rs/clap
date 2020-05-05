@@ -1,7 +1,5 @@
 name: Benchmark
 on:
-  push:
-    branches: [master]
   pull_request:
     branches: [master]
     types: [opened, reopened, synchronize]
@@ -9,38 +7,51 @@ jobs:
   Benchmark:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Checkout base
         uses: actions/checkout@v2
-      - name: Update rust
-        run: rustup toolchain update stable
-      - name: Run benchmarks
-        run: cargo bench -- -R bencher | tee output.txt
-      - name: Download base benchmark
+        with:
+          ref: master
+      - name: Ready cache
+        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - name: Cache cargo
         uses: actions/cache@v1
+        id: cache
         with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark-${{ github.ref }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-benchmark-${{ github.ref }}-${{ github.sha }}
-            ${{ runner.os }}-benchmark-${{ github.ref }}
-            ${{ runner.os }}-benchmark
-      - name: Compare benchmarks for Pull Requests
-        uses: rhysd/github-action-benchmark@v1
-        if: github.event_name == 'pull_request'
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Bench base
+        run: cargo bench -- --output-format bencher | tee output.txt
+      - name: Save base benchmark
+        uses: pksunkara/github-action-benchmark@v1
         with:
           tool: cargo
           output-file-path: output.txt
-          external-data-json-path: ./cache/benchmark-data.json
-          github-token: ${{ github.token }}
-          comment-always: true
-          save-data-file: false
-      - name: Compare benchmarks for master branch
-        uses: rhysd/github-action-benchmark@v1
-        if: github.event_name == 'push'
+          external-data-json-path: ./benchmark-data.json
+          read-commit-id: true
+      - name: Checkout pull request
+        uses: actions/checkout@v2
+        with:
+          clean: false
+      - name: Bench pull request
+        run: cargo bench -- --output-format bencher | tee output.txt
+      - name: Compare benchmarks
+        uses: pksunkara/github-action-benchmark@v2
         with:
           tool: cargo
           output-file-path: output.txt
-          external-data-json-path: ./cache/benchmark-data.json
+          external-data-json-path: ./benchmark-data.json
           github-token: ${{ github.token }}
-          alert-threshold: 125%
-          comment-on-alert: true
+          annotate-always: true
+      - name: Install cargo-cache
+        uses: actions-rs/install@v0.1
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          crate: cargo-cache
+          use-tool-cache: true
+      - name: Cleanup cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo cache -a

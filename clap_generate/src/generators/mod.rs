@@ -4,7 +4,7 @@ mod shells;
 use std::io::Write;
 
 // Internal
-use clap::{find_subcmd, flags, match_alias, subcommands, App, AppSettings, Arg};
+use clap::{find_subcmd, flags, match_alias, App, AppSettings, Arg};
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -61,7 +61,11 @@ pub trait Generator {
     fn all_subcommands(app: &App) -> Vec<(String, String)> {
         let mut subcmds: Vec<_> = Self::subcommands(app);
 
-        for sc_v in subcommands!(app).map(|s| Self::all_subcommands(&s)) {
+        for sc_v in app
+            .get_subcommands()
+            .iter()
+            .map(|s| Self::all_subcommands(&s))
+        {
             subcmds.extend(sc_v);
         }
 
@@ -88,8 +92,8 @@ pub trait Generator {
     /// Subcommand `rustup toolchain install` would be converted to
     /// `("install", "rustup toolchain install")`.
     fn subcommands(p: &App) -> Vec<(String, String)> {
-        debugln!("subcommands: name={}", p.name);
-        debugln!("subcommands: Has subcommands...{:?}", p.has_subcommands());
+        debug!("subcommands: name={}", p.get_name());
+        debug!("subcommands: Has subcommands...{:?}", p.has_subcommands());
 
         let mut subcmds = vec![];
 
@@ -97,16 +101,16 @@ pub trait Generator {
             return subcmds;
         }
 
-        for sc in &p.subcommands {
+        for sc in p.get_subcommands() {
             let sc_bin_name = sc.get_bin_name().unwrap();
 
-            debugln!(
+            debug!(
                 "subcommands:iter: name={}, bin_name={}",
-                sc.name,
+                sc.get_name(),
                 sc_bin_name
             );
 
-            subcmds.push((sc.name.clone(), sc_bin_name.to_string()));
+            subcmds.push((sc.get_name().to_string(), sc_bin_name.to_string()));
         }
 
         subcmds
@@ -115,15 +119,14 @@ pub trait Generator {
     /// Gets all the short options and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `h` and `V` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn shorts<'b>(p: &'b App<'b>) -> Vec<char> {
-        debugln!("shorts: name={}", p.name);
+        debug!("shorts: name={}", p.get_name());
 
         let mut shorts: Vec<char> = p
-            .args
-            .args
+            .get_arguments()
             .iter()
             .filter_map(|a| {
-                if a.index.is_none() && a.short.is_some() {
-                    Some(a.short.unwrap())
+                if a.get_index().is_none() && a.get_short().is_some() {
+                    Some(a.get_short().unwrap())
                 } else {
                     None
                 }
@@ -144,15 +147,14 @@ pub trait Generator {
     /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn longs<'b>(p: &'b App<'b>) -> Vec<String> {
-        debugln!("longs: name={}", p.name);
+        debug!("longs: name={}", p.get_name());
 
         let mut longs: Vec<String> = p
-            .args
-            .args
+            .get_arguments()
             .iter()
             .filter_map(|a| {
-                if a.index.is_none() && a.long.is_some() {
-                    Some(a.long.unwrap().to_string())
+                if a.get_index().is_none() && a.get_long().is_some() {
+                    Some(a.get_long().unwrap().to_string())
                 } else {
                     None
                 }
@@ -175,27 +177,27 @@ pub trait Generator {
     /// Gets all the flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn flags<'b>(p: &'b App<'b>) -> Vec<Arg> {
-        debugln!("flags: name={}", p.name);
+        debug!("flags: name={}", p.get_name());
 
         let mut flags: Vec<_> = flags!(p).cloned().collect();
 
-        if flags.iter().find(|x| x.name == "help").is_none() {
+        if flags.iter().find(|x| x.get_name() == "help").is_none() {
             flags.push(
                 Arg::with_name("help")
                     .short('h')
                     .long("help")
-                    .help("Prints help information"),
+                    .about("Prints help information"),
             );
         }
 
         if !p.is_set(AppSettings::DisableVersion)
-            && flags.iter().find(|x| x.name == "version").is_none()
+            && flags.iter().find(|x| x.get_name() == "version").is_none()
         {
             flags.push(
                 Arg::with_name("version")
                     .short('V')
                     .long("version")
-                    .help("Prints version information"),
+                    .about("Prints version information"),
             );
         }
 
@@ -267,7 +269,7 @@ mod tests {
         let app = common();
         let sc_app = Foo::find_subcommand_with_path(&app, "test config".split(' ').collect());
 
-        assert_eq!(sc_app.name, "config");
+        assert_eq!(sc_app.get_name(), "config");
     }
 
     #[test]
@@ -276,15 +278,15 @@ mod tests {
         let flags = Foo::flags(&app);
 
         assert_eq!(flags.len(), 2);
-        assert_eq!(flags[0].long, Some("help"));
-        assert_eq!(flags[1].long, Some("version"));
+        assert_eq!(flags[0].get_long(), Some("help"));
+        assert_eq!(flags[1].get_long(), Some("version"));
 
         let sc_flags = Foo::flags(Foo::find_subcommand_with_path(&app, vec!["test"]));
 
         assert_eq!(sc_flags.len(), 3);
-        assert_eq!(sc_flags[0].long, Some("file"));
-        assert_eq!(sc_flags[1].long, Some("help"));
-        assert_eq!(sc_flags[2].long, Some("version"));
+        assert_eq!(sc_flags[0].get_long(), Some("file"));
+        assert_eq!(sc_flags[1].get_long(), Some("help"));
+        assert_eq!(sc_flags[2].get_long(), Some("version"));
     }
 
     #[test]

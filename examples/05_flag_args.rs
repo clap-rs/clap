@@ -15,7 +15,7 @@ fn main() {
         // you want for your individual case.
         .arg(
             Arg::with_name("awesome")
-                .help("turns up the awesome") // Displayed when showing help info
+                .about("turns up the awesome") // Displayed when showing help info
                 .short('a') // Trigger this arg with "-a"
                 .long("awesome") // Trigger this arg with "--awesome"
                 .multiple(true) // This flag should allow multiple
@@ -47,7 +47,7 @@ fn main() {
         0 => println!("Nothing is awesome"),
         1 => println!("Some things are awesome"),
         2 => println!("Lots of things are awesome"),
-        3 | _ => println!("EVERYTHING is awesome!"),
+        _ => println!("EVERYTHING is awesome!"),
     }
 
     // Continued program logic goes here...

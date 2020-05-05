@@ -26,16 +26,15 @@ branches:
 jobs:
   allow_failures:
     - rust: nightly
-    - name: Coverage
   fast_finish: true
   include:
-    - os: osx
-      rust: 1.40.0
-    - rust: 1.40.0
     - {}
     - rust: beta
     - rust: nightly
       cache: false
+      script:
+        - cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+        - cargo test --features "yaml unstable doc"
     - name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
@@ -43,7 +42,7 @@ jobs:
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
         - cargo clippy --lib --features "yaml unstable" -- -D warnings
-        - cargo clippy --tests --examples --features "yaml unstable"
+        - cargo clippy --tests --examples --features "yaml unstable" -- -D warnings
         - cargo fmt -- --check
     - name: Coverage
       addons:
@@ -57,10 +56,10 @@ jobs:
       before_script:
         - cargo install cargo-tarpaulin
       script:
-        - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+        - cargo tarpaulin --workspace --features "yaml unstable" --ciserver travis-ci --coveralls $TRAVIS_JOB_ID --timeout 300
 script:
-  - cargo test --no-default-features
-  - cargo test --features yaml unstable
+  - cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+  - cargo test --features "yaml unstable"
 notifications:
   email: false
 env:

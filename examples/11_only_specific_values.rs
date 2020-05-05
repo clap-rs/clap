@@ -14,7 +14,7 @@ fn main() {
         .about("does awesome things")
         .arg(
             Arg::with_name("MODE")
-                .help("What mode to run the program in")
+                .about("What mode to run the program in")
                 .index(1)
                 .possible_values(&["fast", "slow"])
                 .required(true),

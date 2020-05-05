@@ -58,6 +58,7 @@ SUBCOMMANDS:
 
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
+
 	Did you mean 'subcmd'?
 
 If you believe you received this message in error, try re-running with 'dym -- subcm'
@@ -69,6 +70,7 @@ For more information try --help";
 
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognized
+
 	Did you mean 'test' or 'temp'?
 
 If you believe you received this message in error, try re-running with 'dym -- te'
@@ -81,7 +83,9 @@ For more information try --help";
 #[cfg(feature = "suggestions")]
 static DYM_ARG: &str =
     "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
-\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
+	Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
 If you tried to supply `--subcm` as a PATTERN use `-- --subcm`
 
 USAGE:
@@ -98,7 +102,7 @@ fn subcommand() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
         )
         .arg(Arg::with_name("other").long("other"))
@@ -119,7 +123,7 @@ fn subcommand_none_given() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
         )
         .arg(Arg::with_name("other").long("other"))
@@ -137,7 +141,7 @@ fn subcommand_multiple() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .help("testing testing"),
+                    .about("testing testing"),
             ),
             App::new("add").arg(Arg::with_name("roster").short('r')),
         ])

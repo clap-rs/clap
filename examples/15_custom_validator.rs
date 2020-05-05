@@ -9,7 +9,7 @@ fn main() {
         // Application logic goes here...
         .arg(
             Arg::with_name("input")
-                .help("the input file to use")
+                .about("the input file to use")
                 .index(1)
                 .required(true)
                 // You can pass in a closure, or a function
@@ -21,7 +21,7 @@ fn main() {
     println!("The .PNG file is: {}", matches.value_of("input").unwrap());
 }
 
-fn is_png(val: String) -> Result<(), String> {
+fn is_png(val: &str) -> Result<(), String> {
     // val is the argument value passed in by the user
     // val has type of String.
     if val.ends_with(".png") {

@@ -8,17 +8,17 @@ args:
     - help:
         short: h
         long: help
-        help: prints help with a nonstandard description
-    - opt:
+        about: prints help with a nonstandard description
+    - option:
         short: o
         long: option
         multiple: true
-        help: tests options
+        about: tests options
     - positional:
-        help: tests positionals
+        about: tests positionals
         index: 1
     - positional2:
-        help: tests positionals with exclusions
+        about: tests positionals with exclusions
         index: 2
         default_value_if:
             - [flag, Null, some]
@@ -27,18 +27,18 @@ args:
         short: f
         long: flag
         multiple: true
-        help: tests flags
+        about: tests flags
         global: true
     - flag2:
         short: F
-        help: tests flags with exclusions
+        about: tests flags with exclusions
         conflicts_with:
             - flag
         requires:
             - option2
     - option2:
         long: long-option-2
-        help: tests long options with exclusions
+        about: tests long options with exclusions
         conflicts_with:
             - option
         requires:
@@ -46,7 +46,7 @@ args:
     - option3:
         short: O
         long: Option
-        help: tests options with specific value sets
+        about: tests options with specific value sets
         takes_value: true
         possible_values:
             - fast
@@ -55,47 +55,47 @@ args:
             - [fast, flag]
     - positional3:
         index: 3
-        help: tests positionals with specific values
+        about: tests positionals with specific values
         possible_values: [ vi, emacs ]
     - multvals:
         long: multvals
-        help: Tests mutliple values, not mult occs
+        about: Tests mutliple values, not mult occs
         value_names:
             - one
             - two
     - multvalsmo:
         long: multvalsmo
         multiple: true
-        help: Tests mutliple values, not mult occs
+        about: Tests mutliple values, not mult occs
         value_names: [one, two]
     - multvalsdelim:
         long: multvalsdelim
-        help: Tests mutliple values with required delimiter
+        about: Tests mutliple values with required delimiter
         multiple: true
         require_delimiter: true
     - singlealias:
         long: singlealias
-        help: Tests single alias
+        about: Tests single alias
         aliases: [alias]
         required_if:
             - [multvalsmo, two]
     - multaliases:
         long: multaliases
-        help: Tests mutliple aliases
+        about: Tests mutliple aliases
         aliases: [als1, als2, als3]
     - minvals2:
         long: minvals2
         multiple: true
-        help: Tests 2 min vals
+        about: Tests 2 min vals
         min_values: 2
     - maxvals3:
         long: maxvals3
         multiple: true
-        help: Tests 3 max vals
+        about: Tests 3 max vals
         max_values: 3
     - exclusive:
         long: exclusive
-        help: Tests 3 exclusive
+        about: Tests 3 exclusive
         exclusive: true
     
     
@@ -118,8 +118,8 @@ subcommands:
                 short: o
                 long: option
                 multiple: true
-                help: tests options
+                about: tests options
                 takes_value: true
             - scpositional:
-                help: tests positionals
+                about: tests positionals
                 index: 1

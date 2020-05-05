@@ -80,7 +80,7 @@ _{name} \"$@\"",
 //     _describe -t commands 'rustup commands' commands "$@"
 //
 fn subcommand_details(p: &App) -> String {
-    debugln!("ZshGen::subcommand_details;");
+    debug!("subcommand_details");
 
     let name = p.get_bin_name().unwrap();
 
@@ -106,7 +106,7 @@ _{bin_name_underscore}_commands() {{
     all_subcommands.dedup();
 
     for &(_, ref bin_name) in &all_subcommands {
-        debugln!("Zsh::subcommand_details:iter: bin_name={}", bin_name);
+        debug!("subcommand_details:iter: bin_name={}", bin_name);
 
         ret.push(format!(
             "\
@@ -138,18 +138,18 @@ _{bin_name_underscore}_commands() {{
 //         'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
 fn subcommands_of(p: &App) -> String {
-    debugln!("Zsh::subcommands_of;");
+    debug!("subcommands_of");
 
     let mut ret = vec![];
 
     fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
-        debugln!("Zsh::add_sc;");
+        debug!("add_sc");
 
         let s = format!(
             "\"{name}:{help}\" \\",
             name = n,
             help = sc
-                .about
+                .get_about()
                 .unwrap_or("")
                 .replace("[", "\\[")
                 .replace("]", "\\]")
@@ -161,15 +161,13 @@ fn subcommands_of(p: &App) -> String {
     }
 
     // The subcommands
-    for sc in subcommands!(p) {
-        debugln!("Zsh::subcommands_of:iter: subcommand={}", sc.name);
+    for sc in p.get_subcommands() {
+        debug!("subcommands_of:iter: subcommand={}", sc.get_name());
 
-        add_sc(sc, &sc.name, &mut ret);
+        add_sc(sc, &sc.get_name(), &mut ret);
 
-        if let Some(ref v) = sc.aliases {
-            for alias in v.iter().filter(|&&(_, vis)| vis).map(|&(n, _)| n) {
-                add_sc(sc, alias, &mut ret);
-            }
+        for alias in sc.get_visible_aliases() {
+            add_sc(sc, alias, &mut ret);
         }
     }
 
@@ -206,9 +204,8 @@ fn subcommands_of(p: &App) -> String {
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
 fn get_subcommands_of(p: &App) -> String {
-    debugln!("Zsh::get_subcommands_of;");
-    debugln!(
-        "Zsh::get_subcommands_of: Has subcommands...{:?}",
+    debug!(
+        "get_subcommands_of: Has subcommands...{:?}",
         p.has_subcommands()
     );
 
@@ -248,7 +245,7 @@ fn get_subcommands_of(p: &App) -> String {
         esac
     ;;
 esac",
-        name = p.name,
+        name = p.get_name(),
         name_hyphen = p.get_bin_name().unwrap().replace(" ", "-"),
         subcommands = subcmds.join("\n"),
         pos = positionals!(p).count() + 1
@@ -256,7 +253,7 @@ esac",
 }
 
 fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
-    debugln!("Zsh::parser_of: sc={}", sc);
+    debug!("parser_of: sc={}", sc);
 
     if sc == p.get_bin_name().unwrap_or(&String::new()) {
         return p;
@@ -287,7 +284,7 @@ fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
 fn get_args_of(p: &App) -> String {
-    debugln!("Zsh::get_args_of;");
+    debug!("get_args_of");
 
     let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
     let opts = write_opts_of(p);
@@ -297,14 +294,14 @@ fn get_args_of(p: &App) -> String {
     let sc_or_a = if p.has_subcommands() {
         format!(
             "\":: :_{name}_commands\" \\",
-            name = p.bin_name.as_ref().unwrap().replace(" ", "__")
+            name = p.get_bin_name().as_ref().unwrap().replace(" ", "__")
         )
     } else {
         String::new()
     };
 
     let sc = if p.has_subcommands() {
-        format!("\"*::: :->{name}\" \\", name = p.name)
+        format!("\"*::: :->{name}\" \\", name = p.get_name())
     } else {
         String::new()
     };
@@ -353,21 +350,15 @@ fn escape_value(string: &str) -> String {
 }
 
 fn write_opts_of(p: &App) -> String {
-    debugln!("Zsh::write_opts_of;");
+    debug!("write_opts_of");
 
     let mut ret = vec![];
 
     for o in opts!(p) {
-        debugln!("Zsh::write_opts_of:iter: o={}", o.name);
+        debug!("write_opts_of:iter: o={}", o.get_name());
 
-        let help = o.help.map_or(String::new(), escape_help);
-        let mut conflicts = get_zsh_arg_conflicts!(p, o, INTERNAL_ERROR_MSG);
-
-        conflicts = if conflicts.is_empty() {
-            String::new()
-        } else {
-            format!("({})", conflicts)
-        };
+        let help = o.get_about().map_or(String::new(), escape_help);
+        let conflicts = arg_conflicts(p, o);
 
         // @TODO @soundness should probably be either multiple occurrences or multiple values and
         // not both
@@ -379,7 +370,7 @@ fn write_opts_of(p: &App) -> String {
             ""
         };
 
-        let pv = if let Some(ref pv_vec) = o.possible_vals {
+        let pv = if let Some(ref pv_vec) = o.get_possible_values() {
             format!(
                 ": :({})",
                 pv_vec
@@ -392,7 +383,7 @@ fn write_opts_of(p: &App) -> String {
             String::new()
         };
 
-        if let Some(short) = o.short {
+        if let Some(short) = o.get_short() {
             let s = format!(
                 "'{conflicts}{multiple}-{arg}+[{help}]{possible_values}' \\",
                 conflicts = conflicts,
@@ -402,11 +393,11 @@ fn write_opts_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("write_opts_of:iter: Wrote...{}", &*s);
+            debug!("write_opts_of:iter: Wrote...{}", &*s);
             ret.push(s);
         }
 
-        if let Some(long) = o.long {
+        if let Some(long) = o.get_long() {
             let l = format!(
                 "'{conflicts}{multiple}--{arg}=[{help}]{possible_values}' \\",
                 conflicts = conflicts,
@@ -416,7 +407,7 @@ fn write_opts_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("write_opts_of:iter: Wrote...{}", &*l);
+            debug!("write_opts_of:iter: Wrote...{}", &*l);
             ret.push(l);
         }
     }
@@ -424,22 +415,37 @@ fn write_opts_of(p: &App) -> String {
     ret.join("\n")
 }
 
+fn arg_conflicts(app: &App, arg: &Arg) -> String {
+    let conflicts = app.get_arg_conflicts_with(arg);
+
+    if conflicts.is_empty() {
+        return String::new();
+    }
+
+    let mut res = vec![];
+    for conflict in conflicts {
+        if let Some(s) = conflict.get_short() {
+            res.push(format!("-{}", s));
+        }
+
+        if let Some(l) = conflict.get_long() {
+            res.push(format!("--{}", l));
+        }
+    }
+
+    format!("({})", res.join(" "))
+}
+
 fn write_flags_of(p: &App) -> String {
-    debugln!("Zsh::write_flags_of;");
+    debug!("write_flags_of;");
 
     let mut ret = vec![];
 
     for f in Zsh::flags(p) {
-        debugln!("Zsh::write_flags_of:iter: f={}", f.name);
+        debug!("write_flags_of:iter: f={}", f.get_name());
 
-        let help = f.help.map_or(String::new(), escape_help);
-        let mut conflicts = get_zsh_arg_conflicts!(p, f, INTERNAL_ERROR_MSG);
-
-        conflicts = if conflicts.is_empty() {
-            String::new()
-        } else {
-            format!("({})", conflicts)
-        };
+        let help = f.get_about().map_or(String::new(), escape_help);
+        let conflicts = arg_conflicts(p, &f);
 
         let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
             "*"
@@ -447,7 +453,7 @@ fn write_flags_of(p: &App) -> String {
             ""
         };
 
-        if let Some(short) = f.short {
+        if let Some(short) = f.get_short() {
             let s = format!(
                 "'{conflicts}{multiple}-{arg}[{help}]' \\",
                 multiple = multiple,
@@ -456,12 +462,12 @@ fn write_flags_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("Zsh::write_flags_of:iter: Wrote...{}", &*s);
+            debug!("write_flags_of:iter: Wrote...{}", &*s);
 
             ret.push(s);
         }
 
-        if let Some(long) = f.long {
+        if let Some(long) = f.get_long() {
             let l = format!(
                 "'{conflicts}{multiple}--{arg}[{help}]' \\",
                 conflicts = conflicts,
@@ -470,7 +476,7 @@ fn write_flags_of(p: &App) -> String {
                 help = help
             );
 
-            debugln!("Zsh::write_flags_of:iter: Wrote...{}", &*l);
+            debug!("write_flags_of:iter: Wrote...{}", &*l);
 
             ret.push(l);
         }
@@ -480,12 +486,12 @@ fn write_flags_of(p: &App) -> String {
 }
 
 fn write_positionals_of(p: &App) -> String {
-    debugln!("Zsh::write_positionals_of;");
+    debug!("write_positionals_of;");
 
     let mut ret = vec![];
 
     for arg in positionals!(p) {
-        debugln!("Zsh::write_positionals_of:iter: arg={}", arg.name);
+        debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
         let optional = if !arg.is_set(ArgSettings::Required) {
             ":"
@@ -496,16 +502,15 @@ fn write_positionals_of(p: &App) -> String {
         let a = format!(
             "'{optional}:{name}{help}:{action}' \\",
             optional = optional,
-            name = arg.name,
+            name = arg.get_name(),
             help = arg
-                .help
+                .get_about()
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]")
                 .replace(":", "\\:"),
             action = arg
-                .possible_vals
-                .as_ref()
+                .get_possible_values()
                 .map_or("_files".to_owned(), |values| {
                     format!(
                         "({})",
@@ -518,7 +523,7 @@ fn write_positionals_of(p: &App) -> String {
                 })
         );
 
-        debugln!("Zsh::write_positionals_of:iter: Wrote...{}", a);
+        debug!("write_positionals_of:iter: Wrote...{}", a);
 
         ret.push(a);
     }

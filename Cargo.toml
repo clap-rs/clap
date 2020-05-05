@@ -32,78 +32,74 @@ bench = false
 [[bench]]
 harness = false
 name = "01_default"
+path = "benches/01_default.rs"
 
 [[bench]]
 harness = false
 name = "02_simple"
+path = "benches/02_simple.rs"
 
 [[bench]]
 harness = false
 name = "03_complex"
+path = "benches/03_complex.rs"
 
 [[bench]]
 harness = false
 name = "04_new_help"
+path = "benches/04_new_help.rs"
 
 [[bench]]
 harness = false
 name = "05_ripgrep"
+path = "benches/05_ripgrep.rs"
 
 [[bench]]
 harness = false
 name = "06_rustup"
+path = "benches/06_rustup.rs"
 
 [badges]
-travis-ci = { repository = "clap-rs/clap", branch = "master" }
-azure-devops = { project = "clap-rs/clap", pipeline = "clap-rs.clap" }
-coveralls = { repository = "clap-rs/clap", branch = "master" }
 is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
 is-it-maintained-open-issues = { repository = "clap-rs/clap" }
 maintenance = {status = "actively-developed"}
 
 [dependencies]
 bitflags              = "1.2"
-unicode-width         = "0.1.4"
+unicode-width         = "0.1"
 textwrap              = "0.11"
-indexmap              = "1.0.1"
-strsim      = { version = "0.9.0",  optional = true }
+indexmap              = "1.0"
+os_str_bytes = { version = "2.3", features = ["raw"] }
+vec_map               = "0.8"
+strsim      = { version = "0.10",  optional = true }
 yaml-rust   = { version = "0.4.1",  optional = true }
-atty        = { version = "0.2.2",  optional = true }
-vec_map     = { version = "0.8", optional = true }
+atty        = { version = "0.2",  optional = true }
+termcolor   = { version = "1.1", optional = true }
 term_size   = { version = "1.0.0-beta1", optional = true }
 lazy_static = { version = "1", optional = true }
 clap_derive = { path = "./clap_derive", version = "3.0.0-beta.1", optional = true }
-
-[target.'cfg(not(windows))'.dependencies]
-ansi_term = { version = "0.12.1", optional = true }
 
 [dev-dependencies]
 regex = "1.0"
 lazy_static = "1"
 version-sync = "0.8"
-criterion = { git = "git://github.com/pksunkara/criterion.rs", version = "0.3" }
+criterion = "0.3.2"
 
 [features]
-default     = ["suggestions", "color", "vec_map", "derive", "std", "cargo"]
+default     = ["suggestions", "color", "derive", "std", "cargo"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
-color       = ["ansi_term", "atty"]
+color       = ["atty", "termcolor"]
 wrap_help   = ["term_size", "textwrap/term_size"]
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
-unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
-nightly     = [] # for building with unstable Rust features (currently none)
-debug       = [] # Enables debug messages
+unstable    = ["clap_derive/unstable"] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
+debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml"] # All the features which add to documentation
-
-[profile.dev]
-codegen-units = 4
 
 [profile.test]
 opt-level = 1
-debug = true
-codegen-units = 4
 
 [profile.bench]
 lto = true

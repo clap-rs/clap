@@ -5,30 +5,28 @@ mod tests;
 pub use self::settings::ArgSettings;
 
 // Std
-use std::borrow::Cow;
-use std::cmp::{Ord, Ordering};
-use std::env;
-use std::ffi::{OsStr, OsString};
-use std::fmt::{self, Display, Formatter};
-#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-use std::os::unix::ffi::OsStrExt;
-use std::rc::Rc;
-use std::str;
+use std::{
+    borrow::Cow,
+    cmp::{Ord, Ordering},
+    env,
+    ffi::{OsStr, OsString},
+    fmt::{self, Display, Formatter},
+    rc::Rc,
+    str,
+};
 
 // Third Party
-use crate::util::VecMap;
 
 // Internal
-use crate::build::{arg::settings::ArgFlags, usage_parser::UsageParser};
-use crate::util::Key;
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use crate::util::OsStrExt3;
-use crate::INTERNAL_ERROR_MSG;
+use crate::{
+    build::{arg::settings::ArgFlags, usage_parser::UsageParser},
+    util::VecMap,
+    util::{Id, Key},
+    INTERNAL_ERROR_MSG,
+};
 
-type Validator = Rc<dyn Fn(String) -> Result<(), String>>;
+type Validator = Rc<dyn Fn(&str) -> Result<(), String>>;
 type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
-
-type Id = u64;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -47,7 +45,7 @@ type Id = u64;
 ///       .long("config")
 ///       .takes_value(true)
 ///       .value_name("FILE")
-///       .help("Provides a config file to myprog");
+///       .about("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
 /// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
@@ -56,27 +54,22 @@ type Id = u64;
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
-    #[doc(hidden)]
-    pub name: &'help str,
-    #[doc(hidden)]
-    pub help: Option<&'help str>,
-    pub(crate) long_help: Option<&'help str>,
-    #[doc(hidden)]
-    pub blacklist: Option<Vec<Id>>,
+    pub(crate) name: &'help str,
+    pub(crate) about: Option<&'help str>,
+    pub(crate) long_about: Option<&'help str>,
+    pub(crate) blacklist: Option<Vec<Id>>,
     pub(crate) settings: ArgFlags,
-    pub(crate) r_unless: Option<Vec<Id>>,
     pub(crate) overrides: Option<Vec<Id>>,
     pub(crate) groups: Option<Vec<Id>>,
     pub(crate) requires: Option<Vec<(Option<&'help str>, Id)>>,
-    #[doc(hidden)]
-    pub short: Option<char>,
-    #[doc(hidden)]
-    pub long: Option<&'help str>,
+    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
+    pub(crate) r_unless: Option<Vec<Id>>,
+    pub(crate) short: Option<char>,
+    pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
-    #[doc(hidden)]
-    pub possible_vals: Option<Vec<&'help str>>,
+    pub(crate) possible_vals: Option<Vec<&'help str>>,
     pub(crate) val_names: Option<VecMap<&'help str>>,
     pub(crate) num_vals: Option<u64>,
     pub(crate) max_vals: Option<u64>,
@@ -88,25 +81,68 @@ pub struct Arg<'help> {
     pub(crate) default_vals_ifs: Option<VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
-    #[doc(hidden)]
-    pub index: Option<u64>,
-    pub(crate) r_ifs: Option<Vec<(Id, &'help str)>>,
-    #[doc(hidden)]
-    pub help_heading: Option<&'help str>,
+    pub(crate) index: Option<u64>,
+    pub(crate) help_heading: Option<&'help str>,
     pub(crate) global: bool,
     pub(crate) exclusive: bool,
 }
 
+/// Getters
+impl<'help> Arg<'help> {
+    /// Get the name o the argument
+    #[inline]
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    /// Get the help specified for this argument, if any
+    #[inline]
+    pub fn get_about(&self) -> Option<&str> {
+        self.about
+    }
+
+    /// Get the help heading specified for this argument, if any
+    #[inline]
+    pub fn get_help_heading(&self) -> Option<&str> {
+        self.help_heading
+    }
+
+    /// Get the short option name for this argument, if any
+    #[inline]
+    pub fn get_short(&self) -> Option<char> {
+        self.short
+    }
+
+    /// Get the long option name for this argument, if any
+    #[inline]
+    pub fn get_long(&self) -> Option<&str> {
+        self.long
+    }
+
+    /// Get the list of the possible values for this argument, if any
+    #[inline]
+    pub fn get_possible_values(&self) -> Option<&[&str]> {
+        self.possible_vals.as_deref()
+    }
+
+    /// Get the index of this argument, if any
+    #[inline]
+    pub fn get_index(&self) -> Option<u64> {
+        self.index
+    }
+}
+
 impl<'help> Arg<'help> {
     /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(t: T) -> Self {
+    pub fn new<T: Key + ToString>(t: T) -> Self {
         Arg {
-            id: t.key(),
+            id: t.into(),
             disp_ord: 999,
             unified_ord: 999,
             ..Default::default()
         }
     }
+
     /// Creates a new instance of [`Arg`] using a unique string name. The name will be used to get
     /// information about whether or not the argument was used at runtime, get values, set
     /// relationships with other args, etc..
@@ -124,9 +160,10 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg`]: ./struct.Arg.html
+    #[inline]
     pub fn with_name(n: &'help str) -> Self {
         Arg {
-            id: n.key(),
+            id: n.into(),
             name: n,
             disp_ord: 999,
             unified_ord: 999,
@@ -158,8 +195,10 @@ impl<'help> Arg<'help> {
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
                 "aliases" => yaml_vec_or_str!(v, a, alias),
-                "help" => yaml_to_str!(a, v, help),
-                "long_help" => yaml_to_str!(a, v, long_help),
+                "about" => yaml_to_str!(a, v, about),
+                "long_about" => yaml_to_str!(a, v, long_about),
+                "help" => yaml_to_str!(a, v, about),
+                "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if" => yaml_tuple2!(a, v, required_if),
                 "required_ifs" => yaml_tuple2!(a, v, required_if),
@@ -192,12 +231,13 @@ impl<'help> Arg<'help> {
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
                 "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
                 "required_unless_all" => {
                     a = yaml_vec_or_str!(v, a, required_unless);
-                    a.setb(ArgSettings::RequiredUnlessAll);
+                    a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }
                 s => panic!(
@@ -243,6 +283,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("config"));
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
+    #[inline]
     pub fn short(mut self, s: char) -> Self {
         if s == '-' {
             panic!("short option name cannot be `-`");
@@ -287,6 +328,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(m.is_present("cfg"));
     /// ```
+    #[inline]
     pub fn long(mut self, l: &'help str) -> Self {
         self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
@@ -412,14 +454,28 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// See [`Arg::about`](./struct.Arg.html#method.about)
+    #[deprecated(since = "3.0.0", note = "Please use `about` method instead")]
+    #[inline]
+    pub fn help(self, h: &'help str) -> Self {
+        self.about(h)
+    }
+
+    /// See [`Arg::long_about`](./struct.Arg.html#method.long_about)
+    #[deprecated(since = "3.0.0", note = "Please use `long_about` method instead")]
+    #[inline]
+    pub fn long_help(self, h: &'help str) -> Self {
+        self.long_about(h)
+    }
+
     /// Sets the short help text of the argument that will be displayed to the user when they print
     /// the help information with `-h`. Typically, this is a short (one line) description of the
     /// arg.
     ///
-    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
+    /// **NOTE:** If only `Arg::about` is provided, and not [`Arg::long_about`] but the user requests
     /// `--help` clap will still display the contents of `help` appropriately
     ///
-    /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
+    /// **NOTE:** Only `Arg::about` is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -430,11 +486,11 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
-    ///     .help("The config file used by the myprog")
+    ///     .about("The config file used by the myprog")
     /// # ;
     /// ```
     ///
-    /// Setting `help` displays a short message to the side of the argument when the user passes
+    /// Setting `about` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
     /// ```rust
@@ -442,7 +498,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
-    ///         .help("Some help text describing the --config arg"))
+    ///         .about("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -461,9 +517,10 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::long_help`]: ./struct.Arg.html#method.long_help
-    pub fn help(mut self, h: &'help str) -> Self {
-        self.help = Some(h);
+    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    #[inline]
+    pub fn about(mut self, h: &'help str) -> Self {
+        self.about = Some(h);
         self
     }
 
@@ -471,10 +528,10 @@ impl<'help> Arg<'help> {
     /// the help information with `--help`. Typically this a more detailed (multi-line) message
     /// that describes the arg.
     ///
-    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
-    /// clap will still display the contents of `long_help` appropriately
+    /// **NOTE:** If only `long_about` is provided, and not [`Arg::about`] but the user requests `-h`
+    /// clap will still display the contents of `long_about` appropriately
     ///
-    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
+    /// **NOTE:** Only [`Arg::about`] is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -485,7 +542,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::with_name("config")
-    ///     .long_help(
+    ///     .long_about(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -501,7 +558,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::with_name("cfg")
     ///         .long("config")
-    ///         .long_help(
+    ///         .long_about(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -513,7 +570,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -531,10 +588,11 @@ impl<'help> Arg<'help> {
     ///
     /// -V, --version
     ///         Prints version information
-    /// ```
-    /// [`Arg::help`]: ./struct.Arg.html#method.help
-    pub fn long_help(mut self, h: &'help str) -> Self {
-        self.long_help = Some(h);
+    ///
+    /// [`Arg::about`]: ./struct.Arg.html#method.about
+    #[inline]
+    pub fn long_about(mut self, h: &'help str) -> Self {
+        self.long_about = Some(h);
         self
     }
 
@@ -595,11 +653,11 @@ impl<'help> Arg<'help> {
     /// [`Arg::required`]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
     pub fn required_unless<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let id = arg_id.into();
         if let Some(ref mut vec) = self.r_unless {
-            vec.push(name);
+            vec.push(id);
         } else {
-            self.r_unless = Some(vec![name]);
+            self.r_unless = Some(vec![id]);
         }
         self
     }
@@ -670,10 +728,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(Into::into).collect());
         }
         self.setting(ArgSettings::RequiredUnlessAll)
     }
@@ -745,10 +803,10 @@ impl<'help> Arg<'help> {
     pub fn required_unless_one(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.r_unless {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.r_unless = Some(names.iter().map(Key::key).collect());
+            self.r_unless = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -799,7 +857,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
 
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let name = arg_id.into();
         if let Some(ref mut vec) = self.blacklist {
             vec.push(name);
         } else {
@@ -856,10 +914,10 @@ impl<'help> Arg<'help> {
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         if let Some(ref mut vec) = self.blacklist {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.blacklist = Some(names.iter().map(Key::key).collect());
+            self.blacklist = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -903,6 +961,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
+    #[inline]
     pub fn exclusive(mut self, exclusive: bool) -> Self {
         self.exclusive = exclusive;
         self
@@ -1010,7 +1069,7 @@ impl<'help> Arg<'help> {
     /// [`Multiple*`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let name = arg_id.into();
         if let Some(ref mut vec) = self.overrides {
             vec.push(name);
         } else {
@@ -1049,10 +1108,10 @@ impl<'help> Arg<'help> {
     pub fn overrides_with_all<T: Key>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.overrides {
             for s in names {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.overrides = Some(names.iter().map(Key::key).collect());
+            self.overrides = Some(names.iter().map(Into::into).collect());
         }
         self
     }
@@ -1113,13 +1172,11 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        let name = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.requires {
-            vec.push((None, name));
+            vec.push((None, arg));
         } else {
-            let mut vec = vec![];
-            vec.push((None, name));
-            self.requires = Some(vec);
+            self.requires = Some(vec![(None, arg)]);
         }
         self
     }
@@ -1184,7 +1241,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
     pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.requires {
             vec.push((Some(val), arg));
         } else {
@@ -1247,12 +1304,12 @@ impl<'help> Arg<'help> {
     pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for (val, arg) in ifs {
-                vec.push((Some(val), arg.key()));
+                vec.push((Some(val), arg.into()));
             }
         } else {
             let mut vec = vec![];
             for (val, arg) in ifs {
-                vec.push((Some(*val), arg.key()));
+                vec.push((Some(*val), arg.into()));
             }
             self.requires = Some(vec);
         }
@@ -1323,7 +1380,7 @@ impl<'help> Arg<'help> {
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_if<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
-        let arg = arg_id.key();
+        let arg = arg_id.into();
         if let Some(ref mut vec) = self.r_ifs {
             vec.push((arg, val));
         } else {
@@ -1414,13 +1471,13 @@ impl<'help> Arg<'help> {
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_ifs<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         if let Some(ref mut vec) = self.r_ifs {
-            for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+            for (id, val) in ifs {
+                vec.push((Id::from_ref(id), *val));
             }
         } else {
             let mut vec = vec![];
-            for r_if in ifs {
-                vec.push((r_if.0.key(), r_if.1));
+            for (id, val) in ifs {
+                vec.push((Id::from_ref(id), *val));
             }
             self.r_ifs = Some(vec);
         }
@@ -1492,14 +1549,10 @@ impl<'help> Arg<'help> {
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         if let Some(ref mut vec) = self.requires {
             for s in names {
-                vec.push((None, s.key()));
+                vec.push((None, s.into()));
             }
         } else {
-            let mut vec = vec![];
-            for s in names {
-                vec.push((None, s.key()));
-            }
-            self.requires = Some(vec);
+            self.requires = Some(names.iter().map(|s| (None, s.into())).collect());
         }
         self
     }
@@ -1551,6 +1604,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    #[inline]
     pub fn index(mut self, idx: u64) -> Self {
         self.index = Some(idx);
         self
@@ -1601,8 +1655,9 @@ impl<'help> Arg<'help> {
     /// [`min_values`]: ./struct.Arg.html#method.min_values
     /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`max_values`]: ./struct.Arg.html#method.max_values
+    #[inline]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.terminator = Some(term);
         self
     }
@@ -1655,7 +1710,7 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_values(mut self, names: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             for s in names {
                 vec.push(s);
@@ -1720,7 +1775,7 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_value(mut self, name: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vec) = self.possible_vals {
             vec.push(name);
         } else {
@@ -1760,7 +1815,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group<T: Key>(mut self, group_id: T) -> Self {
-        let name = group_id.key();
+        let name = group_id.into();
         if let Some(ref mut vec) = self.groups {
             vec.push(name);
         } else {
@@ -1803,10 +1858,10 @@ impl<'help> Arg<'help> {
     pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
         if let Some(ref mut vec) = self.groups {
             for s in group_ids {
-                vec.push(s.key());
+                vec.push(s.into());
             }
         } else {
-            self.groups = Some(group_ids.iter().map(Key::key).collect());
+            self.groups = Some(group_ids.iter().map(Into::into).collect());
         }
         self
     }
@@ -1847,8 +1902,9 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
         self
     }
@@ -1871,7 +1927,7 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{App, Arg};
-    /// fn has_at(v: String) -> Result<(), String> {
+    /// fn has_at(v: &str) -> Result<(), String> {
     ///     if v.contains("@") { return Ok(()); }
     ///     Err(String::from("The value did not contain the required @ sigil"))
     /// }
@@ -1891,7 +1947,7 @@ impl<'help> Arg<'help> {
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator<F, O, E>(mut self, f: F) -> Self
     where
-        F: Fn(String) -> Result<O, E> + 'static,
+        F: Fn(&str) -> Result<O, E> + 'static,
         E: ToString,
     {
         self.validator = Some(Rc::new(move |s| {
@@ -1991,12 +2047,13 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyValues);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
     pub fn max_values(mut self, qty: u64) -> Self {
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::MultipleValues);
+        self.set_mut(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::MultipleValues);
         self.max_vals = Some(qty);
         self
     }
@@ -2058,6 +2115,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    #[inline]
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
         self.setting(ArgSettings::TakesValue)
@@ -2086,10 +2144,11 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unsetb(ArgSettings::ValueDelimiterNotSet);
-        self.setb(ArgSettings::TakesValue);
-        self.setb(ArgSettings::UseValueDelimiter);
+        self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+        self.set_mut(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
                 .next()
@@ -2140,7 +2199,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// Running the above program produces the following output
     ///
-    /// ```notrust
+    /// ```text
     /// valnames
     ///
     /// USAGE:
@@ -2158,10 +2217,10 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+            self.set_mut(ArgSettings::UseValueDelimiter);
         }
         if let Some(ref mut vals) = self.val_names {
             let mut l = vals.len();
@@ -2209,7 +2268,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// Running the above program produces the following output
     ///
-    /// ```notrust
+    /// ```text
     /// valnames
     ///
     /// USAGE:
@@ -2226,7 +2285,7 @@ impl<'help> Arg<'help> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_name(mut self, name: &'help str) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vals) = self.val_names {
             let l = vals.len();
             vals.insert(l, name);
@@ -2301,25 +2360,25 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
+    #[inline]
     pub fn default_value(self, val: &'help str) -> Self {
-        self.default_values_os(&[OsStr::from_bytes(val.as_bytes())])
+        self.default_values_os(&[OsStr::new(val)])
     }
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
     pub fn default_value_os(self, val: &'help OsStr) -> Self {
         self.default_values_os(&[val])
     }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
-        let vals_vec: Vec<_> = vals
-            .iter()
-            .map(|val| OsStr::from_bytes(val.as_bytes()))
-            .collect();
+        let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_values_os(&vals_vec[..])
     }
 
@@ -2327,8 +2386,9 @@ impl<'help> Arg<'help> {
     /// only using [`OsStr`]s instead.
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
-        self.setb(ArgSettings::TakesValue);
+        self.set_mut(ArgSettings::TakesValue);
         self.default_vals = Some(vals.to_vec());
         self
     }
@@ -2435,11 +2495,7 @@ impl<'help> Arg<'help> {
         val: Option<&'help str>,
         default: &'help str,
     ) -> Self {
-        self.default_value_if_os(
-            arg_id,
-            val.map(str::as_bytes).map(OsStr::from_bytes),
-            OsStr::from_bytes(default.as_bytes()),
-        )
+        self.default_value_if_os(arg_id, val.map(OsStr::new), OsStr::new(default))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2452,8 +2508,8 @@ impl<'help> Arg<'help> {
         val: Option<&'help OsStr>,
         default: &'help OsStr,
     ) -> Self {
-        let arg = arg_id.key();
-        self.setb(ArgSettings::TakesValue);
+        let arg = arg_id.into();
+        self.set_mut(ArgSettings::TakesValue);
         if let Some(ref mut vm) = self.default_vals_ifs {
             let l = vm.len();
             vm.insert(l, (arg, val, default));
@@ -2554,11 +2610,7 @@ impl<'help> Arg<'help> {
         ifs: &[(T, Option<&'help str>, &'help str)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(
-                arg,
-                val.map(str::as_bytes).map(OsStr::from_bytes),
-                OsStr::from_bytes(default.as_bytes()),
-            );
+            self = self.default_value_if_os(arg, val.map(OsStr::new), OsStr::new(*default));
         }
         self
     }
@@ -2676,6 +2728,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
+    #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
     }
@@ -2683,9 +2736,10 @@ impl<'help> Arg<'help> {
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
+    #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         if !self.is_set(ArgSettings::MultipleOccurrences) {
-            self.setb(ArgSettings::TakesValue);
+            self.set_mut(ArgSettings::TakesValue);
         }
 
         self.env = Some((name, env::var_os(name)));
@@ -2731,7 +2785,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```notrust
+    /// ```text
     /// cust-ord
     ///
     /// USAGE:
@@ -2747,6 +2801,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [positional arguments]: ./struct.Arg.html#method.index
     /// [index]: ./struct.Arg.html#method.index
+    #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
         self
@@ -2827,6 +2882,7 @@ impl<'help> Arg<'help> {
     /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
     /// [`ArgSettings::Required`]: ./enum.ArgSetings.html#variant.Required
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
             self.setting(ArgSettings::Last)
@@ -2886,6 +2942,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Required`]: ./enum.ArgSettings.html#variant.Required
+    #[inline]
     pub fn required(self, r: bool) -> Self {
         if r {
             self.setting(ArgSettings::Required)
@@ -2933,6 +2990,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::value_delimiter(char)`]: ./struct.Arg.html#method.value_delimiter
     /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [multiple values]: ./enum.ArgSettings.html#variant.MultipleValues
+    #[inline]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
             self.setting(ArgSettings::TakesValue)
@@ -3000,6 +3058,7 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings::MultipleValues`]: ./enum.ArgSettings.html#variant.MultipleValues
     /// [`ArgSettings::MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
     /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
             self.setting(ArgSettings::AllowHyphenValues)
@@ -3058,9 +3117,10 @@ impl<'help> Arg<'help> {
     /// [`RequireEquals`]: ./enum.ArgSettings.html#variant.RequireEquals
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.EmptyValues
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn require_equals(mut self, r: bool) -> Self {
         if r {
-            self.unsetb(ArgSettings::AllowEmptyValues);
+            self.unset_mut(ArgSettings::AllowEmptyValues);
             self.setting(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
@@ -3110,6 +3170,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`ArgMatches::is_present("flag")`]: ./struct.ArgMatches.html#method.is_present
     /// [`Arg`]: ./struct.Arg.html
+    #[inline]
     pub fn global(mut self, g: bool) -> Self {
         self.global = g;
         self
@@ -3184,15 +3245,16 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`ArgSettings::UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
-            self.setb(ArgSettings::UseValueDelimiter);
-            self.unsetb(ArgSettings::ValueDelimiterNotSet);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.set_mut(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
+            self.set_mut(ArgSettings::UseValueDelimiter);
             self.setting(ArgSettings::RequireDelimiter)
         } else {
-            self.unsetb(ArgSettings::UseValueDelimiter);
-            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
     }
@@ -3224,6 +3286,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
     /// the help text would be omitted.
+    #[inline]
     pub fn hide_possible_values(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HidePossibleValues)
@@ -3259,6 +3322,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
+    #[inline]
     pub fn hide_default_value(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HideDefaultValue)
@@ -3295,7 +3359,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3305,6 +3369,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden(self, h: bool) -> Self {
         if h {
             self.setting(ArgSettings::Hidden)
@@ -3315,8 +3380,6 @@ impl<'help> Arg<'help> {
 
     /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even
     /// if the case differs from that of the specified `possible_value`.
-    ///
-    /// **Pro Tip:** Use this setting with [`arg_enum!`]
     ///
     /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
     ///
@@ -3354,7 +3417,7 @@ impl<'help> Arg<'help> {
     /// let matched_vals = m.values_of("option").unwrap().collect::<Vec<_>>();
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
-    /// [`arg_enum!`]: ./macro.arg_enum.html
+    #[inline]
     pub fn case_insensitive(self, ci: bool) -> Self {
         if ci {
             self.setting(ArgSettings::IgnoreCase)
@@ -3410,17 +3473,18 @@ impl<'help> Arg<'help> {
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
     /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
+    #[inline]
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
             if self.val_delim.is_none() {
                 self.val_delim = Some(',');
             }
-            self.setb(ArgSettings::TakesValue);
-            self.setb(ArgSettings::UseValueDelimiter);
+            self.set_mut(ArgSettings::TakesValue);
+            self.set_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::ValueDelimiterNotSet)
         } else {
             self.val_delim = None;
-            self.unsetb(ArgSettings::UseValueDelimiter);
+            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::ValueDelimiterNotSet)
         }
     }
@@ -3453,6 +3517,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `$ CONNECT=super_secret connect --help` the
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
+    #[inline]
     pub fn hide_env_values(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HideEnvValues)
@@ -3488,7 +3553,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays the following help message
     ///
-    /// ```notrust
+    /// ```text
     /// nlh
     ///
     /// USAGE:
@@ -3505,11 +3570,12 @@ impl<'help> Arg<'help> {
     ///         on a line after the option
     /// ```
     /// [`AppSettings::NextLineHelp`]: ./enum.AppSettings.html#variant.NextLineHelp
+    #[inline]
     pub fn next_line_help(mut self, nlh: bool) -> Self {
         if nlh {
-            self.setb(ArgSettings::NextLineHelp);
+            self.set_mut(ArgSettings::NextLineHelp);
         } else {
-            self.unsetb(ArgSettings::NextLineHelp);
+            self.unset_mut(ArgSettings::NextLineHelp);
         }
         self
     }
@@ -3546,7 +3612,7 @@ impl<'help> Arg<'help> {
     ///
     /// The following would be parsed as values to `--ui-paths`.
     ///
-    /// ```notrust
+    /// ```text
     /// $ program --ui-paths path1 path2 signer
     /// ```
     ///
@@ -3558,7 +3624,7 @@ impl<'help> Arg<'help> {
     /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
     /// case.
     ///
-    /// ```notrust
+    /// ```text
     /// $ program --ui-paths path1 signer
     /// $ program --ui-paths path1 --ui-paths signer signer
     /// ```
@@ -3693,12 +3759,13 @@ impl<'help> Arg<'help> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn multiple(mut self, multi: bool) -> Self {
         if multi {
-            self.setb(ArgSettings::MultipleOccurrences);
+            self.set_mut(ArgSettings::MultipleOccurrences);
             self.setting(ArgSettings::MultipleValues)
         } else {
-            self.unsetb(ArgSettings::MultipleOccurrences);
+            self.unset_mut(ArgSettings::MultipleOccurrences);
             self.unset_setting(ArgSettings::MultipleValues)
         }
     }
@@ -3752,6 +3819,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap().value_of("config"), None);
     /// ```
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleValues)
@@ -3821,6 +3889,7 @@ impl<'help> Arg<'help> {
     /// [specific number of values]: ./struct.Arg.html#method.number_of_values
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
+    #[inline]
     pub fn multiple_occurrences(self, multi: bool) -> Self {
         if multi {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -3834,7 +3903,7 @@ impl<'help> Arg<'help> {
     /// that setting this requires all values to come after a `--` to indicate they
     /// should all be captured. For example:
     ///
-    /// ```notrust
+    /// ```text
     /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
     /// ```
     /// Will result in everything after `--` to be considered one raw argument. This behavior
@@ -3848,6 +3917,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
+    #[inline]
     pub fn raw(self, raw: bool) -> Self {
         self.multiple(raw).allow_hyphen_values(raw).last(raw)
     }
@@ -3883,7 +3953,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3910,7 +3980,7 @@ impl<'help> Arg<'help> {
     ///
     /// Then the following would be displayed
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3921,6 +3991,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden_short_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenShortHelp)
@@ -3960,7 +4031,7 @@ impl<'help> Arg<'help> {
     ///
     /// The above example displays
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3987,7 +4058,7 @@ impl<'help> Arg<'help> {
     ///
     /// Then the following would be displayed
     ///
-    /// ```notrust
+    /// ```text
     /// helptest
     ///
     /// USAGE:
@@ -3998,6 +4069,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
+    #[inline]
     pub fn hidden_long_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenLongHelp)
@@ -4009,14 +4081,16 @@ impl<'help> Arg<'help> {
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn setting(mut self, s: ArgSettings) -> Self {
-        self.setb(s);
+        self.set_mut(s);
         self
     }
 
@@ -4032,12 +4106,14 @@ impl<'help> Arg<'help> {
 
     /// Unsets one of the [`ArgSettings`] for the argument
     /// [`ArgSettings`]: ./enum.ArgSettings.html
+    #[inline]
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {
-        self.unsetb(s);
+        self.unset_mut(s);
         self
     }
 
     /// Set a custom heading for this arg to be printed under
+    #[inline]
     pub fn help_heading(mut self, s: Option<&'help str>) -> Self {
         self.help_heading = s;
         self
@@ -4057,8 +4133,8 @@ impl<'help> Arg<'help> {
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
             {
-                self.setb(ArgSettings::MultipleValues);
-                self.setb(ArgSettings::MultipleOccurrences);
+                self.set_mut(ArgSettings::MultipleValues);
+                self.set_mut(ArgSettings::MultipleOccurrences);
             }
         } else if self.is_set(ArgSettings::TakesValue) {
             if let Some(ref vec) = self.val_names {
@@ -4069,13 +4145,11 @@ impl<'help> Arg<'help> {
         }
     }
 
-    // @TODO @p6 @naming @internal: rename to set_mut
-    pub(crate) fn setb(&mut self, s: ArgSettings) {
+    pub(crate) fn set_mut(&mut self, s: ArgSettings) {
         self.settings.set(s);
     }
 
-    // @TODO @p6 @naming @internal: rename to unset_mut
-    pub(crate) fn unsetb(&mut self, s: ArgSettings) {
+    pub(crate) fn unset_mut(&mut self, s: ArgSettings) {
         self.settings.unset(s);
     }
 
@@ -4085,6 +4159,10 @@ impl<'help> Arg<'help> {
 
     pub(crate) fn longest_filter(&self) -> bool {
         self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
+    }
+
+    pub(crate) fn is_positional(&self) -> bool {
+        self.long.is_none() && self.short.is_none()
     }
 
     // Used for positionals when printing
@@ -4105,7 +4183,7 @@ impl<'help> Arg<'help> {
 
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
-        debugln!("PosBuilder::name_no_brackets:{}", self.name);
+        debug!("Arg::name_no_brackets:{}", self.name);
         let mut delim = String::new();
         delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -4113,7 +4191,8 @@ impl<'help> Arg<'help> {
             ' '
         });
         if let Some(ref names) = self.val_names {
-            debugln!("PosBuilder:name_no_brackets: val_names={:#?}", names);
+            debug!("Arg::name_no_brackets: val_names={:#?}", names);
+
             if names.len() > 1 {
                 Cow::Owned(
                     names
@@ -4126,8 +4205,23 @@ impl<'help> Arg<'help> {
                 Cow::Borrowed(names.values().next().expect(INTERNAL_ERROR_MSG))
             }
         } else {
-            debugln!("PosBuilder:name_no_brackets: just name");
+            debug!("Arg::name_no_brackets: just name");
             Cow::Borrowed(self.name)
+        }
+    }
+}
+
+impl<'a> Arg<'a> {
+    pub(crate) fn _debug_asserts(&self) {
+        debug!("Arg::_debug_asserts:{}", self.name);
+
+        // Self conflict
+        if let Some(vec) = &self.blacklist {
+            assert!(
+                !vec.iter().any(|x| *x == self.id),
+                "Argument '{}' cannot conflict with itself",
+                self.name,
+            );
         }
     }
 }
@@ -4276,8 +4370,8 @@ impl<'help> fmt::Debug for Arg<'help> {
              }}",
             self.id,
             self.name,
-            self.help,
-            self.long_help,
+            self.about,
+            self.long_about,
             self.blacklist,
             self.settings,
             self.r_unless,
@@ -4407,7 +4501,7 @@ mod test {
     #[test]
     fn positiona_display_mult() {
         let mut p = Arg::with_name("pos").index(1);
-        p.setb(ArgSettings::MultipleValues);
+        p.set_mut(ArgSettings::MultipleValues);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
     }

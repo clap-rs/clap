@@ -15,7 +15,7 @@ fn main() {
         // to your particular case.
         .arg(
             Arg::with_name("input")
-                .help("the input file to use") // Displayed when showing help info
+                .about("the input file to use") // Displayed when showing help info
                 .takes_value(true) // MUST be set to true in order to be an "option" argument
                 .short('i') // This argument is triggered with "-i"
                 .long("input") // This argument is triggered with "--input"

@@ -5,11 +5,26 @@ use clap::{App, Arg, ArgMatches, ArgSettings, ErrorKind};
 #[cfg(feature = "suggestions")]
 static DYM: &str =
     "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
-\tDid you mean --option?
+
+\tDid you mean '--option'?
+
 If you tried to supply `--optio` as a PATTERN use `-- --optio`
 
 USAGE:
     clap-test --option <opt>...
+
+For more information try --help";
+
+#[cfg(feature = "suggestions")]
+static DYM_ISSUE_1073: &str =
+    "error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
+
+\tDid you mean '--files-without-match'?
+
+If you tried to supply `--files-without-matches` as a PATTERN use `-- --files-without-matches`
+
+USAGE:
+    ripgrep-616 --files-without-match
 
 For more information try --help";
 
@@ -453,4 +468,45 @@ fn issue_1105_empty_value_short_explicit_no_space() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+fn issue_1073_suboptimal_flag_suggestion() {
+    let app = App::new("ripgrep-616")
+        .arg(Arg::with_name("files-with-matches").long("files-with-matches"))
+        .arg(Arg::with_name("files-without-match").long("files-without-match"));
+    assert!(utils::compare_output(
+        app,
+        "ripgrep-616 --files-without-matches",
+        DYM_ISSUE_1073,
+        true
+    ));
+}
+
+#[test]
+fn short_non_ascii_no_space() {
+    let matches = App::new("app")
+        .arg("<opt> -磨 <opt>")
+        .get_matches_from(&["test", "-磨VALUE"]);
+
+    assert_eq!("VALUE", matches.value_of("opt").unwrap());
+}
+
+#[test]
+fn short_eq_val_starts_with_eq() {
+    let matches = App::new("app")
+        .arg("<opt> -f <opt>")
+        .get_matches_from(&["test", "-f==value"]);
+
+    assert_eq!("=value", matches.value_of("opt").unwrap());
+}
+
+#[test]
+fn long_eq_val_starts_with_eq() {
+    let matches = App::new("app")
+        .arg("<opt> --foo <opt>")
+        .get_matches_from(&["test", "--foo==value"]);
+
+    assert_eq!("=value", matches.value_of("opt").unwrap());
 }

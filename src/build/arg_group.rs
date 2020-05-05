@@ -2,9 +2,7 @@
 use std::fmt::{Debug, Formatter, Result};
 
 // Internal
-use crate::util::Key;
-
-type Id = u64;
+use crate::util::{Id, Key};
 
 /// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
 /// arguments". By placing arguments in a logical group, you can create easier requirement and
@@ -96,7 +94,7 @@ impl<'a> ArgGroup<'a> {
     }
     /// @TODO @p2 @docs @v3-beta1: Write Docs
     pub fn new<T: Key>(id: T) -> Self {
-        ArgGroup::_with_id(id.key())
+        ArgGroup::_with_id(id.into())
     }
     /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
     /// get values from the group or refer to the group inside of conflict and requirement rules.
@@ -110,7 +108,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     pub fn with_name(n: &'a str) -> Self {
         ArgGroup {
-            id: n.key(),
+            id: n.into(),
             name: n,
             ..ArgGroup::default()
         }
@@ -126,6 +124,7 @@ impl<'a> ArgGroup<'a> {
     /// let ag = ArgGroup::from_yaml(yml);
     /// ```
     #[cfg(feature = "yaml")]
+    #[inline]
     pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
         ArgGroup::from(y.as_hash().unwrap())
     }
@@ -152,7 +151,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [argument]: ./struct.Arg.html
     pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
-        self.args.push(arg_id.key());
+        self.args.push(arg_id.into());
         self
     }
 
@@ -223,6 +222,7 @@ impl<'a> ArgGroup<'a> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// ['Arg']: ./struct.Arg.html
+    #[inline]
     pub fn multiple(mut self, m: bool) -> Self {
         self.multiple = m;
         self
@@ -262,6 +262,7 @@ impl<'a> ArgGroup<'a> {
     /// [`App`]: ./struct.App.html
     /// [``]: ./struct..html
     /// [`ArgGroup::multiple`]: ./struct.ArgGroup.html#method.multiple
+    #[inline]
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
         self
@@ -298,7 +299,7 @@ impl<'a> ArgGroup<'a> {
     /// [required group]: ./struct.ArgGroup.html#method.required
     /// [argument requirement rules]: ./struct.Arg.html#method.requires
     pub fn requires<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.key();
+        let arg_id = id.into();
         if let Some(ref mut reqs) = self.requires {
             reqs.push(arg_id);
         } else {
@@ -374,7 +375,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.key();
+        let arg_id = id.into();
         if let Some(ref mut confs) = self.conflicts {
             confs.push(arg_id);
         } else {
@@ -440,7 +441,7 @@ impl<'a> Debug for ArgGroup<'a> {
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
-            id: g.id,
+            id: g.id.clone(),
             name: g.name,
             required: g.required,
             args: g.args.clone(),
@@ -503,8 +504,7 @@ impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::ArgGroup;
-    use super::Key;
+    use super::{ArgGroup, Id};
     #[cfg(feature = "yaml")]
     use yaml_rust::YamlLoader;
 
@@ -522,9 +522,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
+        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
@@ -545,9 +545,24 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec![
+            Id::from("a1"),
+            Id::from("a4"),
+            Id::from("a2"),
+            Id::from("a3"),
+        ];
+        let reqs = vec![
+            Id::from("r1"),
+            Id::from("r2"),
+            Id::from("r3"),
+            Id::from("r4"),
+        ];
+        let confs = vec![
+            Id::from("c1"),
+            Id::from("c2"),
+            Id::from("c3"),
+            Id::from("c4"),
+        ];
 
         let debug_str = format!(
             "{{\n\
@@ -579,9 +594,9 @@ mod test {
             .requires_all(&["r2", "r3"])
             .requires("r4");
 
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
+        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);
@@ -610,9 +625,9 @@ requires:
 - r4";
         let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
         let g = ArgGroup::from_yaml(yml);
-        let args = vec!["a1".key(), "a4".key(), "a2".key(), "a3".key()];
-        let reqs = vec!["r1".key(), "r2".key(), "r3".key(), "r4".key()];
-        let confs = vec!["c1".key(), "c2".key(), "c3".key(), "c4".key()];
+        let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+        let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
+        let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
         assert_eq!(g.args, args);
         assert_eq!(g.requires, Some(reqs));
         assert_eq!(g.conflicts, Some(confs));
@@ -622,7 +637,7 @@ requires:
 impl<'a> Clone for ArgGroup<'a> {
     fn clone(&self) -> Self {
         ArgGroup {
-            id: self.id,
+            id: self.id.clone(),
             name: self.name,
             required: self.required,
             args: self.args.clone(),

@@ -1,13 +1,26 @@
+#![allow(clippy::single_component_path_imports)]
+
+mod argstr;
 mod fnv;
 mod graph;
-mod map;
-mod osstringext;
-mod strext;
+mod id;
 
-pub use self::fnv::{Key, EMPTY_HASH, HELP_HASH, VERSION_HASH};
-pub use self::graph::ChildGraph;
-pub use self::map::{Values, VecMap};
-pub use self::osstringext::OsStrExt2;
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-pub use self::osstringext::OsStrExt3;
-pub use self::strext::_StrExt;
+pub use self::fnv::Key;
+
+pub(crate) use self::{argstr::ArgStr, graph::ChildGraph, id::Id};
+pub(crate) use vec_map::VecMap;
+
+#[cfg(feature = "color")]
+pub(crate) use termcolor;
+
+#[cfg(not(feature = "color"))]
+pub(crate) mod termcolor;
+
+pub(crate) fn safe_exit(code: i32) -> ! {
+    use std::io::Write;
+
+    let _ = std::io::stdout().lock().flush();
+    let _ = std::io::stderr().lock().flush();
+
+    std::process::exit(code)
+}

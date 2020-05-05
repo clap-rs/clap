@@ -24,7 +24,7 @@ fn issue_946() {
             clap::Arg::with_name("filter")
                 .index(1)
                 .takes_value(true)
-                .help("filters to apply to output"),
+                .about("filters to apply to output"),
         )
         .try_get_matches_from(vec!["compiletest", "--exact"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -171,7 +171,7 @@ fn positional_possible_values() {
 #[test]
 fn create_positional() {
     let _ = App::new("test")
-        .arg(Arg::with_name("test").index(1).help("testing testing"))
+        .arg(Arg::with_name("test").index(1).about("testing testing"))
         .get_matches_from(vec![""]);
 }
 
@@ -219,8 +219,8 @@ fn single_positional_required_usage_string() {
 // This tests a programmer error and will only succeed with debug_assertions
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic(expected = "Found positional argument which is not required \
-with a lower index than a required positional argument")]
+#[should_panic = "Found positional argument which is not required \
+with a lower index than a required positional argument"]
 fn missing_required() {
     let _ = App::new("test")
         .arg("[FILE1] 'some file'")

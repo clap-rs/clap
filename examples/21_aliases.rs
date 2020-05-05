@@ -10,7 +10,7 @@ fn main() {
                 .author("Kevin K.")
                 .arg(
                     Arg::with_name("input")
-                        .help("the file to add")
+                        .about("the file to add")
                         .index(1)
                         .required(true),
                 ),

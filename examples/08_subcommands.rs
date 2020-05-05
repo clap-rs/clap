@@ -28,7 +28,7 @@ fn main() {
                 .author("Kevin K.") // And authors
                 .arg(
                     Arg::with_name("input") // And their own arguments
-                        .help("the file to add")
+                        .about("the file to add")
                         .index(1)
                         .required(true),
                 ),

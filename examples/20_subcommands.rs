@@ -49,7 +49,7 @@ fn main() {
         .subcommand(
             App::new("clone").about("clones repos").arg(
                 Arg::with_name("repo")
-                    .help("The repo to clone")
+                    .about("The repo to clone")
                     .required(true),
             ),
         )
@@ -64,7 +64,7 @@ fn main() {
                         .arg(
                             Arg::with_name("repo")
                                 .required(true)
-                                .help("The remote repo to push things to"),
+                                .about("The remote repo to push things to"),
                         ),
                 )
                 .subcommand(App::new("local").about("pushes local things")),
@@ -78,7 +78,7 @@ fn main() {
                 .arg(
                     Arg::with_name("stuff")
                         .long("stuff")
-                        .help("Stuff to add")
+                        .about("Stuff to add")
                         .takes_value(true)
                         .multiple(true),
                 ),

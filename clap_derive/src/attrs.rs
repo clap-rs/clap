@@ -12,7 +12,10 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use super::{doc_comments::process_doc_comment, parse::*, spanned::Sp, ty::Ty};
+use crate::{
+    parse::*,
+    utils::{process_doc_comment, Sp, Ty},
+};
 
 use std::env;
 
@@ -20,7 +23,10 @@ use heck::{CamelCase, KebabCase, MixedCase, ShoutySnakeCase, SnakeCase};
 use proc_macro2::{self, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned, ToTokens};
-use syn::{self, ext::IdentExt, spanned::Spanned, Expr, Ident, MetaNameValue, Type};
+use syn::{
+    self, ext::IdentExt, spanned::Spanned, Attribute, Expr, Field, Ident, LitStr, MetaNameValue,
+    Type,
+};
 
 /// Default casing style for generated arguments.
 pub const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -35,18 +41,19 @@ pub enum Kind {
     Subcommand(Sp<Ty>),
     Flatten,
     Skip(Option<Expr>),
+    ExternalSubcommand,
 }
 
 #[derive(Clone)]
 pub struct Method {
-    name: syn::Ident,
-    args: proc_macro2::TokenStream,
+    name: Ident,
+    args: TokenStream,
 }
 
 #[derive(Clone)]
 pub struct Parser {
     pub kind: Sp<ParserKind>,
-    pub func: proc_macro2::TokenStream,
+    pub func: TokenStream,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -92,9 +99,9 @@ pub struct Attrs {
     methods: Vec<Method>,
     parser: Sp<Parser>,
     author: Option<Method>,
-    about: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    is_enum: bool,
     has_custom_parser: bool,
     kind: Sp<Kind>,
 }
@@ -104,19 +111,19 @@ pub struct Attrs {
 /// The output of a generation method is not only the stream of new tokens but also the attribute
 /// information of the current element. These attribute information may contain valuable information
 /// for any kind of child arguments.
-pub type GenOutput = (proc_macro2::TokenStream, Attrs);
+pub type GenOutput = (TokenStream, Attrs);
 
 impl Method {
     pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }
     }
 
-    fn from_lit_or_env(ident: syn::Ident, lit: Option<syn::LitStr>, env_var: &str) -> Option<Self> {
+    fn from_lit_or_env(ident: Ident, lit: Option<LitStr>, env_var: &str) -> Option<Self> {
         let mut lit = match lit {
             Some(lit) => lit,
 
             None => match env::var(env_var) {
-                Ok(val) => syn::LitStr::new(&val, ident.span()),
+                Ok(val) => LitStr::new(&val, ident.span()),
                 Err(_) => {
                     abort!(ident,
                         "cannot derive `{}` from Cargo.toml", ident;
@@ -129,7 +136,7 @@ impl Method {
 
         if ident == "author" {
             let edited = process_author_str(&lit.value());
-            lit = syn::LitStr::new(&edited, lit.span());
+            lit = LitStr::new(&edited, lit.span());
         }
 
         Some(Method::new(ident, quote!(#lit)))
@@ -157,7 +164,7 @@ impl Parser {
         Sp::new(Parser { kind, func }, span)
     }
 
-    fn from_spec(parse_ident: syn::Ident, spec: ParserSpec) -> Sp<Self> {
+    fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
         use self::ParserKind::*;
 
         let kind = match &*spec.kind.to_string() {
@@ -185,7 +192,7 @@ impl Parser {
             },
 
             Some(func) => match func {
-                syn::Expr::Path(_) => quote!(#func),
+                Expr::Path(_) => quote!(#func),
                 _ => abort!(func, "`parse` argument must be a function path"),
             },
         };
@@ -197,7 +204,7 @@ impl Parser {
 }
 
 impl CasingStyle {
-    fn from_lit(name: syn::LitStr) -> Sp<Self> {
+    fn from_lit(name: LitStr) -> Sp<Self> {
         use self::CasingStyle::*;
 
         let normalized = name.value().to_camel_case().to_lowercase();
@@ -253,11 +260,10 @@ impl Attrs {
             doc_comment: vec![],
             methods: vec![],
             parser: Parser::default_spanned(default_span),
-            about: None,
             author: None,
             version: None,
             verbatim_doc_comment: None,
-
+            is_enum: false,
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
         }
@@ -273,7 +279,7 @@ impl Attrs {
         }
     }
 
-    fn push_attrs(&mut self, attrs: &[syn::Attribute]) {
+    fn push_attrs(&mut self, attrs: &[Attribute]) {
         use ClapAttr::*;
 
         for attr in parse_clap_attributes(attrs) {
@@ -286,9 +292,16 @@ impl Attrs {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
+                ArgEnum(_) => self.is_enum = true,
+
                 Subcommand(ident) => {
                     let ty = Sp::call_site(Ty::Other);
                     let kind = Sp::new(Kind::Subcommand(ty), ident.span());
+                    self.set_kind(kind);
+                }
+
+                ExternalSubcommand(ident) => {
+                    let kind = Sp::new(Kind::ExternalSubcommand, ident.span());
                     self.set_kind(kind);
                 }
 
@@ -336,7 +349,10 @@ impl Attrs {
                 }
 
                 About(ident, about) => {
-                    self.about = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
+                    let method = Method::from_lit_or_env(ident, about, "CARGO_PKG_DESCRIPTION");
+                    if let Some(m) = method {
+                        self.methods.push(m);
+                    }
                 }
 
                 Author(ident, author) => {
@@ -373,7 +389,7 @@ impl Attrs {
         }
     }
 
-    fn push_doc_comment(&mut self, attrs: &[syn::Attribute], name: &str) {
+    fn push_doc_comment(&mut self, attrs: &[Attribute], name: &str) {
         use syn::Lit::*;
         use syn::Meta::*;
 
@@ -397,7 +413,7 @@ impl Attrs {
 
     pub fn from_struct(
         span: Span,
-        attrs: &[syn::Attribute],
+        attrs: &[Attribute],
         name: Name,
         argument_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
@@ -415,12 +431,12 @@ impl Attrs {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) | Kind::Flatten => res,
+            Kind::Arg(_) | Kind::Flatten | Kind::ExternalSubcommand => res,
         }
     }
 
     pub fn from_field(
-        field: &syn::Field,
+        field: &Field,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Self {
@@ -433,7 +449,7 @@ impl Attrs {
             env_casing,
         );
         res.push_attrs(&field.attrs);
-        res.push_doc_comment(&field.attrs, "help");
+        res.push_doc_comment(&field.attrs, "about");
 
         match &*res.kind {
             Kind::Flatten => {
@@ -450,6 +466,13 @@ impl Attrs {
                     );
                 }
             }
+
+            Kind::ExternalSubcommand => {
+                abort! { res.kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
+
             Kind::Subcommand(_) => {
                 if res.has_custom_parser {
                     abort!(
@@ -511,6 +534,9 @@ impl Attrs {
                                 note = "see also https://github.com/clap-rs/clap_derive/tree/master/examples/true_or_false.rs";
                             )
                         }
+                        if res.is_enum {
+                            abort!(field.ty, "`arg_enum` is meaningless for bool")
+                        }
                         if let Some(m) = res.find_method("default_value") {
                             abort!(m.name, "default_value is meaningless for bool")
                         }
@@ -558,7 +584,7 @@ impl Attrs {
         } else {
             abort!(
                 kind.span(),
-                "subcommand, flatten and skip cannot be used together"
+                "`subcommand`, `flatten`, `external_subcommand` and `skip` cannot be used together"
             );
         }
     }
@@ -574,11 +600,10 @@ impl Attrs {
     /// generate methods from attributes on top of struct or enum
     pub fn top_level_methods(&self) -> TokenStream {
         let author = &self.author;
-        let about = &self.about;
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
 
-        quote!( #(#doc_comment)* #author #about #(#methods)*  )
+        quote!( #(#doc_comment)* #author #(#methods)*)
     }
 
     /// generate methods on top of a field
@@ -607,6 +632,28 @@ impl Attrs {
         self.kind.clone()
     }
 
+    pub fn is_enum(&self) -> bool {
+        self.is_enum
+    }
+
+    pub fn case_insensitive(&self) -> TokenStream {
+        let method = self.find_method("case_insensitive");
+
+        if let Some(method) = method {
+            method.args.clone()
+        } else {
+            quote! { false }
+        }
+    }
+
+    pub fn enum_aliases(&self) -> Vec<TokenStream> {
+        self.methods
+            .iter()
+            .filter(|m| m.name == "alias")
+            .map(|m| m.args.clone())
+            .collect()
+    }
+
     pub fn casing(&self) -> Sp<CasingStyle> {
         self.casing.clone()
     }
@@ -624,17 +671,15 @@ impl Attrs {
     pub fn has_explicit_methods(&self) -> bool {
         self.methods
             .iter()
-            .any(|m| m.name != "help" && m.name != "long_help")
+            .any(|m| m.name != "about" && m.name != "long_about")
     }
 
     pub fn has_doc_methods(&self) -> bool {
         !self.doc_comment.is_empty()
-            || self.methods.iter().any(|m| {
-                m.name == "help"
-                    || m.name == "long_help"
-                    || m.name == "about"
-                    || m.name == "long_about"
-            })
+            || self
+                .methods
+                .iter()
+                .any(|m| m.name == "about" || m.name == "long_about")
     }
 }
 

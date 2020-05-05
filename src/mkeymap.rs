@@ -1,7 +1,9 @@
-use crate::build::Arg;
-use std::ffi::{OsStr, OsString};
+use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
 
-type Id = u64;
+use std::{
+    ffi::{OsStr, OsString},
+    ops::Index,
+};
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
@@ -10,9 +12,9 @@ pub(crate) struct Key {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub struct MKeyMap<'b> {
+pub(crate) struct MKeyMap<'b> {
     pub(crate) keys: Vec<Key>,
-    pub args: Vec<Arg<'b>>,
+    pub(crate) args: Vec<Arg<'b>>,
 
     // FIXME (@CreepySkeleton): this seems useless
     built: bool, // mutation isn't possible after being built
@@ -112,15 +114,23 @@ impl<'b> MKeyMap<'b> {
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub(crate) fn remove_by_name(&mut self, _name: Id) -> Option<Arg<'b>> {
+    pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'b>> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
 
         self.args
             .iter()
-            .position(|arg| arg.id == _name)
+            .position(|arg| arg.id == *name)
             .map(|i| self.args.swap_remove(i))
+    }
+}
+
+impl<'b> Index<&'_ KeyType> for MKeyMap<'b> {
+    type Output = Arg<'b>;
+
+    fn index(&self, key: &'_ KeyType) -> &Self::Output {
+        self.get(key).expect(INTERNAL_ERROR_MSG)
     }
 }
 

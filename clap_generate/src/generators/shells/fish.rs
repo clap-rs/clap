@@ -28,7 +28,7 @@ fn escape_string(string: &str) -> String {
 }
 
 fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
-    debugln!("Fish::gen_fish_inner;");
+    debug!("gen_fish_inner");
     // example :
     //
     // complete
@@ -48,28 +48,28 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     if root_command == bin_name {
         basic_template.push_str("\"__fish_use_subcommand\"");
     } else {
-        bin_name = &app.name;
+        bin_name = &app.get_name();
         basic_template.push_str(format!("\"__fish_seen_subcommand_from {}\"", bin_name).as_str());
     }
 
-    debugln!("Fish::gen_fish_inner; bin_name={}", bin_name);
+    debug!("gen_fish_inner: bin_name={}", bin_name);
 
     for option in opts!(app) {
         let mut template = basic_template.clone();
 
-        if let Some(data) = option.short {
+        if let Some(data) = option.get_short() {
             template.push_str(format!(" -s {}", data).as_str());
         }
 
-        if let Some(data) = option.long {
+        if let Some(data) = option.get_long() {
             template.push_str(format!(" -l {}", data).as_str());
         }
 
-        if let Some(data) = option.help {
+        if let Some(data) = option.get_about() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
-        if let Some(ref data) = option.possible_vals {
+        if let Some(ref data) = option.get_possible_values() {
             template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
         }
 
@@ -80,15 +80,15 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     for flag in Fish::flags(app) {
         let mut template = basic_template.clone();
 
-        if let Some(data) = flag.short {
+        if let Some(data) = flag.get_short() {
             template.push_str(format!(" -s {}", data).as_str());
         }
 
-        if let Some(data) = flag.long {
+        if let Some(data) = flag.get_long() {
             template.push_str(format!(" -l {}", data).as_str());
         }
 
-        if let Some(data) = flag.help {
+        if let Some(data) = flag.get_about() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
@@ -96,13 +96,13 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
         buffer.push_str("\n");
     }
 
-    for subcommand in &app.subcommands {
+    for subcommand in app.get_subcommands() {
         let mut template = basic_template.clone();
 
         template.push_str(" -f");
-        template.push_str(format!(" -a \"{}\"", &subcommand.name).as_str());
+        template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
 
-        if let Some(data) = subcommand.about {
+        if let Some(data) = subcommand.get_about() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str())
         }
 
@@ -111,7 +111,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     }
 
     // generate options of subcommands
-    for subcommand in &app.subcommands {
+    for subcommand in app.get_subcommands() {
         gen_fish_inner(root_command, subcommand, buffer);
     }
 }

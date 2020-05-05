@@ -1,4 +1,26 @@
-use clap::{arg_enum, clap_app, ErrorKind};
+mod utils;
+
+use clap::{clap_app, ErrorKind};
+
+static LITERALS: &str = "clap-tests 0.1
+
+USAGE:
+    clap-tests [FLAGS] [OPTIONS] [SUBCOMMAND]
+
+FLAGS:
+    -4, --4          Sets priority to 4
+    -5, --5          Sets priority to 5
+    -6, --6          Sets priority to 6
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -t, --task-num <task-num>    Task number [possible values: all, 0, 1, 2]
+
+SUBCOMMANDS:
+    0             Set everything to zero priority
+    help          Prints this message or the help of the given subcommand(s)
+    view-tasks    View all tasks";
 
 #[test]
 fn basic() {
@@ -39,7 +61,7 @@ fn quoted_app_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]
@@ -65,7 +87,7 @@ fn quoted_app_name() {
             (@arg scpositional: index(1) "tests positionals"))
     );
 
-    assert_eq!(app.name, "app name with spaces-and-hyphens");
+    assert_eq!(app.get_name(), "app name with spaces-and-hyphens");
 
     let mut help_text = vec![];
     app.write_help(&mut help_text)
@@ -80,7 +102,7 @@ fn quoted_arg_long_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]
@@ -118,7 +140,7 @@ fn quoted_arg_name() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@arg opt: -o --option +takes_value ... "tests options")
+        (@arg option: -o --option +takes_value ... "tests options")
         (@arg ("positional-arg"): index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")
         (@arg flag2: -F conflicts_with[flag] requires[option2]
@@ -285,25 +307,26 @@ fn group_macro_set_not_required() {
 }
 
 #[test]
-fn arg_enum() {
-    arg_enum! {
-        #[derive(Debug, PartialEq, Copy, Clone)]
-        pub enum Greek {
-            Alpha,
-            Bravo
-        }
-    }
-    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
-}
+fn literals() {
+    let app = clap_app!("clap-tests" =>
+        (version: "0.1")
+        (@arg "task-num": -"t-n" --"task-num" +takes_value possible_value["all" 0 1 2]
+            "Task number")
+        (@group priority =>
+            (@arg "4": -4 --4 "Sets priority to 4")
+            (@arg ("5"): -('5') --5 "Sets priority to 5")
+            (@arg 6: -6 --6 "Sets priority to 6")
+        )
+        (@subcommand "view-tasks" =>
+            (about: "View all tasks"))
+        (@subcommand 0 =>
+            (about: "Set everything to zero priority"))
+    );
 
-#[test]
-fn arg_enum_trailing_comma() {
-    arg_enum! {
-        #[derive(Debug, PartialEq, Copy, Clone)]
-        pub enum Greek {
-            Alpha,
-            Bravo,
-        }
-    }
-    assert_eq!("Alpha".parse::<Greek>(), Ok(Greek::Alpha));
+    assert!(utils::compare_output(
+        app,
+        "clap-tests --help",
+        LITERALS,
+        false
+    ));
 }

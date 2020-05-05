@@ -1,18 +1,29 @@
 // Std
-use std::borrow::Cow;
-use std::ffi::{OsStr, OsString};
-use std::iter::{Cloned, Map};
-use std::slice::Iter;
+use std::{
+    borrow::Cow,
+    ffi::{OsStr, OsString},
+    fmt::{Debug, Display},
+    iter::{Cloned, Map},
+    slice::Iter,
+    str::FromStr,
+};
 
 // Third Party
 use indexmap::IndexMap;
 
 // Internal
-use crate::parse::{MatchedArg, SubCommand};
-use crate::util::Key;
-use crate::INVALID_UTF8;
+use crate::{
+    parse::MatchedArg,
+    util::{Id, Key},
+    {Error, INVALID_UTF8},
+};
 
-type Id = u64;
+#[derive(Debug, Clone)]
+pub(crate) struct SubCommand {
+    pub(crate) id: Id,
+    pub(crate) name: String,
+    pub(crate) matches: ArgMatches,
+}
 
 /// Used to get information about the arguments that were supplied to the program at runtime by
 /// the user. New instances of this struct are obtained by using the [`App::get_matches`] family of
@@ -63,10 +74,8 @@ type Id = u64;
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches {
-    #[doc(hidden)]
-    pub args: IndexMap<Id, MatchedArg>,
-    #[doc(hidden)]
-    pub subcommand: Option<Box<SubCommand>>,
+    pub(crate) args: IndexMap<Id, MatchedArg>,
+    pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
 impl<'a> Default for ArgMatches {
@@ -79,13 +88,6 @@ impl<'a> Default for ArgMatches {
 }
 
 impl ArgMatches {
-    #[doc(hidden)]
-    pub fn new() -> Self {
-        ArgMatches {
-            ..Default::default()
-        }
-    }
-
     /// Gets the value of a specific [option] or [positional] argument (i.e. an argument that takes
     /// an additional value at runtime). If the option wasn't present at runtime
     /// it returns `None`.
@@ -114,7 +116,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        if let Some(arg) = self.args.get(&id.key()) {
+        if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -146,7 +148,7 @@ impl ArgMatches {
     /// ```
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        if let Some(arg) = self.args.get(&id.key()) {
+        if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.vals.get(0) {
                 return Some(v.to_string_lossy());
             }
@@ -183,7 +185,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
-            .get(&id.key())
+            .get(&Id::from(id))
             .and_then(|arg| arg.vals.get(0).map(OsString::as_os_str))
     }
 
@@ -213,7 +215,7 @@ impl ArgMatches {
     /// [`Values`]: ./struct.Values.html
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values<'_>> {
-        self.args.get(&id.key()).map(|arg| {
+        self.args.get(&Id::from(id)).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str {
                 o.to_str().expect(INVALID_UTF8)
             }
@@ -250,7 +252,7 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        self.args.get(&id.key()).map(|arg| {
+        self.args.get(&Id::from(id)).map(|arg| {
             arg.vals
                 .iter()
                 .map(|v| v.to_string_lossy().into_owned())
@@ -295,9 +297,189 @@ impl ArgMatches {
         }
         let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
 
-        self.args.get(&id.key()).map(|arg| OsValues {
+        self.args.get(&Id::from(id)).map(|arg| OsValues {
             iter: arg.vals.iter().map(to_str_slice),
         })
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using [`std::str::FromStr`].
+    ///
+    /// There are two types of errors, parse failures and those where the argument wasn't present
+    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::values_of_t`] as this method will only return the *first*
+    /// value.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: u32 = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, 12);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.value_of_t("length").unwrap_or_else(|e| e.exit());
+    /// // Something that expects u32
+    /// let _: u32 = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`ErrorKind`]: enum.ErrorKind.html
+    /// [`ArgMatches::values_of_t`]: ./struct.ArgMatches.html#method.values_of_t
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        if let Some(v) = self.value_of(name) {
+            v.parse::<R>().or_else(|e| {
+                Err(Error::value_validation_auto(&format!(
+                    "The argument '{}' isn't a valid value: {}",
+                    v, e
+                ))?)
+            })
+        } else {
+            Err(Error::argument_not_found_auto(name)?)
+        }
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using [`std::str::FromStr`].
+    ///
+    /// If either the value is not present or parsing failed, exits the program.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: u32 = matches.value_of_t_or_exit("length");
+    /// assert_eq!(len, 12);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.value_of_t_or_exit("length");
+    /// // Something that expects u32
+    /// let _: u32 = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        self.value_of_t(name).unwrap_or_else(|e| e.exit())
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using [`std::str::FromStr`].
+    ///
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Vec<u32> = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, vec![12, 77, 40]);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.values_of_t("length").unwrap_or_else(|e| e.exit());
+    /// // Something that expects Vec<u32>
+    /// let _: Vec<u32> = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        if let Some(vals) = self.values_of(name) {
+            vals.map(|v| {
+                v.parse::<R>().or_else(|e| {
+                    Err(Error::value_validation_auto(&format!(
+                        "The argument '{}' isn't a valid value: {}",
+                        v, e
+                    ))?)
+                })
+            })
+            .collect()
+        } else {
+            Err(Error::argument_not_found_auto(name)?)
+        }
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using [`std::str::FromStr`].
+    ///
+    /// If parsing (of any value) has failed, exits the program.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Vec<u32> = matches.values_of_t_or_exit("length");
+    /// assert_eq!(len, vec![12, 77, 40]);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches.values_of_t_or_exit("length");
+    /// // Something that expects Vec<u32>
+    /// let _: Vec<u32> = also_len;
+    /// ```
+    ///
+    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
+    where
+        R: FromStr,
+        <R as FromStr>::Err: Display,
+    {
+        self.values_of_t(name).unwrap_or_else(|e| e.exit())
     }
 
     /// Returns `true` if an argument was present at runtime, otherwise `false`.
@@ -316,17 +498,14 @@ impl ArgMatches {
     /// assert!(m.is_present("debug"));
     /// ```
     pub fn is_present<T: Key>(&self, id: T) -> bool {
-        self._id_is_present(id.key())
-    }
+        let id = Id::from(id);
 
-    #[doc(hidden)]
-    pub fn _id_is_present(&self, arg_id: Id) -> bool {
         if let Some(ref sc) = self.subcommand {
-            if sc.id == arg_id {
+            if sc.id == id {
                 return true;
             }
         }
-        self.args.contains_key(&arg_id)
+        self.args.contains_key(&id)
     }
 
     /// Returns the number of times an argument was used at runtime. If an argument isn't present
@@ -369,7 +548,7 @@ impl ArgMatches {
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        self.args.get(&id.key()).map_or(0, |a| a.occurs)
+        self.args.get(&Id::from(id)).map_or(0, |a| a.occurs)
     }
 
     /// Gets the starting index of the argument in respect to all other arguments. Indices are
@@ -503,7 +682,7 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
-        if let Some(arg) = self.args.get(&name.key()) {
+        if let Some(arg) = self.args.get(&Id::from(name)) {
             if let Some(i) = arg.indices.get(0) {
                 return Some(*i);
             }
@@ -585,7 +764,7 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        self.args.get(&id.key()).map(|arg| Indices {
+        self.args.get(&Id::from(id)).map(|arg| Indices {
             iter: arg.indices.iter().cloned(),
         })
     }
@@ -623,7 +802,7 @@ impl ArgMatches {
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
-            if s.id == id.key() {
+            if s.id == id.into() {
                 return Some(&s.matches);
             }
         }
@@ -688,6 +867,7 @@ impl ArgMatches {
     /// [`Subcommand`]: ./struct..html
     /// [`App`]: ./struct.App.html
     /// [`ArgMatches`]: ./struct.ArgMatches.html
+    #[inline]
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)
     }
@@ -739,6 +919,7 @@ impl ArgMatches {
     /// ```
     /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
     /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
+    #[inline]
     pub fn subcommand(&self) -> (&str, Option<&ArgMatches>) {
         self.subcommand
             .as_ref()
@@ -895,7 +1076,6 @@ impl<'a> Default for OsValues<'a> {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Indices<'a> {
-    // would rather use '_, but: https://github.com/rust-lang/rust/issues/48469
     iter: Cloned<Iter<'a, usize>>,
 }
 
@@ -941,7 +1121,7 @@ mod tests {
 
     #[test]
     fn test_default_values_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut values = matches.values_of("").unwrap_or_default();
         assert_eq!(values.next(), None);
     }
@@ -954,7 +1134,7 @@ mod tests {
 
     #[test]
     fn test_default_osvalues_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut values = matches.values_of_os("").unwrap_or_default();
         assert_eq!(values.next(), None);
     }
@@ -967,7 +1147,7 @@ mod tests {
 
     #[test]
     fn test_default_indices_with_shorter_lifetime() {
-        let matches = ArgMatches::new();
+        let matches = ArgMatches::default();
         let mut indices = matches.indices_of("").unwrap_or_default();
         assert_eq!(indices.next(), None);
     }

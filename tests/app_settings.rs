@@ -470,8 +470,8 @@ fn unset_settings() {
     let m = m
         .unset_setting(AppSettings::AllowInvalidUtf8)
         .unset_setting(AppSettings::ColorAuto);
-    assert!(!m.is_set(AppSettings::AllowInvalidUtf8), "{:#?}");
-    assert!(!m.is_set(AppSettings::ColorAuto));
+    assert!(!m.is_set(AppSettings::AllowInvalidUtf8), "{:#?}", m);
+    assert!(!m.is_set(AppSettings::ColorAuto), "{:#?}", m);
 }
 
 #[test]
@@ -491,9 +491,9 @@ fn dont_collapse_args() {
         .version("v1.4.8")
         .setting(AppSettings::DontCollapseArgsInUsage)
         .args(&[
-            Arg::with_name("arg1").help("some"),
-            Arg::with_name("arg2").help("some"),
-            Arg::with_name("arg3").help("some"),
+            Arg::with_name("arg1").about("some"),
+            Arg::with_name("arg2").about("some"),
+            Arg::with_name("arg3").about("some"),
         ]);
     assert!(utils::compare_output(
         app,
@@ -512,7 +512,7 @@ fn require_eq() {
             .required(true)
             .require_equals(true)
             .value_name("FILE")
-            .help("some"),
+            .about("some"),
     );
     assert!(utils::compare_output(
         app,

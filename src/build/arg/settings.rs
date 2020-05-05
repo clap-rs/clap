@@ -1,6 +1,7 @@
 // Std
 use std::str::FromStr;
 
+// Third party
 use bitflags::bitflags;
 
 bitflags! {
@@ -29,7 +30,6 @@ bitflags! {
     }
 }
 
-#[doc(hidden)]
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct ArgFlags(Flags);
 

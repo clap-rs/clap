@@ -18,7 +18,30 @@ USAGE:
 
 For more information try --help";
 
+#[allow(unused)]
 static REQ_GROUP_CONFLICT_REV: &str = "error: The argument '--delete' cannot be used with '<base>'
+
+USAGE:
+    clap-test <base|--delete>
+
+For more information try --help";
+
+static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
+    "error: Found argument '--all' which wasn't expected, or isn't valid in this context
+
+If you tried to supply `--all` as a PATTERN use `-- --all`
+
+USAGE:
+    clap-test <-a|--delete>
+
+For more information try --help";
+
+// FIXME: This message has regressed after https://github.com/clap-rs/clap/pull/1856
+//        Need to roll back somehow.
+static REQ_GROUP_CONFLICT_REV_DEGRADED: &str =
+    "error: Found argument 'base' which wasn't expected, or isn't valid in this context
+
+If you tried to supply `base` as a PATTERN use `-- base`
 
 USAGE:
     clap-test <base|--delete>
@@ -41,13 +64,9 @@ fn required_group_missing_arg() {
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
 
-// This tests a programmer error and will only succeed with debug_assertions
-// #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
 #[test]
-// This used to provide a nice, programmer-friendly error.
-// Now the error directs the programmer to file a bug report with clap.
-// #[should_panic(expected = "The group 'req' contains the arg 'flg' that doesn't actually exist.")]
-#[should_panic(expected = "internal error")]
+#[should_panic = "Argument group 'req' contains non-existent argument"]
 fn non_existing_arg() {
     let _ = App::new("group")
         .arg("-f, --flag 'some flag'")
@@ -58,6 +77,37 @@ fn non_existing_arg() {
                 .required(true),
         )
         .try_get_matches_from(vec![""]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name must be unique\n\n\t'req' is already in use"]
+fn unique_group_name() {
+    let _ = App::new("group")
+        .arg("-f, --flag 'some flag'")
+        .arg("-c, --color 'some other flag'")
+        .group(ArgGroup::with_name("req").args(&["flag"]).required(true))
+        .group(ArgGroup::with_name("req").args(&["color"]).required(true))
+        .try_get_matches_from(vec![""]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name '' must not conflict with argument name"]
+fn groups_with_name_of_arg_name() {
+    let _ = App::new("group")
+        .arg(Arg::with_name("a").long("a").group("a"))
+        .try_get_matches_from(vec!["", "--a"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group name 'a' must not conflict with argument name"]
+fn arg_group_with_name_of_arg_name() {
+    let _ = App::new("group")
+        .arg(Arg::with_name("a").long("a").group("a"))
+        .group(ArgGroup::with_name("a"))
+        .try_get_matches_from(vec!["", "--a"]);
 }
 
 #[test]
@@ -181,7 +231,28 @@ fn req_group_with_conflict_usage_string() {
     assert!(utils::compare_output2(
         app,
         "clap-test --delete base",
-        REQ_GROUP_CONFLICT_REV,
+        REQ_GROUP_CONFLICT_REV_DEGRADED,
+        REQ_GROUP_CONFLICT_USAGE,
+        true
+    ));
+}
+
+#[test]
+fn req_group_with_conflict_usage_string_only_options() {
+    let app = App::new("req_group")
+        .arg(Arg::from("<all> -a, -all 'All'").conflicts_with("delete"))
+        .arg(Arg::from(
+            "<delete> -d, --delete 'Remove the base commit information'",
+        ))
+        .group(
+            ArgGroup::with_name("all_or_delete")
+                .args(&["all", "delete"])
+                .required(true),
+        );
+    assert!(utils::compare_output2(
+        app,
+        "clap-test --delete --all",
+        REQ_GROUP_CONFLICT_ONLY_OPTIONS,
         REQ_GROUP_CONFLICT_USAGE,
         true
     ));
@@ -224,4 +295,30 @@ fn group_acts_like_arg() {
         .arg(Arg::with_name("verbose").long("verbose").group("mode"))
         .get_matches_from(vec!["prog", "--debug"]);
     assert!(m.is_present("mode"));
+}
+
+#[test]
+fn issue_1794() {
+    let app = clap::App::new("hello")
+        .bin_name("deno")
+        .arg(Arg::with_name("option1").long("option1").takes_value(false))
+        .arg(Arg::with_name("pos1").takes_value(true))
+        .arg(Arg::with_name("pos2").takes_value(true))
+        .group(
+            ArgGroup::with_name("arg1")
+                .args(&["pos1", "option1"])
+                .required(true),
+        );
+
+    let m = app.clone().get_matches_from(&["app", "pos1", "pos2"]);
+    assert_eq!(m.value_of("pos1"), Some("pos1"));
+    assert_eq!(m.value_of("pos2"), Some("pos2"));
+    assert!(!m.is_present("option1"));
+
+    let m = app
+        .clone()
+        .get_matches_from(&["app", "--option1", "positional"]);
+    assert_eq!(m.value_of("pos1"), None);
+    assert_eq!(m.value_of("pos2"), Some("positional"));
+    assert!(m.is_present("option1"));
 }

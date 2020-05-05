@@ -81,7 +81,7 @@ impl<T: AsRef<str>> AsRef<str> for Sp<T> {
 impl<T: ToTokens> ToTokens for Sp<T> {
     fn to_tokens(&self, stream: &mut TokenStream) {
         // this is the simplest way out of correct ones to change span on
-        // arbitrary token tree I can come up with
+        // arbitrary token tree I could come up with
         let tt = self.val.to_token_stream().into_iter().map(|mut tt| {
             tt.set_span(self.span.clone());
             tt

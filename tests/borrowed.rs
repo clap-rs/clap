@@ -5,11 +5,11 @@ fn borrowed_args() {
     let arg = Arg::with_name("some")
         .short('s')
         .long("some")
-        .help("other help");
+        .about("other help");
     let arg2 = Arg::with_name("some2")
         .short('S')
         .long("some-thing")
-        .help("other help");
+        .about("other help");
     let result = App::new("sub_command_negate")
         .arg(Arg::with_name("test").index(1))
         .arg(&arg)

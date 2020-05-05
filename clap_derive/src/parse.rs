@@ -16,8 +16,10 @@ pub enum ClapAttr {
     Long(Ident),
     Env(Ident),
     Flatten(Ident),
+    ArgEnum(Ident),
     Subcommand(Ident),
     VerbatimDocComment(Ident),
+    ExternalSubcommand(Ident),
 
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
@@ -167,8 +169,9 @@ impl Parse for ClapAttr {
                 "short" => Ok(Short(name)),
                 "env" => Ok(Env(name)),
                 "flatten" => Ok(Flatten(name)),
+                "arg_enum" => Ok(ArgEnum(name)),
                 "subcommand" => Ok(Subcommand(name)),
-
+                "external_subcommand" => Ok(ExternalSubcommand(name)),
                 "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
                 "default_value" => Ok(DefaultValue(name, None)),

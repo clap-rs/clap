@@ -11,16 +11,21 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
+use proc_macro2::TokenStream;
+use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Field, Ident, Token, Type};
 
-use super::{sub_type, Attrs, Kind, ParserKind, Ty};
+use crate::{
+    attrs::{Attrs, Kind, ParserKind},
+    utils::{sub_type, subty_if_name, Ty},
+};
 
 pub fn gen_for_struct(
-    struct_name: &syn::Ident,
-    fields: &Punctuated<syn::Field, Token![,]>,
+    struct_name: &Ident,
+    fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     let constructor = gen_constructor(fields, parent_attribute);
 
     quote! {
@@ -44,7 +49,7 @@ pub fn gen_for_struct(
     }
 }
 
-pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
+pub fn gen_for_enum(name: &Ident) -> TokenStream {
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
         #[allow(
@@ -68,10 +73,18 @@ pub fn gen_for_enum(name: &syn::Ident) -> proc_macro2::TokenStream {
     }
 }
 
+fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
+    let ci = attrs.case_insensitive();
+
+    quote_spanned! { ty.span()=>
+        |s| <#ty as ::clap::ArgEnum>::from_str(s, #ci).unwrap()
+    }
+}
+
 pub fn gen_constructor(
-    fields: &Punctuated<syn::Field, Token![,]>,
+    fields: &Punctuated<Field, Token![,]>,
     parent_attribute: &Attrs,
-) -> proc_macro2::TokenStream {
+) -> TokenStream {
     let fields = fields.iter().map(|field| {
         let attrs = Attrs::from_field(
             field,
@@ -80,7 +93,12 @@ pub fn gen_constructor(
         );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
-        match &*attrs.kind() {
+        match &*kind {
+            Kind::ExternalSubcommand => {
+                abort! { kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
             Kind::Subcommand(ty) => {
                 let subcmd_type = match (**ty, sub_type(&field.ty)) {
                     (Ty::Option, Some(sub_type)) => sub_type,
@@ -117,7 +135,7 @@ pub fn gen_constructor(
                 let parser = attrs.parser();
                 let func = &parser.func;
                 let span = parser.kind.span();
-                let (value_of, values_of, parse) = match *parser.kind {
+                let (value_of, values_of, mut parse) = match *parser.kind {
                     FromStr => (
                         quote_spanned!(span=> value_of),
                         quote_spanned!(span=> values_of),
@@ -149,15 +167,24 @@ pub fn gen_constructor(
                 let flag = *attrs.parser().kind == ParserKind::FromFlag;
                 let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
                 let name = attrs.cased_name();
+
                 let field_value = match **ty {
                     Ty::Bool => quote_spanned! { ty.span()=>
                         matches.is_present(#name)
                     },
 
-                    Ty::Option => quote_spanned! { ty.span()=>
-                        matches.#value_of(#name)
-                            .map(#parse)
-                    },
+                    Ty::Option => {
+                        if attrs.is_enum() {
+                            if let Some(subty) = subty_if_name(&field.ty, "Option") {
+                                parse = gen_arg_enum_parse(subty, &attrs);
+                            }
+                        }
+
+                        quote_spanned! { ty.span()=>
+                            matches.#value_of(#name)
+                                .map(#parse)
+                        }
+                    }
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         if matches.is_present(#name) {
@@ -177,11 +204,19 @@ pub fn gen_constructor(
                         }
                     },
 
-                    Ty::Vec => quote_spanned! { ty.span()=>
-                        matches.#values_of(#name)
-                            .map(|v| v.map(#parse).collect())
-                            .unwrap_or_else(Vec::new)
-                    },
+                    Ty::Vec => {
+                        if attrs.is_enum() {
+                            if let Some(subty) = subty_if_name(&field.ty, "Vec") {
+                                parse = gen_arg_enum_parse(subty, &attrs);
+                            }
+                        }
+
+                        quote_spanned! { ty.span()=>
+                            matches.#values_of(#name)
+                                .map(|v| v.map(#parse).collect())
+                                .unwrap_or_else(Vec::new)
+                        }
+                    }
 
                     Ty::Other if occurrences => quote_spanned! { ty.span()=>
                         #parse(matches.#value_of(#name))
@@ -191,11 +226,17 @@ pub fn gen_constructor(
                         #parse(matches.is_present(#name))
                     },
 
-                    Ty::Other => quote_spanned! { ty.span()=>
-                        matches.#value_of(#name)
-                            .map(#parse)
-                            .unwrap()
-                    },
+                    Ty::Other => {
+                        if attrs.is_enum() {
+                            parse = gen_arg_enum_parse(&field.ty, &attrs);
+                        }
+
+                        quote_spanned! { ty.span()=>
+                            matches.#value_of(#name)
+                                .map(#parse)
+                                .unwrap()
+                        }
+                    }
                 };
 
                 quote_spanned!(field.span()=> #field_name: #field_value )
