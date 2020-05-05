@@ -1926,12 +1926,12 @@ impl<'b> App<'b> {
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                write!(w, "{} {}", bn.replace(" ", "-"), ver)
+                writeln!(w, "{} {}", bn.replace(" ", "-"), ver)
             } else {
-                write!(w, "{} {}", &self.name[..], ver)
+                writeln!(w, "{} {}", &self.name[..], ver)
             }
         } else {
-            write!(w, "{} {}", &self.name[..], ver)
+            writeln!(w, "{} {}", &self.name[..], ver)
         }
     }
 
