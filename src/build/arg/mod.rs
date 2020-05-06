@@ -4411,7 +4411,7 @@ mod test {
     fn flag_display_single_alias() {
         let mut f = Arg::with_name("flg");
         f.long = Some("flag");
-        f.aliases = Some(vec![("als", true)]);
+        f.aliases = vec![("als", true)];
 
         assert_eq!(&*format!("{}", f), "--flag")
     }
@@ -4420,12 +4420,12 @@ mod test {
     fn flag_display_multiple_aliases() {
         let mut f = Arg::with_name("flg");
         f.short = Some('f');
-        f.aliases = Some(vec![
+        f.aliases = vec![
             ("alias_not_visible", false),
             ("f2", true),
             ("f3", true),
             ("f4", true),
-        ]);
+        ];
         assert_eq!(&*format!("{}", f), "-f");
     }
 
@@ -4543,7 +4543,7 @@ mod test {
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
-        p2.val_names = Some(vm);
+        p2.val_names = vm;
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
@@ -4555,7 +4555,7 @@ mod test {
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");
-        p2.val_names = Some(vm);
+        p2.val_names = vm;
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }

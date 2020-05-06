@@ -517,8 +517,8 @@ mod test {
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         assert_eq!(g.args, args);
-        assert_eq!(g.requires, Some(reqs));
-        assert_eq!(g.conflicts, Some(confs));
+        assert_eq!(g.requires, reqs);
+        assert_eq!(g.conflicts, confs);
     }
 
     #[test]
@@ -562,10 +562,7 @@ mod test {
              \trequires: {:?},\n\
              \tconflicts: {:?},\n\
              }}",
-            args,
-            true,
-            Some(reqs),
-            Some(confs)
+            args, true, reqs, confs
         );
         assert_eq!(&*format!("{:?}", g), &*debug_str);
     }
@@ -590,8 +587,8 @@ mod test {
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);
-        assert_eq!(g2.requires, Some(reqs));
-        assert_eq!(g2.conflicts, Some(confs));
+        assert_eq!(g2.requires, reqs);
+        assert_eq!(g2.conflicts, confs);
     }
 
     #[cfg(feature = "yaml")]
@@ -619,8 +616,8 @@ requires:
         let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
         assert_eq!(g.args, args);
-        assert_eq!(g.requires, Some(reqs));
-        assert_eq!(g.conflicts, Some(confs));
+        assert_eq!(g.requires, reqs);
+        assert_eq!(g.conflicts, confs);
     }
 }
 
