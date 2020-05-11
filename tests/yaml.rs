@@ -25,9 +25,8 @@ fn help_message() {
     let mut help_buffer = Vec::new();
     app.write_help(&mut help_buffer).unwrap();
     let help_string = String::from_utf8(help_buffer).unwrap();
-    assert!(
-        help_string.contains("-h, --help             prints help with a nonstandard description\n")
-    );
+    assert!(help_string
+        .contains("-h, --help                prints help with a nonstandard description\n"));
 }
 
 #[test]

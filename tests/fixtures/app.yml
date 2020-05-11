@@ -83,6 +83,16 @@ args:
         long: multaliases
         about: Tests mutliple aliases
         aliases: [als1, als2, als3]
+    - singleshortalias:
+        long: singleshortalias
+        about: Tests single short alias
+        short_aliases: [a]
+        required_if:
+            - [multvalsmo, two]
+    - multshortaliases:
+        long: multshortaliases
+        about: Tests mutliple short aliases
+        short_aliases: [a, b, c]
     - minvals2:
         long: minvals2
         multiple: true

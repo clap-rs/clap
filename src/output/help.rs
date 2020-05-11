@@ -500,6 +500,26 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 spec_vals.push(format!(" [aliases: {}]", als));
             }
         }
+
+        if !a.short_aliases.is_empty() {
+            debug!(
+                "Help::spec_vals: Found short aliases...{:?}",
+                a.short_aliases
+            );
+
+            let als = a
+                .short_aliases
+                .iter()
+                .filter(|&als| als.1) // visible
+                .map(|&als| als.0.to_string()) // name
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            if !als.is_empty() {
+                spec_vals.push(format!("[short aliases: {}]", als));
+            }
+        }
+
         if !self.hide_pv && !a.is_set(ArgSettings::HidePossibleValues) {
             if let Some(ref pv) = a.possible_vals {
                 debug!("Help::spec_vals: Found possible vals...{:?}", pv);

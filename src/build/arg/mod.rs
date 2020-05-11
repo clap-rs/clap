@@ -67,6 +67,7 @@ pub struct Arg<'help> {
     pub(crate) short: Option<char>,
     pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Option<Vec<(&'help str, bool)>>, // (name, visible)
+    pub(crate) short_aliases: Vec<(char, bool)>,         // (name, visible)
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
     pub(crate) possible_vals: Option<Vec<&'help str>>,
@@ -195,6 +196,7 @@ impl<'help> Arg<'help> {
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
                 "aliases" => yaml_vec_or_str!(v, a, alias),
+                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
                 "about" => yaml_to_str!(a, v, about),
                 "long_about" => yaml_to_str!(a, v, long_about),
                 "help" => yaml_to_str!(a, v, about),
@@ -364,6 +366,36 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden arguments as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///             .arg(Arg::with_name("test")
+    ///             .short('t')
+    ///             .short_alias('e')
+    ///             .takes_value(true))
+    ///        .get_matches_from(vec![
+    ///             "prog", "-e", "cool"
+    ///         ]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("cool"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn short_alias(mut self, name: char) -> Self {
+        if name == '-' {
+            panic!("short alias name cannot be `-`");
+        }
+
+        self.short_aliases.push((name, false));
+        self
+    }
+
     /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
     /// automatically dispatch as if this argument was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
@@ -392,6 +424,37 @@ impl<'help> Arg<'help> {
             }
         } else {
             self.aliases = Some(names.iter().map(|&x| (x, false)).collect());
+        }
+        self
+    }
+
+    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
+    /// automatically dispatch as if this argument was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///             .arg(Arg::with_name("test")
+    ///                     .short('t')
+    ///                     .short_aliases(&['e', 's'])
+    ///                     .help("the file to add")
+    ///                     .required(false))
+    ///             .get_matches_from(vec![
+    ///                 "prog", "-s"
+    ///             ]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn short_aliases(mut self, names: &[char]) -> Self {
+        for s in names {
+            if s == &'-' {
+                panic!("short alias name cannot be `-`");
+            }
+            self.short_aliases.push((*s, false));
         }
         self
     }
@@ -425,6 +488,35 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
+    /// [`Arg::alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .long("test")
+    ///                 .visible_short_alias('t')
+    ///                 .takes_value(true))
+    ///        .get_matches_from(vec![
+    ///             "prog", "-t", "coffee"
+    ///         ]);
+    /// assert!(m.is_present("test"));
+    /// assert_eq!(m.value_of("test"), Some("coffee"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::alias`]: ./struct.Arg.html#method.short_alias
+    pub fn visible_short_alias(mut self, name: char) -> Self {
+        if name == '-' {
+            panic!("short alias name cannot be `-`");
+        }
+
+        self.short_aliases.push((name, true));
+        self
+    }
+
     /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
     /// with [`Arg::aliases`], except that they are visible inside the help message.
     ///
@@ -450,6 +542,34 @@ impl<'help> Arg<'help> {
             }
         } else {
             self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
+        }
+        self
+    }
+
+    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
+    /// with [`Arg::aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///             .arg(Arg::with_name("test")
+    ///                 .long("test")
+    ///                 .visible_short_aliases(&['t', 'e']))
+    ///        .get_matches_from(vec![
+    ///             "prog", "-t"
+    ///         ]);
+    /// assert!(m.is_present("test"));
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`App::aliases`]: ./struct.Arg.html#method.short_aliases
+    pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
+        for n in names {
+            if n == &'-' {
+                panic!("short alias name cannot be `-`");
+            }
+            self.short_aliases.push((*n, true));
         }
         self
     }
@@ -4363,10 +4483,10 @@ impl<'help> fmt::Debug for Arg<'help> {
             "Arg {{ id: {:X?}, name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
              settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
              requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-             aliases: {:?}, possible_values: {:?}, value_names: {:?}, number_of_values: {:?}, \
-             max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, default_value_ifs: {:?}, \
-             value_terminator: {:?}, display_order: {:?}, env: {:?}, unified_ord: {:?}, \
-             default_value: {:?}, validator: {}, validator_os: {} \
+             aliases: {:?}, short_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
+             number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
+             default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, env: {:?}, \
+             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {} \
              }}",
             self.id,
             self.name,
@@ -4383,6 +4503,7 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.index,
             self.long,
             self.aliases,
+            self.short_aliases,
             self.possible_vals,
             self.val_names,
             self.num_vals,
@@ -4444,6 +4565,23 @@ mod test {
         assert_eq!(&*format!("{}", f), "-f");
     }
 
+    #[test]
+    fn flag_display_single_short_alias() {
+        let mut f = Arg::with_name("flg");
+        f.short = Some('a');
+        f.short_aliases = vec![('b', true)];
+
+        assert_eq!(&*format!("{}", f), "-a")
+    }
+
+    #[test]
+    fn flag_display_multiple_short_aliases() {
+        let mut f = Arg::with_name("flg");
+        f.short = Some('a');
+        f.short_aliases = vec![('b', false), ('c', true), ('d', true), ('e', true)];
+        assert_eq!(&*format!("{}", f), "-a");
+    }
+
     // Options
 
     #[test]
@@ -4494,6 +4632,27 @@ mod test {
             .alias("als_not_visible");
 
         assert_eq!(&*format!("{}", o), "--option <opt>");
+    }
+
+    #[test]
+    fn option_display_single_short_alias() {
+        let o = Arg::with_name("opt")
+            .takes_value(true)
+            .short('a')
+            .visible_short_alias('b');
+
+        assert_eq!(&*format!("{}", o), "-a <opt>");
+    }
+
+    #[test]
+    fn option_display_multiple_short_aliases() {
+        let o = Arg::with_name("opt")
+            .short('a')
+            .takes_value(true)
+            .visible_short_aliases(&['b', 'c', 'd'])
+            .short_alias('e');
+
+        assert_eq!(&*format!("{}", o), "-a <opt>");
     }
 
     // Positionals
