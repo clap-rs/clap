@@ -18,9 +18,9 @@ homepage = "https://clap.rs/"
 keywords = [
 	"clap",
 	"cli",
+	"parse",
 	"derive",
-	"proc_macro",
-	"parse"
+	"proc_macro"
 ]
 categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
 license = "MIT OR Apache-2.0"

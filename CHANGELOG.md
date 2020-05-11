@@ -1,8 +1,149 @@
 ## Unreleased
 
+TODO: Structopt and traits
+TODO: `Shell`, `YamlLoader`
+TODO: `cargo`, `std` features
+
+#### BREAKING CHANGES
+
+* **Removed**
+  * `From<&yaml_rust::yaml::Hash>` for `ArgGroup`
+  * **Macros**
+    * `_clap_count_exprs`
+* **Renamed Methods**
+  * `App::set_term_width` => `App::term_width`
+  * `Arg::from_yaml` => `Arg::from`
+  * `Arg::with_name` => `Arg::new`
+  * `ArgGroup::from_yaml` => `ArgGroup::from`
+  * `ArgGroup::with_name` => `ArgGroup::new`
+
+#### Features
+
+* Added `Indices` that is returned by `ArgMatches::indices_of`
+* **Added Methods**
+  * **Arg**
+    * `Arg::default_missing_value`
+    * `Arg::default_missing_value_os`
+    * `Arg::default_missing_values`
+    * `Arg::default_missing_values_os`
+    * `Arg::short_alias`
+    * `Arg::short_aliases`
+    * `Arg::visible_short_alias`
+    * `Arg::visible_short_aliases`
+* **Added Variants**
+  * `AppSettings::DisableHelpFlags`
+
+#### Enhancements
+
+* `help_heading` defined on `Arg` now has higher priority than `App`
+* Limited default text wrapping to 100 when `wrap_help` feature is not enabled
+* Multiple bug fixes and error message improvements
+
+<a name="v3.0.0-beta.1"></a>
+## v3.0.0-beta.1 (2020-05-03)
+
 #### Minimum Required Rust
 
-* As of this release, `clap` requires `rustc 1.36.0` or greater.
+* As of this release, `clap` requires `rustc 1.40.0` or greater.
+
+#### BREAKING CHANGES
+
+* **Removed**
+  * `SubCommand` in favor of `App`
+    * `SubCommand::with_name` => `App::new`
+    * `SubCommand::from_yaml` => `App::from`
+  * **App**
+    * `App::with_defaults`
+    * `App::version_message` in favor of `App::mut_arg`
+    * `App::version_short` in favor of `App::mut_arg`
+    * `App::help_message` in favor of `App::mut_arg`
+    * `App::help_short` in favor of `App::mut_arg`
+    * `App::arg_from_usage` in favor of `App::arg`
+    * `App::args_from_usage` in favor of TODO:
+    * `App::gen_completions` in favor of TODO:
+    * `App::gen_completions_to` in favor of TODO:
+    * `App::settings` in favor of `App::setting(Setting1 | Setting2)`
+    * `App::unset_settings` in favor of `App::unset_setting(Setting1 | Setting2)`
+    * `App::global_settings` in favor of `App::global_setting(Setting1 | Setting2)`
+  * **Arg**
+    * `Arg::empty_values` in favor of TODO:
+  * `ArgMatches::usage` in favor of `App::generate_usage`
+  * **Settings**
+    * `AppSettings::PropagateGlobalValuesDown`
+    * `ArgSettings::Global` in favor of `Arg::global` method
+    * `ArgSettings::Multiple` in favor of `ArgSettings::MultipleValues` and `ArgSettings::MultipleOccurrences`
+  * **Macros**
+    * `arg_enum!` in favor of `ArgEnum` derive macro.
+    * `value_t!` in favor of `ArgMatches::value_of_t`
+    * `value_t_or_exit!` in favor of `ArgMatches::value_of_t_or_exit`
+    * `values_t!` in favor of `ArgMatches::values_of_t`
+    * `values_t_or_exit!` in favor of `ArgMatches::values_of_t_or_exit`
+  * Support for `{n}` in help text
+* **Renamed Methods**
+  * **App**
+    * `App::from_yaml` => `App::from`
+    * `App::arg_from_usage` => `App::arg`
+    * `App::help` => `App::override_help`
+    * `App::usage` => `App::override_usage`
+    * `App::template` => `App::help_template`
+    * `App::get_matches_safe` => `App::try_get_matches`
+    * `App::get_matches_from_safe` => `App::try_get_matches_from`
+    * `App::get_matches_from_safe_borrow` => `App::try_get_matches_from_mut`
+  * **Arg**
+    * `Arg::help` => `Arg::about`
+    * `Arg::from_usage` => `Arg::from`
+    * `Arg::set` => `Arg::setting`
+    * `Arg::unset` => `Arg::unset_setting`
+* **Renamed Variants**
+  * `ArgSettings::CaseInsensitive` => `ArgSettings::IgnoreCase`
+  * `ArgSettings::AllowLeadingHyphen` => `ArgSettings::AllowHyphenValues`
+  * `ArgSettings::EmptyValues` => `ArgSettings::AllowEmptyValues`
+  * `ArgSettings::CaseInsensitive` => `ArgSettings::IgnoreCase`
+* **Renamed Fields**
+  * `Error::message` => `Error::cause`
+* **Changed**
+  * `App::write_help` is now a mutable reference instance method (takes `&mut self`)
+  * `Arg::short` now accepts `char` instead of `&str`
+  * `Arg::validator` now takes first argument as `Fn(&str) -> Result<O, E: ToString>` instead of
+    `Fn(String) -> Result<(), String>`
+  * `Arg::validator_os` now takes first argument as `Fn(&OsStr) -> Result<O, OsString>` instead of
+    `Fn(&OsStr) -> Result<(), OsString>`
+* In usage parser, for options `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`
+  but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
+  Before both resulted in the same thing
+* `App` and `Arg` now need only one lifetime
+* Allow empty values is no longer the default
+* UseValueDelimiter is no longer the default
+* `App::override_usage` no longer implies `\t` which allows multi lined usages
+
+#### Features
+
+* **Added Methods**
+  * **App**
+    * `App::replace`
+    * `App::get_matches_mut`
+    * `App::mut_arg`
+    * `App::unset_global_setting`
+    * `App::help_heading`
+    * `App::stop_custom_headings`
+  * **Arg**
+    * `Arg::exclusive`
+    * `Arg::multiple_values`
+    * `Arg::multiple_occurrences`
+    * `Arg::help_heading`
+* **Added Variants**
+  * `AppSettings::HelpRequired`
+  * `AppSettings::NoAutoHelp`
+  * `AppSettings::NoAutoVersion`
+  * `ArgSettings::SubcommandPrecedenceOverArg`
+
+#### Enhancements
+
+* Made `App::arg` and `App::args` more generic
+* Improvements to `clap_app!` macro to make it support more wider use cases
+* Colors now work correctly on Windows Console
+* Multiple bug fixes and error message improvements
+* Improvements to parsing logic and help messages
 
 <a name="v2.29.2"></a>
 ## v2.29.2 (2018-01-16)
