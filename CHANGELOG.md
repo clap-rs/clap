@@ -1,4 +1,19 @@
-## Unreleased
+<a name="v2.33.1"></a>
+### v2.33.1 (2020-05-11)
+
+#### Bug Fixes
+
+* Windows: Prevent some panics when parsing invalid Unicode on Windows ([922c645](https://github.com/clap-rs/clap/commit/922c64508389170c9c77f1c8a4e597d14d3ed2f0), closes [#1905](https://github.com/clap-rs/clap/issues/1905))
+
+#### Documentation
+
+*   fixes versions referenced in the README ([d307466a](https://github.com/kbknapp/clap-rs/commit/d307466af1013f172b8ec0252f01a473e2192d6b))
+* **README.md:**
+  *  cuts down the number of examples to reduce confusion ([6e508ee0](https://github.com/kbknapp/clap-rs/commit/6e508ee09e7153de4adf4e88b0aa6418a537dadd))
+
+#### Improvements
+
+* **Deps:**  doesnt compile ansi_term on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
 
 #### Minimum Required Rust
 
