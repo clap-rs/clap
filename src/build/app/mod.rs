@@ -679,7 +679,7 @@ impl<'b> App<'b> {
     ///     .arg(
     ///         Arg::new("debug")
     ///            .short('d')
-    ///            .help("turns on debugging mode")
+    ///            .about("turns on debugging mode")
     ///     )
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
     ///     // verbose Arg::from()
@@ -723,7 +723,7 @@ impl<'b> App<'b> {
     /// App::new("myprog")
     ///     .args(&[
     ///         Arg::from("[debug] -d 'turns on debugging info'"),
-    ///         Arg::new("input").index(1).help("the input file to use")
+    ///         Arg::new("input").index(1).about("the input file to use")
     ///     ])
     /// # ;
     /// ```
@@ -775,7 +775,7 @@ impl<'b> App<'b> {
     ///             .subcommand(App::new("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
     ///                 .arg(Arg::new("input")
-    ///                             .help("the file to add")
+    ///                             .about("the file to add")
     ///                             .index(1)
     ///                             .required(false))
     ///             .get_matches_from(vec!["myprog", "do-tests"]);

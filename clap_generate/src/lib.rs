@@ -58,13 +58,13 @@ pub use generators::Generator;
 ///     App::new("compl")
 ///         .about("Tests completions")
 ///         .arg(Arg::new("file")
-///             .help("some input file"))
+///             .about("some input file"))
 ///         .subcommand(App::new("test")
 ///             .about("tests things")
 ///             .arg(Arg::new("case")
 ///                 .long("case")
 ///                 .takes_value(true)
-///                 .help("the case to test")))
+///                 .about("the case to test")))
 /// }
 /// ```
 ///

@@ -69,7 +69,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")
+    ///             .about("The configuration file to use")
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
@@ -95,7 +95,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")
+    ///             .about("The configuration file to use")
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
     /// assert!(result.is_err());
@@ -270,7 +270,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .help("The configuration file to use")))
+    ///             .about("The configuration file to use")))
     ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingArgumentOrSubcommand);
