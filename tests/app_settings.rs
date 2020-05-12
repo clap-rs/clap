@@ -739,7 +739,7 @@ fn allow_ext_sc_when_sc_required() {
             assert_eq!(name, "external-cmd");
             assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
         }
-        _ => assert!(false),
+        _ => unreachable!(),
     }
 }
 
