@@ -108,6 +108,7 @@ args:
         about: Tests 3 exclusive
         exclusive: true
     - case_insensitive:
+        index: 4
         help: Test case_insensitive
         possible_values: [test123, test321]
         case_insensitive: true

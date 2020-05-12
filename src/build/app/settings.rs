@@ -613,7 +613,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .setting(AppSettings::DisableHelpFlags)
-    ///     .get_matches_from_safe(vec![
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "-h"
     ///     ]);
     /// assert!(res.is_err());
@@ -621,11 +621,11 @@ pub enum AppSettings {
     /// ```
     ///
     /// ```rust
-    /// # use clap::{App, SubCommand, AppSettings, ErrorKind};
+    /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .setting(AppSettings::DisableHelpFlags)
-    ///     .subcommand(SubCommand::with_name("test"))
-    ///     .get_matches_from_safe(vec![
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-h"
     ///     ]);
     /// assert!(res.is_err());
