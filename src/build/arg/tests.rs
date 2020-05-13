@@ -8,7 +8,7 @@ fn short_flag_misspel() {
     assert_eq!(a.long.unwrap(), "flag");
     assert_eq!(a.about.unwrap(), "some flag");
     assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-    assert!(a.val_names.is_none());
+    assert!(a.val_names.is_empty());
     assert!(a.num_vals.is_none());
 }
 
@@ -20,6 +20,6 @@ fn short_flag_name_missing() {
     assert!(a.long.is_none());
     assert_eq!(a.about.unwrap(), "some flag");
     assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-    assert!(a.val_names.is_none());
+    assert!(a.val_names.is_empty());
     assert!(a.num_vals.is_none());
 }

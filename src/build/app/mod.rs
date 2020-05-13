@@ -80,7 +80,7 @@ pub struct App<'b> {
     pub(crate) long_about: Option<&'b str>,
     pub(crate) before_help: Option<&'b str>,
     pub(crate) after_help: Option<&'b str>,
-    pub(crate) aliases: Option<Vec<(&'b str, bool)>>, // (name, visible)
+    pub(crate) aliases: Vec<(&'b str, bool)>, // (name, visible)
     pub(crate) usage_str: Option<&'b str>,
     pub(crate) usage: Option<String>,
     pub(crate) help_str: Option<&'b str>,
@@ -124,19 +124,13 @@ impl<'b> App<'b> {
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
-        self.aliases
-            .as_ref()
-            .into_iter()
-            .flat_map(|aliases| aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0))
+        self.aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0)
     }
 
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
-        self.aliases
-            .as_ref()
-            .into_iter()
-            .flat_map(|aliases| aliases.iter().map(|a| a.0))
+        self.aliases.iter().map(|a| a.0)
     }
 
     /// Get the list of subcommands
@@ -164,19 +158,15 @@ impl<'b> App<'b> {
     /// Panics if the given arg conflicts with an argument that is unknown to this application
     pub fn get_arg_conflicts_with<'a, 'x, 'y>(&'a self, arg: &'x Arg<'y>) -> Vec<&Arg<'b>> // FIXME: This could probably have been an iterator
     {
-        if let Some(black_ids) = arg.blacklist.as_ref() {
-            black_ids
-                .iter()
-                .map(|id| {
-                    self.args.args.iter().find(|arg| arg.id == *id).expect(
-                        "App::get_arg_conflicts_with: \
-                        The passed arg conflicts with an arg unknown to the app",
-                    )
-                })
-                .collect()
-        } else {
-            vec![]
-        }
+        arg.blacklist
+            .iter()
+            .map(|id| {
+                self.args.args.iter().find(|arg| arg.id == *id).expect(
+                    "App::get_arg_conflicts_with: \
+                    The passed arg conflicts with an arg unknown to the app",
+                )
+            })
+            .collect()
     }
 
     /// Check if the setting was set either with [`App::setting`] or [`App::global_setting`]
@@ -770,11 +760,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), false));
-        } else {
-            self.aliases = Some(vec![(name.into(), false)]);
-        }
+        self.aliases.push((name.into(), false));
         self
     }
 
@@ -799,13 +785,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     pub fn aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for n in names {
-                als.push((n, false));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|n| (*n, false)).collect::<Vec<_>>());
-        }
+        self.aliases.extend(names.iter().map(|n| (*n, false)));
         self
     }
 
@@ -825,11 +805,7 @@ impl<'b> App<'b> {
     /// [``]: ./struct..html
     /// [`App::alias`]: ./struct.App.html#method.alias
     pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            als.push((name.into(), true));
-        } else {
-            self.aliases = Some(vec![(name.into(), true)]);
-        }
+        self.aliases.push((name.into(), true));
         self
     }
 
@@ -849,13 +825,7 @@ impl<'b> App<'b> {
     /// [``]: ./struct..html
     /// [`App::aliases`]: ./struct.App.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
-        if let Some(ref mut als) = self.aliases {
-            for n in names {
-                als.push((n, true));
-            }
-        } else {
-            self.aliases = Some(names.iter().map(|n| (*n, true)).collect::<Vec<_>>());
-        }
+        self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
     }
 
@@ -1523,18 +1493,16 @@ impl<'b> App<'b> {
         let mut pos_counter = 1;
         for a in self.args.args.iter_mut() {
             // Fill in the groups
-            if let Some(ref grps) = a.groups {
-                for g in grps {
-                    let mut found = false;
-                    if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
-                        ag.args.push(a.id.clone());
-                        found = true;
-                    }
-                    if !found {
-                        let mut ag = ArgGroup::_with_id(g.clone());
-                        ag.args.push(a.id.clone());
-                        self.groups.push(ag);
-                    }
+            for g in &a.groups {
+                let mut found = false;
+                if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
+                    ag.args.push(a.id.clone());
+                    found = true;
+                }
+                if !found {
+                    let mut ag = ArgGroup::_with_id(g.clone());
+                    ag.args.push(a.id.clone());
+                    self.groups.push(ag);
                 }
             }
 
@@ -1654,46 +1622,39 @@ impl<'b> App<'b> {
             }
 
             // requires, r_if, r_unless
-            if let Some(reqs) = &arg.requires {
-                for req in reqs {
-                    assert!(
-                        self.id_exists(&req.1),
-                        "Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
-                        req.1,
-                        arg.name,
-                    );
-                }
+            for req in &arg.requires {
+                assert!(
+                    self.id_exists(&req.1),
+                    "Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
+                    req.1,
+                    arg.name,
+                );
             }
 
-            if let Some(reqs) = &arg.r_ifs {
-                for req in reqs {
-                    assert!(
-                        self.id_exists(&req.0),
-                        "Argument or group '{:?}' specified in 'required_if*' for '{}' does not exist",
-                        req.0, arg.name
-                    );
-                }
+            for req in &arg.r_ifs {
+                assert!(
+                    self.id_exists(&req.0),
+                    "Argument or group '{:?}' specified in 'required_if*' for '{}' does not exist",
+                    req.0,
+                    arg.name
+                );
             }
 
-            if let Some(reqs) = &arg.r_unless {
-                for req in reqs {
-                    assert!(
-                        self.id_exists(req),
-                        "Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
-                        req, arg.name,
-                    );
-                }
+            for req in &arg.r_unless {
+                assert!(
+                    self.id_exists(req),
+                    "Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                    req, arg.name,
+                );
             }
 
             // blacklist
-            if let Some(reqs) = &arg.blacklist {
-                for req in reqs {
-                    assert!(
-                        self.id_exists(req),
-                        "Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
-                        req, arg.name,
-                    );
-                }
+            for req in &arg.blacklist {
+                assert!(
+                    self.id_exists(req),
+                    "Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
+                    req, arg.name,
+                );
             }
 
             if arg.is_set(ArgSettings::Last) {
@@ -2074,15 +2035,13 @@ impl<'b> App<'b> {
             processed.push(a);
 
             if let Some(arg) = self.find(a) {
-                if let Some(ref reqs) = arg.requires {
-                    for r in reqs.iter().filter_map(requires_if_or_not) {
-                        if let Some(req) = self.find(&r) {
-                            if req.requires.is_some() {
-                                r_vec.push(&req.id)
-                            }
+                for r in arg.requires.iter().filter_map(requires_if_or_not) {
+                    if let Some(req) = self.find(&r) {
+                        if !req.requires.is_empty() {
+                            r_vec.push(&req.id)
                         }
-                        args.push(r);
                     }
+                    args.push(r);
                 }
             }
         }

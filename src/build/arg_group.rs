@@ -80,8 +80,8 @@ pub struct ArgGroup<'a> {
     pub(crate) name: &'a str,
     pub(crate) args: Vec<Id>,
     pub(crate) required: bool,
-    pub(crate) requires: Option<Vec<Id>>,
-    pub(crate) conflicts: Option<Vec<Id>>,
+    pub(crate) requires: Vec<Id>,
+    pub(crate) conflicts: Vec<Id>,
     pub(crate) multiple: bool,
 }
 
@@ -299,12 +299,7 @@ impl<'a> ArgGroup<'a> {
     /// [required group]: ./struct.ArgGroup.html#method.required
     /// [argument requirement rules]: ./struct.Arg.html#method.requires
     pub fn requires<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.into();
-        if let Some(ref mut reqs) = self.requires {
-            reqs.push(arg_id);
-        } else {
-            self.requires = Some(vec![arg_id]);
-        }
+        self.requires.push(id.into());
         self
     }
 
@@ -375,12 +370,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with
     pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
-        let arg_id = id.into();
-        if let Some(ref mut confs) = self.conflicts {
-            confs.push(arg_id);
-        } else {
-            self.conflicts = Some(vec![arg_id]);
-        }
+        self.conflicts.push(id.into());
         self
     }
 
@@ -527,8 +517,8 @@ mod test {
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
 
         assert_eq!(g.args, args);
-        assert_eq!(g.requires, Some(reqs));
-        assert_eq!(g.conflicts, Some(confs));
+        assert_eq!(g.requires, reqs);
+        assert_eq!(g.conflicts, confs);
     }
 
     #[test]
@@ -572,10 +562,7 @@ mod test {
              \trequires: {:?},\n\
              \tconflicts: {:?},\n\
              }}",
-            args,
-            true,
-            Some(reqs),
-            Some(confs)
+            args, true, reqs, confs
         );
         assert_eq!(&*format!("{:?}", g), &*debug_str);
     }
@@ -600,8 +587,8 @@ mod test {
 
         let g2 = ArgGroup::from(&g);
         assert_eq!(g2.args, args);
-        assert_eq!(g2.requires, Some(reqs));
-        assert_eq!(g2.conflicts, Some(confs));
+        assert_eq!(g2.requires, reqs);
+        assert_eq!(g2.conflicts, confs);
     }
 
     #[cfg(feature = "yaml")]
@@ -629,8 +616,8 @@ requires:
         let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
         assert_eq!(g.args, args);
-        assert_eq!(g.requires, Some(reqs));
-        assert_eq!(g.conflicts, Some(confs));
+        assert_eq!(g.requires, reqs);
+        assert_eq!(g.conflicts, confs);
     }
 }
 

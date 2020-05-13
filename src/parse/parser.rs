@@ -318,10 +318,8 @@ where
                 debug!("Parser::_build: adding {} to default requires", a.name);
                 let idx = self.required.insert(a.id.clone());
                 // If the arg is required, add all it's requirements to master required list
-                if let Some(ref areqs) = a.requires {
-                    for (_, name) in areqs.iter().filter(|(val, _)| val.is_none()) {
-                        self.required.insert_child(idx, name.clone());
-                    }
+                for (_, name) in a.requires.iter().filter(|(val, _)| val.is_none()) {
+                    self.required.insert_child(idx, name.clone());
                 }
             }
         }
@@ -352,10 +350,8 @@ where
         for group in &self.app.groups {
             if group.required {
                 let idx = self.required.insert(group.id.clone());
-                if let Some(ref reqs) = group.requires {
-                    for a in reqs {
-                        self.required.insert_child(idx, a.clone());
-                    }
+                for a in &group.requires {
+                    self.required.insert_child(idx, a.clone());
                 }
             }
         }
@@ -1410,17 +1406,15 @@ where
                     self_override.push(o.clone());
                     false
                 };
-                if let Some(ref overrides) = arg.overrides {
-                    debug!("Parser::remove_overrides:iter:{:?}:{:?}", name, overrides);
-                    for o in overrides {
-                        if *o == arg.id {
-                            if handle_self_override(o) {
-                                continue;
-                            }
-                        } else {
-                            arg_overrides.push((arg.id.clone(), o));
-                            arg_overrides.push((o.clone(), &arg.id));
+                for o in &arg.overrides {
+                    debug!("Parser::remove_overrides:iter:{:?} => {:?}", name, o);
+                    if *o == arg.id {
+                        if handle_self_override(o) {
+                            continue;
                         }
+                    } else {
+                        arg_overrides.push((arg.id.clone(), o));
+                        arg_overrides.push((o.clone(), &arg.id));
                     }
                 }
                 if self.is_set(AS::AllArgsOverrideSelf) {
@@ -1477,12 +1471,12 @@ where
     }
 
     fn add_value(&self, arg: &Arg<'b>, matcher: &mut ArgMatcher, ty: ValueType) -> ClapResult<()> {
-        if let Some(ref vm) = arg.default_vals_ifs {
+        if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
 
             let mut done = false;
             if matcher.get(&arg.id).is_none() {
-                for (id, val, default) in vm.values() {
+                for (id, val, default) in arg.default_vals_ifs.values() {
                     let add = if let Some(a) = matcher.get(&id) {
                         if let Some(v) = val {
                             a.vals.iter().any(|value| v == value)
@@ -1508,7 +1502,7 @@ where
             debug!("Parser::add_value: doesn't have conditional defaults");
         }
 
-        if let Some(ref vals) = arg.default_vals {
+        if !arg.default_vals.is_empty() {
             debug!("Parser::add_value:iter:{}: has default vals", arg.name);
             if matcher
                 .get(&arg.id)
@@ -1521,7 +1515,7 @@ where
                     arg.name
                 );
 
-                for val in vals {
+                for val in &arg.default_vals {
                     self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
                 }
             } else if matcher.get(&arg.id).is_some() {
@@ -1531,7 +1525,7 @@ where
             } else {
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
-                for val in vals {
+                for val in &arg.default_vals {
                     self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
                 }
             }

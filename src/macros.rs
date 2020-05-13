@@ -685,8 +685,8 @@ macro_rules! names {
         $app.get_subcommands().iter().map(|s| &*s.get_name()).chain(
             $app.get_subcommands()
                 .iter()
-                .filter(|s| s.aliases.is_some())
-                .flat_map(|s| s.aliases.as_ref().unwrap().iter().map(|&(n, _)| n)),
+                .filter(|s| !s.aliases.is_empty()) // REFACTOR
+                .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
         )
     }};
 }
