@@ -48,6 +48,7 @@ bitflags! {
         const ARGS_OVERRIDE_SELF             = 1 << 39;
         const HELP_REQUIRED                  = 1 << 40;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
+        const DISABLE_HELP_FLAGS             = 1 << 42;
     }
 }
 
@@ -100,6 +101,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DERIVE_DISP_ORDER,
     DisableHelpSubcommand("disablehelpsubcommand")
         => Flags::DISABLE_HELP_SC,
+    DisableHelpFlags("disablehelpflags")
+        => Flags::DISABLE_HELP_FLAGS,
     DisableVersion("disableversion")
         => Flags::DISABLE_VERSION,
     GlobalVersion("globalversion")
@@ -601,6 +604,37 @@ pub enum AppSettings {
     /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
     DontDelimitTrailingValues,
 
+    /// Disables `-h` and `--help` [`App`] without affecting any of the [`SubCommand`]s
+    /// (Defaults to `false`; application *does* have help flags)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .try_get_matches_from(vec![
+    ///         "myprog", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
+    ///         "myprog", "test", "-h"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    /// [`App`]: ./struct.App.html
+    DisableHelpFlags,
+
     /// Disables the `help` subcommand
     ///
     /// # Examples
@@ -967,7 +1001,7 @@ pub enum AppSettings {
     /// Disables `-V` and `--version` for all [``]s
     /// (Defaults to `false`; subcommands *do* have version flags.)
     ///
-    /// **NOTE:** This setting must be set **prior** adding any subcommands
+    /// **NOTE:** This setting must be set **prior** to adding any subcommands.
     ///
     /// # Examples
     ///
@@ -1040,6 +1074,10 @@ mod test {
     #[allow(clippy::cognitive_complexity)]
     #[test]
     fn app_settings_fromstr() {
+        assert_eq!(
+            "disablehelpflags".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHelpFlags
+        );
         assert_eq!(
             "argsnegatesubcommands".parse::<AppSettings>().unwrap(),
             AppSettings::ArgsNegateSubcommands

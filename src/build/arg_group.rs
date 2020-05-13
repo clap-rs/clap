@@ -43,7 +43,7 @@ use crate::util::{Id, Key};
 ///     .arg("--minor         'auto increase minor'")
 ///     .arg("--patch         'auto increase patch'")
 ///     .group(ArgGroup::with_name("vers")
-///          .args(&["set-ver", "major", "minor","patch"])
+///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
 ///     .try_get_matches_from(vec!["app", "--major", "--patch"]);
 /// // Because we used two args in the group it's an error

@@ -725,6 +725,25 @@ fn issue_1093_allow_ext_sc() {
 }
 
 #[test]
+fn allow_ext_sc_when_sc_required() {
+    let res = App::new("clap-test")
+        .version("v1.4.8")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .try_get_matches_from(vec!["clap-test", "external-cmd", "foo"]);
+
+    assert!(res.is_ok());
+
+    match res.unwrap().subcommand() {
+        (name, Some(args)) => {
+            assert_eq!(name, "external-cmd");
+            assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
+        }
+        _ => unreachable!(),
+    }
+}
+
+#[test]
 fn external_subcommand_looks_like_built_in() {
     let res = App::new("cargo")
         .version("1.26.0")

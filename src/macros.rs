@@ -262,7 +262,8 @@ macro_rules! app_from_crate {
 ///         (author: "Someone E. <someone_else@other.com>")
 ///         (@arg verbose: -v --verbose "Print test information verbosely")
 ///     )
-/// );
+/// )
+/// .get_matches();
 /// # }
 /// ```
 ///
@@ -494,9 +495,13 @@ macro_rules! clap_app {
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
     };
-    // Inherit builder's functions
-    (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr)*) $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.$ident($($expr)*)) $modes $($tail)* }
+    // Inherit builder's functions, e.g. `index(2)`, `requires_if("val", "arg")`
+    (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr),*) $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
+    };
+    // Inherit builder's functions with trailing comma, e.g. `index(2,)`, `requires_if("val", "arg",)`
+    (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
+        $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
     };
     // Build a subcommand outside of an app.
     (@subcommand ($name:expr) => $($tail:tt)*) => {

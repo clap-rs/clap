@@ -43,7 +43,7 @@ impl Generator for Bash {
         {cmd})
             opts=\"{name_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq 1 ]] ; then
-                COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
                 return 0
             fi
             case \"${{prev}}\" in
@@ -52,7 +52,7 @@ impl Generator for Bash {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;
         {subcmd_details}
@@ -117,7 +117,7 @@ fn subcommand_details(app: &App) -> String {
         {subcmd})
             opts=\"{sc_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
-                COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+                COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
                 return 0
             fi
             case \"${{prev}}\" in
@@ -126,7 +126,7 @@ fn subcommand_details(app: &App) -> String {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W \"${{opts}}\" -- ${{cur}}) )
+            COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
             subcmd_dets,
@@ -181,9 +181,9 @@ fn vals_for(o: &Arg) -> String {
     debug!("vals_for: o={}", o.get_name());
 
     if let Some(ref vals) = o.get_possible_values() {
-        format!("$(compgen -W \"{}\" -- ${{cur}})", vals.join(" "))
+        format!("$(compgen -W \"{}\" -- \"${{cur}}\")", vals.join(" "))
     } else {
-        String::from("$(compgen -f ${cur})")
+        String::from("$(compgen -f \"${cur}\")")
     }
 }
 
