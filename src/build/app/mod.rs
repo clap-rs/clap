@@ -461,7 +461,7 @@ impl<'b> App<'b> {
     ///            USAGE: myapp <opts> <comamnd>\n\n\
     ///
     ///            Options:\n\
-    ///            -h, --helpe      Dispay this message\n\
+    ///            -h, --help       Display this message\n\
     ///            -V, --version    Display version info\n\
     ///            -s <stuff>       Do something with stuff\n\
     ///            -v               Be verbose\n\n\
