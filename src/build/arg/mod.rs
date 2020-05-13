@@ -25,6 +25,9 @@ use crate::{
     INTERNAL_ERROR_MSG,
 };
 
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
+
 type Validator = Rc<dyn Fn(&str) -> Result<(), String>>;
 type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
 
@@ -174,87 +177,6 @@ impl<'help> Arg<'help> {
             unified_ord: 999,
             ..Default::default()
         }
-    }
-
-    /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// use clap::{Arg, load_yaml};
-    /// let yml = load_yaml!("arg.yml");
-    /// let arg = Arg::from_yaml(yml);
-    /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    #[cfg(feature = "yaml")]
-    #[allow(clippy::cognitive_complexity)]
-    pub fn from_yaml(y: &yaml_rust::yaml::Hash) -> Arg {
-        // We WANT this to panic on error...so expect() is good.
-        let name_yml = y.keys().next().unwrap();
-        let name_str = name_yml.as_str().unwrap();
-        let mut a = Arg::with_name(name_str);
-        let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
-
-        for (k, v) in arg_settings.iter() {
-            a = match k.as_str().unwrap() {
-                "short" => yaml_to_char!(a, v, short),
-                "long" => yaml_to_str!(a, v, long),
-                "aliases" => yaml_vec_or_str!(v, a, alias),
-                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
-                "about" => yaml_to_str!(a, v, about),
-                "long_about" => yaml_to_str!(a, v, long_about),
-                "help" => yaml_to_str!(a, v, about),
-                "long_help" => yaml_to_str!(a, v, long_about),
-                "required" => yaml_to_bool!(a, v, required),
-                "required_if" => yaml_tuple2!(a, v, required_if),
-                "required_ifs" => yaml_tuple2!(a, v, required_if),
-                "takes_value" => yaml_to_bool!(a, v, takes_value),
-                "index" => yaml_to_u64!(a, v, index),
-                "global" => yaml_to_bool!(a, v, global),
-                "multiple" => yaml_to_bool!(a, v, multiple),
-                "hidden" => yaml_to_bool!(a, v, hidden),
-                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
-                "group" => yaml_to_str!(a, v, group),
-                "number_of_values" => yaml_to_u64!(a, v, number_of_values),
-                "max_values" => yaml_to_u64!(a, v, max_values),
-                "min_values" => yaml_to_u64!(a, v, min_values),
-                "value_name" => yaml_to_str!(a, v, value_name),
-                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
-                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
-                "require_equals" => yaml_to_bool!(a, v, require_equals),
-                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
-                "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
-                "required_unless" => yaml_to_str!(a, v, required_unless),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "default_value" => yaml_to_str!(a, v, default_value),
-                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
-                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                "env" => yaml_to_str!(a, v, env),
-                "value_names" => yaml_vec_or_str!(v, a, value_name),
-                "groups" => yaml_vec_or_str!(v, a, group),
-                "requires" => yaml_vec_or_str!(v, a, requires),
-                "requires_if" => yaml_tuple2!(a, v, requires_if),
-                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
-                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
-                "exclusive" => yaml_to_bool!(a, v, exclusive),
-                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
-                "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
-                "possible_values" => yaml_vec_or_str!(v, a, possible_value),
-                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
-                "required_unless_all" => {
-                    a = yaml_vec_or_str!(v, a, required_unless);
-                    a.set_mut(ArgSettings::RequiredUnlessAll);
-                    a
-                }
-                s => panic!(
-                    "Unknown Arg setting '{}' in YAML file for arg '{}'",
-                    s, name_str
-                ),
-            }
-        }
-
-        a
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -4204,6 +4126,90 @@ impl<'a> Arg<'a> {
             "Argument '{}' cannot conflict with itself",
             self.name,
         );
+    }
+}
+
+#[cfg(feature = "yaml")]
+impl<'a> From<&'a Yaml> for Arg<'a> {
+    /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use clap::{Arg, load_yaml};
+    /// let yml = load_yaml!("arg.yml");
+    /// let arg = Arg::from(yml);
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    #[allow(clippy::cognitive_complexity)]
+    fn from(y: &'a Yaml) -> Self {
+        let y = y.as_hash().unwrap();
+        // We WANT this to panic on error...so expect() is good.
+        let name_yml = y.keys().next().unwrap();
+        let name_str = name_yml.as_str().unwrap();
+        let mut a = Arg::with_name(name_str);
+        let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
+
+        for (k, v) in arg_settings.iter() {
+            a = match k.as_str().unwrap() {
+                "short" => yaml_to_char!(a, v, short),
+                "long" => yaml_to_str!(a, v, long),
+                "aliases" => yaml_vec_or_str!(v, a, alias),
+                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
+                "about" => yaml_to_str!(a, v, about),
+                "long_about" => yaml_to_str!(a, v, long_about),
+                "help" => yaml_to_str!(a, v, about),
+                "long_help" => yaml_to_str!(a, v, long_about),
+                "required" => yaml_to_bool!(a, v, required),
+                "required_if" => yaml_tuple2!(a, v, required_if),
+                "required_ifs" => yaml_tuple2!(a, v, required_if),
+                "takes_value" => yaml_to_bool!(a, v, takes_value),
+                "index" => yaml_to_u64!(a, v, index),
+                "global" => yaml_to_bool!(a, v, global),
+                "multiple" => yaml_to_bool!(a, v, multiple),
+                "hidden" => yaml_to_bool!(a, v, hidden),
+                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
+                "group" => yaml_to_str!(a, v, group),
+                "number_of_values" => yaml_to_u64!(a, v, number_of_values),
+                "max_values" => yaml_to_u64!(a, v, max_values),
+                "min_values" => yaml_to_u64!(a, v, min_values),
+                "value_name" => yaml_to_str!(a, v, value_name),
+                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
+                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
+                "require_equals" => yaml_to_bool!(a, v, require_equals),
+                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
+                "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
+                "required_unless" => yaml_to_str!(a, v, required_unless),
+                "display_order" => yaml_to_usize!(a, v, display_order),
+                "default_value" => yaml_to_str!(a, v, default_value),
+                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
+                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "env" => yaml_to_str!(a, v, env),
+                "value_names" => yaml_vec_or_str!(v, a, value_name),
+                "groups" => yaml_vec_or_str!(v, a, group),
+                "requires" => yaml_vec_or_str!(v, a, requires),
+                "requires_if" => yaml_tuple2!(a, v, requires_if),
+                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
+                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
+                "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
+                "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
+                "possible_values" => yaml_vec_or_str!(v, a, possible_value),
+                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
+                "required_unless_one" => yaml_vec_or_str!(v, a, required_unless),
+                "required_unless_all" => {
+                    a = yaml_vec_or_str!(v, a, required_unless);
+                    a.set_mut(ArgSettings::RequiredUnlessAll);
+                    a
+                }
+                s => panic!(
+                    "Unknown Arg setting '{}' in YAML file for arg '{}'",
+                    s, name_str
+                ),
+            }
+        }
+
+        a
     }
 }
 

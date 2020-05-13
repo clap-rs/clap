@@ -303,20 +303,20 @@ impl<'b> App<'b> {
     /// Sets the program's name. This will be displayed when displaying help information.
     ///
     /// **Pro-tip:** This function is particularly useful when configuring a program via
-    /// [`App::from_yaml`] in conjunction with the [`crate_name!`] macro to derive the program's
+    /// [`App::from`] in conjunction with the [`crate_name!`] macro to derive the program's
     /// name from its `Cargo.toml`.
     ///
     /// # Examples
     /// ```ignore
     /// # use clap::{App, load_yaml};
     /// let yml = load_yaml!("app.yml");
-    /// let app = App::from_yaml(yml)
+    /// let app = App::from(yml)
     ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
     ///
-    /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
+    /// [`App::from`]: ./struct.App.html#method.from
     /// [`crate_name!`]: ./macro.crate_name.html
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
         self.name = name.into();
@@ -2180,7 +2180,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
 
         if let Some(v) = yaml["args"].as_vec() {
             for arg_yaml in v {
-                a = a.arg(Arg::from_yaml(arg_yaml.as_hash().unwrap()));
+                a = a.arg(Arg::from(arg_yaml));
             }
         }
         if let Some(v) = yaml["subcommands"].as_vec() {
