@@ -18,7 +18,7 @@
 /// # use clap::App;
 /// # fn main() {
 /// let yml = load_yaml!("app.yml");
-/// let app = App::from_yaml(yml);
+/// let app = App::from(yml);
 ///
 /// // continued logic goes here, such as `app.get_matches()` etc.
 /// # }

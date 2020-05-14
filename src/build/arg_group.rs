@@ -4,6 +4,9 @@ use std::fmt::{Debug, Formatter, Result};
 // Internal
 use crate::util::{Id, Key};
 
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
+
 /// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
 /// arguments". By placing arguments in a logical group, you can create easier requirement and
 /// exclusion rules instead of having to list each argument individually, or when you want a rule
@@ -112,21 +115,6 @@ impl<'a> ArgGroup<'a> {
             name: n,
             ..ArgGroup::default()
         }
-    }
-
-    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// # use clap::{ArgGroup, load_yaml};
-    /// let yml = load_yaml!("group.yml");
-    /// let ag = ArgGroup::from_yaml(yml);
-    /// ```
-    #[cfg(feature = "yaml")]
-    #[inline]
-    pub fn from_yaml(y: &'a yaml_rust::Yaml) -> ArgGroup<'a> {
-        ArgGroup::from(y.as_hash().unwrap())
     }
 
     /// Adds an [argument] to this group by name
@@ -428,6 +416,22 @@ impl<'a> Debug for ArgGroup<'a> {
     }
 }
 
+#[cfg(feature = "yaml")]
+impl<'a> From<&'a Yaml> for ArgGroup<'a> {
+    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{ArgGroup, load_yaml};
+    /// let yml = load_yaml!("group.yml");
+    /// let ag = ArgGroup::from(yml);
+    /// ```
+    fn from(y: &'a Yaml) -> Self {
+        ArgGroup::from(y.as_hash().unwrap())
+    }
+}
+
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
@@ -611,7 +615,7 @@ requires:
 - r3
 - r4";
         let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
-        let g = ArgGroup::from_yaml(yml);
+        let g = ArgGroup::from(yml);
         let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
         let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];
