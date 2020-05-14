@@ -1061,6 +1061,21 @@ fn args_negate_sc() {
 }
 
 #[test]
+fn issue_808_write_short_help() {
+    let mut app = App::new("ctest")
+        .version("1.0");
+
+    let mut buggy_out = Vec::new();
+    app.write_help(&mut buggy_out).unwrap();
+
+    let mut out = Vec::new();
+    app.write_short_help(&mut out).unwrap();
+
+    assert_eq!(DEFAULT_HELP, String::from_utf8(out).unwrap());
+    assert_ne!(DEFAULT_HELP, String::from_utf8(buggy_out).unwrap());
+}
+
+#[test]
 fn issue_1046_hidden_scs() {
     let app = App::new("prog")
         .version("1.0")
