@@ -32,7 +32,7 @@ fn main() {
         .arg("--patch         'auto inc patch'")
         // Create a group, make it required, and add the above arguments
         .group(
-            ArgGroup::with_name("vers")
+            ArgGroup::new("vers")
                 .required(true)
                 .args(&["ver", "major", "minor", "patch"]),
         )
@@ -43,7 +43,7 @@ fn main() {
         // Now let's assume we have a -c [config] argument which requires one of
         // (but **not** both) the "input" arguments
         .arg(
-            Arg::with_name("config")
+            Arg::new("config")
                 .short('c')
                 .takes_value(true)
                 .requires("input"),

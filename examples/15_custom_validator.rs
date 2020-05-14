@@ -8,7 +8,7 @@ fn main() {
     let matches = App::new("myapp")
         // Application logic goes here...
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .about("the input file to use")
                 .index(1)
                 .required(true)

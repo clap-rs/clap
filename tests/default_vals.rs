@@ -385,20 +385,20 @@ fn conditional_reqs_fail() {
         .author("F0x06")
         .about("Arg test")
         .arg(
-            Arg::with_name("target")
+            Arg::new("target")
                 .takes_value(true)
                 .default_value("file")
                 .possible_values(&["file", "stdout"])
                 .long("target"),
         )
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .takes_value(true)
                 .required(true)
                 .long("input"),
         )
         .arg(
-            Arg::with_name("output")
+            Arg::new("output")
                 .takes_value(true)
                 .required_if("target", "file")
                 .long("output"),
@@ -416,20 +416,20 @@ fn conditional_reqs_pass() {
         .author("F0x06")
         .about("Arg test")
         .arg(
-            Arg::with_name("target")
+            Arg::new("target")
                 .takes_value(true)
                 .default_value("file")
                 .possible_values(&["file", "stdout"])
                 .long("target"),
         )
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .takes_value(true)
                 .required(true)
                 .long("input"),
         )
         .arg(
-            Arg::with_name("output")
+            Arg::new("output")
                 .takes_value(true)
                 .required_if("target", "file")
                 .long("output"),
@@ -446,7 +446,7 @@ fn conditional_reqs_pass() {
 fn multiple_defaults() {
     let r = App::new("diff")
         .arg(
-            Arg::with_name("files")
+            Arg::new("files")
                 .long("files")
                 .number_of_values(2)
                 .default_values(&["old", "new"]),
@@ -462,7 +462,7 @@ fn multiple_defaults() {
 fn multiple_defaults_override() {
     let r = App::new("diff")
         .arg(
-            Arg::with_name("files")
+            Arg::new("files")
                 .long("files")
                 .number_of_values(2)
                 .default_values(&["old", "new"]),
@@ -478,7 +478,7 @@ fn multiple_defaults_override() {
 fn issue_1050_num_vals_and_defaults() {
     let res = App::new("hello")
         .arg(
-            Arg::with_name("exit-code")
+            Arg::new("exit-code")
                 .long("exit-code")
                 .required(true)
                 .takes_value(true)

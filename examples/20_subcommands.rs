@@ -47,11 +47,9 @@ fn main() {
         .version("1.0")
         .author("Me")
         .subcommand(
-            App::new("clone").about("clones repos").arg(
-                Arg::with_name("repo")
-                    .about("The repo to clone")
-                    .required(true),
-            ),
+            App::new("clone")
+                .about("clones repos")
+                .arg(Arg::new("repo").about("The repo to clone").required(true)),
         )
         .subcommand(
             App::new("push")
@@ -62,7 +60,7 @@ fn main() {
                         // which in turn have their own subcommands
                         .about("pushes remote things")
                         .arg(
-                            Arg::with_name("repo")
+                            Arg::new("repo")
                                 .required(true)
                                 .about("The remote repo to push things to"),
                         ),
@@ -76,7 +74,7 @@ fn main() {
                 .version("v2.0 (I'm versioned differently") // or different version from their parents
                 .setting(AppSettings::ArgRequiredElseHelp) // They can even have different settings
                 .arg(
-                    Arg::with_name("stuff")
+                    Arg::new("stuff")
                         .long("stuff")
                         .about("Stuff to add")
                         .takes_value(true)

@@ -6,7 +6,7 @@ use clap::{App, Arg};
 fn both_validator_and_validator_os() {
     let _ = App::new("test")
         .arg(
-            Arg::with_name("test")
+            Arg::new("test")
                 .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
                 .validator_os(|val| {
                     val.to_str()

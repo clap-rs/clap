@@ -59,7 +59,7 @@ pub(crate) enum Propagation {
 ///     .version("1.0.2")
 ///     .about("Explains in brief what the program does")
 ///     .arg(
-///         Arg::with_name("in_file").index(1)
+///         Arg::new("in_file").index(1)
 ///     )
 ///     .after_help("Longer explanation to appear after the options when \
 ///                  displaying the help information from --help or -h")
@@ -675,9 +675,9 @@ impl<'b> App<'b> {
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     // Adding a single "flag" argument with a short and help text, using Arg::with_name()
+    ///     // Adding a single "flag" argument with a short and help text, using Arg::new()
     ///     .arg(
-    ///         Arg::with_name("debug")
+    ///         Arg::new("debug")
     ///            .short('d')
     ///            .help("turns on debugging mode")
     ///     )
@@ -725,7 +725,7 @@ impl<'b> App<'b> {
     /// App::new("myprog")
     ///     .args(&[
     ///         Arg::from("[debug] -d 'turns on debugging info'"),
-    ///         Arg::with_name("input").index(1).help("the input file to use")
+    ///         Arg::new("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
     /// ```
@@ -776,7 +776,7 @@ impl<'b> App<'b> {
     /// let m = App::new("myprog")
     ///             .subcommand(App::new("test")
     ///                 .aliases(&["do-stuff", "do-tests", "tests"]))
-    ///                 .arg(Arg::with_name("input")
+    ///                 .arg(Arg::new("input")
     ///                             .help("the file to add")
     ///                             .index(1)
     ///                             .required(false))
@@ -879,7 +879,7 @@ impl<'b> App<'b> {
     ///     .arg("--major 'auto increase major'")
     ///     .arg("--minor 'auto increase minor'")
     ///     .arg("--patch 'auto increase patch'")
-    ///     .group(ArgGroup::with_name("vers")
+    ///     .group(ArgGroup::new("vers")
     ///          .args(&["set-ver", "major", "minor","patch"])
     ///          .required(true))
     /// # ;
@@ -905,10 +905,10 @@ impl<'b> App<'b> {
     ///     .arg("-c [FILE]       'a config file'")
     ///     .arg("-i [IFACE]      'an interface'")
     ///     .groups(&[
-    ///         ArgGroup::with_name("vers")
+    ///         ArgGroup::new("vers")
     ///             .args(&["set-ver", "major", "minor","patch"])
     ///             .required(true),
-    ///         ArgGroup::with_name("input")
+    ///         ArgGroup::new("input")
     ///             .args(&["c", "i"])
     ///     ])
     /// # ;
@@ -955,7 +955,7 @@ impl<'b> App<'b> {
     /// # App::new("myprog")
     /// .subcommands( vec![
     ///        App::new("config").about("Controls configuration functionality")
-    ///                                 .arg(Arg::with_name("config_file").index(1)),
+    ///                                 .arg(Arg::new("config_file").index(1)),
     ///        App::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
@@ -1032,7 +1032,7 @@ impl<'b> App<'b> {
     /// # use clap::{App, Arg};
     ///
     /// let mut app = App::new("foo")
-    ///     .arg(Arg::with_name("bar")
+    ///     .arg(Arg::new("bar")
     ///         .short('b'))
     ///     .mut_arg("bar", |a| a.short('B'));
     ///
@@ -1500,7 +1500,7 @@ impl<'b> App<'b> {
                     found = true;
                 }
                 if !found {
-                    let mut ag = ArgGroup::_with_id(g.clone());
+                    let mut ag = ArgGroup::with_id(g.clone());
                     ag.args.push(a.id.clone());
                     self.groups.push(ag);
                 }
@@ -1776,7 +1776,7 @@ impl<'b> App<'b> {
             || self.is_set(AppSettings::DisableHelpFlags))
         {
             debug!("App::_create_help_and_version: Building --help");
-            let mut help = Arg::with_name("help")
+            let mut help = Arg::new("help")
                 .long("help")
                 .about("Prints help information");
             if !self.args.args.iter().any(|x| x.short == Some('h')) {
@@ -1793,7 +1793,7 @@ impl<'b> App<'b> {
             || self.is_set(AppSettings::DisableVersion))
         {
             debug!("App::_create_help_and_version: Building --version");
-            let mut version = Arg::with_name("version")
+            let mut version = Arg::new("version")
                 .long("version")
                 .about("Prints version information");
             if !self.args.args.iter().any(|x| x.short == Some('V')) {

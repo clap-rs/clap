@@ -27,7 +27,7 @@ fn main() {
                 .version("0.1") // Subcommands can have independent version
                 .author("Kevin K.") // And authors
                 .arg(
-                    Arg::with_name("input") // And their own arguments
+                    Arg::new("input") // And their own arguments
                         .about("the file to add")
                         .index(1)
                         .required(true),

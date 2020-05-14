@@ -98,14 +98,14 @@ fn subcommand() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .about("testing testing"),
             ),
         )
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
@@ -119,14 +119,14 @@ fn subcommand_none_given() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .about("testing testing"),
             ),
         )
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec![""]);
 
     assert!(m.subcommand_name().is_none());
@@ -137,15 +137,15 @@ fn subcommand_multiple() {
     let m = App::new("test")
         .subcommands(vec![
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
                     .about("testing testing"),
             ),
-            App::new("add").arg(Arg::with_name("roster").short('r')),
+            App::new("add").arg(Arg::new("roster").short('r')),
         ])
-        .arg(Arg::with_name("other").long("other"))
+        .arg(Arg::new("other").long("other"))
         .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
 
     assert!(m.subcommand_matches("some").is_some());
@@ -161,10 +161,10 @@ fn subcommand_display_order() {
     let app_subcmd_alpha_order = App::new("test").version("1").subcommands(vec![
         App::new("b1")
             .about("blah b1")
-            .arg(Arg::with_name("test").short('t')),
+            .arg(Arg::new("test").short('t')),
         App::new("a1")
             .about("blah a1")
-            .arg(Arg::with_name("roster").short('r')),
+            .arg(Arg::new("roster").short('r')),
     ]);
 
     assert!(utils::compare_output(
@@ -180,10 +180,10 @@ fn subcommand_display_order() {
         .subcommands(vec![
             App::new("b1")
                 .about("blah b1")
-                .arg(Arg::with_name("test").short('t')),
+                .arg(Arg::new("test").short('t')),
             App::new("a1")
                 .about("blah a1")
-                .arg(Arg::with_name("roster").short('r')),
+                .arg(Arg::new("roster").short('r')),
         ]);
 
     assert!(utils::compare_output(
@@ -321,9 +321,9 @@ fn issue_1031_args_with_same_name_no_more_vals() {
 fn issue_1161_multiple_hyphen_hyphen() {
     // from example 22
     let res = App::new("myprog")
-        .arg(Arg::with_name("eff").short('f'))
-        .arg(Arg::with_name("pea").short('p').takes_value(true))
-        .arg(Arg::with_name("slop").multiple(true).last(true))
+        .arg(Arg::new("eff").short('f'))
+        .arg(Arg::new("pea").short('p').takes_value(true))
+        .arg(Arg::new("slop").multiple(true).last(true))
         .try_get_matches_from(vec![
             "-f",
             "-p=bob",
@@ -358,7 +358,7 @@ fn issue_1161_multiple_hyphen_hyphen() {
 fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
     let m = App::new("myprog")
         .subcommand(App::new("subcommand"))
-        .arg(Arg::with_name("argument"))
+        .arg(Arg::new("argument"))
         .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
     assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
 }

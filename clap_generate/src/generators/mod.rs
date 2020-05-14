@@ -183,7 +183,7 @@ pub trait Generator {
 
         if flags.iter().find(|x| x.get_name() == "help").is_none() {
             flags.push(
-                Arg::with_name("help")
+                Arg::new("help")
                     .short('h')
                     .long("help")
                     .about("Prints help information"),
@@ -194,7 +194,7 @@ pub trait Generator {
             && flags.iter().find(|x| x.get_name() == "version").is_none()
         {
             flags.push(
-                Arg::with_name("version")
+                Arg::new("version")
                     .short('V')
                     .long("version")
                     .about("Prints version information"),
@@ -225,7 +225,7 @@ mod tests {
             .subcommand(
                 App::new("test")
                     .subcommand(App::new("config"))
-                    .arg(Arg::with_name("file").short('f').long("file")),
+                    .arg(Arg::new("file").short('f').long("file")),
             )
             .subcommand(App::new("hello"))
             .bin_name("my-app");

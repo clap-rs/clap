@@ -6,7 +6,7 @@ fn main() {
     //
     // The example below is functionally identical to the 01a_quick_example.rs and 01c_quick_example.rs
     //
-    // *NOTE:* You can actually achieve the best of both worlds by using Arg::from() (instead of Arg::with_name())
+    // *NOTE:* You can actually achieve the best of both worlds by using Arg::from() (instead of Arg::new())
     // and *then* setting any additional properties.
     //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
@@ -36,7 +36,7 @@ fn main() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .arg(
-            Arg::with_name("config")
+            Arg::new("config")
                 .short('c')
                 .long("config")
                 .value_name("FILE")
@@ -44,12 +44,12 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("output")
+            Arg::new("output")
                 .about("Sets an optional output file")
                 .index(1),
         )
         .arg(
-            Arg::with_name("debug")
+            Arg::new("debug")
                 .short('d')
                 .multiple(true)
                 .about("Turn debugging information on"),
@@ -57,7 +57,7 @@ fn main() {
         .subcommand(
             App::new("test")
                 .about("does testing things")
-                .arg(Arg::with_name("list").short('l').about("lists test values")),
+                .arg(Arg::new("list").short('l').about("lists test values")),
         )
         .get_matches();
 

@@ -891,7 +891,7 @@ where
         let parser = Parser::new(&mut sc);
 
         if help_help {
-            let mut pb = Arg::with_name("subcommand")
+            let mut pb = Arg::new("subcommand")
                 .index(1)
                 .setting(ArgSettings::MultipleValues)
                 .about("The subcommand whose help message to display");

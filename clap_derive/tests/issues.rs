@@ -8,7 +8,7 @@ use clap::{AppSettings, ArgGroup, Clap};
 #[test]
 fn issue_151() {
     #[derive(Clap, Debug)]
-    #[clap(group = ArgGroup::with_name("verb").required(true).multiple(true))]
+    #[clap(group = ArgGroup::new("verb").required(true).multiple(true))]
     struct Opt {
         #[clap(long, group = "verb")]
         foo: bool,

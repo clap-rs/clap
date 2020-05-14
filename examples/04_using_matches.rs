@@ -19,20 +19,20 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .arg(
-            Arg::with_name("debug")
+            Arg::new("debug")
                 .about("turn on debugging information")
                 .short('d')
                 .long("debug"),
         )
         .arg(
-            Arg::with_name("config")
+            Arg::new("config")
                 .about("sets the config file to use")
                 .short('c')
                 .long("config")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .about("the input file to use")
                 .index(1)
                 .required(true),

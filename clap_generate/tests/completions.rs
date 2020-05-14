@@ -719,10 +719,10 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .about("Tests completions")
-        .arg(Arg::with_name("file").about("some input file"))
+        .arg(Arg::new("file").about("some input file"))
         .subcommand(
             App::new("test").about("tests things").arg(
-                Arg::with_name("case")
+                Arg::new("case")
                     .long("case")
                     .takes_value(true)
                     .about("the case to test"),
@@ -734,7 +734,7 @@ fn build_app_special_commands() -> App<'static> {
     build_app_with_name("my_app")
         .subcommand(
             App::new("some_cmd").about("tests other things").arg(
-                Arg::with_name("config")
+                Arg::new("config")
                     .long("--config")
                     .takes_value(true)
                     .about("the other case to test"),
@@ -746,32 +746,28 @@ fn build_app_special_commands() -> App<'static> {
 fn build_app_special_help() -> App<'static> {
     App::new("my_app")
         .arg(
-            Arg::with_name("single-quotes")
+            Arg::new("single-quotes")
                 .long("single-quotes")
                 .about("Can be 'always', 'auto', or 'never'"),
         )
         .arg(
-            Arg::with_name("double-quotes")
+            Arg::new("double-quotes")
                 .long("double-quotes")
                 .about("Can be \"always\", \"auto\", or \"never\""),
         )
         .arg(
-            Arg::with_name("backticks")
+            Arg::new("backticks")
                 .long("backticks")
                 .about("For more information see `echo test`"),
         )
+        .arg(Arg::new("backslash").long("backslash").about("Avoid '\\n'"))
         .arg(
-            Arg::with_name("backslash")
-                .long("backslash")
-                .about("Avoid '\\n'"),
-        )
-        .arg(
-            Arg::with_name("brackets")
+            Arg::new("brackets")
                 .long("brackets")
                 .about("List packages [filter]"),
         )
         .arg(
-            Arg::with_name("expansions")
+            Arg::new("expansions")
                 .long("expansions")
                 .about("Execute the shell command with $SHELL"),
         )

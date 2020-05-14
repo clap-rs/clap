@@ -27,7 +27,7 @@ fn hidden_args() {
             Arg::from("-f, --flag 'some flag'").hidden(true),
             Arg::from("-F, --flag2 'some other flag'"),
             Arg::from("--option [opt] 'some option'"),
-            Arg::with_name("DUMMY").hidden(true),
+            Arg::new("DUMMY").hidden(true),
         ]);
     assert!(utils::compare_output(
         app,
@@ -77,12 +77,12 @@ fn hidden_short_args() {
         .author("Steve P.")
         .version("2.31.2")
         .args(&[
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
                 .about("Some help text describing the --config arg"),
-            Arg::with_name("visible")
+            Arg::new("visible")
                 .short('v')
                 .long("visible")
                 .about("This text should be visible"),
@@ -104,12 +104,12 @@ fn hidden_short_args_long_help() {
         .author("Steve P.")
         .version("2.31.2")
         .args(&[
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
                 .about("Some help text describing the --config arg"),
-            Arg::with_name("visible")
+            Arg::new("visible")
                 .short('v')
                 .long("visible")
                 .about("This text should be visible"),
@@ -147,12 +147,12 @@ fn hidden_long_args() {
         .author("Steve P.")
         .version("2.31.2")
         .args(&[
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
                 .about("Some help text describing the --config arg"),
-            Arg::with_name("visible")
+            Arg::new("visible")
                 .short('v')
                 .long("visible")
                 .about("This text should be visible"),
@@ -186,12 +186,12 @@ fn hidden_long_args_short_help() {
         .author("Steve P.")
         .version("2.31.2")
         .args(&[
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
                 .about("Some help text describing the --config arg"),
-            Arg::with_name("visible")
+            Arg::new("visible")
                 .short('v')
                 .long("visible")
                 .about("This text should be visible"),

@@ -57,11 +57,11 @@ pub use generators::Generator;
 /// pub fn build_cli() -> App<'static> {
 ///     App::new("compl")
 ///         .about("Tests completions")
-///         .arg(Arg::with_name("file")
+///         .arg(Arg::new("file")
 ///             .help("some input file"))
 ///         .subcommand(App::new("test")
 ///             .about("tests things")
-///             .arg(Arg::with_name("case")
+///             .arg(Arg::new("case")
 ///                 .long("case")
 ///                 .takes_value(true)
 ///                 .help("the case to test")))
