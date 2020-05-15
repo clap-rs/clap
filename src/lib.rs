@@ -29,6 +29,7 @@ pub use crate::{
 };
 
 #[cfg(feature = "yaml")]
+#[cfg_attr(feature = "yaml", doc(hidden))]
 pub use yaml_rust::YamlLoader;
 
 #[cfg(feature = "derive")]
