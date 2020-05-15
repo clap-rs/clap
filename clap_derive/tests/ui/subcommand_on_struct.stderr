@@ -1,0 +1,7 @@
+error: `#[derive(Subcommand)]` only supports enums
+ --> $DIR/subcommand_on_struct.rs:3:10
+  |
+3 | #[derive(Subcommand, Debug)]
+  |          ^^^^^^^^^^
+  |
+  = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)

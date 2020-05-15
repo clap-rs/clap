@@ -41,9 +41,9 @@ pub use lazy_static;
 
 #[macro_use]
 #[allow(missing_docs)]
-pub mod macros;
+mod macros;
 
-pub mod derive;
+mod derive;
 
 mod build;
 mod mkeymap;

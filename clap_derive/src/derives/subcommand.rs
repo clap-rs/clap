@@ -1,6 +1,7 @@
 use crate::{
     attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    derives::{from_argmatches, into_app},
+    derives::{from_arg_matches, into_app},
+    dummies,
     utils::{is_simple_ty, subty_if_name, Sp},
 };
 
@@ -8,8 +9,20 @@ use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::{quote, quote_spanned};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, Attribute, DataEnum, FieldsUnnamed, Token, Variant,
+    punctuated::Punctuated, spanned::Spanned, Attribute, Data, DataEnum, DeriveInput,
+    FieldsUnnamed, Token, Variant,
 };
+
+pub fn derive_subcommand(input: &DeriveInput) -> TokenStream {
+    let ident = &input.ident;
+
+    dummies::subcommand(ident);
+
+    match input.data {
+        Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
+        _ => abort_call_site!("`#[derive(Subcommand)]` only supports enums"),
+    }
+}
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let attrs = Attrs::from_struct(
@@ -209,7 +222,7 @@ fn gen_from_subcommand(
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
-            Named(ref fields) => from_argmatches::gen_constructor(&fields.named, &attrs),
+            Named(ref fields) => from_arg_matches::gen_constructor(&fields.named, &attrs),
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
