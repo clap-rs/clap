@@ -17,3 +17,22 @@ fn both_validator_and_validator_os() {
         )
         .try_get_matches_from(&["app", "1"]);
 }
+
+#[test]
+fn test_validator_msg_newline() {
+    let res = App::new("test")
+        .arg(Arg::new("test").validator(|val| val.parse::<u32>().map_err(|e| e.to_string())))
+        .try_get_matches_from(&["app", "f"]);
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+
+    assert_eq!(
+        err.cause,
+        "Invalid value for \'<test>\': invalid digit found in string"
+    );
+
+    // This message is the only thing that gets printed -- make sure it ends with a newline
+    let msg = format!("{}", err);
+    assert!(msg.ends_with('\n'));
+}
