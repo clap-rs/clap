@@ -2190,7 +2190,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
         }
         if let Some(v) = yaml["groups"].as_vec() {
             for ag_yaml in v {
-                a = a.group(ArgGroup::from(ag_yaml.as_hash().unwrap()));
+                a = a.group(ArgGroup::from(ag_yaml));
             }
         }
 

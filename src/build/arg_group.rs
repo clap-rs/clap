@@ -414,22 +414,6 @@ impl<'a> Debug for ArgGroup<'a> {
     }
 }
 
-#[cfg(feature = "yaml")]
-impl<'a> From<&'a Yaml> for ArgGroup<'a> {
-    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// # use clap::{ArgGroup, load_yaml};
-    /// let yml = load_yaml!("group.yml");
-    /// let ag = ArgGroup::from(yml);
-    /// ```
-    fn from(y: &'a Yaml) -> Self {
-        ArgGroup::from(y.as_hash().unwrap())
-    }
-}
-
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
@@ -445,8 +429,18 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a yaml_rust::yaml::Hash> for ArgGroup<'a> {
-    fn from(b: &'a yaml_rust::yaml::Hash) -> Self {
+impl<'a> From<&'a Yaml> for ArgGroup<'a> {
+    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use clap::{ArgGroup, load_yaml};
+    /// let yml = load_yaml!("group.yml");
+    /// let ag = ArgGroup::from(yml);
+    /// ```
+    fn from(y: &'a Yaml) -> Self {
+        let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {
