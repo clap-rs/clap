@@ -594,7 +594,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         let req_args = if let Some(x) = incl {
             usg.get_required_usage_from(&[x.clone()], Some(matcher), true)
         } else {
-            usg.get_required_usage_from(&[], None, true)
+            usg.get_required_usage_from(&[], Some(matcher), true)
         };
 
         debug!(

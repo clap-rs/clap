@@ -332,10 +332,16 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                 for aa in self.p.app.unroll_requirements_for_arg(a, m) {
                     unrolled_reqs.push(aa);
                 }
-            } else {
-                unrolled_reqs.push(a.clone());
             }
+            // alway include the required arg itself. it will not be enumerated
+            // by unroll_requirements_for_arg.
+            unrolled_reqs.push(a.clone());
         }
+
+        debug!(
+            "Usage::get_required_usage_from: unrolled_reqs={:?}",
+            unrolled_reqs
+        );
 
         let args_in_groups = self
             .p
@@ -396,6 +402,19 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             .iter()
             .filter(|n| self.p.app.groups.iter().any(|g| g.id == **n))
         {
+            // don't print requirement for required groups that have an arg.
+            if let Some(m) = matcher {
+                let have_group_entry = self
+                    .p
+                    .app
+                    .unroll_args_in_group(&g)
+                    .iter()
+                    .any(|arg| m.contains(&arg));
+                if have_group_entry {
+                    continue;
+                }
+            }
+
             let elem = self.p.app.format_group(g);
             if !g_vec.contains(&elem) {
                 g_vec.push(elem);
