@@ -21,7 +21,7 @@ fn issue_946() {
         .setting(clap::AppSettings::AllowLeadingHyphen)
         .arg("--exact    'filters match exactly'")
         .arg(
-            clap::Arg::with_name("filter")
+            clap::Arg::new("filter")
                 .index(1)
                 .takes_value(true)
                 .about("filters to apply to output"),
@@ -39,7 +39,7 @@ fn positional() {
     let r = App::new("positional")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional").index(1),
+            Arg::new("positional").index(1),
         ])
         .try_get_matches_from(vec!["", "-f", "test"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -51,7 +51,7 @@ fn positional() {
     let m = App::new("positional")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional").index(1),
+            Arg::new("positional").index(1),
         ])
         .get_matches_from(vec!["", "test", "--flag"]);
     assert!(m.is_present("positional"));
@@ -104,7 +104,7 @@ fn positional_multiple() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional").index(1).multiple(true),
+            Arg::new("positional").index(1).multiple(true),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -122,7 +122,7 @@ fn positional_multiple_3() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional").index(1).multiple(true),
+            Arg::new("positional").index(1).multiple(true),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -140,7 +140,7 @@ fn positional_multiple_2() {
     let result = App::new("positional_multiple")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional").index(1),
+            Arg::new("positional").index(1),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
@@ -153,9 +153,7 @@ fn positional_possible_values() {
     let r = App::new("positional_possible_values")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::with_name("positional")
-                .index(1)
-                .possible_value("test123"),
+            Arg::new("positional").index(1).possible_value("test123"),
         ])
         .try_get_matches_from(vec!["", "-f", "test123"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -171,14 +169,14 @@ fn positional_possible_values() {
 #[test]
 fn create_positional() {
     let _ = App::new("test")
-        .arg(Arg::with_name("test").index(1).about("testing testing"))
+        .arg(Arg::new("test").index(1).about("testing testing"))
         .get_matches_from(vec![""]);
 }
 
 #[test]
 fn positional_hyphen_does_not_panic() {
     let _ = App::new("test")
-        .arg(Arg::with_name("dummy"))
+        .arg(Arg::new("dummy"))
         .get_matches_from(vec!["test", "-"]);
 }
 

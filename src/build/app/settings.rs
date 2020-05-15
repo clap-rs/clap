@@ -219,7 +219,7 @@ pub enum AppSettings {
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
     ///     .setting(AppSettings::AllowLeadingHyphen)
-    ///     .arg(Arg::with_name("neg").index(1))
+    ///     .arg(Arg::new("neg").index(1))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
     ///     ]);
@@ -246,7 +246,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::AllowNegativeNumbers)
-    ///     .arg(Arg::with_name("num"))
+    ///     .arg(Arg::new("num"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-20"
     ///     ]);
@@ -295,8 +295,8 @@ pub enum AppSettings {
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::with_name("arg1"))
-    ///     .arg(Arg::with_name("arg2")
+    ///     .arg(Arg::new("arg1"))
+    ///     .arg(Arg::new("arg2")
     ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "prog", "other"
@@ -313,9 +313,9 @@ pub enum AppSettings {
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::with_name("arg1")
+    ///     .arg(Arg::new("arg1")
     ///         .default_value("something"))
-    ///     .arg(Arg::with_name("arg2")
+    ///     .arg(Arg::new("arg2")
     ///         .required(true))
     ///     .get_matches_from(vec![
     ///         "prog", "other"
@@ -331,9 +331,9 @@ pub enum AppSettings {
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::with_name("foo"))
-    ///     .arg(Arg::with_name("bar"))
-    ///     .arg(Arg::with_name("baz").multiple(true))
+    ///     .arg(Arg::new("foo"))
+    ///     .arg(Arg::new("bar"))
+    ///     .arg(Arg::new("baz").multiple(true))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -350,9 +350,9 @@ pub enum AppSettings {
     /// // Assume there is an external subcommand named "subcmd"
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::AllowMissingPositional)
-    ///     .arg(Arg::with_name("foo"))
-    ///     .arg(Arg::with_name("bar"))
-    ///     .arg(Arg::with_name("baz").multiple(true))
+    ///     .arg(Arg::new("foo"))
+    ///     .arg(Arg::new("bar"))
+    ///     .arg(Arg::new("baz").multiple(true))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
@@ -471,7 +471,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, Arg};
     /// let app = App::new("app").subcommand(App::new("sub")).arg(
-    ///     Arg::with_name("arg")
+    ///     Arg::new("arg")
     ///         .long("arg")
     ///         .multiple(true)
     ///         .takes_value(true),
@@ -751,7 +751,7 @@ pub enum AppSettings {
     /// App::new("myprog")
     ///     .setting(AppSettings::HelpRequired)
     ///     .arg(
-    ///         Arg::with_name("foo").help("It does foo stuff")
+    ///         Arg::new("foo").help("It does foo stuff")
     ///         // As required via AppSettings::HelpRequired, a help message was supplied
     ///      )
     /// #    .get_matches();
@@ -764,7 +764,7 @@ pub enum AppSettings {
     /// App::new("myapp")
     ///     .setting(AppSettings::HelpRequired)
     ///     .arg(
-    ///         Arg::with_name("foo")
+    ///         Arg::new("foo")
     ///         // Someone forgot to put .help("...") here
     ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
     ///         // a panic (if you are in debug mode)
@@ -849,7 +849,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, ErrorKind};
     /// let err = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog"
@@ -866,7 +866,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings, ErrorKind};
     /// let noerr = App::new("myprog")
     ///     .setting(AppSettings::SubcommandsNegateReqs)
-    ///     .arg(Arg::with_name("opt").required(true))
+    ///     .arg(Arg::new("opt").required(true))
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "test"

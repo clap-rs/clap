@@ -45,7 +45,7 @@ use yaml_rust::Yaml;
 ///     .arg("--major         'auto increase major'")
 ///     .arg("--minor         'auto increase minor'")
 ///     .arg("--patch         'auto increase patch'")
-///     .group(ArgGroup::with_name("vers")
+///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
 ///     .try_get_matches_from(vec!["app", "--major", "--patch"]);
@@ -63,7 +63,7 @@ use yaml_rust::Yaml;
 ///     .arg("--major         'auto increase major'")
 ///     .arg("--minor         'auto increase minor'")
 ///     .arg("--patch         'auto increase patch'")
-///     .group(ArgGroup::with_name("vers")
+///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
 ///     .try_get_matches_from(vec!["app", "--major"]);
@@ -89,16 +89,13 @@ pub struct ArgGroup<'a> {
 }
 
 impl<'a> ArgGroup<'a> {
-    pub(crate) fn _with_id(id: Id) -> Self {
+    pub(crate) fn with_id(id: Id) -> Self {
         ArgGroup {
             id,
             ..ArgGroup::default()
         }
     }
-    /// @TODO @p2 @docs @v3-beta1: Write Docs
-    pub fn new<T: Key>(id: T) -> Self {
-        ArgGroup::_with_id(id.into())
-    }
+
     /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
     /// get values from the group or refer to the group inside of conflict and requirement rules.
     ///
@@ -106,13 +103,14 @@ impl<'a> ArgGroup<'a> {
     ///
     /// ```rust
     /// # use clap::{App, ArgGroup};
-    /// ArgGroup::with_name("config")
+    /// ArgGroup::new("config")
     /// # ;
     /// ```
-    pub fn with_name(n: &'a str) -> Self {
+    pub fn new<S: Into<&'a str>>(n: S) -> Self {
+        let name = n.into();
         ArgGroup {
-            id: n.into(),
-            name: n,
+            id: Id::from(&*name),
+            name,
             ..ArgGroup::default()
         }
     }
@@ -124,11 +122,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .arg("flag")
     ///         .arg("color"))
     ///     .get_matches_from(vec!["myprog", "-f"]);
@@ -150,11 +148,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
@@ -180,11 +178,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myprog", "-f", "-c"]);
@@ -197,11 +195,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"]))
     ///     .try_get_matches_from(vec!["myprog", "-f", "-c"]);
     /// // Because we used both args in the group it's an error
@@ -234,11 +232,11 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .required(true))
     ///     .try_get_matches_from(vec!["myprog"]);
@@ -268,13 +266,13 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires("debug"))
     ///     .try_get_matches_from(vec!["myprog", "-c"]);
@@ -303,15 +301,15 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short('v'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .requires_all(&["debug", "verb"]))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
@@ -341,13 +339,13 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with("debug"))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-d"]);
@@ -373,15 +371,15 @@ impl<'a> ArgGroup<'a> {
     /// ```rust
     /// # use clap::{App, Arg, ArgGroup, ErrorKind};
     /// let result = App::new("myprog")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("color")
+    ///     .arg(Arg::new("color")
     ///         .short('c'))
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
-    ///     .arg(Arg::with_name("verb")
+    ///     .arg(Arg::new("verb")
     ///         .short('v'))
-    ///     .group(ArgGroup::with_name("req_flags")
+    ///     .group(ArgGroup::new("req_flags")
     ///         .args(&["flag", "color"])
     ///         .conflicts_with_all(&["debug", "verb"]))
     ///     .try_get_matches_from(vec!["myprog", "-c", "-v"]);
@@ -504,7 +502,7 @@ mod test {
 
     #[test]
     fn groups() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])
@@ -527,7 +525,7 @@ mod test {
 
     #[test]
     fn test_debug() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])
@@ -573,7 +571,7 @@ mod test {
 
     #[test]
     fn test_from() {
-        let g = ArgGroup::with_name("test")
+        let g = ArgGroup::new("test")
             .arg("a1")
             .arg("a4")
             .args(&["a2", "a3"])

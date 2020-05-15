@@ -32,7 +32,7 @@ For more information try --help";
 fn require_equals_fail() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
                 .setting(ArgSettings::TakesValue)
                 .long("config"),
@@ -46,12 +46,12 @@ fn require_equals_fail() {
 fn require_equals_min_values_zero() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
                 .min_values(0)
                 .long("config"),
         )
-        .arg(Arg::with_name("cmd"))
+        .arg(Arg::new("cmd"))
         .try_get_matches_from(vec!["prog", "--config", "cmd"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -63,7 +63,7 @@ fn require_equals_min_values_zero() {
 fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::AllowHyphenValues)
                 .long("config"),
         )
@@ -76,11 +76,11 @@ fn double_hyphen_as_value() {
 fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
-        .arg(Arg::with_name("some"))
+        .arg(Arg::new("some"))
         .try_get_matches_from(vec!["prog", "--config=", "file.conf"]);
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
@@ -90,7 +90,7 @@ fn require_equals_no_empty_values_fail() {
 fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
                 .setting(ArgSettings::AllowEmptyValues)
                 .long("config"),
@@ -103,7 +103,7 @@ fn require_equals_empty_vals_pass() {
 fn require_equals_pass() {
     let res = App::new("prog")
         .arg(
-            Arg::with_name("cfg")
+            Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
@@ -397,7 +397,7 @@ fn issue_665() {
 fn issue_1047_min_zero_vals_default_val() {
     let m = App::new("foo")
         .arg(
-            Arg::with_name("del")
+            Arg::new("del")
                 .short('d')
                 .long("del")
                 .setting(ArgSettings::RequireEquals)
@@ -474,8 +474,8 @@ fn issue_1105_empty_value_short_explicit_no_space() {
 #[cfg(feature = "suggestions")]
 fn issue_1073_suboptimal_flag_suggestion() {
     let app = App::new("ripgrep-616")
-        .arg(Arg::with_name("files-with-matches").long("files-with-matches"))
-        .arg(Arg::with_name("files-without-match").long("files-without-match"));
+        .arg(Arg::new("files-with-matches").long("files-with-matches"))
+        .arg(Arg::new("files-without-match").long("files-without-match"));
     assert!(utils::compare_output(
         app,
         "ripgrep-616 --files-without-matches",

@@ -78,7 +78,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
 #[test]
 fn multiple_occurrences_of_before_env() {
     let app = App::new("mo_before_env").arg(
-        Arg::with_name("verbose")
+        Arg::new("verbose")
             .env("VERBOSE")
             .short('v')
             .long("verbose")
@@ -105,7 +105,7 @@ fn multiple_occurrences_of_before_env() {
 #[test]
 fn multiple_occurrences_of_after_env() {
     let app = App::new("mo_after_env").arg(
-        Arg::with_name("verbose")
+        Arg::new("verbose")
             .short('v')
             .long("verbose")
             .takes_value(false)

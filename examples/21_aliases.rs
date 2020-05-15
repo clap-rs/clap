@@ -9,7 +9,7 @@ fn main() {
                 .version("0.1")
                 .author("Kevin K.")
                 .arg(
-                    Arg::with_name("input")
+                    Arg::new("input")
                         .about("the file to add")
                         .index(1)
                         .required(true),

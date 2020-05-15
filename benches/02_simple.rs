@@ -49,14 +49,14 @@ pub fn build_with_opt_ref(c: &mut Criterion) {
 
 pub fn build_with_pos(c: &mut Criterion) {
     c.bench_function("build_with_pos", |b| {
-        b.iter(|| App::new("claptests").arg(Arg::with_name("some")))
+        b.iter(|| App::new("claptests").arg(Arg::new("some")))
     });
 }
 
 pub fn build_with_pos_ref(c: &mut Criterion) {
     c.bench_function("build_with_pos_ref", |b| {
         b.iter(|| {
-            let arg = Arg::with_name("some");
+            let arg = Arg::new("some");
             App::new("claptests").arg(&arg)
         })
     });

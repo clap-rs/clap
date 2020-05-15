@@ -34,7 +34,7 @@ OPTIONS:
 fn single_short_alias_of_option() {
     let a = App::new("single_alias")
         .arg(
-            Arg::with_name("alias")
+            Arg::new("alias")
                 .long("alias")
                 .takes_value(true)
                 .about("single short alias")
@@ -50,7 +50,7 @@ fn single_short_alias_of_option() {
 #[test]
 fn multiple_short_aliases_of_option() {
     let a = App::new("multiple_aliases").arg(
-        Arg::with_name("aliases")
+        Arg::new("aliases")
             .long("aliases")
             .takes_value(true)
             .about("multiple aliases")
@@ -87,7 +87,7 @@ fn multiple_short_aliases_of_option() {
 #[test]
 fn single_short_alias_of_flag() {
     let a = App::new("test")
-        .arg(Arg::with_name("flag").long("flag").short_alias('f'))
+        .arg(Arg::new("flag").long("flag").short_alias('f'))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(a.is_ok());
     let a = a.unwrap();
@@ -97,7 +97,7 @@ fn single_short_alias_of_flag() {
 #[test]
 fn multiple_short_aliases_of_flag() {
     let a = App::new("test").arg(
-        Arg::with_name("flag")
+        Arg::new("flag")
             .long("flag")
             .short_aliases(&['a', 'b', 'c', 'd', 'e']),
     );
@@ -129,7 +129,7 @@ fn short_alias_on_a_subcommand_option() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
-                Arg::with_name("test")
+                Arg::new("test")
                     .short('t')
                     .long("test")
                     .takes_value(true)
@@ -138,7 +138,7 @@ fn short_alias_on_a_subcommand_option() {
             ),
         )
         .arg(
-            Arg::with_name("other")
+            Arg::new("other")
                 .long("other")
                 .short_aliases(&['1', '2', '3']),
         )
@@ -157,7 +157,7 @@ fn invisible_short_arg_aliases_help_output() {
             .about("Some help")
             .version("1.2")
             .arg(
-                Arg::with_name("opt")
+                Arg::new("opt")
                     .long("opt")
                     .short('o')
                     .takes_value(true)
@@ -180,7 +180,7 @@ fn visible_short_arg_aliases_help_output() {
             .about("Some help")
             .version("1.2")
             .arg(
-                Arg::with_name("opt")
+                Arg::new("opt")
                     .long("opt")
                     .short('o')
                     .takes_value(true)
@@ -188,7 +188,7 @@ fn visible_short_arg_aliases_help_output() {
                     .visible_short_alias('v'),
             )
             .arg(
-                Arg::with_name("flg")
+                Arg::new("flg")
                     .long("flag")
                     .short('f')
                     .visible_alias("flag1")

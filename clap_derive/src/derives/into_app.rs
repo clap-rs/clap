@@ -298,7 +298,7 @@ pub fn gen_app_augmentation(
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg(
-                        ::clap::Arg::with_name(#name)
+                        ::clap::Arg::new(#name)
                             #modifier
                             #methods
                     );

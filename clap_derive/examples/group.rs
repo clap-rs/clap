@@ -3,7 +3,7 @@
 use clap::{ArgGroup, Clap};
 
 #[derive(Clap, Debug)]
-#[clap(group = ArgGroup::with_name("verb").required(true))]
+#[clap(group = ArgGroup::new("verb").required(true))]
 struct Opt {
     /// Set a custom HTTP verb
     #[clap(long, group = "verb")]

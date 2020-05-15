@@ -323,21 +323,21 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
-                $crate::clap_app!{ @arg ($crate::Arg::with_name($name)) (-) $($tail)* }))
+                $crate::clap_app!{ @arg ($crate::Arg::new($name)) (-) $($tail)* }))
             $($tt)*
         }
     };
     (@app ($builder:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
-                $crate::clap_app!{ @arg ($crate::Arg::with_name(stringify!($name).trim_matches('"'))) (-) $($tail)* }))
+                $crate::clap_app!{ @arg ($crate::Arg::new(stringify!($name).trim_matches('"'))) (-) $($tail)* }))
             $($tt)*
         }
     };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
-                $crate::clap_app!{ @arg ($crate::Arg::with_name(stringify!($name))) (-) $($tail)* }))
+                $crate::clap_app!{ @arg ($crate::Arg::new(stringify!($name))) (-) $($tail)* }))
             $($tt)*
         }
     };
@@ -355,19 +355,19 @@ macro_rules! clap_app {
     // ArgGroup
     (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name))) $($tail)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($tail)* })
             $($tt)*
         }
     };
     (@app ($builder:expr) (@group $name:ident !$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name)).$ident(false)) $($tail)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(false)) $($tail)* })
             $($tt)*
         }
     };
     (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::with_name(stringify!($name)).$ident(true)) $($tail)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(true)) $($tail)* })
             $($tt)*
         }
     };

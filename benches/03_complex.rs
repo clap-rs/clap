@@ -53,20 +53,16 @@ pub fn build_from_builder(c: &mut Criterion) {
                 .about("tests clap library")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .arg(
-                    Arg::with_name("opt")
+                    Arg::new("opt")
                         .about("tests options")
                         .short('o')
                         .long("option")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences),
                 )
+                .arg(Arg::new("positional").about("tests positionals").index(1))
                 .arg(
-                    Arg::with_name("positional")
-                        .about("tests positionals")
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("flag")
+                    Arg::new("flag")
                         .short('f')
                         .about("tests flags")
                         .long("flag")
@@ -74,14 +70,14 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .settings(&[ArgSettings::MultipleOccurrences]),
                 )
                 .arg(
-                    Arg::with_name("flag2")
+                    Arg::new("flag2")
                         .short('F')
                         .about("tests flags with exclusions")
                         .conflicts_with("flag")
                         .requires("option2"),
                 )
                 .arg(
-                    Arg::with_name("option2")
+                    Arg::new("option2")
                         .about("tests long options with exclusions")
                         .conflicts_with("option")
                         .requires("positional2")
@@ -89,12 +85,12 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .long("long-option-2"),
                 )
                 .arg(
-                    Arg::with_name("positional2")
+                    Arg::new("positional2")
                         .index(3)
                         .about("tests positionals with exclusions"),
                 )
                 .arg(
-                    Arg::with_name("option3")
+                    Arg::new("option3")
                         .short('O')
                         .long("Option")
                         .setting(ArgSettings::TakesValue)
@@ -102,7 +98,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .possible_values(&OPT3_VALS),
                 )
                 .arg(
-                    Arg::with_name("positional3")
+                    Arg::new("positional3")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
                         .about("tests positionals with specific values")
@@ -110,13 +106,13 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .possible_values(&POS3_VALS),
                 )
                 .arg(
-                    Arg::with_name("multvals")
+                    Arg::new("multvals")
                         .long("multvals")
                         .about("Tests mutliple values, not mult occs")
                         .value_names(&["one", "two"]),
                 )
                 .arg(
-                    Arg::with_name("multvalsmo")
+                    Arg::new("multvalsmo")
                         .long("multvalsmo")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
@@ -124,7 +120,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .value_names(&["one", "two"]),
                 )
                 .arg(
-                    Arg::with_name("minvals")
+                    Arg::new("minvals")
                         .long("minvals2")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
@@ -132,7 +128,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .min_values(2),
                 )
                 .arg(
-                    Arg::with_name("maxvals")
+                    Arg::new("maxvals")
                         .long("maxvals3")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
@@ -145,18 +141,14 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .version("0.1")
                         .author("Kevin K. <kbknapp@gmail.com>")
                         .arg(
-                            Arg::with_name("scoption")
+                            Arg::new("scoption")
                                 .short('o')
                                 .long("option")
                                 .setting(ArgSettings::MultipleValues)
                                 .setting(ArgSettings::MultipleOccurrences)
                                 .about("tests options"),
                         )
-                        .arg(
-                            Arg::with_name("scpositional")
-                                .index(1)
-                                .about("tests positionals"),
-                        ),
+                        .arg(Arg::new("scpositional").index(1).about("tests positionals")),
                 )
         })
     });

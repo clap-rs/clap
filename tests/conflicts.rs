@@ -64,12 +64,7 @@ fn flag_conflict_with_everything() {
 fn group_conflict() {
     let result = App::new("group_conflict")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
-        .group(
-            ArgGroup::with_name("gr")
-                .required(true)
-                .arg("some")
-                .arg("other"),
-        )
+        .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
         .try_get_matches_from(vec!["myprog", "--other", "-f"]);
@@ -82,12 +77,7 @@ fn group_conflict() {
 fn group_conflict_2() {
     let result = App::new("group_conflict")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
-        .group(
-            ArgGroup::with_name("gr")
-                .required(true)
-                .arg("some")
-                .arg("other"),
-        )
+        .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(Arg::from("--some 'some arg'"))
         .arg(Arg::from("--other 'other arg'"))
         .try_get_matches_from(vec!["myprog", "-f", "--some"]);
@@ -132,12 +122,12 @@ fn conflict_with_unused_default_value() {
 fn two_conflicting_arguments() {
     let a = App::new("two_conflicting_arguments")
         .arg(
-            Arg::with_name("develop")
+            Arg::new("develop")
                 .long("develop")
                 .conflicts_with("production"),
         )
         .arg(
-            Arg::with_name("production")
+            Arg::new("production")
                 .long("production")
                 .conflicts_with("develop"),
         )
@@ -155,17 +145,17 @@ fn two_conflicting_arguments() {
 fn three_conflicting_arguments() {
     let a = App::new("two_conflicting_arguments")
         .arg(
-            Arg::with_name("one")
+            Arg::new("one")
                 .long("one")
                 .conflicts_with_all(&["two", "three"]),
         )
         .arg(
-            Arg::with_name("two")
+            Arg::new("two")
                 .long("two")
                 .conflicts_with_all(&["one", "three"]),
         )
         .arg(
-            Arg::with_name("three")
+            Arg::new("three")
                 .long("three")
                 .conflicts_with_all(&["one", "two"]),
         )
@@ -184,11 +174,7 @@ fn three_conflicting_arguments() {
 #[should_panic = "Argument 'config' cannot conflict with itself"]
 fn self_conflicting_arg() {
     let _ = App::new("prog")
-        .arg(
-            Arg::with_name("config")
-                .long("config")
-                .conflicts_with("config"),
-        )
+        .arg(Arg::new("config").long("config").conflicts_with("config"))
         .try_get_matches_from(vec!["", "--config"]);
 }
 
@@ -197,11 +183,7 @@ fn self_conflicting_arg() {
 #[should_panic = "Argument or group 'extra' specified in 'conflicts_with*' for 'config' does not exist"]
 fn conflicts_with_invalid_arg() {
     let _ = App::new("prog")
-        .arg(
-            Arg::with_name("config")
-                .long("config")
-                .conflicts_with("extra"),
-        )
+        .arg(Arg::new("config").long("config").conflicts_with("extra"))
         .try_get_matches_from(vec!["", "--config"]);
 }
 

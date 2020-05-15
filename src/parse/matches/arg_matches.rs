@@ -34,14 +34,14 @@ pub(crate) struct SubCommand {
 /// ```no_run
 /// # use clap::{App, Arg};
 /// let matches = App::new("MyApp")
-///     .arg(Arg::with_name("out")
+///     .arg(Arg::new("out")
 ///         .long("output")
 ///         .required(true)
 ///         .takes_value(true))
-///     .arg(Arg::with_name("debug")
+///     .arg(Arg::new("debug")
 ///         .short('d')
 ///         .multiple(true))
-///     .arg(Arg::with_name("cfg")
+///     .arg(Arg::new("cfg")
 ///         .short('c')
 ///         .takes_value(true))
 ///     .get_matches(); // builds the instance of ArgMatches
@@ -105,7 +105,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("output")
+    ///     .arg(Arg::new("output")
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "something"]);
     ///
@@ -202,7 +202,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("output")
+    ///     .arg(Arg::new("output")
     ///         .multiple(true)
     ///         .short('o')
     ///         .takes_value(true))
@@ -489,7 +489,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
     ///     .get_matches_from(vec![
     ///         "myprog", "-d"
@@ -520,7 +520,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d')
     ///         .setting(ArgSettings::MultipleOccurrences))
     ///     .get_matches_from(vec![
@@ -535,10 +535,10 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d')
     ///         .setting(ArgSettings::MultipleOccurrences))
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .get_matches_from(vec![
     ///         "myprog", "-ddfd"
@@ -577,9 +577,9 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
@@ -595,9 +595,9 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
@@ -614,13 +614,13 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("flag2")
+    ///     .arg(Arg::new("flag2")
     ///         .short('F'))
-    ///     .arg(Arg::with_name("flag3")
+    ///     .arg(Arg::new("flag3")
     ///         .short('z'))
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
@@ -640,13 +640,13 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f'))
-    ///     .arg(Arg::with_name("flag2")
+    ///     .arg(Arg::new("flag2")
     ///         .short('F'))
-    ///     .arg(Arg::with_name("flag3")
+    ///     .arg(Arg::new("flag3")
     ///         .short('z'))
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
@@ -667,7 +667,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
@@ -706,7 +706,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
     ///         .use_delimiter(true)
@@ -725,11 +725,11 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
-    ///     .arg(Arg::with_name("flag")
+    ///     .arg(Arg::new("flag")
     ///         .short('f')
     ///         .multiple_occurrences(true))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
@@ -748,7 +748,7 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("myapp")
-    ///     .arg(Arg::with_name("option")
+    ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
     ///         .multiple(true))
@@ -778,10 +778,10 @@ impl ArgMatches {
     /// ```rust
     /// # use clap::{App, Arg, };
     /// let app_m = App::new("myprog")
-    ///     .arg(Arg::with_name("debug")
+    ///     .arg(Arg::new("debug")
     ///         .short('d'))
     ///     .subcommand(App::new("test")
-    ///         .arg(Arg::with_name("opt")
+    ///         .arg(Arg::new("opt")
     ///             .long("option")
     ///             .takes_value(true)))
     ///     .get_matches_from(vec![
@@ -940,7 +940,7 @@ impl ArgMatches {
 /// ```rust
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
-///     .arg(Arg::with_name("output")
+///     .arg(Arg::new("output")
 ///         .short('o')
 ///         .multiple(true)
 ///         .takes_value(true))
@@ -1060,7 +1060,7 @@ impl<'a> Default for OsValues<'a> {
 /// ```rust
 /// # use clap::{App, Arg};
 /// let m = App::new("myapp")
-///     .arg(Arg::with_name("output")
+///     .arg(Arg::new("output")
 ///         .short('o')
 ///         .multiple(true)
 ///         .takes_value(true))

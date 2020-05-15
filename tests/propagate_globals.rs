@@ -5,7 +5,7 @@ use clap::{App, Arg, ArgMatches, ArgSettings};
 fn get_app() -> App<'static> {
     App::new("myprog")
         .arg(
-            Arg::with_name("GLOBAL_ARG")
+            Arg::new("GLOBAL_ARG")
                 .long("global-arg")
                 .about("Specifies something needed by the subcommands")
                 .global(true)
@@ -13,7 +13,7 @@ fn get_app() -> App<'static> {
                 .default_value("default_value"),
         )
         .arg(
-            Arg::with_name("GLOBAL_FLAG")
+            Arg::new("GLOBAL_FLAG")
                 .long("global-flag")
                 .about("Specifies something needed by the subcommands")
                 .global(true)

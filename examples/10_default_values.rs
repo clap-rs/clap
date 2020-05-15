@@ -10,7 +10,7 @@ fn main() {
     let matches = App::new("myapp")
         .about("does awesome things")
         .arg(
-            Arg::with_name("INPUT")
+            Arg::new("INPUT")
                 .about("The input file to use") // Note, we don't need to specify
                 // anything like, "Defaults to..."
                 // because clap will automatically
@@ -21,7 +21,7 @@ fn main() {
         )
         // Next we'll use the Option::unwrap_or method on this "CONFIG" option
         .arg(
-            Arg::with_name("CONFIG")
+            Arg::new("CONFIG")
                 // Note that we have to manaully include some verbage to the user
                 // telling them what the default will be.
                 .about("The config file to use (default is \"config.json\")")
