@@ -10,6 +10,23 @@ USAGE:
 
 For more information try --help";
 
+static REQUIRE_EQUALS_FILTERED: &str = "error: The following required arguments were not provided:
+    --opt=<FILE>
+
+USAGE:
+    clap-test --opt=<FILE> --foo=<FILE>
+
+For more information try --help";
+
+static REQUIRE_EQUALS_FILTERED_GROUP: &str =
+    "error: The following required arguments were not provided:
+    --opt=<FILE>
+
+USAGE:
+    clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
+
+For more information try --help";
+
 static MISSING_REQ: &str = "error: The following required arguments were not provided:
     <positional2>
     --long-option-2 <option2>
@@ -506,6 +523,40 @@ fn required_if_val_present_fail() {
 }
 
 #[test]
+fn list_correct_required_args() {
+    let app = App::new("Test app")
+        .version("1.0")
+        .author("F0x06")
+        .about("Arg test")
+        .arg(
+            Arg::with_name("target")
+                .takes_value(true)
+                .required(true)
+                .possible_values(&["file", "stdout"])
+                .long("target"),
+        )
+        .arg(
+            Arg::with_name("input")
+                .takes_value(true)
+                .required(true)
+                .long("input"),
+        )
+        .arg(
+            Arg::with_name("output")
+                .takes_value(true)
+                .required(true)
+                .long("output"),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "test --input somepath --target file",
+        COND_REQ_IN_USAGE,
+        true
+    ));
+}
+
+#[test]
 fn required_if_val_present_fail_error_output() {
     let app = App::new("Test app")
         .version("1.0")
@@ -635,6 +686,83 @@ fn require_eq() {
         app,
         "clap-test",
         REQUIRE_EQUALS,
+        true
+    ));
+}
+
+#[test]
+fn require_eq_filtered() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::with_name("opt")
+                .long("opt")
+                .short('o')
+                .required(true)
+                .require_equals(true)
+                .value_name("FILE")
+                .about("some"),
+        )
+        .arg(
+            Arg::with_name("foo")
+                .long("foo")
+                .short('f')
+                .required(true)
+                .require_equals(true)
+                .value_name("FILE")
+                .about("some other arg"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "clap-test -f=blah",
+        REQUIRE_EQUALS_FILTERED,
+        true
+    ));
+}
+
+#[test]
+fn require_eq_filtered_group() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .arg(
+            Arg::with_name("opt")
+                .long("opt")
+                .short('o')
+                .required(true)
+                .require_equals(true)
+                .value_name("FILE")
+                .about("some"),
+        )
+        .arg(
+            Arg::with_name("foo")
+                .long("foo")
+                .short('f')
+                .required(true)
+                .require_equals(true)
+                .value_name("FILE")
+                .about("some other arg"),
+        )
+        .arg(
+            Arg::with_name("g1")
+                .long("g1")
+                .require_equals(true)
+                .value_name("FILE"),
+        )
+        .arg(
+            Arg::with_name("g2")
+                .long("g2")
+                .require_equals(true)
+                .value_name("FILE"),
+        )
+        .group(
+            ArgGroup::with_name("test_group")
+                .args(&["g1", "g2"])
+                .required(true),
+        );
+    assert!(utils::compare_output(
+        app,
+        "clap-test -f=blah --g1=blah",
+        REQUIRE_EQUALS_FILTERED_GROUP,
         true
     ));
 }
