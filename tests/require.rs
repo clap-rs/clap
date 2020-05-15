@@ -529,20 +529,20 @@ fn list_correct_required_args() {
         .author("F0x06")
         .about("Arg test")
         .arg(
-            Arg::with_name("target")
+            Arg::new("target")
                 .takes_value(true)
                 .required(true)
                 .possible_values(&["file", "stdout"])
                 .long("target"),
         )
         .arg(
-            Arg::with_name("input")
+            Arg::new("input")
                 .takes_value(true)
                 .required(true)
                 .long("input"),
         )
         .arg(
-            Arg::with_name("output")
+            Arg::new("output")
                 .takes_value(true)
                 .required(true)
                 .long("output"),
@@ -695,7 +695,7 @@ fn require_eq_filtered() {
     let app = App::new("clap-test")
         .version("v1.4.8")
         .arg(
-            Arg::with_name("opt")
+            Arg::new("opt")
                 .long("opt")
                 .short('o')
                 .required(true)
@@ -704,7 +704,7 @@ fn require_eq_filtered() {
                 .about("some"),
         )
         .arg(
-            Arg::with_name("foo")
+            Arg::new("foo")
                 .long("foo")
                 .short('f')
                 .required(true)
@@ -725,7 +725,7 @@ fn require_eq_filtered_group() {
     let app = App::new("clap-test")
         .version("v1.4.8")
         .arg(
-            Arg::with_name("opt")
+            Arg::new("opt")
                 .long("opt")
                 .short('o')
                 .required(true)
@@ -734,7 +734,7 @@ fn require_eq_filtered_group() {
                 .about("some"),
         )
         .arg(
-            Arg::with_name("foo")
+            Arg::new("foo")
                 .long("foo")
                 .short('f')
                 .required(true)
@@ -743,19 +743,19 @@ fn require_eq_filtered_group() {
                 .about("some other arg"),
         )
         .arg(
-            Arg::with_name("g1")
+            Arg::new("g1")
                 .long("g1")
                 .require_equals(true)
                 .value_name("FILE"),
         )
         .arg(
-            Arg::with_name("g2")
+            Arg::new("g2")
                 .long("g2")
                 .require_equals(true)
                 .value_name("FILE"),
         )
         .group(
-            ArgGroup::with_name("test_group")
+            ArgGroup::new("test_group")
                 .args(&["g1", "g2"])
                 .required(true),
         );
