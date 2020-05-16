@@ -10,16 +10,37 @@
 
 use crate::{
     attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    dummies,
     utils::Sp,
 };
 
 use proc_macro2::{Span, TokenStream};
+use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, DataEnum, Ident, Variant,
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataEnum, DeriveInput,
+    Fields, Ident, Variant,
 };
 
+pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
+    let ident = &input.ident;
+
+    dummies::arg_enum(ident);
+
+    match input.data {
+        Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
+        _ => abort_call_site!("`#[derive(ArgEnum)]` only supports enums"),
+    }
+}
+
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
+    if !e.variants.iter().all(|v| match v.fields {
+        Fields::Unit => true,
+        _ => false,
+    }) {
+        return quote!();
+    };
+
     let attrs = Attrs::from_struct(
         Span::call_site(),
         attrs,

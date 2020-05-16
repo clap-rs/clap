@@ -1,0 +1,7 @@
+error: `#[derive(ArgEnum)]` only supports enums
+ --> $DIR/arg_enum_on_struct.rs:3:10
+  |
+3 | #[derive(ArgEnum, Debug)]
+  |          ^^^^^^^
+  |
+  = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)

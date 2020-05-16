@@ -13,40 +13,37 @@
 // MIT/Apache 2.0 license.
 
 use crate::{
-    derives::{arg_enum, from_argmatches, into_app, subcommand},
+    derives::{arg_enum, from_arg_matches, into_app, subcommand},
     dummies,
 };
 
 use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::{self, punctuated, token, Attribute, DataEnum, DeriveInput, Field, Ident};
+use syn::{
+    self, punctuated::Punctuated, token::Comma, Attribute, Data, DataEnum, DataStruct, DeriveInput,
+    Field, Fields, Ident,
+};
 
 pub fn derive_clap(input: &DeriveInput) -> TokenStream {
-    use syn::Data::*;
-
     let ident = &input.ident;
 
     match input.data {
-        Struct(syn::DataStruct {
-            fields: syn::Fields::Named(ref fields),
+        Data::Struct(DataStruct {
+            fields: Fields::Named(ref fields),
             ..
         }) => {
             dummies::clap_struct(ident);
             gen_for_struct(ident, &fields.named, &input.attrs)
         }
-        Struct(syn::DataStruct {
-            fields: syn::Fields::Unit,
+        Data::Struct(DataStruct {
+            fields: Fields::Unit,
             ..
         }) => {
             dummies::clap_struct(ident);
-            gen_for_struct(
-                ident,
-                &punctuated::Punctuated::<Field, token::Comma>::new(),
-                &input.attrs,
-            )
+            gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs)
         }
-        Enum(ref e) => {
+        Data::Enum(ref e) => {
             dummies::clap_enum(ident);
             gen_for_enum(ident, &input.attrs, e)
         }
@@ -56,11 +53,11 @@ pub fn derive_clap(input: &DeriveInput) -> TokenStream {
 
 fn gen_for_struct(
     name: &Ident,
-    fields: &punctuated::Punctuated<Field, token::Comma>,
+    fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> TokenStream {
     let (into_app, attrs) = into_app::gen_for_struct(name, fields, attrs);
-    let from_arg_matches = from_argmatches::gen_for_struct(name, fields, &attrs);
+    let from_arg_matches = from_arg_matches::gen_for_struct(name, fields, &attrs);
 
     quote! {
         impl ::clap::Clap for #name {}
@@ -72,20 +69,12 @@ fn gen_for_struct(
 
 fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let into_app = into_app::gen_for_enum(name);
-    let from_arg_matches = from_argmatches::gen_for_enum(name);
+    let from_arg_matches = from_arg_matches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
-
-    let arg_enum = if e.variants.iter().all(|v| match v.fields {
-        syn::Fields::Unit => true,
-        _ => false,
-    }) {
-        arg_enum::gen_for_enum(name, attrs, e)
-    } else {
-        quote!()
-    };
+    let arg_enum = arg_enum::gen_for_enum(name, attrs, e);
 
     quote! {
-        impl ::clap::Clap for #name { }
+        impl ::clap::Clap for #name {}
 
         #into_app
         #from_arg_matches

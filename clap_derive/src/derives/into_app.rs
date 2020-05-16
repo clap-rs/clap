@@ -14,19 +14,42 @@
 
 use std::env;
 
-use proc_macro2::TokenStream;
-use proc_macro_error::abort;
+use proc_macro2::{Span, TokenStream};
+use proc_macro_error::{abort, abort_call_site};
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Attribute, Field, Ident, Token, Type};
+use syn::{
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataStruct,
+    DeriveInput, Field, Fields, Ident, Type,
+};
 
 use crate::{
     attrs::{Attrs, GenOutput, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    dummies,
     utils::{sub_type, subty_if_name, Sp, Ty},
 };
 
+pub fn derive_into_app(input: &DeriveInput) -> TokenStream {
+    let ident = &input.ident;
+
+    dummies::into_app(ident);
+
+    match input.data {
+        Data::Struct(DataStruct {
+            fields: Fields::Named(ref fields),
+            ..
+        }) => gen_for_struct(ident, &fields.named, &input.attrs).0,
+        Data::Struct(DataStruct {
+            fields: Fields::Unit,
+            ..
+        }) => gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs).0,
+        Data::Enum(_) => gen_for_enum(ident),
+        _ => abort_call_site!("`#[derive(IntoApp)]` only supports non-tuple structs and enums"),
+    }
+}
+
 pub fn gen_for_struct(
     struct_name: &Ident,
-    fields: &Punctuated<Field, Token![,]>,
+    fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> GenOutput {
     let (into_app, attrs) = gen_into_app_fn(attrs);
@@ -88,7 +111,7 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     let attrs = Attrs::from_struct(
-        proc_macro2::Span::call_site(),
+        Span::call_site(),
         attrs,
         Name::Assigned(quote!(#app_name)),
         Sp::call_site(DEFAULT_CASING),
@@ -105,11 +128,8 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
     (tokens, attrs)
 }
 
-fn gen_augment_clap_fn(
-    fields: &Punctuated<Field, Token![,]>,
-    parent_attribute: &Attrs,
-) -> TokenStream {
-    let app_var = Ident::new("app", proc_macro2::Span::call_site());
+fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
+    let app_var = Ident::new("app", Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
     quote! {
         fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
@@ -127,7 +147,7 @@ fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an app.
 pub fn gen_app_augmentation(
-    fields: &Punctuated<Field, Token![,]>,
+    fields: &Punctuated<Field, Comma>,
     app_var: &Ident,
     parent_attribute: &Attrs,
 ) -> TokenStream {

@@ -14,7 +14,7 @@
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, Field, Ident, Token, Type};
+use syn::{punctuated::Punctuated, spanned::Spanned, token::Comma, Field, Ident, Type};
 
 use crate::{
     attrs::{Attrs, Kind, ParserKind},
@@ -23,7 +23,7 @@ use crate::{
 
 pub fn gen_for_struct(
     struct_name: &Ident,
-    fields: &Punctuated<Field, Token![,]>,
+    fields: &Punctuated<Field, Comma>,
     parent_attribute: &Attrs,
 ) -> TokenStream {
     let constructor = gen_constructor(fields, parent_attribute);
@@ -81,10 +81,7 @@ fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
     }
 }
 
-pub fn gen_constructor(
-    fields: &Punctuated<Field, Token![,]>,
-    parent_attribute: &Attrs,
-) -> TokenStream {
+pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
     let fields = fields.iter().map(|field| {
         let attrs = Attrs::from_field(
             field,

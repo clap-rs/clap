@@ -13,8 +13,12 @@
 // MIT/Apache 2.0 license.
 mod arg_enum;
 mod clap;
-mod from_argmatches;
+mod from_arg_matches;
 mod into_app;
 mod subcommand;
 
 pub use self::clap::derive_clap;
+pub use arg_enum::derive_arg_enum;
+// pub use from_arg_matches::derive_from_arg_matches;
+pub use into_app::derive_into_app;
+pub use subcommand::derive_subcommand;

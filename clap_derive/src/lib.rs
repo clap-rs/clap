@@ -18,7 +18,9 @@
 
 extern crate proc_macro;
 
+use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
+use syn::{parse_macro_input, DeriveInput};
 
 mod attrs;
 mod derives;
@@ -26,17 +28,42 @@ mod dummies;
 mod parse;
 mod utils;
 
-// /// It is required to have this seperate and specificly defined.
-// #[proc_macro_derive(ArgEnum, attributes(case_sensitive))]
-// pub fn arg_enum(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-//     let input: syn::DeriveInput = syn::parse(input).unwrap();
-//     derives::derive_arg_enum(&input).into()
-// }
+/// Generates the `ArgEnum` impl.
+#[proc_macro_derive(ArgEnum, attributes(clap))]
+#[proc_macro_error]
+pub fn arg_enum(input: TokenStream) -> TokenStream {
+    let input: DeriveInput = parse_macro_input!(input);
+    derives::derive_arg_enum(&input).into()
+}
 
 /// Generates the `Clap` impl.
 #[proc_macro_derive(Clap, attributes(clap))]
 #[proc_macro_error]
-pub fn clap(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input: syn::DeriveInput = syn::parse_macro_input!(input);
+pub fn clap(input: TokenStream) -> TokenStream {
+    let input: DeriveInput = parse_macro_input!(input);
     derives::derive_clap(&input).into()
+}
+
+// /// Generates the `FromArgMatches` impl.
+// #[proc_macro_derive(FromArgMatches, attributes(clap))]
+// #[proc_macro_error]
+// pub fn from_arg_matches(input: TokenStream) -> TokenStream {
+//     let input: DeriveInput = parse_macro_input!(input);
+//     derives::derive_from_arg_matches(&input).into()
+// }
+
+/// Generates the `IntoApp` impl.
+#[proc_macro_derive(IntoApp, attributes(clap))]
+#[proc_macro_error]
+pub fn into_app(input: TokenStream) -> TokenStream {
+    let input: DeriveInput = parse_macro_input!(input);
+    derives::derive_into_app(&input).into()
+}
+
+/// Generates the `Subcommand` impl.
+#[proc_macro_derive(Subcommand, attributes(clap))]
+#[proc_macro_error]
+pub fn subcommand(input: TokenStream) -> TokenStream {
+    let input: DeriveInput = parse_macro_input!(input);
+    derives::derive_subcommand(&input).into()
 }
