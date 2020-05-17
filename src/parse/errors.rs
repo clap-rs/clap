@@ -851,6 +851,7 @@ impl Error {
         }
 
         c.none(&format!(": {}", err))?;
+        try_help(&mut c)?;
 
         Ok(Error {
             cause: format!(
