@@ -630,11 +630,11 @@ impl<'b> App<'b> {
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .set_term_width(80)
+    ///     .term_width(80)
     /// # ;
     /// ```
     #[inline]
-    pub fn set_term_width(mut self, width: usize) -> Self {
+    pub fn term_width(mut self, width: usize) -> Self {
         self.term_w = Some(width);
         self
     }

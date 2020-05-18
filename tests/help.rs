@@ -744,9 +744,7 @@ fn multi_level_sc_help() {
 
 #[test]
 fn no_wrap_help() {
-    let app = App::new("ctest")
-        .set_term_width(0)
-        .override_help(MULTI_SC_HELP);
+    let app = App::new("ctest").term_width(0).override_help(MULTI_SC_HELP);
     assert!(utils::compare_output(
         app,
         "ctest --help",
@@ -757,7 +755,7 @@ fn no_wrap_help() {
 
 #[test]
 fn no_wrap_default_help() {
-    let app = App::new("ctest").version("1.0").set_term_width(0);
+    let app = App::new("ctest").version("1.0").term_width(0);
     assert!(utils::compare_output(
         app,
         "ctest --help",
@@ -779,7 +777,7 @@ fn complex_subcommand_help_output() {
 
 #[test]
 fn issue_626_unicode_cutoff() {
-    let app = App::new("ctest").version("0.1").set_term_width(70).arg(
+    let app = App::new("ctest").version("0.1").term_width(70).arg(
         Arg::new("cafe")
             .short('c')
             .long("cafe")
@@ -837,7 +835,7 @@ fn hide_possible_vals() {
 fn issue_626_panic() {
     let app = App::new("ctest")
         .version("0.1")
-        .set_term_width(52)
+        .term_width(52)
         .arg(Arg::new("cafe")
            .short('c')
            .long("cafe")
@@ -859,7 +857,7 @@ fn issue_626_variable_panic() {
     for i in 10..320 {
         let _ = App::new("ctest")
             .version("0.1")
-            .set_term_width(i)
+            .term_width(i)
             .arg(Arg::new("cafe")
                .short('c')
                .long("cafe")
@@ -874,7 +872,7 @@ fn issue_626_variable_panic() {
 
 #[test]
 fn final_word_wrapping() {
-    let app = App::new("ctest").version("0.1").set_term_width(24);
+    let app = App::new("ctest").version("0.1").term_width(24);
     assert!(utils::compare_output(
         app,
         "ctest --help",
@@ -887,7 +885,7 @@ fn final_word_wrapping() {
 fn wrapping_newline_chars() {
     let app = App::new("ctest")
         .version("0.1")
-        .set_term_width(60)
+        .term_width(60)
         .arg(Arg::new("mode").about(
             "x, max, maximum   20 characters, contains symbols.\n\
              l, long           Copy-friendly, 14 characters, contains symbols.\n\
@@ -922,7 +920,7 @@ fn issue_688_hidden_pos_vals() {
 
     let app1 = App::new("ctest")
             .version("0.1")
-			.set_term_width(120)
+			.term_width(120)
 			.setting(AppSettings::HidePossibleValuesInHelp)
 			.arg(Arg::new("filter")
 				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
@@ -939,7 +937,7 @@ fn issue_688_hidden_pos_vals() {
 
     let app2 = App::new("ctest")
             .version("0.1")
-			.set_term_width(120)
+			.term_width(120)
 			.arg(Arg::new("filter")
 				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear).")
@@ -955,7 +953,7 @@ fn issue_688_hidden_pos_vals() {
 
     let app3 = App::new("ctest")
             .version("0.1")
-			.set_term_width(120)
+			.term_width(120)
 			.arg(Arg::new("filter")
 				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
@@ -1159,7 +1157,7 @@ fn issue_777_wrap_all_things() {
         .version("1.0")
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
-        .set_term_width(35);
+        .term_width(35);
     assert!(utils::compare_output(app, "ctest --help", ISSUE_777, false));
 }
 
@@ -1280,7 +1278,7 @@ fn last_arg_mult_usage_with_sc() {
 
 #[test]
 fn hidden_default_val() {
-    let app1 = App::new("default").version("0.1").set_term_width(120).arg(
+    let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .about("Pass an argument to the program. [default: default-argument]")
             .long("arg")
@@ -1294,7 +1292,7 @@ fn hidden_default_val() {
         false
     ));
 
-    let app2 = App::new("default").version("0.1").set_term_width(120).arg(
+    let app2 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .about("Pass an argument to the program.")
             .long("arg")
