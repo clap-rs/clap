@@ -1,0 +1,429 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "structures": {
+    "arrayStrUnique": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "uniqueItems": true
+      }
+    },
+    "optionalStr": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tuple2StrStr": {
+      "type": "array",
+      "maxLength": 2,
+      "minLength": 2,
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "tuple3StrOptStrStr": {
+      "type": "array",
+      "maxLength": 3,
+      "minLength": 3,
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/structures/optionalStr"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "arg": {
+      "type": "object",
+
+      "properties": {
+        "about": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "aliases": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "allow_hyphen_values": {
+          "type": "boolean"
+        },
+        "case_insensitive": {
+          "type": "boolean"
+        },
+        "conflicts_with": {
+          "type": "string"
+        },
+        "conflicts_with_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "default_value": {
+          "type": "string"
+        },
+        "default_values": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "default_value_if": {
+          "$ref": "#/structures/tuple3StrOptStrStr"
+        },
+        "default_value_ifs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/structures/tuple3StrOptStrStr"
+          }
+        },
+        "display_order": {
+          "type": "integer"
+        },
+        "env": {
+          "type": "string"
+        },
+        "exclusive": {
+          "type": "boolean"
+        },
+        "global": {
+          "type": "boolean"
+        },
+        "group": {
+          "type": "string"
+        },
+        "groups": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "help": {
+          "type": "string"
+        },
+        "help_heading": {
+          "$ref": "#/structures/optionalStr"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "hidden_long_help": {
+          "type": "boolean"
+        },
+        "hidden_short_help": {
+          "type": "boolean"
+        },
+        "hide_default_value": {
+          "type": "boolean"
+        },
+        "hide_env_value": {
+          "type": "boolean"
+        },
+        "hide_possible_value": {
+          "type": "boolean"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "last": {
+          "type": "boolean"
+        },
+        "long": {
+          "type": "string"
+        },
+        "long_about": {
+          "type": "string"
+        },
+        "long_help": {
+          "type": "string"
+        },
+        "max_values": {
+          "type": "integer"
+        },
+        "min_values": {
+          "type": "integer"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "multiple_occurences": {
+          "type": "boolean"
+        },
+        "multiple_values": {
+          "type": "boolean"
+        },
+        "next_line_help": {
+          "type": "boolean"
+        },
+        "number_of_values": {
+          "type": "integer"
+        },
+        "overrides_with": {
+          "type": "string"
+        },
+        "overrides_with_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "possible_value": {
+          "type": "string"
+        },
+        "possible_values": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "raw": {
+          "type": "boolean"
+        },
+        "require_delimiter": {
+          "type": "boolean"
+        },
+        "require_equals": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "required_if": {
+          "$ref": "#/structures/tuple2StrStr"
+        },
+        "required_ifs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/structures/tuple2StrStr"
+          }
+        },
+        "required_unless": {
+          "type": "string"
+        },
+        "required_unless_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "required_unless_one": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "requires": {
+          "type": "string"
+        },
+        "requires_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "requires_if": {
+          "$ref": "#/structures/tuple2StrStr"
+        },
+        "requires_ifs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/structures/tuple2StrStr"
+          }
+        },
+        "setting": {
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "short": {
+          "$ref": "#/definitions/shortArg"
+        },
+        "short_alias": {
+          "$ref": "#/definitions/shortArg"
+        },
+        "short_aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/shortArg"
+          },
+          "uniqueItems": true
+        },
+        "takes_value": {
+          "type": "boolean"
+        },
+        "use_delimiter": {
+          "type": "boolean"
+        },
+        "value_name": {
+          "type": "string"
+        },
+        "value_names": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "value_terminator": {
+          "type": "string"
+        },
+        "value_delimiter": {
+          "type": "string"
+        },
+        "visible_alias": {
+          "type": "string"
+        },
+        "visible_aliases": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "visible_short_alias": {
+          "type": "string"
+        },
+        "visible_short_aliases": {
+          "$ref": "#/structures/arrayStrUnique"
+        }
+      }
+    },
+    "argGroup": {
+      "properties": {
+        "arg": {
+          "type": "string"
+        },
+        "args": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "conflicts_with": {
+          "type": "string"
+        },
+        "conflicts_with_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "requires": {
+          "type": "string"
+        },
+        "requires_all": {
+          "$ref": "#/structures/arrayStrUnique"
+        }
+      },
+      "type": "object"
+    },
+    "shortArg": {
+      "maxLength": 1,
+      "minLength": 1,
+      "pattern": "^[^-]$",
+      "type": "string"
+    }
+  },
+
+  "type": "object",
+  "TODO:": "set 'name' as required",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "after_help": {
+      "type": "string"
+    },
+    "alias": {
+      "type": "string"
+    },
+    "aliases": {
+      "$ref": "#/structures/arrayStrUnique"
+    },
+    "arg": {
+      "$ref": "#/definitions/arg"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/arg"
+      }
+    },
+    "author": {
+      "type": "string"
+    },
+    "before_help": {
+      "type": "string"
+    },
+    "bin_name": {
+      "type": "string"
+    },
+    "display_order": {
+      "type": "integer"
+    },
+    "global_setting": {
+      "type": "string"
+    },
+    "global_settings": {
+      "$ref": "#/structures/arrayStrUnique"
+    },
+    "group": {
+      "$ref": "#/definitions/argGroup"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/argGroup"
+      }
+    },
+    "help_heading": {
+      "type": "string"
+    },
+    "help_template": {
+      "type": "string"
+    },
+    "long_about": {
+      "type": "string"
+    },
+    "long_version": {
+      "type": "string"
+    },
+    "max_term_width": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "override_help": {
+      "type": "string"
+    },
+    "override_usage": {
+      "type": "string"
+    },
+    "replace": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "setting": {
+      "type": "string"
+    },
+    "settings": {
+      "$ref": "#/structures/arrayStrUnique"
+    },
+    "subcommand": {
+      "$ref": "#"
+    },
+    "subcommands": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "term_width": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "visible_alias": {
+      "type": "string"
+    },
+    "visible_aliases": {
+      "$ref": "#/structures/arrayStrUnique"
+    }
+  }
+}
