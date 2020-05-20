@@ -93,7 +93,7 @@ pub struct Arg<'help> {
 
 /// Getters
 impl<'help> Arg<'help> {
-    /// Get the name o the argument
+    /// Get the name of the argument
     #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
