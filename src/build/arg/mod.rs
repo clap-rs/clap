@@ -83,6 +83,7 @@ pub struct Arg<'help> {
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>,
+    pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<u64>,
@@ -2299,6 +2300,33 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// ... docs ...
+    #[inline]
+    pub fn default_missing_value(self, val: &'help str) -> Self {
+        self.default_missing_values_os(&[OsStr::new(val)])
+    }
+
+    /// ... docs ...
+    #[inline]
+    pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
+        self.default_missing_values_os(&[val])
+    }
+
+    /// ... docs ...
+    #[inline]
+    pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
+        let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
+        self.default_missing_values_os(&vals_vec[..])
+    }
+
+    /// ... docs ...
+    #[inline]
+    pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
+        self.set_mut(ArgSettings::TakesValue);
+        self.default_missing_vals = vals.to_vec();
+        self
+    }
+
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
     /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
     /// present at runtime **and** have the value `val`.
@@ -4174,6 +4202,7 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
                 "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
@@ -4340,7 +4369,8 @@ impl<'help> fmt::Debug for Arg<'help> {
              aliases: {:?}, short_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
              number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
              default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, env: {:?}, \
-             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {} \
+             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {}, \
+             default_missing_value: {:?}, \
              }}",
             self.id,
             self.name,
@@ -4371,7 +4401,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.unified_ord,
             self.default_vals,
             self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
+            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)"),
+            self.default_missing_vals
         )
     }
 }
