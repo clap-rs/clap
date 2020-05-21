@@ -83,6 +83,7 @@ pub struct Arg<'help> {
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>,
+    pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<u64>,
@@ -2299,6 +2300,111 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Specifies a value for the argument when the argument is supplied and a value is required
+    /// but the value is *not* specified at runtime.
+    ///
+    /// This configuration option is often used to give the user a shortcut and allow them to
+    /// efficiently specify an option argument without requiring an explicitly value. The `--color`
+    /// argument is a common example. By, supplying an default, such as `default_missing_value("always")`,
+    /// the user can quickly just add `--color` to the command line to produce the desired color output.
+    ///
+    /// **NOTE:** using this configuration option requires the use of the `.min_values(0)` and the
+    /// `.require_equals(true)` configuration option. These are required in order to unambiguously
+    /// determine what, if any, value was supplied for the argument.
+    ///
+    /// # Examples
+    ///
+    /// Here is an implementation of the common POSIX style `--color` argument.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    ///
+    /// macro_rules! app {
+    ///     () => {{
+    ///         App::new("prog")
+    ///             .arg(Arg::new("color").long("color")
+    ///                 .value_name("WHEN")
+    ///                 .possible_values(&["always", "auto", "never"])
+    ///                 .default_value("auto")
+    ///                 .overrides_with("color")
+    ///                 .min_values(0)
+    ///                 .require_equals(true)
+    ///                 .default_missing_value("always")
+    ///                 .about("Specify WHEN to colorize output.")
+    ///             )
+    ///    }};
+    /// }
+    ///
+    /// let mut m;
+    ///
+    /// // first, we'll provide no arguments
+    ///
+    /// m  = app!().get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("color"), Some("auto"));
+    /// assert!(m.is_present("color"));
+    /// assert_eq!(m.occurrences_of("color"), 0);
+    ///
+    /// // next, we'll provide a runtime value to override the default (as usually done).
+    ///
+    /// m  = app!().get_matches_from(vec![
+    ///         "prog", "--color=never"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("color"), Some("never"));
+    /// assert!(m.is_present("color"));
+    /// assert_eq!(m.occurrences_of("color"), 1);
+    ///
+    /// // finally, we will use the shortcut and only provide the argument without a value.
+    ///
+    /// m  = app!().get_matches_from(vec![
+    ///         "prog", "--color"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("color"), Some("always"));
+    /// assert!(m.is_present("color"));
+    /// assert_eq!(m.occurrences_of("color"), 1);
+    /// ```
+    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
+    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    #[inline]
+    pub fn default_missing_value(self, val: &'help str) -> Self {
+        self.default_missing_values_os(&[OsStr::new(val)])
+    }
+
+    /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
+    /// only using [`OsStr`]s instead.
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
+    pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
+        self.default_missing_values_os(&[val])
+    }
+
+    /// Like [`Arg::default_missing_value'] but for args taking multiple values
+    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    #[inline]
+    pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
+        let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
+        self.default_missing_values_os(&vals_vec[..])
+    }
+
+    /// Provides default values in the exact same manner as [`Arg::default_values`]
+    /// only using [`OsStr`]s instead.
+    /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
+    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    #[inline]
+    pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
+        self.set_mut(ArgSettings::TakesValue);
+        self.default_missing_vals = vals.to_vec();
+        self
+    }
+
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
     /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
     /// present at runtime **and** have the value `val`.
@@ -4174,6 +4280,7 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
                 "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(v, a, value_name),
                 "groups" => yaml_vec_or_str!(v, a, group),
@@ -4340,7 +4447,8 @@ impl<'help> fmt::Debug for Arg<'help> {
              aliases: {:?}, short_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
              number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
              default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, env: {:?}, \
-             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {} \
+             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {}, \
+             default_missing_value: {:?}, \
              }}",
             self.id,
             self.name,
@@ -4371,7 +4479,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             self.unified_ord,
             self.default_vals,
             self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)")
+            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)"),
+            self.default_missing_vals
         )
     }
 }
