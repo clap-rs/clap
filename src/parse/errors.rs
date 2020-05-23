@@ -818,7 +818,7 @@ impl Error {
         c.warning(&arg.to_string())?;
         c.none("' requires at least ")?;
         c.warning(&min_vals.to_string())?;
-        c.none("values, but only ")?;
+        c.none(" values, but only ")?;
         c.warning(&curr_vals.to_string())?;
         c.none(&format!(" {} provided", verb))?;
         put_usage(&mut c, usage)?;
