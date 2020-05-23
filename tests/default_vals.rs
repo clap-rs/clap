@@ -400,7 +400,7 @@ fn conditional_reqs_fail() {
         .arg(
             Arg::new("output")
                 .takes_value(true)
-                .required_if("target", "file")
+                .required_if_eq("target", "file")
                 .long("output"),
         )
         .try_get_matches_from(vec!["test", "--input", "some"]);
@@ -431,7 +431,7 @@ fn conditional_reqs_pass() {
         .arg(
             Arg::new("output")
                 .takes_value(true)
-                .required_if("target", "file")
+                .required_if_eq("target", "file")
                 .long("output"),
         )
         .try_get_matches_from(vec!["test", "--input", "some", "--output", "other"]);

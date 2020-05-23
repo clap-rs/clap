@@ -496,7 +496,7 @@ fn required_if_val_present_pass() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -511,7 +511,7 @@ fn required_if_val_present_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -578,7 +578,7 @@ fn required_if_val_present_fail_error_output() {
         .arg(
             Arg::new("output")
                 .takes_value(true)
-                .required_if("target", "file")
+                .required_if_eq("target", "file")
                 .long("output"),
         );
 
@@ -595,7 +595,7 @@ fn required_if_wrong_val() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -858,12 +858,12 @@ fn requires_if_invalid_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument or group 'extra' specified in 'required_if*' for 'config' does not exist"]
+#[should_panic = "Argument or group 'extra' specified in 'required_if_eq*' for 'config' does not exist"]
 fn required_if_invalid_arg() {
     let _ = App::new("prog")
         .arg(
             Arg::new("config")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .long("config"),
         )
         .try_get_matches_from(vec!["", "--config"]);

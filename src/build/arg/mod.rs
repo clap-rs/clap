@@ -1292,7 +1292,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
     /// ```yaml
-    /// required_if:
+    /// required_if_eq:
     ///     - [arg, val]
     /// ```
     ///
@@ -1301,11 +1301,11 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_if("other_arg", "value")
+    ///     .required_if_eq("other_arg", "value")
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_if(arg, val)`] makes this arg required if the `arg` is used at
+    /// Setting [`Arg::required_if_eq(arg, val)`] makes this arg required if the `arg` is used at
     /// runtime and it's value is equal to `val`. If the `arg`'s value is anything other than `val`,
     /// this argument isn't required.
     ///
@@ -1314,7 +1314,7 @@ impl<'help> Arg<'help> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .takes_value(true)
-    ///         .required_if("other", "special")
+    ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -1326,7 +1326,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
     /// ```
     ///
-    /// Setting [`Arg::required_if(arg, val)`] and having `arg` used with a value of `val` but *not*
+    /// Setting [`Arg::required_if_eq(arg, val)`] and having `arg` used with a value of `val` but *not*
     /// using this arg is an error.
     ///
     /// ```rust
@@ -1334,7 +1334,7 @@ impl<'help> Arg<'help> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .takes_value(true)
-    ///         .required_if("other", "special")
+    ///         .required_if_eq("other", "special")
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
@@ -1349,7 +1349,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_if<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
+    pub fn required_if_eq<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
         self.r_ifs.push((arg_id.into(), val));
         self
     }
@@ -1361,7 +1361,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
     /// ```yaml
-    /// required_if:
+    /// required_if_eq:
     ///     - [arg, val]
     ///     - [arg2, val2]
     /// ```
@@ -4286,8 +4286,8 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "help" => yaml_to_str!(a, v, about),
                 "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
-                "required_if" => yaml_tuple2!(a, v, required_if),
-                "required_if_eq_any" => yaml_tuple2!(a, v, required_if),
+                "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
+                "required_if_eq_any" => yaml_tuple2!(a, v, required_if_eq),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_u64!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
