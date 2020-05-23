@@ -4439,49 +4439,48 @@ impl<'help> Eq for Arg<'help> {}
 
 impl<'help> fmt::Debug for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        write!(
-            f,
-            "Arg {{ id: {:X?}, name: {:?}, help: {:?}, long_help: {:?}, conflicts_with: {:?}, \
-             settings: {:?}, required_unless: {:?}, overrides_with: {:?}, groups: {:?}, \
-             requires: {:?}, requires_ifs: {:?}, short: {:?}, index: {:?}, long: {:?}, \
-             aliases: {:?}, short_aliases: {:?}, possible_values: {:?}, value_names: {:?}, \
-             number_of_values: {:?}, max_values: {:?}, min_values: {:?}, value_delimiter: {:?}, \
-             default_value_ifs: {:?}, value_terminator: {:?}, display_order: {:?}, env: {:?}, \
-             unified_ord: {:?}, default_value: {:?}, validator: {}, validator_os: {}, \
-             default_missing_value: {:?}, \
-             }}",
-            self.id,
-            self.name,
-            self.about,
-            self.long_about,
-            self.blacklist,
-            self.settings,
-            self.r_unless,
-            self.overrides,
-            self.groups,
-            self.requires,
-            self.r_ifs,
-            self.short,
-            self.index,
-            self.long,
-            self.aliases,
-            self.short_aliases,
-            self.possible_vals,
-            self.val_names,
-            self.num_vals,
-            self.max_vals,
-            self.min_vals,
-            self.val_delim,
-            self.default_vals_ifs,
-            self.terminator,
-            self.disp_ord,
-            self.env,
-            self.unified_ord,
-            self.default_vals,
-            self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.validator_os.as_ref().map_or("None", |_| "Some(Fn)"),
-            self.default_missing_vals
-        )
+        f.debug_struct("Arg")
+            .field("id", &self.id)
+            .field("name", &self.name)
+            .field("about", &self.about)
+            .field("long_about", &self.long_about)
+            .field("blacklist", &self.blacklist)
+            .field("settings", &self.settings)
+            .field("overrides", &self.overrides)
+            .field("groups", &self.groups)
+            .field("requires", &self.requires)
+            .field("r_ifs", &self.r_ifs)
+            .field("r_unless", &self.r_unless)
+            .field("short", &self.short)
+            .field("long", &self.long)
+            .field("aliases", &self.aliases)
+            .field("short_aliases", &self.short_aliases)
+            .field("disp_ord", &self.disp_ord)
+            .field("unified_ord", &self.unified_ord)
+            .field("possible_vals", &self.possible_vals)
+            .field("val_names", &self.val_names)
+            .field("num_vals", &self.num_vals)
+            .field("max_vals", &self.max_vals)
+            .field("min_vals", &self.min_vals)
+            .field(
+                "validator",
+                &self.validator.as_ref().map_or("None", |_| "Some(Fn)"),
+            )
+            .field(
+                "validator_os",
+                &self.validator_os.as_ref().map_or("None", |_| "Some(Fn)"),
+            )
+            .field("val_delim", &self.val_delim)
+            .field("default_vals", &self.default_vals)
+            .field("default_vals_ifs", &self.default_vals_ifs)
+            .field("env", &self.env)
+            .field("terminator", &self.terminator)
+            .field("index", &self.index)
+            .field("help_heading", &self.help_heading)
+            .field("global", &self.global)
+            .field("exclusive", &self.exclusive)
+            .field("default_missing_vals", &self.default_missing_vals)
+            .finish()
     }
 }
 
