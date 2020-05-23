@@ -610,7 +610,7 @@ fn required_ifs_val_present_pass() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -626,7 +626,7 @@ fn required_ifs_val_present_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -643,7 +643,7 @@ fn required_ifs_wrong_val() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -659,7 +659,7 @@ fn required_ifs_wrong_val_mult_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )

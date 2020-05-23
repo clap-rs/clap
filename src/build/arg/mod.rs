@@ -1371,14 +1371,14 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_ifs(&[
+    ///     .required_if_eq_any(&[
     ///         ("extra", "val"),
     ///         ("option", "spec")
     ///     ])
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_ifs(&[(arg, val)])`] makes this arg required if any of the `arg`s
+    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] makes this arg required if any of the `arg`s
     /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
     /// anything other than `val`, this argument isn't required.
     ///
@@ -1386,7 +1386,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_ifs(&[
+    ///         .required_if_eq_any(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -1405,14 +1405,14 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with its
+    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] and having any of the `arg`s used with it's
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_ifs(&[
+    ///         .required_if_eq_any(&[
     ///             ("extra", "val"),
     ///             ("option", "spec")
     ///         ])
@@ -1434,7 +1434,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_ifs<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+    pub fn required_if_eq_any<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
         self
@@ -4287,7 +4287,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if" => yaml_tuple2!(a, v, required_if),
-                "required_ifs" => yaml_tuple2!(a, v, required_if),
+                "required_if_eq_any" => yaml_tuple2!(a, v, required_if),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_u64!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
