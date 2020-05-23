@@ -77,7 +77,7 @@ args:
         long: singlealias
         about: Tests single alias
         aliases: [alias]
-        required_if:
+        required_if_eq:
             - [multvalsmo, two]
     - multaliases:
         long: multaliases
@@ -87,7 +87,7 @@ args:
         long: singleshortalias
         about: Tests single short alias
         short_aliases: [a]
-        required_if:
+        required_if_eq:
             - [multvalsmo, two]
     - multshortaliases:
         long: multshortaliases
