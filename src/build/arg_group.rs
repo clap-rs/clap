@@ -1,6 +1,3 @@
-// Std
-use std::fmt::{Debug, Formatter, Result};
-
 // Internal
 use crate::util::{Id, Key};
 
@@ -77,7 +74,7 @@ use yaml_rust::Yaml;
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ArgGroup<'a> {
     pub(crate) id: Id,
     pub(crate) name: &'a str,
@@ -395,22 +392,6 @@ impl<'a> ArgGroup<'a> {
             self = self.conflicts_with(n);
         }
         self
-    }
-}
-
-impl<'a> Debug for ArgGroup<'a> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(
-            f,
-            "{{\n\
-             \tname: {:?},\n\
-             \targs: {:?},\n\
-             \trequired: {:?},\n\
-             \trequires: {:?},\n\
-             \tconflicts: {:?},\n\
-             }}",
-            self.name, self.args, self.required, self.requires, self.conflicts
-        )
     }
 }
 
