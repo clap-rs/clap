@@ -2915,7 +2915,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("config")
-    ///     .required()  // equivalent to .setting(ArgSettings::Required)
+    ///     .required(true)  // equivalent to .setting(ArgSettings::Required)
     /// # ;
     /// ```
     ///
