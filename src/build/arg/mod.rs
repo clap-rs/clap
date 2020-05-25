@@ -2901,6 +2901,8 @@ impl<'help> Arg<'help> {
     /// required, when no other conflicting rules or overrides have been evaluated. Conflicting
     /// rules take precedence over being required.
     ///
+    /// **NOTE:** The default is `false`.
+    ///
     /// **Pro tip:** Flags (i.e. not positional, or arguments that take values) shouldn't be
     /// required by default. This is because if a flag were to be required, it should simply be
     /// implied. No additional information is required from user. Flags by their very nature are
@@ -2913,7 +2915,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("config")
-    ///     .setting(ArgSettings::Required)
+    ///     .required(true)  // equivalent to .setting(ArgSettings::Required)
     /// # ;
     /// ```
     ///
