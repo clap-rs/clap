@@ -40,7 +40,7 @@ syn = { version = "1", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
 heck = "0.3.0"
-proc-macro-error = "0.4.9"
+proc-macro-error = "1"
 
 [dev-dependencies]
 clap = { path = "../" }
