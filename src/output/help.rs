@@ -77,7 +77,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             Some(0) => usize::MAX,
             Some(w) => w,
             None => cmp::min(
-                term_size::dimensions().map_or(120, |(w, _)| w),
+                term_size::dimensions().map_or(100, |(w, _)| w),
                 match parser.app.max_w {
                     None | Some(0) => usize::MAX,
                     Some(mw) => mw,
