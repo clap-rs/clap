@@ -25,6 +25,8 @@ Cargo.lock
 .vscode/*
 .idea/*
 clap-rs.iml
+*.vi
+*.emacs
 
 # Auxiliary files
 test-results.test
