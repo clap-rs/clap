@@ -6,6 +6,8 @@ use std::{
 };
 
 // Internal
+#[cfg(feature = "validators")]
+use crate::parse::Validator;
 use crate::{
     build::app::Propagation,
     build::AppSettings as AS,
@@ -16,8 +18,7 @@ use crate::{
     parse::errors::ErrorKind,
     parse::errors::Result as ClapResult,
     parse::features::suggestions,
-    parse::{ArgMatcher, SubCommand},
-    parse::{Validator, ValueType},
+    parse::{ArgMatcher, SubCommand, ValueType},
     util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
@@ -745,7 +746,11 @@ where
 
         self.remove_overrides(matcher);
 
-        Validator::new(self).validate(needs_val_of, subcmd_name.is_some(), matcher)
+        // explicit return is required here to satisfy the lexer due to cfg'ed returns
+        #[cfg(feature = "validators")]
+        return Validator::new(self).validate(needs_val_of, subcmd_name.is_some(), matcher);
+        #[cfg(not(feature = "validators"))]
+        return Ok(());
     }
 
     // Should we color the help?

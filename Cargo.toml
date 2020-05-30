@@ -86,7 +86,7 @@ version-sync = "0.8"
 criterion = "0.3.2"
 
 [features]
-default     = ["suggestions", "color", "derive", "std", "cargo"]
+default     = ["suggestions", "color", "derive", "std", "cargo", "validators"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
@@ -97,6 +97,7 @@ cargo       = [] # Disable if you're not using Cargo, enables Cargo-env-var-depe
 unstable    = ["clap_derive/unstable"] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml"] # All the features which add to documentation
+validators  = [] # support for validators
 
 [profile.test]
 opt-level = 1
