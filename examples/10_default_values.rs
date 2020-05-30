@@ -34,7 +34,7 @@ fn main() {
     // or "input.txt"
     let input = matches.value_of("INPUT").unwrap();
 
-    // Using Option::unwrap_or we get the same affect, but without the added help text injection
+    // Using Option::unwrap_or we get the same effect, but without the added help text injection
     let config_file = matches.value_of("CONFIG").unwrap_or("config.json");
 
     println!("The input file is: {}", input);

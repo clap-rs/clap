@@ -2216,7 +2216,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
-    /// at runtime. `Arg::default_value_if` however only takes affect when the user has not provided
+    /// at runtime. `Arg::default_value_if` however only takes effect when the user has not provided
     /// a value at runtime **and** these other conditions are met as well. If you have set
     /// `Arg::default_value` and `Arg::default_value_if`, and the user **did not** provide a this
     /// arg at runtime, nor did were the conditions met for `Arg::default_value_if`, the

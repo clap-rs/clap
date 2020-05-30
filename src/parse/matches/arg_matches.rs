@@ -742,8 +742,8 @@ impl ArgMatches {
     ///
     /// One final example, which is an odd case; if we *don't* use  value delimiter as we did with
     /// the first example above instead of `val1`, `val2` and `val3` all being distinc values, they
-    /// would all be a single value of `val1,val2,val3`, in which case case they'd only receive a
-    /// single index.
+    /// would all be a single value of `val1,val2,val3`, in which case they'd only receive a single
+    /// index.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
