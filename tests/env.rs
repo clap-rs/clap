@@ -221,6 +221,7 @@ fn not_possible_value() {
     assert!(r.is_err());
 }
 
+#[cfg(feature = "validators")]
 #[test]
 fn validator() {
     env::set_var("CLP_TEST_ENV_VDOR", "env");
@@ -246,6 +247,7 @@ fn validator() {
     assert_eq!(m.value_of("arg").unwrap(), "env");
 }
 
+#[cfg(feature = "validators")]
 #[test]
 fn validator_output() {
     env::set_var("CLP_TEST_ENV_VO", "42");
@@ -261,6 +263,7 @@ fn validator_output() {
     assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
 }
 
+#[cfg(feature = "validators")]
 #[test]
 fn validator_invalid() {
     env::set_var("CLP_TEST_ENV_IV", "env");

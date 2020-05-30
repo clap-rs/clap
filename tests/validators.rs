@@ -1,5 +1,6 @@
 use clap::{App, Arg};
 
+#[cfg(feature = "validators")]
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Argument 'test' has both `validator` and `validator_os` set which is not allowed"]
@@ -18,6 +19,7 @@ fn both_validator_and_validator_os() {
         .try_get_matches_from(&["app", "1"]);
 }
 
+#[cfg(feature = "validators")]
 #[test]
 fn test_validator_msg_newline() {
     let res = App::new("test")
