@@ -4284,12 +4284,12 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless_eq_any),
-                "required_unless_eq_all" => {
-                    a = yaml_vec_or_str!(v, a, required_unless_eq_all);
-                    a.set_mut(ArgSettings::RequiredUnlessAll);
-                    a
-                }
+                // "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless_eq_any),
+                // "required_unless_eq_all" => {
+                //     a = yaml_vec_or_str!(v, a, required_unless_eq_all);
+                //     a.set_mut(ArgSettings::RequiredUnlessAll);
+                //     a
+                // }
                 s => panic!(
                     "Unknown Arg setting '{}' in YAML file for arg '{}'",
                     s, name_str
