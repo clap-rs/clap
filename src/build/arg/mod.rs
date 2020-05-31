@@ -626,7 +626,7 @@ impl<'help> Arg<'help> {
 
     /// Set this arg as [required] as long as the specified argument is not present at runtime.
     ///
-    /// **Pro Tip:** Using `Arg::required_unless` implies [`Arg::required`] and is therefore not
+    /// **Pro Tip:** Using `Arg::required_unless_present` implies [`Arg::required`] and is therefore not
     /// mandatory to also set.
     ///
     /// # Examples
@@ -634,7 +634,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless("debug")
+    ///     .required_unless_present("debug")
     /// # ;
     /// ```
     ///
@@ -645,7 +645,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless("dbg")
+    ///         .required_unless_present("dbg")
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -657,13 +657,13 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting `Arg::required_unless(name)` and *not* supplying `name` or this arg is an error.
+    /// Setting `Arg::required_unless_present(name)` and *not* supplying `name` or this arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless("dbg")
+    ///         .required_unless_present("dbg")
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -676,7 +676,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: ./struct.Arg.html#method.required
-    pub fn required_unless<T: Key>(mut self, arg_id: T) -> Self {
+    pub fn required_unless_present<T: Key>(mut self, arg_id: T) -> Self {
         self.r_unless.push(arg_id.into());
         self
     }
@@ -4294,7 +4294,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "require_equals" => yaml_to_bool!(a, v, require_equals),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
                 "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
-                "required_unless" => yaml_to_str!(a, v, required_unless),
+                "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
                 "display_order" => yaml_to_usize!(a, v, display_order),
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
@@ -4315,7 +4315,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
                 "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless),
                 "required_unless_all" => {
-                    a = yaml_vec_or_str!(v, a, required_unless);
+                    a = yaml_vec_or_str!(v, a, required_unless_present);
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }
