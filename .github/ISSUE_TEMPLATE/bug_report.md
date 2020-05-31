@@ -43,25 +43,3 @@ I think *this* should happen instead.
 ### Additional context
 
 Add any other context about the problem here.
-
-### Debug output
-
-Compile clap with `debug` feature:
-
-```toml
-[dependencies]
-clap = { version = "*", features = ["debug"] }
-```
-
-The output may be very long, so feel free to link to a gist or attach a text file
-
-<details>
-<summary> Debug Output </summary>
-<pre>
-<code>
-
-Paste Debug Output Here
-
-</code>
-</pre>
-</details>
