@@ -499,52 +499,6 @@ mod test {
     }
 
     #[test]
-    fn test_debug() {
-        let g = ArgGroup::new("test")
-            .arg("a1")
-            .arg("a4")
-            .args(&["a2", "a3"])
-            .required(true)
-            .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
-            .conflicts_with("c4")
-            .requires("r1")
-            .requires_all(&["r2", "r3"])
-            .requires("r4");
-
-        let args = vec![
-            Id::from("a1"),
-            Id::from("a4"),
-            Id::from("a2"),
-            Id::from("a3"),
-        ];
-        let reqs = vec![
-            Id::from("r1"),
-            Id::from("r2"),
-            Id::from("r3"),
-            Id::from("r4"),
-        ];
-        let confs = vec![
-            Id::from("c1"),
-            Id::from("c2"),
-            Id::from("c3"),
-            Id::from("c4"),
-        ];
-
-        let debug_str = format!(
-            "{{\n\
-             \tname: \"test\",\n\
-             \targs: {:?},\n\
-             \trequired: {:?},\n\
-             \trequires: {:?},\n\
-             \tconflicts: {:?},\n\
-             }}",
-            args, true, reqs, confs
-        );
-        assert_eq!(&*format!("{:?}", g), &*debug_str);
-    }
-
-    #[test]
     fn test_from() {
         let g = ArgGroup::new("test")
             .arg("a1")
