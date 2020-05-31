@@ -685,7 +685,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_all(&["cfg", "dbg"])
+    ///     .required_unless_eq_all(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
@@ -696,7 +696,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_all(&["dbg", "infile"])
+    ///         .required_unless_eq_all(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -711,14 +711,14 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`Arg::required_unless_all(names)`] and *not* supplying
+    /// Setting [`Arg::required_unless_eq_all(names)`] and *not* supplying
     /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_all(&["dbg", "infile"])
+    ///         .required_unless_eq_all(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -734,8 +734,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::required_unless_eq_any`]: ./struct.Arg.html#method.required_unless_eq_any
-    /// [`Arg::required_unless_all(names)`]: ./struct.Arg.html#method.required_unless_all
-    pub fn required_unless_all(mut self, names: &[&str]) -> Self {
+    /// [`Arg::required_unless_eq_all(names)`]: ./struct.Arg.html#method.required_unless_eq_all
+    pub fn required_unless_eq_all(mut self, names: &[&str]) -> Self {
         self.r_unless.extend(names.iter().map(Id::from));
         self.setting(ArgSettings::RequiredUnlessAll)
     }
@@ -751,7 +751,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_all(&["cfg", "dbg"])
+    ///     .required_unless_eq_all(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
@@ -803,7 +803,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [required]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless_eq_any(names)`]: ./struct.Arg.html#method.required_unless_eq_any
-    /// [`Arg::required_unless_all`]: ./struct.Arg.html#method.required_unless_all
+    /// [`Arg::required_unless_eq_all`]: ./struct.Arg.html#method.required_unless_eq_all
     pub fn required_unless_eq_any(mut self, names: &[&str]) -> Self {
         self.r_unless.extend(names.iter().map(Id::from));
         self
@@ -4284,9 +4284,9 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
                 "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
                 "possible_values" => yaml_vec_or_str!(v, a, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless),
-                "required_unless_all" => {
-                    a = yaml_vec_or_str!(v, a, required_unless_present);
+                "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless_eq_any),
+                "required_unless_eq_all" => {
+                    a = yaml_vec_or_str!(v, a, required_unless_eq_all);
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }

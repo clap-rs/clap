@@ -252,11 +252,11 @@ fn required_unless_err() {
 // REQUIRED_UNLESS_ALL
 
 #[test]
-fn required_unless_all() {
+fn required_unless_eq_all() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_all(&["dbg", "infile"])
+                .required_unless_eq_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -276,7 +276,7 @@ fn required_unless_all_err() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_all(&["dbg", "infile"])
+                .required_unless_eq_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
