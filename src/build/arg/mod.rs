@@ -624,10 +624,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets an arg that override this arg's required setting. (i.e. this arg will be required
-    /// unless this other argument is present).
+    /// Set this arg as [required] as long as the specified argument is not present at runtime.
     ///
-    /// **Pro Tip:** Using [`Arg::required_unless`] implies [`Arg::required`] and is therefore not
+    /// **Pro Tip:** Using `Arg::required_unless` implies [`Arg::required`] and is therefore not
     /// mandatory to also set.
     ///
     /// # Examples
@@ -639,9 +638,8 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_unless(name)`] requires that the argument be used at runtime
-    /// *unless* `name` is present. In the following example, the required argument is *not*
-    /// provided, but it's not an error because the `unless` arg has been supplied.
+    /// In the following example, the required argument is *not* provided,
+    /// but it's not an error because the `unless` arg has been supplied.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -659,7 +657,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`Arg::required_unless(name)`] and *not* supplying `name` or this arg is an error.
+    /// Setting `Arg::required_unless(name)` and *not* supplying `name` or this arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -677,16 +675,17 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::required_unless`]: ./struct.Arg.html#method.required_unless
-    /// [`Arg::required`]: ./struct.Arg.html#method.required
-    /// [`Arg::required_unless(name)`]: ./struct.Arg.html#method.required_unless
+    /// [required]: ./struct.Arg.html#method.required
     pub fn required_unless<T: Key>(mut self, arg_id: T) -> Self {
         self.r_unless.push(arg_id.into());
         self
     }
 
-    /// Sets args that override this arg's required setting. (i.e. this arg will be required unless
-    /// all these other arguments are present).
+    /// Sets this arg as [required] unless *all* of the specified arguments are present at runtime.
+    ///
+    /// In other words, parsing will succeed only if user either
+    /// * supplies the `self` arg.
+    /// * supplies *all* of the `names` arguments.
     ///
     /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
     /// present see [`Arg::required_unless_eq_any`]
@@ -700,10 +699,8 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_unless_all(names)`] requires that the argument be used at runtime
-    /// *unless* *all* the args in `names` are present. In the following example, the required
-    /// argument is *not* provided, but it's not an error because all the `unless` args have been
-    /// supplied.
+    /// In the following example, the required argument is *not* provided, but it's not an error
+    /// because *all* of the `names` args have been supplied.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -724,8 +721,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`Arg::required_unless_all(names)`] and *not* supplying *all* of `names` or this
-    /// arg is an error.
+    /// Setting [`Arg::required_unless_all(names)`] and *not* supplying
+    /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
@@ -753,11 +750,11 @@ impl<'help> Arg<'help> {
         self.setting(ArgSettings::RequiredUnlessAll)
     }
 
-    /// Sets args that override this arg's [required] setting. (i.e. this arg will be required
-    /// unless *at least one of* these other arguments are present).
+    /// Sets this arg as [required] unless *any* of the specified arguments are present at runtime.
     ///
-    /// **NOTE:** If you wish for this argument to only be required if *all of* these args are
-    /// present see [`Arg::required_unless_all`]
+    /// In other words, parsing will succeed only if user either
+    /// * supplies the `self` arg.
+    /// * supplies *one or more* of the `unless` arguments.
     ///
     /// # Examples
     ///
@@ -866,7 +863,6 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
-
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
         self.blacklist.push(arg_id.into());
         self
@@ -1165,8 +1161,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows a conditional requirement. The requirement will only become valid if this arg's value
-    /// equals `val`.
+    /// Require another argument if this arg was present on runtime, and its value equals to `val`.
+    ///
+    /// This method takes `value, another_arg` pair. At runtime, clap will check
+    /// if this arg (`self`) is is present and its value equals to `val`.
+    /// If it does, `another_arg` will be marked as required.
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
@@ -1286,8 +1285,8 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows specifying that an argument is [required] conditionally. The requirement will only
-    /// become valid if the specified `arg`'s value equals `val`.
+    /// Allows specifying that this argument is [required] only if the specified
+    /// `arg` is present at runtime and its value equals `val`.
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
@@ -1305,12 +1304,8 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq(arg, val)`] makes this arg required if the `arg` is used at
-    /// runtime and it's value is equal to `val`. If the `arg`'s value is anything other than `val`,
-    /// this argument isn't required.
-    ///
     /// ```rust
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .takes_value(true)
@@ -1324,13 +1319,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_ok()); // We didn't use --other=special, so "cfg" wasn't required
-    /// ```
     ///
-    /// Setting [`Arg::required_if_eq(arg, val)`] and having `arg` used with a value of `val` but *not*
-    /// using this arg is an error.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .takes_value(true)
@@ -1343,6 +1332,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--other", "special"
     ///     ]);
     ///
+    /// // We did use --other=special so "cfg" had become required but was missing.
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
@@ -1354,7 +1344,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows specifying that an argument is [required] based on multiple conditions. The
+    /// Allows specifying that this argument is [required] based on multiple conditions. The
     /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
     /// if one of the specified `arg`'s value equals it's corresponding `val`.
     ///
