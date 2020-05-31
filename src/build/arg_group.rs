@@ -1,6 +1,3 @@
-// Std
-use std::fmt::{Debug, Formatter, Result};
-
 // Internal
 use crate::util::{Id, Key};
 
@@ -77,7 +74,7 @@ use yaml_rust::Yaml;
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ArgGroup<'a> {
     pub(crate) id: Id,
     pub(crate) name: &'a str,
@@ -398,22 +395,6 @@ impl<'a> ArgGroup<'a> {
     }
 }
 
-impl<'a> Debug for ArgGroup<'a> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(
-            f,
-            "{{\n\
-             \tname: {:?},\n\
-             \targs: {:?},\n\
-             \trequired: {:?},\n\
-             \trequires: {:?},\n\
-             \tconflicts: {:?},\n\
-             }}",
-            self.name, self.args, self.required, self.requires, self.conflicts
-        )
-    }
-}
-
 impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
     fn from(g: &'z ArgGroup<'a>) -> Self {
         ArgGroup {
@@ -490,7 +471,7 @@ impl<'a> From<&'a Yaml> for ArgGroup<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::{ArgGroup, Id};
+    use super::ArgGroup;
     #[cfg(feature = "yaml")]
     use yaml_rust::YamlLoader;
 
@@ -515,52 +496,6 @@ mod test {
         assert_eq!(g.args, args);
         assert_eq!(g.requires, reqs);
         assert_eq!(g.conflicts, confs);
-    }
-
-    #[test]
-    fn test_debug() {
-        let g = ArgGroup::new("test")
-            .arg("a1")
-            .arg("a4")
-            .args(&["a2", "a3"])
-            .required(true)
-            .conflicts_with("c1")
-            .conflicts_with_all(&["c2", "c3"])
-            .conflicts_with("c4")
-            .requires("r1")
-            .requires_all(&["r2", "r3"])
-            .requires("r4");
-
-        let args = vec![
-            Id::from("a1"),
-            Id::from("a4"),
-            Id::from("a2"),
-            Id::from("a3"),
-        ];
-        let reqs = vec![
-            Id::from("r1"),
-            Id::from("r2"),
-            Id::from("r3"),
-            Id::from("r4"),
-        ];
-        let confs = vec![
-            Id::from("c1"),
-            Id::from("c2"),
-            Id::from("c3"),
-            Id::from("c4"),
-        ];
-
-        let debug_str = format!(
-            "{{\n\
-             \tname: \"test\",\n\
-             \targs: {:?},\n\
-             \trequired: {:?},\n\
-             \trequires: {:?},\n\
-             \tconflicts: {:?},\n\
-             }}",
-            args, true, reqs, confs
-        );
-        assert_eq!(&*format!("{:?}", g), &*debug_str);
     }
 
     #[test]
