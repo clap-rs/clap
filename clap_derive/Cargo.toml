@@ -52,8 +52,7 @@ version-sync = "0.8"
 default = []
 unstable = []
 debug = []
-doc = []
 
 [package.metadata.docs.rs]
-features = ["doc"]
+features = []
 targets = ["x86_64-unknown-linux-gnu"]

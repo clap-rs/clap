@@ -3,9 +3,10 @@
 // (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
 // notice may not be copied, modified, or distributed except according to those terms.
 
-#![cfg_attr(feature = "doc", feature(external_doc))]
+#![cfg_attr(doc, feature(external_doc))]
 #![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.1")]
-#![cfg_attr(feature = "doc", doc(include = "../README.md"))]
+#![cfg_attr(doc, doc(include = "../README.md"))]
+
 //! https://github.com/clap-rs/clap
 #![crate_type = "lib"]
 #![deny(
