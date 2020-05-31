@@ -199,25 +199,28 @@ fn issue_753() {
         ))
         .arg(
             Arg::from("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
-                .required_unless("list"),
+                .required_unless_present("list"),
         )
         .arg(
             Arg::from("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
                 .conflicts_with("iface")
-                .required_unless("list"),
+                .required_unless_present("list"),
         )
-        .arg(Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'").required_unless("list"))
+        .arg(
+            Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
+                .required_unless_present("list"),
+        )
         .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .try_get_matches_from(vec!["test", "--list"]);
     assert!(m.is_ok());
 }
 
 #[test]
-fn required_unless() {
+fn required_unless_present() {
     let res = App::new("unlesstest")
         .arg(
             Arg::new("cfg")
-                .required_unless("dbg")
+                .required_unless_present("dbg")
                 .takes_value(true)
                 .long("config"),
         )
@@ -235,7 +238,7 @@ fn required_unless_err() {
     let res = App::new("unlesstest")
         .arg(
             Arg::new("cfg")
-                .required_unless("dbg")
+                .required_unless_present("dbg")
                 .takes_value(true)
                 .long("config"),
         )
@@ -781,12 +784,12 @@ fn issue_1158_app() -> App<'static> {
     App::new("example")
         .arg(
             Arg::from("-c, --config [FILE] 'Custom config file.'")
-                .required_unless("ID")
+                .required_unless_present("ID")
                 .conflicts_with("ID"),
         )
         .arg(
             Arg::from("[ID] 'ID'")
-                .required_unless("config")
+                .required_unless_present("config")
                 .conflicts_with("config")
                 .requires_all(&["x", "y", "z"]),
         )
@@ -874,6 +877,10 @@ fn required_if_invalid_arg() {
 #[should_panic = "Argument or group 'extra' specified in 'required_unless*' for 'config' does not exist"]
 fn required_unless_invalid_arg() {
     let _ = App::new("prog")
-        .arg(Arg::new("config").required_unless("extra").long("config"))
+        .arg(
+            Arg::new("config")
+                .required_unless_present("extra")
+                .long("config"),
+        )
         .try_get_matches_from(vec![""]);
 }
