@@ -44,7 +44,6 @@ version-sync = "0.8"
 [features]
 default = []
 unstable = ["clap/unstable"]
-debug = ["clap/debug"]
 
 [package.metadata.docs.rs]
 features = []

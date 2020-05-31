@@ -51,7 +51,6 @@ version-sync = "0.8"
 [features]
 default = []
 unstable = []
-debug = []
 
 [package.metadata.docs.rs]
 features = []

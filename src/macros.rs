@@ -569,7 +569,7 @@ macro_rules! wlnerr {
     })
 }
 
-#[cfg(feature = "debug")]
+#[cfg(clap_debug)]
 macro_rules! debug {
     ($($arg:tt)*) => {
         print!("[{:>w$}] \t", module_path!(), w = 28);
@@ -577,7 +577,7 @@ macro_rules! debug {
     }
 }
 
-#[cfg(not(feature = "debug"))]
+#[cfg(not(clap_debug))]
 macro_rules! debug {
     ($($arg:tt)*) => {};
 }
