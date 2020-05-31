@@ -1,8 +1,47 @@
 ## Unreleased
+#### BREAKING CHANGES
+
+* **Renamed Methods**
+  * `Arg::from_yaml` => `Arg::from`
+  * `Arg::with_name` => `Arg::new`
+  * `ArgGroup::from_yaml` => `ArgGroup::from`
+  * `ArgGroup::with_name` => `ArgGroup::new`
+
+<a name="v3.0.0-beta.1"></a>
+## v3.0.0-beta.1 (2020-05-03)
+
+#### BREAKING CHANGES
+
+* **Removed**
+  * Remove `SubCommand` in favor of `App`
+    * `SubCommand::with_name` => `App::new`
+    * `SubCommand::from_yaml` => `App::from`
+* **Renamed Methods**
+  * `Arg::help` => `Arg::about`
+  * `Arg::from_usage` => `Arg::from`
+  * `Arg::set` => `Arg::setting`
+  * `Arg::unset` => `Arg::unset_setting`
+  * `App::from_yaml` => `App::from`
+  * `App::arg_from_usage` => `App::arg`
+  * `App::help` => `App::override_help`
+  * `App::usage` => `App::override_usage`
+  * `App::template` => `App::help_template`
+  * `App::get_matches_safe` => `App::try_get_matches`
+  * `App::get_matches_from_safe` => `App::try_get_matches_from`
+  * `App::get_matches_from_safe_borrow` => `App::try_get_matches_from_mut`
+* **Renamed Fields**
+  * `Error::message` => `Error::cause`
+* **Macros**
+  * Remove `arg_enum!` in favor of `ArgEnum` derive macro.
+  * `value_t!` => `ArgMatches::value_of_t`
+  * `value_t_or_exit!` => `ArgMatches::value_of_t_or_exit`
+  * `values_t!` => `ArgMatches::values_of_t`
+  * `values_t_or_exit!` => `ArgMatches::values_of_t_or_exit`
 
 #### Minimum Required Rust
 
-* As of this release, `clap` requires `rustc 1.36.0` or greater.
+* As of this release, `clap` requires `rustc 1.40.0` or greater.
+
 
 <a name="v2.29.2"></a>
 ## v2.29.2 (2018-01-16)
