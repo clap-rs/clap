@@ -471,7 +471,7 @@ impl<'a> From<&'a Yaml> for ArgGroup<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::{ArgGroup, Id};
+    use super::ArgGroup;
     #[cfg(feature = "yaml")]
     use yaml_rust::YamlLoader;
 
