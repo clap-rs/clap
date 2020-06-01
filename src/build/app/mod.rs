@@ -695,7 +695,10 @@ impl<'b> App<'b> {
         } else {
             None
         };
-        let arg = a.into().help_heading(help_heading);
+        let mut arg = a.into();
+        if arg.get_help_heading().is_none() {
+            arg = arg.help_heading(help_heading);
+        }
         self.args.push(arg);
         self
     }

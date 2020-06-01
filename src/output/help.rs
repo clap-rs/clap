@@ -11,13 +11,16 @@ use std::{
 use crate::{
     build::{App, AppSettings, Arg, ArgSettings},
     output::{fmt::Colorizer, Usage},
-    parse::errors::{Error, Result as ClapResult},
-    parse::Parser,
+    parse::{
+        errors::{Error, Result as ClapResult},
+        Parser,
+    },
     util::VecMap,
     INTERNAL_ERROR_MSG,
 };
 
 // Third party
+use indexmap::IndexSet;
 use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
@@ -666,13 +669,14 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             .collect::<Vec<_>>();
         let subcmds = self.parser.has_visible_subcommands();
 
-        let custom_headings = self.parser.app.args.args.iter().fold(0, |acc, arg| {
-            if arg.help_heading.is_some() {
-                acc + 1
-            } else {
-                acc
-            }
-        }) > 0;
+        let custom_headings = self
+            .parser
+            .app
+            .args
+            .args
+            .iter()
+            .filter_map(|arg| arg.help_heading)
+            .collect::<IndexSet<_>>();
 
         let mut first = if pos {
             self.warning("ARGS:\n")?;
@@ -717,15 +721,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 self.write_args(&opts)?;
                 first = false;
             }
-            if custom_headings {
-                for heading in self
-                    .parser
-                    .app
-                    .help_headings
-                    .iter()
-                    .filter(|heading| heading.is_some())
-                    .map(|heading| heading.unwrap())
-                {
+            if !custom_headings.is_empty() {
+                for heading in custom_headings {
                     if !first {
                         self.none("\n\n")?;
                     }
@@ -736,7 +733,12 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                         .args
                         .args
                         .iter()
-                        .filter(|a| a.help_heading.is_some() && a.help_heading.unwrap() == heading)
+                        .filter(|a| {
+                            if let Some(help_heading) = a.help_heading {
+                                return help_heading == heading;
+                            }
+                            false
+                        })
                         .collect::<Vec<_>>();
                     self.write_args(&*args)?;
                     first = false
