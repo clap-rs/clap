@@ -1476,7 +1476,7 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --fake <some>:<val> --birthday-song <song>
+    test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
 
 FLAGS:
     -h, --help       Prints help information
@@ -1487,10 +1487,12 @@ OPTIONS:
     -s, --speed <SPEED>        How fast? [possible values: fast, slow]
 
 NETWORKING:
-    -n, --no-proxy    Do not use system proxy settings
+    -n, --no-proxy       Do not use system proxy settings
+    -a, --server-addr    Set server address
 
 SPECIAL:
-    -b, --birthday-song <song>    Change which song is played for birthdays";
+    -b, --birthday-song <song>             Change which song is played for birthdays
+    -v, --birthday-song-volume <volume>    Change the volume of the birthday song";
 
 #[test]
 fn multiple_custom_help_headers() {
@@ -1511,10 +1513,24 @@ fn multiple_custom_help_headers() {
                 .about("Do not use system proxy settings"),
         )
         .help_heading("SPECIAL")
-        .arg(Arg::from(
-            "-b, --birthday-song <song> 'Change which song is played for birthdays'",
-        ))
+        .arg(
+            Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'")
+                .help_heading(Some("IGNORE THIS")),
+        )
         .stop_custom_headings()
+        .arg(
+            Arg::from(
+                "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
+            )
+            .help_heading(Some("SPECIAL")),
+        )
+        .arg(
+            Arg::new("server-addr")
+                .short('a')
+                .long("server-addr")
+                .about("Set server address")
+                .help_heading(Some("NETWORKING")),
+        )
         .arg(
             Arg::new("speed")
                 .long("speed")
