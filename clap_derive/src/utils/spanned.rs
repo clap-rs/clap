@@ -83,7 +83,7 @@ impl<T: ToTokens> ToTokens for Sp<T> {
         // this is the simplest way out of correct ones to change span on
         // arbitrary token tree I could come up with
         let tt = self.val.to_token_stream().into_iter().map(|mut tt| {
-            tt.set_span(self.span.clone());
+            tt.set_span(self.span);
             tt
         });
 
