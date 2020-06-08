@@ -1577,7 +1577,7 @@ impl<'b> App<'b> {
 
             // Name conflicts
             assert!(
-                self.two_args_of(|x| x.name == arg.name).is_none(),
+                self.two_args_of(|x| x.id == arg.id).is_none(),
                 "Argument names must be unique, but '{}' is in use by more than one argument or group",
                 arg.name,
             );
