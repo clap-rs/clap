@@ -33,7 +33,7 @@ fn crate_version() {
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
     assert_eq!(
         err.to_string(),
-        format!("prog {}", env!("CARGO_PKG_VERSION"))
+        format!("prog {}\n", env!("CARGO_PKG_VERSION"))
     );
 }
 
@@ -70,5 +70,5 @@ fn crate_name() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
-    assert_eq!(err.to_string(), "clap ");
+    assert_eq!(err.to_string(), "clap \n");
 }
