@@ -4,7 +4,7 @@ use std::str;
 
 use clap::{App, AppSettings, ErrorKind};
 
-static VERSION: &str = "clap-test v1.4.8";
+static VERSION: &str = "clap-test v1.4.8\n";
 
 #[test]
 fn version_short() {
@@ -17,7 +17,7 @@ fn version_short() {
     assert!(m.is_err());
     let err = m.unwrap_err();
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
-    assert_eq!(err.to_string(), "test 1.3");
+    assert_eq!(err.to_string(), "test 1.3\n");
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn version_long() {
     assert!(m.is_err());
     let err = m.unwrap_err();
     assert_eq!(err.kind, ErrorKind::VersionDisplayed);
-    assert_eq!(err.to_string(), "test 1.3");
+    assert_eq!(err.to_string(), "test 1.3\n");
 }
 
 #[test]
