@@ -31,35 +31,6 @@ macro_rules! load_yaml {
     };
 }
 
-// _clap_count_exprs! is derived from https://github.com/DanielKeep/rust-grabbag
-// commit: 82a35ca5d9a04c3b920622d542104e3310ee5b07
-// License: MIT
-// Copyright ⓒ 2015 grabbag contributors.
-// Licensed under the MIT license (see LICENSE or <http://opensource.org
-// /licenses/MIT>) or the Apache License, Version 2.0 (see LICENSE of
-// <http://www.apache.org/licenses/LICENSE-2.0>), at your option. All
-// files in the project carrying such notice may not be copied, modified,
-// or distributed except according to those terms.
-//
-/// Counts the number of comma-delimited expressions passed to it.  The result is a compile-time
-/// evaluable expression, suitable for use as a static array size, or the value of a `const`.
-///
-/// # Examples
-///
-/// ```
-/// # #[macro_use] extern crate clap;
-/// # fn main() {
-/// const COUNT: usize = _clap_count_exprs!(a, 5+1, "hi there!".into_string());
-/// assert_eq!(COUNT, 3);
-/// # }
-/// ```
-#[macro_export]
-macro_rules! _clap_count_exprs {
-    () => { 0 };
-    ($e:expr) => { 1 };
-    ($e:expr, $($es:expr),+) => { 1 + $crate::_clap_count_exprs!($($es),*) };
-}
-
 /// Allows you to pull the version from your Cargo.toml at compile time as
 /// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
