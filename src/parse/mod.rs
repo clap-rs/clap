@@ -13,5 +13,4 @@ pub(crate) use self::{
     validator::Validator,
 };
 
-pub use self::matches::ArgMatches;
-pub use self::matches::{OsValues, Values};
+pub use self::matches::{ArgMatches, Indices, OsValues, Values};

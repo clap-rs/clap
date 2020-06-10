@@ -6,4 +6,4 @@ pub(crate) use self::{
     matched_arg::{MatchedArg, ValueType},
 };
 
-pub use self::arg_matches::{ArgMatches, OsValues, Values};
+pub use self::arg_matches::{ArgMatches, Indices, OsValues, Values};
