@@ -751,7 +751,7 @@ pub enum AppSettings {
     /// App::new("myprog")
     ///     .setting(AppSettings::HelpRequired)
     ///     .arg(
-    ///         Arg::new("foo").help("It does foo stuff")
+    ///         Arg::new("foo").about("It does foo stuff")
     ///         // As required via AppSettings::HelpRequired, a help message was supplied
     ///      )
     /// #    .get_matches();
@@ -765,7 +765,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::HelpRequired)
     ///     .arg(
     ///         Arg::new("foo")
-    ///         // Someone forgot to put .help("...") here
+    ///         // Someone forgot to put .about("...") here
     ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
     ///         // a panic (if you are in debug mode)
     ///     )

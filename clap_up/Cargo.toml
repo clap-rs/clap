@@ -1,0 +1,37 @@
+[package]
+name = "clap_up"
+version = "0.0.0"
+edition = "2018"
+authors = [
+	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>",
+	"Clap Maintainers",
+]
+description = "Automatic code upgrader for Clap"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_up"
+homepage = "https://clap.rs/"
+keywords = [
+	"clap",
+	"cli",
+	"upgrader",
+	"cargo-up",
+]
+categories = []
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[badges]
+is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
+is-it-maintained-open-issues = { repository = "clap-rs/clap" }
+maintenance = {status = "actively-developed"}
+
+[lib]
+bench = false
+
+[dependencies]
+cargo-up = { path = "../../../pksunkara/cargo-up/cargo-up" }
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[package.metadata.workspaces]
+independent = true
