@@ -156,8 +156,8 @@ impl<'a, 'b> App<'a, 'b> {
     /// # }
     /// ```
     /// [`App`]: ./struct.App.html
-    /// [`examples/17_yaml.rs`]: https://github.com/clap-rs/clap/blob/master/examples/17_yaml.rs
-    /// [`examples/17_yaml.yml`]: https://github.com/clap-rs/clap/blob/master/examples/17_yaml.yml
+    /// [`examples/17_yaml.rs`]: https://github.com/clap-rs/clap/blob/v2.33.1/examples/17_yaml.rs
+    /// [`examples/17_yaml.yml`]: https://github.com/clap-rs/clap/blob/v2.33.1/examples/17_yaml.yml
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[cfg(feature = "yaml")]
     pub fn from_yaml(yaml: &'a Yaml) -> App<'a, 'a> {
@@ -183,7 +183,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
-    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
+    /// [`examples/`]: https://github.com/clap-rs/clap/tree/v2.33.1/examples
     pub fn author<S: Into<&'b str>>(mut self, author: S) -> Self {
         self.p.meta.author = Some(author.into());
         self
@@ -341,7 +341,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
+    /// [`examples/`]: https://github.com/clap-rs/clap/tree/v2.33.1/examples
     /// [`App::long_version`]: ./struct.App.html#method.long_version
     pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.version = Some(ver.into());
@@ -372,7 +372,7 @@ impl<'a, 'b> App<'a, 'b> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
+    /// [`examples/`]: https://github.com/clap-rs/clap/tree/v2.33.1/examples
     /// [`App::version`]: ./struct.App.html#method.version
     pub fn long_version<S: Into<&'b str>>(mut self, ver: S) -> Self {
         self.p.meta.long_version = Some(ver.into());

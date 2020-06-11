@@ -1,4 +1,4 @@
-// Copyright ⓒ 2015-2016 Kevin B. Knapp and [`clap-rs` contributors](https://github.com/clap-rs/clap/blob/master/CONTRIBUTORS.md).
+// Copyright ⓒ 2015-2016 Kevin B. Knapp and [`clap-rs` contributors](https://github.com/clap-rs/clap/blob/v2.33.1/CONTRIBUTORS.md).
 // Licensed under the MIT license
 // (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
 // notice may not be copied, modified, or distributed except according to those terms.
@@ -366,7 +366,7 @@
 //!  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 //!  * **Blue** Color: Dev dependency, only used while developing.
 //!
-//! ![clap dependencies](https://raw.githubusercontent.com/clap-rs/clap/master/clap_dep_graph.png)
+//! ![clap dependencies](https://github.com/clap-rs/clap/blob/v2.33.1/clap_dep_graph.png)
 //!
 //! ### More Information
 //!
@@ -391,7 +391,7 @@
 //! `clap`. You can either add it to the [examples/] directory, or file an issue and tell
 //! me. I'm all about giving credit where credit is due :)
 //!
-//! Please read [CONTRIBUTING.md](https://raw.githubusercontent.com/clap-rs/clap/master/.github/CONTRIBUTING.md) before you start contributing.
+//! Please read [CONTRIBUTING.md](https://github.com/clap-rs/clap/blob/v2.33.1/.github/CONTRIBUTING.md) before you start contributing.
 //!
 //!
 //! ### Testing Code
@@ -512,9 +512,9 @@
 //! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT][license] file in
 //! this repository for more information.
 //!
-//! [examples/]: https://github.com/clap-rs/clap/tree/master/examples
+//! [examples/]: https://github.com/clap-rs/clap/tree/v2.33.1/examples
 //! [video tutorials]: https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U
-//! [license]: https://raw.githubusercontent.com/clap-rs/clap/master/LICENSE-MIT
+//! [license]: https://github.com/clap-rs/clap/blob/v2.33.1/LICENSE-MIT
 
 #![crate_type = "lib"]
 #![doc(html_root_url = "https://docs.rs/clap/2.33.1")]
