@@ -25,6 +25,9 @@ use crate::{
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ParseResult {
     Flag(Id),
+    FlagSubCommand(String),
+    // subcommand name, whether there are more shorts args remaining
+    FlagSubCommandShort(String, bool),
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
@@ -78,6 +81,10 @@ impl Input {
         }
     }
 
+    pub(crate) fn previous(&mut self) {
+        self.cursor -= 1;
+    }
+
     pub(crate) fn remaining(&self) -> &[OsString] {
         &self.items[self.cursor..]
     }
@@ -92,6 +99,7 @@ where
     pub(crate) overriden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
+    pub(crate) skip_idxs: usize,
 }
 
 // Initializing Methods
@@ -116,6 +124,7 @@ where
             overriden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
+            skip_idxs: 0,
         }
     }
 
@@ -456,7 +465,13 @@ where
                                 self.maybe_inc_pos_counter(&mut pos_counter, id);
                                 continue;
                             }
-
+                            ParseResult::FlagSubCommand(ref name) => {
+                                debug!("Parser::get_matches_with: FlagSubCommand found in long arg {:?}", name);
+                                self.parse_subcommand(name, matcher, it, false)?;
+                                external_subcommand = true;
+                                continue;
+                            }
+                            ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
                             _ => (),
                         }
                     } else if arg_os.starts_with("-") && arg_os.len() != 1 {
@@ -489,6 +504,17 @@ where
                                 self.maybe_inc_pos_counter(&mut pos_counter, id);
                                 continue;
                             }
+                            ParseResult::FlagSubCommandShort(ref name, done) => {
+                                // There are more short args, revist the current short args skipping the subcommand
+                                if !done {
+                                    it.previous();
+                                    self.skip_idxs = self.cur_idx.get();
+                                }
+                                self.parse_subcommand(name, matcher, it, !done)?;
+                                external_subcommand = true;
+                                continue;
+                            }
+                            ParseResult::FlagSubCommand(_) => unreachable!(),
                             _ => (),
                         }
                     }
@@ -723,7 +749,7 @@ where
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone();
-                self.parse_subcommand(&sc_name, matcher, it)?;
+                self.parse_subcommand(&sc_name, matcher, it, false)?;
             } else if self.is_set(AS::SubcommandRequired) {
                 let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
                 return Err(ClapError::missing_subcommand(
@@ -969,6 +995,7 @@ where
         sc_name: &str,
         matcher: &mut ArgMatcher,
         it: &mut Input,
+        keep_state: bool,
     ) -> ClapResult<()> {
         use std::fmt::Write;
 
@@ -1019,6 +1046,12 @@ where
 
             {
                 let mut p = Parser::new(sc);
+                // HACK: maintain indexes between parsers
+                // FlagSubCommand short arg needs to revist the current short args, but skip the subcommand itself
+                if keep_state {
+                    p.cur_idx.set(self.cur_idx.get());
+                    p.skip_idxs = self.skip_idxs;
+                }
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
             let name = &sc.name;
@@ -1140,6 +1173,8 @@ where
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag(opt.id.clone()));
+        } else if let Some(sc_name) = find_long_subcmd!(self.app, arg) {
+            return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self.is_set(AS::ValidNegNumFound) {
@@ -1178,7 +1213,9 @@ where
         }
 
         let mut ret = ParseResult::NotFound;
-        for c in arg.chars() {
+        let skip = self.skip_idxs;
+        self.skip_idxs = 0;
+        for c in arg.chars().skip(skip) {
             debug!("Parser::parse_short_arg:iter:{}", c);
 
             // update each index because `-abcd` is four indices to clap
@@ -1223,6 +1260,11 @@ where
 
                 // Default to "we're expecting a value later"
                 return self.parse_opt(&val, opt, false, matcher);
+            } else if let Some(sc_name) = find_short_subcmd!(self.app, c) {
+                debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
+                let name = sc_name.to_string();
+                let done_short_args = self.cur_idx.get() == arg.len();
+                return Ok(ParseResult::FlagSubCommandShort(name, done_short_args));
             } else {
                 let arg = format!("-{}", c);
 

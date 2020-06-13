@@ -1,8 +1,9 @@
+mod flag_subcommand;
 mod settings;
 #[cfg(test)]
 mod tests;
 
-pub use self::settings::AppSettings;
+pub use self::{flag_subcommand::FlagSubCommand, settings::AppSettings};
 
 // Std
 use std::{
@@ -72,6 +73,8 @@ pub(crate) enum Propagation {
 pub struct App<'b> {
     pub(crate) id: Id,
     pub(crate) name: String,
+    pub(crate) long: Option<&'b str>,
+    pub(crate) short: Option<char>,
     pub(crate) bin_name: Option<String>,
     pub(crate) author: Option<&'b str>,
     pub(crate) version: Option<&'b str>,

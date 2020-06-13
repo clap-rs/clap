@@ -630,6 +630,30 @@ macro_rules! find_subcmd_mut {
     }};
 }
 
+#[macro_export]
+#[doc(hidden)]
+macro_rules! find_short_subcmd {
+    ($app:expr, $c:expr) => {{
+        $app.get_subcommands().iter().find(|sc| {
+            sc.short == Some($c) || sc.get_all_aliases().any(|alias| alias == $c.to_string())
+        })
+    }};
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! find_long_subcmd {
+    ($app:expr, $s:expr) => {{
+        $app.get_subcommands().iter().find(|sc| {
+            if let Some(long) = sc.long {
+                match_alias!(sc, $s, long)
+            } else {
+                false
+            }
+        })
+    }};
+}
+
 macro_rules! longs {
     ($app:expr, $how:ident) => {{
         use crate::mkeymap::KeyType;

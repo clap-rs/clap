@@ -546,29 +546,30 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
 /// Methods to write a single subcommand
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
-    fn write_subcommand(&mut self, app: &App<'b>) -> io::Result<()> {
+    fn write_subcommand(&mut self, sc_str: &str, app: &App<'b>) -> io::Result<()> {
         debug!("Help::write_subcommand");
         self.none(TAB)?;
-        self.good(&app.name)?;
-        let spec_vals = self.sc_val(app)?;
+        self.good(sc_str)?;
+        let spec_vals = self.sc_val(sc_str, app)?;
         self.sc_help(app, &*spec_vals)?;
         Ok(())
     }
 
-    fn sc_val(&mut self, app: &App<'b>) -> Result<String, io::Error> {
+    fn sc_val(&mut self, sc_str: &str, app: &App<'b>) -> Result<String, io::Error> {
         debug!("Help::sc_val: app={}", app.name);
         let spec_vals = self.sc_spec_vals(app);
         let h = app.about.unwrap_or("");
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help;
         let taken = self.longest + 12;
+        debug!("@NickHackman taken = {}", taken);
         self.force_next_line = !nlh
             && self.term_w >= taken
             && (taken as f32 / self.term_w as f32) > 0.40
             && h_w > (self.term_w - taken);
 
         if !(nlh || self.force_next_line) {
-            write_nspaces!(self, self.longest + 4 - (str_width(&app.name)));
+            write_nspaces!(self, self.longest + 4 - (str_width(sc_str)));
         }
         Ok(spec_vals)
     }
@@ -769,19 +770,25 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             .filter(|s| !s.is_set(AppSettings::Hidden))
         {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
-            self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
-            btm.insert(sc.name.clone(), sc.clone());
+            let mut sc_str = String::new();
+            sc_str.push_str(&sc.short.map_or(String::new(), |c| format!("-{}, ", c)));
+            sc_str.push_str(&sc.long.map_or(String::new(), |c| format!("--{}, ", c)));
+            sc_str.push_str(&sc.name);
+            self.longest = cmp::max(self.longest, str_width(&sc_str));
+            btm.insert(sc_str, sc.clone());
         }
+
+        debug!("Help::write_subcommands longest = {}", self.longest);
 
         let mut first = true;
         for btm in ord_m.values() {
-            for sc in btm.values() {
+            for (sc_str, sc) in btm {
                 if first {
                     first = false;
                 } else {
                     self.none("\n")?;
                 }
-                self.write_subcommand(sc)?;
+                self.write_subcommand(sc_str, sc)?;
             }
         }
         Ok(())
