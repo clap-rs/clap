@@ -562,7 +562,6 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         let h_w = str_width(h) + str_width(&*spec_vals);
         let nlh = self.next_line_help;
         let taken = self.longest + 12;
-        debug!("@NickHackman taken = {}", taken);
         self.force_next_line = !nlh
             && self.term_w >= taken
             && (taken as f32 / self.term_w as f32) > 0.40
