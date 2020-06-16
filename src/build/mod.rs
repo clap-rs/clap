@@ -8,7 +8,7 @@ mod arg_group;
 mod usage_parser;
 
 pub use self::{
-    app::{App, AppSettings, FlagSubCommand},
+    app::{App, AppSettings},
     arg::{Arg, ArgSettings},
     arg_group::ArgGroup,
 };

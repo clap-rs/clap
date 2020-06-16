@@ -1,9 +1,8 @@
-mod flag_subcommand;
 mod settings;
 #[cfg(test)]
 mod tests;
 
-pub use self::{flag_subcommand::FlagSubCommand, settings::AppSettings};
+pub use self::settings::AppSettings;
 
 // Std
 use std::{
@@ -357,6 +356,86 @@ impl<'b> App<'b> {
     /// ```
     pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
+        self
+    }
+
+    /// Allows the subcommand to be used as if it were an [`Arg::short`]
+    ///
+    /// Sets the short version of the subcommand flag without the preceeding `-`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// App::new("pacman").subcommand(
+    ///    App::new("sync")
+    ///        .short_flag('S'),
+    /// )
+    /// # ;
+    /// ```
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("pacman")
+    ///     .subcommand(
+    ///         App::new("sync").short_flag('S').arg(
+    ///             Arg::new("search")
+    ///                 .short('s')
+    ///                 .long("search")
+    ///                 .about("search remote repositories for matching strings"),
+    ///         ),
+    ///     )
+    ///     .get_matches_from(vec!["pacman", "-Ss"]);
+    ///
+    /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
+    /// let sync_matches = matches.subcommand_matches("sync").unwrap();
+    /// assert!(sync_matches.is_present("search"));
+    /// ```
+    pub fn short_flag(mut self, short: char) -> Self {
+        self.short = Some(short);
+        self
+    }
+
+    /// Allows the subcommand to be used as if it were an [`Arg::long`]
+    ///
+    /// Sets the long version of the subcommand flag without the preceeding `--`.
+    ///
+    /// **NOTE:** Any leading `-` characters will be stripped
+    ///
+    /// # Examples
+    ///
+    /// To set `long_flag` use a word containing valid UTF-8 codepoints. If you supply a double leading
+    /// `--` such as `--sync` they will be stripped. Hyphens in the middle of the word; however,
+    /// will *not* be stripped (i.e. `sync-file` is allowed)
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// App::new("pacman").subcommand(
+    ///    App::new("sync")
+    ///        .long_flag("sync"),
+    /// )
+    /// # ;
+    /// ```
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("pacman")
+    ///     .subcommand(
+    ///         App::new("sync").short_flag('S').arg(
+    ///             Arg::new("search")
+    ///                 .short('s')
+    ///                 .long("search")
+    ///                 .about("search remote repositories for matching strings"),
+    ///         ),
+    ///     )
+    ///     .get_matches_from(vec!["pacman", "-Ss"]);
+    ///
+    /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
+    /// let sync_matches = matches.subcommand_matches("sync").unwrap();
+    /// assert!(sync_matches.is_present("search"));
+    /// ```
+    pub fn long_flag(mut self, long: &'b str) -> Self {
+        self.long = Some(long.trim_start_matches(|c| c == '-'));
         self
     }
 

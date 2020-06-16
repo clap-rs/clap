@@ -1,10 +1,10 @@
-use clap::{App, Arg, FlagSubCommand};
+use clap::{App, Arg};
 
 #[test]
 fn flag_subcommand_normal() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new('S', "some").arg(
+            App::new("some").short_flag('S').long_flag("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -21,7 +21,9 @@ fn flag_subcommand_normal() {
 fn flag_subcommand_normal_with_alias() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new('S', "some")
+            App::new("some")
+                .short_flag('S')
+                .long_flag("S")
                 .arg(
                     Arg::new("test")
                         .short('t')
@@ -40,7 +42,7 @@ fn flag_subcommand_normal_with_alias() {
 fn flag_subcommand_short() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new_short("some", 'S').arg(
+            App::new("some").short_flag('S').arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -57,7 +59,7 @@ fn flag_subcommand_short() {
 fn flag_subcommand_short_with_args() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new_short("some", 'S').arg(
+            App::new("some").short_flag('S').arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -74,7 +76,8 @@ fn flag_subcommand_short_with_args() {
 fn flag_subcommand_short_with_alias() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new_short("some", 'S')
+            App::new("some")
+                .short_flag('S')
                 .arg(
                     Arg::new("test")
                         .short('t')
@@ -94,7 +97,7 @@ fn flag_subcommand_short_with_alias() {
 fn flag_subcommand_long() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new_long("some", "some").arg(
+            App::new("some").long_flag("some").arg(
                 Arg::new("test")
                     .short('t')
                     .long("test")
@@ -111,7 +114,8 @@ fn flag_subcommand_long() {
 fn flag_subcommand_long_with_alias() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new_long("some", "some")
+            App::new("some")
+                .long_flag("some")
                 .arg(
                     Arg::new("test")
                         .short('t')
@@ -130,11 +134,15 @@ fn flag_subcommand_long_with_alias() {
 fn flag_subcommand_multiple() {
     let matches = App::new("test")
         .subcommand(
-            FlagSubCommand::new('S', "some")
+            App::new("some")
+                .short_flag('S')
+                .long_flag("some")
                 .arg(Arg::from("-f, --flag 'some flag'"))
                 .arg(Arg::from("-p, --print 'print something'"))
                 .subcommand(
-                    FlagSubCommand::new('R', "result")
+                    App::new("result")
+                        .short_flag('R')
+                        .long_flag("result")
                         .arg(Arg::from("-f, --flag 'some flag'"))
                         .arg(Arg::from("-p, --print 'print something'")),
                 ),

@@ -22,7 +22,7 @@
 compile_error!("`std` feature is currently required to build `clap`");
 
 pub use crate::{
-    build::{App, AppSettings, Arg, ArgGroup, ArgSettings, FlagSubCommand},
+    build::{App, AppSettings, Arg, ArgGroup, ArgSettings},
     derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand},
     parse::errors::{Error, ErrorKind, Result},
     parse::{ArgMatches, Indices, OsValues, Values},

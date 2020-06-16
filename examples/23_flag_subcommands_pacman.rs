@@ -45,7 +45,7 @@
 //
 // Let's make a quick program to illustrate. We'll be using the same example as above but for
 // brevity sake we won't implement all of the subcommands, only a few.
-use clap::{App, AppSettings, Arg, FlagSubCommand};
+use clap::{App, AppSettings, Arg};
 
 fn main() {
     let matches = App::new("pacman")
@@ -67,7 +67,9 @@ fn main() {
             // $ MyProg --long
             //
             // $ MyProg -s
-            FlagSubCommand::new('Q', "query")
+            App::new("query")
+                .short_flag('Q')
+                .long_flag("query")
                 .about("Query the package database.")
                 .arg(
                     Arg::new("search")
@@ -88,7 +90,9 @@ fn main() {
         //
         // Only a few of its arguments are implemented below.
         .subcommand(
-            FlagSubCommand::new('S', "sync")
+            App::new("sync")
+                .short_flag('S')
+                .long_flag("sync")
                 .about("Synchronize packages.")
                 .arg(
                     Arg::new("search")
