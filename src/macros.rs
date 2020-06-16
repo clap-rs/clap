@@ -634,9 +634,9 @@ macro_rules! find_subcmd_mut {
 #[doc(hidden)]
 macro_rules! find_short_subcmd {
     ($app:expr, $c:expr) => {{
-        $app.get_subcommands().iter().find(|sc| {
-            sc.short == Some($c) || sc.get_all_aliases().any(|alias| alias == $c.to_string())
-        })
+        $app.get_subcommands()
+            .iter()
+            .find(|sc| sc.short == Some($c) || sc.get_all_short_aliases().any(|alias| alias == $c))
     }};
 }
 
