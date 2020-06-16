@@ -1022,7 +1022,7 @@ impl<'b> App<'b> {
             if s == &'-' {
                 panic!("short alias name cannot be `-`");
             }
-            self.short_flag_aliases.push((*s, false));
+            self.short_flag_aliases.push((*s, true));
         }
         self
     }

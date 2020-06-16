@@ -576,19 +576,26 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn sc_spec_vals(&self, a: &App) -> String {
         debug!("Help::sc_spec_vals: a={}", a.name);
         let mut spec_vals = vec![];
-        if !a.aliases.is_empty() {
+        if !a.aliases.is_empty() || !a.short_flag_aliases.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
+            debug!(
+                "Help::spec_vals: Found short flag aliases...{:?}",
+                a.short_flag_aliases
+            );
 
-            let als = a
-                .aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|&als| als.0) // name
-                .collect::<Vec<_>>()
-                .join(", ");
+            let mut short_als = a
+                .get_visible_short_aliases()
+                .map(|a| format!("-{}", a))
+                .collect::<Vec<_>>();
 
-            if !als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", als));
+            let als = a.get_visible_aliases().map(|s| s.to_string());
+
+            short_als.extend(als);
+
+            let all_als = short_als.join(", ");
+
+            if !all_als.is_empty() {
+                spec_vals.push(format!(" [aliases: {}]", all_als));
             }
         }
         spec_vals.join(" ")
