@@ -3,7 +3,7 @@
 //
 // It's suggested that you read examples/20_subcommands.rs prior to learning about `FlagSubCommand`s
 //
-// This differs from normal subcommands because it allows passing subcommand as `clap::Arg` in short or long args.
+// This differs from normal subcommands because it allows passing subcommands in the same fashion as `clap::Arg` in short or long args.
 //
 //            Top Level App (pacman)                              TOP
 //                           |
@@ -20,7 +20,7 @@
 //
 // $ pacman -Rns
 //
-// NOTE: Subcommands short flags don't have to be uppercase.
+// NOTE: Subcommands short flags can be uppercase or lowercase.
 //
 // $ pacman --sync --search
 //            ^--- subcommand
@@ -28,7 +28,7 @@
 // $ pacman sync -s
 //          ^--- subcommand
 //
-// NOTE: this isn't valid for pacman, but `clap::FlagSubCommand`
+// NOTE: this isn't valid for pacman, but is done implicitly by Clap which
 // adds support for both flags and standard subcommands out of the box.
 // Allowing your users to make the choice of what feels more intuitive for them.
 //
@@ -57,16 +57,6 @@ fn main() {
         //
         // Only a few of its arguments are implemented below.
         .subcommand(
-            // When getting the subcommand name the long version is used (in this case "query").
-            // If you want to use a different name then `FlagSubCommand::with_name("name", 's', "long")`.
-            //
-            // NOTE: if the name has been changed then it can be used as that:
-            //
-            // $ MyProg name
-            //
-            // $ MyProg --long
-            //
-            // $ MyProg -s
             App::new("query")
                 .short_flag('Q')
                 .long_flag("query")
@@ -76,6 +66,7 @@ fn main() {
                         .short('s')
                         .long("search")
                         .about("search locally-installed packages for matching strings")
+                        .multiple(true)
                         .takes_value(true),
                 )
                 .arg(
@@ -99,6 +90,7 @@ fn main() {
                         .short('s')
                         .long("search")
                         .about("search remote repositories for matching strings")
+                        .multiple(true)
                         .takes_value(true),
                 )
                 .arg(
@@ -122,16 +114,20 @@ fn main() {
             if sync_matches.is_present("info") {
                 // Values required here, so it's safe to unwrap
                 let packages: Vec<_> = sync_matches.values_of("info").unwrap().collect();
-                println!("Retrieving info for {:?}...", packages);
+                let comma_sep = packages.join(", ");
+                println!("Retrieving info for {}...", comma_sep);
             } else if sync_matches.is_present("search") {
                 // Values required here, so it's safe to unwrap
                 let queries: Vec<_> = sync_matches.values_of("search").unwrap().collect();
-                println!("Searching for {:?}...", queries);
+                let comma_sep = queries.join(", ");
+                println!("Searching for {}...", comma_sep);
             } else {
+                // Sync was called without any arguments
                 match sync_matches.values_of("package") {
                     Some(packages) => {
                         let pkgs: Vec<_> = packages.collect();
-                        println!("Installing {:?}...", pkgs);
+                        let comma_sep = pkgs.join(", ");
+                        println!("Installing {}...", comma_sep);
                     }
                     None => panic!("No targets specified (use -h for help)"),
                 }
@@ -141,11 +137,13 @@ fn main() {
             if query_matches.is_present("info") {
                 // Values required here, so it's safe to unwrap
                 let packages: Vec<_> = query_matches.values_of("info").unwrap().collect();
-                println!("Retrieving info for {:?}...", packages);
+                let comma_sep = packages.join(", ");
+                println!("Retrieving info for {}...", comma_sep);
             } else if query_matches.is_present("search") {
                 // Values required here, so it's safe to unwrap
                 let queries: Vec<_> = query_matches.values_of("search").unwrap().collect();
-                println!("Searching Locally for {:?}...", queries);
+                let comma_sep = queries.join(", ");
+                println!("Searching Locally for {}...", comma_sep);
             } else {
                 // Query was called without any arguments
                 println!("Displaying all locally installed packages...");
