@@ -241,6 +241,7 @@ fn flag_subcommand_multiple() {
     assert!(result_matches.is_present("print"));
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an Arg named \'test\'"]
 fn flag_subcommand_short_conflict_with_arg() {
@@ -250,6 +251,7 @@ fn flag_subcommand_short_conflict_with_arg() {
         .get_matches_from(vec!["myprog", "-f"]);
 }
 
+#[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Long option names must be unique for each argument, but \'--flag\' is used by both an App named \'some\' and an Arg named \'flag\'"]
 fn flag_subcommand_long_conflict_with_arg() {
