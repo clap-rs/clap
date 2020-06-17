@@ -241,52 +241,34 @@ fn flag_subcommand_multiple() {
     assert!(result_matches.is_present("print"));
 }
 
-// #[test]
-// #[should_panic]
-// fn flag_subcommand_short_conflict_with_arg() {
-//     let matches = App::new("test")
-//         .subcommand(
-//             App::new("some")
-//                 .short_flag('f')
-//                 .long_flag("some")
-//                 .arg(Arg::from("-f, --flag 'some flag'")),
-//         )
-//         .get_matches_from(vec!["myprog", "-ff"]);
-// }
+#[test]
+#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an Arg named \'test\'"]
+fn flag_subcommand_short_conflict_with_arg() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+        .arg(Arg::new("test").short('f'))
+        .get_matches_from(vec!["myprog", "-ff"]);
+}
 
-// #[test]
-// #[should_panic]
-// fn flag_subcommand_long_conflict_with_arg() {
-//     let matches = App::new("test")
-//         .subcommand(
-//             App::new("some")
-//                 .short_flag('a')
-//                 .long_flag("flag")
-//                 .arg(Arg::from("-f, --flag 'some flag'")),
-//         )
-//         .get_matches_from(vec!["myprog", "--flag", "--flag"]);
-// }
+#[test]
+#[should_panic = "Long option names must be unique for each argument, but \'--flag\' is used by both an App named \'some\' and an Arg named \'flag\'"]
+fn flag_subcommand_long_conflict_with_arg() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").short_flag('a').long_flag("flag"))
+        .arg(Arg::new("flag").long("flag"))
+        .get_matches_from(vec!["myprog", "--flag", "--flag"]);
+}
 
-// #[test]
-// fn flag_subcommand_conflict_with_help() {
-//     let matches = App::new("test")
-//         .subcommand(
-//             App::new("halp")
-//                 .short_flag('h')
-//                 .long_flag("help")
-//                 .arg(Arg::from("-f, --flag 'some flag'")),
-//         )
-//         .get_matches_from(vec!["myprog", "--help"]);
-// }
+#[test]
+fn flag_subcommand_conflict_with_help() {
+    let _ = App::new("test")
+        .subcommand(App::new("help").short_flag('h').long_flag("help"))
+        .get_matches_from(vec!["myprog", "--help"]);
+}
 
-// #[test]
-// fn flag_subcommand_conflict_with_version() {
-//     let matches = App::new("test")
-//         .subcommand(
-//             App::new("ver")
-//                 .short_flag('V')
-//                 .long_flag("version")
-//                 .arg(Arg::from("-f, --flag 'some flag'")),
-//         )
-//         .get_matches_from(vec!["myprog", "--version"]);
-// }
+#[test]
+fn flag_subcommand_conflict_with_version() {
+    let _ = App::new("test")
+        .subcommand(App::new("ver").short_flag('V').long_flag("version"))
+        .get_matches_from(vec!["myprog", "--version"]);
+}

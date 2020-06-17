@@ -107,6 +107,18 @@ impl<'b> App<'b> {
         &self.name
     }
 
+    /// Get the short flag of the subcommand
+    #[inline]
+    pub fn get_short_flag(&self) -> Option<char> {
+        self.short
+    }
+
+    /// Get the long flag of the subcommand
+    #[inline]
+    pub fn get_long_flag(&self) -> Option<&str> {
+        self.long
+    }
+
     /// Get the name of the binary
     #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
@@ -1648,6 +1660,40 @@ impl<'b> App<'b> {
     }
 }
 
+// Allows checking for conflicts between `Args` and `Apps` with subcommand flags
+#[cfg(debug_assertions)]
+#[derive(Debug)]
+enum Flag<'a> {
+    App(App<'a>),
+    Arg(Arg<'a>),
+}
+
+#[cfg(debug_assertions)]
+impl<'a> Flag<'_> {
+    fn short(&self) -> Option<char> {
+        match self {
+            Self::App(app) => app.short,
+            Self::Arg(arg) => arg.short,
+        }
+    }
+
+    fn long(&self) -> Option<&str> {
+        match self {
+            Self::App(app) => app.long,
+            Self::Arg(arg) => arg.long,
+        }
+    }
+}
+
+impl<'a> fmt::Display for Flag<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::App(app) => write!(f, "App named '{}'", app.get_name()),
+            Self::Arg(arg) => write!(f, "Arg named '{}'", arg.get_name()),
+        }
+    }
+}
+
 // Internally used only
 impl<'b> App<'b> {
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
@@ -1749,6 +1795,21 @@ impl<'b> App<'b> {
         }
     }
 
+    // Checks for conflicts in `Arg::long`/`App::long` or `Arg::short`/`App::short`
+    #[cfg(debug_assertions)]
+    fn two_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
+    where
+        F: Fn(&Flag<'_>) -> bool,
+    {
+        let mut flags: Vec<_> = self
+            .subcommands
+            .iter()
+            .map(|a| Flag::App(a.clone()))
+            .collect();
+        flags.extend(self.args.args.iter().map(|a| Flag::Arg(a.clone())));
+        two_elements_of(flags.into_iter().filter(|f| condition(f)))
+    }
+
     #[cfg(debug_assertions)]
     fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
     where
@@ -1771,6 +1832,30 @@ impl<'b> App<'b> {
     #[cfg(debug_assertions)]
     fn _debug_asserts(&self) {
         debug!("App::_debug_asserts");
+
+        for sc in &self.subcommands {
+            // Conflicts between flag subcommands and long args
+            if let Some(l) = sc.long {
+                if let Some((first, second)) = self.two_flags_of(|f| f.long() == Some(l)) {
+                    panic!(
+                        "Long option names must be unique for each argument, \
+                        but '--{}' is used by both an {} and an {}",
+                        l, first, second
+                    );
+                }
+            }
+
+            // Conflicts between flag subcommands and short args
+            if let Some(s) = sc.short {
+                if let Some((first, second)) = self.two_flags_of(|f| f.short() == Some(s)) {
+                    panic!(
+                        "Short option names must be unique for each argument, \
+                        but '-{}' is used by both an {} and an {}",
+                        s, first, second
+                    );
+                }
+            }
+        }
 
         for arg in &self.args.args {
             arg._debug_asserts();
@@ -1971,7 +2056,11 @@ impl<'b> App<'b> {
             .args
             .iter()
             .any(|x| x.long == Some("help") || x.id == Id::help_hash())
-            || self.is_set(AppSettings::DisableHelpFlags))
+            || self.is_set(AppSettings::DisableHelpFlags)
+            || self
+                .subcommands
+                .iter()
+                .any(|sc| sc.short == Some('h') || sc.long == Some("help")))
         {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
@@ -1988,7 +2077,11 @@ impl<'b> App<'b> {
             .args
             .iter()
             .any(|x| x.long == Some("version") || x.id == Id::version_hash())
-            || self.is_set(AppSettings::DisableVersion))
+            || self.is_set(AppSettings::DisableVersion)
+            || self
+                .subcommands
+                .iter()
+                .any(|sc| sc.short == Some('V') || sc.long == Some("version")))
         {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
