@@ -1685,6 +1685,7 @@ impl<'a> Flag<'_> {
     }
 }
 
+#[cfg(debug_assertions)]
 impl<'a> fmt::Display for Flag<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
