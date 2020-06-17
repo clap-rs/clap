@@ -256,7 +256,7 @@ fn flag_subcommand_long_conflict_with_arg() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('a').long_flag("flag"))
         .arg(Arg::new("flag").long("flag"))
-        .get_matches_from(vec!["myprog", "--flag", "--flag"]);
+        .get_matches_from(vec!["myprog", "--flag"]);
 }
 
 #[test]
