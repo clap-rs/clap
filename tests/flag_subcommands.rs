@@ -247,7 +247,7 @@ fn flag_subcommand_short_conflict_with_arg() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
         .arg(Arg::new("test").short('f'))
-        .get_matches_from(vec!["myprog", "-ff"]);
+        .get_matches_from(vec!["myprog", "-f"]);
 }
 
 #[test]
