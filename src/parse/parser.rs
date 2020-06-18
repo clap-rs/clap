@@ -166,7 +166,7 @@ where
         let only_highest = |a: &Arg| {
             a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx)
         };
-        if positionals!(self.app).any(only_highest) {
+        if self.app.get_positionals().any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
             //  * a value terminator
@@ -201,7 +201,9 @@ where
             );
 
             // Next we check how many have both Multiple and not a specific number of values set
-            let count = positionals!(self.app)
+            let count = self
+                .app
+                .get_positionals()
                 .filter(|p| p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
                 .count();
             let ok = count <= 1
@@ -222,7 +224,7 @@ where
             let mut found = false;
             let mut foundx2 = false;
 
-            for p in positionals!(self.app) {
+            for p in self.app.get_positionals() {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -278,13 +280,16 @@ where
             }
         }
         assert!(
-            positionals!(self.app)
+            self.app
+                .get_positionals()
                 .filter(|p| p.is_set(ArgSettings::Last))
                 .count()
                 < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
-        if positionals!(self.app)
+        if self
+            .app
+            .get_positionals()
             .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
             && self.has_subcommands()
             && !self.is_set(AS::SubcommandsNegateReqs)
@@ -331,7 +336,7 @@ where
         self._verify_positionals();
 
         // Set the LowIndexMultiple flag if required
-        if positionals!(self.app).any(|a| {
+        if self.app.get_positionals().any(|a| {
             a.is_set(ArgSettings::MultipleValues)
                 && (a.index.unwrap_or(0) as usize
                     != self
@@ -341,7 +346,7 @@ where
                         .iter()
                         .filter(|x| x.key.is_position())
                         .count())
-        }) && positionals!(self.app).last().map_or(false, |p_name| {
+        }) && self.app.get_positionals().last().map_or(false, |p_name| {
             !self.app[&p_name.id].is_set(ArgSettings::Last)
         }) {
             self.app.settings.set(AS::LowIndexMultiplePositional);
@@ -555,8 +560,10 @@ where
                         ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
 
                         _ => {
-                            if let Some(p) =
-                                positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
+                            if let Some(p) = self
+                                .app
+                                .get_positionals()
+                                .find(|p| p.index == Some(pos_counter as u64))
                             {
                                 ParseResult::Pos(p.id.clone())
                             } else {
@@ -1469,12 +1476,12 @@ where
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
-        for o in opts!(self.app) {
+        for o in self.app.get_opts_no_heading() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             self.add_value(o, matcher, ValueType::DefaultValue)?;
         }
 
-        for p in positionals!(self.app) {
+        for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
             self.add_value(p, matcher, ValueType::DefaultValue)?;
         }

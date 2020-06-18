@@ -248,7 +248,7 @@ esac",
         name = p.get_name(),
         name_hyphen = p.get_bin_name().unwrap().replace(" ", "-"),
         subcommands = subcmds.join("\n"),
-        pos = positionals!(p).count() + 1
+        pos = p.get_positionals().count() + 1
     )
 }
 
@@ -354,7 +354,7 @@ fn write_opts_of(p: &App) -> String {
 
     let mut ret = vec![];
 
-    for o in opts!(p) {
+    for o in p.get_opts_no_heading() {
         debug!("write_opts_of:iter: o={}", o.get_name());
 
         let help = o.get_about().map_or(String::new(), escape_help);
@@ -490,7 +490,7 @@ fn write_positionals_of(p: &App) -> String {
 
     let mut ret = vec![];
 
-    for arg in positionals!(p) {
+    for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
         let optional = if !arg.is_set(ArgSettings::Required) {

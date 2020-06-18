@@ -151,11 +151,25 @@ impl<'b> App<'b> {
         &self.args.args
     }
 
+    /// Get the list of *positional* arguments.
+    #[inline]
+    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments().iter().filter(|a| a.is_positional())
+    }
+
     /// Iterate through the *flags* that don't have custom heading.
     pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
         self.get_arguments()
             .iter()
             .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| !a.get_help_heading().is_some())
+    }
+
+    /// Iterate through the *options* that don't have custom heading.
+    pub fn get_opts_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments()
+            .iter()
+            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
             .filter(|a| !a.get_help_heading().is_some())
     }
 
@@ -1963,7 +1977,7 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn has_opts(&self) -> bool {
-        opts!(self).count() > 0
+        self.get_opts_no_heading().count() > 0
     }
 
     pub(crate) fn has_flags(&self) -> bool {

@@ -553,30 +553,6 @@ macro_rules! debug {
     ($($arg:tt)*) => {};
 }
 
-#[macro_export]
-#[doc(hidden)]
-macro_rules! opts {
-    ($app:expr, $how:ident) => {{
-        $app.get_arguments()
-            .$how()
-            .filter(|a| a.is_set($crate::ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| !a.get_help_heading().is_some())
-    }};
-    ($app:expr) => {
-        opts!($app, iter)
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! positionals {
-    ($app:expr) => {{
-        $app.get_arguments()
-            .iter()
-            .filter(|a| !(a.get_short().is_some() || a.get_long().is_some()))
-    }};
-}
-
 macro_rules! groups_for_arg {
     ($app:expr, $grp:expr) => {{
         debug!("groups_for_arg: name={:?}", $grp);

@@ -146,7 +146,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
     let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = String::new();
 
-    for o in opts!(p) {
+    for o in p.get_opts_no_heading() {
         if let Some(l) = o.get_long() {
             opts = format!(
                 "{}
@@ -201,7 +201,9 @@ fn all_options_for_path(app: &App, path: &str) -> String {
         longs = Bash::longs(p)
             .iter()
             .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
-        pos = positionals!(p).fold(String::new(), |acc, p| format!("{} {}", acc, p)),
+        pos = p
+            .get_positionals()
+            .fold(String::new(), |acc, p| format!("{} {}", acc, p)),
         subcmds = scs.join(" "),
     );
 
