@@ -584,30 +584,6 @@ macro_rules! find_subcmd_mut {
 
 #[macro_export]
 #[doc(hidden)]
-macro_rules! names {
-    (@args $app:expr) => {{
-        $app.get_arguments().iter().map(|a| &*a.get_name())
-    }};
-    (@sc $app:expr) => {{
-        $app.get_subcommands().iter().map(|s| &*s.get_name()).chain(
-            $app.get_subcommands()
-                .iter()
-                .filter(|s| !s.aliases.is_empty()) // REFACTOR
-                .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
-        )
-    }};
-}
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! sc_names {
-    ($app:expr) => {{
-        names!(@sc $app)
-    }};
-}
-
-#[macro_export]
-#[doc(hidden)]
 macro_rules! match_alias {
     ($a:expr, $to:expr, $what:expr) => {{
         $what == $to || $a.get_all_aliases().any(|alias| alias == $to)

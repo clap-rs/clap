@@ -515,8 +515,10 @@ where
                     || self.is_set(AS::AllowExternalSubcommands)
                     || self.is_set(AS::InferSubcommands))
                 {
-                    let cands =
-                        suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                    let cands = suggestions::did_you_mean(
+                        &*arg_os.to_string_lossy(),
+                        self.app.all_subcommand_names(),
+                    );
                     if !cands.is_empty() {
                         let cands: Vec<_> =
                             cands.iter().map(|cand| format!("'{}'", cand)).collect();
@@ -577,8 +579,11 @@ where
 
                     if self.is_new_arg(&n, &needs_val_of)
                         || sc_match
-                        || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
-                            .is_empty()
+                        || !suggestions::did_you_mean(
+                            &n.to_string_lossy(),
+                            self.app.all_subcommand_names(),
+                        )
+                        .is_empty()
                     {
                         debug!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -696,8 +701,10 @@ where
                     self.app.color(),
                 )?);
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
-                let cands =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                let cands = suggestions::did_you_mean(
+                    &*arg_os.to_string_lossy(),
+                    self.app.all_subcommand_names(),
+                );
                 if !cands.is_empty() {
                     let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
@@ -826,7 +833,9 @@ where
         }
 
         if self.is_set(AS::InferSubcommands) {
-            let v = sc_names!(self.app)
+            let v = self
+                .app
+                .all_subcommand_names()
                 .filter(|s| arg_os.is_prefix_of(s))
                 .collect::<Vec<_>>();
 

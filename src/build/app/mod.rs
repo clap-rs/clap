@@ -2006,6 +2006,17 @@ impl<'b> App<'b> {
             .map(|grp| grp.id.clone())
     }
 
+    /// Iterate through all the names of all subcommands (not recursively), including aliases.
+    /// Used for suggestions.
+    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> {
+        self.get_subcommands().iter().map(|s| s.get_name()).chain(
+            self.get_subcommands()
+                .iter()
+                .filter(|s| !s.aliases.is_empty()) // REFACTOR
+                .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
+        )
+    }
+
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         debug!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
