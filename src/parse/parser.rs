@@ -637,7 +637,7 @@ where
                 self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine)?;
 
                 matcher.inc_occurrence_of(&p.id);
-                for grp in groups_for_arg!(self.app, &p.id) {
+                for grp in self.app.groups_for_arg(&p.id) {
                     matcher.inc_occurrence_of(&grp);
                 }
 
@@ -800,7 +800,7 @@ where
         }
         debug!("No");
 
-        for group in groups_for_arg!(self.app, &arg.id) {
+        for group in self.app.groups_for_arg(&arg.id) {
             debug!("Parser::maybe_inc_pos_counter: group={:?}", group);
             let group = self.app.groups.iter().find(|g| g.id == group);
 
@@ -1303,7 +1303,7 @@ where
 
         matcher.inc_occurrence_of(&opt.id);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &opt.id) {
+        for grp in self.app.groups_for_arg(&opt.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1380,7 +1380,7 @@ where
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &arg.id) {
+        for grp in self.app.groups_for_arg(&arg.id) {
             matcher.add_val_to(&grp, v.to_os_string(), ty);
         }
 
@@ -1396,7 +1396,7 @@ where
         matcher.inc_occurrence_of(&flag.id);
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &flag.id) {
+        for grp in self.app.groups_for_arg(&flag.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1609,7 +1609,7 @@ where
                 .args
                 .get(&KeyType::Long(OsString::from(name.0.clone())))
             {
-                for g in groups_for_arg!(self.app, &opt.id) {
+                for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
                 matcher.insert(&opt.id);

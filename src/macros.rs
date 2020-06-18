@@ -272,7 +272,7 @@ macro_rules! app_from_crate {
 ///
 /// # Alternative form for non-ident values
 ///
-/// Certain places that normally accept an `ident`, will optionally accept an alternative of `("expr enclosed by parens")`
+/// Certain places that normally accept an `ident` also optionally accept an alternative of `("expr enclosed by parens")`
 /// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
 /// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`
 ///
@@ -551,16 +551,6 @@ macro_rules! debug {
 #[cfg(not(feature = "debug"))]
 macro_rules! debug {
     ($($arg:tt)*) => {};
-}
-
-macro_rules! groups_for_arg {
-    ($app:expr, $grp:expr) => {{
-        debug!("groups_for_arg: name={:?}", $grp);
-        $app.groups
-            .iter()
-            .filter(|grp| grp.args.iter().any(|a| a == $grp))
-            .map(|grp| grp.id.clone())
-    }};
 }
 
 macro_rules! find_subcmd_cloned {

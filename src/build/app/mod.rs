@@ -1996,6 +1996,16 @@ impl<'b> App<'b> {
         self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
     }
 
+    /// Iterate through the groups this arg is member of.
+    pub(crate) fn groups_for_arg<'a>(&'a self, arg: &'_ Id) -> impl Iterator<Item = Id> + 'a {
+        debug!("App::groups_for_arg: id={:?}", arg);
+        let arg = arg.clone();
+        self.groups
+            .iter()
+            .filter(move |grp| grp.args.iter().any(|a| a == &arg))
+            .map(|grp| grp.id.clone())
+    }
+
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         debug!("App::unroll_args_in_group: group={:?}", group);
         let mut g_vec = vec![group];
