@@ -555,20 +555,6 @@ macro_rules! debug {
 
 #[macro_export]
 #[doc(hidden)]
-macro_rules! flags {
-    ($app:expr, $how:ident) => {{
-        $app.get_arguments()
-            .$how()
-            .filter(|a| !a.is_set($crate::ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| !a.get_help_heading().is_some())
-    }};
-    ($app:expr) => {
-        $crate::flags!($app, iter)
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
 macro_rules! opts {
     ($app:expr, $how:ident) => {{
         $app.get_arguments()

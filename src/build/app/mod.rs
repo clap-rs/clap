@@ -151,6 +151,14 @@ impl<'b> App<'b> {
         &self.args.args
     }
 
+    /// Iterate through the *flags* that don't have custom heading.
+    pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments()
+            .iter()
+            .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| !a.get_help_heading().is_some())
+    }
+
     /// Get the list of arguments the given argument conflicts with
     ///
     /// ### Panics
@@ -1959,7 +1967,7 @@ impl<'b> App<'b> {
     }
 
     pub(crate) fn has_flags(&self) -> bool {
-        flags!(self).count() > 0
+        self.get_flags_no_heading().count() > 0
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {

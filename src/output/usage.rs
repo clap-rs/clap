@@ -275,7 +275,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     // Determines if we need the `[FLAGS]` tag in the usage string
     fn needs_flags_tag(&self) -> bool {
         debug!("Usage::needs_flags_tag");
-        'outer: for f in flags!(self.p.app) {
+        'outer: for f in self.p.app.get_flags_no_heading() {
             debug!("Usage::needs_flags_tag:iter: f={}", f.name);
             if let Some(l) = f.long {
                 if l == "help" || l == "version" {

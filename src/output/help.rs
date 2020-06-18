@@ -709,8 +709,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     self.none("\n\n")?;
                 }
                 self.warning("FLAGS:\n")?;
-                let flags_v: Vec<_> = flags!(self.parser.app).collect();
-                self.write_args(&*flags_v)?;
+                let flags_v: Vec<_> = self.parser.app.get_flags_no_heading().collect();
+                self.write_args(&flags_v)?;
                 first = false;
             }
             if !opts.is_empty() {
@@ -1053,10 +1053,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                         .iter()
                         .filter(|a| a.has_switch())
                         .collect::<Vec<_>>();
-                    self.write_args(&*opts_flags)?;
+                    self.write_args(&opts_flags)?;
                 }
                 b"flags" => {
-                    self.write_args(&*flags!(self.parser.app).collect::<Vec<_>>())?;
+                    self.write_args(&self.parser.app.get_flags_no_heading().collect::<Vec<_>>())?;
                 }
                 b"options" => {
                     self.write_args(&*opts!(self.parser.app).collect::<Vec<_>>())?;
