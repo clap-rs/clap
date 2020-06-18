@@ -42,26 +42,32 @@ where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
+    use crate::mkeymap::KeyType;
+
     match did_you_mean(arg, longs).pop() {
-        Some(ref candidate) => {
-            return Some((candidate.to_owned(), None));
+        Some(candidate) => {
+            return Some((candidate, None));
         }
+
         None => {
             for subcommand in subcommands {
                 subcommand._build();
-                if let Some(ref candidate) = did_you_mean(
-                    arg,
-                    longs!(subcommand).map(|x| x.to_string_lossy().into_owned()),
-                )
-                .pop()
-                {
-                    return Some((candidate.to_owned(), Some(subcommand.get_name().to_owned())));
+
+                let longs = subcommand.args.keys.iter().map(|x| &x.key).filter_map(|a| {
+                    if let KeyType::Long(v) = a {
+                        Some(v.to_string_lossy().into_owned())
+                    } else {
+                        None
+                    }
+                });
+
+                if let Some(candidate) = did_you_mean(arg, longs).pop() {
+                    return Some((candidate, Some(subcommand.get_name().to_string())));
                 }
             }
+            None
         }
     }
-
-    None
 }
 
 #[cfg(all(test, features = "suggestions"))]

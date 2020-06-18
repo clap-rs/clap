@@ -582,22 +582,6 @@ macro_rules! find_subcmd_mut {
     }};
 }
 
-macro_rules! longs {
-    ($app:expr, $how:ident) => {{
-        use crate::mkeymap::KeyType;
-        $app.args.keys.iter().map(|x| &x.key).filter_map(|a| {
-            if let KeyType::Long(v) = a {
-                Some(v)
-            } else {
-                None
-            }
-        })
-    }};
-    ($app:expr) => {
-        longs!($app, iter)
-    };
-}
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! names {
