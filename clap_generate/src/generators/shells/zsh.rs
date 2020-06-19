@@ -260,7 +260,7 @@ fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
     }
 
     sc = sc.split(' ').last().unwrap();
-    find_subcmd!(p, sc).expect(INTERNAL_ERROR_MSG)
+    p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG)
 }
 
 // Writes out the args section, which ends up being the flags, opts and postionals, and a jump to

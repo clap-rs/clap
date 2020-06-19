@@ -4,7 +4,7 @@ mod shells;
 use std::io::Write;
 
 // Internal
-use clap::{find_subcmd, match_alias, App, AppSettings, Arg};
+use clap::{App, AppSettings, Arg};
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -81,7 +81,7 @@ pub trait Generator {
         let mut app = p;
 
         for sc in path {
-            app = find_subcmd!(app, sc).unwrap();
+            app = app.find_subcommand(sc).unwrap();
         }
 
         app

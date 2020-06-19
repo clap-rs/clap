@@ -733,7 +733,9 @@ where
 
         if !external_subcommand {
             if let Some(ref pos_sc_name) = subcmd_name {
-                let sc_name = find_subcmd!(self.app, *pos_sc_name)
+                let sc_name = self
+                    .app
+                    .find_subcommand(pos_sc_name)
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone();
@@ -848,7 +850,7 @@ where
                     return Some(sc);
                 }
             }
-        } else if let Some(sc) = find_subcmd!(self.app, arg_os) {
+        } else if let Some(sc) = self.app.find_subcommand(arg_os) {
             return Some(&sc.name);
         }
 
@@ -872,18 +874,18 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(id) = find_subcmd!(sc, cmd).map(|x| x.id.clone()) {
+                if let Some(id) = sc.find_subcommand(cmd).map(|x| x.id.clone()) {
                     sc._propagate(Propagation::To(id));
                 }
 
-                if let Some(mut c) = find_subcmd_cloned!(sc, cmd) {
+                if let Some(mut c) = sc.find_subcommand(cmd).cloned() {
                     c._build();
                     sc = c;
 
                     if i == cmds.len() - 1 {
                         break;
                     }
-                } else if let Some(mut c) = find_subcmd_cloned!(sc, &cmd.to_string_lossy()) {
+                } else if let Some(mut c) = sc.find_subcommand(&cmd.to_string_lossy()).cloned() {
                     c._build();
                     sc = c;
 
@@ -1002,7 +1004,7 @@ where
 
         mid_string.push_str(" ");
 
-        if let Some(x) = find_subcmd!(self.app, sc_name) {
+        if let Some(x) = self.app.find_subcommand(sc_name) {
             let id = x.id.clone();
             self.app._propagate(Propagation::To(id));
         }

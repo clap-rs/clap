@@ -202,6 +202,15 @@ impl<'b> App<'b> {
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
     }
+
+    /// Find subcommand such that its name or one of aliases equals `name`.
+    #[inline]
+    pub fn find_subcommand<T>(&self, name: &T) -> Option<&App<'b>>
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        self.get_subcommands().iter().find(|s| s.aliases_to(name))
+    }
 }
 
 impl<'b> App<'b> {
@@ -1940,6 +1949,7 @@ impl<'b> App<'b> {
         self.args.args.iter().find(|a| a.id == *arg_id)
     }
 
+    #[inline]
     // Should we color the output?
     pub(crate) fn color(&self) -> ColorChoice {
         debug!("App::color: Color setting...");
@@ -1956,6 +1966,7 @@ impl<'b> App<'b> {
         }
     }
 
+    #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
         if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");
@@ -1964,22 +1975,27 @@ impl<'b> App<'b> {
         self.args.contains(s)
     }
 
+    #[inline]
     pub(crate) fn set(&mut self, s: AppSettings) {
         self.settings.set(s)
     }
 
+    #[inline]
     pub(crate) fn unset(&mut self, s: AppSettings) {
         self.settings.unset(s)
     }
 
+    #[inline]
     pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
     }
 
+    #[inline]
     pub(crate) fn has_opts(&self) -> bool {
         self.get_opts_no_heading().count() > 0
     }
 
+    #[inline]
     pub(crate) fn has_flags(&self) -> bool {
         self.get_flags_no_heading().count() > 0
     }
@@ -1989,6 +2005,16 @@ impl<'b> App<'b> {
             .iter()
             .filter(|sc| sc.name != "help")
             .any(|sc| !sc.is_set(AppSettings::Hidden))
+    }
+
+    /// Check if this subcommand can be referred to as `name`. In other words,
+    /// check if `name` is the name of this subcommand or is one of its aliases.
+    #[inline]
+    pub(crate) fn aliases_to<T>(&self, name: &T) -> bool
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        *name == *self.get_name() || self.get_all_aliases().any(|alias| *name == *alias)
     }
 
     #[cfg(debug_assertions)]
@@ -2012,7 +2038,6 @@ impl<'b> App<'b> {
         self.get_subcommands().iter().map(|s| s.get_name()).chain(
             self.get_subcommands()
                 .iter()
-                .filter(|s| !s.aliases.is_empty()) // REFACTOR
                 .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
         )
     }
