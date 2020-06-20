@@ -33,6 +33,7 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
+        .license("MIT OR Apache-2.0")
         .arg("-c, --config=[FILE] 'Sets a custom config file'")
         .arg("<output> 'Sets an optional output file'")
         .arg("-d..., --debug... 'Turn debugging information on'")

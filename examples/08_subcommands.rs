@@ -24,6 +24,7 @@ fn main() {
             App::new("add") // The name we call argument with
                 .about("Adds files to myapp") // The message displayed in "myapp -h"
                 // or "myapp help"
+                .license("MIT OR Apache-2.0")
                 .version("0.1") // Subcommands can have independent version
                 .author("Kevin K.") // And authors
                 .arg(

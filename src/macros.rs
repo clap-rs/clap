@@ -32,6 +32,37 @@ macro_rules! load_yaml {
     };
 }
 
+/// Allows you to pull the licence from your Cargo.toml at compile time. If the `license` field is
+/// empty, then the `licence-field` is read. If both fields are empty, then an empty string is
+/// returned.
+///
+/// # Examples
+///
+/// ```no_run
+/// # #[macro_use]
+/// # extern crate clap;
+/// # use clap::App;
+/// # fn main() {
+/// let m = App::new("app")
+///             .version(crate_license!())
+///             .get_matches();
+/// # }
+/// ```
+#[cfg(feature = "cargo")]
+#[macro_export]
+macro_rules! crate_license {
+    () => {{
+        let mut license = env!("CARGO_PKG_LICENSE");
+        if license.is_empty() {
+            license = env!("CARGO_PKG_LICENSE_FILE");
+        }
+        if license.is_empty() {
+            license = "";
+        }
+        license
+    }};
+}
+
 /// Allows you to pull the version from your Cargo.toml at compile time as
 /// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
@@ -166,12 +197,14 @@ macro_rules! app_from_crate {
             .version($crate::crate_version!())
             .author($crate::crate_authors!())
             .about($crate::crate_description!())
+            .license($crate::crate_license!())
     };
     ($sep:expr) => {
         $crate::App::new($crate::crate_name!())
             .version($crate::crate_version!())
             .author($crate::crate_authors!($sep))
             .about($crate::crate_description!())
+            .license($crate::crate_license!())
     };
 }
 

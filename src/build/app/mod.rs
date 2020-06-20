@@ -81,6 +81,7 @@ pub struct App<'help> {
     pub(crate) author: Option<&'help str>,
     pub(crate) version: Option<&'help str>,
     pub(crate) long_version: Option<&'help str>,
+    pub(crate) license: Option<&'help str>,
     pub(crate) about: Option<&'help str>,
     pub(crate) long_about: Option<&'help str>,
     pub(crate) help_about: Option<&'help str>,
@@ -785,6 +786,27 @@ impl<'help> App<'help> {
     /// [`App::version`]: ./struct.App.html#method.version
     pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.long_version = Some(ver.into());
+        self
+    }
+
+    /// Sets a string of the license to be displayed when displaying help information.
+    ///
+    /// **Pro-tip:** Use `clap`s convenience macro [`crate_license!`] to automatically set your
+    /// application's license to the same thing as your crate at compile time. See the
+    /// [`examples/`] directory for more information
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .license("MIT OR Apache-2.0")
+    /// # ;
+    /// ```
+    /// [`crate_license!`]: ./macro.crate_license!.html
+    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
+    pub fn license<S: Into<&'help str>>(mut self, license: S) -> Self {
+        self.license = Some(license.into());
         self
     }
 
