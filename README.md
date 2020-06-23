@@ -21,29 +21,29 @@ We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.1` 
 
 > If you're looking for the readme & examples for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
 
-1. [About](#about)
-2. [FAQ](#faq)
-3. [Features](#features)
-4. [Quick Example](#quick-example)
-      1. [Using Derive Macros](#using-derive-macros)
-      2. [Using Builder Pattern](#using-builder-pattern)
-      3. [Using YAML](#using-yaml)
-      4. [Using Macros](#using-macros)
-      5. [Running it](#running-it)
-5. [Try it!](#try-it)
-   1. [Pre-Built Test](#pre-built-test)
-   2. [Build Your Own Binary](#build-your-own-binary)
-6. [Usage](#usage)
-   1. [Optional Dependencies / Features](#optional-dependencies--features)
-      1. [Features enabled by default](#features-enabled-by-default)
-      2. [Opt-in features](#opt-in-features)
-   2. [More Information](#more-information)
-7. [Contributing](#contributing)
-   1. [Compatibility Policy](#compatibility-policy)
-      1. [Minimum Supported Version of Rust (MSRV)](#minimum-supported-version-of-rust-msrv)
-      2. [Breaking Changes](#breaking-changes)
-8. [License](#license)
-9. [Related Crates](#related-crates)
+- [About](#about)
+- [FAQ](#faq)
+- [Features](#features)
+- [Quick Example](#quick-example)
+    - [Using Derive Macros](#using-derive-macros)
+    - [Using Builder Pattern](#using-builder-pattern)
+    - [Using YAML](#using-yaml)
+    - [Using Macros](#using-macros)
+    - [Running it](#running-it)
+- [Try it!](#try-it)
+  - [Pre-Built Test](#pre-built-test)
+  - [Build Your Own Binary](#build-your-own-binary)
+- [Usage](#usage)
+  - [Optional Dependencies / Features](#optional-dependencies--features)
+    - [Features enabled by default](#features-enabled-by-default)
+    - [Opt-in features](#opt-in-features)
+  - [More Information](#more-information)
+- [Contributing](#contributing)
+  - [Compatibility Policy](#compatibility-policy)
+    - [Minimum Supported Version of Rust (MSRV)](#minimum-supported-version-of-rust-msrv)
+    - [Breaking Changes](#breaking-changes)
+- [License](#license)
+- [Related Crates](#related-crates)
 
 ## About
 
@@ -215,27 +215,27 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg(Arg::new("config")
-            .short('c')
+        .arg(Arg::with_name("config")
+            .short("c")
             .long("config")
             .value_name("FILE")
-            .about("Sets a custom config file")
+            .help("Sets a custom config file")
             .takes_value(true))
-        .arg(Arg::new("INPUT")
-            .about("Sets the input file to use")
+        .arg(Arg::with_name("INPUT")
+            .help("Sets the input file to use")
             .required(true)
             .index(1))
-        .arg(Arg::new("v")
-            .short('v')
+        .arg(Arg::with_name("v")
+            .short("v")
             .multiple(true)
-            .about("Sets the level of verbosity"))
+            .help("Sets the level of verbosity"))
         .subcommand(App::new("test")
             .about("controls testing features")
             .version("1.3")
             .author("Someone E. <someone_else@other.com>")
-            .arg(Arg::new("debug")
-                .short('d')
-                .about("print debug information verbosely")))
+            .arg(Arg::with_name("debug")
+                .short("d")
+                .help("print debug information verbosely")))
         .get_matches();
 
     // Same as above examples...
@@ -287,16 +287,16 @@ args:
         short: c
         long: config
         value_name: FILE
-        about: Sets a custom config file
+        help: Sets a custom config file
         takes_value: true
     - INPUT:
-        about: Sets the input file to use
+        help: Sets the input file to use
         required: true
         index: 1
     - verbose:
         short: v
         multiple: true
-        about: Sets the level of verbosity
+        help: Sets the level of verbosity
 subcommands:
     - test:
         about: controls testing features
@@ -305,7 +305,7 @@ subcommands:
         args:
             - debug:
                 short: d
-                about: print debug information
+                help: print debug information
 ```
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
