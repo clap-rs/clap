@@ -188,12 +188,18 @@ fn gen_from_subcommand(
                                 quote!(::std::string::String),
                                 quote!(values_of),
                             )
-                        } else {
+                        } else if is_simple_ty(subty, "OsString") {
                             (
                                 subty.span(),
                                 quote!(::std::ffi::OsString),
                                 quote!(values_of_os),
                             )
+                        } else {
+                            abort!(
+                                ty.span(),
+                                "The type must be either `Vec<String>` or `Vec<OsString>` \
+                                 to be used with `external_subcommand`."
+                            );
                         }
                     }
 
