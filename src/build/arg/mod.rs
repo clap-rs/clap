@@ -3005,8 +3005,8 @@ impl<'help> Arg<'help> {
     ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
     /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
-    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg. Care should
-    /// should be taken when designing these args. This is compounded by the ability to "stack"
+    /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg.
+    /// Care should be taken when designing these args. This is compounded by the ability to "stack"
     /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
     /// shorts.
     ///
