@@ -95,6 +95,7 @@ pub struct App<'b> {
     pub(crate) replacers: HashMap<&'b str, &'b [&'b str]>,
     pub(crate) groups: Vec<ArgGroup<'b>>,
     pub(crate) current_help_heading: Option<&'b str>,
+    pub(crate) subcommand_placeholder: Option<&'b str>,
 }
 
 impl<'b> App<'b> {
@@ -1445,6 +1446,22 @@ impl<'b> App<'b> {
         }
 
         self._do_parse(&mut it)
+    }
+
+    /// Sets the placeholder text used for subcommands when printing usage.
+    /// By default, this is "SUBCOMMAND".
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .subcommand_placeholder("THING")
+    /// # ;
+    /// ```
+    pub fn subcommand_placeholder<S: Into<&'b str>>(mut self, placeholder: S) -> Self {
+        self.subcommand_placeholder = Some(placeholder.into());
+        self
     }
 }
 
