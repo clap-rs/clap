@@ -466,7 +466,7 @@ macro_rules! crate_version {
 macro_rules! crate_authors {
     ($sep:expr) => {{
         use std::ops::Deref;
-        use std::sync::{Once, ONCE_INIT};
+        use std::sync::Once;
 
         #[allow(missing_copy_implementations)]
         #[allow(dead_code)]
@@ -479,7 +479,7 @@ macro_rules! crate_authors {
 
             #[allow(unsafe_code)]
             fn deref(&self) -> &'static str {
-                static ONCE: Once = ONCE_INIT;
+                static ONCE: Once = Once::new();
                 static mut VALUE: *const String = 0 as *const String;
 
                 unsafe {
