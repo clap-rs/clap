@@ -25,8 +25,8 @@ run-tests:
 	cargo bench
 
 @lint:
-	rustup add component clippy
-	rustup add component rustfmt
+	rustup component add clippy
+	rustup component add rustfmt
 	cargo clippy --lib --features "yaml unstable" -- -D warnings
 	cargo clippy --tests --examples --features "yaml unstable"
 	cargo fmt -- --check
