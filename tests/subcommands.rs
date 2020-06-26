@@ -362,3 +362,13 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
         .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
     assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
 }
+
+#[test]
+fn subcommand_placeholder_test() {
+    let usage = App::new("myprog")
+        .subcommand(App::new("subcommand"))
+        .subcommand_placeholder("TEST_PLACEHOLDER")
+        .generate_usage();
+
+    assert_eq!(&usage, "USAGE:\n    myprog [TEST_PLACEHOLDER]");
+}
