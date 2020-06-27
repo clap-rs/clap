@@ -45,9 +45,7 @@ where
     use crate::mkeymap::KeyType;
 
     match did_you_mean(arg, longs).pop() {
-        Some(candidate) => {
-            return Some((candidate, None));
-        }
+        Some(candidate) => Some((candidate, None)),
 
         None => {
             for subcommand in subcommands {

@@ -291,13 +291,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                 self.p
                     .app
                     .get_positionals()
-                    .filter_map(|pos| {
-                        if pos.index <= highest_req_pos {
-                            Some(pos)
-                        } else {
-                            None
-                        }
-                    })
+                    .filter(|pos| pos.index <= highest_req_pos)
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                     .filter(|pos| !pos.is_set(ArgSettings::Last))

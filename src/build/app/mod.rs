@@ -162,7 +162,7 @@ impl<'b> App<'b> {
         self.get_arguments()
             .iter()
             .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| !a.get_help_heading().is_some())
+            .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Iterate through the *options* that don't have custom heading.
@@ -170,7 +170,7 @@ impl<'b> App<'b> {
         self.get_arguments()
             .iter()
             .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| !a.get_help_heading().is_some())
+            .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Get the list of arguments the given argument conflicts with
