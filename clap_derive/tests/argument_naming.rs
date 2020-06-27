@@ -99,7 +99,7 @@ fn test_standalone_short_generates_kebab_case() {
 fn test_custom_short_overwrites_default_name() {
     #[derive(Clap, Debug, PartialEq)]
     struct Opt {
-        #[clap(short = "o")]
+        #[clap(short = 'o')]
         foo_option: bool,
     }
 

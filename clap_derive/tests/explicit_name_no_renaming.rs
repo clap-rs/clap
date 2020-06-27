@@ -7,7 +7,7 @@ use utils::*;
 fn explicit_short_long_no_rename() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = ".", long = ".foo")]
+        #[clap(short = '.', long = ".foo")]
         foo: Vec<String>,
     }
 

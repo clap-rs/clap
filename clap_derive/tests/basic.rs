@@ -18,7 +18,7 @@ use clap::Clap;
 fn basic() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short = "a", long = "arg")]
+        #[clap(short = 'a', long = "arg")]
         arg: Vec<i32>,
     }
     assert_eq!(Opt { arg: vec![24] }, Opt::parse_from(&["test", "-a24"]));
