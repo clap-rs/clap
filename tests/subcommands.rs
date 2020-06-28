@@ -365,10 +365,14 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
 
 #[test]
 fn subcommand_placeholder_test() {
-    let usage = App::new("myprog")
+    let mut app = App::new("myprog")
         .subcommand(App::new("subcommand"))
-        .subcommand_placeholder("TEST_PLACEHOLDER")
-        .generate_usage();
+        .subcommand_placeholder("TEST_PLACEHOLDER");
 
-    assert_eq!(&usage, "USAGE:\n    myprog [TEST_PLACEHOLDER]");
+    assert_eq!(&app.generate_usage(), "USAGE:\n    myprog [TEST_PLACEHOLDER]");
+
+    let mut help_text = Vec::new();
+    app.write_help(&mut help_text).expect("Failed to write to internal buffer");
+
+    assert!(String::from_utf8(help_text).unwrap().contains("TEST_PLACEHOLDERS:"));
 }
