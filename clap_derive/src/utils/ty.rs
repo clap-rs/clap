@@ -44,7 +44,10 @@ pub fn sub_type(ty: &syn::Type) -> Option<&syn::Type> {
     subty_if(ty, |_| true)
 }
 
-fn only_last_segment(ty: &syn::Type) -> Option<&PathSegment> {
+fn only_last_segment(mut ty: &syn::Type) -> Option<&PathSegment> {
+    while let syn::Type::Group(syn::TypeGroup { elem, .. }) = ty {
+        ty = elem;
+    }
     match ty {
         Type::Path(TypePath {
             qself: None,
