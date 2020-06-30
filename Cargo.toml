@@ -67,7 +67,7 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 bitflags              = "1.2"
 unicode-width         = "0.1"
-textwrap              = "0.11"
+textwrap              = "0.12"
 indexmap              = "1.0"
 os_str_bytes = { version = "2.3", features = ["raw"] }
 vec_map               = "0.8"
@@ -90,7 +90,7 @@ default     = ["suggestions", "color", "derive", "std", "cargo"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
-wrap_help   = ["term_size", "textwrap/term_size"]
+wrap_help   = ["term_size", "textwrap/terminal_size"]
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = [] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
