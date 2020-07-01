@@ -23,11 +23,12 @@ use crate::{
 use indexmap::IndexSet;
 use unicode_width::UnicodeWidthStr;
 
-#[cfg(not(feature = "wrap_help"))]
-mod term_size {
-    pub(crate) fn dimensions() -> Option<(usize, usize)> {
-        None
-    }
+pub(crate) fn dimensions() -> Option<(usize, usize)> {
+    #[cfg(not(feature = "wrap_help"))]
+    return None;
+
+    #[cfg(feature = "wrap_help")]
+    terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
 }
 
 fn str_width(s: &str) -> usize {
@@ -80,7 +81,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             Some(0) => usize::MAX,
             Some(w) => w,
             None => cmp::min(
-                term_size::dimensions().map_or(100, |(w, _)| w),
+                dimensions().map_or(100, |(w, _)| w),
                 match parser.app.max_w {
                     None | Some(0) => usize::MAX,
                     Some(mw) => mw,
