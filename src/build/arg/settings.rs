@@ -45,7 +45,6 @@ impl_settings! { ArgSettings, ArgFlags,
     NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
     RequiredUnlessAll("requiredunlessall") => Flags::R_UNLESS_ALL,
     RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
-    ValueDelimiterNotSet("valuedelimiternotset") => Flags::DELIM_NOT_SET,
     HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
     AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
@@ -59,7 +58,7 @@ impl_settings! { ArgSettings, ArgFlags,
 
 impl Default for ArgFlags {
     fn default() -> Self {
-        ArgFlags(Flags::DELIM_NOT_SET)
+        ArgFlags(Flags::empty())
     }
 }
 
@@ -98,7 +97,7 @@ pub enum ArgSettings {
     AllowHyphenValues,
     /// Requires that an equals be used to provide a value to an option such as `--option=value`
     RequireEquals,
-    /// Says that a positional arg will be the last positional, and reuqires `--` to be accessed.
+    /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
     /// It can also be accessed early (i.e. before other positionals) by providing `--`
     Last,
     /// Hides the default value from the help message
@@ -114,8 +113,6 @@ pub enum ArgSettings {
     HiddenLongHelp,
     #[doc(hidden)]
     RequiredUnlessAll,
-    #[doc(hidden)]
-    ValueDelimiterNotSet,
 }
 
 #[cfg(test)]
@@ -163,10 +160,6 @@ mod test {
         assert_eq!(
             "usevaluedelimiter".parse::<ArgSettings>().unwrap(),
             ArgSettings::UseValueDelimiter
-        );
-        assert_eq!(
-            "valuedelimiternotset".parse::<ArgSettings>().unwrap(),
-            ArgSettings::ValueDelimiterNotSet
         );
         assert_eq!(
             "requireequals".parse::<ArgSettings>().unwrap(),

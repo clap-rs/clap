@@ -2051,7 +2051,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unset_mut(ArgSettings::ValueDelimiterNotSet);
         self.set_mut(ArgSettings::TakesValue);
         self.set_mut(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
@@ -2123,10 +2122,6 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
         self.set_mut(ArgSettings::TakesValue);
-        if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-        }
 
         let mut i = self.val_names.len();
         for s in names {
@@ -3242,13 +3237,10 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_delimiter(mut self, d: bool) -> Self {
         if d {
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.setting(ArgSettings::RequireDelimiter)
+            self.takes_value(true)
+                .setting(ArgSettings::UseValueDelimiter)
+                .setting(ArgSettings::RequireDelimiter)
         } else {
-            self.unset_mut(ArgSettings::UseValueDelimiter);
-            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
     }
@@ -3474,12 +3466,10 @@ impl<'help> Arg<'help> {
                 self.val_delim = Some(',');
             }
             self.set_mut(ArgSettings::TakesValue);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.unset_setting(ArgSettings::ValueDelimiterNotSet)
+            self.setting(ArgSettings::UseValueDelimiter)
         } else {
             self.val_delim = None;
-            self.unset_mut(ArgSettings::UseValueDelimiter);
-            self.unset_setting(ArgSettings::ValueDelimiterNotSet)
+            self.unset_setting(ArgSettings::UseValueDelimiter)
         }
     }
 
