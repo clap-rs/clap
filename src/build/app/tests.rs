@@ -44,3 +44,10 @@ fn global_settings() {
         .unwrap()
         .is_set(AppSettings::TrailingVarArg));
 }
+
+// This test will *fail to compile* if App is not Send + Sync
+#[test]
+fn app_send_sync() {
+    fn foo<T: Send + Sync>(_: T) {}
+    foo(App::new("test"))
+}

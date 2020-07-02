@@ -13,8 +13,8 @@ use std::{
     env,
     ffi::{OsStr, OsString},
     fmt::{self, Display, Formatter},
-    rc::Rc,
     str,
+    sync::Arc,
 };
 
 // Third Party
@@ -30,8 +30,8 @@ use crate::{
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
-type Validator = Rc<dyn Fn(&str) -> Result<(), String>>;
-type ValidatorOs = Rc<dyn Fn(&OsStr) -> Result<(), String>>;
+type Validator<'a> = dyn Fn(&str) -> Result<(), String> + Send + Sync + 'a;
+type ValidatorOs<'a> = dyn Fn(&OsStr) -> Result<(), String> + Send + Sync + 'a;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -80,8 +80,8 @@ pub struct Arg<'help> {
     pub(crate) num_vals: Option<u64>,
     pub(crate) max_vals: Option<u64>,
     pub(crate) min_vals: Option<u64>,
-    pub(crate) validator: Option<Validator>,
-    pub(crate) validator_os: Option<ValidatorOs>,
+    pub(crate) validator: Option<Arc<Validator<'help>>>,
+    pub(crate) validator_os: Option<Arc<ValidatorOs<'help>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>,
@@ -1844,7 +1844,7 @@ impl<'help> Arg<'help> {
     /// arg, and `<YOUR MESSAGE>` is the `String` you return as the error.
     ///
     /// **NOTE:** There is a small performance hit for using validators, as they are implemented
-    /// with [`Rc`] pointers. And the value to be checked will be allocated an extra time in order
+    /// with [`Arc`] pointers. And the value to be checked will be allocated an extra time in order
     /// to be passed to the closure. This performance hit is extremely minimal in the grand
     /// scheme of things.
     ///
@@ -1869,13 +1869,13 @@ impl<'help> Arg<'help> {
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
-    /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
+    /// [`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
     pub fn validator<F, O, E>(mut self, f: F) -> Self
     where
-        F: Fn(&str) -> Result<O, E> + 'static,
+        F: Fn(&str) -> Result<O, E> + Sync + Send + 'help,
         E: ToString,
     {
-        self.validator = Some(Rc::new(move |s| {
+        self.validator = Some(Arc::new(move |s| {
             f(s).map(|_| ()).map_err(|e| e.to_string())
         }));
         self
@@ -1913,9 +1913,9 @@ impl<'help> Arg<'help> {
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
     pub fn validator_os<F, O>(mut self, f: F) -> Self
     where
-        F: Fn(&OsStr) -> Result<O, String> + 'static,
+        F: Fn(&OsStr) -> Result<O, String> + Sync + Send + 'help,
     {
-        self.validator_os = Some(Rc::new(move |s| f(s).map(|_| ())));
+        self.validator_os = Some(Arc::new(move |s| f(s).map(|_| ())));
         self
     }
 
