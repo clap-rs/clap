@@ -222,7 +222,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg, prevent_nlh: bool) -> io::Result<()> {
+    fn write_arg(&mut self, arg: &Arg<'help>, prevent_nlh: bool) -> io::Result<()> {
         debug!("Help::write_arg");
         self.short(arg)?;
         self.long(arg)?;
@@ -232,7 +232,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     /// Writes argument's short command to the wrapped stream.
-    fn short(&mut self, arg: &Arg) -> io::Result<()> {
+    fn short(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::short");
 
         self.none(TAB)?;
@@ -247,7 +247,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     /// Writes argument's long command to the wrapped stream.
-    fn long(&mut self, arg: &Arg) -> io::Result<()> {
+    fn long(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::long");
         if !arg.has_switch() {
             return Ok(());

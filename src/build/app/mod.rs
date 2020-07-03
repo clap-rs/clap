@@ -2091,7 +2091,7 @@ impl<'help> App<'help> {
     where
         F: Fn(&Arg) -> bool,
     {
-        two_elements_of(self.args.args.iter().filter(|a| condition(a)))
+        two_elements_of(self.args.args.iter().filter(|a: &&Arg| condition(a)))
     }
 
     // just in case
