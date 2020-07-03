@@ -48,3 +48,17 @@ fn test_validator_msg_newline() {
     let msg = format!("{}", err);
     assert!(msg.ends_with('\n'));
 }
+
+#[test]
+fn stateful_validator() {
+    let mut state = false;
+    App::new("test")
+        .arg(Arg::new("test").validator(|val| {
+            state = true;
+            val.parse::<u32>().map_err(|e| e.to_string())
+        }))
+        .try_get_matches_from(&["app", "10"])
+        .unwrap();
+
+    assert!(state);
+}
