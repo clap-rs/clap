@@ -34,7 +34,8 @@ pub fn get_long_help<T: IntoApp>() -> String {
 pub fn get_subcommand_long_help<T: IntoApp>(subcmd: &str) -> String {
     let mut output = Vec::new();
     <T as IntoApp>::into_app()
-        .find_subcommand(subcmd)
+        .get_subcommands_mut()
+        .find(|s| s.get_name() == subcmd)
         .unwrap()
         .write_long_help(&mut output)
         .unwrap();
