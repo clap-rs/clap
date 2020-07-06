@@ -64,7 +64,7 @@ pub fn compare_output2(l: App, args: &str, right1: &str, right2: &str, stderr: b
     compare(&*left, right1) || compare(&*left, right2)
 }
 
-// Legacy tests from the pyhton script days
+// Legacy tests from the python script days
 
 pub fn complex_app() -> App<'static> {
     let opt3_vals = ["fast", "slow"];

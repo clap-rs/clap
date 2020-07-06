@@ -657,15 +657,18 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     pub(crate) fn write_all_args(&mut self) -> ClapResult<()> {
         debug!("Help::write_all_args");
         let flags = self.parser.has_flags();
-        // Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
-        let pos = positionals!(self.parser.app).fold(0, |acc, arg| {
+        // FIXME: Strange filter/count vs fold... https://github.com/rust-lang/rust/issues/33038
+        let pos = self.parser.app.get_positionals().fold(0, |acc, arg| {
             if should_show_arg(self.use_long, arg) {
                 acc + 1
             } else {
                 acc
             }
         }) > 0;
-        let opts = opts!(self.parser.app)
+        let opts = self
+            .parser
+            .app
+            .get_opts_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let subcmds = self.parser.has_visible_subcommands();
@@ -681,7 +684,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
         let mut first = if pos {
             self.warning("ARGS:\n")?;
-            self.write_args_unsorted(&*positionals!(self.parser.app).collect::<Vec<_>>())?;
+            self.write_args_unsorted(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
             false
         } else {
             true
@@ -710,8 +713,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                     self.none("\n\n")?;
                 }
                 self.warning("FLAGS:\n")?;
-                let flags_v: Vec<_> = flags!(self.parser.app).collect();
-                self.write_args(&*flags_v)?;
+                let flags_v: Vec<_> = self.parser.app.get_flags_no_heading().collect();
+                self.write_args(&flags_v)?;
                 first = false;
             }
             if !opts.is_empty() {
@@ -1054,16 +1057,16 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                         .iter()
                         .filter(|a| a.has_switch())
                         .collect::<Vec<_>>();
-                    self.write_args(&*opts_flags)?;
+                    self.write_args(&opts_flags)?;
                 }
                 b"flags" => {
-                    self.write_args(&*flags!(self.parser.app).collect::<Vec<_>>())?;
+                    self.write_args(&self.parser.app.get_flags_no_heading().collect::<Vec<_>>())?;
                 }
                 b"options" => {
-                    self.write_args(&*opts!(self.parser.app).collect::<Vec<_>>())?;
+                    self.write_args(&self.parser.app.get_opts_no_heading().collect::<Vec<_>>())?;
                 }
                 b"positionals" => {
-                    self.write_args(&*positionals!(self.parser.app).collect::<Vec<_>>())?;
+                    self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
                 }
                 b"subcommands" => {
                     self.write_subcommands(self.parser.app)?;

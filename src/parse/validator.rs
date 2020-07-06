@@ -309,7 +309,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
                 // args in that group to the conflicts, as well as any args those args conflict
                 // with
 
-                for grp in groups_for_arg!(self.p.app, name) {
+                for grp in self.p.app.groups_for_arg(&name) {
                     if let Some(g) = self
                         .p
                         .app

@@ -77,7 +77,7 @@ fn generate_inner<'b>(
     let mut completions = String::new();
     let preamble = String::from("\n            cand ");
 
-    for option in opts!(p) {
+    for option in p.get_opts_no_heading() {
         if let Some(data) = option.get_short() {
             let tooltip = get_tooltip(option.get_about(), data);
 

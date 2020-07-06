@@ -166,7 +166,7 @@ where
         let only_highest = |a: &Arg| {
             a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx)
         };
-        if positionals!(self.app).any(only_highest) {
+        if self.app.get_positionals().any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
             //  * a value terminator
@@ -201,7 +201,9 @@ where
             );
 
             // Next we check how many have both Multiple and not a specific number of values set
-            let count = positionals!(self.app)
+            let count = self
+                .app
+                .get_positionals()
                 .filter(|p| p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
                 .count();
             let ok = count <= 1
@@ -222,7 +224,7 @@ where
             let mut found = false;
             let mut foundx2 = false;
 
-            for p in positionals!(self.app) {
+            for p in self.app.get_positionals() {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -278,13 +280,16 @@ where
             }
         }
         assert!(
-            positionals!(self.app)
+            self.app
+                .get_positionals()
                 .filter(|p| p.is_set(ArgSettings::Last))
                 .count()
                 < 2,
             "Only one positional argument may have last(true) set. Found two."
         );
-        if positionals!(self.app)
+        if self
+            .app
+            .get_positionals()
             .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
             && self.has_subcommands()
             && !self.is_set(AS::SubcommandsNegateReqs)
@@ -331,7 +336,7 @@ where
         self._verify_positionals();
 
         // Set the LowIndexMultiple flag if required
-        if positionals!(self.app).any(|a| {
+        if self.app.get_positionals().any(|a| {
             a.is_set(ArgSettings::MultipleValues)
                 && (a.index.unwrap_or(0) as usize
                     != self
@@ -341,7 +346,7 @@ where
                         .iter()
                         .filter(|x| x.key.is_position())
                         .count())
-        }) && positionals!(self.app).last().map_or(false, |p_name| {
+        }) && self.app.get_positionals().last().map_or(false, |p_name| {
             !self.app[&p_name.id].is_set(ArgSettings::Last)
         }) {
             self.app.settings.set(AS::LowIndexMultiplePositional);
@@ -510,8 +515,10 @@ where
                     || self.is_set(AS::AllowExternalSubcommands)
                     || self.is_set(AS::InferSubcommands))
                 {
-                    let cands =
-                        suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                    let cands = suggestions::did_you_mean(
+                        &*arg_os.to_string_lossy(),
+                        self.app.all_subcommand_names(),
+                    );
                     if !cands.is_empty() {
                         let cands: Vec<_> =
                             cands.iter().map(|cand| format!("'{}'", cand)).collect();
@@ -555,8 +562,10 @@ where
                         ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
 
                         _ => {
-                            if let Some(p) =
-                                positionals!(self.app).find(|p| p.index == Some(pos_counter as u64))
+                            if let Some(p) = self
+                                .app
+                                .get_positionals()
+                                .find(|p| p.index == Some(pos_counter as u64))
                             {
                                 ParseResult::Pos(p.id.clone())
                             } else {
@@ -570,8 +579,11 @@ where
 
                     if self.is_new_arg(&n, &needs_val_of)
                         || sc_match
-                        || !suggestions::did_you_mean(&n.to_string_lossy(), sc_names!(self.app))
-                            .is_empty()
+                        || !suggestions::did_you_mean(
+                            &n.to_string_lossy(),
+                            self.app.all_subcommand_names(),
+                        )
+                        .is_empty()
                     {
                         debug!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -630,7 +642,7 @@ where
                 self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine)?;
 
                 matcher.inc_occurrence_of(&p.id);
-                for grp in groups_for_arg!(self.app, &p.id) {
+                for grp in self.app.groups_for_arg(&p.id) {
                     matcher.inc_occurrence_of(&grp);
                 }
 
@@ -689,8 +701,10 @@ where
                     self.app.color(),
                 )?);
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
-                let cands =
-                    suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
+                let cands = suggestions::did_you_mean(
+                    &*arg_os.to_string_lossy(),
+                    self.app.all_subcommand_names(),
+                );
                 if !cands.is_empty() {
                     let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
@@ -719,7 +733,9 @@ where
 
         if !external_subcommand {
             if let Some(ref pos_sc_name) = subcmd_name {
-                let sc_name = find_subcmd!(self.app, *pos_sc_name)
+                let sc_name = self
+                    .app
+                    .find_subcommand(pos_sc_name)
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone();
@@ -793,7 +809,7 @@ where
         }
         debug!("No");
 
-        for group in groups_for_arg!(self.app, &arg.id) {
+        for group in self.app.groups_for_arg(&arg.id) {
             debug!("Parser::maybe_inc_pos_counter: group={:?}", group);
             let group = self.app.groups.iter().find(|g| g.id == group);
 
@@ -819,7 +835,9 @@ where
         }
 
         if self.is_set(AS::InferSubcommands) {
-            let v = sc_names!(self.app)
+            let v = self
+                .app
+                .all_subcommand_names()
                 .filter(|s| arg_os.is_prefix_of(s))
                 .collect::<Vec<_>>();
 
@@ -832,7 +850,7 @@ where
                     return Some(sc);
                 }
             }
-        } else if let Some(sc) = find_subcmd!(self.app, arg_os) {
+        } else if let Some(sc) = self.app.find_subcommand(arg_os) {
             return Some(&sc.name);
         }
 
@@ -856,18 +874,18 @@ where
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(id) = find_subcmd!(sc, cmd).map(|x| x.id.clone()) {
+                if let Some(id) = sc.find_subcommand(cmd).map(|x| x.id.clone()) {
                     sc._propagate(Propagation::To(id));
                 }
 
-                if let Some(mut c) = find_subcmd_cloned!(sc, cmd) {
+                if let Some(mut c) = sc.find_subcommand(cmd).cloned() {
                     c._build();
                     sc = c;
 
                     if i == cmds.len() - 1 {
                         break;
                     }
-                } else if let Some(mut c) = find_subcmd_cloned!(sc, &cmd.to_string_lossy()) {
+                } else if let Some(mut c) = sc.find_subcommand(&cmd.to_string_lossy()).cloned() {
                     c._build();
                     sc = c;
 
@@ -986,7 +1004,7 @@ where
 
         mid_string.push_str(" ");
 
-        if let Some(x) = find_subcmd!(self.app, sc_name) {
+        if let Some(x) = self.app.find_subcommand(sc_name) {
             let id = x.id.clone();
             self.app._propagate(Propagation::To(id));
         }
@@ -1296,7 +1314,7 @@ where
 
         matcher.inc_occurrence_of(&opt.id);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &opt.id) {
+        for grp in self.app.groups_for_arg(&opt.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1373,7 +1391,7 @@ where
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &arg.id) {
+        for grp in self.app.groups_for_arg(&arg.id) {
             matcher.add_val_to(&grp, v.to_os_string(), ty);
         }
 
@@ -1389,7 +1407,7 @@ where
         matcher.inc_occurrence_of(&flag.id);
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         // Increment or create the group "args"
-        for grp in groups_for_arg!(self.app, &flag.id) {
+        for grp in self.app.groups_for_arg(&flag.id) {
             matcher.inc_occurrence_of(&grp);
         }
 
@@ -1469,12 +1487,12 @@ where
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
-        for o in opts!(self.app) {
+        for o in self.app.get_opts_no_heading() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             self.add_value(o, matcher, ValueType::DefaultValue)?;
         }
 
-        for p in positionals!(self.app) {
+        for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
             self.add_value(p, matcher, ValueType::DefaultValue)?;
         }
@@ -1602,7 +1620,7 @@ where
                 .args
                 .get(&KeyType::Long(OsString::from(name.0.clone())))
             {
-                for g in groups_for_arg!(self.app, &opt.id) {
+                for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
                 matcher.insert(&opt.id);
