@@ -61,11 +61,7 @@ pub trait Generator {
     fn all_subcommands(app: &App) -> Vec<(String, String)> {
         let mut subcmds: Vec<_> = Self::subcommands(app);
 
-        for sc_v in app
-            .get_subcommands()
-            .iter()
-            .map(|s| Self::all_subcommands(&s))
-        {
+        for sc_v in app.get_subcommands().map(|s| Self::all_subcommands(&s)) {
             subcmds.extend(sc_v);
         }
 
@@ -123,7 +119,6 @@ pub trait Generator {
 
         let mut shorts: Vec<char> = p
             .get_arguments()
-            .iter()
             .filter_map(|a| {
                 if a.get_index().is_none() && a.get_short().is_some() {
                     Some(a.get_short().unwrap())
@@ -151,7 +146,6 @@ pub trait Generator {
 
         let mut longs: Vec<String> = p
             .get_arguments()
-            .iter()
             .filter_map(|a| {
                 if a.get_index().is_none() && a.get_long().is_some() {
                     Some(a.get_long().unwrap().to_string())

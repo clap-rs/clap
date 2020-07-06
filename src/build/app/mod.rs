@@ -133,34 +133,33 @@ impl<'b> App<'b> {
         self.aliases.iter().map(|a| a.0)
     }
 
-    /// Get the list of subcommands
+    /// Iterate through the set of subcommands.
     #[inline]
-    pub fn get_subcommands(&self) -> &[App<'b>] {
-        &self.subcommands
+    pub fn get_subcommands(&self) -> impl Iterator<Item = &App<'b>> {
+        self.subcommands.iter()
     }
 
-    /// Get the list of subcommands
+    /// Iterate through the set of subcommands, getting a mutable reference to each.
     #[inline]
-    pub fn get_subcommands_mut(&mut self) -> &mut [App<'b>] {
-        &mut self.subcommands
+    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut App<'b>> {
+        self.subcommands.iter_mut()
     }
 
-    /// Get the list of arguments
+    /// Iterate through the set of arguments
     #[inline]
-    pub fn get_arguments(&self) -> &[Arg<'b>] {
-        &self.args.args
+    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.args.args.iter()
     }
 
     /// Get the list of *positional* arguments.
     #[inline]
     pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'b>> {
-        self.get_arguments().iter().filter(|a| a.is_positional())
+        self.get_arguments().filter(|a| a.is_positional())
     }
 
     /// Iterate through the *flags* that don't have custom heading.
     pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
         self.get_arguments()
-            .iter()
             .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
             .filter(|a| a.get_help_heading().is_none())
     }
@@ -168,7 +167,6 @@ impl<'b> App<'b> {
     /// Iterate through the *options* that don't have custom heading.
     pub fn get_opts_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
         self.get_arguments()
-            .iter()
             .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
             .filter(|a| a.get_help_heading().is_none())
     }
@@ -209,7 +207,7 @@ impl<'b> App<'b> {
     where
         T: PartialEq<str> + ?Sized,
     {
-        self.get_subcommands().iter().find(|s| s.aliases_to(name))
+        self.get_subcommands().find(|s| s.aliases_to(name))
     }
 }
 
@@ -2035,9 +2033,8 @@ impl<'b> App<'b> {
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
     pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> {
-        self.get_subcommands().iter().map(|s| s.get_name()).chain(
+        self.get_subcommands().map(|s| s.get_name()).chain(
             self.get_subcommands()
-                .iter()
                 .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
         )
     }
