@@ -96,6 +96,7 @@ pub struct App<'b> {
     pub(crate) groups: Vec<ArgGroup<'b>>,
     pub(crate) current_help_heading: Option<&'b str>,
     pub(crate) subcommand_placeholder: Option<&'b str>,
+    pub(crate) subcommand_header: Option<&'b str>,
 }
 
 impl<'b> App<'b> {
@@ -1448,19 +1449,70 @@ impl<'b> App<'b> {
         self._do_parse(&mut it)
     }
 
-    /// Sets the placeholder text used for subcommands when printing usage.
-    /// By default, this is "SUBCOMMAND".
+    /// Sets the placeholder text used for subcommands when printing usage and help.
+    /// By default, this is "SUBCOMMAND" with a header of "SUBCOMMANDS"
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
-    ///     .subcommand_placeholder("THING")
+    ///     .subcommand(App::new("sub1"))
+    ///     .print_help()
     /// # ;
     /// ```
-    pub fn subcommand_placeholder<S: Into<&'b str>>(mut self, placeholder: S) -> Self {
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    /// 
+    /// USAGE:
+    ///     myprog [SUBCOMMAND]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// SUBCOMMANDS:
+    ///     help    Prints this message or the help of the given subcommand(s)
+    ///     sub1    
+    /// ```
+    ///
+    /// but usage of `subcommand_placeholder`
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .subcommand(App::new("sub1"))
+    ///     .subcommand_placeholder("THING", "THINGS")
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog 
+    ///
+    /// USAGE:
+    ///     myprog [THING]
+    ///
+    /// FLAGS:
+    ///     -h, --help       Prints help information
+    ///     -V, --version    Prints version information
+    ///
+    /// THINGS:
+    ///     help    Prints this message or the help of the given subcommand(s)
+    ///     sub1    
+    /// ```
+    pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, header: T) -> Self
+    where
+        S: Into<&'b str>,
+        T: Into<&'b str>
+    {
         self.subcommand_placeholder = Some(placeholder.into());
+        self.subcommand_header = Some(header.into());
         self
     }
 }

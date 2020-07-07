@@ -751,15 +751,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
                 self.none("\n\n")?;
             }
 
-            let subcommand_string = self.parser.app.subcommand_placeholder.unwrap_or("SUBCOMMAND");
-            self.warning(subcommand_string)?;
-            // TODO: simply appending an 's' doesn't work for every string.
-            let pluralizer = if subcommand_string.chars().last().unwrap_or('D').is_lowercase() {
-                "s"
-            } else {
-                "S"
-            };
-            self.warning(pluralizer)?;
+            self.warning(self.parser.app.subcommand_header.unwrap_or("SUBCOMMANDS"))?;
             self.warning(":\n")?;
 
             self.write_subcommands(&self.parser.app)?;
