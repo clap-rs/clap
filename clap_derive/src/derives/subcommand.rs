@@ -301,7 +301,6 @@ fn gen_update_from_subcommand(
 ) -> TokenStream {
     use syn::Fields::*;
 
-    let mut ext_subcmd = None;
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
@@ -314,56 +313,6 @@ fn gen_update_from_subcommand(
             );
 
             if let Kind::ExternalSubcommand = &*attrs.kind() {
-                if ext_subcmd.is_some() {
-                    abort!(
-                        attrs.kind().span(),
-                        "Only one variant can be marked with `external_subcommand`, \
-                         this is the second"
-                    );
-                }
-
-                let ty = match variant.fields {
-                    Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
-
-                    _ => abort!(
-                        variant,
-                        "The enum variant marked with `external_attribute` must be \
-                         a single-typed tuple, and the type must be either `Vec<String>` \
-                         or `Vec<OsString>`."
-                    ),
-                };
-
-                let (span, str_ty, values_of) = match subty_if_name(ty, "Vec") {
-                    Some(subty) => {
-                        if is_simple_ty(subty, "String") {
-                            (
-                                subty.span(),
-                                quote!(::std::string::String),
-                                quote!(values_of),
-                            )
-                        } else if is_simple_ty(subty, "OsString") {
-                            (
-                                subty.span(),
-                                quote!(::std::ffi::OsString),
-                                quote!(values_of_os),
-                            )
-                        } else {
-                            abort!(
-                                ty.span(),
-                                "The type must be either `Vec<String>` or `Vec<OsString>` \
-                         to be used with `external_subcommand`."
-                            )
-                        }
-                    }
-
-                    None => abort!(
-                        ty.span(),
-                        "The type must be either `Vec<String>` or `Vec<OsString>` \
-                         to be used with `external_subcommand`."
-                    ),
-                };
-
-                ext_subcmd = Some((span, &variant.ident, str_ty, values_of));
                 None
             } else {
                 Some((variant, attrs))
@@ -424,12 +373,15 @@ fn gen_update_from_subcommand(
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let (pattern, updater) = match variant.fields {
-            Unnamed(ref fields) if fields.unnamed.len() == 1 => (
-                quote!((ref mut arg)),
-                quote! {
-                    println!("child");
-                },
-            ),
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
+                (
+                    quote!((ref mut arg)),
+                    quote! {
+                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, name, sub);
+                    },
+                )
+            }
             _ => abort!(
                 variant,
                 "`flatten` is usable only with single-typed tuple variants"
@@ -439,19 +391,6 @@ fn gen_update_from_subcommand(
             (#sub_name, #name :: #variant_name #pattern) => { #updater }
         }
     });
-
-    let external = if let Some((span, variant_name, str_ty, values_of)) = ext_subcmd {
-        quote_spanned! { span=>
-            (external, #name :: #variant_name (ref mut ext)) => {
-                if ext.len() == 0 {
-                    ext.push(#str_ty::from(external));
-                    ext.extend(matches.#values_of("").into_iter().flatten().map(#str_ty::from));
-                }
-            }
-        }
-    } else {
-        quote!()
-    };
 
     quote! {
         fn update_from_subcommand<'b>(
@@ -463,7 +402,6 @@ fn gen_update_from_subcommand(
                 match (name, self) {
                     #( #subcommands ),*
                     #( #child_subcommands ),*
-                    #external
                     (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(name, sub) {
                         *s = sub;
                     }

@@ -126,9 +126,8 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
     {
         // TODO find a way to get partial matches
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
-        Ok(<Self as FromArgMatches>::update_from_arg_matches(
-            self, &matches,
-        ))
+        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
+        Ok(())
     }
 }
 
