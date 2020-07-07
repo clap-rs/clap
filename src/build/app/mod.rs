@@ -1466,7 +1466,7 @@ impl<'b> App<'b> {
     ///
     /// ```text
     /// myprog
-    /// 
+    ///
     /// USAGE:
     ///     myprog [SUBCOMMAND]
     ///
@@ -1493,7 +1493,7 @@ impl<'b> App<'b> {
     /// will produce
     ///
     /// ```text
-    /// myprog 
+    /// myprog
     ///
     /// USAGE:
     ///     myprog [THING]
@@ -1509,7 +1509,7 @@ impl<'b> App<'b> {
     pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, header: T) -> Self
     where
         S: Into<&'b str>,
-        T: Into<&'b str>
+        T: Into<&'b str>,
     {
         self.subcommand_placeholder = Some(placeholder.into());
         self.subcommand_header = Some(header.into());

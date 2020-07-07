@@ -369,10 +369,16 @@ fn subcommand_placeholder_test() {
         .subcommand(App::new("subcommand"))
         .subcommand_placeholder("TEST_PLACEHOLDER", "TEST_HEADER");
 
-    assert_eq!(&app.generate_usage(), "USAGE:\n    myprog [TEST_PLACEHOLDER]");
+    assert_eq!(
+        &app.generate_usage(),
+        "USAGE:\n    myprog [TEST_PLACEHOLDER]"
+    );
 
     let mut help_text = Vec::new();
-    app.write_help(&mut help_text).expect("Failed to write to internal buffer");
+    app.write_help(&mut help_text)
+        .expect("Failed to write to internal buffer");
 
-    assert!(String::from_utf8(help_text).unwrap().contains("TEST_HEADER:"));
+    assert!(String::from_utf8(help_text)
+        .unwrap()
+        .contains("TEST_HEADER:"));
 }
