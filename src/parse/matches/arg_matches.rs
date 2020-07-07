@@ -1,6 +1,7 @@
 // Std
 use std::{
     borrow::Cow,
+    collections::HashMap,
     ffi::{OsStr, OsString},
     fmt::{Debug, Display},
     iter::{Cloned, Map},
@@ -9,7 +10,6 @@ use std::{
 };
 
 // Third Party
-use indexmap::IndexMap;
 
 // Internal
 use crate::{
@@ -74,14 +74,14 @@ pub(crate) struct SubCommand {
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone)]
 pub struct ArgMatches {
-    pub(crate) args: IndexMap<Id, MatchedArg>,
+    pub(crate) args: HashMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
 impl<'a> Default for ArgMatches {
     fn default() -> Self {
         ArgMatches {
-            args: IndexMap::new(),
+            args: HashMap::new(),
             subcommand: None,
         }
     }

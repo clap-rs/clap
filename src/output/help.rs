@@ -2,7 +2,7 @@
 use std::{
     borrow::Cow,
     cmp,
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     io::{self, Cursor, Read, Write},
     usize,
 };
@@ -20,7 +20,6 @@ use crate::{
 };
 
 // Third party
-use indexmap::IndexSet;
 use unicode_width::UnicodeWidthStr;
 
 pub(crate) fn dimensions() -> Option<(usize, usize)> {
@@ -687,7 +686,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             .args
             .iter()
             .filter_map(|arg| arg.help_heading)
-            .collect::<IndexSet<_>>();
+            .collect::<BTreeSet<_>>();
 
         let mut first = if pos {
             self.warning("ARGS:\n")?;

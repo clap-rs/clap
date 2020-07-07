@@ -1,5 +1,10 @@
 // Std
-use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
+use std::{
+    collections::hash_map::{Entry, HashMap},
+    ffi::OsString,
+    mem,
+    ops::Deref,
+};
 
 // Internal
 use crate::{
@@ -83,7 +88,7 @@ impl ArgMatcher {
     }
 
     pub(crate) fn remove(&mut self, arg: &Id) {
-        self.0.args.swap_remove(arg);
+        self.0.args.remove(arg);
     }
 
     pub(crate) fn insert(&mut self, name: &Id) {
@@ -98,11 +103,11 @@ impl ArgMatcher {
         self.0.args.is_empty()
     }
 
-    pub(crate) fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
+    pub(crate) fn arg_names(&self) -> impl Iterator<Item = &Id> {
         self.0.args.keys()
     }
 
-    pub(crate) fn entry(&mut self, arg: &Id) -> indexmap::map::Entry<Id, MatchedArg> {
+    pub(crate) fn entry(&mut self, arg: &Id) -> Entry<Id, MatchedArg> {
         self.0.args.entry(arg.clone())
     }
 
@@ -114,7 +119,7 @@ impl ArgMatcher {
         self.0.subcommand_name()
     }
 
-    pub(crate) fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (&Id, &MatchedArg)> {
         self.0.args.iter()
     }
 
