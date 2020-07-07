@@ -104,6 +104,32 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
         Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
     }
+
+    /// Update from iterator, exit on error
+    fn update_from<I, T>(&mut self, itr: I)
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        // TODO find a way to get partial matches
+        let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
+        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
+    }
+
+    /// Update from iterator, return Err on error.
+    fn try_update_from<I, T>(&mut self, itr: I) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        // TODO find a way to get partial matches
+        let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
+        Ok(<Self as FromArgMatches>::update_from_arg_matches(
+            self, &matches,
+        ))
+    }
 }
 
 /// Build an App according to the struct

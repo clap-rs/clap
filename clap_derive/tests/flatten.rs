@@ -99,30 +99,30 @@ fn flatten_in_subcommand() {
     );
 }
 
+#[derive(Clap, PartialEq, Debug)]
+enum BaseCli {
+    Command1(Command1),
+}
+
+#[derive(Clap, PartialEq, Debug)]
+struct Command1 {
+    arg1: i32,
+}
+
+#[derive(Clap, PartialEq, Debug)]
+struct Command2 {
+    arg2: i32,
+}
+
+#[derive(Clap, PartialEq, Debug)]
+enum Opt {
+    #[clap(flatten)]
+    BaseCli(BaseCli),
+    Command2(Command2),
+}
+
 #[test]
 fn merge_subcommands_with_flatten() {
-    #[derive(Clap, PartialEq, Debug)]
-    enum BaseCli {
-        Command1(Command1),
-    }
-
-    #[derive(Clap, PartialEq, Debug)]
-    struct Command1 {
-        arg1: i32,
-    }
-
-    #[derive(Clap, PartialEq, Debug)]
-    struct Command2 {
-        arg2: i32,
-    }
-
-    #[derive(Clap, PartialEq, Debug)]
-    enum Opt {
-        #[clap(flatten)]
-        BaseCli(BaseCli),
-        Command2(Command2),
-    }
-
     assert_eq!(
         Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 42 })),
         Opt::parse_from(&["test", "command1", "42"])
@@ -150,4 +150,13 @@ fn flatten_with_doc_comment() {
         #[clap(flatten)]
         opts: DaemonOpts,
     }
+}
+
+#[test]
+fn update_subcommands_with_flatten() {
+    let mut opt = Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 12 }));
+    opt.update_from(&["test", "command1", "42"]);
+    assert_eq!(Opt::parse_from(&["test", "command1", "42"]), opt);
+    opt.update_from(&["test", "command2", "43"]);
+    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
 }
