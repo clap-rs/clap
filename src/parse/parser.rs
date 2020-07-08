@@ -81,10 +81,6 @@ impl Input {
         }
     }
 
-    pub(crate) fn previous(&mut self) {
-        self.cursor -= 1;
-    }
-
     pub(crate) fn remaining(&self) -> &[OsString] {
         &self.items[self.cursor..]
     }
@@ -386,6 +382,7 @@ where
         let has_args = self.has_args();
 
         let mut subcmd_name: Option<String> = None;
+        let mut keep_state = false;
         let mut external_subcommand = false;
         let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
@@ -467,9 +464,8 @@ where
                             }
                             ParseResult::FlagSubCommand(ref name) => {
                                 debug!("Parser::get_matches_with: FlagSubCommand found in long arg {:?}", name);
-                                self.parse_subcommand(name, matcher, it, false)?;
-                                external_subcommand = true;
-                                continue;
+                                subcmd_name = Some(name.to_owned());
+                                break;
                             }
                             ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
                             _ => (),
@@ -506,13 +502,14 @@ where
                             }
                             ParseResult::FlagSubCommandShort(ref name, done) => {
                                 // There are more short args, revist the current short args skipping the subcommand
-                                if !done {
-                                    it.previous();
+                                keep_state = !done;
+                                if keep_state {
+                                    it.cursor -= 1;
                                     self.skip_idxs = self.cur_idx.get();
                                 }
-                                self.parse_subcommand(name, matcher, it, !done)?;
-                                external_subcommand = true;
-                                continue;
+
+                                subcmd_name = Some(name.to_owned());
+                                break;
                             }
                             ParseResult::FlagSubCommand(_) => unreachable!(),
                             _ => (),
@@ -535,12 +532,14 @@ where
                 if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
                     || self.is_set(AS::AllowExternalSubcommands)
                     || self.is_set(AS::InferSubcommands))
+                    && subcmd_name.is_none()
                 {
                     let cands =
                         suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
                     if !cands.is_empty() {
                         let cands: Vec<_> =
                             cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                        debug!("@NickHackman In arg parsing HELP - regression?");
                         return Err(ClapError::invalid_subcommand(
                             arg_os.to_string_lossy().into_owned(),
                             cands.join(" or "),
@@ -708,6 +707,7 @@ where
                 && arg_os.starts_with("-"))
                 && !self.is_set(AS::InferSubcommands)
             {
+                debug!("@NickHackman Other place - regresion?");
                 return Err(ClapError::unknown_argument(
                     &*arg_os.to_string_lossy(),
                     None,
@@ -749,7 +749,7 @@ where
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone();
-                self.parse_subcommand(&sc_name, matcher, it, false)?;
+                self.parse_subcommand(&sc_name, matcher, it, keep_state)?;
             } else if self.is_set(AS::SubcommandRequired) {
                 let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
                 return Err(ClapError::missing_subcommand(
