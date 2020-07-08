@@ -865,6 +865,41 @@ where
         None
     }
 
+    // Checks if the arg matches a long flag subcommand name, or any of it's aliases (if defined)
+    fn possible_long_flag_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
+        debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
+        if self.is_set(AS::InferSubcommands) {
+            let options = self
+                .app
+                .get_subcommands()
+                .iter()
+                .fold(Vec::new(), |mut options, sc| {
+                    if let Some(long) = sc.long {
+                        if arg_os.is_prefix_of(long) {
+                            options.push(long);
+                        }
+                        options.extend(
+                            sc.get_all_aliases()
+                                .filter(|alias| arg_os.is_prefix_of(alias)),
+                        )
+                    }
+                    options
+                });
+            if options.len() == 1 {
+                return Some(options[0]);
+            }
+
+            for sc in &options {
+                if sc == arg_os {
+                    return Some(sc);
+                }
+            }
+        } else if let Some(sc_name) = self.app.find_long_subcmd(arg_os) {
+            return Some(sc_name);
+        }
+        None
+    }
+
     fn parse_help_subcommand(&self, cmds: &[OsString]) -> ClapResult<ParseResult> {
         debug!("Parser::parse_help_subcommand");
 
@@ -1173,7 +1208,7 @@ where
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag(opt.id.clone()));
-        } else if let Some(sc_name) = self.app.find_long_subcmd(&arg) {
+        } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
             return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);

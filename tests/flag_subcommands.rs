@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 #[test]
 fn flag_subcommand_normal() {
@@ -273,4 +273,58 @@ fn flag_subcommand_conflict_with_version() {
     let _ = App::new("test")
         .subcommand(App::new("ver").short_flag('V').long_flag("version"))
         .get_matches_from(vec!["myprog", "--version"]);
+}
+
+#[test]
+fn flag_subcommand_long_infer_pass() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test").long_flag("test"))
+        .get_matches_from(vec!["prog", "--te"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[cfg(not(feature = "suggestions"))]
+#[test]
+fn flag_subcommand_long_infer_fail() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test").long_flag("test"))
+        .subcommand(App::new("temp").long_flag("temp"))
+        .try_get_matches_from(vec!["prog", "--te"]);
+    assert!(m.is_err(), "{:#?}", m.unwrap());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[cfg(feature = "suggestions")]
+#[test]
+fn flag_subcommand_long_infer_fail() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test").long_flag("test"))
+        .subcommand(App::new("temp").long_flag("temp"))
+        .try_get_matches_from(vec!["prog", "--te"]);
+    assert!(m.is_err(), "{:#?}", m.unwrap());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn flag_subcommands_long_infer_pass_close() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test").long_flag("test"))
+        .subcommand(App::new("temp").long_flag("temp"))
+        .get_matches_from(vec!["prog", "--tes"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+#[test]
+fn flag_subcommands_long_infer_exact_match() {
+    let m = App::new("prog")
+        .setting(AppSettings::InferSubcommands)
+        .subcommand(App::new("test").long_flag("test"))
+        .subcommand(App::new("testa").long_flag("testa"))
+        .subcommand(App::new("testb").long_flag("testb"))
+        .get_matches_from(vec!["prog", "--test"]);
+    assert_eq!(m.subcommand_name(), Some("test"));
 }
