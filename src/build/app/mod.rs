@@ -25,7 +25,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{safe_exit, termcolor::ColorChoice, Id, Key},
+    util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -2335,6 +2335,28 @@ impl<'b> App<'b> {
         }
 
         args
+    }
+
+    /// Find a flag subcommand name by short flag or an alias
+    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
+        self.get_subcommands()
+            .iter()
+            .find(|sc| sc.short == Some(c) || sc.get_all_short_aliases().any(|alias| alias == c))
+            .map(|sc| sc.get_name())
+    }
+
+    /// Find a flag subcommand name by long flag or an alias
+    pub(crate) fn find_long_subcmd(&self, long: &ArgStr<'_>) -> Option<&str> {
+        self.get_subcommands()
+            .iter()
+            .find(|sc| {
+                if let Some(sc_long) = sc.long {
+                    match_alias!(sc, long, sc_long)
+                } else {
+                    false
+                }
+            })
+            .map(|sc| sc.get_name())
     }
 }
 

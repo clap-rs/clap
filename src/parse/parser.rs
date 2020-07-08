@@ -1173,7 +1173,7 @@ where
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag(opt.id.clone()));
-        } else if let Some(sc_name) = find_long_subcmd!(self.app, arg) {
+        } else if let Some(sc_name) = self.app.find_long_subcmd(&arg) {
             return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
@@ -1260,7 +1260,7 @@ where
 
                 // Default to "we're expecting a value later"
                 return self.parse_opt(&val, opt, false, matcher);
-            } else if let Some(sc_name) = find_short_subcmd!(self.app, c) {
+            } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
                 let done_short_args = self.cur_idx.get() == arg.len();
