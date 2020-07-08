@@ -1664,8 +1664,8 @@ impl<'b> App<'b> {
 #[cfg(debug_assertions)]
 #[derive(Debug)]
 enum Flag<'a> {
-    App(App<'a>),
-    Arg(Arg<'a>),
+    App(&'a App<'a>),
+    Arg(&'a Arg<'a>),
 }
 
 #[cfg(debug_assertions)]
@@ -1802,12 +1802,8 @@ impl<'b> App<'b> {
     where
         F: Fn(&Flag<'_>) -> bool,
     {
-        let mut flags: Vec<_> = self
-            .subcommands
-            .iter()
-            .map(|a| Flag::App(a.clone()))
-            .collect();
-        flags.extend(self.args.args.iter().map(|a| Flag::Arg(a.clone())));
+        let mut flags: Vec<_> = self.subcommands.iter().map(|a| Flag::App(a)).collect();
+        flags.extend(self.args.args.iter().map(|a| Flag::Arg(a)));
         two_elements_of(flags.into_iter().filter(|f| condition(f)))
     }
 
