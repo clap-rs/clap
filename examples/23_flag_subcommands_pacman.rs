@@ -66,15 +66,16 @@ fn main() {
                         .short('s')
                         .long("search")
                         .about("search locally-installed packages for matching strings")
-                        .multiple(true)
-                        .takes_value(true),
+                        .conflicts_with("info")
+                        .multiple_values(true),
                 )
                 .arg(
                     Arg::new("info")
                         .long("info")
                         .short('i')
-                        .about("view package information (-ii for backup files)")
-                        .multiple(true),
+                        .conflicts_with("search")
+                        .about("view package information")
+                        .multiple_values(true),
                 ),
         )
         // Sync subcommand
@@ -89,21 +90,23 @@ fn main() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search remote repositories for matching strings")
-                        .multiple(true)
-                        .takes_value(true),
+                        .conflicts_with("info")
+                        .takes_value(true)
+                        .multiple_values(true)
+                        .about("search remote repositories for matching strings"),
                 )
                 .arg(
                     Arg::new("info")
                         .long("info")
+                        .conflicts_with("search")
                         .short('i')
-                        .about("view package information (-ii for extended information)")
-                        .multiple(true),
+                        .about("view package information"),
                 )
                 .arg(
                     Arg::new("package")
-                        .about("package")
+                        .about("packages")
                         .multiple(true)
+                        .required_unless_one(&["search"])
                         .takes_value(true),
                 ),
         )
@@ -111,45 +114,33 @@ fn main() {
 
     match matches.subcommand() {
         ("sync", Some(sync_matches)) => {
+            if sync_matches.is_present("search") {
+                let packages: Vec<_> = sync_matches.values_of("search").unwrap().collect();
+                let values = packages.join(", ");
+                println!("Searching for {}...", values);
+                return;
+            }
+
+            let packages: Vec<_> = sync_matches.values_of("package").unwrap().collect();
+            let values = packages.join(", ");
+
             if sync_matches.is_present("info") {
-                // Values required here, so it's safe to unwrap
-                let packages: Vec<_> = sync_matches.values_of("info").unwrap().collect();
-                let comma_sep = packages.join(", ");
-                println!("Retrieving info for {}...", comma_sep);
-            } else if sync_matches.is_present("search") {
-                // Values required here, so it's safe to unwrap
-                let queries: Vec<_> = sync_matches.values_of("search").unwrap().collect();
-                let comma_sep = queries.join(", ");
-                println!("Searching for {}...", comma_sep);
+                println!("Retrieving info for {}...", values);
             } else {
-                // Sync was called without any arguments
-                match sync_matches.values_of("package") {
-                    Some(packages) => {
-                        let pkgs: Vec<_> = packages.collect();
-                        let comma_sep = pkgs.join(", ");
-                        println!("Installing {}...", comma_sep);
-                    }
-                    None => panic!("No targets specified (use -h for help)"),
-                }
+                println!("Installing {}...", values);
             }
         }
         ("query", Some(query_matches)) => {
-            if query_matches.is_present("info") {
-                // Values required here, so it's safe to unwrap
-                let packages: Vec<_> = query_matches.values_of("info").unwrap().collect();
-                let comma_sep = packages.join(", ");
+            if let Some(packages) = query_matches.values_of("info") {
+                let comma_sep = packages.collect::<Vec<_>>().join(", ");
                 println!("Retrieving info for {}...", comma_sep);
-            } else if query_matches.is_present("search") {
-                // Values required here, so it's safe to unwrap
-                let queries: Vec<_> = query_matches.values_of("search").unwrap().collect();
-                let comma_sep = queries.join(", ");
+            } else if let Some(queries) = query_matches.values_of("search") {
+                let comma_sep = queries.collect::<Vec<_>>().join(", ");
                 println!("Searching Locally for {}...", comma_sep);
             } else {
-                // Query was called without any arguments
                 println!("Displaying all locally installed packages...");
             }
         }
-        ("", None) => panic!("error: no operation specified (use -h for help)"), // If no subcommand was used
         _ => unreachable!(), // If all subcommands are defined above, anything else is unreachable
     }
 }
