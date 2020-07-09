@@ -3078,7 +3078,7 @@ impl<'help> Arg<'help> {
     /// it and the associated value.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
+    /// # use clap::{App, Arg, ArgSettings, ErrorKind};
     /// let app = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .setting(ArgSettings::RequireEquals)
@@ -3740,7 +3740,86 @@ impl<'help> Arg<'help> {
         self.multiple_occurrences(multi).multiple_values(multi)
     }
 
-    /// TODO: docs
+    /// Specifies that the argument can take **one or more values**. This option **does not** affect
+    /// how many times the argument can *occur* on command line, use `multiple_occurences` for that.
+    ///
+    /// For options, at least one value will be required if the option itself is present,
+    /// but the option itself will not be required unless `required` is set.
+    ///
+    /// For example, `--opt val1 val2` is allowed, but `--opt val1 --opt val2` is not.
+    ///
+    /// For positional arguments:
+    ///
+    /// * Since *at least one value is expected*, it makes it effectively required unless
+    ///   `required(false)` was specified.
+    /// * Allows it to take *unlimited number of values*, which can shadow subcommands.
+    ///
+    /// In most cases, `number_of_values(N)` is more appropriate choice for positional arguments.
+    ///
+    /// ### Implications
+    ///
+    /// * Implies `takes_value(true)`, which in turn implies `min_vals(1)`.
+    /// * Effectively equivalent to `min_values(1).max_values(INFINITY)`
+    ///
+    /// ### Examples
+    ///
+    /// #### Non-positional options:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings, ErrorKind};
+    /// let app = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .multiple_values(true) // implies takes_value
+    ///         .short('F'));
+    ///
+    /// let m = app.clone().get_matches_from(&[
+    ///     "prog", "-F", "file1", "file2", "file3"
+    /// ]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    ///
+    /// // `multiple_values` doesn't imply `multiple_occurrences`,
+    /// // we cannot use the option more than once.
+    /// let res = app.try_get_matches_from(vec![
+    ///     "prog", "-F", "file1", "-F", "file2", "-F", "file3"
+    /// ]);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
+    /// ```
+    ///
+    /// #### Positional arguments
+    ///
+    /// ***FIXME: This is how it was supposed to work, but it currently doesn't. THIS IS A BUG***
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, ArgSettings, ErrorKind};
+    /// let app = App::new("prog")
+    ///     .arg(Arg::new("flag").short('F'))
+    ///     .arg(Arg::new("file")
+    ///         .multiple_values(true)); // implies takes_value
+    ///
+    /// // These are all multiple values of one occurrence of a positional argument
+    /// let m = app.clone().get_matches_from(&[
+    ///     "prog", "file1", "file2", "file3"
+    /// ]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    ///
+    /// // `multiple_values` doesn't imply `multiple_occurrences`,
+    /// // we cannot use the option more than once.
+    /// let res = app.try_get_matches_from(vec![
+    ///     "prog",
+    ///     "file1", "file2", // first occurrence
+    ///     "-F", // the occurrence of another option ends the value chain
+    ///     "file3" // This will be reported as unknown arg
+    /// ]);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
+    /// ```
     #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
