@@ -23,6 +23,7 @@ pub type Result<T> = StdResult<T, Error>;
 
 /// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// Occurs when an [`Arg`] has a set of possible values,
     /// and the user provides a value which isn't in that set.
