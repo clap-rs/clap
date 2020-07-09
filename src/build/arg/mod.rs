@@ -3079,32 +3079,23 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
-    /// let res = App::new("prog")
+    /// let app = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .setting(ArgSettings::RequireEquals)
-    ///         .long("config"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config=file.conf"
-    ///     ]);
+    ///         .long("config"));
     ///
+    /// // This is fine
+    /// let res = app.clone().try_get_matches_from(vec![
+    ///     "prog", "--config=file.conf"
+    /// ]);
     /// assert!(res.is_ok());
-    /// ```
     ///
-    /// Setting [`RequireEquals`] and *not* supplying the equals will cause an error
-    /// unless [`ArgSettings::EmptyValues`] is set.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .setting(ArgSettings::RequireEquals)
-    ///         .long("config"))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config", "file.conf"
-    ///     ]);
-    ///
+    /// // This is an ERROR because there's no explicit `=`
+    /// let res = app.try_get_matches_from(vec![
+    ///     "prog", "--config", "file.conf"
+    /// ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingEquals);
     /// ```
     /// [`RequireEquals`]: ./enum.ArgSettings.html#variant.RequireEquals
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.EmptyValues
@@ -3112,8 +3103,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_equals(self, r: bool) -> Self {
         if r {
-            self.unset_setting(ArgSettings::AllowEmptyValues)
-                .setting(ArgSettings::RequireEquals)
+            self.setting(ArgSettings::RequireEquals).takes_value(true)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
         }
@@ -3750,55 +3740,7 @@ impl<'help> Arg<'help> {
         self.multiple_occurrences(multi).multiple_values(multi)
     }
 
-    /// Allows an argument to accept explicitly empty values. An empty value must be specified at
-    /// the command line with an explicit `""`, `''`, or `--option=`
-    ///
-    /// **NOTE:** By default empty values are *not* allowed
-    ///
-    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// Arg::new("file")
-    ///     .long("file")
-    ///     .setting(ArgSettings::AllowEmptyValues)
-    /// # ;
-    /// ```
-    /// The default is to *not* allow empty values.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .setting(ArgSettings::TakesValue))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
-    /// ```
-    /// By adding this setting, we can allow empty values
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("cfg")
-    ///         .long("config")
-    ///         .short('v')
-    ///         .setting(ArgSettings::AllowEmptyValues)) // implies TakesValue
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "--config="
-    ///     ]);
-    ///
-    /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("config"), None);
-    /// ```
-    /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
+    /// TODO: docs
     #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {

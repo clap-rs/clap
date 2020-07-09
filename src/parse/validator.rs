@@ -45,9 +45,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 true
             };
             if should_err {
-                return Err(Error::empty_value(
+                return Err(Error::missing_required_value(
                     o,
-                    &*Usage::new(self.p).create_usage_with_title(&[]),
+                    Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
                 )?);
             }
@@ -124,17 +124,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         self.p.app.color(),
                     )?);
                 }
-            }
-            if !arg.is_set(ArgSettings::AllowEmptyValues)
-                && val.is_empty()
-                && matcher.contains(&arg.id)
-            {
-                debug!("Validator::validate_arg_values: illegal empty val found");
-                return Err(Error::empty_value(
-                    arg,
-                    &*Usage::new(self.p).create_usage_with_title(&[]),
-                    self.p.app.color(),
-                )?);
             }
             if let Some(ref vtor) = arg.validator {
                 debug!("Validator::validate_arg_values: checking validator...");
@@ -453,12 +442,12 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         } else {
             false
         };
-        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        // Issue 1105 (https://github.com/kbknapp/clap-rs/issues/1105)
+
         if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.vals.is_empty() {
-            return Err(Error::empty_value(
+            debug!("Validator::validate_arg_num_vals: Sending error missing_required_value");
+            return Err(Error::missing_required_value(
                 a,
-                &*Usage::new(self.p).create_usage_with_title(&[]),
+                Usage::new(self.p).create_usage_with_title(&[]),
                 self.p.app.color(),
             )?);
         }

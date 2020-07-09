@@ -1,5 +1,6 @@
 // Std
 use std::{
+    borrow::Cow,
     collections::VecDeque,
     convert::From,
     fmt::{self, Debug, Display, Formatter},
@@ -12,7 +13,7 @@ use crate::{
     build::{Arg, ArgGroup},
     output::fmt::Colorizer,
     parse::features::suggestions,
-    util::{safe_exit, termcolor::ColorChoice},
+    util::{safe_exit, termcolor::ColorChoice, ArgStr},
 };
 
 /// Short hand for [`Result`] type
@@ -105,23 +106,6 @@ pub enum ErrorKind {
     /// [`InvalidSubcommand`]: ./enum.ErrorKind.html#variant.InvalidSubcommand
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     UnrecognizedSubcommand,
-
-    /// Occurs when the user provides an empty value for an option that does not allow empty
-    /// values.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("color")
-    ///          .setting(ArgSettings::TakesValue)
-    ///          .long("color"))
-    ///     .try_get_matches_from(vec!["prog", "--color="]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
-    /// ```
-    EmptyValue,
 
     /// Occurs when the user provides a value for an argument with a custom validation and the
     /// value fails that validation.
@@ -370,6 +354,12 @@ pub enum ErrorKind {
     /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
     /// [Format error]: https://doc.rust-lang.org/std/fmt/struct.Error.html
     Format,
+
+    /// TODO: docs
+    MissingEquals,
+
+    /// TODO: docs
+    MissingRequiredValue,
 }
 
 /// Command Line Argument Parser Error
@@ -412,11 +402,11 @@ fn try_help(c: &mut Colorizer) -> io::Result<()> {
 
 impl Error {
     /// Returns the singular or plural form on the verb to be based on the argument's value.
-    fn singular_or_plural(n: usize) -> String {
+    fn singular_or_plural(n: usize) -> &'static str {
         if n > 1 {
-            String::from("were")
+            "were"
         } else {
-            String::from("was")
+            "was"
         }
     }
 
@@ -537,29 +527,6 @@ impl Error {
         })
     }
 
-    pub(crate) fn empty_value<U>(arg: &Arg, usage: U, color: ColorChoice) -> io::Result<Self>
-    where
-        U: Display,
-    {
-        let mut c = Colorizer::new(true, color);
-
-        start_error(&mut c, "The argument '")?;
-        c.warning(&arg.to_string())?;
-        c.none("' requires a value but none was supplied")?;
-        put_usage(&mut c, usage)?;
-        try_help(&mut c)?;
-
-        Ok(Error {
-            cause: format!(
-                "The argument '{}' requires a value but none was supplied",
-                arg
-            ),
-            message: c,
-            kind: ErrorKind::EmptyValue,
-            info: Some(vec![arg.name.to_owned()]),
-        })
-    }
-
     pub(crate) fn invalid_value<B, G, U>(
         bad_val: B,
         good_vals: &[G],
@@ -615,6 +582,64 @@ impl Error {
             message: c,
             kind: ErrorKind::InvalidValue,
             info: Some(vec![arg.name.to_owned(), bad_val.as_ref().to_owned()]),
+        })
+    }
+
+    pub(crate) fn missing_required_value(
+        arg: &Arg,
+        usage: String,
+        color: ColorChoice,
+    ) -> io::Result<Self> {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none("' requires a value but none was supplied")?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause: format!(
+                "The argument '{}' requires a value but none was supplied",
+                arg
+            ),
+            message: c,
+            kind: ErrorKind::MissingRequiredValue,
+            info: Some(vec![arg.name.to_owned()]),
+        })
+    }
+
+    pub(crate) fn missing_equals(
+        arg: &Arg,
+        val: Option<ArgStr>,
+        usage: String,
+        color: ColorChoice,
+    ) -> io::Result<Self> {
+        let val = if let Some(ref val) = val {
+            val.to_string_lossy()
+        } else {
+            Cow::Borrowed("value")
+        };
+
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "The argument '")?;
+        c.warning(&arg.to_string())?;
+        c.none(&format!(
+            "' requires that value was supplied via `{}={}` syntax",
+            arg.name, val
+        ))?;
+        put_usage(&mut c, usage)?;
+        try_help(&mut c)?;
+
+        Ok(Error {
+            cause: format!(
+                "The argument '{}' requires that value was supplied via `{}={}` syntax",
+                arg.name, val, arg.name
+            ),
+            message: c,
+            kind: ErrorKind::MissingEquals,
+            info: Some(vec![arg.name.to_owned()]),
         })
     }
 

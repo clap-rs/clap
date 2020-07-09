@@ -1226,7 +1226,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.seen.push(opt.id.clone());
 
             if opt.is_set(ArgSettings::TakesValue) {
-                return Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?);
+                return Ok(self.parse_opt(&val, opt, matcher)?);
             }
             self.check_for_help_and_version_str(&arg)?;
             self.parse_flag(opt, matcher)?;
@@ -1318,7 +1318,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 };
 
                 // Default to "we're expecting a value later"
-                return self.parse_opt(&val, opt, false, matcher);
+                return self.parse_opt(&val, opt, matcher);
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
@@ -1342,26 +1342,25 @@ impl<'help, 'app> Parser<'help, 'app> {
         &self,
         val: &Option<ArgStr>,
         opt: &Arg<'help>,
-        had_eq: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
         let mut has_eq = false;
         let no_val = val.is_none();
-        let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
         let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
         let needs_eq = opt.is_set(ArgSettings::RequireEquals);
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with("=") || had_eq;
+            has_eq = fv.starts_with("=");
             let v = fv.trim_start_n_matches(1, b'=');
-            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
-                debug!("Found Empty - Error");
-                return Err(ClapError::empty_value(
+            if needs_eq && !has_eq {
+                debug!("Found no `=` while required - Error");
+                return Err(ClapError::missing_equals(
                     opt,
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    Some(v),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
                 )?);
             }
@@ -1372,25 +1371,23 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv.starts_with("=")
             );
             self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine)?;
-        } else if needs_eq && !(empty_vals || min_vals_zero) {
-            debug!("None, but requires equals...Error");
-            return Err(ClapError::empty_value(
+        } else if needs_eq && !min_vals_zero {
+            debug!("Found no `=` while required - Error");
+            return Err(ClapError::missing_equals(
                 opt,
-                &*Usage::new(self).create_usage_with_title(&[]),
+                None,
+                Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
             )?);
-        } else if needs_eq && min_vals_zero {
-            debug!("None and requires equals, but min_vals == 0");
-            if !opt.default_missing_vals.is_empty() {
-                debug!("Parser::parse_opt: has default_missing_vals");
-                for val in &opt.default_missing_vals {
-                    debug!(
-                        "Parser::parse_opt: adding value from default_missing_values; val = {:?}",
-                        val
-                    );
-                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine)?;
-                }
-            };
+        // FIXME: this doesn't belong here. It should be somewhere in `add_defaults`
+        } else if min_vals_zero && !opt.default_missing_vals.is_empty() {
+            for val in &opt.default_missing_vals {
+                debug!(
+                    "Parser::parse_opt: adding value from default_missing_values; val = {:?}",
+                    val
+                );
+                self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine)?;
+            }
         } else {
             debug!("None");
         }
