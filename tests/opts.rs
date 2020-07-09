@@ -39,7 +39,7 @@ fn require_equals_fail() {
         )
         .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingEquals);
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn double_hyphen_as_value() {
 }
 
 #[test]
-fn require_equals_no_empty_values_fail() {
+fn require_equals_with_empty_value() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
@@ -82,8 +82,8 @@ fn require_equals_no_empty_values_fail() {
         )
         .arg(Arg::new("some"))
         .try_get_matches_from(vec!["prog", "--config=", "file.conf"]);
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap().value_of("cfg"), Some(""));
 }
 
 #[test]
@@ -92,7 +92,6 @@ fn require_equals_empty_vals_pass() {
         .arg(
             Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::AllowEmptyValues)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config="]);
@@ -384,13 +383,12 @@ fn did_you_mean() {
 #[test]
 fn issue_665() {
     let res = App::new("tester")
-        .arg("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
-        .arg(Arg::from(
-"--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'") )
+        .arg("-v, --reroll-count=[N]")
+        .arg("--subject-prefix [Subject-Prefix]")
         .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredValue);
 }
 
 #[test]
@@ -411,16 +409,16 @@ fn issue_1047_min_zero_vals_default_val() {
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> {
     App::new("opts")
-        .arg(Arg::from("-o, --option [opt] 'some option'").setting(ArgSettings::AllowEmptyValues))
-        .arg(Arg::from("--flag 'some flag'"))
+        .arg("-o, --option [opt] 'some option'")
+        .arg("--flag 'some flag'")
         .try_get_matches_from(argv)
 }
 
 #[test]
-fn issue_1105_empty_value_long_fail() {
+fn issue_1105_missing_value_long_fail() {
     let r = issue_1105_setup(vec!["app", "--option", "--flag"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredValue);
 }
 
 #[test]
@@ -440,10 +438,10 @@ fn issue_1105_empty_value_long_equals() {
 }
 
 #[test]
-fn issue_1105_empty_value_short_fail() {
+fn issue_1105_missing_value_short_fail() {
     let r = issue_1105_setup(vec!["app", "-o", "--flag"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredValue);
 }
 
 #[test]
