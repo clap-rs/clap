@@ -872,7 +872,7 @@ impl<'b> App<'b> {
         self
     }
 
-    /// Allows adding a [``] alias, which function as "hidden" short flag subcommands that
+    /// Allows adding an alias, which function as "hidden" short flag subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
     /// this command, and not all variants.
@@ -887,7 +887,6 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "d"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [``]: ./struct..html
     pub fn short_flag_alias(mut self, name: char) -> Self {
         if name == '-' {
             panic!("short alias name cannot be `-`");
@@ -921,7 +920,7 @@ impl<'b> App<'b> {
         self
     }
 
-    /// Allows adding [``] aliases, which function as "hidden" short flag subcommands that
+    /// Allows adding aliases, which function as "hidden" short flag subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
     /// this command, and not all variants.
@@ -940,7 +939,6 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "-a"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [``]: ./struct..html
     pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
             if s == &'-' {
@@ -971,7 +969,7 @@ impl<'b> App<'b> {
         self
     }
 
-    /// Allows adding a [``] alias that functions exactly like those defined with
+    /// Allows adding an alias that functions exactly like those defined with
     /// [`App::short_flag_alias`], except that they are visible inside the help message.
     ///
     /// # Examples
@@ -984,7 +982,6 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "-d"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [``]: ./struct..html
     /// [`App::short_flag_alias`]: ./struct.App.html#method.short_flag_alias
     pub fn visible_short_flag_alias(mut self, name: char) -> Self {
         if name == '-' {
@@ -1014,7 +1011,7 @@ impl<'b> App<'b> {
         self
     }
 
-    /// Allows adding multiple [``] short flag aliases that functions exactly like those defined
+    /// Allows adding multiple short flag aliases that functions exactly like those defined
     /// with [`App::short_flag_aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
@@ -1027,7 +1024,6 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "-t"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [``]: ./struct..html
     /// [`App::short_flag_aliases`]: ./struct.App.html#method.short_flag_aliases
     pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
