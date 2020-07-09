@@ -532,14 +532,12 @@ where
                 if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
                     || self.is_set(AS::AllowExternalSubcommands)
                     || self.is_set(AS::InferSubcommands))
-                    && subcmd_name.is_none()
                 {
                     let cands =
                         suggestions::did_you_mean(&*arg_os.to_string_lossy(), sc_names!(self.app));
                     if !cands.is_empty() {
                         let cands: Vec<_> =
                             cands.iter().map(|cand| format!("'{}'", cand)).collect();
-                        debug!("@NickHackman In arg parsing HELP - regression?");
                         return Err(ClapError::invalid_subcommand(
                             arg_os.to_string_lossy().into_owned(),
                             cands.join(" or "),
@@ -707,7 +705,6 @@ where
                 && arg_os.starts_with("-"))
                 && !self.is_set(AS::InferSubcommands)
             {
-                debug!("@NickHackman Other place - regresion?");
                 return Err(ClapError::unknown_argument(
                     &*arg_os.to_string_lossy(),
                     None,
@@ -1055,8 +1052,22 @@ where
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::default();
-            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
-            // a space
+            // Display subcommand name, short and long in usage
+            let mut sc_names = sc.name.clone();
+            let mut flag_subcmd = false;
+            if let Some(l) = sc.long {
+                sc_names.push_str(&format!(", --{}", l));
+                flag_subcmd = true;
+            }
+            if let Some(s) = sc.short {
+                sc_names.push_str(&format!(", -{}", s));
+                flag_subcmd = true;
+            }
+
+            if flag_subcmd {
+                sc_names = format!("{{{}}}", sc_names);
+            }
+
             sc.usage = Some(format!(
                 "{}{}{}",
                 self.app.bin_name.as_ref().unwrap_or(&String::new()),
@@ -1065,8 +1076,11 @@ where
                 } else {
                     ""
                 },
-                &*sc.name
+                sc_names
             ));
+
+            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
+            // a space
             sc.bin_name = Some(format!(
                 "{}{}{}",
                 self.app.bin_name.as_ref().unwrap_or(&String::new()),

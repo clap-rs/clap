@@ -1,3 +1,5 @@
+mod utils;
+
 use clap::{App, AppSettings, Arg, ErrorKind};
 
 #[test]
@@ -309,7 +311,7 @@ fn flag_subcommand_long_infer_fail() {
 }
 
 #[test]
-fn flag_subcommands_long_infer_pass_close() {
+fn flag_subcommand_long_infer_pass_close() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
         .subcommand(App::new("test").long_flag("test"))
@@ -319,7 +321,7 @@ fn flag_subcommands_long_infer_pass_close() {
 }
 
 #[test]
-fn flag_subcommands_long_infer_exact_match() {
+fn flag_subcommand_long_infer_exact_match() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
         .subcommand(App::new("test").long_flag("test"))
@@ -327,4 +329,164 @@ fn flag_subcommands_long_infer_exact_match() {
         .subcommand(App::new("testb").long_flag("testb"))
         .get_matches_from(vec!["prog", "--test"]);
     assert_eq!(m.subcommand_name(), Some("test"));
+}
+
+static FLAG_SUBCOMMAND_HELP: &str = "pacman-query 
+Query the package database.
+
+USAGE:
+    pacman {query, --query, -Q} [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -i, --info <info>...        view package information
+    -s, --search <search>...    search locally-installed packages for matching strings";
+
+#[test]
+fn flag_subcommand_long_short_normal_usage_string() {
+    let app = App::new("pacman")
+        .about("package manager utility")
+        .version("5.2.1")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .author("Pacman Development Team")
+        // Query subcommand
+        //
+        // Only a few of its arguments are implemented below.
+        .subcommand(
+            App::new("query")
+                .short_flag('Q')
+                .long_flag("query")
+                .about("Query the package database.")
+                .arg(
+                    Arg::new("search")
+                        .short('s')
+                        .long("search")
+                        .about("search locally-installed packages for matching strings")
+                        .conflicts_with("info")
+                        .multiple_values(true),
+                )
+                .arg(
+                    Arg::new("info")
+                        .long("info")
+                        .short('i')
+                        .conflicts_with("search")
+                        .about("view package information")
+                        .multiple_values(true),
+                ),
+        );
+    assert!(utils::compare_output(
+        app,
+        "pacman -Qh",
+        FLAG_SUBCOMMAND_HELP,
+        false
+    ));
+}
+
+static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query 
+Query the package database.
+
+USAGE:
+    pacman {query, --query} [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -i, --info <info>...        view package information
+    -s, --search <search>...    search locally-installed packages for matching strings";
+
+#[test]
+fn flag_subcommand_long_normal_usage_string() {
+    let app = App::new("pacman")
+        .about("package manager utility")
+        .version("5.2.1")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .author("Pacman Development Team")
+        // Query subcommand
+        //
+        // Only a few of its arguments are implemented below.
+        .subcommand(
+            App::new("query")
+                .long_flag("query")
+                .about("Query the package database.")
+                .arg(
+                    Arg::new("search")
+                        .short('s')
+                        .long("search")
+                        .about("search locally-installed packages for matching strings")
+                        .conflicts_with("info")
+                        .multiple_values(true),
+                )
+                .arg(
+                    Arg::new("info")
+                        .long("info")
+                        .short('i')
+                        .conflicts_with("search")
+                        .about("view package information")
+                        .multiple_values(true),
+                ),
+        );
+    assert!(utils::compare_output(
+        app,
+        "pacman query --help",
+        FLAG_SUBCOMMAND_NO_SHORT_HELP,
+        false
+    ));
+}
+
+static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query 
+Query the package database.
+
+USAGE:
+    pacman {query, -Q} [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -i, --info <info>...        view package information
+    -s, --search <search>...    search locally-installed packages for matching strings";
+
+#[test]
+fn flag_subcommand_short_normal_usage_string() {
+    let app = App::new("pacman")
+        .about("package manager utility")
+        .version("5.2.1")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .author("Pacman Development Team")
+        // Query subcommand
+        //
+        // Only a few of its arguments are implemented below.
+        .subcommand(
+            App::new("query")
+                .short_flag('Q')
+                .about("Query the package database.")
+                .arg(
+                    Arg::new("search")
+                        .short('s')
+                        .long("search")
+                        .about("search locally-installed packages for matching strings")
+                        .conflicts_with("info")
+                        .multiple_values(true),
+                )
+                .arg(
+                    Arg::new("info")
+                        .long("info")
+                        .short('i')
+                        .conflicts_with("search")
+                        .about("view package information")
+                        .multiple_values(true),
+                ),
+        );
+    assert!(utils::compare_output(
+        app,
+        "pacman query --help",
+        FLAG_SUBCOMMAND_NO_LONG_HELP,
+        false
+    ));
 }
