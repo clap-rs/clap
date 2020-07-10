@@ -888,7 +888,7 @@ where
                 .app
                 .get_subcommands()
                 .fold(Vec::new(), |mut options, sc| {
-                    if let Some(long) = sc.long {
+                    if let Some(long) = sc.long_flag {
                         if arg_os.is_prefix_of(long) {
                             options.push(long);
                         }
@@ -1072,11 +1072,11 @@ where
             // Display subcommand name, short and long in usage
             let mut sc_names = sc.name.clone();
             let mut flag_subcmd = false;
-            if let Some(l) = sc.long {
+            if let Some(l) = sc.long_flag {
                 sc_names.push_str(&format!(", --{}", l));
                 flag_subcmd = true;
             }
-            if let Some(s) = sc.short {
+            if let Some(s) = sc.short_flag {
                 sc_names.push_str(&format!(", -{}", s));
                 flag_subcmd = true;
             }

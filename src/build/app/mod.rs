@@ -72,8 +72,8 @@ pub(crate) enum Propagation {
 pub struct App<'b> {
     pub(crate) id: Id,
     pub(crate) name: String,
-    pub(crate) long: Option<&'b str>,
-    pub(crate) short: Option<char>,
+    pub(crate) long_flag: Option<&'b str>,
+    pub(crate) short_flag: Option<char>,
     pub(crate) bin_name: Option<String>,
     pub(crate) author: Option<&'b str>,
     pub(crate) version: Option<&'b str>,
@@ -110,13 +110,13 @@ impl<'b> App<'b> {
     /// Get the short flag of the subcommand
     #[inline]
     pub fn get_short_flag(&self) -> Option<char> {
-        self.short
+        self.short_flag
     }
 
     /// Get the long flag of the subcommand
     #[inline]
     pub fn get_long_flag(&self) -> Option<&str> {
-        self.long
+        self.long_flag
     }
 
     /// Get the name of the binary
@@ -144,7 +144,7 @@ impl<'b> App<'b> {
 
     /// Iterate through the *visible* short aliases for this subcommand.
     #[inline]
-    pub fn get_visible_short_aliases(&self) -> impl Iterator<Item = char> + '_ {
+    pub fn get_visible_short_flag_aliases(&self) -> impl Iterator<Item = char> + '_ {
         self.short_flag_aliases
             .iter()
             .filter(|(_, vis)| *vis)
@@ -159,7 +159,7 @@ impl<'b> App<'b> {
 
     /// Iterate through the set of *all* the short aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_short_aliases(&self) -> impl Iterator<Item = char> + '_ {
+    pub fn get_all_short_flag_aliases(&self) -> impl Iterator<Item = char> + '_ {
         self.short_flag_aliases.iter().map(|a| a.0)
     }
 
@@ -449,7 +449,7 @@ impl<'b> App<'b> {
     /// assert!(sync_matches.is_present("search"));
     /// ```
     pub fn short_flag(mut self, short: char) -> Self {
-        self.short = Some(short);
+        self.short_flag = Some(short);
         self
     }
 
@@ -492,7 +492,7 @@ impl<'b> App<'b> {
     /// assert!(sync_matches.is_present("search"));
     /// ```
     pub fn long_flag(mut self, long: &'b str) -> Self {
-        self.long = Some(long.trim_start_matches(|c| c == '-'));
+        self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
         self
     }
 
@@ -1697,14 +1697,14 @@ enum Flag<'a> {
 impl<'a> Flag<'_> {
     fn short(&self) -> Option<char> {
         match self {
-            Self::App(app) => app.short,
+            Self::App(app) => app.short_flag,
             Self::Arg(arg) => arg.short,
         }
     }
 
     fn long(&self) -> Option<&str> {
         match self {
-            Self::App(app) => app.long,
+            Self::App(app) => app.long_flag,
             Self::Arg(arg) => arg.long,
         }
     }
@@ -1857,7 +1857,7 @@ impl<'b> App<'b> {
 
         for sc in &self.subcommands {
             // Conflicts between flag subcommands and long args
-            if let Some(l) = sc.long {
+            if let Some(l) = sc.long_flag {
                 if let Some((first, second)) = self.two_flags_of(|f| f.long() == Some(l)) {
                     panic!(
                         "Long option names must be unique for each argument, \
@@ -1868,7 +1868,7 @@ impl<'b> App<'b> {
             }
 
             // Conflicts between flag subcommands and short args
-            if let Some(s) = sc.short {
+            if let Some(s) = sc.short_flag {
                 if let Some((first, second)) = self.two_flags_of(|f| f.short() == Some(s)) {
                     panic!(
                         "Short option names must be unique for each argument, \
@@ -2082,7 +2082,7 @@ impl<'b> App<'b> {
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.short == Some('h') || sc.long == Some("help")))
+                .any(|sc| sc.short_flag == Some('h') || sc.long_flag == Some("help")))
         {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
@@ -2103,7 +2103,7 @@ impl<'b> App<'b> {
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.short == Some('V') || sc.long == Some("version")))
+                .any(|sc| sc.short_flag == Some('V') || sc.long_flag == Some("version")))
         {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
@@ -2401,7 +2401,9 @@ impl<'b> App<'b> {
     /// Find a flag subcommand name by short flag or an alias
     pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
         self.get_subcommands()
-            .find(|sc| sc.short == Some(c) || sc.get_all_short_aliases().any(|alias| alias == c))
+            .find(|sc| {
+                sc.short_flag == Some(c) || sc.get_all_short_flag_aliases().any(|alias| alias == c)
+            })
             .map(|sc| sc.get_name())
     }
 
@@ -2409,7 +2411,7 @@ impl<'b> App<'b> {
     pub(crate) fn find_long_subcmd(&self, long: &ArgStr<'_>) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| {
-                if let Some(sc_long) = sc.long {
+                if let Some(sc_long) = sc.long_flag {
                     *long == sc_long || sc.aliases_to(long)
                 } else {
                     false

@@ -585,7 +585,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             );
 
             let mut short_als = a
-                .get_visible_short_aliases()
+                .get_visible_short_flag_aliases()
                 .map(|a| format!("-{}", a))
                 .collect::<Vec<_>>();
 
@@ -781,8 +781,8 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
         {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
             let mut sc_str = String::new();
-            sc_str.push_str(&sc.short.map_or(String::new(), |c| format!("-{}, ", c)));
-            sc_str.push_str(&sc.long.map_or(String::new(), |c| format!("--{}, ", c)));
+            sc_str.push_str(&sc.short_flag.map_or(String::new(), |c| format!("-{}, ", c)));
+            sc_str.push_str(&sc.long_flag.map_or(String::new(), |c| format!("--{}, ", c)));
             sc_str.push_str(&sc.name);
             self.longest = cmp::max(self.longest, str_width(&sc_str));
             btm.insert(sc_str, sc.clone());
