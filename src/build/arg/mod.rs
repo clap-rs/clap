@@ -892,7 +892,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
-
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         self.blacklist.extend(names.iter().map(Id::from));
         self
@@ -939,6 +938,7 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     pub fn exclusive(mut self, exclusive: bool) -> Self {
+        // FIXME: This should be an ArgSetting, not bool
         self.exclusive = exclusive;
         self
     }
@@ -1583,9 +1583,8 @@ impl<'help> Arg<'help> {
     /// [`max_values`]: ./struct.Arg.html#method.max_values
     #[inline]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.terminator = Some(term);
-        self
+        self.takes_value(true)
     }
 
     /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that
@@ -1636,9 +1635,8 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_values(mut self, names: &[&'help str]) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.possible_vals.extend(names);
-        self
+        self.takes_value(true)
     }
 
     /// Specifies a possible value for this argument, one at a time. At runtime, `clap` verifies
@@ -1695,9 +1693,8 @@ impl<'help> Arg<'help> {
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
     pub fn possible_value(mut self, name: &'help str) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.possible_vals.push(name);
-        self
+        self.takes_value(true)
     }
 
     /// Specifies the name of the [`ArgGroup`] the argument belongs to.
@@ -1809,9 +1806,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
     pub fn number_of_values(mut self, qty: u64) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.num_vals = Some(qty);
-        self
+        self.takes_value(true)
     }
 
     /// Allows one to perform a custom validation on the argument value. You provide a closure
@@ -1957,10 +1953,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
     pub fn max_values(mut self, qty: u64) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
-        self.set_mut(ArgSettings::MultipleValues);
         self.max_vals = Some(qty);
-        self
+        self.takes_value(true).multiple_values(true)
     }
 
     /// Specifies the *minimum* number of values for this argument. For example, if you had a
@@ -2023,7 +2017,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn min_values(mut self, qty: u64) -> Self {
         self.min_vals = Some(qty);
-        self.setting(ArgSettings::TakesValue)
+        self.takes_value(true)
     }
 
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
@@ -2051,15 +2045,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.unset_mut(ArgSettings::ValueDelimiterNotSet);
-        self.set_mut(ArgSettings::TakesValue);
-        self.set_mut(ArgSettings::UseValueDelimiter);
         self.val_delim = Some(
             d.chars()
                 .next()
                 .expect("Failed to get value_delimiter from arg"),
         );
-        self
+        self.takes_value(true).use_delimiter(true)
     }
 
     /// Specify multiple names for values of option arguments. These names are cosmetic only, used
@@ -2122,19 +2113,13 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
-        if self.is_set(ArgSettings::ValueDelimiterNotSet) {
-            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-        }
-
         let mut i = self.val_names.len();
         for s in names {
             self.val_names.insert(i, s);
             i += 1;
         }
 
-        self
+        self.takes_value(true)
     }
 
     /// Specifies the name for value of [option] or [positional] arguments inside of help
@@ -2184,10 +2169,9 @@ impl<'help> Arg<'help> {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     pub fn value_name(mut self, name: &'help str) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         let l = self.val_names.len();
         self.val_names.insert(l, name);
-        self
+        self.takes_value(true)
     }
 
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -2281,9 +2265,8 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.default_vals = vals.to_vec();
-        self
+        self.takes_value(true)
     }
 
     /// Specifies a value for the argument when the argument is supplied and a value is required
@@ -2386,9 +2369,8 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         self.default_missing_vals = vals.to_vec();
-        self
+        self.takes_value(true)
     }
 
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
@@ -2506,11 +2488,10 @@ impl<'help> Arg<'help> {
         val: Option<&'help OsStr>,
         default: &'help OsStr,
     ) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
         let l = self.default_vals_ifs.len();
         self.default_vals_ifs
             .insert(l, (arg_id.into(), val, default));
-        self
+        self.takes_value(true)
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
@@ -2730,6 +2711,7 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]s instead.
     #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
+        // FIXME: What. The. Fuck.
         if !self.is_set(ArgSettings::MultipleOccurrences) {
             self.set_mut(ArgSettings::TakesValue);
         }
@@ -3112,10 +3094,10 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.EmptyValues
     /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
-    pub fn require_equals(mut self, r: bool) -> Self {
+    pub fn require_equals(self, r: bool) -> Self {
         if r {
-            self.unset_mut(ArgSettings::AllowEmptyValues);
-            self.setting(ArgSettings::RequireEquals)
+            self.unset_setting(ArgSettings::AllowEmptyValues)
+                .setting(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
         }
@@ -3240,15 +3222,12 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings::UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
-    pub fn require_delimiter(mut self, d: bool) -> Self {
+    pub fn require_delimiter(self, d: bool) -> Self {
         if d {
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.unset_mut(ArgSettings::ValueDelimiterNotSet);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.setting(ArgSettings::RequireDelimiter)
+            self.takes_value(true)
+                .setting(ArgSettings::UseValueDelimiter)
+                .setting(ArgSettings::RequireDelimiter)
         } else {
-            self.unset_mut(ArgSettings::UseValueDelimiter);
-            self.unset_mut(ArgSettings::UseValueDelimiter);
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
     }
@@ -3473,13 +3452,11 @@ impl<'help> Arg<'help> {
             if self.val_delim.is_none() {
                 self.val_delim = Some(',');
             }
-            self.set_mut(ArgSettings::TakesValue);
-            self.set_mut(ArgSettings::UseValueDelimiter);
-            self.unset_setting(ArgSettings::ValueDelimiterNotSet)
+            self.takes_value(true)
+                .setting(ArgSettings::UseValueDelimiter)
         } else {
             self.val_delim = None;
-            self.unset_mut(ArgSettings::UseValueDelimiter);
-            self.unset_setting(ArgSettings::ValueDelimiterNotSet)
+            self.unset_setting(ArgSettings::UseValueDelimiter)
         }
     }
 
@@ -3565,13 +3542,12 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`AppSettings::NextLineHelp`]: ./enum.AppSettings.html#variant.NextLineHelp
     #[inline]
-    pub fn next_line_help(mut self, nlh: bool) -> Self {
+    pub fn next_line_help(self, nlh: bool) -> Self {
         if nlh {
-            self.set_mut(ArgSettings::NextLineHelp);
+            self.setting(ArgSettings::NextLineHelp)
         } else {
-            self.unset_mut(ArgSettings::NextLineHelp);
+            self.unset_setting(ArgSettings::NextLineHelp)
         }
-        self
     }
 
     /// Specifies that the argument may have an unknown number of multiple values. Without any other
@@ -3754,14 +3730,8 @@ impl<'help> Arg<'help> {
     /// [maximum]: ./struct.Arg.html#method.max_values
     /// [specific]: ./struct.Arg.html#method.number_of_values
     #[inline]
-    pub fn multiple(mut self, multi: bool) -> Self {
-        if multi {
-            self.set_mut(ArgSettings::MultipleOccurrences);
-            self.setting(ArgSettings::MultipleValues)
-        } else {
-            self.unset_mut(ArgSettings::MultipleOccurrences);
-            self.unset_setting(ArgSettings::MultipleValues)
-        }
+    pub fn multiple(self, multi: bool) -> Self {
+        self.multiple_occurrences(multi).multiple_values(multi)
     }
 
     /// Allows an argument to accept explicitly empty values. An empty value must be specified at
