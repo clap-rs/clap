@@ -207,7 +207,27 @@ fn flag_subcommand_long_with_alias() {
                         .long("test")
                         .about("testing testing"),
                 )
-                .alias("result"),
+                .long_flag_alias("result"),
+        )
+        .get_matches_from(vec!["myprog", "--result", "--test"]);
+    assert_eq!(matches.subcommand_name().unwrap(), "some");
+    let sub_matches = matches.subcommand_matches("some").unwrap();
+    assert!(sub_matches.is_present("test"));
+}
+
+#[test]
+fn flag_subcommand_long_with_aliases() {
+    let matches = App::new("test")
+        .subcommand(
+            App::new("some")
+                .long_flag("some")
+                .arg(
+                    Arg::new("test")
+                        .short('t')
+                        .long("test")
+                        .about("testing testing"),
+                )
+                .long_flag_aliases(&["result", "someall"]),
         )
         .get_matches_from(vec!["myprog", "--result", "--test"]);
     assert_eq!(matches.subcommand_name().unwrap(), "some");
