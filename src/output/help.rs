@@ -754,7 +754,10 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             if !first {
                 self.none("\n\n")?;
             }
-            self.warning("SUBCOMMANDS:\n")?;
+
+            self.warning(self.parser.app.subcommand_header.unwrap_or("SUBCOMMANDS"))?;
+            self.warning(":\n")?;
+
             self.write_subcommands(&self.parser.app)?;
         }
 

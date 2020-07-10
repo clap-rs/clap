@@ -155,18 +155,28 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                 if !self.p.is_set(AS::ArgsNegateSubcommands) {
                     usage.push_str("\n    ");
                     usage.push_str(&*self.create_help_usage(false));
-                    usage.push_str(" <SUBCOMMAND>");
+
+                    usage.push_str(" <");
+                    usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                    usage.push_str(">");
                 } else {
                     usage.push_str("\n    ");
                     usage.push_str(&*name);
-                    usage.push_str(" <SUBCOMMAND>");
+
+                    usage.push_str(" <");
+                    usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                    usage.push_str(">");
                 }
             } else if self.p.is_set(AS::SubcommandRequired)
                 || self.p.is_set(AS::SubcommandRequiredElseHelp)
             {
-                usage.push_str(" <SUBCOMMAND>");
+                usage.push_str(" <");
+                usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                usage.push_str(">");
             } else {
-                usage.push_str(" [SUBCOMMAND]");
+                usage.push_str(" [");
+                usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                usage.push_str("]");
             }
         }
         usage.shrink_to_fit();
@@ -195,7 +205,9 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
         );
         usage.push_str(&*r_string);
         if self.p.is_set(AS::SubcommandRequired) {
-            usage.push_str(" <SUBCOMMAND>");
+            usage.push_str(" <");
+            usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+            usage.push_str(">");
         }
         usage.shrink_to_fit();
         usage

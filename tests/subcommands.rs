@@ -362,3 +362,23 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
         .try_get_matches_from(vec!["myprog", "--", "subcommand"]);
     assert_eq!(m.unwrap().value_of("argument"), Some("subcommand"));
 }
+
+#[test]
+fn subcommand_placeholder_test() {
+    let mut app = App::new("myprog")
+        .subcommand(App::new("subcommand"))
+        .subcommand_placeholder("TEST_PLACEHOLDER", "TEST_HEADER");
+
+    assert_eq!(
+        &app.generate_usage(),
+        "USAGE:\n    myprog [TEST_PLACEHOLDER]"
+    );
+
+    let mut help_text = Vec::new();
+    app.write_help(&mut help_text)
+        .expect("Failed to write to internal buffer");
+
+    assert!(String::from_utf8(help_text)
+        .unwrap()
+        .contains("TEST_HEADER:"));
+}
