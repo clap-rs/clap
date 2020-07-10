@@ -2401,7 +2401,6 @@ impl<'b> App<'b> {
     /// Find a flag subcommand name by short flag or an alias
     pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
         self.get_subcommands()
-            .iter()
             .find(|sc| sc.short == Some(c) || sc.get_all_short_aliases().any(|alias| alias == c))
             .map(|sc| sc.get_name())
     }
@@ -2409,10 +2408,9 @@ impl<'b> App<'b> {
     /// Find a flag subcommand name by long flag or an alias
     pub(crate) fn find_long_subcmd(&self, long: &ArgStr<'_>) -> Option<&str> {
         self.get_subcommands()
-            .iter()
             .find(|sc| {
                 if let Some(sc_long) = sc.long {
-                    match_alias!(sc, long, sc_long)
+                    *long == sc_long || sc.aliases_to(long)
                 } else {
                     false
                 }

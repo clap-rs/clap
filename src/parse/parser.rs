@@ -887,7 +887,6 @@ where
             let options = self
                 .app
                 .get_subcommands()
-                .iter()
                 .fold(Vec::new(), |mut options, sc| {
                     if let Some(long) = sc.long {
                         if arg_os.is_prefix_of(long) {
