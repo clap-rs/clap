@@ -950,7 +950,7 @@ impl<'b> App<'b> {
     /// ```no_run
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
-    ///             .subcommand(App::new("test").long_flag('t')
+    ///             .subcommand(App::new("test").long_flag("test")
     ///                 .long_flag_alias("testing"))
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
