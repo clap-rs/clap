@@ -165,20 +165,40 @@ impl<'b> App<'b> {
 
     /// Get the list of subcommands
     #[inline]
-    pub fn get_subcommands(&self) -> &[App<'b>] {
-        &self.subcommands
+    pub fn get_subcommands(&self) -> impl Iterator<Item = &App<'b>> {
+        self.subcommands.iter()
     }
 
-    /// Get the list of subcommands
+    /// Iterate through the set of subcommands, getting a mutable reference to each.
     #[inline]
-    pub fn get_subcommands_mut(&mut self) -> &mut [App<'b>] {
-        &mut self.subcommands
+    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut App<'b>> {
+        self.subcommands.iter_mut()
     }
 
-    /// Get the list of arguments
+    /// Iterate through the set of arguments
     #[inline]
-    pub fn get_arguments(&self) -> &[Arg<'b>] {
-        &self.args.args
+    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.args.args.iter()
+    }
+
+    /// Get the list of *positional* arguments.
+    #[inline]
+    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments().filter(|a| a.is_positional())
+    }
+
+    /// Iterate through the *flags* that don't have custom heading.
+    pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments()
+            .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| a.get_help_heading().is_none())
+    }
+
+    /// Iterate through the *options* that don't have custom heading.
+    pub fn get_opts_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+        self.get_arguments()
+            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Get the list of arguments the given argument conflicts with
@@ -209,6 +229,15 @@ impl<'b> App<'b> {
     #[inline]
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
+    }
+
+    /// Find subcommand such that its name or one of aliases equals `name`.
+    #[inline]
+    pub fn find_subcommand<T>(&self, name: &T) -> Option<&App<'b>>
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        self.get_subcommands().find(|s| s.aliases_to(name))
     }
 }
 
@@ -2204,6 +2233,7 @@ impl<'b> App<'b> {
         self.args.args.iter().find(|a| a.id == *arg_id)
     }
 
+    #[inline]
     // Should we color the output?
     pub(crate) fn color(&self) -> ColorChoice {
         debug!("App::color: Color setting...");
@@ -2220,6 +2250,7 @@ impl<'b> App<'b> {
         }
     }
 
+    #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
         if !self.is_set(AppSettings::Built) {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");
@@ -2228,24 +2259,29 @@ impl<'b> App<'b> {
         self.args.contains(s)
     }
 
+    #[inline]
     pub(crate) fn set(&mut self, s: AppSettings) {
         self.settings.set(s)
     }
 
+    #[inline]
     pub(crate) fn unset(&mut self, s: AppSettings) {
         self.settings.unset(s)
     }
 
+    #[inline]
     pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
     }
 
+    #[inline]
     pub(crate) fn has_opts(&self) -> bool {
-        opts!(self).count() > 0
+        self.get_opts_no_heading().count() > 0
     }
 
+    #[inline]
     pub(crate) fn has_flags(&self) -> bool {
-        flags!(self).count() > 0
+        self.get_flags_no_heading().count() > 0
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {
@@ -2255,9 +2291,38 @@ impl<'b> App<'b> {
             .any(|sc| !sc.is_set(AppSettings::Hidden))
     }
 
+    /// Check if this subcommand can be referred to as `name`. In other words,
+    /// check if `name` is the name of this subcommand or is one of its aliases.
+    #[inline]
+    pub(crate) fn aliases_to<T>(&self, name: &T) -> bool
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        *name == *self.get_name() || self.get_all_aliases().any(|alias| *name == *alias)
+    }
+
     #[cfg(debug_assertions)]
     pub(crate) fn id_exists(&self, id: &Id) -> bool {
         self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
+    }
+
+    /// Iterate through the groups this arg is member of.
+    pub(crate) fn groups_for_arg<'a>(&'a self, arg: &'_ Id) -> impl Iterator<Item = Id> + 'a {
+        debug!("App::groups_for_arg: id={:?}", arg);
+        let arg = arg.clone();
+        self.groups
+            .iter()
+            .filter(move |grp| grp.args.iter().any(|a| a == &arg))
+            .map(|grp| grp.id.clone())
+    }
+
+    /// Iterate through all the names of all subcommands (not recursively), including aliases.
+    /// Used for suggestions.
+    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> {
+        self.get_subcommands().map(|s| s.get_name()).chain(
+            self.get_subcommands()
+                .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
+        )
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {

@@ -350,12 +350,12 @@ fn main() {
         (about: "Does awesome things")
         (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
         (@arg INPUT: +required "Sets the input file to use")
-        (@arg debug: -d ... "Sets the level of debugging information")
+        (@arg verbose: -v --verbose "Print test information verbosely")
         (@subcommand test =>
             (about: "controls testing features")
             (version: "1.3")
             (author: "Someone E. <someone_else@other.com>")
-            (@arg verbose: -v --verbose "Print test information verbosely")
+            (@arg debug: -d ... "Sets the level of debugging information")
         )
     ).get_matches();
 
@@ -410,7 +410,7 @@ To try out the pre-built [examples][examples], use the following steps:
 
 To test out `clap`'s default auto-generated help/version follow these steps:
 * Create a new cargo project `$ cargo new fake --bin && cd fake`
-* Writer your program as described in the quick example section.
+* Write your program as described in the quick example section.
 * Build your program `$ cargo build --release`
 * Run with help or version `$ ./target/release/fake --help` or `$ ./target/release/fake --version`
 

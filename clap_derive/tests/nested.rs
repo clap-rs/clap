@@ -14,25 +14,20 @@
 
 use clap::Clap;
 
+// Tests that clap_derive properly detects an `Option` field
+// that results from a macro expansion
 #[test]
-fn basic() {
-    #[derive(Clap, PartialEq, Debug)]
-    struct Opt {
-        #[clap(short = 'a', long = "arg")]
-        arg: Vec<i32>,
+fn use_option() {
+    macro_rules! expand_ty {
+        ($name:ident: $ty:ty) => {
+            #[derive(Clap)]
+            struct Outer {
+                #[clap(short, long)]
+                #[allow(dead_code)]
+                $name: $ty,
+            }
+        };
     }
-    assert_eq!(Opt { arg: vec![24] }, Opt::parse_from(&["test", "-a24"]));
-    assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&["test"]));
-    assert_eq!(
-        Opt { arg: vec![24, 42] },
-        Opt::parse_from(&["test", "-a24", "--arg", "42"])
-    );
-}
 
-#[test]
-fn unit_struct() {
-    #[derive(Clap, PartialEq, Debug)]
-    struct Opt;
-
-    assert_eq!(Opt {}, Opt::parse_from(&["test"]));
+    expand_ty!(my_field: Option<String>);
 }

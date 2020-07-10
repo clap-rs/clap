@@ -32,7 +32,7 @@ struct PathOpt {
     #[clap(short, parse(from_os_str))]
     option_path_1: Option<PathBuf>,
 
-    #[clap(short = "q", parse(from_os_str))]
+    #[clap(short = 'q', parse(from_os_str))]
     option_path_2: Option<PathBuf>,
 }
 
@@ -179,7 +179,7 @@ struct Occurrences {
     #[clap(short, parse(from_occurrences))]
     unsigned: usize,
 
-    #[clap(short = "r", parse(from_occurrences))]
+    #[clap(short = 'r', parse(from_occurrences))]
     little_unsigned: u8,
 
     #[clap(short, long, parse(from_occurrences = foo))]

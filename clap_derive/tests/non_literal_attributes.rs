@@ -30,7 +30,7 @@ struct Opt {
     )]
     x: i32,
 
-    #[clap(short = "l", long = "level", aliases = &["set-level", "lvl"])]
+    #[clap(short = 'l', long = "level", aliases = &["set-level", "lvl"])]
     level: String,
 
     #[clap(long("values"))]
@@ -129,7 +129,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
 
 #[derive(Clap, PartialEq, Debug)]
 struct HexOpt {
-    #[clap(short = "n", parse(try_from_str = parse_hex))]
+    #[clap(short, parse(try_from_str = parse_hex))]
     number: u64,
 }
 

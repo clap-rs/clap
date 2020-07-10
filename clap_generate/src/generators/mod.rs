@@ -4,7 +4,7 @@ mod shells;
 use std::io::Write;
 
 // Internal
-use clap::{find_subcmd, flags, match_alias, App, AppSettings, Arg};
+use clap::{App, AppSettings, Arg};
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -61,11 +61,7 @@ pub trait Generator {
     fn all_subcommands(app: &App) -> Vec<(String, String)> {
         let mut subcmds: Vec<_> = Self::subcommands(app);
 
-        for sc_v in app
-            .get_subcommands()
-            .iter()
-            .map(|s| Self::all_subcommands(&s))
-        {
+        for sc_v in app.get_subcommands().map(|s| Self::all_subcommands(&s)) {
             subcmds.extend(sc_v);
         }
 
@@ -81,7 +77,7 @@ pub trait Generator {
         let mut app = p;
 
         for sc in path {
-            app = find_subcmd!(app, sc).unwrap();
+            app = app.find_subcommand(sc).unwrap();
         }
 
         app
@@ -123,7 +119,6 @@ pub trait Generator {
 
         let mut shorts: Vec<char> = p
             .get_arguments()
-            .iter()
             .filter_map(|a| {
                 if a.get_index().is_none() && a.get_short().is_some() {
                     Some(a.get_short().unwrap())
@@ -151,7 +146,6 @@ pub trait Generator {
 
         let mut longs: Vec<String> = p
             .get_arguments()
-            .iter()
             .filter_map(|a| {
                 if a.get_index().is_none() && a.get_long().is_some() {
                     Some(a.get_long().unwrap().to_string())
@@ -179,7 +173,7 @@ pub trait Generator {
     fn flags<'b>(p: &'b App<'b>) -> Vec<Arg> {
         debug!("flags: name={}", p.get_name());
 
-        let mut flags: Vec<_> = flags!(p).cloned().collect();
+        let mut flags: Vec<_> = p.get_flags_no_heading().cloned().collect();
 
         if flags.iter().find(|x| x.get_name() == "help").is_none() {
             flags.push(

@@ -71,7 +71,10 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             usage.push_str(" [OPTIONS]");
         }
         if !self.p.is_set(AS::UnifiedHelpMessage)
-            && opts!(self.p.app)
+            && self
+                .p
+                .app
+                .get_opts_no_heading()
                 .any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden))
         {
             usage.push_str(" [OPTIONS]");
@@ -79,11 +82,23 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
 
         usage.push_str(&req_string[..]);
 
-        let has_last = positionals!(self.p.app).any(|p| p.is_set(ArgSettings::Last));
+        let has_last = self
+            .p
+            .app
+            .get_positionals()
+            .any(|p| p.is_set(ArgSettings::Last));
         // places a '--' in the usage string if there are args and options
         // supporting multiple values
-        if opts!(self.p.app).any(|o| o.is_set(ArgSettings::MultipleValues))
-            && positionals!(self.p.app).any(|p| !p.is_set(ArgSettings::Required))
+        if self
+            .p
+            .app
+            .get_opts_no_heading()
+            .any(|o| o.is_set(ArgSettings::MultipleValues))
+            && self
+                .p
+                .app
+                .get_positionals()
+                .any(|p| !p.is_set(ArgSettings::Required))
             && !(self.p.app.has_visible_subcommands()
                 || self.p.is_set(AS::AllowExternalSubcommands))
             && !has_last
@@ -94,19 +109,28 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last))
                 && !p.is_set(ArgSettings::Hidden)
         };
-        if positionals!(self.p.app).any(not_req_or_hidden) {
+        if self.p.app.get_positionals().any(not_req_or_hidden) {
             if let Some(args_tag) = self.get_args_tag(incl_reqs) {
                 usage.push_str(&*args_tag);
             } else {
                 usage.push_str(" [ARGS]");
             }
             if has_last && incl_reqs {
-                let pos = positionals!(self.p.app)
+                let pos = self
+                    .p
+                    .app
+                    .get_positionals()
                     .find(|p| p.is_set(ArgSettings::Last))
                     .expect(INTERNAL_ERROR_MSG);
                 debug!("Usage::create_help_usage: '{}' has .last(true)", pos.name);
                 let req = pos.is_set(ArgSettings::Required);
-                if req && positionals!(self.p.app).any(|p| !p.is_set(ArgSettings::Required)) {
+                if req
+                    && self
+                        .p
+                        .app
+                        .get_positionals()
+                        .any(|p| !p.is_set(ArgSettings::Required))
+                {
                     usage.push_str(" -- <");
                 } else if req {
                     usage.push_str(" [--] <");
@@ -181,13 +205,16 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     fn get_args_tag(&self, incl_reqs: bool) -> Option<String> {
         debug!("Usage::get_args_tag; incl_reqs = {:?}", incl_reqs);
         let mut count = 0;
-        'outer: for pos in positionals!(self.p.app)
+        'outer: for pos in self
+            .p
+            .app
+            .get_positionals()
             .filter(|pos| !pos.is_set(ArgSettings::Required))
             .filter(|pos| !pos.is_set(ArgSettings::Hidden))
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
-            for grp_s in groups_for_arg!(self.p.app, &pos.id) {
+            for grp_s in self.p.app.groups_for_arg(&pos.id) {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
                 if self
@@ -210,7 +237,10 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             debug!("Usage::get_args_tag:iter: More than one, returning [ARGS]");
             return None; // [ARGS]
         } else if count == 1 && incl_reqs {
-            let pos = positionals!(self.p.app)
+            let pos = self
+                .p
+                .app
+                .get_positionals()
                 .find(|pos| {
                     !pos.is_set(ArgSettings::Required)
                         && !pos.is_set(ArgSettings::Hidden)
@@ -232,7 +262,9 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
         {
             debug!("Usage::get_args_tag:iter: Don't collapse returning all");
             return Some(
-                positionals!(self.p.app)
+                self.p
+                    .app
+                    .get_positionals()
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                     .filter(|pos| !pos.is_set(ArgSettings::Last))
@@ -242,7 +274,10 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             );
         } else if !incl_reqs {
             debug!("Usage::get_args_tag:iter: incl_reqs=false, building secondary usage string");
-            let highest_req_pos = positionals!(self.p.app)
+            let highest_req_pos = self
+                .p
+                .app
+                .get_positionals()
                 .filter_map(|pos| {
                     if pos.is_set(ArgSettings::Required) && !pos.is_set(ArgSettings::Last) {
                         Some(pos.index)
@@ -251,16 +286,12 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                     }
                 })
                 .max()
-                .unwrap_or_else(|| Some(positionals!(self.p.app).count() as u64));
+                .unwrap_or_else(|| Some(self.p.app.get_positionals().count() as u64));
             return Some(
-                positionals!(self.p.app)
-                    .filter_map(|pos| {
-                        if pos.index <= highest_req_pos {
-                            Some(pos)
-                        } else {
-                            None
-                        }
-                    })
+                self.p
+                    .app
+                    .get_positionals()
+                    .filter(|pos| pos.index <= highest_req_pos)
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
                     .filter(|pos| !pos.is_set(ArgSettings::Last))
@@ -275,7 +306,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
     // Determines if we need the `[FLAGS]` tag in the usage string
     fn needs_flags_tag(&self) -> bool {
         debug!("Usage::needs_flags_tag");
-        'outer: for f in flags!(self.p.app) {
+        'outer: for f in self.p.app.get_flags_no_heading() {
             debug!("Usage::needs_flags_tag:iter: f={}", f.name);
             if let Some(l) = f.long {
                 if l == "help" || l == "version" {
@@ -283,7 +314,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                     continue;
                 }
             }
-            for grp_s in groups_for_arg!(self.p.app, &f.id) {
+            for grp_s in self.p.app.groups_for_arg(&f.id) {
                 debug!("Usage::needs_flags_tag:iter:iter: grp_s={:?}", grp_s);
                 if self
                     .p
@@ -356,7 +387,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             unrolled_reqs
                 .iter()
                 .chain(incls.iter())
-                .filter(|a| positionals!(self.p.app).any(|p| &&p.id == a))
+                .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
                 .filter(|&pos| !m.contains(pos))
                 .filter_map(|pos| self.p.app.find(pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
@@ -367,7 +398,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
             unrolled_reqs
                 .iter()
                 .chain(incls.iter())
-                .filter(|a| positionals!(self.p.app).any(|p| &&p.id == a))
+                .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
                 .filter_map(|pos| self.p.app.find(pos))
                 .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
                 .filter(|pos| !args_in_groups.contains(&pos.id))
@@ -383,7 +414,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
         for a in unrolled_reqs
             .iter()
             .chain(incls.iter())
-            .filter(|name| !positionals!(self.p.app).any(|p| &&p.id == name))
+            .filter(|name| !self.p.app.get_positionals().any(|p| &&p.id == name))
             .filter(|name| !self.p.app.groups.iter().any(|g| &&g.id == name))
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
