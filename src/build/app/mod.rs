@@ -2026,7 +2026,7 @@ impl<'b> App<'b> {
             // Conflicts between flag subcommands and long args
             if let Some(s) = sc.short_flag {
                 if let Some((first, second)) =
-                    self.two_short_flags_of(|f| f.value() == &s.to_string())
+                    self.two_short_flags_of(|f| f.value() == s.to_string())
                 {
                     // Prevent conflicts with itself
                     if first.id() != second.id() {
