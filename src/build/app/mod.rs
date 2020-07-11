@@ -1791,33 +1791,33 @@ impl<'b> App<'b> {
 #[cfg(debug_assertions)]
 #[derive(Debug)]
 enum Flag<'a> {
-    App(&'a App<'a>),
-    Arg(&'a Arg<'a>),
+    App(&'a App<'a>, String),
+    Arg(&'a Arg<'a>, String),
 }
 
 #[cfg(debug_assertions)]
 impl<'a> Flag<'_> {
-    fn short(&self) -> Option<char> {
+    pub fn value(&self) -> &str {
         match self {
-            Self::App(app) => app.short_flag,
-            Self::Arg(arg) => arg.short,
+            Self::App(_, value) => value,
+            Self::Arg(_, value) => value,
         }
     }
 
-    fn long(&self) -> Option<&str> {
+    pub fn id(&self) -> &Id {
         match self {
-            Self::App(app) => app.long_flag,
-            Self::Arg(arg) => arg.long,
+            Self::App(app, _) => &app.id,
+            Self::Arg(arg, _) => &arg.id,
         }
     }
 }
 
 #[cfg(debug_assertions)]
-impl<'a> fmt::Display for Flag<'_> {
+impl<'a> fmt::Display for Flag<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::App(app) => write!(f, "App named '{}'", app.get_name()),
-            Self::Arg(arg) => write!(f, "Arg named '{}'", arg.get_name()),
+            Self::App(app, _) => write!(f, "App named '{}'", app.name),
+            Self::Arg(arg, _) => write!(f, "Arg named '{}'", arg.name),
         }
     }
 }
@@ -1923,14 +1923,65 @@ impl<'b> App<'b> {
         }
     }
 
-    // Checks for conflicts in `Arg::long`/`App::long` or `Arg::short`/`App::short`
     #[cfg(debug_assertions)]
-    fn two_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
+    fn two_long_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
     where
         F: Fn(&Flag<'_>) -> bool,
     {
-        let mut flags: Vec<_> = self.subcommands.iter().map(|a| Flag::App(a)).collect();
-        flags.extend(self.args.args.iter().map(|a| Flag::Arg(a)));
+        let mut flags: Vec<Flag> = Vec::new();
+        for sc in &self.subcommands {
+            if let Some(long) = sc.long_flag {
+                flags.push(Flag::App(&sc, long.to_string()));
+            }
+            flags.extend(
+                sc.get_all_long_flag_aliases()
+                    .map(|alias| Flag::App(&sc, alias.to_string())),
+            );
+            self.args.args.iter().for_each(|arg| {
+                flags.extend(
+                    arg.aliases
+                        .iter()
+                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
+                )
+            });
+            flags.extend(
+                self.args
+                    .args
+                    .iter()
+                    .filter_map(|arg| arg.long.map(|l| Flag::Arg(arg, l.to_string()))),
+            );
+        }
+        two_elements_of(flags.into_iter().filter(|f| condition(f)))
+    }
+
+    #[cfg(debug_assertions)]
+    fn two_short_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
+    where
+        F: Fn(&Flag<'_>) -> bool,
+    {
+        let mut flags: Vec<Flag> = Vec::new();
+        for sc in &self.subcommands {
+            if let Some(short) = sc.short_flag {
+                flags.push(Flag::App(&sc, short.to_string()));
+            }
+            flags.extend(
+                sc.get_all_short_flag_aliases()
+                    .map(|alias| Flag::App(&sc, alias.to_string())),
+            );
+            self.args.args.iter().for_each(|arg| {
+                flags.extend(
+                    arg.short_aliases
+                        .iter()
+                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
+                )
+            });
+            flags.extend(
+                self.args
+                    .args
+                    .iter()
+                    .filter_map(|arg| arg.short.map(|l| Flag::Arg(arg, l.to_string()))),
+            );
+        }
         two_elements_of(flags.into_iter().filter(|f| condition(f)))
     }
 
@@ -1960,23 +2011,31 @@ impl<'b> App<'b> {
         for sc in &self.subcommands {
             // Conflicts between flag subcommands and long args
             if let Some(l) = sc.long_flag {
-                if let Some((first, second)) = self.two_flags_of(|f| f.long() == Some(l)) {
-                    panic!(
-                        "Long option names must be unique for each argument, \
+                if let Some((first, second)) = self.two_long_flags_of(|f| f.value() == l) {
+                    // Prevent conflicts with itself
+                    if first.id() != second.id() {
+                        panic!(
+                            "Long option names must be unique for each argument, \
                         but '--{}' is used by both an {} and an {}",
-                        l, first, second
-                    );
+                            l, first, second
+                        );
+                    }
                 }
             }
 
-            // Conflicts between flag subcommands and short args
+            // Conflicts between flag subcommands and long args
             if let Some(s) = sc.short_flag {
-                if let Some((first, second)) = self.two_flags_of(|f| f.short() == Some(s)) {
-                    panic!(
-                        "Short option names must be unique for each argument, \
+                if let Some((first, second)) =
+                    self.two_short_flags_of(|f| f.value() == &s.to_string())
+                {
+                    // Prevent conflicts with itself
+                    if first.id() != second.id() {
+                        panic!(
+                            "Short option names must be unique for each argument, \
                         but '-{}' is used by both an {} and an {}",
-                        s, first, second
-                    );
+                            s, first, second
+                        );
+                    }
                 }
             }
         }
