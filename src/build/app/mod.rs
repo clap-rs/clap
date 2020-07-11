@@ -81,7 +81,9 @@ pub struct App<'b> {
     pub(crate) about: Option<&'b str>,
     pub(crate) long_about: Option<&'b str>,
     pub(crate) before_help: Option<&'b str>,
+    pub(crate) before_long_help: Option<&'b str>,
     pub(crate) after_help: Option<&'b str>,
+    pub(crate) after_long_help: Option<&'b str>,
     pub(crate) aliases: Vec<(&'b str, bool)>, // (name, visible)
     pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) long_flag_aliases: Vec<(&'b str, bool)>, // (name, visible)
@@ -404,6 +406,9 @@ impl<'b> App<'b> {
     /// information is displayed **after** the auto-generated help information. This is often used
     /// to describe how to use the arguments, or caveats to be noted.
     ///
+    /// **NOTE:** If only `after_long_help` is provided, and not [`App::after_help`] but the user requests
+    /// `-h` clap will still display the contents of `after_help` appropriately
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -418,8 +423,33 @@ impl<'b> App<'b> {
     }
 
     /// Adds additional help information to be displayed in addition to auto-generated help. This
+    /// information is displayed **after** the auto-generated help information and is meant to be
+    /// more verbose than `after_help`. This is often used for man pages.. This is often used
+    /// to describe how to use the arguments, or caveats to be noted in man pages.
+    ///
+    /// **NOTE:** If only `after_help` is provided, and not [`App::after_long_help`] but the user requests
+    /// `--help`, clap will still display the contents of `after_help` appropriately
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .after_long_help("Does really amazing things to great people... but be careful with -R, \
+    ///                      like, for real, be careful with this!")
+    /// # ;
+    /// ```
+    pub fn after_long_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+        self.after_long_help = Some(help.into());
+        self
+    }
+
+    /// Adds additional help information to be displayed in addition to auto-generated help. This
     /// information is displayed **before** the auto-generated help information. This is often used
     /// for header information.
+    ///
+    /// **NOTE:** If only `before_long_help` is provided, and not [`App::before_help`] but the user requests
+    /// `-h` clap will still display the contents of `before_long_help` appropriately
     ///
     /// # Examples
     ///
@@ -431,6 +461,26 @@ impl<'b> App<'b> {
     /// ```
     pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
+        self
+    }
+
+    /// Adds additional help information to be displayed in addition to auto-generated help. This
+    /// information is displayed **before** the auto-generated help information and is meant to be more
+    /// verbose than `before_help`. This is often used for header information in man pages.
+    ///
+    /// **NOTE:** If only `before_help` is provided, and not [`App::before_long_help`] but the user requests
+    /// `--help`, clap will still display the contents of `before_help` appropriately
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
+    /// # ;
+    /// ```
+    pub fn before_long_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+        self.before_long_help = Some(help.into());
         self
     }
 
@@ -2691,7 +2741,9 @@ impl<'a> From<&'a Yaml> for App<'a> {
         yaml_str!(a, yaml, bin_name);
         yaml_str!(a, yaml, about);
         yaml_str!(a, yaml, before_help);
+        yaml_str!(a, yaml, before_long_help);
         yaml_str!(a, yaml, after_help);
+        yaml_str!(a, yaml, after_long_help);
         yaml_str!(a, yaml, alias);
         yaml_str!(a, yaml, visible_alias);
 
