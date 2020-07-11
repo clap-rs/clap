@@ -96,6 +96,22 @@ fn flag_subcommand_short_with_alias() {
 }
 
 #[test]
+fn flag_subcommand_short_with_alias_same_as_short_flag() {
+    let matches = App::new("test")
+        .subcommand(App::new("some").short_flag('S').short_flag_alias('S'))
+        .get_matches_from(vec!["myprog", "-S"]);
+    assert_eq!(matches.subcommand_name().unwrap(), "some");
+}
+
+#[test]
+fn flag_subcommand_long_with_alias_same_as_long_flag() {
+    let matches = App::new("test")
+        .subcommand(App::new("some").long_flag("sync").long_flag_alias("sync"))
+        .get_matches_from(vec!["myprog", "--sync"]);
+    assert_eq!(matches.subcommand_name().unwrap(), "some");
+}
+
+#[test]
 fn flag_subcommand_short_with_aliases_vis_and_hidden() {
     let app = App::new("test").subcommand(
         App::new("some")
@@ -271,6 +287,46 @@ fn flag_subcommand_short_conflict_with_arg() {
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
         .arg(Arg::new("test").short('f'))
         .get_matches_from(vec!["myprog", "-f"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an App named \'result\'"]
+fn flag_subcommand_short_conflict_with_alias() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+        .subcommand(App::new("result").short_flag('t').short_flag_alias('f'))
+        .get_matches_from(vec!["myprog", "-f"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Long option names must be unique for each argument, but \'--flag\' is used by both an App named \'some\' and an App named \'result\'"]
+fn flag_subcommand_long_conflict_with_alias() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").long_flag("flag"))
+        .subcommand(App::new("result").long_flag("test").long_flag_alias("flag"))
+        .get_matches_from(vec!["myprog", "--flag"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an Arg named \'test\'"]
+fn flag_subcommand_short_conflict_with_arg_alias() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+        .arg(Arg::new("test").short('t').short_alias('f'))
+        .get_matches_from(vec!["myprog", "-f"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Long option names must be unique for each argument, but \'--some\' is used by both an App named \'some\' and an Arg named \'test\'"]
+fn flag_subcommand_long_conflict_with_arg_alias() {
+    let _ = App::new("test")
+        .subcommand(App::new("some").short_flag('f').long_flag("some"))
+        .arg(Arg::new("test").long("test").alias("some"))
+        .get_matches_from(vec!["myprog", "--some"]);
 }
 
 #[cfg(debug_assertions)]
