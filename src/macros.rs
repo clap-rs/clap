@@ -312,6 +312,13 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
+    // Global Settings
+    (@app ($builder:expr) (@global_setting $setting:ident) $($tt:tt)*) => {
+        $crate::clap_app!{ @app
+            ($builder.global_setting($crate::AppSettings::$setting))
+            $($tt)*
+        }
+    };
     // Settings
     (@app ($builder:expr) (@setting $setting:ident) $($tt:tt)*) => {
         $crate::clap_app!{ @app
