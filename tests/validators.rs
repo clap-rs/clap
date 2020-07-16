@@ -19,6 +19,18 @@ fn both_validator_and_validator_os() {
 }
 
 #[test]
+fn test_validator_fromstr_trait() {
+    use std::str::FromStr;
+
+    let matches = App::new("test")
+        .arg(Arg::new("from_str").validator(u32::from_str))
+        .try_get_matches_from(&["app", "1234"])
+        .expect("match failed");
+
+    assert_eq!(matches.value_of_t::<u32>("from_str").ok(), Some(1234));
+}
+
+#[test]
 fn test_validator_msg_newline() {
     let res = App::new("test")
         .arg(Arg::new("test").validator(|val| val.parse::<u32>().map_err(|e| e.to_string())))

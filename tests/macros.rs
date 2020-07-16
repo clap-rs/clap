@@ -360,3 +360,26 @@ fn multiarg() {
     assert_eq!(matches.value_of("multiarg"), Some("flag-set"));
     assert_eq!(matches.value_of("multiarg2"), Some("flag-set"));
 }
+
+#[test]
+fn validator() {
+    use std::str::FromStr;
+
+    fn validate(val: &str) -> Result<u32, String> {
+        val.parse::<u32>().map_err(|e| e.to_string())
+    }
+
+    let app = clap_app!(claptests =>
+        (@arg inline: { |val| val.parse::<u16>() })
+        (@arg func1: { validate })
+        (@arg func2: { u64::from_str })
+    );
+
+    let matches = app
+        .try_get_matches_from(&["bin", "12", "34", "56"])
+        .expect("match failed");
+
+    assert_eq!(matches.value_of_t::<u16>("inline").ok(), Some(12));
+    assert_eq!(matches.value_of_t::<u16>("func1").ok(), Some(34));
+    assert_eq!(matches.value_of_t::<u16>("func2").ok(), Some(56));
+}
