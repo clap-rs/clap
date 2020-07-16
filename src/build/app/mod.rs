@@ -440,15 +440,6 @@ impl<'b> App<'b> {
     ///
     /// ```
     /// # use clap::{App, Arg};
-    /// App::new("pacman").subcommand(
-    ///    App::new("sync")
-    ///        .short_flag('S'),
-    /// )
-    /// # ;
-    /// ```
-    ///
-    /// ```
-    /// # use clap::{App, Arg};
     /// let matches = App::new("pacman")
     ///     .subcommand(
     ///         App::new("sync").short_flag('S').arg(
@@ -483,25 +474,16 @@ impl<'b> App<'b> {
     ///
     /// ```
     /// # use clap::{App, Arg};
-    /// App::new("pacman").subcommand(
-    ///    App::new("sync")
-    ///        .long_flag("sync"),
-    /// )
-    /// # ;
-    /// ```
-    ///
-    /// ```
-    /// # use clap::{App, Arg};
     /// let matches = App::new("pacman")
     ///     .subcommand(
-    ///         App::new("sync").short_flag('S').arg(
+    ///         App::new("sync").long_flag("sync").arg(
     ///             Arg::new("search")
     ///                 .short('s')
     ///                 .long("search")
     ///                 .about("search remote repositories for matching strings"),
     ///         ),
     ///     )
-    ///     .get_matches_from(vec!["pacman", "-Ss"]);
+    ///     .get_matches_from(vec!["pacman", "--sync", "--search"]);
     ///
     /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();

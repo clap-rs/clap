@@ -1,50 +1,23 @@
-// Working with flag subcommands allows behavior similar to the popular Archlinux package manager Pacman.
-// Man page: https://jlk.fjfi.cvut.cz/arch/manpages/man/pacman.8
+// This feature allows users of the app to pass subcommands in the fashion of short or long flags.
+// You may be familiar with it if you ever used [`pacman`](https://wiki.archlinux.org/index.php/pacman).
+// Some made up examples of what flag subcommands are:
 //
-// It's suggested that you read examples/20_subcommands.rs prior to learning about `FlagSubCommand`s
-//
-// This differs from normal subcommands because it allows passing subcommands in the same fashion as `clap::Arg` in short or long args.
-//
-//            Top Level App (pacman)                              TOP
-//                           |
-//    ---------------------------------------------------
-//   /     |        |        |         |        \        \
-// sync  database remove    files      query   deptest   upgrade  LEVEL 1
-//
-// Given the above hierachy, valid runtime uses would be (not an all inclusive list):
-//
+// ```shell
+// $ pacman -S
+//           ^--- short flag subcommand.
+// $ pacman --sync
+//           ^--- long flag subcommand.
 // $ pacman -Ss
-//           ^--- subcommand followed by an arg in its scope.
-//
-// $ pacman -Qs
-//
-// $ pacman -Rns
-//
-// NOTE: Subcommands short flags can be uppercase or lowercase.
-//
-// $ pacman --sync --search
-//            ^--- subcommand
-//
-// $ pacman sync -s
-//          ^--- subcommand
-//
-// NOTE: this isn't valid for pacman, but is done implicitly by Clap which
-// adds support for both flags and standard subcommands out of the box.
-// Allowing your users to make the choice of what feels more intuitive for them.
-//
-// Notice only one command per "level" may be used. You could not, for example, do:
-//
-// $ pacman -SQR
-//
-// It's also important to know that subcommands each have their own set of matches and may have args
-// with the same name as other subcommands in a different part of the tree heirachy (i.e. the arg
-// names aren't in a flat namespace).
-//
-// In order to use subcommands in clap, you only need to know which subcommand you're at in your
-// tree, and which args are defined on that subcommand.
-//
-// Let's make a quick program to illustrate. We'll be using the same example as above but for
-// brevity sake we won't implement all of the subcommands, only a few.
+//           ^--- short flag subcommand followed by a short flag
+//                   (users can "stack" short subcommands with short flags or with other short flag subcommands)
+// $ pacman -S -s
+//           ^--- same as above
+// $ pacman -S --sync
+//           ^--- short flag subcommand followed by a long flag
+// ```
+// NOTE: Keep in mind that subcommands, flags, and long flags are *case sensitive*: `-Q` and `-q` are different flags/subcommands. For example, you can have both `-Q` subcommand and `-q` flag, and they will be properly disambiguated.
+// Let's make a quick program to illustrate.
+
 use clap::{App, AppSettings, Arg};
 
 fn main() {
