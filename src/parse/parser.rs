@@ -308,7 +308,7 @@ where
         true
     }
 
-    #[allow(clippy::block_in_if_condition_stmt)]
+    #[allow(clippy::blocks_in_if_conditions)]
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debug!("Parser::_build");
