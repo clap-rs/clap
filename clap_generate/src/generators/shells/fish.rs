@@ -59,6 +59,12 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
 
         if let Some(data) = option.get_short() {
             template.push_str(format!(" -s {}", data).as_str());
+
+            if let Some(short_aliases) = option.get_visible_short_aliases() {
+                for data in short_aliases {
+                    template.push_str(format!(" -s {}", data).as_str());
+                }
+            }
         }
 
         if let Some(data) = option.get_long() {
@@ -82,6 +88,12 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
 
         if let Some(data) = flag.get_short() {
             template.push_str(format!(" -s {}", data).as_str());
+
+            if let Some(short_aliases) = flag.get_visible_short_aliases() {
+                for data in short_aliases {
+                    template.push_str(format!(" -s {}", data).as_str());
+                }
+            }
         }
 
         if let Some(data) = flag.get_long() {

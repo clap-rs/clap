@@ -83,6 +83,13 @@ fn generate_inner<'b>(
 
             completions.push_str(&preamble);
             completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
+
+            if let Some(short_aliases) = option.get_visible_short_aliases() {
+                for data in short_aliases {
+                    completions.push_str(&preamble);
+                    completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
+                }
+            }
         }
 
         if let Some(data) = option.get_long() {
@@ -99,6 +106,13 @@ fn generate_inner<'b>(
 
             completions.push_str(&preamble);
             completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
+
+            if let Some(short_aliases) = flag.get_visible_short_aliases() {
+                for data in short_aliases {
+                    completions.push_str(&preamble);
+                    completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
+                }
+            }
         }
 
         if let Some(data) = flag.get_long() {

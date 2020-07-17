@@ -112,31 +112,49 @@ pub trait Generator {
         subcmds
     }
 
-    /// Gets all the short options and flags of a [`clap::App`](../clap/struct.App.html).
+    /// Gets all the short options, their visible aliases and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `h` and `V` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
-    fn shorts<'b>(p: &'b App<'b>) -> Vec<char> {
+    fn shorts_and_visible_aliases<'b>(p: &'b App<'b>) -> Vec<char> {
         debug!("shorts: name={}", p.get_name());
 
-        let mut shorts: Vec<char> = p
+        let mut shorts_and_visible_aliases: Vec<char> = p
             .get_arguments()
             .filter_map(|a| {
-                if a.get_index().is_none() && a.get_short().is_some() {
-                    Some(a.get_short().unwrap())
+                if a.get_index().is_none() {
+                    if a.get_visible_short_aliases().is_some() && a.get_short().is_some() {
+                        let mut shorts_and_visible_aliases = a.get_visible_short_aliases().unwrap();
+                        shorts_and_visible_aliases.push(a.get_short().unwrap());
+                        Some(shorts_and_visible_aliases)
+                    } else if a.get_visible_short_aliases().is_none() && a.get_short().is_some() {
+                        Some(vec![a.get_short().unwrap()])
+                    } else {
+                        None
+                    }
                 } else {
                     None
                 }
             })
+            .flatten()
             .collect();
 
-        if shorts.iter().find(|x| **x == 'h').is_none() {
-            shorts.push('h');
+        if shorts_and_visible_aliases
+            .iter()
+            .find(|x| **x == 'h')
+            .is_none()
+        {
+            shorts_and_visible_aliases.push('h');
         }
 
-        if !p.is_set(AppSettings::DisableVersion) && shorts.iter().find(|x| **x == 'V').is_none() {
-            shorts.push('V');
+        if !p.is_set(AppSettings::DisableVersion)
+            && shorts_and_visible_aliases
+                .iter()
+                .find(|x| **x == 'V')
+                .is_none()
+        {
+            shorts_and_visible_aliases.push('V');
         }
 
-        shorts
+        shorts_and_visible_aliases
     }
 
     /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
@@ -217,9 +235,13 @@ mod tests {
     fn common() -> App<'static> {
         let mut app = App::new("myapp")
             .subcommand(
-                App::new("test")
-                    .subcommand(App::new("config"))
-                    .arg(Arg::new("file").short('f').long("file")),
+                App::new("test").subcommand(App::new("config")).arg(
+                    Arg::new("file")
+                        .short('f')
+                        .short_alias('c')
+                        .visible_short_alias('p')
+                        .long("file"),
+                ),
             )
             .subcommand(App::new("hello"))
             .bin_name("my-app");
@@ -286,18 +308,20 @@ mod tests {
     #[test]
     fn test_shorts() {
         let app = common();
-        let shorts = Foo::shorts(&app);
+        let shorts = Foo::shorts_and_visible_aliases(&app);
 
         assert_eq!(shorts.len(), 2);
         assert_eq!(shorts[0], 'h');
         assert_eq!(shorts[1], 'V');
 
-        let sc_shorts = Foo::shorts(Foo::find_subcommand_with_path(&app, vec!["test"]));
+        let sc_shorts =
+            Foo::shorts_and_visible_aliases(Foo::find_subcommand_with_path(&app, vec!["test"]));
 
-        assert_eq!(sc_shorts.len(), 3);
-        assert_eq!(sc_shorts[0], 'f');
-        assert_eq!(sc_shorts[1], 'h');
-        assert_eq!(sc_shorts[2], 'V');
+        assert_eq!(sc_shorts.len(), 4);
+        assert_eq!(sc_shorts[0], 'p');
+        assert_eq!(sc_shorts[1], 'f');
+        assert_eq!(sc_shorts[2], 'h');
+        assert_eq!(sc_shorts[3], 'V');
     }
 
     #[test]

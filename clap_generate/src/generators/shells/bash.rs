@@ -195,7 +195,7 @@ fn all_options_for_path(app: &App, path: &str) -> String {
 
     let opts = format!(
         "{shorts} {longs} {pos} {subcmds}",
-        shorts = Bash::shorts(p)
+        shorts = Bash::shorts_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
         longs = Bash::longs(p)
