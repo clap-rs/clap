@@ -308,7 +308,6 @@ where
         true
     }
 
-    #[allow(clippy::blocks_in_if_conditions)]
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debug!("Parser::_build");
@@ -340,8 +339,10 @@ where
         #[cfg(debug_assertions)]
         self._verify_positionals();
 
-        // Set the LowIndexMultiple flag if required
-        if self.app.get_positionals().any(|a| {
+        let last_set = self.app.get_positionals().last().map_or(false, |p_name| {
+            !self.app[&p_name.id].is_set(ArgSettings::Last)
+        });
+        let need_low_index_multiple = |a: &Arg| {
             a.is_set(ArgSettings::MultipleValues)
                 && (a.index.unwrap_or(0) as usize
                     != self
@@ -351,9 +352,9 @@ where
                         .iter()
                         .filter(|x| x.key.is_position())
                         .count())
-        }) && self.app.get_positionals().last().map_or(false, |p_name| {
-            !self.app[&p_name.id].is_set(ArgSettings::Last)
-        }) {
+        };
+
+        if self.app.get_positionals().any(need_low_index_multiple) && last_set {
             self.app.settings.set(AS::LowIndexMultiplePositional);
         }
 
