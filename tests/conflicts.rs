@@ -137,7 +137,7 @@ fn two_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--develop\' cannot be used with \'--production\'"
+        "The argument \'--production\' cannot be used with \'--develop\'"
     );
 }
 
@@ -165,7 +165,7 @@ fn three_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--one\' cannot be used with \'--two\'"
+        "The argument \'--two\' cannot be used with \'--one\'"
     );
 }
 
