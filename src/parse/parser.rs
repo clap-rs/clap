@@ -25,6 +25,9 @@ use crate::{
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum ParseResult {
     Flag(Id),
+    FlagSubCommand(String),
+    // subcommand name, whether there are more shorts args remaining
+    FlagSubCommandShort(String, bool),
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
@@ -92,6 +95,7 @@ where
     pub(crate) overriden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
+    pub(crate) skip_idxs: usize,
 }
 
 // Initializing Methods
@@ -116,6 +120,7 @@ where
             overriden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
+            skip_idxs: 0,
         }
     }
 
@@ -303,7 +308,7 @@ where
         true
     }
 
-    #[allow(clippy::block_in_if_condition_stmt)]
+    #[allow(clippy::blocks_in_if_conditions)]
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debug!("Parser::_build");
@@ -382,6 +387,7 @@ where
         let has_args = self.has_args();
 
         let mut subcmd_name: Option<String> = None;
+        let mut keep_state = false;
         let mut external_subcommand = false;
         let mut needs_val_of: ParseResult = ParseResult::NotFound;
         let mut pos_counter = 1;
@@ -461,7 +467,12 @@ where
                                 self.maybe_inc_pos_counter(&mut pos_counter, id);
                                 continue;
                             }
-
+                            ParseResult::FlagSubCommand(ref name) => {
+                                debug!("Parser::get_matches_with: FlagSubCommand found in long arg {:?}", name);
+                                subcmd_name = Some(name.to_owned());
+                                break;
+                            }
+                            ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
                             _ => (),
                         }
                     } else if arg_os.starts_with("-") && arg_os.len() != 1 {
@@ -494,6 +505,18 @@ where
                                 self.maybe_inc_pos_counter(&mut pos_counter, id);
                                 continue;
                             }
+                            ParseResult::FlagSubCommandShort(ref name, done) => {
+                                // There are more short args, revist the current short args skipping the subcommand
+                                keep_state = !done;
+                                if keep_state {
+                                    it.cursor -= 1;
+                                    self.skip_idxs = self.cur_idx.get();
+                                }
+
+                                subcmd_name = Some(name.to_owned());
+                                break;
+                            }
+                            ParseResult::FlagSubCommand(_) => unreachable!(),
                             _ => (),
                         }
                     }
@@ -739,7 +762,7 @@ where
                     .expect(INTERNAL_ERROR_MSG)
                     .name
                     .clone();
-                self.parse_subcommand(&sc_name, matcher, it)?;
+                self.parse_subcommand(&sc_name, matcher, it, keep_state)?;
             } else if self.is_set(AS::SubcommandRequired) {
                 let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
                 return Err(ClapError::missing_subcommand(
@@ -854,6 +877,40 @@ where
             return Some(&sc.name);
         }
 
+        None
+    }
+
+    // Checks if the arg matches a long flag subcommand name, or any of it's aliases (if defined)
+    fn possible_long_flag_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
+        debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
+        if self.is_set(AS::InferSubcommands) {
+            let options = self
+                .app
+                .get_subcommands()
+                .fold(Vec::new(), |mut options, sc| {
+                    if let Some(long) = sc.long_flag {
+                        if arg_os.is_prefix_of(long) {
+                            options.push(long);
+                        }
+                        options.extend(
+                            sc.get_all_aliases()
+                                .filter(|alias| arg_os.is_prefix_of(alias)),
+                        )
+                    }
+                    options
+                });
+            if options.len() == 1 {
+                return Some(options[0]);
+            }
+
+            for sc in &options {
+                if sc == arg_os {
+                    return Some(sc);
+                }
+            }
+        } else if let Some(sc_name) = self.app.find_long_subcmd(arg_os) {
+            return Some(sc_name);
+        }
         None
     }
 
@@ -987,6 +1044,7 @@ where
         sc_name: &str,
         matcher: &mut ArgMatcher,
         it: &mut Input,
+        keep_state: bool,
     ) -> ClapResult<()> {
         use std::fmt::Write;
 
@@ -1011,8 +1069,22 @@ where
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::default();
-            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
-            // a space
+            // Display subcommand name, short and long in usage
+            let mut sc_names = sc.name.clone();
+            let mut flag_subcmd = false;
+            if let Some(l) = sc.long_flag {
+                sc_names.push_str(&format!(", --{}", l));
+                flag_subcmd = true;
+            }
+            if let Some(s) = sc.short_flag {
+                sc_names.push_str(&format!(", -{}", s));
+                flag_subcmd = true;
+            }
+
+            if flag_subcmd {
+                sc_names = format!("{{{}}}", sc_names);
+            }
+
             sc.usage = Some(format!(
                 "{}{}{}",
                 self.app.bin_name.as_ref().unwrap_or(&String::new()),
@@ -1021,8 +1093,11 @@ where
                 } else {
                     ""
                 },
-                &*sc.name
+                sc_names
             ));
+
+            // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
+            // a space
             sc.bin_name = Some(format!(
                 "{}{}{}",
                 self.app.bin_name.as_ref().unwrap_or(&String::new()),
@@ -1037,6 +1112,12 @@ where
 
             {
                 let mut p = Parser::new(sc);
+                // HACK: maintain indexes between parsers
+                // FlagSubCommand short arg needs to revist the current short args, but skip the subcommand itself
+                if keep_state {
+                    p.cur_idx.set(self.cur_idx.get());
+                    p.skip_idxs = self.skip_idxs;
+                }
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
             let name = &sc.name;
@@ -1158,6 +1239,8 @@ where
             self.parse_flag(opt, matcher)?;
 
             return Ok(ParseResult::Flag(opt.id.clone()));
+        } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
+            return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
         } else if self.is_set(AS::ValidNegNumFound) {
@@ -1196,7 +1279,9 @@ where
         }
 
         let mut ret = ParseResult::NotFound;
-        for c in arg.chars() {
+        let skip = self.skip_idxs;
+        self.skip_idxs = 0;
+        for c in arg.chars().skip(skip) {
             debug!("Parser::parse_short_arg:iter:{}", c);
 
             // update each index because `-abcd` is four indices to clap
@@ -1241,6 +1326,11 @@ where
 
                 // Default to "we're expecting a value later"
                 return self.parse_opt(&val, opt, false, matcher);
+            } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
+                debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
+                let name = sc_name.to_string();
+                let done_short_args = self.cur_idx.get() == arg.len();
+                return Ok(ParseResult::FlagSubCommandShort(name, done_short_args));
             } else {
                 let arg = format!("-{}", c);
 

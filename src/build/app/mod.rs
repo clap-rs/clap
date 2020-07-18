@@ -25,7 +25,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{safe_exit, termcolor::ColorChoice, Id, Key},
+    util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -72,6 +72,8 @@ pub(crate) enum Propagation {
 pub struct App<'b> {
     pub(crate) id: Id,
     pub(crate) name: String,
+    pub(crate) long_flag: Option<&'b str>,
+    pub(crate) short_flag: Option<char>,
     pub(crate) bin_name: Option<String>,
     pub(crate) author: Option<&'b str>,
     pub(crate) version: Option<&'b str>,
@@ -81,6 +83,8 @@ pub struct App<'b> {
     pub(crate) before_help: Option<&'b str>,
     pub(crate) after_help: Option<&'b str>,
     pub(crate) aliases: Vec<(&'b str, bool)>, // (name, visible)
+    pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
+    pub(crate) long_flag_aliases: Vec<(&'b str, bool)>, // (name, visible)
     pub(crate) usage_str: Option<&'b str>,
     pub(crate) usage: Option<String>,
     pub(crate) help_str: Option<&'b str>,
@@ -106,6 +110,18 @@ impl<'b> App<'b> {
         &self.name
     }
 
+    /// Get the short flag of the subcommand
+    #[inline]
+    pub fn get_short_flag(&self) -> Option<char> {
+        self.short_flag
+    }
+
+    /// Get the long flag of the subcommand
+    #[inline]
+    pub fn get_long_flag(&self) -> Option<&str> {
+        self.long_flag
+    }
+
     /// Get the name of the binary
     #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
@@ -129,13 +145,43 @@ impl<'b> App<'b> {
         self.aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0)
     }
 
+    /// Iterate through the *visible* short aliases for this subcommand.
+    #[inline]
+    pub fn get_visible_short_flag_aliases(&self) -> impl Iterator<Item = char> + '_ {
+        self.short_flag_aliases
+            .iter()
+            .filter(|(_, vis)| *vis)
+            .map(|a| a.0)
+    }
+
+    /// Iterate through the *visible* short aliases for this subcommand.
+    #[inline]
+    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'b str> + '_ {
+        self.long_flag_aliases
+            .iter()
+            .filter(|(_, vis)| *vis)
+            .map(|a| a.0)
+    }
+
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
         self.aliases.iter().map(|a| a.0)
     }
 
-    /// Iterate through the set of subcommands.
+    /// Iterate through the set of *all* the short aliases for this subcommand, both visible and hidden.
+    #[inline]
+    pub fn get_all_short_flag_aliases(&self) -> impl Iterator<Item = char> + '_ {
+        self.short_flag_aliases.iter().map(|a| a.0)
+    }
+
+    /// Iterate through the set of *all* the long aliases for this subcommand, both visible and hidden.
+    #[inline]
+    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &'b str> + '_ {
+        self.long_flag_aliases.iter().map(|a| a.0)
+    }
+
+    /// Get the list of subcommands
     #[inline]
     pub fn get_subcommands(&self) -> impl Iterator<Item = &App<'b>> {
         self.subcommands.iter()
@@ -385,6 +431,68 @@ impl<'b> App<'b> {
     /// ```
     pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
+        self
+    }
+
+    /// Allows the subcommand to be used as if it were an [`Arg::short`]
+    ///
+    /// Sets the short version of the subcommand flag without the preceeding `-`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("pacman")
+    ///     .subcommand(
+    ///         App::new("sync").short_flag('S').arg(
+    ///             Arg::new("search")
+    ///                 .short('s')
+    ///                 .long("search")
+    ///                 .about("search remote repositories for matching strings"),
+    ///         ),
+    ///     )
+    ///     .get_matches_from(vec!["pacman", "-Ss"]);
+    ///
+    /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
+    /// let sync_matches = matches.subcommand_matches("sync").unwrap();
+    /// assert!(sync_matches.is_present("search"));
+    /// ```
+    pub fn short_flag(mut self, short: char) -> Self {
+        self.short_flag = Some(short);
+        self
+    }
+
+    /// Allows the subcommand to be used as if it were an [`Arg::long`]
+    ///
+    /// Sets the long version of the subcommand flag without the preceeding `--`.
+    ///
+    /// **NOTE:** Any leading `-` characters will be stripped
+    ///
+    /// # Examples
+    ///
+    /// To set `long_flag` use a word containing valid UTF-8 codepoints. If you supply a double leading
+    /// `--` such as `--sync` they will be stripped. Hyphens in the middle of the word; however,
+    /// will *not* be stripped (i.e. `sync-file` is allowed)
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let matches = App::new("pacman")
+    ///     .subcommand(
+    ///         App::new("sync").long_flag("sync").arg(
+    ///             Arg::new("search")
+    ///                 .short('s')
+    ///                 .long("search")
+    ///                 .about("search remote repositories for matching strings"),
+    ///         ),
+    ///     )
+    ///     .get_matches_from(vec!["pacman", "--sync", "--search"]);
+    ///
+    /// assert_eq!(matches.subcommand_name().unwrap(), "sync");
+    /// let sync_matches = matches.subcommand_matches("sync").unwrap();
+    /// assert!(sync_matches.is_present("search"));
+    /// ```
+    pub fn long_flag(mut self, long: &'b str) -> Self {
+        self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
         self
     }
 
@@ -793,6 +901,49 @@ impl<'b> App<'b> {
         self
     }
 
+    /// Allows adding an alias, which function as "hidden" short flag subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").short_flag('t')
+    ///                 .short_flag_alias('d'))
+    ///             .get_matches_from(vec!["myprog", "-d"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn short_flag_alias(mut self, name: char) -> Self {
+        if name == '-' {
+            panic!("short alias name cannot be `-`");
+        }
+        self.short_flag_aliases.push((name, false));
+        self
+    }
+
+    /// Allows adding an alias, which function as "hidden" long flag subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").long_flag("test")
+    ///                 .long_flag_alias("testing"))
+    ///             .get_matches_from(vec!["myprog", "--testing"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn long_flag_alias(mut self, name: &'b str) -> Self {
+        self.long_flag_aliases.push((name, false));
+        self
+    }
+
     /// Allows adding [``] aliases, which function as "hidden" subcommands that
     /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
     /// than creating multiple hidden subcommands as one only needs to check for the existence of
@@ -818,6 +969,61 @@ impl<'b> App<'b> {
         self
     }
 
+    /// Allows adding aliases, which function as "hidden" short flag subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").short_flag('t')
+    ///                 .short_flag_aliases(&['a', 'b', 'c']))
+    ///                 .arg(Arg::new("input")
+    ///                             .about("the file to add")
+    ///                             .index(1)
+    ///                             .required(false))
+    ///             .get_matches_from(vec!["myprog", "-a"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
+        for s in names {
+            if s == &'-' {
+                panic!("short alias name cannot be `-`");
+            }
+            self.short_flag_aliases.push((*s, false));
+        }
+        self
+    }
+
+    /// Allows adding aliases, which function as "hidden" long flag subcommands that
+    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
+    /// than creating multiple hidden subcommands as one only needs to check for the existence of
+    /// this command, and not all variants.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").long_flag("test")
+    ///                 .long_flag_aliases(&["testing", "testall", "test_all"]))
+    ///                 .arg(Arg::new("input")
+    ///                             .about("the file to add")
+    ///                             .index(1)
+    ///                             .required(false))
+    ///             .get_matches_from(vec!["myprog", "--testing"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    pub fn long_flag_aliases(mut self, names: &[&'b str]) -> Self {
+        for s in names {
+            self.long_flag_aliases.push((s, false));
+        }
+        self
+    }
+
     /// Allows adding a [``] alias that functions exactly like those defined with
     /// [`App::alias`], except that they are visible inside the help message.
     ///
@@ -838,6 +1044,47 @@ impl<'b> App<'b> {
         self
     }
 
+    /// Allows adding an alias that functions exactly like those defined with
+    /// [`App::short_flag_alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").short_flag('t')
+    ///                 .visible_short_flag_alias('d'))
+    ///             .get_matches_from(vec!["myprog", "-d"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`App::short_flag_alias`]: ./struct.App.html#method.short_flag_alias
+    pub fn visible_short_flag_alias(mut self, name: char) -> Self {
+        if name == '-' {
+            panic!("short alias name cannot be `-`");
+        }
+        self.short_flag_aliases.push((name, true));
+        self
+    }
+
+    /// Allows adding an alias that functions exactly like those defined with
+    /// [`App::long_flag_alias`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").long_flag("test")
+    ///                 .visible_long_flag_alias("testing"))
+    ///             .get_matches_from(vec!["myprog", "--testing"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`App::long_flag_alias`]: ./struct.App.html#method.long_flag_alias
+    pub fn visible_long_flag_alias(mut self, name: &'b str) -> Self {
+        self.long_flag_aliases.push((name, true));
+        self
+    }
+
     /// Allows adding multiple [``] aliases that functions exactly like those defined
     /// with [`App::aliases`], except that they are visible inside the help message.
     ///
@@ -855,6 +1102,51 @@ impl<'b> App<'b> {
     /// [`App::aliases`]: ./struct.App.html#method.aliases
     pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
+        self
+    }
+
+    /// Allows adding multiple short flag aliases that functions exactly like those defined
+    /// with [`App::short_flag_aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").short_flag('b')
+    ///                 .visible_short_flag_aliases(&['t']))
+    ///             .get_matches_from(vec!["myprog", "-t"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`App::short_flag_aliases`]: ./struct.App.html#method.short_flag_aliases
+    pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
+        for s in names {
+            if s == &'-' {
+                panic!("short alias name cannot be `-`");
+            }
+            self.short_flag_aliases.push((*s, true));
+        }
+        self
+    }
+
+    /// Allows adding multiple long flag aliases that functions exactly like those defined
+    /// with [`App::long_flag_aliases`], except that they are visible inside the help message.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    /// let m = App::new("myprog")
+    ///             .subcommand(App::new("test").long_flag("test")
+    ///                 .visible_long_flag_aliases(&["testing", "testall", "test_all"]))
+    ///             .get_matches_from(vec!["myprog", "--testing"]);
+    /// assert_eq!(m.subcommand_name(), Some("test"));
+    /// ```
+    /// [`App::short_flag_aliases`]: ./struct.App.html#method.short_flag_aliases
+    pub fn visible_long_flag_aliases(mut self, names: &[&'b str]) -> Self {
+        for s in names {
+            self.long_flag_aliases.push((s, true));
+        }
         self
     }
 
@@ -1546,6 +1838,41 @@ impl<'b> App<'b> {
     }
 }
 
+// Allows checking for conflicts between `Args` and `Apps` with subcommand flags
+#[cfg(debug_assertions)]
+#[derive(Debug)]
+enum Flag<'a> {
+    App(&'a App<'a>, String),
+    Arg(&'a Arg<'a>, String),
+}
+
+#[cfg(debug_assertions)]
+impl<'a> Flag<'_> {
+    pub fn value(&self) -> &str {
+        match self {
+            Self::App(_, value) => value,
+            Self::Arg(_, value) => value,
+        }
+    }
+
+    pub fn id(&self) -> &Id {
+        match self {
+            Self::App(app, _) => &app.id,
+            Self::Arg(arg, _) => &arg.id,
+        }
+    }
+}
+
+#[cfg(debug_assertions)]
+impl<'a> fmt::Display for Flag<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::App(app, _) => write!(f, "App named '{}'", app.name),
+            Self::Arg(arg, _) => write!(f, "Arg named '{}'", arg.name),
+        }
+    }
+}
+
 // Internally used only
 impl<'b> App<'b> {
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
@@ -1648,6 +1975,68 @@ impl<'b> App<'b> {
     }
 
     #[cfg(debug_assertions)]
+    fn two_long_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
+    where
+        F: Fn(&Flag<'_>) -> bool,
+    {
+        let mut flags: Vec<Flag> = Vec::new();
+        for sc in &self.subcommands {
+            if let Some(long) = sc.long_flag {
+                flags.push(Flag::App(&sc, long.to_string()));
+            }
+            flags.extend(
+                sc.get_all_long_flag_aliases()
+                    .map(|alias| Flag::App(&sc, alias.to_string())),
+            );
+            self.args.args.iter().for_each(|arg| {
+                flags.extend(
+                    arg.aliases
+                        .iter()
+                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
+                )
+            });
+            flags.extend(
+                self.args
+                    .args
+                    .iter()
+                    .filter_map(|arg| arg.long.map(|l| Flag::Arg(arg, l.to_string()))),
+            );
+        }
+        two_elements_of(flags.into_iter().filter(|f| condition(f)))
+    }
+
+    #[cfg(debug_assertions)]
+    fn two_short_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
+    where
+        F: Fn(&Flag<'_>) -> bool,
+    {
+        let mut flags: Vec<Flag> = Vec::new();
+        for sc in &self.subcommands {
+            if let Some(short) = sc.short_flag {
+                flags.push(Flag::App(&sc, short.to_string()));
+            }
+            flags.extend(
+                sc.get_all_short_flag_aliases()
+                    .map(|alias| Flag::App(&sc, alias.to_string())),
+            );
+            self.args.args.iter().for_each(|arg| {
+                flags.extend(
+                    arg.short_aliases
+                        .iter()
+                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
+                )
+            });
+            flags.extend(
+                self.args
+                    .args
+                    .iter()
+                    .filter_map(|arg| arg.short.map(|l| Flag::Arg(arg, l.to_string()))),
+            );
+        }
+        two_elements_of(flags.into_iter().filter(|f| condition(f)))
+    }
+
+    #[cfg(debug_assertions)]
     fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
     where
         F: Fn(&Arg<'_>) -> bool,
@@ -1669,6 +2058,38 @@ impl<'b> App<'b> {
     #[cfg(debug_assertions)]
     fn _debug_asserts(&self) {
         debug!("App::_debug_asserts");
+
+        for sc in &self.subcommands {
+            // Conflicts between flag subcommands and long args
+            if let Some(l) = sc.long_flag {
+                if let Some((first, second)) = self.two_long_flags_of(|f| f.value() == l) {
+                    // Prevent conflicts with itself
+                    if first.id() != second.id() {
+                        panic!(
+                            "Long option names must be unique for each argument, \
+                        but '--{}' is used by both an {} and an {}",
+                            l, first, second
+                        );
+                    }
+                }
+            }
+
+            // Conflicts between flag subcommands and long args
+            if let Some(s) = sc.short_flag {
+                if let Some((first, second)) =
+                    self.two_short_flags_of(|f| f.value() == s.to_string())
+                {
+                    // Prevent conflicts with itself
+                    if first.id() != second.id() {
+                        panic!(
+                            "Short option names must be unique for each argument, \
+                        but '-{}' is used by both an {} and an {}",
+                            s, first, second
+                        );
+                    }
+                }
+            }
+        }
 
         for arg in &self.args.args {
             arg._debug_asserts();
@@ -1869,7 +2290,11 @@ impl<'b> App<'b> {
             .args
             .iter()
             .any(|x| x.long == Some("help") || x.id == Id::help_hash())
-            || self.is_set(AppSettings::DisableHelpFlags))
+            || self.is_set(AppSettings::DisableHelpFlags)
+            || self
+                .subcommands
+                .iter()
+                .any(|sc| sc.short_flag == Some('h') || sc.long_flag == Some("help")))
         {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
@@ -1886,7 +2311,11 @@ impl<'b> App<'b> {
             .args
             .iter()
             .any(|x| x.long == Some("version") || x.id == Id::version_hash())
-            || self.is_set(AppSettings::DisableVersion))
+            || self.is_set(AppSettings::DisableVersion)
+            || self
+                .subcommands
+                .iter()
+                .any(|sc| sc.short_flag == Some('V') || sc.long_flag == Some("version")))
         {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
@@ -2084,6 +2513,29 @@ impl<'b> App<'b> {
         *name == *self.get_name() || self.get_all_aliases().any(|alias| *name == *alias)
     }
 
+    /// Check if this subcommand can be referred to as `name`. In other words,
+    /// check if `name` is the name of this short flag subcommand or is one of its short flag aliases.
+    #[inline]
+    pub(crate) fn short_flag_aliases_to(&self, flag: char) -> bool {
+        Some(flag) == self.short_flag
+            || self.get_all_short_flag_aliases().any(|alias| flag == alias)
+    }
+
+    /// Check if this subcommand can be referred to as `name`. In other words,
+    /// check if `name` is the name of this long flag subcommand or is one of its long flag aliases.
+    #[inline]
+    pub(crate) fn long_flag_aliases_to<T>(&self, flag: &T) -> bool
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        match self.long_flag {
+            Some(long_flag) => {
+                flag == long_flag || self.get_all_long_flag_aliases().any(|alias| flag == alias)
+            }
+            None => self.get_all_long_flag_aliases().any(|alias| flag == alias),
+        }
+    }
+
     #[cfg(debug_assertions)]
     pub(crate) fn id_exists(&self, id: &Id) -> bool {
         self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
@@ -2179,6 +2631,20 @@ impl<'b> App<'b> {
         }
 
         args
+    }
+
+    /// Find a flag subcommand name by short flag or an alias
+    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
+        self.get_subcommands()
+            .find(|sc| sc.short_flag_aliases_to(c))
+            .map(|sc| sc.get_name())
+    }
+
+    /// Find a flag subcommand name by long flag or an alias
+    pub(crate) fn find_long_subcmd(&self, long: &ArgStr<'_>) -> Option<&str> {
+        self.get_subcommands()
+            .find(|sc| sc.long_flag_aliases_to(long))
+            .map(|sc| sc.get_name())
     }
 }
 

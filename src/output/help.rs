@@ -547,16 +547,16 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
 
 /// Methods to write a single subcommand
 impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
-    fn write_subcommand(&mut self, app: &App<'b>) -> io::Result<()> {
+    fn write_subcommand(&mut self, sc_str: &str, app: &App<'b>) -> io::Result<()> {
         debug!("Help::write_subcommand");
         self.none(TAB)?;
-        self.good(&app.name)?;
-        let spec_vals = self.sc_val(app)?;
+        self.good(sc_str)?;
+        let spec_vals = self.sc_val(sc_str, app)?;
         self.sc_help(app, &*spec_vals)?;
         Ok(())
     }
 
-    fn sc_val(&mut self, app: &App<'b>) -> Result<String, io::Error> {
+    fn sc_val(&mut self, sc_str: &str, app: &App<'b>) -> Result<String, io::Error> {
         debug!("Help::sc_val: app={}", app.name);
         let spec_vals = self.sc_spec_vals(app);
         let h = app.about.unwrap_or("");
@@ -569,7 +569,7 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             && h_w > (self.term_w - taken);
 
         if !(nlh || self.force_next_line) {
-            write_nspaces!(self, self.longest + 4 - (str_width(&app.name)));
+            write_nspaces!(self, self.longest + 4 - (str_width(sc_str)));
         }
         Ok(spec_vals)
     }
@@ -577,19 +577,26 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     fn sc_spec_vals(&self, a: &App) -> String {
         debug!("Help::sc_spec_vals: a={}", a.name);
         let mut spec_vals = vec![];
-        if !a.aliases.is_empty() {
+        if !a.aliases.is_empty() || !a.short_flag_aliases.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
+            debug!(
+                "Help::spec_vals: Found short flag aliases...{:?}",
+                a.short_flag_aliases
+            );
 
-            let als = a
-                .aliases
-                .iter()
-                .filter(|&als| als.1) // visible
-                .map(|&als| als.0) // name
-                .collect::<Vec<_>>()
-                .join(", ");
+            let mut short_als = a
+                .get_visible_short_flag_aliases()
+                .map(|a| format!("-{}", a))
+                .collect::<Vec<_>>();
 
-            if !als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", als));
+            let als = a.get_visible_aliases().map(|s| s.to_string());
+
+            short_als.extend(als);
+
+            let all_als = short_als.join(", ");
+
+            if !all_als.is_empty() {
+                spec_vals.push(format!(" [aliases: {}]", all_als));
             }
         }
         spec_vals.join(" ")
@@ -776,19 +783,25 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             .filter(|s| !s.is_set(AppSettings::Hidden))
         {
             let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
-            self.longest = cmp::max(self.longest, str_width(sc.name.as_str()));
-            btm.insert(sc.name.clone(), sc.clone());
+            let mut sc_str = String::new();
+            sc_str.push_str(&sc.short_flag.map_or(String::new(), |c| format!("-{}, ", c)));
+            sc_str.push_str(&sc.long_flag.map_or(String::new(), |c| format!("--{}, ", c)));
+            sc_str.push_str(&sc.name);
+            self.longest = cmp::max(self.longest, str_width(&sc_str));
+            btm.insert(sc_str, sc.clone());
         }
+
+        debug!("Help::write_subcommands longest = {}", self.longest);
 
         let mut first = true;
         for btm in ord_m.values() {
-            for sc in btm.values() {
+            for (sc_str, sc) in btm {
                 if first {
                     first = false;
                 } else {
                     self.none("\n")?;
                 }
-                self.write_subcommand(sc)?;
+                self.write_subcommand(sc_str, sc)?;
             }
         }
         Ok(())
