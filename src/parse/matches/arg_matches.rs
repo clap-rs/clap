@@ -560,7 +560,7 @@ impl ArgMatches {
     /// index for `val` would be recorded. This is by design.
     ///
     /// Besides the flag/option descrepancy, the primary difference between an argv index and clap
-    /// index, is that clap continues counting once all arguments have properly seperated, whereas
+    /// index, is that clap continues counting once all arguments have properly separated, whereas
     /// an argv index does not.
     ///
     /// The examples should clear this up.
@@ -571,7 +571,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// The argv indices are listed in the comments below. See how they correspond to the clap
-    /// indices. Note that if it's not listed in a clap index, this is becuase it's not saved in
+    /// indices. Note that if it's not listed in a clap index, this is because it's not saved in
     /// in an `ArgMatches` struct for querying.
     ///
     /// ```rust
@@ -927,7 +927,7 @@ impl ArgMatches {
     }
 }
 
-// The following were taken and adapated from vec_map source
+// The following were taken and adapted from vec_map source
 // repo: https://github.com/contain-rs/vec-map
 // commit: be5e1fa3c26e351761b33010ddbdaf5f05dbcc33
 // license: MIT - Copyright (c) 2015 The Rust Project Developers

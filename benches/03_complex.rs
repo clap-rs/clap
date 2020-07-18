@@ -25,8 +25,8 @@ macro_rules! create_app {
                     .possible_values(&OPT3_VALS),
                 Arg::from("[positional3]... 'tests positionals with specific values'")
                     .possible_values(&POS3_VALS),
-                Arg::from("--multvals [one] [two] 'Tests mutliple values, not mult occs'"),
-                Arg::from("--multvalsmo... [one] [two] 'Tests mutliple values, not mult occs'"),
+                Arg::from("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
+                Arg::from("--multvalsmo... [one] [two] 'Tests multiple values, not mult occs'"),
                 Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
                 Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
             ])
@@ -108,7 +108,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                 .arg(
                     Arg::new("multvals")
                         .long("multvals")
-                        .about("Tests mutliple values, not mult occs")
+                        .about("Tests multiple values, not mult occs")
                         .value_names(&["one", "two"]),
                 )
                 .arg(
@@ -116,7 +116,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .long("multvalsmo")
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
-                        .about("Tests mutliple values, not mult occs")
+                        .about("Tests multiple values, not mult occs")
                         .value_names(&["one", "two"]),
                 )
                 .arg(
@@ -174,9 +174,9 @@ pub fn build_from_macros(c: &mut Criterion) {
                     (@arg positional3: index(3) ... possible_value[vi emacs]
                         "tests positionals with specific values")
                     (@arg multvals: --multvals +takes_value value_name[one two]
-                        "Tests mutliple values, not mult occs")
+                        "Tests multiple values, not mult occs")
                     (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-                        "Tests mutliple values, not mult occs")
+                        "Tests multiple values, not mult occs")
                     (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
                     (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
                     (@subcommand subcmd =>

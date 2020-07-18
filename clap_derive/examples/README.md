@@ -75,4 +75,4 @@ How to express "`"true"` or `"false"` argument.
 
 ### [Author, description, and version from `Cargo.toml`](from_crate.rs)
 
-How to derive a author, description, and version from Cargo.toml
+How to derive the author, description, and version from Cargo.toml

@@ -38,7 +38,7 @@ fn main() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search locally-installed packages for matching strings")
+                        .about("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .multiple_values(true),
                 )

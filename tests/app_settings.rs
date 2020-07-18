@@ -891,7 +891,14 @@ fn aaos_opts_mult_req_delims() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(Arg::from("--opt [val]... 'some option'"))
         .try_get_matches_from(vec![
-            "", "--opt", "first", "overides", "--opt", "some", "other", "val",
+            "",
+            "--opt",
+            "first",
+            "overrides",
+            "--opt",
+            "some",
+            "other",
+            "val",
         ]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -899,7 +906,7 @@ fn aaos_opts_mult_req_delims() {
     assert_eq!(m.occurrences_of("opt"), 2);
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["first", "overides", "some", "other", "val"]
+        &["first", "overrides", "some", "other", "val"]
     );
 }
 

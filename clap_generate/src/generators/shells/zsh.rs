@@ -61,11 +61,11 @@ _{name} \"$@\"",
 //     _describe -t commands '[bin_name] commands' commands "$@"
 //
 // Where the following variables are present:
-//    [bin_name_underscore]: The full space deliniated bin_name, where spaces have been replaced by
+//    [bin_name_underscore]: The full space delineated bin_name, where spaces have been replaced by
 //                           underscore characters
 //    [arg_name]: The name of the subcommand
 //    [arg_help]: The help message of the subcommand
-//    [bin_name]: The full space deliniated bin_name
+//    [bin_name]: The full space delineated bin_name
 //
 // Here's a snippet from rustup:
 //
@@ -199,8 +199,8 @@ fn subcommands_of(p: &App) -> String {
 //
 // Where the following variables are present:
 //    [name] = The subcommand name in the form of "install" for "rustup toolchain install"
-//    [bin_name] = The full space deliniated bin_name such as "rustup toolchain install"
-//    [name_hyphen] = The full space deliniated bin_name, but replace spaces with hyphens
+//    [bin_name] = The full space delineated bin_name such as "rustup toolchain install"
+//    [name_hyphen] = The full space delineated bin_name, but replace spaces with hyphens
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
 fn get_subcommands_of(p: &App) -> String {
@@ -263,9 +263,9 @@ fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
     p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG)
 }
 
-// Writes out the args section, which ends up being the flags, opts and postionals, and a jump to
+// Writes out the args section, which ends up being the flags, opts and positionals, and a jump to
 // another ZSH function if there are subcommands.
-// The structer works like this:
+// The structure works like this:
 //    ([conflicting_args]) [multiple] arg [takes_value] [[help]] [: :(possible_values)]
 //       ^-- list '-v -h'    ^--'*'          ^--'+'                   ^-- list 'one two three'
 //

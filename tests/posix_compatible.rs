@@ -59,7 +59,14 @@ fn mult_option_overrides_itself() {
     let res = App::new("posix")
         .arg(Arg::from("--opt [val]... 'some option'").overrides_with("opt"))
         .try_get_matches_from(vec![
-            "", "--opt", "first", "overides", "--opt", "some", "other", "val",
+            "",
+            "--opt",
+            "first",
+            "overrides",
+            "--opt",
+            "some",
+            "other",
+            "val",
         ]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -67,7 +74,7 @@ fn mult_option_overrides_itself() {
     assert_eq!(m.occurrences_of("opt"), 2);
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
-        &["first", "overides", "some", "other", "val"]
+        &["first", "overrides", "some", "other", "val"]
     );
 }
 
@@ -206,8 +213,8 @@ fn posix_compatible_opts_short_rev() {
 }
 
 #[test]
-fn conflict_overriden() {
-    let m = App::new("conflict_overriden")
+fn conflict_overridden() {
+    let m = App::new("conflict_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
@@ -218,8 +225,8 @@ fn conflict_overriden() {
 }
 
 #[test]
-fn conflict_overriden_2() {
-    let result = App::new("conflict_overriden")
+fn conflict_overridden_2() {
+    let result = App::new("conflict_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
@@ -232,8 +239,8 @@ fn conflict_overriden_2() {
 }
 
 #[test]
-fn conflict_overriden_3() {
-    let result = App::new("conflict_overriden")
+fn conflict_overridden_3() {
+    let result = App::new("conflict_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
@@ -244,8 +251,8 @@ fn conflict_overriden_3() {
 }
 
 #[test]
-fn conflict_overriden_4() {
-    let m = App::new("conflict_overriden")
+fn conflict_overridden_4() {
+    let m = App::new("conflict_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
@@ -257,7 +264,7 @@ fn conflict_overriden_4() {
 
 #[test]
 fn pos_required_overridden_by_flag() {
-    let result = App::new("require_overriden")
+    let result = App::new("require_overridden")
         .arg(Arg::new("pos").index(1).required(true))
         .arg(Arg::from("-c, --color 'some flag'").overrides_with("pos"))
         .try_get_matches_from(vec!["", "test", "-c"]);
@@ -265,8 +272,8 @@ fn pos_required_overridden_by_flag() {
 }
 
 #[test]
-fn require_overriden_2() {
-    let m = App::new("require_overriden")
+fn require_overridden_2() {
+    let m = App::new("require_overridden")
         .arg(Arg::new("req_pos").required(true))
         .arg(Arg::from("-c, --color 'other flag'").overrides_with("req_pos"))
         .get_matches_from(vec!["", "-c", "req_pos"]);
@@ -275,8 +282,8 @@ fn require_overriden_2() {
 }
 
 #[test]
-fn require_overriden_3() {
-    let m = App::new("require_overriden")
+fn require_overridden_3() {
+    let m = App::new("require_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").requires("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))
@@ -287,8 +294,8 @@ fn require_overriden_3() {
 }
 
 #[test]
-fn require_overriden_4() {
-    let result = App::new("require_overriden")
+fn require_overridden_4() {
+    let result = App::new("require_overridden")
         .arg(Arg::from("-f, --flag 'some flag'").requires("debug"))
         .arg(Arg::from("-d, --debug 'other flag'"))
         .arg(Arg::from("-c, --color 'third flag'").overrides_with("flag"))

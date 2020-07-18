@@ -2,11 +2,11 @@ use clap::{App, Arg};
 
 fn main() {
     // s function exactly like sub-Apps, because that's exactly what they are. Each
-    // instance of a  can have it's own version, author(s), Args, and even it's own
+    // instance of a can have its own version, author(s), Args, and even its own
     // subcommands.
     //
     // # Help and Version
-    // Just like Apps, each subcommand will get it's own "help" and "version" flags automatically
+    // Just like Apps, each subcommand will get its own "help" and "version" flags automatically
     // generated. Also, like Apps, you can override "-V" or "-h" safely and still get "--help" and
     // "--version" auto generated.
     //

@@ -376,7 +376,7 @@ impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
                     unrolled_reqs.push(aa);
                 }
             }
-            // alway include the required arg itself. it will not be enumerated
+            // always include the required arg itself. it will not be enumerated
             // by unroll_requirements_for_arg.
             unrolled_reqs.push(a.clone());
         }

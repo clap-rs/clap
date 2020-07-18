@@ -343,7 +343,7 @@ pub enum AppSettings {
     /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
     ///
-    /// Now nofice if we don't specifiy `foo` or `baz` but use the `--` operator.
+    /// Now nofice if we don't specify `foo` or `baz` but use the `--` operator.
     ///
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
@@ -644,7 +644,7 @@ pub enum AppSettings {
     /// let res = App::new("myprog")
     ///     .version("v1.1")
     ///     .setting(AppSettings::DisableHelpSubcommand)
-    ///     // Normally, creating a subcommand causes a `help` subcommand to automaticaly
+    ///     // Normally, creating a subcommand causes a `help` subcommand to automatically
     ///     // be generated as well
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
@@ -773,7 +773,7 @@ pub enum AppSettings {
     ///```
     HelpRequired,
 
-    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example to
+    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example, to
     /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.
     ///
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match `te`
@@ -834,7 +834,7 @@ pub enum AppSettings {
     NextLineHelp,
 
     /// Allows [``]s to override all requirements of the parent command.
-    /// For example if you had a subcommand or top level application with a required argument
+    /// For example, if you had a subcommand or top level application with a required argument
     /// that is only required as long as there is no subcommand present,
     /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
     /// and yet receive no error so long as the user uses a valid subcommand instead.

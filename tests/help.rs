@@ -39,8 +39,8 @@ OPTIONS:
         --long-option-2 <option2>    tests long options with exclusions
         --maxvals3 <maxvals>...      Tests 3 max vals
         --minvals2 <minvals>...      Tests 2 min vals
-        --multvals <one> <two>       Tests mutliple values, not mult occs
-        --multvalsmo <one> <two>     Tests mutliple values, and mult occs
+        --multvals <one> <two>       Tests multiple values, not mult occs
+        --multvalsmo <one> <two>     Tests multiple values, and mult occs
     -o, --option <opt>...            tests options
 
 SUBCOMMANDS:

@@ -22,7 +22,7 @@ args:
         index: 2
         default_value_if:
             - [flag, Null, some]
-            - [postional, other, something]
+            - [positional, other, something]
     - flag:
         short: f
         long: flag
@@ -59,18 +59,18 @@ args:
         possible_values: [ vi, emacs ]
     - multvals:
         long: multvals
-        about: Tests mutliple values, not mult occs
+        about: Tests multiple values, not mult occs
         value_names:
             - one
             - two
     - multvalsmo:
         long: multvalsmo
         multiple: true
-        about: Tests mutliple values, not mult occs
+        about: Tests multiple values, not mult occs
         value_names: [one, two]
     - multvalsdelim:
         long: multvalsdelim
-        about: Tests mutliple values with required delimiter
+        about: Tests multiple values with required delimiter
         multiple: true
         require_delimiter: true
     - singlealias:
@@ -81,7 +81,7 @@ args:
             - [multvalsmo, two]
     - multaliases:
         long: multaliases
-        about: Tests mutliple aliases
+        about: Tests multiple aliases
         aliases: [als1, als2, als3]
     - singleshortalias:
         long: singleshortalias
@@ -91,7 +91,7 @@ args:
             - [multvalsmo, two]
     - multshortaliases:
         long: multshortaliases
-        about: Tests mutliple short aliases
+        about: Tests multiple short aliases
         short_aliases: [a, b, c]
     - minvals2:
         long: minvals2

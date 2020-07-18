@@ -43,9 +43,9 @@ fn basic() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -76,9 +76,9 @@ fn quoted_app_name() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -117,9 +117,9 @@ fn quoted_arg_long_name() {
         (@arg positional3: index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>
@@ -155,9 +155,9 @@ fn quoted_arg_name() {
         (@arg ("positional-3"): index(3) ... possible_value[vi emacs]
             "tests positionals with specific values")
         (@arg multvals: --multvals +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg multvalsmo: --multvalsmo ... +takes_value value_name[one two]
-            "Tests mutliple values, not mult occs")
+            "Tests multiple values, not mult occs")
         (@arg minvals: --minvals2 min_values(1) ... +takes_value "Tests 2 min vals")
         (@arg maxvals: --maxvals3 ... +takes_value max_values(3) "Tests 3 max vals")
         (@subcommand subcmd =>

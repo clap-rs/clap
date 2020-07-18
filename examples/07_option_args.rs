@@ -26,12 +26,12 @@ fn main() {
                 // required arguments
                 .requires("config") // Says, "If the user uses "input", they MUST
                 // also use this other 'config' arg too"
-                // Can also specifiy a list using
+                // Can also specify a list using
                 // requires_all(Vec<&str>)
                 .conflicts_with("output"), // Opposite of requires(), says "if the
                                            // user uses -a, they CANNOT use 'output'"
                                            // also has a conflicts_with_all(Vec<&str>)
-                                           // and a exclusive(true)
+                                           // and an exclusive(true)
         )
         // NOTE: In order to compile this example, comment out conflicts_with()
         // and requires() because we have not defined an "output" or "config"
