@@ -38,6 +38,7 @@ pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 #[derive(Clone)]
 pub enum Kind {
     Arg(Sp<Ty>),
+    FromGlobal(Sp<Ty>),
     Subcommand(Sp<Ty>),
     Flatten,
     Skip(Option<Expr>),
@@ -316,6 +317,12 @@ impl Attrs {
 
                 ArgEnum(_) => self.is_enum = true,
 
+                FromGlobal(ident) => {
+                    let ty = Sp::call_site(Ty::Other);
+                    let kind = Sp::new(Kind::FromGlobal(ty), ident.span());
+                    self.set_kind(kind);
+                }
+
                 Subcommand(ident) => {
                     let ty = Sp::call_site(Ty::Other);
                     let kind = Sp::new(Kind::Subcommand(ty), ident.span());
@@ -452,7 +459,7 @@ impl Attrs {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) | Kind::Flatten | Kind::ExternalSubcommand => res,
+            Kind::Arg(_) | Kind::FromGlobal(_) | Kind::Flatten | Kind::ExternalSubcommand => res,
         }
     }
 
@@ -537,6 +544,10 @@ impl Attrs {
                         "methods are not allowed for skipped fields"
                     );
                 }
+            }
+            Kind::FromGlobal(orig_ty) => {
+                let ty = Ty::from_syn_ty(&field.ty);
+                res.kind = Sp::new(Kind::FromGlobal(ty), orig_ty.span());
             }
             Kind::Arg(orig_ty) => {
                 let mut ty = Ty::from_syn_ty(&field.ty);
