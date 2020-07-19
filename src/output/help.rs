@@ -839,7 +839,22 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
     /// Writes default help for a Parser Object to the wrapped stream.
     pub(crate) fn write_default_help(&mut self) -> ClapResult<()> {
         debug!("Help::write_default_help");
-        if let Some(h) = self.parser.app.before_help {
+        if self.use_long {
+            if let Some(h) = self
+                .parser
+                .app
+                .before_long_help
+                .or_else(|| self.parser.app.before_help)
+            {
+                self.write_before_after_help(h)?;
+                self.none("\n\n")?;
+            }
+        } else if let Some(h) = self
+            .parser
+            .app
+            .before_help
+            .or_else(|| self.parser.app.before_long_help)
+        {
             self.write_before_after_help(h)?;
             self.none("\n\n")?;
         }
@@ -886,7 +901,24 @@ impl<'b, 'c, 'd, 'w> Help<'b, 'c, 'd, 'w> {
             self.write_all_args()?;
         }
 
-        if let Some(h) = self.parser.app.after_help {
+        if self.use_long {
+            if let Some(h) = self
+                .parser
+                .app
+                .after_long_help
+                .or_else(|| self.parser.app.after_help)
+            {
+                if flags || opts || pos || subcmds {
+                    self.none("\n\n")?;
+                }
+                self.write_before_after_help(h)?;
+            }
+        } else if let Some(h) = self
+            .parser
+            .app
+            .after_help
+            .or_else(|| self.parser.app.after_long_help)
+        {
             if flags || opts || pos || subcmds {
                 self.none("\n\n")?;
             }

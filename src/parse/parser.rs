@@ -1195,6 +1195,8 @@ where
         };
 
         self.app.long_about.is_some()
+            || self.app.before_long_help.is_some()
+            || self.app.after_long_help.is_some()
             || self.app.args.args.iter().any(should_long)
             || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }

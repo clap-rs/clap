@@ -102,6 +102,24 @@ FLAGS:
 
 some text that comes after the help";
 
+static AFTER_LONG_HELP: &str = "some longer text that comes before the help
+
+clap-test v1.4.8
+tests clap library
+
+USAGE:
+    clap-test
+
+FLAGS:
+    -h, --help       
+            Prints help information
+
+    -V, --version    
+            Prints version information
+
+
+some longer text that comes after the help";
+
 static HIDDEN_ARGS: &str = "prog 1.0
 
 USAGE:
@@ -715,8 +733,37 @@ fn after_and_before_help_output() {
         .before_help("some text that comes before the help")
         .after_help("some text that comes after the help");
     assert!(utils::compare_output(
+        app.clone(),
+        "clap-test -h",
+        AFTER_HELP,
+        false
+    ));
+    assert!(utils::compare_output(
         app,
         "clap-test --help",
+        AFTER_HELP,
+        false
+    ));
+}
+
+#[test]
+fn after_and_before_long_help_output() {
+    let app = App::new("clap-test")
+        .version("v1.4.8")
+        .about("tests clap library")
+        .before_help("some text that comes before the help")
+        .after_help("some text that comes after the help")
+        .before_long_help("some longer text that comes before the help")
+        .after_long_help("some longer text that comes after the help");
+    assert!(utils::compare_output(
+        app.clone(),
+        "clap-test --help",
+        AFTER_LONG_HELP,
+        false
+    ));
+    assert!(utils::compare_output(
+        app,
+        "clap-test -h",
         AFTER_HELP,
         false
     ));
