@@ -92,7 +92,7 @@ where
 {
     pub(crate) app: &'c mut App<'b>,
     pub(crate) required: ChildGraph<Id>,
-    pub(crate) overriden: Vec<Id>,
+    pub(crate) overridden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
     pub(crate) skip_idxs: usize,
@@ -117,7 +117,7 @@ where
         Parser {
             app,
             required: reqs,
-            overriden: Vec::new(),
+            overridden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
             skip_idxs: 0,
@@ -430,7 +430,7 @@ where
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                // Does the arg match a subcommand name, or any of it's aliases (if defined)
+                // Does the arg match a subcommand name, or any of its aliases (if defined)
                 match needs_val_of {
                     ParseResult::Opt(_) | ParseResult::Pos(_)
                         if !self.is_set(AS::SubcommandPrecedenceOverArg) => {}
@@ -849,7 +849,7 @@ where
         }
     }
 
-    // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
+    // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
     fn possible_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
@@ -880,7 +880,7 @@ where
         None
     }
 
-    // Checks if the arg matches a long flag subcommand name, or any of it's aliases (if defined)
+    // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
     fn possible_long_flag_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
         if self.is_set(AS::InferSubcommands) {
@@ -1570,7 +1570,7 @@ where
         for name in &to_rem {
             debug!("Parser::remove_overrides:iter:{:?}: removing", name);
             matcher.remove(name);
-            self.overriden.push(name.clone());
+            self.overridden.push(name.clone());
         }
     }
 

@@ -1,7 +1,7 @@
 // Working with subcommands is simple. There are a few key points to remember when working with
 // subcommands in clap. First, s are really just Apps. This means they can have their own
 // settings, version, authors, args, and even their own subcommands. The next thing to remember is
-// that subcommands are set up in a tree like heirachy.
+// that subcommands are set up in a tree like hierarchy.
 //
 // An ASCII art depiction may help explain this better. Using a fictional version of git as the demo
 // subject. Imagine the following are all subcommands of git (note, the author is aware these aren't
@@ -30,7 +30,7 @@
 // $ git clone url push origin path
 //
 // It's also important to know that subcommands each have their own set of matches and may have args
-// with the same name as other subcommands in a different part of the tree heirachy (i.e. the arg
+// with the same name as other subcommands in a different part of the tree hierarchy (i.e. the arg
 // names aren't in a flat namespace).
 //
 // In order to use subcommands in clap, you only need to know which subcommand you're at in your
@@ -56,7 +56,7 @@ fn main() {
                 .about("pushes things")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
-                    App::new("remote") // Subcommands can have thier own subcommands,
+                    App::new("remote") // Subcommands can have their own subcommands,
                         // which in turn have their own subcommands
                         .about("pushes remote things")
                         .arg(
@@ -98,7 +98,7 @@ fn main() {
         // grandchildren, great grandchildren, etc.
         //
         // i.e. if the command `git push remove --stuff foo` was run, the above will only print out,
-        // `git push` was used. We'd need to get push's matches to see futher into the tree
+        // `git push` was used. We'd need to get push's matches to see further into the tree
     }
 
     // An alternative to checking the name is matching on known names. Again notice that only the

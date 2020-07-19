@@ -6,7 +6,7 @@ fn main() {
     // flags, as well as a few additional ones.
     let matches = App::new("MyApp")
         // Regular App configuration goes here...
-        // We'll add two positional arguments, a input file, and a config file.
+        // We'll add two positional arguments, an input file, and a config file.
         //
         // I'll explain each possible setting that "positionals" accept. Keep in
         // mind that you DO NOT need to set each of these for every flag, only the
@@ -18,12 +18,12 @@ fn main() {
                 // specify this argument (Starts at 1)
                 .requires("config") // Says, "If the user uses "input", they MUST
                 // also use this other 'config' arg too"
-                // Can also specifiy a list using
+                // Can also specify a list using
                 // requires_all(Vec<&str>)
                 .conflicts_with("output") // Opposite of requires(), says "if the
                 // user uses -a, they CANNOT use 'output'"
                 // also has a conflicts_with_all(Vec<&str>)
-                // and a exclusive(true)
+                // and an exclusive(true)
                 .required(true), // By default this argument MUST be present
                                  // NOTE: mutual exclusions take precedence over
                                  // required arguments

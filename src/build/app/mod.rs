@@ -436,7 +436,7 @@ impl<'b> App<'b> {
 
     /// Allows the subcommand to be used as if it were an [`Arg::short`]
     ///
-    /// Sets the short version of the subcommand flag without the preceeding `-`.
+    /// Sets the short version of the subcommand flag without the preceding `-`.
     ///
     /// # Examples
     ///
@@ -464,7 +464,7 @@ impl<'b> App<'b> {
 
     /// Allows the subcommand to be used as if it were an [`Arg::long`]
     ///
-    /// Sets the long version of the subcommand flag without the preceeding `--`.
+    /// Sets the long version of the subcommand flag without the preceding `--`.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped
     ///
@@ -648,7 +648,7 @@ impl<'b> App<'b> {
     ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
-    /// **NOTE:**The template system is, on purpose, very simple. Therefore the tags have to
+    /// **NOTE:**The template system is, on purpose, very simple. Therefore, the tags have to
     /// be written in the lowercase and without spacing.
     /// [`App::about`]: ./struct.App.html#method.about
     /// [`App::after_help`]: ./struct.App.html#method.after_help

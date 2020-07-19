@@ -943,7 +943,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets a overridable argument by name. I.e. this argument and the following argument
+    /// Sets an overridable argument by name. I.e. this argument and the following argument
     /// will override each other in POSIX style (whichever argument was specified at runtime
     /// **last** "wins")
     ///
@@ -990,7 +990,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    /// Making a arg [`Multiple*``] and override itself is essentially meaningless. Therefore
+    /// Making an arg [`Multiple*``] and override itself is essentially meaningless. Therefore
     /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
@@ -1381,7 +1381,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with it's
+    /// Setting [`Arg::required_ifs(&[(arg, val)])`] and having any of the `arg`s used with its
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
@@ -1821,7 +1821,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** There is a small performance hit for using validators, as they are implemented
     /// with [`Rc`] pointers. And the value to be checked will be allocated an extra time in order
-    /// to to be passed to the closure. This performance hit is extremely minimal in the grand
+    /// to be passed to the closure. This performance hit is extremely minimal in the grand
     /// scheme of things.
     ///
     /// # Examples
@@ -2986,7 +2986,7 @@ impl<'help> Arg<'help> {
     /// [`ArgSettings::MultipleOccurrences`] which only allows a single value at a time.
     ///
     /// **WARNING**: When building your CLIs, consider the effects of allowing leading hyphens and
-    /// the user passing in a value that matches a valid short. For example `prog -opt -F` where
+    /// the user passing in a value that matches a valid short. For example, `prog -opt -F` where
     /// `-F` is supposed to be a value, yet `-F` is *also* a valid short for another arg.
     /// Care should be taken when designing these args. This is compounded by the ability to "stack"
     /// short args. I.e. if `-val` is supposed to be a value, but `-v`, `-a`, and `-l` are all valid
@@ -3572,7 +3572,7 @@ impl<'help> Arg<'help> {
     /// **WARNING:**
     ///
     /// When using args with `MultipleValues` and [subcommands], one needs to consider the
-    /// posibility of an argument value being the same as a valid subcommand. By default `clap` will
+    /// possibility of an argument value being the same as a valid subcommand. By default `clap` will
     /// parse the argument in question as a value *only if* a value is possible at that moment.
     /// Otherwise it will be parsed as a subcommand. In effect, this means using `MultipleValues` with no
     /// additional parameters and a value that coincides with a subcommand name, the subcommand
