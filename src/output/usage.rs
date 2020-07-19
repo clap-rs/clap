@@ -10,16 +10,12 @@ use crate::{
     INTERNAL_ERROR_MSG,
 };
 
-pub(crate) struct Usage<'b, 'c, 'z>
-where
-    'b: 'c,
-    'c: 'z,
-{
-    p: &'z Parser<'b, 'c>,
+pub(crate) struct Usage<'help, 'app, 'parser> {
+    p: &'parser Parser<'help, 'app>,
 }
 
-impl<'b, 'c, 'z> Usage<'b, 'c, 'z> {
-    pub(crate) fn new(p: &'z Parser<'b, 'c>) -> Self {
+impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
+    pub(crate) fn new(p: &'parser Parser<'help, 'app>) -> Self {
         Usage { p }
     }
 
