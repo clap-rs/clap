@@ -133,7 +133,7 @@ Opt {
 
 ## clap_derive rustc version policy
 
-- Minimum rustc version modification must be specified in the [changelog](https://github.com/clap-rs/clap_derive/blob/master/CHANGELOG.md) and in the [travis configuration](https://github.com/clap-rs/clap_derive/blob/master/.travis.yml).
+- Minimum rustc version modification must be specified in the [changelog](https://github.com/clap-rs/clap_derive/blob/master/CHANGELOG.md) and in the [travis configuration](https://github.com/clap-rs/clap_derive/blob/master/.travis.yaml).
 - Contributors can increment minimum rustc version without any justification if the new version is required by the latest version of one of clap_derive's depedencies (`cargo update` will not fail on clap_derive).
 - Contributors can increment minimum rustc version if the library user experience is improved.
 

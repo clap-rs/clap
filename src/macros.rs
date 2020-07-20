@@ -17,8 +17,8 @@
 /// # extern crate clap;
 /// # use clap::App;
 /// # fn main() {
-/// let yml = load_yaml!("app.yml");
-/// let app = App::from(yml);
+/// let yaml = load_yaml!("app.yaml");
+/// let app = App::from(yaml);
 ///
 /// // continued logic goes here, such as `app.get_matches()` etc.
 /// # }
@@ -26,8 +26,9 @@
 #[cfg(feature = "yaml")]
 #[macro_export]
 macro_rules! load_yaml {
-    ($yml:expr) => {
-        &$crate::YamlLoader::load_from_str(include_str!($yml)).expect("failed to load YAML file")[0]
+    ($yaml:expr) => {
+        &$crate::YamlLoader::load_from_str(include_str!($yaml)).expect("failed to load YAML file")
+            [0]
     };
 }
 

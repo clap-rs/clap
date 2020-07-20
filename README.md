@@ -275,7 +275,7 @@ fn main() {
 This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
 or support multiple localized translations by having different YAML files for each localization.
 
-First, create the `cli.yml` file to hold your CLI options, but it could be called anything we like:
+First, create the `cli.yaml` file to hold your CLI options, but it could be called anything we like:
 
 ```yaml
 name: myapp
@@ -328,7 +328,7 @@ use clap::{App, load_yaml};
 
 fn main() {
     // The YAML file is found relative to the current file, similar to how modules are found
-    let yaml = load_yaml!("cli.yml");
+    let yaml = load_yaml!("cli.yaml");
     let matches = App::from(yaml).get_matches();
 
     // Same as previous examples...

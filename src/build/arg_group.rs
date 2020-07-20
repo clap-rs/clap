@@ -411,26 +411,26 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
 
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for ArgGroup<'a> {
-    /// Creates a new instance of `ArgGroup` from a .yml (YAML) file.
+    /// Creates a new instance of `ArgGroup` from a .yaml (YAML) file.
     ///
     /// # Examples
     ///
     /// ```ignore
     /// # use clap::{ArgGroup, load_yaml};
-    /// let yml = load_yaml!("group.yml");
-    /// let ag = ArgGroup::from(yml);
+    /// let yaml = load_yaml!("group.yaml");
+    /// let ag = ArgGroup::from(yaml);
     /// ```
     fn from(y: &'a Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
         let group_settings = if b.len() == 1 {
-            let name_yml = b.keys().next().expect("failed to get name");
-            let name_str = name_yml
+            let name_yaml = b.keys().next().expect("failed to get name");
+            let name_str = name_yaml
                 .as_str()
                 .expect("failed to convert arg YAML name to str");
             a.name = name_str;
-            b.get(name_yml)
+            b.get(name_yaml)
                 .expect("failed to get name_str")
                 .as_hash()
                 .expect("failed to convert to a hash")
@@ -541,8 +541,8 @@ requires:
 - r2
 - r3
 - r4";
-        let yml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
-        let g = ArgGroup::from(yml);
+        let yaml = &YamlLoader::load_from_str(g_yaml).expect("failed to load YAML file")[0];
+        let g = ArgGroup::from(yaml);
         let args = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
         let reqs = vec!["r1".into(), "r2".into(), "r3".into(), "r4".into()];
         let confs = vec!["c1".into(), "c2".into(), "c3".into(), "c4".into()];

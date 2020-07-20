@@ -18,7 +18,7 @@
 fn main() {
     use clap::{load_yaml, App};
 
-    // To load a yaml file containing our CLI definition such as the example '17_yaml.yml' we can
+    // To load a yaml file containing our CLI definition such as the example '17_yaml.yaml' we can
     // use the convenience macro which loads the file at compile relative to the current file
     // similar to how modules are found.
     //
@@ -26,10 +26,10 @@ fn main() {
     //
     // Finally we call get_matches() to start the parsing process. We use the matches just as we
     // normally would
-    let yml = load_yaml!("17_yaml.yml");
-    let m = App::from(yml).get_matches();
+    let yaml = load_yaml!("17_yaml.yaml");
+    let m = App::from(yaml).get_matches();
 
-    // Because the example 17_yaml.yml is rather large we'll just look a single arg so you can
+    // Because the example 17_yaml.yaml is rather large we'll just look a single arg so you can
     // see that it works...
     if let Some(mode) = m.value_of("mode") {
         match mode {
