@@ -336,9 +336,9 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
-    HelpDisplayed,
+    DisplayHelp,
 
     /// Not a true "error" as it means `--version` or similar was used.
     /// The message will be sent to `stdout`.
@@ -350,9 +350,9 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--version"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::VersionDisplayed);
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayVersion);
     /// ```
-    VersionDisplayed,
+    DisplayVersion,
 
     /// Occurs when using the [`ArgMathes::value_of_t`] and friends to convert an argument value
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
@@ -424,7 +424,7 @@ impl Error {
     #[inline]
     pub fn use_stderr(&self) -> bool {
         match self.kind {
-            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => false,
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion => false,
             _ => true,
         }
     }

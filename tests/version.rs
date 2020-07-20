@@ -16,7 +16,7 @@ fn version_short() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::VersionDisplayed);
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "test 1.3\n");
 }
 
@@ -30,7 +30,7 @@ fn version_long() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::VersionDisplayed);
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "test 1.3\n");
 }
 

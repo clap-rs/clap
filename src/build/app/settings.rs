@@ -629,7 +629,7 @@ pub enum AppSettings {
     ///         "myprog", "test", "-h"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
@@ -683,7 +683,7 @@ pub enum AppSettings {
     ///         "myprog", "test", "-V"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::VersionDisplayed);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayVersion);
     /// ```
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html

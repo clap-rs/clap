@@ -1765,7 +1765,7 @@ where
             _ => ClapError {
                 cause: String::new(),
                 message: c,
-                kind: ErrorKind::HelpDisplayed,
+                kind: ErrorKind::DisplayHelp,
                 info: None,
             },
         }
@@ -1781,7 +1781,7 @@ where
             _ => ClapError {
                 cause: String::new(),
                 message: c,
-                kind: ErrorKind::VersionDisplayed,
+                kind: ErrorKind::DisplayVersion,
                 info: None,
             },
         }
