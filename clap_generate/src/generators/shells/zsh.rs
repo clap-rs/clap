@@ -395,6 +395,22 @@ fn write_opts_of(p: &App) -> String {
 
             debug!("write_opts_of:iter: Wrote...{}", &*s);
             ret.push(s);
+
+            if let Some(short_aliases) = o.get_visible_short_aliases() {
+                for alias in short_aliases {
+                    let s = format!(
+                        "'{conflicts}{multiple}-{arg}+[{help}]{possible_values}' \\",
+                        conflicts = conflicts,
+                        multiple = multiple,
+                        arg = alias,
+                        possible_values = pv,
+                        help = help
+                    );
+
+                    debug!("write_opts_of:iter: Wrote...{}", &*s);
+                    ret.push(s);
+                }
+            }
         }
 
         if let Some(long) = o.get_long() {
@@ -465,6 +481,22 @@ fn write_flags_of(p: &App) -> String {
             debug!("write_flags_of:iter: Wrote...{}", &*s);
 
             ret.push(s);
+
+            if let Some(short_aliases) = f.get_visible_short_aliases() {
+                for alias in short_aliases {
+                    let s = format!(
+                        "'{conflicts}{multiple}-{arg}[{help}]' \\",
+                        multiple = multiple,
+                        conflicts = conflicts,
+                        arg = alias,
+                        help = help
+                    );
+
+                    debug!("write_flags_of:iter: Wrote...{}", &*s);
+
+                    ret.push(s);
+                }
+            }
         }
 
         if let Some(long) = f.get_long() {

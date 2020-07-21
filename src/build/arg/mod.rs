@@ -118,6 +118,22 @@ impl<'help> Arg<'help> {
         self.short
     }
 
+    /// Get visible short aliases for this argument, if any
+    #[inline]
+    pub fn get_visible_short_aliases(&self) -> Option<Vec<char>> {
+        if self.short_aliases.is_empty() {
+            None
+        } else {
+            Some(
+                self.short_aliases
+                    .iter()
+                    .filter_map(|(c, v)| if *v { Some(c) } else { None })
+                    .copied()
+                    .collect(),
+            )
+        }
+    }
+
     /// Get the long option name for this argument, if any
     #[inline]
     pub fn get_long(&self) -> Option<&str> {
