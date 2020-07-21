@@ -68,10 +68,10 @@ fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
     }
 }
 
-fn generate_inner<'b>(
-    p: &'b App<'b>,
+fn generate_inner<'help>(
+    p: &App<'help>,
     previous_command_name: &str,
-    names: &mut Vec<&'b str>,
+    names: &mut Vec<&'help str>,
 ) -> String {
     debug!("generate_inner");
 

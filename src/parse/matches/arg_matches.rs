@@ -78,7 +78,7 @@ pub struct ArgMatches {
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
-impl<'a> Default for ArgMatches {
+impl Default for ArgMatches {
     fn default() -> Self {
         ArgMatches {
             args: IndexMap::new(),
@@ -1039,7 +1039,7 @@ impl<'a> DoubleEndedIterator for OsValues<'a> {
 impl<'a> ExactSizeIterator for OsValues<'a> {}
 
 /// Creates an empty iterator.
-impl<'a> Default for OsValues<'a> {
+impl Default for OsValues<'_> {
     fn default() -> Self {
         static EMPTY: [OsString; 0] = [];
         // This is never called because the iterator is empty:

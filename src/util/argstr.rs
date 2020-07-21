@@ -43,7 +43,7 @@ impl<'a> ArgStr<'a> {
         false
     }
 
-    pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr<'_>, ArgStr<'_>) {
+    pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr, ArgStr) {
         assert!(byte.is_ascii());
 
         for (i, b) in self.0.iter().enumerate() {
@@ -54,7 +54,7 @@ impl<'a> ArgStr<'a> {
         (self.to_borrowed(), Self(Cow::Borrowed(&[])))
     }
 
-    pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr<'_> {
+    pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr {
         assert!(byte.is_ascii());
 
         let mut found = false;
@@ -73,7 +73,7 @@ impl<'a> ArgStr<'a> {
 
     // Like `trim_start_matches`, but trims no more than `n` matches
     #[inline]
-    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr<'_> {
+    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr {
         assert!(ch.is_ascii());
 
         let i = self
@@ -89,7 +89,7 @@ impl<'a> ArgStr<'a> {
         self.split_at_unchecked(i).1
     }
 
-    pub(crate) fn split_at_unchecked(&'a self, i: usize) -> (ArgStr<'_>, ArgStr<'_>) {
+    pub(crate) fn split_at_unchecked(&'a self, i: usize) -> (ArgStr, ArgStr) {
         (
             Self(Cow::Borrowed(&self.0[..i])),
             Self(Cow::Borrowed(&self.0[i..])),

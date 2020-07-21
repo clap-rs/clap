@@ -12,9 +12,9 @@ pub(crate) struct Key {
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
-pub(crate) struct MKeyMap<'b> {
+pub(crate) struct MKeyMap<'help> {
     pub(crate) keys: Vec<Key>,
-    pub(crate) args: Vec<Arg<'b>>,
+    pub(crate) args: Vec<Arg<'help>>,
 
     // FIXME (@CreepySkeleton): this seems useless
     built: bool, // mutation isn't possible after being built
@@ -54,7 +54,7 @@ impl PartialEq<char> for KeyType {
     }
 }
 
-impl<'b> MKeyMap<'b> {
+impl<'help> MKeyMap<'help> {
     //TODO ::from(x), ::with_capacity(n) etc
     //? set theory ops?
 
@@ -65,7 +65,7 @@ impl<'b> MKeyMap<'b> {
         self.keys.iter().any(|x| x.key == key)
     }
 
-    pub(crate) fn push(&mut self, value: Arg<'b>) -> usize {
+    pub(crate) fn push(&mut self, value: Arg<'help>) -> usize {
         if self.built {
             panic!("Cannot add Args to the map after the map is built");
         }
@@ -88,7 +88,7 @@ impl<'b> MKeyMap<'b> {
 
     // ! Arg mutation functionality
 
-    pub(crate) fn get(&self, key: &KeyType) -> Option<&Arg<'b>> {
+    pub(crate) fn get(&self, key: &KeyType) -> Option<&Arg<'help>> {
         self.keys
             .iter()
             .find(|k| k.key == *key)
@@ -114,7 +114,7 @@ impl<'b> MKeyMap<'b> {
     //? probably shouldn't add a possibility for removal?
     //? or remove by replacement by some dummy object, so the order is preserved
 
-    pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'b>> {
+    pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'help>> {
         if self.built {
             panic!("Cannot remove args after being built");
         }
@@ -126,10 +126,10 @@ impl<'b> MKeyMap<'b> {
     }
 }
 
-impl<'b> Index<&'_ KeyType> for MKeyMap<'b> {
-    type Output = Arg<'b>;
+impl<'help> Index<&'_ KeyType> for MKeyMap<'help> {
+    type Output = Arg<'help>;
 
-    fn index(&self, key: &'_ KeyType) -> &Self::Output {
+    fn index(&self, key: &KeyType) -> &Self::Output {
         self.get(key).expect(INTERNAL_ERROR_MSG)
     }
 }

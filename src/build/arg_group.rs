@@ -75,9 +75,9 @@ use yaml_rust::Yaml;
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
 #[derive(Default, Debug)]
-pub struct ArgGroup<'a> {
+pub struct ArgGroup<'help> {
     pub(crate) id: Id,
-    pub(crate) name: &'a str,
+    pub(crate) name: &'help str,
     pub(crate) args: Vec<Id>,
     pub(crate) required: bool,
     pub(crate) requires: Vec<Id>,
@@ -85,7 +85,7 @@ pub struct ArgGroup<'a> {
     pub(crate) multiple: bool,
 }
 
-impl<'a> ArgGroup<'a> {
+impl<'help> ArgGroup<'help> {
     pub(crate) fn with_id(id: Id) -> Self {
         ArgGroup {
             id,
@@ -103,7 +103,7 @@ impl<'a> ArgGroup<'a> {
     /// ArgGroup::new("config")
     /// # ;
     /// ```
-    pub fn new<S: Into<&'a str>>(n: S) -> Self {
+    pub fn new<S: Into<&'help str>>(n: S) -> Self {
         let name = n.into();
         ArgGroup {
             id: Id::from(&*name),
@@ -318,7 +318,7 @@ impl<'a> ArgGroup<'a> {
     /// ```
     /// [required group]: ./struct.ArgGroup.html#method.required
     /// [argument requirement rules]: ./struct.Arg.html#method.requires_all
-    pub fn requires_all(mut self, ns: &[&'a str]) -> Self {
+    pub fn requires_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.requires(n);
         }
@@ -387,7 +387,7 @@ impl<'a> ArgGroup<'a> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// [argument exclusion rules]: ./struct.Arg.html#method.conflicts_with_all
-    pub fn conflicts_with_all(mut self, ns: &[&'a str]) -> Self {
+    pub fn conflicts_with_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
         }
@@ -395,8 +395,8 @@ impl<'a> ArgGroup<'a> {
     }
 }
 
-impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
-    fn from(g: &'z ArgGroup<'a>) -> Self {
+impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
+    fn from(g: &ArgGroup<'help>) -> Self {
         ArgGroup {
             id: g.id.clone(),
             name: g.name,
@@ -410,7 +410,7 @@ impl<'a, 'z> From<&'z ArgGroup<'a>> for ArgGroup<'a> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a Yaml> for ArgGroup<'a> {
+impl<'help> From<&'help Yaml> for ArgGroup<'help> {
     /// Creates a new instance of `ArgGroup` from a .yaml (YAML) file.
     ///
     /// # Examples
@@ -420,7 +420,7 @@ impl<'a> From<&'a Yaml> for ArgGroup<'a> {
     /// let yaml = load_yaml!("group.yaml");
     /// let ag = ArgGroup::from(yaml);
     /// ```
-    fn from(y: &'a Yaml) -> Self {
+    fn from(y: &'help Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.
         let mut a = ArgGroup::default();
@@ -552,7 +552,7 @@ requires:
     }
 }
 
-impl<'a> Clone for ArgGroup<'a> {
+impl Clone for ArgGroup<'_> {
     fn clone(&self) -> Self {
         ArgGroup {
             id: self.id.clone(),

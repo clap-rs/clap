@@ -69,43 +69,43 @@ pub(crate) enum Propagation {
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Default, Debug, Clone)]
-pub struct App<'b> {
+pub struct App<'help> {
     pub(crate) id: Id,
     pub(crate) name: String,
-    pub(crate) long_flag: Option<&'b str>,
+    pub(crate) long_flag: Option<&'help str>,
     pub(crate) short_flag: Option<char>,
     pub(crate) bin_name: Option<String>,
-    pub(crate) author: Option<&'b str>,
-    pub(crate) version: Option<&'b str>,
-    pub(crate) long_version: Option<&'b str>,
-    pub(crate) about: Option<&'b str>,
-    pub(crate) long_about: Option<&'b str>,
-    pub(crate) before_help: Option<&'b str>,
-    pub(crate) before_long_help: Option<&'b str>,
-    pub(crate) after_help: Option<&'b str>,
-    pub(crate) after_long_help: Option<&'b str>,
-    pub(crate) aliases: Vec<(&'b str, bool)>, // (name, visible)
+    pub(crate) author: Option<&'help str>,
+    pub(crate) version: Option<&'help str>,
+    pub(crate) long_version: Option<&'help str>,
+    pub(crate) about: Option<&'help str>,
+    pub(crate) long_about: Option<&'help str>,
+    pub(crate) before_help: Option<&'help str>,
+    pub(crate) before_long_help: Option<&'help str>,
+    pub(crate) after_help: Option<&'help str>,
+    pub(crate) after_long_help: Option<&'help str>,
+    pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_flag_aliases: Vec<(char, bool)>, // (name, visible)
-    pub(crate) long_flag_aliases: Vec<(&'b str, bool)>, // (name, visible)
-    pub(crate) usage_str: Option<&'b str>,
+    pub(crate) long_flag_aliases: Vec<(&'help str, bool)>, // (name, visible)
+    pub(crate) usage_str: Option<&'help str>,
     pub(crate) usage: Option<String>,
-    pub(crate) help_str: Option<&'b str>,
+    pub(crate) help_str: Option<&'help str>,
     pub(crate) disp_ord: usize,
     pub(crate) term_w: Option<usize>,
     pub(crate) max_w: Option<usize>,
-    pub(crate) template: Option<&'b str>,
+    pub(crate) template: Option<&'help str>,
     pub(crate) settings: AppFlags,
     pub(crate) g_settings: AppFlags,
-    pub(crate) args: MKeyMap<'b>,
-    pub(crate) subcommands: Vec<App<'b>>,
-    pub(crate) replacers: HashMap<&'b str, &'b [&'b str]>,
-    pub(crate) groups: Vec<ArgGroup<'b>>,
-    pub(crate) current_help_heading: Option<&'b str>,
-    pub(crate) subcommand_placeholder: Option<&'b str>,
-    pub(crate) subcommand_header: Option<&'b str>,
+    pub(crate) args: MKeyMap<'help>,
+    pub(crate) subcommands: Vec<App<'help>>,
+    pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
+    pub(crate) groups: Vec<ArgGroup<'help>>,
+    pub(crate) current_help_heading: Option<&'help str>,
+    pub(crate) subcommand_placeholder: Option<&'help str>,
+    pub(crate) subcommand_header: Option<&'help str>,
 }
 
-impl<'b> App<'b> {
+impl<'help> App<'help> {
     /// Get the name of the app
     #[inline]
     pub fn get_name(&self) -> &str {
@@ -158,7 +158,7 @@ impl<'b> App<'b> {
 
     /// Iterate through the *visible* short aliases for this subcommand.
     #[inline]
-    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'b str> + '_ {
+    pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         self.long_flag_aliases
             .iter()
             .filter(|(_, vis)| *vis)
@@ -179,43 +179,43 @@ impl<'b> App<'b> {
 
     /// Iterate through the set of *all* the long aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &'b str> + '_ {
+    pub fn get_all_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         self.long_flag_aliases.iter().map(|a| a.0)
     }
 
     /// Get the list of subcommands
     #[inline]
-    pub fn get_subcommands(&self) -> impl Iterator<Item = &App<'b>> {
+    pub fn get_subcommands(&self) -> impl Iterator<Item = &App<'help>> {
         self.subcommands.iter()
     }
 
     /// Iterate through the set of subcommands, getting a mutable reference to each.
     #[inline]
-    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut App<'b>> {
+    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut App<'help>> {
         self.subcommands.iter_mut()
     }
 
     /// Iterate through the set of arguments
     #[inline]
-    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'b>> {
+    pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.args.args.iter()
     }
 
     /// Get the list of *positional* arguments.
     #[inline]
-    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'b>> {
+    pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments().filter(|a| a.is_positional())
     }
 
     /// Iterate through the *flags* that don't have custom heading.
-    pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+    pub fn get_flags_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
             .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
             .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Iterate through the *options* that don't have custom heading.
-    pub fn get_opts_no_heading(&self) -> impl Iterator<Item = &Arg<'b>> {
+    pub fn get_opts_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
             .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
             .filter(|a| a.get_help_heading().is_none())
@@ -226,7 +226,7 @@ impl<'b> App<'b> {
     /// ### Panics
     ///
     /// Panics if the given arg conflicts with an argument that is unknown to this application
-    pub fn get_arg_conflicts_with<'a, 'x, 'y>(&'a self, arg: &'x Arg<'y>) -> Vec<&Arg<'b>> // FIXME: This could probably have been an iterator
+    pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
         arg.blacklist
             .iter()
@@ -253,7 +253,7 @@ impl<'b> App<'b> {
 
     /// Find subcommand such that its name or one of aliases equals `name`.
     #[inline]
-    pub fn find_subcommand<T>(&self, name: &T) -> Option<&App<'b>>
+    pub fn find_subcommand<T>(&self, name: &T) -> Option<&App<'help>>
     where
         T: PartialEq<str> + ?Sized,
     {
@@ -261,7 +261,7 @@ impl<'b> App<'b> {
     }
 }
 
-impl<'b> App<'b> {
+impl<'help> App<'help> {
     /// Creates a new instance of an application requiring a name. The name may be, but doesn't
     /// have to be, same as the binary. The name will be displayed to the user when they request to
     /// print version or help and usage information.
@@ -302,7 +302,7 @@ impl<'b> App<'b> {
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
-    pub fn author<S: Into<&'b str>>(mut self, author: S) -> Self {
+    pub fn author<S: Into<&'help str>>(mut self, author: S) -> Self {
         self.author = Some(author.into());
         self
     }
@@ -348,7 +348,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`App::long_about`]: ./struct.App.html#method.long_about
-    pub fn about<S: Into<&'b str>>(mut self, about: S) -> Self {
+    pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.about = Some(about.into());
         self
     }
@@ -374,7 +374,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`App::about`]: ./struct.App.html#method.about
-    pub fn long_about<S: Into<&'b str>>(mut self, about: S) -> Self {
+    pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.long_about = Some(about.into());
         self
     }
@@ -417,7 +417,7 @@ impl<'b> App<'b> {
     ///     .after_help("Does really amazing things to great people...but be careful with -R")
     /// # ;
     /// ```
-    pub fn after_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_help = Some(help.into());
         self
     }
@@ -439,7 +439,7 @@ impl<'b> App<'b> {
     ///                      like, for real, be careful with this!")
     /// # ;
     /// ```
-    pub fn after_long_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn after_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_long_help = Some(help.into());
         self
     }
@@ -459,7 +459,7 @@ impl<'b> App<'b> {
     ///     .before_help("Some info I'd like to appear before the help info")
     /// # ;
     /// ```
-    pub fn before_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
         self
     }
@@ -479,7 +479,7 @@ impl<'b> App<'b> {
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
     /// # ;
     /// ```
-    pub fn before_long_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn before_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_long_help = Some(help.into());
         self
     }
@@ -541,7 +541,7 @@ impl<'b> App<'b> {
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
     /// assert!(sync_matches.is_present("search"));
     /// ```
-    pub fn long_flag(mut self, long: &'b str) -> Self {
+    pub fn long_flag(mut self, long: &'help str) -> Self {
         self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
         self
     }
@@ -567,7 +567,7 @@ impl<'b> App<'b> {
     /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::long_version`]: ./struct.App.html#method.long_version
-    pub fn version<S: Into<&'b str>>(mut self, ver: S) -> Self {
+    pub fn version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.version = Some(ver.into());
         self
     }
@@ -598,7 +598,7 @@ impl<'b> App<'b> {
     /// [`crate_version!`]: ./macro.crate_version!.html
     /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
     /// [`App::version`]: ./struct.App.html#method.version
-    pub fn long_version<S: Into<&'b str>>(mut self, ver: S) -> Self {
+    pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.long_version = Some(ver.into());
         self
     }
@@ -622,7 +622,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ./struct.ArgMatches.html#method.usage
-    pub fn override_usage<S: Into<&'b str>>(mut self, usage: S) -> Self {
+    pub fn override_usage<S: Into<&'help str>>(mut self, usage: S) -> Self {
         self.usage_str = Some(usage.into());
         self
     }
@@ -661,7 +661,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [`Arg::override_help`]: ./struct.Arg.html#method.override_help
-    pub fn override_help<S: Into<&'b str>>(mut self, help: S) -> Self {
+    pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
     }
@@ -704,7 +704,7 @@ impl<'b> App<'b> {
     /// [`App::after_help`]: ./struct.App.html#method.after_help
     /// [`App::before_help`]: ./struct.App.html#method.before_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
-    pub fn help_template<S: Into<&'b str>>(mut self, s: S) -> Self {
+    pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
         self
     }
@@ -878,7 +878,7 @@ impl<'b> App<'b> {
     /// # ;
     /// ```
     /// [argument]: ./struct.Arg.html
-    pub fn arg<A: Into<Arg<'b>>>(mut self, a: A) -> Self {
+    pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let mut arg = a.into();
         if let Some(help_heading) = self.current_help_heading {
             arg = arg.help_heading(Some(help_heading));
@@ -891,7 +891,7 @@ impl<'b> App<'b> {
     /// have this header (instead of its default header) until a subsequent
     /// call to help_heading
     #[inline]
-    pub fn help_heading(mut self, heading: &'b str) -> Self {
+    pub fn help_heading(mut self, heading: &'help str) -> Self {
         self.current_help_heading = Some(heading);
         self
     }
@@ -920,7 +920,7 @@ impl<'b> App<'b> {
     pub fn args<I, T>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        T: Into<Arg<'b>>,
+        T: Into<Arg<'help>>,
     {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
@@ -946,7 +946,7 @@ impl<'b> App<'b> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [``]: ./struct..html
-    pub fn alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+    pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), false));
         self
     }
@@ -989,7 +989,7 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    pub fn long_flag_alias(mut self, name: &'b str) -> Self {
+    pub fn long_flag_alias(mut self, name: &'help str) -> Self {
         self.long_flag_aliases.push((name, false));
         self
     }
@@ -1014,7 +1014,7 @@ impl<'b> App<'b> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [``]: ./struct..html
-    pub fn aliases(mut self, names: &[&'b str]) -> Self {
+    pub fn aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, false)));
         self
     }
@@ -1067,7 +1067,7 @@ impl<'b> App<'b> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    pub fn long_flag_aliases(mut self, names: &[&'b str]) -> Self {
+    pub fn long_flag_aliases(mut self, names: &[&'help str]) -> Self {
         for s in names {
             self.long_flag_aliases.push((s, false));
         }
@@ -1089,7 +1089,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     /// [`App::alias`]: ./struct.App.html#method.alias
-    pub fn visible_alias<S: Into<&'b str>>(mut self, name: S) -> Self {
+    pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), true));
         self
     }
@@ -1130,7 +1130,7 @@ impl<'b> App<'b> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::long_flag_alias`]: ./struct.App.html#method.long_flag_alias
-    pub fn visible_long_flag_alias(mut self, name: &'b str) -> Self {
+    pub fn visible_long_flag_alias(mut self, name: &'help str) -> Self {
         self.long_flag_aliases.push((name, true));
         self
     }
@@ -1150,7 +1150,7 @@ impl<'b> App<'b> {
     /// ```
     /// [``]: ./struct..html
     /// [`App::aliases`]: ./struct.App.html#method.aliases
-    pub fn visible_aliases(mut self, names: &[&'b str]) -> Self {
+    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
     }
@@ -1193,7 +1193,7 @@ impl<'b> App<'b> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::short_flag_aliases`]: ./struct.App.html#method.short_flag_aliases
-    pub fn visible_long_flag_aliases(mut self, names: &[&'b str]) -> Self {
+    pub fn visible_long_flag_aliases(mut self, names: &[&'help str]) -> Self {
         for s in names {
             self.long_flag_aliases.push((s, true));
         }
@@ -1218,7 +1218,7 @@ impl<'b> App<'b> {
     /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
     /// ```
     #[inline]
-    pub fn replace(mut self, name: &'b str, target: &'b [&'b str]) -> Self {
+    pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
         self.replacers.insert(name, target);
         self
     }
@@ -1257,7 +1257,7 @@ impl<'b> App<'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     #[inline]
-    pub fn group(mut self, group: ArgGroup<'b>) -> Self {
+    pub fn group(mut self, group: ArgGroup<'help>) -> Self {
         self.groups.push(group);
         self
     }
@@ -1286,7 +1286,7 @@ impl<'b> App<'b> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     /// [`App`]: ./struct.App.html
-    pub fn groups(mut self, groups: &[ArgGroup<'b>]) -> Self {
+    pub fn groups(mut self, groups: &[ArgGroup<'help>]) -> Self {
         for g in groups {
             self = self.group(g.into());
         }
@@ -1311,7 +1311,7 @@ impl<'b> App<'b> {
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
     #[inline]
-    pub fn subcommand(mut self, subcmd: App<'b>) -> Self {
+    pub fn subcommand(mut self, subcmd: App<'help>) -> Self {
         self.subcommands.push(subcmd);
         self
     }
@@ -1334,7 +1334,7 @@ impl<'b> App<'b> {
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
     where
-        I: IntoIterator<Item = App<'b>>,
+        I: IntoIterator<Item = App<'help>>,
     {
         for subcmd in subcmds {
             self.subcommands.push(subcmd);
@@ -1420,8 +1420,8 @@ impl<'b> App<'b> {
     /// [`Arg`]: ./struct.Arg.html
     pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
     where
-        F: FnOnce(Arg<'b>) -> Arg<'b>,
-        T: Key + Into<&'b str>,
+        F: FnOnce(Arg<'help>) -> Arg<'help>,
+        T: Key + Into<&'help str>,
     {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
@@ -1847,7 +1847,7 @@ impl<'b> App<'b> {
     ///
     /// SUBCOMMANDS:
     ///     help    Prints this message or the help of the given subcommand(s)
-    ///     sub1    
+    ///     sub1
     /// ```
     ///
     /// but usage of `subcommand_placeholder`
@@ -1875,12 +1875,12 @@ impl<'b> App<'b> {
     ///
     /// THINGS:
     ///     help    Prints this message or the help of the given subcommand(s)
-    ///     sub1    
+    ///     sub1
     /// ```
     pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, header: T) -> Self
     where
-        S: Into<&'b str>,
-        T: Into<&'b str>,
+        S: Into<&'help str>,
+        T: Into<&'help str>,
     {
         self.subcommand_placeholder = Some(placeholder.into());
         self.subcommand_header = Some(header.into());
@@ -1891,13 +1891,13 @@ impl<'b> App<'b> {
 // Allows checking for conflicts between `Args` and `Apps` with subcommand flags
 #[cfg(debug_assertions)]
 #[derive(Debug)]
-enum Flag<'a> {
-    App(&'a App<'a>, String),
-    Arg(&'a Arg<'a>, String),
+enum Flag<'r, 'help> {
+    App(&'r App<'help>, String),
+    Arg(&'r Arg<'help>, String),
 }
 
 #[cfg(debug_assertions)]
-impl<'a> Flag<'_> {
+impl Flag<'_, '_> {
     pub fn value(&self) -> &str {
         match self {
             Self::App(_, value) => value,
@@ -1914,7 +1914,7 @@ impl<'a> Flag<'_> {
 }
 
 #[cfg(debug_assertions)]
-impl<'a> fmt::Display for Flag<'a> {
+impl fmt::Display for Flag<'_, '_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::App(app, _) => write!(f, "App named '{}'", app.name),
@@ -1924,7 +1924,7 @@ impl<'a> fmt::Display for Flag<'a> {
 }
 
 // Internally used only
-impl<'b> App<'b> {
+impl<'help> App<'help> {
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
         debug!("App::_do_parse");
         let mut matcher = ArgMatcher::default();
@@ -2027,7 +2027,7 @@ impl<'b> App<'b> {
     #[cfg(debug_assertions)]
     fn two_long_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
     where
-        F: Fn(&Flag<'_>) -> bool,
+        F: Fn(&Flag) -> bool,
     {
         let mut flags: Vec<Flag> = Vec::new();
         for sc in &self.subcommands {
@@ -2058,7 +2058,7 @@ impl<'b> App<'b> {
     #[cfg(debug_assertions)]
     fn two_short_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
     where
-        F: Fn(&Flag<'_>) -> bool,
+        F: Fn(&Flag) -> bool,
     {
         let mut flags: Vec<Flag> = Vec::new();
         for sc in &self.subcommands {
@@ -2089,7 +2089,7 @@ impl<'b> App<'b> {
     #[cfg(debug_assertions)]
     fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
     where
-        F: Fn(&Arg<'_>) -> bool,
+        F: Fn(&Arg) -> bool,
     {
         two_elements_of(self.args.args.iter().filter(|a| condition(a)))
     }
@@ -2098,7 +2098,7 @@ impl<'b> App<'b> {
     #[allow(unused)]
     fn two_groups_of<F>(&self, condition: F) -> Option<(&ArgGroup, &ArgGroup)>
     where
-        F: Fn(&ArgGroup<'_>) -> bool,
+        F: Fn(&ArgGroup) -> bool,
     {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }
@@ -2490,8 +2490,8 @@ impl<'b> App<'b> {
 }
 
 // Internal Query Methods
-impl<'b> App<'b> {
-    pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'b>> {
+impl<'help> App<'help> {
+    pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
         self.args.args.iter().find(|a| a.id == *arg_id)
     }
 
@@ -2592,7 +2592,7 @@ impl<'b> App<'b> {
     }
 
     /// Iterate through the groups this arg is member of.
-    pub(crate) fn groups_for_arg<'a>(&'a self, arg: &'_ Id) -> impl Iterator<Item = Id> + 'a {
+    pub(crate) fn groups_for_arg<'a>(&'a self, arg: &Id) -> impl Iterator<Item = Id> + 'a {
         debug!("App::groups_for_arg: id={:?}", arg);
         let arg = arg.clone();
         self.groups
@@ -2691,25 +2691,25 @@ impl<'b> App<'b> {
     }
 
     /// Find a flag subcommand name by long flag or an alias
-    pub(crate) fn find_long_subcmd(&self, long: &ArgStr<'_>) -> Option<&str> {
+    pub(crate) fn find_long_subcmd(&self, long: &ArgStr) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
             .map(|sc| sc.get_name())
     }
 }
 
-impl<'b> Index<&'_ Id> for App<'b> {
-    type Output = Arg<'b>;
+impl<'help> Index<&'_ Id> for App<'help> {
+    type Output = Arg<'help>;
 
-    fn index(&self, key: &'_ Id) -> &Self::Output {
+    fn index(&self, key: &Id) -> &Self::Output {
         self.find(key).expect(INTERNAL_ERROR_MSG)
     }
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a Yaml> for App<'a> {
+impl<'help> From<&'help Yaml> for App<'help> {
     #[allow(clippy::cognitive_complexity)]
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(mut yaml: &'help Yaml) -> Self {
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
@@ -2848,7 +2848,7 @@ impl<'a> From<&'a Yaml> for App<'a> {
     }
 }
 
-impl<'e> fmt::Display for App<'e> {
+impl fmt::Display for App<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)
     }

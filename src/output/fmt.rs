@@ -33,12 +33,12 @@ pub(crate) struct Colorizer {
 
 impl Debug for Colorizer {
     #[cfg(feature = "color")]
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", String::from_utf8_lossy(self.buffer.as_slice()))
     }
 
     #[cfg(not(feature = "color"))]
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", String::from_utf8_lossy(&self.buffer))
     }
 }

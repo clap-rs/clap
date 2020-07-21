@@ -10,17 +10,13 @@ use crate::{
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
-pub(crate) struct Validator<'b, 'c, 'z>
-where
-    'b: 'c,
-    'c: 'z,
-{
-    p: &'z mut Parser<'b, 'c>,
+pub(crate) struct Validator<'help, 'app, 'parser> {
+    p: &'parser mut Parser<'help, 'app>,
     c: ChildGraph<Id>,
 }
 
-impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
-    pub(crate) fn new(p: &'z mut Parser<'b, 'c>) -> Self {
+impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
+    pub(crate) fn new(p: &'parser mut Parser<'help, 'app>) -> Self {
         Validator {
             p,
             c: ChildGraph::with_capacity(5),
@@ -471,7 +467,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
 
     fn validate_arg_requires(
         &self,
-        a: &Arg<'b>,
+        a: &Arg<'help>,
         ma: &MatchedArg,
         matcher: &ArgMatcher,
     ) -> ClapResult<()> {
@@ -530,12 +526,12 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
         Ok(())
     }
 
-    fn is_missing_required_ok(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn is_missing_required_ok(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.name);
         self.validate_arg_conflicts(a, matcher) || self.p.overridden.contains(&a.id)
     }
 
-    fn validate_arg_conflicts(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::validate_arg_conflicts: a={:?}", a.name);
         a.blacklist.iter().any(|conf| {
             matcher.contains(conf)
@@ -570,7 +566,7 @@ impl<'b, 'c, 'z> Validator<'b, 'c, 'z> {
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
-    fn fails_arg_required_unless(&self, a: &Arg<'b>, matcher: &ArgMatcher) -> bool {
+    fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
         if a.is_set(ArgSettings::RequiredUnlessAll) {
             debug!("Validator::fails_arg_required_unless:{}:All", a.name);

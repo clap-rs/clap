@@ -4185,7 +4185,7 @@ impl<'help> Arg<'help> {
     }
 }
 
-impl<'a> Arg<'a> {
+impl Arg<'_> {
     pub(crate) fn _debug_asserts(&self) {
         debug!("Arg::_debug_asserts:{}", self.name);
 
@@ -4200,7 +4200,7 @@ impl<'a> Arg<'a> {
 }
 
 #[cfg(feature = "yaml")]
-impl<'a> From<&'a Yaml> for Arg<'a> {
+impl<'help> From<&'help Yaml> for Arg<'help> {
     /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
     ///
     /// # Examples
@@ -4212,7 +4212,7 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[allow(clippy::cognitive_complexity)]
-    fn from(y: &'a Yaml) -> Self {
+    fn from(y: &'help Yaml) -> Self {
         let y = y.as_hash().unwrap();
         // We WANT this to panic on error...so expect() is good.
         let name_yaml = y.keys().next().unwrap();
@@ -4284,8 +4284,8 @@ impl<'a> From<&'a Yaml> for Arg<'a> {
     }
 }
 
-impl<'help, 'z> From<&'z Arg<'help>> for Arg<'help> {
-    fn from(a: &'z Arg<'help>) -> Self {
+impl<'help> From<&'_ Arg<'help>> for Arg<'help> {
+    fn from(a: &Arg<'help>) -> Self {
         a.clone()
     }
 }

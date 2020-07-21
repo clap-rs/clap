@@ -17,16 +17,16 @@ enum UsageToken {
 }
 
 #[derive(Debug)]
-pub(crate) struct UsageParser<'a> {
-    usage: &'a str,
+pub(crate) struct UsageParser<'help> {
+    usage: &'help str,
     pos: usize,
     start: usize,
     prev: UsageToken,
     explicit_name_set: bool,
 }
 
-impl<'a> UsageParser<'a> {
-    fn new(usage: &'a str) -> Self {
+impl<'help> UsageParser<'help> {
+    fn new(usage: &'help str) -> Self {
         debug!("new: usage={:?}", usage);
         UsageParser {
             usage,
@@ -37,12 +37,12 @@ impl<'a> UsageParser<'a> {
         }
     }
 
-    pub(crate) fn from_usage(usage: &'a str) -> Self {
+    pub(crate) fn from_usage(usage: &'help str) -> Self {
         debug!("UsageParser::from_usage");
         UsageParser::new(usage)
     }
 
-    pub(crate) fn parse(mut self) -> Arg<'a> {
+    pub(crate) fn parse(mut self) -> Arg<'help> {
         debug!("UsageParser::parse");
         let mut arg = Arg::default();
         arg.disp_ord = 999;
@@ -75,7 +75,7 @@ impl<'a> UsageParser<'a> {
         arg
     }
 
-    fn name(&mut self, arg: &mut Arg<'a>) {
+    fn name(&mut self, arg: &mut Arg<'help>) {
         debug!("UsageParser::name");
         if *self
             .usage
@@ -122,7 +122,7 @@ impl<'a> UsageParser<'a> {
             .count();
     }
 
-    fn short_or_long(&mut self, arg: &mut Arg<'a>) {
+    fn short_or_long(&mut self, arg: &mut Arg<'help>) {
         debug!("UsageParser::short_or_long");
         self.pos += 1;
         if *self
@@ -139,7 +139,7 @@ impl<'a> UsageParser<'a> {
         self.short(arg)
     }
 
-    fn long(&mut self, arg: &mut Arg<'a>) {
+    fn long(&mut self, arg: &mut Arg<'help>) {
         debug!("UsageParser::long");
         self.stop_at(long_end);
         let name = &self.usage[self.start..self.pos];
@@ -153,7 +153,7 @@ impl<'a> UsageParser<'a> {
         self.prev = UsageToken::Long;
     }
 
-    fn short(&mut self, arg: &mut Arg<'a>) {
+    fn short(&mut self, arg: &mut Arg<'help>) {
         debug!("UsageParser::short");
         let start = &self.usage[self.pos..];
         let short = start.chars().next().expect(INTERNAL_ERROR_MSG);
@@ -191,7 +191,7 @@ impl<'a> UsageParser<'a> {
         }
     }
 
-    fn help(&mut self, arg: &mut Arg<'a>) {
+    fn help(&mut self, arg: &mut Arg<'help>) {
         debug!("UsageParser::help");
         self.stop_at(help_start);
         self.start = self.pos + 1;
@@ -205,7 +205,7 @@ impl<'a> UsageParser<'a> {
         self.prev = UsageToken::Help;
     }
 
-    fn default(&mut self, arg: &mut Arg<'a>) {
+    fn default(&mut self, arg: &mut Arg<'help>) {
         debug!(
             "UsageParser::default: from=\"{}\"",
             &self.usage[self.pos..self.usage.len()]

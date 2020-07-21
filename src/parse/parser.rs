@@ -86,11 +86,8 @@ impl Input {
     }
 }
 
-pub(crate) struct Parser<'b, 'c>
-where
-    'b: 'c,
-{
-    pub(crate) app: &'c mut App<'b>,
+pub(crate) struct Parser<'help, 'app> {
+    pub(crate) app: &'app mut App<'help>,
     pub(crate) required: ChildGraph<Id>,
     pub(crate) overridden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
@@ -99,11 +96,8 @@ where
 }
 
 // Initializing Methods
-impl<'b, 'c> Parser<'b, 'c>
-where
-    'b: 'c,
-{
-    pub(crate) fn new(app: &'c mut App<'b>) -> Self {
+impl<'help, 'app> Parser<'help, 'app> {
+    pub(crate) fn new(app: &'app mut App<'help>) -> Self {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
@@ -369,10 +363,7 @@ where
 }
 
 // Parsing Methods
-impl<'b, 'c> Parser<'b, 'c>
-where
-    'b: 'c,
-{
+impl<'help, 'app> Parser<'help, 'app> {
     // The actual parsing function
     #[allow(clippy::cognitive_complexity)]
     pub(crate) fn get_matches_with(
@@ -850,7 +841,7 @@ where
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
+    fn possible_subcommand(&self, arg_os: &ArgStr) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
         if self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) {
@@ -881,7 +872,7 @@ where
     }
 
     // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
-    fn possible_long_flag_subcommand(&self, arg_os: &ArgStr<'_>) -> Option<&str> {
+    fn possible_long_flag_subcommand(&self, arg_os: &ArgStr) -> Option<&str> {
         debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
         if self.is_set(AS::InferSubcommands) {
             let options = self
@@ -984,7 +975,7 @@ where
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr<'_>, needs_val_of: &ParseResult) -> bool {
+    fn is_new_arg(&mut self, arg_os: &ArgStr, needs_val_of: &ParseResult) -> bool {
         debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, needs_val_of);
 
         let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
@@ -1132,7 +1123,7 @@ where
 
     // Retrieves the names of all args the user has supplied thus far, except required ones
     // because those will be listed in self.required
-    fn check_for_help_and_version_str(&self, arg: &ArgStr<'_>) -> ClapResult<()> {
+    fn check_for_help_and_version_str(&self, arg: &ArgStr) -> ClapResult<()> {
         debug!("Parser::check_for_help_and_version_str");
         debug!(
             "Parser::check_for_help_and_version_str: Checking if --{:?} is help or version...",
@@ -1204,7 +1195,7 @@ where
     fn parse_long_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &ArgStr<'_>,
+        full_arg: &ArgStr,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -1257,7 +1248,7 @@ where
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher,
-        full_arg: &ArgStr<'_>,
+        full_arg: &ArgStr,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
@@ -1349,8 +1340,8 @@ where
 
     fn parse_opt(
         &self,
-        val: &Option<ArgStr<'_>>,
-        opt: &Arg<'b>,
+        val: &Option<ArgStr>,
+        opt: &Arg<'help>,
         had_eq: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
@@ -1426,8 +1417,8 @@ where
 
     fn add_val_to_arg(
         &self,
-        arg: &Arg<'b>,
-        val: &ArgStr<'_>,
+        arg: &Arg<'help>,
+        val: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
     ) -> ClapResult<ParseResult> {
@@ -1462,8 +1453,8 @@ where
 
     fn add_single_val_to_arg(
         &self,
-        arg: &Arg<'b>,
-        v: &ArgStr<'_>,
+        arg: &Arg<'help>,
+        v: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
     ) -> ClapResult<ParseResult> {
@@ -1493,7 +1484,7 @@ where
         Ok(ParseResult::ValuesDone(arg.id.clone()))
     }
 
-    fn parse_flag(&self, flag: &Arg<'b>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
+    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
         debug!("Parser::parse_flag");
 
         matcher.inc_occurrence_of(&flag.id);
@@ -1592,7 +1583,12 @@ where
         Ok(())
     }
 
-    fn add_value(&self, arg: &Arg<'b>, matcher: &mut ArgMatcher, ty: ValueType) -> ClapResult<()> {
+    fn add_value(
+        &self,
+        arg: &Arg<'help>,
+        matcher: &mut ArgMatcher,
+        ty: ValueType,
+    ) -> ClapResult<()> {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
 
@@ -1679,10 +1675,7 @@ where
 }
 
 // Error, Help, and Version Methods
-impl<'b, 'c> Parser<'b, 'c>
-where
-    'b: 'c,
-{
+impl<'help, 'app> Parser<'help, 'app> {
     fn did_you_mean_error(&mut self, arg: &str, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
@@ -1789,10 +1782,7 @@ where
 }
 
 // Query Methods
-impl<'b, 'c> Parser<'b, 'c>
-where
-    'b: 'c,
-{
+impl<'help, 'app> Parser<'help, 'app> {
     fn contains_short(&self, s: char) -> bool {
         self.app.contains_short(s)
     }

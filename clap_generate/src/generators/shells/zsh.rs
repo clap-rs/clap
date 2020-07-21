@@ -252,7 +252,7 @@ esac",
     )
 }
 
-fn parser_of<'b>(p: &'b App<'b>, mut sc: &str) -> &'b App<'b> {
+fn parser_of<'help, 'app>(p: &'app App<'help>, mut sc: &str) -> &'app App<'help> {
     debug!("parser_of: sc={}", sc);
 
     if sc == p.get_bin_name().unwrap_or(&String::new()) {

@@ -46,7 +46,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
 /// Also serves for flattening
 pub trait IntoApp: Sized {
     /// @TODO @release @docs
-    fn into_app<'b>() -> App<'b>;
+    fn into_app<'help>() -> App<'help>;
     /// @TODO @release @docs
     fn augment_clap(app: App<'_>) -> App<'_>;
 }
@@ -103,7 +103,7 @@ impl<T: Clap> Clap for Box<T> {
 }
 
 impl<T: IntoApp> IntoApp for Box<T> {
-    fn into_app<'b>() -> App<'b> {
+    fn into_app<'help>() -> App<'help> {
         <T as IntoApp>::into_app()
     }
     fn augment_clap(app: App<'_>) -> App<'_> {
