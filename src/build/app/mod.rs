@@ -388,8 +388,8 @@ impl<'b> App<'b> {
     /// # Examples
     /// ```ignore
     /// # use clap::{App, load_yaml};
-    /// let yml = load_yaml!("app.yml");
-    /// let app = App::from(yml)
+    /// let yaml = load_yaml!("app.yaml");
+    /// let app = App::from(yaml)
     ///     .name(crate_name!());
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.

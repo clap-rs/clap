@@ -1,6 +1,6 @@
-name: yml_app
+name: yaml_app
 version: "1.0"
-about: an example using a .yml file to build a CLI
+about: an example using a .yaml file to build a CLI
 author: Kevin K. <kbknapp@gmail.com>
 
 # AppSettings can be defined as a list and are **not** ascii case sensitive

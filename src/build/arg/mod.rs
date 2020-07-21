@@ -4201,24 +4201,24 @@ impl<'a> Arg<'a> {
 
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for Arg<'a> {
-    /// Creates a new instance of [`Arg`] from a .yml (YAML) file.
+    /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
     ///
     /// # Examples
     ///
     /// ```ignore
     /// use clap::{Arg, load_yaml};
-    /// let yml = load_yaml!("arg.yml");
-    /// let arg = Arg::from(yml);
+    /// let yaml = load_yaml!("arg.yaml");
+    /// let arg = Arg::from(yaml);
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     #[allow(clippy::cognitive_complexity)]
     fn from(y: &'a Yaml) -> Self {
         let y = y.as_hash().unwrap();
         // We WANT this to panic on error...so expect() is good.
-        let name_yml = y.keys().next().unwrap();
-        let name_str = name_yml.as_str().unwrap();
+        let name_yaml = y.keys().next().unwrap();
+        let name_str = name_yaml.as_str().unwrap();
         let mut a = Arg::new(name_str);
-        let arg_settings = y.get(name_yml).unwrap().as_hash().unwrap();
+        let arg_settings = y.get(name_yaml).unwrap().as_hash().unwrap();
 
         for (k, v) in arg_settings.iter() {
             a = match k.as_str().unwrap() {
