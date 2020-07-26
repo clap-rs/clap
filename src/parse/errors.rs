@@ -708,9 +708,11 @@ impl Error {
             "The following required arguments were not provided:",
         )?;
 
+        let mut info = vec![];
         for v in required {
             c.none("\n    ")?;
             c.good(&v.to_string())?;
+            info.push(v.to_string());
         }
 
         put_usage(&mut c, usage)?;
@@ -720,7 +722,7 @@ impl Error {
             cause,
             message: c,
             kind: ErrorKind::MissingRequiredArgument,
-            info: None,
+            info: Some(info),
         })
     }
 
