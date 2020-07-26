@@ -594,7 +594,7 @@ fn help_short() {
     let m = setup().try_get_matches_from(vec!["myprog", "-h"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -602,7 +602,7 @@ fn help_long() {
     let m = setup().try_get_matches_from(vec!["myprog", "--help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -624,7 +624,7 @@ fn help_subcommand() {
         .try_get_matches_from(vec!["myprog", "help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -696,7 +696,7 @@ fn subcommand_short_help() {
     let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "-h"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -704,7 +704,7 @@ fn subcommand_long_help() {
     let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "subcmd", "--help"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -712,7 +712,7 @@ fn subcommand_help_rev() {
     let m = utils::complex_app().try_get_matches_from(vec!["clap-test", "help", "subcmd"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]

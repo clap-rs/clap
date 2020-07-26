@@ -1655,7 +1655,7 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a
-    /// [`ErrorKind::HelpDisplayed`] or [`ErrorKind::VersionDisplayed`] respectively. You must call
+    /// [`ErrorKind::DisplayHelp`] or [`ErrorKind::DisplayVersion`] respectively. You must call
     /// [`Error::exit`] or perform a [`std::process::exit`].
     ///
     /// # Examples
@@ -1668,8 +1668,8 @@ impl<'help> App<'help> {
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`env::args_os`]: https://doc.rust-lang.org/std/env/fn.args_os.html
-    /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
-    /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
+    /// [`ErrorKind::DisplayHelp`]: ./enum.ErrorKind.html#variant.DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: ./enum.ErrorKind.html#variant.DisplayVersion
     /// [`Error::exit`]: ./struct.Error.html#method.exit
     /// [`std::process::exit`]: https://doc.rust-lang.org/std/process/fn.exit.html
     /// [`clap::Result`]: ./type.Result.html
@@ -1733,8 +1733,8 @@ impl<'help> App<'help> {
     /// [`App::try_get_matches`]
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
-    /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::HelpDisplayed`]
-    /// or [`ErrorKind::VersionDisplayed`] respectively. You must call [`Error::exit`] or
+    /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::DisplayHelp`]
+    /// or [`ErrorKind::DisplayVersion`] respectively. You must call [`Error::exit`] or
     /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
@@ -1753,8 +1753,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::get_matches_from`]: ./struct.App.html#method.get_matches_from
     /// [`App::try_get_matches`]: ./struct.App.html#method.try_get_matches
-    /// [`ErrorKind::HelpDisplayed`]: ./enum.ErrorKind.html#variant.HelpDisplayed
-    /// [`ErrorKind::VersionDisplayed`]: ./enum.ErrorKind.html#variant.VersionDisplayed
+    /// [`ErrorKind::DisplayHelp`]: ./enum.ErrorKind.html#variant.DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: ./enum.ErrorKind.html#variant.DisplayVersion
     /// [`Error::exit`]: ./struct.Error.html#method.exit
     /// [`std::process::exit`]: https://doc.rust-lang.org/std/process/fn.exit.html
     /// [`clap::Error`]: ./struct.Error.html

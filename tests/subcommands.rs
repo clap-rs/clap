@@ -245,7 +245,7 @@ fn alias_help() {
         .subcommand(App::new("test").alias("do-stuff"))
         .try_get_matches_from(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::HelpDisplayed);
+    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
 }
 
 #[test]

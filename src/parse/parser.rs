@@ -1758,7 +1758,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             _ => ClapError {
                 cause: String::new(),
                 message: c,
-                kind: ErrorKind::HelpDisplayed,
+                kind: ErrorKind::DisplayHelp,
                 info: None,
             },
         }
@@ -1774,7 +1774,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             _ => ClapError {
                 cause: String::new(),
                 message: c,
-                kind: ErrorKind::VersionDisplayed,
+                kind: ErrorKind::DisplayVersion,
                 info: None,
             },
         }
