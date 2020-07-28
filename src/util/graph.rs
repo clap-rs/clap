@@ -30,12 +30,7 @@ where
             self.0.push(Child::new(req));
             idx
         } else {
-            self.0
-                .iter()
-                .enumerate()
-                .find(|(_, e)| e.id == req)
-                .map(|(i, _)| i)
-                .unwrap()
+            self.0.iter().position(|e| e.id == req).unwrap()
         }
     }
 
