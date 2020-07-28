@@ -2549,8 +2549,7 @@ impl<'help> App<'help> {
     pub(crate) fn has_visible_subcommands(&self) -> bool {
         self.subcommands
             .iter()
-            .filter(|sc| sc.name != "help")
-            .any(|sc| !sc.is_set(AppSettings::Hidden))
+            .any(|sc| sc.name != "help" && !sc.is_set(AppSettings::Hidden))
     }
 
     /// Check if this subcommand can be referred to as `name`. In other words,
