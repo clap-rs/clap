@@ -76,15 +76,7 @@ impl<'a> ArgStr<'a> {
     pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr {
         assert!(ch.is_ascii());
 
-        let i = self
-            .0
-            .iter()
-            .take(n)
-            .take_while(|c| **c == ch)
-            .enumerate()
-            .last()
-            .map(|(i, _)| i + 1)
-            .unwrap_or(0);
+        let i = self.0.iter().take(n).take_while(|c| **c == ch).count();
 
         self.split_at_unchecked(i).1
     }

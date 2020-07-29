@@ -213,8 +213,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 .app
                 .groups
                 .iter()
-                .filter(|g| !g.multiple)
-                .find(|g| &g.id == name)
+                .find(|g| !g.multiple && &g.id == name)
             {
                 let conf_with_self = self
                     .p
@@ -311,8 +310,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .app
                         .groups
                         .iter()
-                        .filter(|g| !g.multiple)
-                        .find(|g| g.id == grp)
+                        .find(|g| !g.multiple && g.id == grp)
                     {
                         // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
                         //     if &g_arg != name {
@@ -326,8 +324,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 .app
                 .groups
                 .iter()
-                .filter(|g| !g.multiple)
-                .find(|grp| grp.id == *name)
+                .find(|g| !g.multiple && g.id == *name)
             {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
                 self.c.insert(g.id.clone());

@@ -626,8 +626,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .args
                 .args
                 .iter()
-                .filter(|a| a.is_positional())
-                .find(|p| p.index == Some(pos_counter as u64))
+                .find(|a| a.is_positional() && a.index == Some(pos_counter as u64))
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(

@@ -391,28 +391,17 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .flat_map(|g| self.p.app.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
 
-        let pmap = if let Some(m) = matcher {
-            unrolled_reqs
-                .iter()
-                .chain(incls.iter())
-                .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
-                .filter(|&pos| !m.contains(pos))
-                .filter_map(|pos| self.p.app.find(pos))
-                .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
-                .filter(|pos| !args_in_groups.contains(&pos.id))
-                .map(|pos| (pos.index.unwrap(), pos))
-                .collect::<BTreeMap<u64, &Arg>>() // sort by index
-        } else {
-            unrolled_reqs
-                .iter()
-                .chain(incls.iter())
-                .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
-                .filter_map(|pos| self.p.app.find(pos))
-                .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
-                .filter(|pos| !args_in_groups.contains(&pos.id))
-                .map(|pos| (pos.index.unwrap(), pos))
-                .collect::<BTreeMap<u64, &Arg>>() // sort by index
-        };
+        let pmap = unrolled_reqs
+            .iter()
+            .chain(incls.iter())
+            .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
+            .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
+            .filter_map(|pos| self.p.app.find(pos))
+            .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
+            .filter(|pos| !args_in_groups.contains(&pos.id))
+            .map(|pos| (pos.index.unwrap(), pos))
+            .collect::<BTreeMap<u64, &Arg>>(); // sort by index
+
         for p in pmap.values() {
             debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
             if args_in_groups.is_empty() || !args_in_groups.contains(&p.id) {

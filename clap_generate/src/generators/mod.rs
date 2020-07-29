@@ -140,19 +140,12 @@ pub trait Generator {
             .flatten()
             .collect();
 
-        if shorts_and_visible_aliases
-            .iter()
-            .find(|x| **x == 'h')
-            .is_none()
-        {
+        if !shorts_and_visible_aliases.iter().any(|&x| x == 'h') {
             shorts_and_visible_aliases.push('h');
         }
 
         if !p.is_set(AppSettings::DisableVersion)
-            && shorts_and_visible_aliases
-                .iter()
-                .find(|x| **x == 'V')
-                .is_none()
+            && !shorts_and_visible_aliases.iter().any(|&x| x == 'V')
         {
             shorts_and_visible_aliases.push('V');
         }
@@ -176,13 +169,11 @@ pub trait Generator {
             })
             .collect();
 
-        if longs.iter().find(|x| **x == "help").is_none() {
+        if !longs.iter().any(|x| *x == "help") {
             longs.push(String::from("help"));
         }
 
-        if !p.is_set(AppSettings::DisableVersion)
-            && longs.iter().find(|x| **x == "version").is_none()
-        {
+        if !p.is_set(AppSettings::DisableVersion) && !longs.iter().any(|x| *x == "version") {
             longs.push(String::from("version"));
         }
 
@@ -196,7 +187,7 @@ pub trait Generator {
 
         let mut flags: Vec<_> = p.get_flags_no_heading().cloned().collect();
 
-        if flags.iter().find(|x| x.get_name() == "help").is_none() {
+        if !flags.iter().any(|x| x.get_name() == "help") {
             flags.push(
                 Arg::new("help")
                     .short('h')
@@ -206,7 +197,7 @@ pub trait Generator {
         }
 
         if !p.is_set(AppSettings::DisableVersion)
-            && flags.iter().find(|x| x.get_name() == "version").is_none()
+            && !flags.iter().any(|x| x.get_name() == "version")
         {
             flags.push(
                 Arg::new("version")
