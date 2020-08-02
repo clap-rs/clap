@@ -281,7 +281,7 @@ fn flag_subcommand_multiple() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an Arg named \'test\'"]
+#[should_panic = "the \'-f\' short flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_short_conflict_with_arg() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
@@ -291,7 +291,7 @@ fn flag_subcommand_short_conflict_with_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an App named \'result\'"]
+#[should_panic = "the \'-f\' short flag is specified for both \'some\' and \'result\' subcommands"]
 fn flag_subcommand_short_conflict_with_alias() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
@@ -301,7 +301,7 @@ fn flag_subcommand_short_conflict_with_alias() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Long option names must be unique for each argument, but \'--flag\' is used by both an App named \'some\' and an App named \'result\'"]
+#[should_panic = "the \'--flag\' long flag is specified for both \'some\' and \'result\' subcommands"]
 fn flag_subcommand_long_conflict_with_alias() {
     let _ = App::new("test")
         .subcommand(App::new("some").long_flag("flag"))
@@ -311,7 +311,7 @@ fn flag_subcommand_long_conflict_with_alias() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Short option names must be unique for each argument, but \'-f\' is used by both an App named \'some\' and an Arg named \'test\'"]
+#[should_panic = "the \'-f\' short flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_short_conflict_with_arg_alias() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
@@ -321,7 +321,7 @@ fn flag_subcommand_short_conflict_with_arg_alias() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Long option names must be unique for each argument, but \'--some\' is used by both an App named \'some\' and an Arg named \'test\'"]
+#[should_panic = "the \'--some\' long flag for the \'test\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_long_conflict_with_arg_alias() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('f').long_flag("some"))
@@ -331,7 +331,7 @@ fn flag_subcommand_long_conflict_with_arg_alias() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Long option names must be unique for each argument, but \'--flag\' is used by both an App named \'some\' and an Arg named \'flag\'"]
+#[should_panic = "the \'--flag\' long flag for the \'flag\' argument conflicts with the short flag for \'some\' subcommand"]
 fn flag_subcommand_long_conflict_with_arg() {
     let _ = App::new("test")
         .subcommand(App::new("some").short_flag('a').long_flag("flag"))

@@ -1,3 +1,5 @@
+#[cfg(debug_assertions)]
+mod debug_asserts;
 mod settings;
 #[cfg(test)]
 mod tests;
@@ -1888,41 +1890,6 @@ impl<'help> App<'help> {
     }
 }
 
-// Allows checking for conflicts between `Args` and `Apps` with subcommand flags
-#[cfg(debug_assertions)]
-#[derive(Debug)]
-enum Flag<'r, 'help> {
-    App(&'r App<'help>, String),
-    Arg(&'r Arg<'help>, String),
-}
-
-#[cfg(debug_assertions)]
-impl Flag<'_, '_> {
-    pub fn value(&self) -> &str {
-        match self {
-            Self::App(_, value) => value,
-            Self::Arg(_, value) => value,
-        }
-    }
-
-    pub fn id(&self) -> &Id {
-        match self {
-            Self::App(app, _) => &app.id,
-            Self::Arg(arg, _) => &arg.id,
-        }
-    }
-}
-
-#[cfg(debug_assertions)]
-impl fmt::Display for Flag<'_, '_> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::App(app, _) => write!(f, "App named '{}'", app.name),
-            Self::Arg(arg, _) => write!(f, "Arg named '{}'", arg.name),
-        }
-    }
-}
-
 // Internally used only
 impl<'help> App<'help> {
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
@@ -1997,7 +1964,7 @@ impl<'help> App<'help> {
         self.settings.set(AppSettings::Built);
 
         #[cfg(debug_assertions)]
-        self._debug_asserts();
+        self::debug_asserts::assert_app(self);
     }
 
     fn _panic_on_missing_help(&self, help_required_globally: bool) {
@@ -2025,69 +1992,7 @@ impl<'help> App<'help> {
     }
 
     #[cfg(debug_assertions)]
-    fn two_long_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
-    where
-        F: Fn(&Flag) -> bool,
-    {
-        let mut flags: Vec<Flag> = Vec::new();
-        for sc in &self.subcommands {
-            if let Some(long) = sc.long_flag {
-                flags.push(Flag::App(&sc, long.to_string()));
-            }
-            flags.extend(
-                sc.get_all_long_flag_aliases()
-                    .map(|alias| Flag::App(&sc, alias.to_string())),
-            );
-            self.args.args.iter().for_each(|arg| {
-                flags.extend(
-                    arg.aliases
-                        .iter()
-                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
-                )
-            });
-            flags.extend(
-                self.args
-                    .args
-                    .iter()
-                    .filter_map(|arg| arg.long.map(|l| Flag::Arg(arg, l.to_string()))),
-            );
-        }
-        two_elements_of(flags.into_iter().filter(|f| condition(f)))
-    }
-
-    #[cfg(debug_assertions)]
-    fn two_short_flags_of<F>(&self, condition: F) -> Option<(Flag, Flag)>
-    where
-        F: Fn(&Flag) -> bool,
-    {
-        let mut flags: Vec<Flag> = Vec::new();
-        for sc in &self.subcommands {
-            if let Some(short) = sc.short_flag {
-                flags.push(Flag::App(&sc, short.to_string()));
-            }
-            flags.extend(
-                sc.get_all_short_flag_aliases()
-                    .map(|alias| Flag::App(&sc, alias.to_string())),
-            );
-            self.args.args.iter().for_each(|arg| {
-                flags.extend(
-                    arg.short_aliases
-                        .iter()
-                        .map(|(alias, _)| Flag::Arg(arg, alias.to_string())),
-                )
-            });
-            flags.extend(
-                self.args
-                    .args
-                    .iter()
-                    .filter_map(|arg| arg.short.map(|l| Flag::Arg(arg, l.to_string()))),
-            );
-        }
-        two_elements_of(flags.into_iter().filter(|f| condition(f)))
-    }
-
-    #[cfg(debug_assertions)]
-    fn two_args_of<F>(&self, condition: F) -> Option<(&Arg, &Arg)>
+    fn two_args_of<F>(&self, condition: F) -> Option<(&Arg<'help>, &Arg<'help>)>
     where
         F: Fn(&Arg) -> bool,
     {
@@ -2101,197 +2006,6 @@ impl<'help> App<'help> {
         F: Fn(&ArgGroup) -> bool,
     {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
-    }
-
-    // Perform some expensive assertions on the Parser itself
-    #[allow(clippy::cognitive_complexity)]
-    #[cfg(debug_assertions)]
-    fn _debug_asserts(&self) {
-        debug!("App::_debug_asserts");
-
-        for sc in &self.subcommands {
-            // Conflicts between flag subcommands and long args
-            if let Some(l) = sc.long_flag {
-                if let Some((first, second)) = self.two_long_flags_of(|f| f.value() == l) {
-                    // Prevent conflicts with itself
-                    if first.id() != second.id() {
-                        panic!(
-                            "Long option names must be unique for each argument, \
-                        but '--{}' is used by both an {} and an {}",
-                            l, first, second
-                        );
-                    }
-                }
-            }
-
-            // Conflicts between flag subcommands and long args
-            if let Some(s) = sc.short_flag {
-                if let Some((first, second)) =
-                    self.two_short_flags_of(|f| f.value() == s.to_string())
-                {
-                    // Prevent conflicts with itself
-                    if first.id() != second.id() {
-                        panic!(
-                            "Short option names must be unique for each argument, \
-                        but '-{}' is used by both an {} and an {}",
-                            s, first, second
-                        );
-                    }
-                }
-            }
-        }
-
-        for arg in &self.args.args {
-            arg._debug_asserts();
-
-            // Name conflicts
-            assert!(
-                self.two_args_of(|x| x.id == arg.id).is_none(),
-                "Argument names must be unique, but '{}' is in use by more than one argument or group",
-                arg.name,
-            );
-
-            // Long conflicts
-            if let Some(l) = arg.long {
-                if let Some((first, second)) = self.two_args_of(|x| x.long == Some(l)) {
-                    panic!(
-                        "Long option names must be unique for each argument, \
-                            but '--{}' is in use by both '{}' and '{}'",
-                        l, first.name, second.name
-                    )
-                }
-            }
-
-            // Short conflicts
-            if let Some(s) = arg.short {
-                if let Some((first, second)) = self.two_args_of(|x| x.short == Some(s)) {
-                    panic!(
-                        "Short option names must be unique for each argument, \
-                            but '-{}' is in use by both '{}' and '{}'",
-                        s, first.name, second.name
-                    )
-                }
-            }
-
-            // Index conflicts
-            if let Some(idx) = arg.index {
-                if let Some((first, second)) =
-                    self.two_args_of(|x| x.is_positional() && x.index == Some(idx))
-                {
-                    panic!(
-                        "Argument '{}' has the same index as '{}' \
-                        and they are both positional arguments\n\n\t \
-                        Use Arg::multiple_values(true) to allow one \
-                        positional argument to take multiple values",
-                        first.name, second.name
-                    )
-                }
-            }
-
-            // requires, r_if, r_unless
-            for req in &arg.requires {
-                assert!(
-                    self.id_exists(&req.1),
-                    "Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
-                    req.1,
-                    arg.name,
-                );
-            }
-
-            for req in &arg.r_ifs {
-                assert!(
-                    self.id_exists(&req.0),
-                    "Argument or group '{:?}' specified in 'required_if*' for '{}' does not exist",
-                    req.0,
-                    arg.name
-                );
-            }
-
-            for req in &arg.r_unless {
-                assert!(
-                    self.id_exists(req),
-                    "Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
-                    req, arg.name,
-                );
-            }
-
-            // blacklist
-            for req in &arg.blacklist {
-                assert!(
-                    self.id_exists(req),
-                    "Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
-                    req, arg.name,
-                );
-            }
-
-            if arg.is_set(ArgSettings::Last) {
-                assert!(
-                    arg.long.is_none(),
-                    "Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
-                    arg.name
-                );
-                assert!(
-                    arg.short.is_none(),
-                    "Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
-                    arg.name
-                );
-            }
-
-            assert!(
-                !(arg.is_set(ArgSettings::Required) && arg.global),
-                "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
-                arg.name
-            );
-
-            // validators
-            assert!(
-                arg.validator.is_none() || arg.validator_os.is_none(),
-                "Argument '{}' has both `validator` and `validator_os` set which is not allowed",
-                arg.name
-            );
-
-            if arg.value_hint == ValueHint::CommandWithArguments {
-                assert!(
-                    arg.short.is_none() && arg.long.is_none(),
-                    "Argument '{}' has hint CommandWithArguments and must be positional.",
-                    arg.name
-                );
-
-                assert!(
-                    self.is_set(AppSettings::TrailingVarArg),
-                    "Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
-                    arg.name
-                );
-            }
-        }
-
-        for group in &self.groups {
-            // Name conflicts
-            assert!(
-                self.groups.iter().filter(|x| x.id == group.id).count() < 2,
-                "Argument group name must be unique\n\n\t'{}' is already in use",
-                group.name,
-            );
-
-            // Groups should not have naming conflicts with Args
-            assert!(
-                !self.args.args.iter().any(|x| x.id == group.id),
-                "Argument group name '{}' must not conflict with argument name",
-                group.name,
-            );
-
-            // Args listed inside groups should exist
-            for arg in &group.args {
-                assert!(
-                    self.args.args.iter().any(|x| x.id == *arg),
-                    "Argument group '{}' contains non-existent argument '{:?}'",
-                    group.name,
-                    arg
-                )
-            }
-        }
-
-        self._panic_on_missing_help(self.g_settings.is_set(AppSettings::HelpRequired));
     }
 
     pub(crate) fn _propagate(&mut self, prop: Propagation) {
@@ -2616,11 +2330,28 @@ impl<'help> App<'help> {
 
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
-    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> {
-        self.get_subcommands().map(|s| s.get_name()).chain(
-            self.get_subcommands()
-                .flat_map(|s| s.aliases.iter().map(|&(n, _)| n)),
-        )
+    pub(crate) fn all_subcommand_names<'a>(&'a self) -> impl Iterator<Item = &'a str>
+    where
+        'help: 'a,
+    {
+        let a: Vec<_> = self
+            .get_subcommands()
+            .flat_map(|sc| {
+                let name = sc.get_name();
+                let aliases = sc.get_all_aliases();
+                std::iter::once(name).chain(aliases)
+            })
+            .collect();
+
+        // Strictly speaking, we don't need this trip through the Vec.
+        // We should have been able to return FlatMap iter above directly.
+        //
+        // Unfortunately, that would trigger
+        // https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999
+        //
+        // I think this "collect to vec" solution is better then the linked one
+        // because it's simpler and it doesn't really matter performance-wise.
+        a.into_iter()
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
