@@ -167,7 +167,7 @@ fn invisible_arg_aliases_help_output() {
                     .takes_value(true)
                     .aliases(&["invisible", "als1", "more"]),
             )
-            .arg(Arg::from("-f, --flag").aliases(&["invisible", "flg1", "anyway"])),
+            .arg(Arg::from("-f, --flag").aliases(&["unseeable", "flg1", "anyway"])),
     );
     assert!(utils::compare_output(
         app,

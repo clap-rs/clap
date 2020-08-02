@@ -92,7 +92,7 @@ args:
     - multshortaliases:
         long: multshortaliases
         about: Tests multiple short aliases
-        short_aliases: [a, b, c]
+        short_aliases: [b, c]
     - minvals2:
         long: minvals2
         multiple: true
