@@ -1,3 +1,10 @@
+<a name="v2.33.2"></a>
+### v2.33.2 (2020-08-5)
+
+#### Documentation
+
+* Fixed links to `2.x` examples. Now they point to the right place.
+
 <a name="v2.33.1"></a>
 ### v2.33.1 (2020-05-11)
 
