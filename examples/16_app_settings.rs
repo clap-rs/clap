@@ -28,8 +28,8 @@ fn main() {
         println!("The input file is: {}", inp);
     }
 
-    match matches.subcommand() {
-        ("test", _) => println!("The 'test' subcommand was used"),
+    match matches.subcommand_name() {
+        Some("test") => println!("The 'test' subcommand was used"),
         _ => unreachable!(),
     }
 }

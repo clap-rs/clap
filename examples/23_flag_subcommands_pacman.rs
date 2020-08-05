@@ -86,7 +86,7 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("sync", Some(sync_matches)) => {
+        Some(("sync", sync_matches)) => {
             if sync_matches.is_present("search") {
                 let packages: Vec<_> = sync_matches.values_of("search").unwrap().collect();
                 let values = packages.join(", ");
@@ -103,7 +103,7 @@ fn main() {
                 println!("Installing {}...", values);
             }
         }
-        ("query", Some(query_matches)) => {
+        Some(("query", query_matches)) => {
             if let Some(packages) = query_matches.values_of("info") {
                 let comma_sep = packages.collect::<Vec<_>>().join(", ");
                 println!("Retrieving info for {}...", comma_sep);
