@@ -238,7 +238,7 @@ fn gen_from_subcommand(
         };
 
         quote! {
-            (#sub_name, Some(matches)) => {
+            Some((#sub_name, matches)) => {
                 Some(#name :: #variant_name #constructor_block)
             }
         }
@@ -249,7 +249,7 @@ fn gen_from_subcommand(
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
                 quote! {
-                    if let Some(res) = <#ty as ::clap::Subcommand>::from_subcommand(other.0, other.1) {
+                    if let Some(res) = <#ty as ::clap::Subcommand>::from_subcommand(other) {
                         return Some(#name :: #variant_name (res));
                     }
                 }
@@ -263,9 +263,9 @@ fn gen_from_subcommand(
 
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
-            ("", ::std::option::Option::None) => ::std::option::Option::None,
+            None => ::std::option::Option::None,
 
-            (external, Some(matches)) => {
+            Some((external, matches)) => {
                 ::std::option::Option::Some(#name::#var_name(
                     ::std::iter::once(#str_ty::from(external))
                     .chain(
@@ -274,25 +274,14 @@ fn gen_from_subcommand(
                     .collect::<::std::vec::Vec<_>>()
                 ))
             }
-
-            (external, None) => {
-                ::std::option::Option::Some(#name::#var_name({
-                    let mut v = ::std::vec::Vec::with_capacity(1);
-                    v.push(#str_ty::from(external));
-                    v
-                }))
-            }
         },
 
         None => quote!(_ => None),
     };
 
     quote! {
-        fn from_subcommand<'b>(
-            name: &'b str,
-            sub: Option<&'b ::clap::ArgMatches>) -> Option<Self>
-        {
-            match (name, sub) {
+        fn from_subcommand<'b>(subcommand: Option<(&'b str, &'b ::clap::ArgMatches)>) -> Option<Self> {
+            match subcommand {
                 #( #match_arms, )*
                 other => {
                     #( #child_subcommands )else*
