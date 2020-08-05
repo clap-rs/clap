@@ -280,7 +280,7 @@ fn gen_from_subcommand(
     };
 
     quote! {
-        fn from_subcommand<'b>(subcommand: Option<(&'b str, &'b ::clap::ArgMatches)>) -> Option<Self> {
+        fn from_subcommand(subcommand: Option<(&str, &::clap::ArgMatches)>) -> Option<Self> {
             match subcommand {
                 #( #match_arms, )*
                 other => {
