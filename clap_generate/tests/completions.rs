@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, Arg, ValueHint};
 use clap_generate::{generate, generators::*};
 use std::fmt;
 
@@ -182,7 +182,7 @@ static FISH: &str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help
 complete -c myapp -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
 complete -c myapp -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
-complete -c myapp -n "__fish_seen_subcommand_from test" -l case -d 'the case to test'
+complete -c myapp -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c myapp -n "__fish_seen_subcommand_from test" -s h -l help -d 'Prints help information'
 complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prints version information'
 complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints help information'
@@ -526,10 +526,10 @@ complete -c my_app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'tests other things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some-cmd-with-hypens"
 complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
-complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test'
+complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prints version information'
-complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -l config -d 'the other case to test'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -l config -d 'the other case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s h -l help -d 'Prints help information'
@@ -719,7 +719,11 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .about("Tests completions")
-        .arg(Arg::new("file").about("some input file"))
+        .arg(
+            Arg::new("file")
+                .value_hint(ValueHint::FilePath)
+                .about("some input file"),
+        )
         .subcommand(
             App::new("test").about("tests things").arg(
                 Arg::new("case")
@@ -773,7 +777,7 @@ fn build_app_special_help() -> App<'static> {
         )
 }
 
-fn common<G: Generator>(app: &mut App, name: &str, fixture: &str) {
+pub fn common<G: Generator>(app: &mut App, name: &str, fixture: &str) {
     let mut buf = vec![];
     generate::<G, _>(app, name, &mut buf);
     let string = String::from_utf8(buf).unwrap();

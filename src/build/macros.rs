@@ -118,6 +118,17 @@ macro_rules! yaml_str {
 }
 
 #[cfg(feature = "yaml")]
+macro_rules! yaml_str_parse {
+    ($a:ident, $v:ident, $c:ident) => {{
+        $a.$c($v
+            .as_str()
+            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
+            .parse()
+            .unwrap_or_else(|err| panic!("{}", err)))
+    }};
+}
+
+#[cfg(feature = "yaml")]
 macro_rules! yaml_to_char {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c(yaml_char!($v))

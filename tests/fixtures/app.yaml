@@ -112,6 +112,10 @@ args:
         help: Test case_insensitive
         possible_values: [test123, test321]
         case_insensitive: true
+    - value_hint:
+        long: value-hint
+        help: Test value_hint
+        value_hint: FilePath
 
 arg_groups:
     - test:

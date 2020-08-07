@@ -26,7 +26,7 @@ use crate::{
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
     util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
-    Result as ClapResult, INTERNAL_ERROR_MSG,
+    Result as ClapResult, ValueHint, INTERNAL_ERROR_MSG,
 };
 
 // FIXME (@CreepySkeleton): some of these variants are never constructed
@@ -2249,6 +2249,20 @@ impl<'help> App<'help> {
                 "Argument '{}' has both `validator` and `validator_os` set which is not allowed",
                 arg.name
             );
+
+            if arg.value_hint == ValueHint::CommandWithArguments {
+                assert!(
+                    arg.short.is_none() && arg.long.is_none(),
+                    "Argument '{}' has hint CommandWithArguments and must be positional.",
+                    arg.name
+                );
+
+                assert!(
+                    self.is_set(AppSettings::TrailingVarArg),
+                    "Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
+                    arg.name
+                );
+            }
         }
 
         for group in &self.groups {

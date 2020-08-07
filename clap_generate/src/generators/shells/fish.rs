@@ -6,6 +6,8 @@ use crate::Generator;
 use clap::*;
 
 /// Generate fish completion file
+///
+/// Note: The fish generator currently only supports named options (-o/--option), not positional arguments.
 pub struct Fish;
 
 impl Generator for Fish {
@@ -75,9 +77,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
-        if let Some(ref data) = option.get_possible_values() {
-            template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
-        }
+        template.push_str(value_completion(option).as_str());
 
         buffer.push_str(template.as_str());
         buffer.push_str("\n");
@@ -125,5 +125,33 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     // generate options of subcommands
     for subcommand in app.get_subcommands() {
         gen_fish_inner(root_command, subcommand, buffer);
+    }
+}
+
+fn value_completion(option: &Arg) -> String {
+    if !option.is_set(ArgSettings::TakesValue) {
+        return "".to_string();
+    }
+
+    if let Some(ref data) = option.get_possible_values() {
+        format!(" -r -f -a \"{}\"", data.join(" "))
+    } else {
+        // NB! If you change this, please also update the table in `ValueHint` documentation.
+        match option.get_value_hint() {
+            ValueHint::Unknown => " -r",
+            // fish has no built-in support to distinguish these
+            ValueHint::AnyPath | ValueHint::FilePath | ValueHint::ExecutablePath => " -r -F",
+            ValueHint::DirPath => " -r -f -a \"(__fish_complete_directories)\"",
+            // It seems fish has no built-in support for completing command + arguments as
+            // single string (CommandString). Complete just the command name.
+            ValueHint::CommandString | ValueHint::CommandName => {
+                " -r -f -a \"(__fish_complete_command)\""
+            }
+            ValueHint::Username => " -r -f -a \"(__fish_complete_users)\"",
+            ValueHint::Hostname => " -r -f -a \"(__fish_print_hostnames)\"",
+            // Disable completion for others
+            _ => " -r -f",
+        }
+        .to_string()
     }
 }

@@ -330,6 +330,42 @@ fn get_args_of(p: &App) -> String {
     ret.join("\n")
 }
 
+// Uses either `possible_vals` or `value_hint` to give hints about possible argument values
+fn value_completion(arg: &Arg) -> Option<String> {
+    if let Some(values) = &arg.get_possible_values() {
+        Some(format!(
+            "({})",
+            values
+                .iter()
+                .map(|&v| escape_value(v))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ))
+    } else {
+        // NB! If you change this, please also update the table in `ValueHint` documentation.
+        Some(
+            match arg.get_value_hint() {
+                ValueHint::Unknown => {
+                    return None;
+                }
+                ValueHint::Other => "( )",
+                ValueHint::AnyPath => "_files",
+                ValueHint::FilePath => "_files",
+                ValueHint::DirPath => "_files -/",
+                ValueHint::ExecutablePath => "_absolute_command_paths",
+                ValueHint::CommandName => "_command_names -e",
+                ValueHint::CommandString => "_cmdstring",
+                ValueHint::CommandWithArguments => "_cmdambivalent",
+                ValueHint::Username => "_users",
+                ValueHint::Hostname => "_hosts",
+                ValueHint::Url => "_urls",
+                ValueHint::EmailAddress => "_email_addresses",
+            }
+            .to_string(),
+        )
+    }
+}
+
 // Escape help string inside single quotes and brackets
 fn escape_help(string: &str) -> String {
     string
@@ -370,26 +406,18 @@ fn write_opts_of(p: &App) -> String {
             ""
         };
 
-        let pv = if let Some(ref pv_vec) = o.get_possible_values() {
-            format!(
-                ": :({})",
-                pv_vec
-                    .iter()
-                    .map(|v| escape_value(*v))
-                    .collect::<Vec<String>>()
-                    .join(" ")
-            )
-        } else {
-            String::new()
+        let vc = match value_completion(o) {
+            Some(val) => format!(": :{}", val),
+            None => "".to_string(),
         };
 
         if let Some(short) = o.get_short() {
             let s = format!(
-                "'{conflicts}{multiple}-{arg}+[{help}]{possible_values}' \\",
+                "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = short,
-                possible_values = pv,
+                value_completion = vc,
                 help = help
             );
 
@@ -399,11 +427,11 @@ fn write_opts_of(p: &App) -> String {
             if let Some(short_aliases) = o.get_visible_short_aliases() {
                 for alias in short_aliases {
                     let s = format!(
-                        "'{conflicts}{multiple}-{arg}+[{help}]{possible_values}' \\",
+                        "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
                         conflicts = conflicts,
                         multiple = multiple,
                         arg = alias,
-                        possible_values = pv,
+                        value_completion = vc,
                         help = help
                     );
 
@@ -415,11 +443,11 @@ fn write_opts_of(p: &App) -> String {
 
         if let Some(long) = o.get_long() {
             let l = format!(
-                "'{conflicts}{multiple}--{arg}=[{help}]{possible_values}' \\",
+                "'{conflicts}{multiple}--{arg}=[{help}]{value_completion}' \\",
                 conflicts = conflicts,
                 multiple = multiple,
                 arg = long,
-                possible_values = pv,
+                value_completion = vc,
                 help = help
             );
 
@@ -525,15 +553,17 @@ fn write_positionals_of(p: &App) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
-        let optional = if !arg.is_set(ArgSettings::Required) {
+        let cardinality = if arg.is_set(ArgSettings::MultipleValues) {
+            "*:"
+        } else if !arg.is_set(ArgSettings::Required) {
             ":"
         } else {
             ""
         };
 
         let a = format!(
-            "'{optional}:{name}{help}:{action}' \\",
-            optional = optional,
+            "'{cardinality}:{name}{help}:{value_completion}' \\",
+            cardinality = cardinality,
             name = arg.get_name(),
             help = arg
                 .get_about()
@@ -541,18 +571,7 @@ fn write_positionals_of(p: &App) -> String {
                 .replace("[", "\\[")
                 .replace("]", "\\]")
                 .replace(":", "\\:"),
-            action = arg
-                .get_possible_values()
-                .map_or("_files".to_owned(), |values| {
-                    format!(
-                        "({})",
-                        values
-                            .iter()
-                            .map(|v| escape_value(*v))
-                            .collect::<Vec<String>>()
-                            .join(" ")
-                    )
-                })
+            value_completion = value_completion(arg).unwrap_or_else(|| "".to_string())
         );
 
         debug!("write_positionals_of:iter: Wrote...{}", a);
