@@ -148,6 +148,22 @@ fn subcmd_did_you_mean_output_arg() {
 }
 
 #[test]
+#[cfg(feature="suggestions")]
+fn subcmd_did_you_mean_output_arg_false_positives() {
+    static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
+    let app = App::new("dym")
+        .subcommand(SubCommand::with_name("subcmd")
+            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+    assert!(test::compare_output(app, "dym --subcmarg foo", EXPECTED, true));
+}
+
+#[test]
 fn alias_help() {
     let m = App::new("myprog")
         .subcommand(App::new("test").alias("do-stuff"))
