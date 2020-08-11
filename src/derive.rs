@@ -9,7 +9,7 @@ use std::ffi::OsString;
 /// [`App`], conduct the parsing, and turn the resulting [`ArgMatches`] back
 /// into concrete instance of the user struct.
 ///
-/// This trait is primarily A convenience on top of [`FromArgMatches`] +
+/// This trait is primarily a convenience on top of [`FromArgMatches`] +
 /// [`IntoApp`] which uses those two underlying traits to build the two
 /// fundamental functions `parse` which uses the `std::env::args_os` iterator,
 /// and `parse_from` which allows the consumer to supply the iterator (along

@@ -40,12 +40,12 @@ pub(crate) enum Propagation {
     None,
 }
 
-/// Represents a of a command line interface which is made up of all possible
+/// Represents a command line interface which is made up of all possible
 /// command line arguments and subcommands. Interface arguments and settings are
 /// configured using the "builder pattern." Once all configuration is complete,
-/// the [`App::get_matches`] family of methods start the runtime-parsing
+/// the [`App::get_matches`] family of methods starts the runtime-parsing
 /// process. These methods then return information about the user supplied
-/// arguments (or lack there of).
+/// arguments (or lack thereof).
 ///
 /// **NOTE:** There aren't any mandatory "options" that one must set. The "options" may
 /// also appear in any order (so long as one of the [`App::get_matches`] methods is the last method
@@ -166,7 +166,7 @@ impl<'help> App<'help> {
             .map(|a| a.0)
     }
 
-    /// Iterate through the set of *all* the aliases for this command, both visible and hidden.
+    /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
     pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
         self.aliases.iter().map(|a| a.0)
@@ -242,7 +242,7 @@ impl<'help> App<'help> {
     }
 
     /// Returns `true` if the given [`AppSettings`] variant is currently set in
-    /// this `App` (Checks both [local] and [global settings])
+    /// this `App` (checks both [local] and [global settings])
     ///
     /// [local]: ./struct.App.html#method.setting
     /// [global settings]: ./struct.App.html#method.global_setting
@@ -286,8 +286,6 @@ impl<'help> App<'help> {
     /// App::new("My Program")
     /// # ;
     /// ```
-    // @TODO FIXME (@kbknapp) if we're just converting to Id anyways,
-    // Into<String> probably isn't useful
     pub fn new<S: Into<String>>(name: S) -> Self {
         let name = name.into();
         App {
@@ -354,8 +352,6 @@ impl<'help> App<'help> {
 
     /// Sets a string describing what the program does. This will be displayed
     /// when the user requests the short format help message (`-h`).
-    ///
-    /// ## Advanced
     ///
     /// `clap` can display two different help messages, a [long format] and a
     /// [short format] depending on whether the user used `-h` (short) or
@@ -452,7 +448,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .after_help("Does really amazing things to great people...but be careful with -R!")
+    ///     .after_help("Does really amazing things for great people... but be careful with -R!")
     /// # ;
     /// ```
     pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
@@ -592,8 +588,6 @@ impl<'help> App<'help> {
     /// crate at compile time. See the [`examples/`] directory for more
     /// information
     ///
-    /// ## Advanced
-    ///
     /// `clap` can display two different version messages, a [long format] and a
     /// [short format] depending on whether the user used `-V` (short) or
     /// `--version` (long). This method sets the message during the short format
@@ -629,8 +623,6 @@ impl<'help> App<'help> {
     /// crate at compile time. See the [`examples/`] directory for more
     /// information
     ///
-    /// ## Advanced
-    ///
     /// `clap` can display two different version messages, a [long format] and a
     /// [short format] depending on whether the user used `-V` (short) or
     /// `--version` (long). This method sets the message during the long format
@@ -664,7 +656,7 @@ impl<'help> App<'help> {
     /// This will be displayed to the user when errors are found in argument parsing.
     ///
     /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage
-    /// strings. After this setting is set, this will be the only usage string
+    /// strings. After this setting is set, this will be *the only* usage string
     /// displayed to the user!
     ///
     /// **NOTE:** This will not replace the entire help message, *only* the portion
@@ -964,6 +956,7 @@ impl<'help> App<'help> {
     }
 
     /// Stop using [custom argument headings] and return to default headings.
+    ///
     /// [custom argument headings]: ./struct.App.html#method.help_heading
     #[inline]
     pub fn stop_custom_headings(mut self) -> Self {
@@ -1000,15 +993,15 @@ impl<'help> App<'help> {
 
     /// If this `App` instance is a subcommand, this method adds an alias, which
     /// allows this subcommand to be accessed via *either* the original name, or
-    /// this given alias. This is more efficient, and easier than creating
+    /// this given alias. This is more efficient and easier than creating
     /// multiple hidden subcommands as one only needs to check for the existence
     /// of this command, and not all aliased variants.
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
-    /// message. If looking for aliases that will be displayed in the help
+    /// message. If you're looking for aliases that will be displayed in the help
     /// message, see [`App::visible_alias`]
     ///
-    /// **NOTE:** When using aliases, and checking for the existance of a
+    /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
     /// search for the original name and not all aliases.
     ///
@@ -1073,15 +1066,15 @@ impl<'help> App<'help> {
 
     /// If this `App` instance is a subcommand, this method adds a multiple
     /// aliases, which allows this subcommand to be accessed via *either* the
-    /// original name, or any of the given aliases. This is more efficient, and
+    /// original name or any of the given aliases. This is more efficient, and
     /// easier than creating multiple hidden subcommands as one only needs to
-    /// check for the existence of this command, and not all aliased variants.
+    /// check for the existence of this command and not all aliased variants.
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
     /// message. If looking for aliases that will be displayed in the help
     /// message, see [`App::visible_aliases`]
     ///
-    /// **NOTE:** When using aliases, and checking for the existance of a
+    /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
     /// search for the original name and not all aliases.
     ///
@@ -1161,16 +1154,16 @@ impl<'help> App<'help> {
 
     /// If this `App` instance is a subcommand, this method adds a visible
     /// alias, which allows this subcommand to be accessed via *either* the
-    /// original name, or the given alias. This is more efficient, and easier
+    /// original name or the given alias. This is more efficient and easier
     /// than creating hidden subcommands as one only needs to check for
-    /// the existence of this command, and not all aliased variants.
+    /// the existence of this command and not all aliased variants.
     ///
     /// **NOTE:** The alias defined with this method is *visible* from the help
     /// message and displayed as if it were just another regular subcommand. If
     /// looking for an alias that will not be displayed in the help message, see
     /// [`App::alias`]
     ///
-    /// **NOTE:** When using aliases, and checking for the existance of a
+    /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
     /// search for the original name and not all aliases.
     ///
@@ -1233,9 +1226,9 @@ impl<'help> App<'help> {
 
     /// If this `App` instance is a subcommand, this method adds multiple visible
     /// aliases, which allows this subcommand to be accessed via *either* the
-    /// original name, or any of the given aliases. This is more efficient, and easier
+    /// original name or any of the given aliases. This is more efficient and easier
     /// than creating multiple hidden subcommands as one only needs to check for
-    /// the existence of this command, and not all aliased variants.
+    /// the existence of this command and not all aliased variants.
     ///
     /// **NOTE:** The alias defined with this method is *visible* from the help
     /// message and displayed as if it were just another regular subcommand. If
@@ -1325,15 +1318,15 @@ impl<'help> App<'help> {
     /// assume we have a program with a subcommand `module` which can be invoked
     /// via `app module`. Now let's also assume `module` also has a subcommand
     /// called `install` which can be invoked `app module install`. If for some
-    /// reason, users needed to be able to reach `app module install` via the
-    /// short-hand `app install` we have several options.
+    /// reason users needed to be able to reach `app module install` via the
+    /// short-hand `app install`, we'd have several options.
     ///
     /// We *could* create another sibling subcommand to `module` called
-    /// `install`, but then we need to manage another subcommand, and manually
-    /// dispatch to `app module install` handling code. This is error prone, and
+    /// `install`, but then we would need to manage another subcommand and manually
+    /// dispatch to `app module install` handling code. This is error prone and
     /// tedious.
     ///
-    /// We could instead use `App::replace` so that when the user types `app
+    /// We could instead use `App::replace` so that, when the user types `app
     /// install`, `clap` will replace `install` with `module install` which will
     /// end up getting parsed as if the user typed the entire incantation.
     ///
@@ -1354,10 +1347,10 @@ impl<'help> App<'help> {
     /// Let's assume we have an application with two flags `--save-context` and
     /// `--save-runtime`. But often users end up needing to do *both* at the
     /// same time. We can add a third flag `--save-all` which semantically means
-    /// the same thing as `app --save-context --save-runtime`. In order to
-    /// implement this we again have several options.
+    /// the same thing as `app --save-context --save-runtime`. To implement that,
+    /// we have several options.
     ///
-    /// We could create this third argument, and manually check if that argument
+    /// We could create this third argument and manually check if that argument
     /// and in our own consumer code handle the fact that both `--save-context`
     /// and `--save-runtime` *should* have been used. But again this is error
     /// prone and tedious. If we had code relying on checking `--save-context`
