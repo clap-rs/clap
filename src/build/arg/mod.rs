@@ -599,24 +599,24 @@ impl<'help> Arg<'help> {
     /// The above example displays
     ///
     /// ```text
-    /// helptest
+    /// prog
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///     prog [FLAGS]
     ///
     /// FLAGS:
-    ///    --config
-    ///         The config file used by the myprog must be in JSON format
-    ///         with only valid keys and may not contain other nonsense
-    ///         that cannot be read by this program. Obviously I'm going on
-    ///         and on, so I'll stop now.
+    ///         --config
+    ///             The config file used by the myprog must be in JSON format
+    ///             with only valid keys and may not contain other nonsense
+    ///             that cannot be read by this program. Obviously I'm going on
+    ///             and on, so I'll stop now.
     ///
-    /// -h, --help
-    ///         Prints help information
+    ///     -h, --help
+    ///             Prints help information
     ///
-    /// -V, --version
-    ///         Prints version information
-    ///
+    ///     -V, --version
+    ///             Prints version information
+    /// ```
     /// [`Arg::about`]: ./struct.Arg.html#method.about
     #[inline]
     pub fn long_about(mut self, h: &'help str) -> Self {
