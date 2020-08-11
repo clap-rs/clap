@@ -354,6 +354,24 @@ FLAGS:
             Prints version
             information";
 
+// FIXME: #1642 This should have an empty line before `-h, --help`.
+static ISSUE_1642: &str = "prog 
+
+USAGE:
+    prog [FLAGS]
+
+FLAGS:
+        --config     
+            The config file used by the myprog must be in JSON format
+            with only valid keys and may not contain other nonsense
+            that cannot be read by this program. Obviously I'm going on
+            and on, so I'll stop now.
+    -h, --help       
+            Prints help information
+
+    -V, --version    
+            Prints version information";
+
 static CUSTOM_VERSION_AND_HELP: &str = "customize 0.1
 Nobody <odysseus@example.com>
 You can customize the version and help text
@@ -1765,4 +1783,15 @@ fn help_required_and_no_args() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
         .get_matches();
+}
+
+#[test]
+fn issue_1642_long_help_spacing() {
+    let app = App::new("prog").arg(Arg::new("cfg").long("config").long_about(
+        "The config file used by the myprog must be in JSON format
+with only valid keys and may not contain other nonsense
+that cannot be read by this program. Obviously I'm going on
+and on, so I'll stop now.",
+    ));
+    assert!(utils::compare_output(app, "prog --help", ISSUE_1642, false));
 }
