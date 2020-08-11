@@ -222,9 +222,14 @@ fn subcmd_did_you_mean_output_ambiguous() {
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output_arg() {
         static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
+If you tried to supply `--subcmarg` as a PATTERN use `-- --subcmarg`
+
 USAGE:
-dym [SUBCOMMAND]
+    dym [SUBCOMMAND]
+
 For more information try --help";
 
     let app = App::new("dym")
@@ -237,8 +242,14 @@ For more information try --help";
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
+\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
+If you tried to supply `--subcmarg` as a PATTERN use `-- --subcmarg`
+
 USAGE:
     dym [SUBCOMMAND]
+
 For more information try --help";
 
     let app = App::new("dym")
