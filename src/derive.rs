@@ -42,13 +42,13 @@ use std::ffi::OsString;
 /// # use clap::{App, Arg, ArgMatches};
 /// App::new("demo")
 ///     .about("My super CLI")
-///     .arg(Arg::with_name("verbose")
+///     .arg(Arg::new("verbose")
 ///         .long("verbose")
-///         .help("More verbose output"))
-///     .arg(Arg::with_name("name")
+///         .about("More verbose output"))
+///     .arg(Arg::new("name")
 ///         .long("name")
 ///         .long("n")
-///         .help("An optional name")
+///         .about("An optional name")
 ///         .takes_value(true));
 ///
 /// struct Context {
@@ -132,10 +132,15 @@ pub trait FromArgMatches: Sized {
     /// `ArgMatches`, we may create a `From` implementation like so:
     ///
     /// ```no_run
+    /// # use clap::ArgMatches;
+    /// # struct Context {
+    /// #   name: String,
+    /// #   debug: bool
+    /// # }
     /// impl From<ArgMatches> for Context {
     ///    fn from(m: ArgMatches) -> Self {
     ///        Context {
-    ///            name: m.value_of("name").unwrap(),
+    ///            name: m.value_of("name").unwrap().to_string(),
     ///            debug: m.is_present("debug"),
     ///        }
     ///    }

@@ -1092,8 +1092,8 @@ impl<'help> App<'help> {
     /// let m = App::new("myprog")
     ///     .subcommand(App::new("test")
     ///         .aliases(&["do-stuff", "do-tests", "tests"]))
-    ///         .arg(Arg::with_name("input")
-    ///             .help("the file to add")
+    ///         .arg(Arg::new("input")
+    ///             .about("the file to add")
     ///             .index(1)
     ///             .required(false))
     ///     .get_matches_from(vec!["myprog", "do-tests"]);
@@ -1307,7 +1307,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Replaces an argument or subcommand used on the CLI at runtime with other arguments are subcommands.
+    /// Replaces an argument or subcommand used on the CLI at runtime with other arguments or subcommands.
     ///
     /// When this method is used, `name` is removed from the CLI, and `target`
     /// is inserted in it's place. Parsing continues as if the user typed
@@ -1352,7 +1352,7 @@ impl<'help> App<'help> {
     /// Now let's show an argument exmaple!
     ///
     /// Let's assume we have an application with two flags `--save-context` and
-    /// `--save-startup`. But often users end up needing to do *both* at the
+    /// `--save-runtime`. But often users end up needing to do *both* at the
     /// same time. We can add a third flag `--save-all` which semantically means
     /// the same thing as `app --save-context --save-runtime`. In order to
     /// implement this we again have several options.
@@ -1373,11 +1373,11 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("app")
-    ///     .arg(Arg::with_name("save-context")
+    ///     .arg(Arg::new("save-context")
     ///         .long("save-context"))
-    ///     .arg(Arg::with_name("save-runtime")
-    ///         .long("save-context"))
-    ///     .replace("--save-all", &["--save-context", "--save-all"])
+    ///     .arg(Arg::new("save-runtime")
+    ///         .long("save-runtime"))
+    ///     .replace("--save-all", &["--save-context", "--save-runtime"])
     ///     .get_matches_from(vec!["app", "--save-all"]);
     ///
     /// assert!(m.is_present("save-context"));
@@ -1393,15 +1393,15 @@ impl<'help> App<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("app")
-    ///     .arg(Arg::with_name("save-context")
+    ///     .arg(Arg::new("save-context")
     ///         .long("save-context"))
-    ///     .arg(Arg::with_name("save-runtime")
-    ///         .long("save-context"))
-    ///     .arg(Arg::with_name("format")
+    ///     .arg(Arg::new("save-runtime")
+    ///         .long("save-runtime"))
+    ///     .arg(Arg::new("format")
     ///         .long("format")
     ///         .takes_value(true)
     ///         .possible_values(&["txt", "json"]))
-    ///     .replace("--save-all", &["--save-context", "--save-all", "--format=json"])
+    ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["app", "--save-all"]);
     ///
     /// assert!(m.is_present("save-context"));
@@ -1641,8 +1641,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
     /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
-    /// [`-h` (short)]: ./struct.Arg.html#method.help
-    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    /// [`-h` (short)]: ./struct.Arg.html#method.about
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_about
     pub fn print_help(&mut self) -> ClapResult<()> {
         self._build();
 
@@ -1669,8 +1669,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
     /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
-    /// [`-h` (short)]: ./struct.Arg.html#method.help
-    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    /// [`-h` (short)]: ./struct.Arg.html#method.about
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_about
     pub fn print_long_help(&mut self) -> ClapResult<()> {
         self._build();
 
@@ -1698,8 +1698,8 @@ impl<'help> App<'help> {
     /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
-    /// [`-h` (short)]: ./struct.Arg.html#method.help
-    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    /// [`-h` (short)]: ./struct.Arg.html#method.about
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_about
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
         self._build();
 
@@ -1723,8 +1723,8 @@ impl<'help> App<'help> {
     /// app.write_long_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
-    /// [`-h` (short)]: ./struct.Arg.html#method.help
-    /// [`--help` (long)]: ./struct.Arg.html#method.long_help
+    /// [`-h` (short)]: ./struct.Arg.html#method.about
+    /// [`--help` (long)]: ./struct.Arg.html#method.long_about
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
         self._build();
 
