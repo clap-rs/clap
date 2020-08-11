@@ -229,7 +229,7 @@ For more information try --help";
 
     let app = App::new("dym")
         .subcommand(App::new("subcmd")
-            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+            .arg("-s --subcmdarg [subcmdarg] 'tests'") );
     assert!(utils::compare_output(app, "dym --subcmarg subcmd", EXPECTED, true));
 }
 
@@ -243,7 +243,7 @@ For more information try --help";
 
     let app = App::new("dym")
         .subcommand(App::new("subcmd")
-            .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
+            .arg("-s --subcmdarg [subcmdarg] 'tests'") );
     assert!(utils::compare_output(app, "dym --subcmarg foo", EXPECTED, true));
 }
 
