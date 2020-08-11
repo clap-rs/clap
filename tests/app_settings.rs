@@ -735,7 +735,7 @@ fn allow_ext_sc_when_sc_required() {
     assert!(res.is_ok());
 
     match res.unwrap().subcommand() {
-        (name, Some(args)) => {
+        Some((name, args)) => {
             assert_eq!(name, "external-cmd");
             assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
         }
@@ -753,7 +753,7 @@ fn external_subcommand_looks_like_built_in() {
     assert!(res.is_ok());
     let m = res.unwrap();
     match m.subcommand() {
-        (name, Some(args)) => {
+        Some((name, args)) => {
             assert_eq!(name, "install-update");
             assert_eq!(args.values_of_lossy(""), Some(vec!["foo".to_string()]));
         }

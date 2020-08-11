@@ -44,7 +44,7 @@ pub fn from_arg_matches(name: &Ident) {
 pub fn subcommand(name: &Ident) {
     append_dummy(quote! {
         impl ::clap::Subcommand for #name {
-            fn from_subcommand(_name: &str, _matches: Option<&::clap::ArgMatches>) -> Option<Self> {
+            fn from_subcommand(_sub: Option<(&str, &::clap::ArgMatches)>) -> Option<Self> {
                 unimplemented!()
             }
             fn augment_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {

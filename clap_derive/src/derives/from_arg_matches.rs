@@ -65,9 +65,7 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
         #[deny(clippy::correctness)]
         impl ::clap::FromArgMatches for #name {
             fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
-                let (name, subcmd) = matches.subcommand();
-                <#name as ::clap::Subcommand>::from_subcommand(name, subcmd)
-                    .unwrap()
+                <#name as ::clap::Subcommand>::from_subcommand(matches.subcommand()).unwrap()
             }
         }
     }
@@ -107,11 +105,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
-                        let (name, subcmd) = matches.subcommand();
-                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(
-                            name,
-                            subcmd
-                        )
+                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(matches.subcommand())
                         #unwrapper
                     }
                 }

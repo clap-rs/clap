@@ -60,7 +60,7 @@ pub trait FromArgMatches: Sized {
 /// @TODO @release @docs
 pub trait Subcommand: Sized {
     /// @TODO @release @docs
-    fn from_subcommand(name: &str, matches: Option<&ArgMatches>) -> Option<Self>;
+    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
     /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
 }
@@ -118,8 +118,8 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn from_subcommand(name: &str, matches: Option<&ArgMatches>) -> Option<Self> {
-        <T as Subcommand>::from_subcommand(name, matches).map(Box::new)
+    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
+        <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
     }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)
