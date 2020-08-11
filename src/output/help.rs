@@ -454,7 +454,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             }
             self.none(part)?;
         }
-        if !prevent_nlh && !help.contains('\n') && (nlh || self.force_next_line) {
+        if !prevent_nlh && (nlh || self.force_next_line) {
             self.none("\n")?;
         }
         Ok(())

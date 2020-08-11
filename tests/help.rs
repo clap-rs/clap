@@ -269,6 +269,7 @@ FLAGS:
     -h, --help
             Prints help
             information
+
     -V, --version
             Prints
             version
@@ -354,7 +355,6 @@ FLAGS:
             Prints version
             information";
 
-// FIXME: #1642 This should have an empty line before `-h, --help`.
 static ISSUE_1642: &str = "prog 
 
 USAGE:
@@ -366,6 +366,7 @@ FLAGS:
             with only valid keys and may not contain other nonsense
             that cannot be read by this program. Obviously I'm going on
             and on, so I'll stop now.
+
     -h, --help       
             Prints help information
 
