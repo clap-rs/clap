@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, SubCommand, ErrorKind};
+use clap::{App, Arg, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -228,7 +228,7 @@ dym [SUBCOMMAND]
 For more information try --help";
 
     let app = App::new("dym")
-        .subcommand(SubCommand::with_name("subcmd")
+        .subcommand(App::new("subcmd")
             .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
     assert!(test::compare_output(app, "dym --subcmarg subcmd", EXPECTED, true));
 }
@@ -242,7 +242,7 @@ USAGE:
 For more information try --help";
 
     let app = App::new("dym")
-        .subcommand(SubCommand::with_name("subcmd")
+        .subcommand(App::new("subcmd")
             .arg_from_usage("-s --subcmdarg [subcmdarg] 'tests'") );
     assert!(test::compare_output(app, "dym --subcmarg foo", EXPECTED, true));
 }
