@@ -1,6 +1,5 @@
 mod utils;
 
-include!("../clap-test.rs");
 use clap::{App, Arg, SubCommand, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
