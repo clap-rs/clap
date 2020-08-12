@@ -724,26 +724,30 @@ impl<'help> App<'help> {
     /// **NOTE:** The template system is by design very simple. Therefore, the
     /// tags have to be written in the lowercase and without spacing.
     ///
-    /// Tags arg given inside curly brackets.
+    /// Tags are given inside curly brackets.
     ///
     /// Valid tags are:
     ///
-    ///   * `{bin}`         - Binary name.
-    ///   * `{version}`     - Version number.
-    ///   * `{author}`      - Author information.
-    ///   * `{about}`       - General description (from [`App::about`])
-    ///   * `{usage}`       - Automatically generated or given usage string.
-    ///   * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
-    ///                       and subcommands) including titles.
-    ///   * `{unified}`     - Unified help for options and flags. Note, you must *also* set
-    ///                       [`AppSettings::UnifiedHelpMessage`] to fully merge both options and
-    ///                       flags, otherwise the ordering is "best effort"
-    ///   * `{flags}`       - Help for flags.
-    ///   * `{options}`     - Help for options.
-    ///   * `{positionals}` - Help for positionals arguments.
-    ///   * `{subcommands}` - Help for subcommands.
-    ///   * `{after-help}`  - Help from [`App::after_help`]
-    ///   * `{before-help}`  - Help from [`App::before_help`]
+    ///   * `{bin}`                 - Binary name.
+    ///   * `{version}`             - Version number.
+    ///   * `{author}`              - Author information.
+    ///   * `{author-with-newline}` - Author followed by `\n`.
+    ///   * `{about}`               - Description of the program.
+    ///   * `{about-with-newline}`  - Description followed by `\n`.
+    ///   * `{usage}`               - Automatically generated or given usage string.
+    ///   * `{all-args}`            - Help for all arguments (options, flags, positional
+    ///                               arguments, and subcommands) including titles.
+    ///   * `{unified}`             - Unified help for options and flags. Note, you must *also*
+    ///                               set [`AppSettings::UnifiedHelpMessage`] to fully merge both
+    ///                               options and flags, otherwise the ordering is "best effort".
+    ///   * `{flags}`               - Help for flags.
+    ///   * `{options}`             - Help for options.
+    ///   * `{positionals}`         - Help for positional arguments.
+    ///   * `{subcommands}`         - Help for subcommands.
+    ///   * `{after-help}`          - Info to be displayed after the help message.
+    ///   * `{after-help-padded}`   - After help message with additional spacing.
+    ///   * `{before-help}`         - Info to be displayed before the help message.
+    ///   * `{before-help-padded}`  - Before help message with additional spacing.
     ///
     /// # Examples
     ///
@@ -754,9 +758,6 @@ impl<'help> App<'help> {
     ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
-    /// [`App::about`]: ./struct.App.html#method.about
-    /// [`App::after_help`]: ./struct.App.html#method.after_help
-    /// [`App::before_help`]: ./struct.App.html#method.before_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
     pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
@@ -2446,11 +2447,6 @@ impl<'help> App<'help> {
     #[inline]
     pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
-    }
-
-    #[inline]
-    pub(crate) fn has_opts(&self) -> bool {
-        self.get_opts_no_heading().count() > 0
     }
 
     #[inline]
