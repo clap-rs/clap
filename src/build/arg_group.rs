@@ -550,6 +550,13 @@ requires:
         assert_eq!(g.requires, reqs);
         assert_eq!(g.conflicts, confs);
     }
+
+    // This test will *fail to compile* if ArgGroup is not Send + Sync
+    #[test]
+    fn arg_group_send_sync() {
+        fn foo<T: Send + Sync>(_: T) {}
+        foo(ArgGroup::new("test"))
+    }
 }
 
 impl Clone for ArgGroup<'_> {

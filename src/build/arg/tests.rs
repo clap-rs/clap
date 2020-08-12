@@ -23,3 +23,10 @@ fn short_flag_name_missing() {
     assert!(a.val_names.is_empty());
     assert!(a.num_vals.is_none());
 }
+
+// This test will *fail to compile* if Arg is not Send + Sync
+#[test]
+fn arg_send_sync() {
+    fn foo<T: Send + Sync>(_: T) {}
+    foo(Arg::new("test"))
+}
