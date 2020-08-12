@@ -1,3 +1,10 @@
+<a name="v2.33.3"></a>
+### v2.33.2 (2020-08-13)
+
+#### Improvements
+
+* Suppress deprecation warnings when using `crate_*` macros.
+
 <a name="v2.33.2"></a>
 ### v2.33.2 (2020-08-5)
 
