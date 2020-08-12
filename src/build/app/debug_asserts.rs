@@ -1,4 +1,4 @@
-use crate::{App, AppSettings, ArgSettings};
+use crate::{App, AppSettings, ArgSettings, ValueHint};
 use std::cmp::Ordering;
 
 #[derive(Eq)]
@@ -197,7 +197,7 @@ pub(crate) fn assert_app(app: &App) {
             );
 
             assert!(
-                self.is_set(AppSettings::TrailingVarArg),
+                app.is_set(AppSettings::TrailingVarArg),
                 "Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
                 arg.name
             );

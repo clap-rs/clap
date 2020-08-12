@@ -28,7 +28,7 @@ use crate::{
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
     util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
-    Result as ClapResult, ValueHint, INTERNAL_ERROR_MSG,
+    Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
 // FIXME (@CreepySkeleton): some of these variants are never constructed
