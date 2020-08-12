@@ -23,10 +23,12 @@ compile_error!("`std` feature is currently required to build `clap`");
 
 pub use crate::{
     build::{App, AppSettings, Arg, ArgGroup, ArgSettings, ValueHint},
-    derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand},
     parse::errors::{Error, ErrorKind, Result},
     parse::{ArgMatches, Indices, OsValues, Values},
 };
+
+#[cfg(feature = "derive")]
+pub use crate::derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand};
 
 #[cfg(feature = "yaml")]
 #[cfg_attr(feature = "yaml", doc(hidden))]
@@ -44,6 +46,7 @@ pub use lazy_static;
 #[allow(missing_docs)]
 mod macros;
 
+#[cfg(feature = "derive")]
 mod derive;
 
 mod build;
