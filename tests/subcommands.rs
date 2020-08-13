@@ -219,9 +219,9 @@ fn subcmd_did_you_mean_output_ambiguous() {
 }
 
 #[test]
-#[cfg(feature="suggestions")]
+#[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
-        static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+    static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
 
 \tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
@@ -242,8 +242,6 @@ For more information try --help";
 #[cfg(feature="suggestions")]
 fn subcmd_did_you_mean_output_arg_false_positives() {
     static EXPECTED: &'static str = "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
-
-\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
 If you tried to supply `--subcmarg` as a PATTERN use `-- --subcmarg`
 
