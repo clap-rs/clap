@@ -1821,3 +1821,75 @@ fn after_help_no_args() {
 
     assert_eq!(help, AFTER_HELP_NO_ARGS);
 }
+
+const WRAPPING_ITEMS_ON_SAME_LINE: &str = "This string is 34 characters long.
+v12.34.56
+
+USAGE:
+    ctest
+
+FLAGS:
+    -h, --help
+            Prints help information
+
+    -V, --version
+            Prints version
+            information";
+
+#[test]
+fn wrapping_items_on_same_line() {
+    let app = App::new("This string is 34 characters long.")
+        .version("v12.34.56")
+        .term_width(35);
+
+    let (help, _) = utils::capture_output(app.clone(), "ctest --help");
+    let line_that_is_too_wide = help.lines().find(|line| line.len() > 35);
+    assert!(
+        line_that_is_too_wide.is_none(),
+        "One or more lines were wider than the terminal"
+    );
+
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        WRAPPING_ITEMS_ON_SAME_LINE,
+        false
+    ));
+}
+
+const WRAPPING_TEMPLATES: &str = "START                  This is
+long enough that it should be
+wrapped, and it should have
+preceding/trailing characters taken
+into account account when doing the
+wrapping. And most importantly,
+none of the lines should be wider
+than the term width!
+END";
+
+#[test]
+fn wrapping_templates() {
+    let app = App::new("myapp")
+        .long_about(
+            "This is long enough that it should be wrapped, and it should have \
+            preceding/trailing characters taken into account account when \
+            doing the wrapping. And most importantly, none of the lines should \
+            be wider than the term width!",
+        )
+        .help_template("START                  {about}                  END")
+        .term_width(35);
+
+    let (help, _) = utils::capture_output(app.clone(), "ctest --help");
+    let line_that_is_too_wide = help.lines().find(|line| line.len() > 35);
+    assert!(
+        line_that_is_too_wide.is_none(),
+        "One or more lines were wider than the terminal"
+    );
+
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        WRAPPING_TEMPLATES,
+        false
+    ));
+}
