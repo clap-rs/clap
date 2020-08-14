@@ -732,8 +732,9 @@ impl<'help> App<'help> {
     ///   * `{version}`             - Version number.
     ///   * `{author}`              - Author information.
     ///   * `{author-with-newline}` - Author followed by `\n`.
-    ///   * `{about}`               - Description of the program.
-    ///   * `{about-with-newline}`  - Description followed by `\n`.
+    ///   * `{about}`               - General description (from [`App::about`] or
+    ///                               [`App::long_about`]).
+    ///   * `{about-with-newline}`  - About followed by `\n`.
     ///   * `{usage}`               - Automatically generated or given usage string.
     ///   * `{all-args}`            - Help for all arguments (options, flags, positional
     ///                               arguments, and subcommands) including titles.
@@ -744,8 +745,8 @@ impl<'help> App<'help> {
     ///   * `{options}`             - Help for options.
     ///   * `{positionals}`         - Help for positional arguments.
     ///   * `{subcommands}`         - Help for subcommands.
-    ///   * `{after-help}`          - Info to be displayed after the help message.
-    ///   * `{before-help}`         - Info to be displayed before the help message.
+    ///   * `{after-help}`          - Help from [`App::after_help`] or [`App::after_long_help`].
+    ///   * `{before-help}`         - Help from [`App::before_help`] or [`App::before_long_help`].
     ///
     /// # Examples
     ///
@@ -756,6 +757,12 @@ impl<'help> App<'help> {
     ///     .help_template("{bin} ({version}) - {usage}")
     /// # ;
     /// ```
+    /// [`App::about`]: ./struct.App.html#method.about
+    /// [`App::long_about`]: ./struct.App.html#method.long_about
+    /// [`App::after_help`]: ./struct.App.html#method.after_help
+    /// [`App::after_long_help`]: ./struct.App.html#method.after_long_help
+    /// [`App::before_help`]: ./struct.App.html#method.before_help
+    /// [`App::before_long_help`]: ./struct.App.html#method.before_long_help
     /// [`AppSettings::UnifiedHelpMessage`]: ./enum.AppSettings.html#variant.UnifiedHelpMessage
     pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
