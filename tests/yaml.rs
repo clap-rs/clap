@@ -99,3 +99,32 @@ fn default_value_if_triggered_by_flag_and_argument() {
     // First condition triggers, therefore "some"
     assert_eq!(matches.value_of("positional2").unwrap(), "some");
 }
+
+#[cfg(feature = "regex")]
+#[test]
+fn regex_with_invalid_string() {
+    let yml = load_yaml!("fixtures/app_regex.yaml");
+    let app = App::from(yml);
+    let res = app.try_get_matches_from(vec!["prog", "not a proper filter"]);
+
+    assert!(res.is_err());
+}
+
+#[cfg(feature = "regex")]
+#[test]
+fn regex_with_valid_string() {
+    let yml = load_yaml!("fixtures/app_regex.yaml");
+    let app = App::from(yml);
+
+    let matches = app.try_get_matches_from(vec!["prog", "*.txt"]).unwrap();
+
+    assert_eq!(matches.value_of("filter").unwrap(), "*.txt");
+}
+
+#[cfg(feature = "regex")]
+#[test]
+#[should_panic]
+fn regex_with_invalid_yaml() {
+    let yml = load_yaml!("fixtures/app_regex_invalid.yaml");
+    let _app = App::from(yml);
+}

@@ -18,6 +18,8 @@ use std::{
 };
 
 // Third Party
+#[cfg(feature = "regex")]
+use regex::Regex;
 
 // Internal
 use crate::{
@@ -1915,6 +1917,62 @@ impl<'help> Arg<'help> {
     {
         self.validator_os = Some(Arc::new(Mutex::new(move |s: &OsStr| f(s).map(|_| ()))));
         self
+    }
+
+    /// Validates the argument via the given regular expression.
+    ///
+    /// As regular expressions are not very user friendly, the additionaal `err_message` should
+    /// describe the expected format in clear words. All notes for [`Arg::validator()`] regarding the
+    /// error message and performance also hold for `validator_regex`.
+    ///
+    /// **NOTE:** If using YAML then a single vector with two entries should be provided:
+    /// ```yaml
+    /// validator_regex: [remove-all-files, needs the exact phrase 'remove-all-files' to continue]
+    /// ```
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// use regex::Regex;
+    ///
+    /// let digits = Regex::new(r"\d+").unwrap();
+    ///
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("digits")
+    ///         .index(1)
+    ///         .validator_regex(digits, "only digits are allowed"))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "12345"
+    ///     ]);
+    /// assert!(res.is_ok());
+    /// assert_eq!(res.unwrap().value_of("digits"), Some("12345"));
+    /// ```
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// use regex::Regex;
+    ///
+    /// let priority = Regex::new(r"[A-C]").unwrap();
+    ///
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("priority")
+    ///         .index(1)
+    ///         .validator_regex(priority, "only priorities A, B or C are allowed"))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "12345"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
+    /// ```
+    /// [`Arg::validator()`]: ./struct.Arg.html#method.validator
+    #[cfg(feature = "regex")]
+    pub fn validator_regex(self, regex: Regex, err_message: &'help str) -> Self {
+        self.validator(move |s: &str| {
+            if regex.is_match(s) {
+                Ok(())
+            } else {
+                Err(err_message)
+            }
+        })
     }
 
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
@@ -4325,6 +4383,23 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                     a = yaml_vec!(a, v, required_unless_eq_all);
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
+                }
+                #[cfg(feature = "regex")]
+                "validator_regex" => {
+                    if let Some(vec) = v.as_vec() {
+                        debug_assert_eq!(2, vec.len());
+                        let regex = yaml_str!(vec[0]);
+
+                        match Regex::new(regex) {
+                            Err(e) => panic!(
+                                "Failed to convert \"{}\" into regular expression: {}",
+                                regex, e
+                            ),
+                            Ok(regex) => a.validator_regex(regex, yaml_str!(vec[1])),
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value to vector")
+                    }
                 }
                 s => panic!(
                     "Unknown Arg setting '{}' in YAML file for arg '{}'",
