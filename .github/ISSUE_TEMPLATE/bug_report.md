@@ -10,7 +10,7 @@ assignees: ''
 ### Make sure you completed the following tasks
 
 - [ ] Searched the [discussions](https://github.com/clap-rs/clap/discussions)
-- [ ] Searched the closes issues
+- [ ] Searched the closed issues
 
 ### Code
 
