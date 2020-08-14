@@ -65,7 +65,7 @@ macro_rules! yaml_vec_or_str {
 #[cfg(feature = "yaml")]
 macro_rules! yaml_opt_str {
     ($v:expr) => {{
-        if $v.is_null() {
+        if !$v.is_null() {
             Some(
                 $v.as_str()
                     .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v)),
