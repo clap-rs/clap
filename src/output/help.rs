@@ -1058,7 +1058,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 }
                 b"before-help" => {
                     let before_help = if self.use_long {
-                        self.parser.app.before_long_help
+                        self.parser
+                            .app
+                            .before_long_help
+                            .or(self.parser.app.before_help)
                     } else {
                         self.parser.app.before_help
                     };
