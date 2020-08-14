@@ -21,7 +21,7 @@ args:
         about: tests positionals with exclusions
         index: 2
         default_value_if:
-            - [flag, Null, some]
+            - [flag, null, some]
             - [positional, other, something]
     - flag:
         short: f
