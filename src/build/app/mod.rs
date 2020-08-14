@@ -2455,6 +2455,11 @@ impl<'help> App<'help> {
     }
 
     #[inline]
+    pub(crate) fn has_opts(&self) -> bool {
+        self.get_opts_no_heading().count() > 0
+    }
+
+    #[inline]
     pub(crate) fn has_flags(&self) -> bool {
         self.get_flags_no_heading().count() > 0
     }

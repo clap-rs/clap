@@ -82,6 +82,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         {all-args}{after-help}\
     ";
 
+    const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
+        {before-help}{bin} {version}\n\
+        {author-with-newline}{about-with-newline}\n\
+        USAGE:\n    {usage}{after-help}\
+    ";
+
     /// Create a new `Help` instance.
     pub(crate) fn new(
         w: HelpWriter<'writer>,
@@ -124,7 +130,16 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         } else if let Some(tmpl) = self.parser.app.template {
             self.write_templated_help(tmpl)?;
         } else {
-            self.write_templated_help(Self::DEFAULT_TEMPLATE)?;
+            let flags = self.parser.has_flags();
+            let pos = self.parser.has_positionals();
+            let opts = self.parser.has_opts();
+            let subcmds = self.parser.has_subcommands();
+
+            if flags || opts || pos || subcmds {
+                self.write_templated_help(Self::DEFAULT_TEMPLATE)?;
+            } else {
+                self.write_templated_help(Self::DEFAULT_NO_ARGS_TEMPLATE)?;
+            }
         }
 
         self.none("\n")?;

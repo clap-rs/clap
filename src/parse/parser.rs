@@ -1790,6 +1790,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.app.has_args()
     }
 
+    pub(crate) fn has_opts(&self) -> bool {
+        self.app.has_opts()
+    }
+
     pub(crate) fn has_flags(&self) -> bool {
         self.app.has_flags()
     }
