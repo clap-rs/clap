@@ -54,3 +54,48 @@ fn value_hint() {
         .unwrap();
     assert_eq!(arg.get_value_hint(), ValueHint::FilePath);
 }
+
+#[test]
+fn default_value_if_not_triggered_by_argument() {
+    let yml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yml);
+
+    // Fixtures use "other" as value
+    let matches = app.try_get_matches_from(vec!["prog", "wrong"]).unwrap();
+
+    assert!(matches.value_of("positional2").is_none());
+}
+
+#[test]
+fn default_value_if_triggered_by_matching_argument() {
+    let yml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yml);
+
+    let matches = app.try_get_matches_from(vec!["prog", "other"]).unwrap();
+    assert_eq!(matches.value_of("positional2").unwrap(), "something");
+}
+
+#[test]
+fn default_value_if_triggered_by_flag() {
+    let yml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yml);
+
+    let matches = app
+        .try_get_matches_from(vec!["prog", "--flag", "flagvalue"])
+        .unwrap();
+
+    assert_eq!(matches.value_of("positional2").unwrap(), "some");
+}
+
+#[test]
+fn default_value_if_triggered_by_flag_and_argument() {
+    let yml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yml);
+
+    let matches = app
+        .try_get_matches_from(vec!["prog", "--flag", "flagvalue", "other"])
+        .unwrap();
+
+    // First condition triggers, therefore "some"
+    assert_eq!(matches.value_of("positional2").unwrap(), "some");
+}
