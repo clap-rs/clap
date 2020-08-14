@@ -983,7 +983,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 }
                 b"author" => {
                     if let Some(output) = self.parser.app.author {
-                        self.none(output)?;
+                        self.none(&wrap_help(output, self.term_w))?;
                     }
                 }
                 b"author-with-newline" => {
@@ -999,7 +999,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.parser.app.about
                     };
                     if let Some(output) = about {
-                        self.none(output)?;
+                        self.none(&wrap_help(output, self.term_w))?;
                     }
                 }
                 b"about-with-newline" => {
