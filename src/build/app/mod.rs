@@ -745,9 +745,7 @@ impl<'help> App<'help> {
     ///   * `{positionals}`         - Help for positional arguments.
     ///   * `{subcommands}`         - Help for subcommands.
     ///   * `{after-help}`          - Info to be displayed after the help message.
-    ///   * `{after-help-padded}`   - After help message with additional spacing.
     ///   * `{before-help}`         - Info to be displayed before the help message.
-    ///   * `{before-help-padded}`  - Before help message with additional spacing.
     ///
     /// # Examples
     ///

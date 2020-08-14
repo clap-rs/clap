@@ -75,11 +75,11 @@ pub(crate) struct Help<'help, 'app, 'parser, 'writer> {
 // Public Functions
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
-        {before-help-padded}{bin} {version}\n\
+        {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
         USAGE:\n    {usage}\n\
         \n\
-        {all-args}{after-help-padded}\
+        {all-args}{after-help}\
     ";
 
     /// Create a new `Help` instance.
@@ -1052,34 +1052,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.parser.app.after_help
                     };
                     if let Some(output) = after_help {
-                        self.write_before_after_help(output)?;
-                    }
-                }
-                b"after-help-padded" => {
-                    let after_help = if self.use_long {
-                        self.parser
-                            .app
-                            .after_long_help
-                            .or(self.parser.app.after_help)
-                    } else {
-                        self.parser.app.after_help
-                    };
-                    if let Some(output) = after_help {
                         self.none("\n\n")?;
                         self.write_before_after_help(output)?;
                     }
                 }
                 b"before-help" => {
-                    let before_help = if self.use_long {
-                        self.parser.app.before_long_help
-                    } else {
-                        self.parser.app.before_help
-                    };
-                    if let Some(output) = before_help {
-                        self.write_before_after_help(output)?;
-                    }
-                }
-                b"before-help-padded" => {
                     let before_help = if self.use_long {
                         self.parser.app.before_long_help
                     } else {
