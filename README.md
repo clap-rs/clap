@@ -38,12 +38,13 @@ We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.1` 
       1. [Features enabled by default](#features-enabled-by-default)
       2. [Opt-in features](#opt-in-features)
    2. [More Information](#more-information)
-7. [Contributing](#contributing)
+7. [Sponsors](#sponsors)
+8. [Contributing](#contributing)
    1. [Compatibility Policy](#compatibility-policy)
       1. [Minimum Supported Version of Rust (MSRV)](#minimum-supported-version-of-rust-msrv)
       2. [Breaking Changes](#breaking-changes)
-8. [License](#license)
-9. [Related Crates](#related-crates)
+9. [License](#license)
+10. [Related Crates](#related-crates)
 
 ## About
 
@@ -465,6 +466,28 @@ features = [ "suggestions", "color" ]
 You can find complete documentation on the [docs.rs][docs] for this project.
 
 You can also find usage examples in the [examples][examples] directory of this repo.
+
+## Sponsors
+
+<!-- omit in TOC -->
+### Gold
+
+[![](https://opencollective.com/clap/tiers/gold.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Silver
+
+[![](https://opencollective.com/clap/tiers/silver.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Bronze
+
+[![](https://opencollective.com/clap/tiers/bronze.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Backer
+
+[![](https://opencollective.com/clap/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
 
 ## Contributing
 
