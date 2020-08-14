@@ -74,6 +74,20 @@ pub(crate) struct Help<'help, 'app, 'parser, 'writer> {
 
 // Public Functions
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
+    const DEFAULT_TEMPLATE: &'static str = "\
+        {before-help}{bin} {version}\n\
+        {author-with-newline}{about-with-newline}\n\
+        USAGE:\n    {usage}\n\
+        \n\
+        {all-args}{after-help}\
+    ";
+
+    const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
+        {before-help}{bin} {version}\n\
+        {author-with-newline}{about-with-newline}\n\
+        USAGE:\n    {usage}{after-help}\
+    ";
+
     /// Create a new `Help` instance.
     pub(crate) fn new(
         w: HelpWriter<'writer>,
@@ -116,7 +130,16 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         } else if let Some(tmpl) = self.parser.app.template {
             self.write_templated_help(tmpl)?;
         } else {
-            self.write_default_help()?;
+            let flags = self.parser.has_flags();
+            let pos = self.parser.has_positionals();
+            let opts = self.parser.has_opts();
+            let subcmds = self.parser.has_subcommands();
+
+            if flags || opts || pos || subcmds {
+                self.write_templated_help(Self::DEFAULT_TEMPLATE)?;
+            } else {
+                self.write_templated_help(Self::DEFAULT_NO_ARGS_TEMPLATE)?;
+            }
         }
 
         self.none("\n")?;
@@ -811,13 +834,6 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         Ok(())
     }
 
-    /// Writes version of a Parser Object to the wrapped stream.
-    fn write_version(&mut self) -> io::Result<()> {
-        debug!("Help::write_version");
-        self.none(self.parser.app.version.unwrap_or(""))?;
-        Ok(())
-    }
-
     /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self) -> io::Result<()> {
         debug!("Help::write_bin_name");
@@ -838,98 +854,6 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             write_name!();
         }
         Ok(())
-    }
-
-    /// Writes default help for a Parser Object to the wrapped stream.
-    pub(crate) fn write_default_help(&mut self) -> ClapResult<()> {
-        debug!("Help::write_default_help");
-        if self.use_long {
-            if let Some(h) = self
-                .parser
-                .app
-                .before_long_help
-                .or_else(|| self.parser.app.before_help)
-            {
-                self.write_before_after_help(h)?;
-                self.none("\n\n")?;
-            }
-        } else if let Some(h) = self
-            .parser
-            .app
-            .before_help
-            .or_else(|| self.parser.app.before_long_help)
-        {
-            self.write_before_after_help(h)?;
-            self.none("\n\n")?;
-        }
-
-        macro_rules! write_thing {
-            ($thing:expr) => {{
-                self.none(&wrap_help(&$thing, self.term_w))?;
-                self.none("\n")?
-            }};
-        }
-
-        // Print the version
-        self.write_bin_name()?;
-        self.none(" ")?;
-        self.write_version()?;
-        self.none("\n")?;
-
-        if let Some(author) = self.parser.app.author {
-            write_thing!(author);
-        }
-
-        if self.use_long && self.parser.app.long_about.is_some() {
-            debug!("Help::write_default_help: writing long about");
-            write_thing!(self.parser.app.long_about.unwrap());
-        } else if self.parser.app.about.is_some() {
-            debug!("Help::write_default_help: writing about");
-            write_thing!(self.parser.app.about.unwrap());
-        }
-
-        self.none("\n")?;
-        self.warning("USAGE:")?;
-        self.none(&format!(
-            "\n{}{}\n\n",
-            TAB,
-            Usage::new(self.parser).create_usage_no_title(&[])
-        ))?;
-
-        let flags = self.parser.has_flags();
-        let pos = self.parser.has_positionals();
-        let opts = self.parser.has_opts();
-        let subcmds = self.parser.has_subcommands();
-
-        if flags || opts || pos || subcmds {
-            self.write_all_args()?;
-        }
-
-        if self.use_long {
-            if let Some(h) = self
-                .parser
-                .app
-                .after_long_help
-                .or_else(|| self.parser.app.after_help)
-            {
-                if flags || opts || pos || subcmds {
-                    self.none("\n\n")?;
-                }
-                self.write_before_after_help(h)?;
-            }
-        } else if let Some(h) = self
-            .parser
-            .app
-            .after_help
-            .or_else(|| self.parser.app.after_long_help)
-        {
-            if flags || opts || pos || subcmds {
-                self.none("\n\n")?;
-            }
-            self.write_before_after_help(h)?;
-        }
-
-        self.writer.flush().map_err(Error::from)
     }
 }
 
@@ -1034,28 +958,13 @@ fn copy_and_capture<R: Read, W: Write>(
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Write help to stream for the parser in the format defined by the template.
     ///
-    /// Tags arg given inside curly brackets:
-    /// Valid tags are:
-    ///     * `{bin}`         - Binary name.
-    ///     * `{version}`     - Version number.
-    ///     * `{author}`      - Author information.
-    ///     * `{usage}`       - Automatically generated or given usage string.
-    ///     * `{all-args}`    - Help for all arguments (options, flags, positionals arguments,
-    ///                         and subcommands) including titles.
-    ///     * `{unified}`     - Unified help for options and flags.
-    ///     * `{flags}`       - Help for flags.
-    ///     * `{options}`     - Help for options.
-    ///     * `{positionals}` - Help for positionals arguments.
-    ///     * `{subcommands}` - Help for subcommands.
-    ///     * `{after-help}`  - Info to be displayed after the help message.
-    ///     * `{before-help}` - Info to be displayed before the help message.
+    /// For details about the template language see [`App::help_template`].
     ///
-    /// The template system is, on purpose, very simple. Therefore, the tags have to be written
-    /// in the lowercase and without spacing.
+    /// [`App::help_template`]: ./struct.App.html#method.help_template
     fn write_templated_help(&mut self, template: &str) -> ClapResult<()> {
         debug!("Help::write_templated_help");
         let mut tmplr = Cursor::new(&template);
-        let mut tag_buf = Cursor::new(vec![0u8; 15]);
+        let mut tag_buf = Cursor::new(vec![0u8; 20]);
 
         // The strategy is to copy the template from the reader to wrapped stream
         // until a tag is found. Depending on its value, the appropriate content is copied
@@ -1083,16 +992,41 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     self.write_bin_name()?;
                 }
                 b"version" => {
-                    self.none(self.parser.app.version.unwrap_or("unknown version"))?;
+                    if let Some(output) = self.parser.app.version {
+                        self.none(output)?;
+                    }
                 }
                 b"author" => {
-                    self.none(self.parser.app.author.unwrap_or("unknown author"))?;
+                    if let Some(output) = self.parser.app.author {
+                        self.none(&wrap_help(output, self.term_w))?;
+                    }
+                }
+                b"author-with-newline" => {
+                    if let Some(output) = self.parser.app.author {
+                        self.none(&wrap_help(output, self.term_w))?;
+                        self.none("\n")?;
+                    }
                 }
                 b"about" => {
-                    self.none(self.parser.app.about.unwrap_or("unknown about"))?;
+                    let about = if self.use_long {
+                        self.parser.app.long_about.or(self.parser.app.about)
+                    } else {
+                        self.parser.app.about
+                    };
+                    if let Some(output) = about {
+                        self.none(&wrap_help(output, self.term_w))?;
+                    }
                 }
-                b"long-about" => {
-                    self.none(self.parser.app.long_about.unwrap_or("unknown about"))?;
+                b"about-with-newline" => {
+                    let about = if self.use_long {
+                        self.parser.app.long_about.or(self.parser.app.about)
+                    } else {
+                        self.parser.app.about
+                    };
+                    if let Some(output) = about {
+                        self.none(&wrap_help(output, self.term_w))?;
+                        self.none("\n")?;
+                    }
                 }
                 b"usage" => {
                     self.none(&Usage::new(self.parser).create_usage_no_title(&[]))?;
@@ -1124,10 +1058,32 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     self.write_subcommands(self.parser.app)?;
                 }
                 b"after-help" => {
-                    self.none(self.parser.app.after_help.unwrap_or("unknown after-help"))?;
+                    let after_help = if self.use_long {
+                        self.parser
+                            .app
+                            .after_long_help
+                            .or(self.parser.app.after_help)
+                    } else {
+                        self.parser.app.after_help
+                    };
+                    if let Some(output) = after_help {
+                        self.none("\n\n")?;
+                        self.write_before_after_help(output)?;
+                    }
                 }
                 b"before-help" => {
-                    self.none(self.parser.app.before_help.unwrap_or("unknown before-help"))?;
+                    let before_help = if self.use_long {
+                        self.parser
+                            .app
+                            .before_long_help
+                            .or(self.parser.app.before_help)
+                    } else {
+                        self.parser.app.before_help
+                    };
+                    if let Some(output) = before_help {
+                        self.write_before_after_help(output)?;
+                        self.none("\n\n")?;
+                    }
                 }
                 // Unknown tag, write it back.
                 r => {

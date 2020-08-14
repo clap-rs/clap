@@ -1796,3 +1796,28 @@ and on, so I'll stop now.",
     ));
     assert!(utils::compare_output(app, "prog --help", ISSUE_1642, false));
 }
+
+const AFTER_HELP_NO_ARGS: &str = "myapp 1.0
+
+USAGE:
+    myapp
+
+This is after help.
+";
+
+#[test]
+fn after_help_no_args() {
+    let mut app = App::new("myapp")
+        .version("1.0")
+        .setting(AppSettings::DisableHelpFlags)
+        .setting(AppSettings::DisableVersion)
+        .after_help("This is after help.");
+
+    let help = {
+        let mut output = Vec::new();
+        app.write_help(&mut output).unwrap();
+        String::from_utf8(output).unwrap()
+    };
+
+    assert_eq!(help, AFTER_HELP_NO_ARGS);
+}
