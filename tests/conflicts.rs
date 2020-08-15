@@ -90,7 +90,7 @@ fn group_conflict_2() {
 fn conflict_output() {
     assert!(utils::compare_output(
         utils::complex_app(),
-        "clap-test val1 --flag --long-option-2 val2 -F",
+        "clap-test val1 fa --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
     ));
@@ -100,10 +100,30 @@ fn conflict_output() {
 fn conflict_output_rev() {
     assert!(utils::compare_output(
         utils::complex_app(),
-        "clap-test val1 -F --long-option-2 val2 --flag",
+        "clap-test val1 fa -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
     ));
+}
+
+#[test]
+fn conflict_output_with_required() {
+    utils::compare_output(
+        utils::complex_app(),
+        "clap-test val1 --flag --long-option-2 val2 -F",
+        CONFLICT_ERR,
+        true,
+    );
+}
+
+#[test]
+fn conflict_output_rev_with_required() {
+    utils::compare_output(
+        utils::complex_app(),
+        "clap-test val1 -F --long-option-2 val2 --flag",
+        CONFLICT_ERR_REV,
+        true,
+    );
 }
 
 #[test]
