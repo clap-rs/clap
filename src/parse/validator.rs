@@ -170,14 +170,28 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn build_conflict_err(&self, name: &Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::build_conflict_err: name={:?}", name);
-        let usg = Usage::new(self.p).create_usage_with_title(&[]);
-        if let Some(other_arg) = self.p.app.find(name) {
+        if let Some(checked_arg) = self.p.app.find(name) {
             for k in matcher.arg_names() {
                 if let Some(a) = self.p.app.find(k) {
                     if a.blacklist.contains(&name) {
+                        let (_former, former_arg, latter, latter_arg) = {
+                            let name_pos = matcher.arg_names().position(|key| key == name);
+                            let k_pos = matcher.arg_names().position(|key| key == k);
+                            if name_pos < k_pos {
+                                (name, checked_arg, k, a)
+                            } else {
+                                (k, a, name, checked_arg)
+                            }
+                        };
+                        let used: Vec<Id> = matcher
+                            .arg_names()
+                            .cloned()
+                            .filter(|key| key != latter)
+                            .collect();
+                        let usg = Usage::new(self.p).create_usage_with_title(&used);
                         return Err(Error::argument_conflict(
-                            a,
-                            Some(other_arg.to_string()),
+                            former_arg,
+                            Some(latter_arg.to_string()),
                             &*usg,
                             self.p.app.color(),
                         )?);
@@ -185,6 +199,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             }
         } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == *name) {
+            let usg = Usage::new(self.p).create_usage_with_title(&[]);
             let args_in_group = self.p.app.unroll_args_in_group(&g.id);
             let first = matcher
                 .arg_names()
