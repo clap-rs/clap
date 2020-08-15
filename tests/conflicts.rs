@@ -108,22 +108,22 @@ fn conflict_output_rev() {
 
 #[test]
 fn conflict_output_with_required() {
-    utils::compare_output(
+    assert!(utils::compare_output(
         utils::complex_app(),
         "clap-test val1 --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
-    );
+    ));
 }
 
 #[test]
 fn conflict_output_rev_with_required() {
-    utils::compare_output(
+    assert!(utils::compare_output(
         utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
-    );
+    ));
 }
 
 #[test]
