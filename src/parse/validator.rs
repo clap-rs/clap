@@ -185,10 +185,20 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         };
                         let used: Vec<Id> = matcher
                             .arg_names()
+                            .filter(|key| *key != latter)
                             .cloned()
-                            .filter(|key| key != latter)
                             .collect();
-                        let usg = Usage::new(self.p).create_usage_with_title(&used);
+                        let required: Vec<Id> = used
+                            .iter()
+                            .filter_map(|key| self.p.app.find(key))
+                            .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
+                            .filter(|item| !used.contains(item))
+                            .filter(|key| *key != latter)
+                            .chain(used.iter())
+                            .cloned()
+                            .collect();
+                        println!("{:?}", required);
+                        let usg = Usage::new(self.p).create_usage_with_title(&required);
                         return Err(Error::argument_conflict(
                             former_arg,
                             Some(latter_arg.to_string()),
