@@ -168,6 +168,32 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Ok(())
     }
 
+    fn _build_conflict_err_usage(
+        &self,
+        matcher: &ArgMatcher,
+        retained_arg: &Arg,
+        conflicting_key: &Id,
+    ) -> String {
+        let retained_blacklist = &retained_arg.blacklist;
+        let used_filtered: Vec<Id> = matcher
+            .arg_names()
+            .filter(|key| *key != conflicting_key)
+            .filter(|key| !retained_blacklist.contains(key))
+            .cloned()
+            .collect();
+        let required: Vec<Id> = used_filtered
+            .iter()
+            .filter_map(|key| self.p.app.find(key))
+            .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
+            .filter(|item| !used_filtered.contains(item))
+            .filter(|key| *key != conflicting_key)
+            .filter(|key| !retained_blacklist.contains(key))
+            .chain(used_filtered.iter())
+            .cloned()
+            .collect();
+        Usage::new(self.p).create_usage_with_title(&required)
+    }
+
     fn build_conflict_err(&self, name: &Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::build_conflict_err: name={:?}", name);
         if let Some(checked_arg) = self.p.app.find(name) {
@@ -183,24 +209,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                                 (k, a, name, checked_arg)
                             }
                         };
-                        let former_blacklist = &former_arg.blacklist;
-                        let used_filtered: Vec<Id> = matcher
-                            .arg_names()
-                            .filter(|key| *key != latter)
-                            .filter(|key| !former_blacklist.contains(key))
-                            .cloned()
-                            .collect();
-                        let required: Vec<Id> = used_filtered
-                            .iter()
-                            .filter_map(|key| self.p.app.find(key))
-                            .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
-                            .filter(|item| !used_filtered.contains(item))
-                            .filter(|key| *key != latter)
-                            .filter(|key| !former_blacklist.contains(key))
-                            .chain(used_filtered.iter())
-                            .cloned()
-                            .collect();
-                        let usg = Usage::new(self.p).create_usage_with_title(&required);
+                        let usg = self._build_conflict_err_usage(matcher, former_arg, latter);
                         return Err(Error::argument_conflict(
                             former_arg,
                             Some(latter_arg.to_string()),
