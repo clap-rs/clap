@@ -200,7 +200,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .chain(used_filtered.iter())
                             .cloned()
                             .collect();
-                        println!("{:?}", required);
                         let usg = Usage::new(self.p).create_usage_with_title(&required);
                         return Err(Error::argument_conflict(
                             former_arg,
