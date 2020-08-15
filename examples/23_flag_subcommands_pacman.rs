@@ -79,7 +79,7 @@ fn main() {
                     Arg::new("package")
                         .about("packages")
                         .multiple(true)
-                        .required_unless_one(&["search"])
+                        .required_unless_present("search")
                         .takes_value(true),
                 ),
         )

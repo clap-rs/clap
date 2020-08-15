@@ -442,15 +442,15 @@ impl<'help> From<&'help Yaml> for ArgGroup<'help> {
             a = match k.as_str().unwrap() {
                 "required" => a.required(v.as_bool().unwrap()),
                 "multiple" => a.multiple(v.as_bool().unwrap()),
-                "args" => yaml_vec_or_str!(v, a, arg),
+                "args" => yaml_vec_or_str!(a, v, arg),
                 "arg" => {
                     if let Some(ys) = v.as_str() {
                         a = a.arg(ys);
                     }
                     a
                 }
-                "requires" => yaml_vec_or_str!(v, a, requires),
-                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
+                "requires" => yaml_vec_or_str!(a, v, requires),
+                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "name" => {
                     if let Some(ys) = v.as_str() {
                         a.name = ys;

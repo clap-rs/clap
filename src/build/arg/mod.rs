@@ -745,8 +745,12 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::required_unless_eq_any`]: ./struct.Arg.html#method.required_unless_eq_any
     /// [`Arg::required_unless_eq_all(names)`]: ./struct.Arg.html#method.required_unless_eq_all
-    pub fn required_unless_eq_all(mut self, names: &[&str]) -> Self {
-        self.r_unless.extend(names.iter().map(Id::from));
+    pub fn required_unless_eq_all<T, I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item=T>,
+        T: Key
+    {
+        self.r_unless.extend(names.into_iter().map(Id::from));
         self.setting(ArgSettings::RequiredUnlessAll)
     }
 
@@ -814,8 +818,12 @@ impl<'help> Arg<'help> {
     /// [required]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless_eq_any(names)`]: ./struct.Arg.html#method.required_unless_eq_any
     /// [`Arg::required_unless_eq_all`]: ./struct.Arg.html#method.required_unless_eq_all
-    pub fn required_unless_eq_any(mut self, names: &[&str]) -> Self {
-        self.r_unless.extend(names.iter().map(Id::from));
+    pub fn required_unless_eq_any<T, I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item=T>,
+        T: Key
+    {
+        self.r_unless.extend(names.into_iter().map(Id::from));
         self
     }
 
@@ -4269,7 +4277,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
             a = match k.as_str().unwrap() {
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
-                "aliases" => yaml_vec_or_str!(v, a, alias),
+                "aliases" => yaml_vec_or_str!(a, v, alias),
                 "short_aliases" => yaml_to_chars!(a, v, short_aliases),
                 "about" => yaml_to_str!(a, v, about),
                 "long_about" => yaml_to_str!(a, v, long_about),
@@ -4301,21 +4309,21 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
                 "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
                 "env" => yaml_to_str!(a, v, env),
-                "value_names" => yaml_vec_or_str!(v, a, value_name),
-                "groups" => yaml_vec_or_str!(v, a, group),
-                "requires" => yaml_vec_or_str!(v, a, requires),
+                "value_names" => yaml_vec_or_str!(a, v, value_name),
+                "groups" => yaml_vec_or_str!(a, v, group),
+                "requires" => yaml_vec_or_str!(a, v, requires),
                 "requires_if" => yaml_tuple2!(a, v, requires_if),
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
-                "conflicts_with" => yaml_vec_or_str!(v, a, conflicts_with),
+                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
                 "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
-                "overrides_with" => yaml_vec_or_str!(v, a, overrides_with),
-                "possible_values" => yaml_vec_or_str!(v, a, possible_value),
+                "overrides_with" => yaml_vec_or_str!(a, v, overrides_with),
+                "possible_values" => yaml_vec_or_str!(a, v, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_eq_any" => yaml_vec_or_str!(v, a, required_unless_eq_any),
+                "required_unless_eq_any" => yaml_vec!(a, v, required_unless_eq_any),
                 "required_unless_eq_all" => {
-                    a = yaml_vec_or_str!(v, a, required_unless_eq_all);
+                    a = yaml_vec!(a, v, required_unless_eq_all);
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }

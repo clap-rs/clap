@@ -38,7 +38,7 @@ macro_rules! yaml_tuple3 {
 
 #[cfg(feature = "yaml")]
 macro_rules! yaml_vec_or_str {
-    ($v:ident, $a:ident, $c:ident) => {{
+    ($a:ident, $v:ident, $c:ident) => {{
         let maybe_vec = $v.as_vec();
         if let Some(vec) = maybe_vec {
             for ys in vec {
@@ -57,6 +57,26 @@ macro_rules! yaml_vec_or_str {
                     $v
                 );
             }
+        }
+        $a
+    }};
+}
+
+#[cfg(feature = "yaml")]
+macro_rules! yaml_vec {
+    ($a:ident, $v:ident, $c:ident) => {{
+        let maybe_vec = $v.as_vec();
+        if let Some(vec) = maybe_vec {
+            let content = vec.into_iter().map(|ys| {
+                if let Some(s) = ys.as_str() {
+                    s
+                } else {
+                    panic!("Failed to convert YAML value {:?} to a string", ys);
+                }
+            });
+            $a = $a.$c(content)
+        } else {
+            panic!("Failed to convert YAML value {:?} to a vec", $v);
         }
         $a
     }};
