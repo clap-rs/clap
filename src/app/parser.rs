@@ -146,10 +146,10 @@ where
         assert!(self.verify_positionals());
         let should_err = self.groups.iter().all(|g| {
             g.args.iter().all(|arg| {
-                (self.flags.iter().any(|f| &f.b.name == arg)
+                self.flags.iter().any(|f| &f.b.name == arg)
                     || self.opts.iter().any(|o| &o.b.name == arg)
                     || self.positionals.values().any(|p| &p.b.name == arg)
-                    || self.groups.iter().any(|g| &g.name == arg))
+                    || self.groups.iter().any(|g| &g.name == arg)
             })
         });
         let g = self.groups.iter().find(|g| {
@@ -197,7 +197,7 @@ where
             );
         }
         let i = if a.index.is_none() {
-            (self.positionals.len() + 1)
+            self.positionals.len() + 1
         } else {
             a.index.unwrap() as usize
         };
@@ -306,7 +306,7 @@ where
         self.implied_settings(&a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
-                (self.positionals.len() + 1)
+                self.positionals.len() + 1
             } else {
                 a.index.unwrap() as usize
             };
@@ -331,7 +331,7 @@ where
         self.implied_settings(a);
         if a.index.is_some() || (a.s.short.is_none() && a.s.long.is_none()) {
             let i = if a.index.is_none() {
-                (self.positionals.len() + 1)
+                self.positionals.len() + 1
             } else {
                 a.index.unwrap() as usize
             };
@@ -839,7 +839,7 @@ where
                     .iter()
                     .find(|o| o.b.name == name)
                     .expect(INTERNAL_ERROR_MSG);
-                (o.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
+                o.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings
             }
             ParseResult::Pos(name) => {
                 let p = self
@@ -847,7 +847,7 @@ where
                     .values()
                     .find(|p| p.b.name == name)
                     .expect(INTERNAL_ERROR_MSG);
-                (p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings)
+                p.is_set(ArgSettings::AllowLeadingHyphen) || app_wide_settings
             }
             ParseResult::ValuesDone => return true,
             _ => false,

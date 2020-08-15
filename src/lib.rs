@@ -540,6 +540,8 @@
 #![cfg_attr(feature = "lints", allow(cyclomatic_complexity))]
 #![cfg_attr(feature = "lints", allow(doc_markdown))]
 #![cfg_attr(feature = "lints", allow(explicit_iter_loop))]
+// Due to our "MSRV for 2.x will remain unchanged" policy, we can't fix these warnings
+#![allow(bare_trait_objects, deprecated)]
 
 #[cfg(all(feature = "color", not(target_os = "windows")))]
 extern crate ansi_term;

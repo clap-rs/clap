@@ -112,9 +112,12 @@ impl OsStrExt2 for OsStr {
             // `clap.exe --arg=[invalid]`. Note that this entire module is
             // replaced in Clap 3.x, so this workaround is specific to the 2.x
             // branch.
-            return windows_osstr_starts_with(self, s);
+            windows_osstr_starts_with(self, s)
         }
-        self.as_bytes().starts_with(s)
+        #[cfg(not(target_os = "windows"))]
+        {
+            self.as_bytes().starts_with(s)
+        }
     }
 
     fn contains_byte(&self, byte: u8) -> bool {
