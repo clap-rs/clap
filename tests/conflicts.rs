@@ -16,6 +16,13 @@ USAGE:
 
 For more information try --help";
 
+static CONFLICT_ERR_THREE: &str = "error: The argument '--one' cannot be used with '--two'
+
+USAGE:
+    three_conflicting_arguments --one
+
+For more information try --help";
+
 #[test]
 fn flag_conflict() {
     let result = App::new("flag_conflict")
@@ -127,6 +134,32 @@ fn conflict_output_rev_with_required() {
 }
 
 #[test]
+fn conflict_output_three_conflicting() {
+    let app = App::new("three_conflicting_arguments")
+        .arg(
+            Arg::new("one")
+                .long("one")
+                .conflicts_with_all(&["two", "three"]),
+        )
+        .arg(
+            Arg::new("two")
+                .long("two")
+                .conflicts_with_all(&["one", "three"]),
+        )
+        .arg(
+            Arg::new("three")
+                .long("three")
+                .conflicts_with_all(&["one", "two"]),
+        );
+    assert!(utils::compare_output(
+        app,
+        "three_conflicting_arguments --one --two --three",
+        CONFLICT_ERR_THREE,
+        true,
+    ));
+}
+
+#[test]
 fn conflict_with_unused_default_value() {
     let result = App::new("conflict")
         .arg(Arg::from("-o, --opt=[opt] 'some opt'").default_value("default"))
@@ -163,7 +196,7 @@ fn two_conflicting_arguments() {
 
 #[test]
 fn three_conflicting_arguments() {
-    let a = App::new("two_conflicting_arguments")
+    let a = App::new("three_conflicting_arguments")
         .arg(
             Arg::new("one")
                 .long("one")

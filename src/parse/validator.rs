@@ -183,18 +183,21 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                                 (k, a, name, checked_arg)
                             }
                         };
-                        let used: Vec<Id> = matcher
+                        let former_blacklist = &former_arg.blacklist;
+                        let used_filtered: Vec<Id> = matcher
                             .arg_names()
                             .filter(|key| *key != latter)
+                            .filter(|key| !former_blacklist.contains(key))
                             .cloned()
                             .collect();
-                        let required: Vec<Id> = used
+                        let required: Vec<Id> = used_filtered
                             .iter()
                             .filter_map(|key| self.p.app.find(key))
                             .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
-                            .filter(|item| !used.contains(item))
+                            .filter(|item| !used_filtered.contains(item))
                             .filter(|key| *key != latter)
-                            .chain(used.iter())
+                            .filter(|key| !former_blacklist.contains(key))
+                            .chain(used_filtered.iter())
                             .cloned()
                             .collect();
                         println!("{:?}", required);
