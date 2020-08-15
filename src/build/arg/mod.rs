@@ -747,8 +747,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_eq_all(names)`]: ./struct.Arg.html#method.required_unless_eq_all
     pub fn required_unless_eq_all<T, I>(mut self, names: I) -> Self
     where
-        I: IntoIterator<Item=T>,
-        T: Key
+        I: IntoIterator<Item = T>,
+        T: Key,
     {
         self.r_unless.extend(names.into_iter().map(Id::from));
         self.setting(ArgSettings::RequiredUnlessAll)
@@ -820,8 +820,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::required_unless_eq_all`]: ./struct.Arg.html#method.required_unless_eq_all
     pub fn required_unless_eq_any<T, I>(mut self, names: I) -> Self
     where
-        I: IntoIterator<Item=T>,
-        T: Key
+        I: IntoIterator<Item = T>,
+        T: Key,
     {
         self.r_unless.extend(names.into_iter().map(Id::from));
         self
