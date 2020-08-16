@@ -211,8 +211,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         };
                         let usg = self.build_conflict_err_usage(matcher, former_arg, latter);
                         return Err(Error::argument_conflict(
-                            former_arg,
-                            Some(latter_arg.to_string()),
+                            latter_arg,
+                            Some(former_arg.to_string()),
                             &*usg,
                             self.p.app.color(),
                         )?);

@@ -2,21 +2,21 @@ mod utils;
 
 use clap::{App, Arg, ArgGroup, ErrorKind};
 
-static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
+static CONFLICT_ERR: &str = "error: The argument '-F' cannot be used with '--flag'
 
 USAGE:
     clap-test <positional> <positional2> --flag --long-option-2 <option2>
 
 For more information try --help";
 
-static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
+static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
     clap-test <positional> <positional2> -F --long-option-2 <option2>
 
 For more information try --help";
 
-static CONFLICT_ERR_THREE: &str = "error: The argument '--one' cannot be used with '--two'
+static CONFLICT_ERR_THREE: &str = "error: The argument '--two' cannot be used with '--one'
 
 USAGE:
     three_conflicting_arguments --one
@@ -190,7 +190,7 @@ fn two_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--develop\' cannot be used with \'--production\'"
+        "The argument \'--production\' cannot be used with \'--develop\'"
     );
 }
 
@@ -218,7 +218,7 @@ fn three_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--one\' cannot be used with \'--two\'"
+        "The argument \'--two\' cannot be used with \'--one\'"
     );
 }
 
