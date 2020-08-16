@@ -16,6 +16,13 @@ USAGE:
 
 For more information try --help";
 
+static CONFLICT_ERR_THREE: &str = "error: The argument '--two' cannot be used with '--one'
+
+USAGE:
+    three_conflicting_arguments --one
+
+For more information try --help";
+
 #[test]
 fn flag_conflict() {
     let result = App::new("flag_conflict")
@@ -88,22 +95,68 @@ fn group_conflict_2() {
 
 #[test]
 fn conflict_output() {
-    utils::compare_output(
+    assert!(utils::compare_output(
         utils::complex_app(),
-        "clap-test val1 --flag --long-option-2 val2 -F",
+        "clap-test val1 fa --flag --long-option-2 val2 -F",
         CONFLICT_ERR,
         true,
-    );
+    ));
 }
 
 #[test]
 fn conflict_output_rev() {
-    utils::compare_output(
+    assert!(utils::compare_output(
+        utils::complex_app(),
+        "clap-test val1 fa -F --long-option-2 val2 --flag",
+        CONFLICT_ERR_REV,
+        true,
+    ));
+}
+
+#[test]
+fn conflict_output_with_required() {
+    assert!(utils::compare_output(
+        utils::complex_app(),
+        "clap-test val1 --flag --long-option-2 val2 -F",
+        CONFLICT_ERR,
+        true,
+    ));
+}
+
+#[test]
+fn conflict_output_rev_with_required() {
+    assert!(utils::compare_output(
         utils::complex_app(),
         "clap-test val1 -F --long-option-2 val2 --flag",
         CONFLICT_ERR_REV,
         true,
-    );
+    ));
+}
+
+#[test]
+fn conflict_output_three_conflicting() {
+    let app = App::new("three_conflicting_arguments")
+        .arg(
+            Arg::new("one")
+                .long("one")
+                .conflicts_with_all(&["two", "three"]),
+        )
+        .arg(
+            Arg::new("two")
+                .long("two")
+                .conflicts_with_all(&["one", "three"]),
+        )
+        .arg(
+            Arg::new("three")
+                .long("three")
+                .conflicts_with_all(&["one", "two"]),
+        );
+    assert!(utils::compare_output(
+        app,
+        "three_conflicting_arguments --one --two --three",
+        CONFLICT_ERR_THREE,
+        true,
+    ));
 }
 
 #[test]
@@ -137,13 +190,13 @@ fn two_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--develop\' cannot be used with \'--production\'"
+        "The argument \'--production\' cannot be used with \'--develop\'"
     );
 }
 
 #[test]
 fn three_conflicting_arguments() {
-    let a = App::new("two_conflicting_arguments")
+    let a = App::new("three_conflicting_arguments")
         .arg(
             Arg::new("one")
                 .long("one")
@@ -165,7 +218,7 @@ fn three_conflicting_arguments() {
     let a = a.unwrap_err();
     assert_eq!(
         a.cause,
-        "The argument \'--one\' cannot be used with \'--two\'"
+        "The argument \'--two\' cannot be used with \'--one\'"
     );
 }
 

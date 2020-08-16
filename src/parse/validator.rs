@@ -168,16 +168,51 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Ok(())
     }
 
+    fn build_conflict_err_usage(
+        &self,
+        matcher: &ArgMatcher,
+        retained_arg: &Arg,
+        conflicting_key: &Id,
+    ) -> String {
+        let retained_blacklist = &retained_arg.blacklist;
+        let used_filtered: Vec<Id> = matcher
+            .arg_names()
+            .filter(|key| *key != conflicting_key)
+            .filter(|key| !retained_blacklist.contains(key))
+            .cloned()
+            .collect();
+        let required: Vec<Id> = used_filtered
+            .iter()
+            .filter_map(|key| self.p.app.find(key))
+            .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
+            .filter(|item| !used_filtered.contains(item))
+            .filter(|key| *key != conflicting_key)
+            .filter(|key| !retained_blacklist.contains(key))
+            .chain(used_filtered.iter())
+            .cloned()
+            .collect();
+        Usage::new(self.p).create_usage_with_title(&required)
+    }
+
     fn build_conflict_err(&self, name: &Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::build_conflict_err: name={:?}", name);
-        let usg = Usage::new(self.p).create_usage_with_title(&[]);
-        if let Some(other_arg) = self.p.app.find(name) {
+        if let Some(checked_arg) = self.p.app.find(name) {
             for k in matcher.arg_names() {
                 if let Some(a) = self.p.app.find(k) {
                     if a.blacklist.contains(&name) {
+                        let (_former, former_arg, latter, latter_arg) = {
+                            let name_pos = matcher.arg_names().position(|key| key == name);
+                            let k_pos = matcher.arg_names().position(|key| key == k);
+                            if name_pos < k_pos {
+                                (name, checked_arg, k, a)
+                            } else {
+                                (k, a, name, checked_arg)
+                            }
+                        };
+                        let usg = self.build_conflict_err_usage(matcher, former_arg, latter);
                         return Err(Error::argument_conflict(
-                            a,
-                            Some(other_arg.to_string()),
+                            latter_arg,
+                            Some(former_arg.to_string()),
                             &*usg,
                             self.p.app.color(),
                         )?);
@@ -185,6 +220,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             }
         } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == *name) {
+            let usg = Usage::new(self.p).create_usage_with_title(&[]);
             let args_in_group = self.p.app.unroll_args_in_group(&g.id);
             let first = matcher
                 .arg_names()
