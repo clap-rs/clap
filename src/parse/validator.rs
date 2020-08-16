@@ -168,7 +168,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Ok(())
     }
 
-    fn _build_conflict_err_usage(
+    fn build_conflict_err_usage(
         &self,
         matcher: &ArgMatcher,
         retained_arg: &Arg,
@@ -209,7 +209,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                                 (k, a, name, checked_arg)
                             }
                         };
-                        let usg = self._build_conflict_err_usage(matcher, former_arg, latter);
+                        let usg = self.build_conflict_err_usage(matcher, former_arg, latter);
                         return Err(Error::argument_conflict(
                             former_arg,
                             Some(latter_arg.to_string()),
