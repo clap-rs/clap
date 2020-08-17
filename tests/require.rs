@@ -199,25 +199,28 @@ fn issue_753() {
         ))
         .arg(
             Arg::from("-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'")
-                .required_unless("list"),
+                .required_unless_present("list"),
         )
         .arg(
             Arg::from("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
                 .conflicts_with("iface")
-                .required_unless("list"),
+                .required_unless_present("list"),
         )
-        .arg(Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'").required_unless("list"))
+        .arg(
+            Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
+                .required_unless_present("list"),
+        )
         .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .try_get_matches_from(vec!["test", "--list"]);
     assert!(m.is_ok());
 }
 
 #[test]
-fn required_unless() {
+fn required_unless_present() {
     let res = App::new("unlesstest")
         .arg(
             Arg::new("cfg")
-                .required_unless("dbg")
+                .required_unless_present("dbg")
                 .takes_value(true)
                 .long("config"),
         )
@@ -235,7 +238,7 @@ fn required_unless_err() {
     let res = App::new("unlesstest")
         .arg(
             Arg::new("cfg")
-                .required_unless("dbg")
+                .required_unless_present("dbg")
                 .takes_value(true)
                 .long("config"),
         )
@@ -249,11 +252,11 @@ fn required_unless_err() {
 // REQUIRED_UNLESS_ALL
 
 #[test]
-fn required_unless_all() {
+fn required_unless_eq_all() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_all(&["dbg", "infile"])
+                .required_unless_eq_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -273,7 +276,7 @@ fn required_unless_all_err() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_all(&["dbg", "infile"])
+                .required_unless_eq_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -288,11 +291,11 @@ fn required_unless_all_err() {
 // REQUIRED_UNLESS_ONE
 
 #[test]
-fn required_unless_one() {
+fn required_unless_eq_any() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_one(&["dbg", "infile"])
+                .required_unless_eq_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -307,13 +310,13 @@ fn required_unless_one() {
 }
 
 #[test]
-fn required_unless_one_2() {
-    // This tests that the required_unless_one works when the second arg in the array is used
+fn required_unless_any_2() {
+    // This tests that the required_unless_eq_any works when the second arg in the array is used
     // instead of the first.
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_one(&["dbg", "infile"])
+                .required_unless_eq_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -328,48 +331,48 @@ fn required_unless_one_2() {
 }
 
 #[test]
-fn required_unless_one_works_with_short() {
+fn required_unless_any_works_with_short() {
     // GitHub issue: https://github.com/kbknapp/clap-rs/issues/1135
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").short('x').required_unless_one(&["a", "b"]))
+        .arg(Arg::new("x").short('x').required_unless_eq_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
 
 #[test]
-fn required_unless_one_works_with_short_err() {
+fn required_unless_any_works_with_short_err() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").short('x').required_unless_one(&["a", "b"]))
+        .arg(Arg::new("x").short('x').required_unless_eq_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone"]);
 
     assert!(!res.is_ok());
 }
 
 #[test]
-fn required_unless_one_works_without() {
+fn required_unless_any_works_without() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").required_unless_one(&["a", "b"]))
+        .arg(Arg::new("x").required_unless_eq_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
 }
 
 #[test]
-fn required_unless_one_works_with_long() {
+fn required_unless_any_works_with_long() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
         .arg(
             Arg::new("x")
                 .long("x_is_the_option")
-                .required_unless_one(&["a", "b"]),
+                .required_unless_eq_any(&["a", "b"]),
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
@@ -377,11 +380,11 @@ fn required_unless_one_works_with_long() {
 }
 
 #[test]
-fn required_unless_one_1() {
+fn required_unless_any_1() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_one(&["dbg", "infile"])
+                .required_unless_eq_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -397,11 +400,11 @@ fn required_unless_one_1() {
 }
 
 #[test]
-fn required_unless_one_err() {
+fn required_unless_any_err() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_one(&["dbg", "infile"])
+                .required_unless_eq_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -496,7 +499,7 @@ fn required_if_val_present_pass() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -511,7 +514,7 @@ fn required_if_val_present_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -578,7 +581,7 @@ fn required_if_val_present_fail_error_output() {
         .arg(
             Arg::new("output")
                 .takes_value(true)
-                .required_if("target", "file")
+                .required_if_eq("target", "file")
                 .long("output"),
         );
 
@@ -595,7 +598,7 @@ fn required_if_wrong_val() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .takes_value(true)
                 .long("config"),
         )
@@ -610,7 +613,7 @@ fn required_ifs_val_present_pass() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -626,7 +629,7 @@ fn required_ifs_val_present_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -643,7 +646,7 @@ fn required_ifs_wrong_val() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -659,7 +662,7 @@ fn required_ifs_wrong_val_mult_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
-                .required_ifs(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val"), ("option", "spec")])
                 .takes_value(true)
                 .long("config"),
         )
@@ -781,12 +784,12 @@ fn issue_1158_app() -> App<'static> {
     App::new("example")
         .arg(
             Arg::from("-c, --config [FILE] 'Custom config file.'")
-                .required_unless("ID")
+                .required_unless_present("ID")
                 .conflicts_with("ID"),
         )
         .arg(
             Arg::from("[ID] 'ID'")
-                .required_unless("config")
+                .required_unless_present("config")
                 .conflicts_with("config")
                 .requires_all(&["x", "y", "z"]),
         )
@@ -858,12 +861,12 @@ fn requires_if_invalid_arg() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument or group 'extra' specified in 'required_if*' for 'config' does not exist"]
+#[should_panic = "Argument or group 'extra' specified in 'required_if_eq*' for 'config' does not exist"]
 fn required_if_invalid_arg() {
     let _ = App::new("prog")
         .arg(
             Arg::new("config")
-                .required_if("extra", "val")
+                .required_if_eq("extra", "val")
                 .long("config"),
         )
         .try_get_matches_from(vec!["", "--config"]);
@@ -874,6 +877,10 @@ fn required_if_invalid_arg() {
 #[should_panic = "Argument or group 'extra' specified in 'required_unless*' for 'config' does not exist"]
 fn required_unless_invalid_arg() {
     let _ = App::new("prog")
-        .arg(Arg::new("config").required_unless("extra").long("config"))
+        .arg(
+            Arg::new("config")
+                .required_unless_present("extra")
+                .long("config"),
+        )
         .try_get_matches_from(vec![""]);
 }

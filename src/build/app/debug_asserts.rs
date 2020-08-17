@@ -138,7 +138,7 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.r_ifs {
             assert!(
                 app.id_exists(&req.0),
-                "Argument or group '{:?}' specified in 'required_if*' for '{}' does not exist",
+                "Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
                 req.0,
                 arg.name
             );
