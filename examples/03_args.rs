@@ -41,7 +41,6 @@ fn main() {
                 .long("config"),
             Arg::new("input")
                 .about("the input file to use")
-                .index(1)
                 .required(true),
         ])
         // *Note* the following two examples are convenience methods, if you wish
