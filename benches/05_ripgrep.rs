@@ -315,7 +315,7 @@ where
         .arg(flag("help"))
         .arg(flag("version").short('V'))
         // First, set up primary positional/flag arguments.
-        .arg(arg("pattern").required_unless_one(&[
+        .arg(arg("pattern").required_unless_eq_any(&[
             "file",
             "files",
             "help-short",
