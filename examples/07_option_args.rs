@@ -33,9 +33,8 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        // NOTE: In order to compile this example, comment out conflicts_with()
-        // and requires() because we have not defined an "output" or "config"
-        // argument.
+        .arg("-c, --config=[FILE] 'the config file to use'")
+        .arg("<output> 'the output file to use'")
         .get_matches();
 
     // We can find out whether or not "input" was used

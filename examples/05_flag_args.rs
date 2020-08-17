@@ -29,9 +29,8 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        // NOTE: In order to compile this example, comment out requires() and
-        // conflicts_with() because we have not defined an "output" or "config"
-        // argument.
+        .arg("-c, --config=[FILE] 'sets a custom config file'")
+        .arg("<output> 'sets an output file'")
         .get_matches();
 
     // We can find out whether or not awesome was used
