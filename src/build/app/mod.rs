@@ -422,7 +422,7 @@ impl<'help> App<'help> {
     /// or version messages.
     ///
     /// **Pro-tip:** This function is particularly useful when configuring a
-    /// program via [`App::from_yaml`] in conjunction with the [`crate_name!`]
+    /// program via `App::from(yaml)` in conjunction with the [`crate_name!`]
     /// macro to derive the program's name from its `Cargo.toml`.
     ///
     /// # Examples
@@ -436,7 +436,6 @@ impl<'help> App<'help> {
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
     ///
-    /// [`App::from_yaml`]: ./struct.App.html#method.from_yaml
     /// [`crate_name!`]: ./macro.crate_name.html
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
         self.name = name.into();
