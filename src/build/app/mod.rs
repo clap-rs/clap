@@ -109,36 +109,38 @@ pub struct App<'help> {
 }
 
 impl<'help> App<'help> {
-    /// Get the name of the app
+    /// Get the name of the app.
     #[inline]
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
-    /// Get the short flag of the subcommand
+    /// Get the short flag of the subcommand.
     #[inline]
     pub fn get_short_flag(&self) -> Option<char> {
         self.short_flag
     }
 
-    /// Get the long flag of the subcommand
+    /// Get the long flag of the subcommand.
     #[inline]
     pub fn get_long_flag(&self) -> Option<&str> {
         self.long_flag
     }
 
-    /// Get the name of the binary
+    /// Get the name of the binary.
     #[inline]
     pub fn get_bin_name(&self) -> Option<&str> {
         self.bin_name.as_deref()
     }
 
-    /// Set binary name. Uses `&mut self` instead of `self`
+    /// Set binary name. Uses `&mut self` instead of `self`.
     pub fn set_bin_name<S: Into<String>>(&mut self, name: S) {
         self.bin_name = Some(name.into());
     }
 
-    /// Get the help message specified via [`App::about`]
+    /// Get the help message specified via [`App::about`].
+    ///
+    /// [`App::about`]: ./struct.App.html#method.about
     #[inline]
     pub fn get_about(&self) -> Option<&str> {
         self.about.as_deref()
@@ -198,7 +200,7 @@ impl<'help> App<'help> {
         self.subcommands.iter_mut()
     }
 
-    /// Iterate through the set of arguments
+    /// Iterate through the set of arguments.
     #[inline]
     pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.args.args.iter()
@@ -224,12 +226,12 @@ impl<'help> App<'help> {
             .filter(|a| a.get_help_heading().is_none())
     }
 
-    /// Get a list of all arguments the given argument conflicts with
+    /// Get a list of all arguments the given argument conflicts with.
     ///
     /// ### Panics
     ///
     /// If the given arg contains a conflict with an argument that is unknown to
-    /// this `App`
+    /// this `App`.
     pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
         arg.blacklist
@@ -244,8 +246,9 @@ impl<'help> App<'help> {
     }
 
     /// Returns `true` if the given [`AppSettings`] variant is currently set in
-    /// this `App` (checks both [local] and [global settings])
+    /// this `App` (checks both [local] and [global settings]).
     ///
+    /// [`AppSettings`]: ./enum.AppSettings.html
     /// [local]: ./struct.App.html#method.setting
     /// [global settings]: ./struct.App.html#method.global_setting
     #[inline]
@@ -253,7 +256,7 @@ impl<'help> App<'help> {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
-    /// Returns `true` if this `App` has subcommands
+    /// Returns `true` if this `App` has subcommands.
     #[inline]
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
@@ -279,7 +282,7 @@ impl<'help> App<'help> {
     /// An `App` represents a command line interface (CLI) which is made up of
     /// all possible command line arguments and subcommands. "Subcommands" are
     /// sub-CLIs with their own arguments, settings, and even subcommands
-    /// forming a sort of heirarchy.
+    /// forming a sort of hierarchy.
     ///
     /// # Examples
     ///
@@ -363,7 +366,7 @@ impl<'help> App<'help> {
     /// help message.
     ///
     /// **NOTE:** Only [`App::about`] (short format) is used in completion
-    /// script generation in order to be concise
+    /// script generation in order to be concise.
     ///
     /// # Examples
     ///
@@ -373,8 +376,9 @@ impl<'help> App<'help> {
     ///     .about("Does really amazing things for great people")
     /// # ;
     /// ```
-    /// [`long format`]: ./struct.App.html#method.long_about
-    /// [`short format`]: ./struct.App.html#method.about
+    /// [long format]: ./struct.App.html#method.long_about
+    /// [short format]: ./struct.App.html#method.about
+    /// [`App::about`]: ./struct.App.html#method.about
     pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.about = Some(about.into());
         self
@@ -393,7 +397,7 @@ impl<'help> App<'help> {
     /// format help message.
     ///
     /// **NOTE:** Only [`App::about`] (short format) is used in completion
-    /// script generation in order to be concise
+    /// script generation in order to be concise.
     ///
     /// # Examples
     ///
@@ -406,8 +410,9 @@ impl<'help> App<'help> {
     ///  a few lines of text, but that's ok!")
     /// # ;
     /// ```
-    /// [`long format`]: ./struct.App.html#method.long_about
-    /// [`short format`]: ./struct.App.html#method.about
+    /// [long format]: ./struct.App.html#method.long_about
+    /// [short format]: ./struct.App.html#method.about
+    /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.long_about = Some(about.into());
         self
@@ -417,7 +422,7 @@ impl<'help> App<'help> {
     /// or version messages.
     ///
     /// **Pro-tip:** This function is particularly useful when configuring a
-    /// program via [`App::from_yaml`] in conjunction with the [`crate_name!`]
+    /// program via `App::from(yaml)` in conjunction with the [`crate_name!`]
     /// macro to derive the program's name from its `Cargo.toml`.
     ///
     /// # Examples
@@ -431,7 +436,6 @@ impl<'help> App<'help> {
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
     ///
-    /// [`App::from`]: ./struct.App.html#method.from
     /// [`crate_name!`]: ./macro.crate_name.html
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
         self.name = name.into();
@@ -443,7 +447,7 @@ impl<'help> App<'help> {
     /// arguments, caveats to be noted, or license and contact information.
     ///
     /// **NOTE:** If only `after_long_help` is provided, and not [`App::after_help`] but the user requests
-    /// `-h` clap will still display the contents of `after_help` appropriately
+    /// `-h` clap will still display the contents of `after_help` appropriately.
     ///
     /// # Examples
     ///
@@ -453,6 +457,8 @@ impl<'help> App<'help> {
     ///     .after_help("Does really amazing things for great people... but be careful with -R!")
     /// # ;
     /// ```
+    ///
+    /// [`App::after_help`]: ./struct.App.html#method.after_help
     pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_help = Some(help.into());
         self
@@ -460,11 +466,11 @@ impl<'help> App<'help> {
 
     /// Adds additional help information to be displayed in addition to auto-generated help. This
     /// information is displayed **after** the auto-generated help information and is meant to be
-    /// more verbose than `after_help`. This is often used for man pages.. This is often used
-    /// to describe how to use the arguments, or caveats to be noted in man pages.
+    /// more verbose than `after_help`. This is often used to describe how to use the arguments, or
+    /// caveats to be noted in man pages.
     ///
-    /// **NOTE:** If only `after_help` is provided, and not [`App::after_long_help`] but the user requests
-    /// `--help`, clap will still display the contents of `after_help` appropriately
+    /// **NOTE:** If only `after_help` is provided, and not [`App::after_long_help`] but the user
+    /// requests `--help`, clap will still display the contents of `after_help` appropriately.
     ///
     /// # Examples
     ///
@@ -475,6 +481,7 @@ impl<'help> App<'help> {
     ///                      like, for real, be careful with this!")
     /// # ;
     /// ```
+    /// [`App::after_long_help`]: ./struct.App.html#method.after_long_help
     pub fn after_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_long_help = Some(help.into());
         self
@@ -484,8 +491,8 @@ impl<'help> App<'help> {
     /// auto-generated help. This is often used for header, copyright, or
     /// license information.
     ///
-    /// **NOTE:** If only `before_long_help` is provided, and not [`App::before_help`] but the user requests
-    /// `-h` clap will still display the contents of `before_long_help` appropriately
+    /// **NOTE:** If only `before_long_help` is provided, and not [`App::before_help`] but the user
+    /// requests `-h` clap will still display the contents of `before_long_help` appropriately.
     ///
     /// # Examples
     ///
@@ -495,6 +502,7 @@ impl<'help> App<'help> {
     ///     .before_help("Some info I'd like to appear before the help info")
     /// # ;
     /// ```
+    /// [`App::before_help`]: ./struct.App.html#method.before_help
     pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
         self
@@ -504,8 +512,8 @@ impl<'help> App<'help> {
     /// auto-generated help. This is often used for header, copyright, or
     /// license information.
     ///
-    /// **NOTE:** If only `before_help` is provided, and not [`App::before_long_help`] but the user requests
-    /// `--help`, clap will still display the contents of `before_help` appropriately
+    /// **NOTE:** If only `before_help` is provided, and not [`App::before_long_help`] but the user
+    /// requests `--help`, clap will still display the contents of `before_help` appropriately.
     ///
     /// # Examples
     ///
@@ -515,12 +523,13 @@ impl<'help> App<'help> {
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
     /// # ;
     /// ```
+    /// [`App::before_long_help`]: ./struct.App.html#method.before_long_help
     pub fn before_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_long_help = Some(help.into());
         self
     }
 
-    /// Allows the subcommand to be used as if it were an [`Arg::short`]
+    /// Allows the subcommand to be used as if it were an [`Arg::short`].
     ///
     /// Sets the short version of the subcommand flag without the preceding `-`.
     ///
@@ -543,22 +552,23 @@ impl<'help> App<'help> {
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
     /// assert!(sync_matches.is_present("search"));
     /// ```
+    /// [`Arg::short`]: ./struct.Arg.html#method.short
     pub fn short_flag(mut self, short: char) -> Self {
         self.short_flag = Some(short);
         self
     }
 
-    /// Allows the subcommand to be used as if it were an [`Arg::long`]
+    /// Allows the subcommand to be used as if it were an [`Arg::long`].
     ///
     /// Sets the long version of the subcommand flag without the preceding `--`.
     ///
-    /// **NOTE:** Any leading `-` characters will be stripped
+    /// **NOTE:** Any leading `-` characters will be stripped.
     ///
     /// # Examples
     ///
     /// To set `long_flag` use a word containing valid UTF-8 codepoints. If you supply a double leading
     /// `--` such as `--sync` they will be stripped. Hyphens in the middle of the word; however,
-    /// will *not* be stripped (i.e. `sync-file` is allowed)
+    /// will *not* be stripped (i.e. `sync-file` is allowed).
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -577,18 +587,20 @@ impl<'help> App<'help> {
     /// let sync_matches = matches.subcommand_matches("sync").unwrap();
     /// assert!(sync_matches.is_present("search"));
     /// ```
+    ///
+    /// [`Arg::long`]: ./struct.Arg.html#method.long
     pub fn long_flag(mut self, long: &'help str) -> Self {
         self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
         self
     }
 
     /// Sets a string of the version number to be displayed when displaying the
-    /// short format version message (`-V`) or the help message
+    /// short format version message (`-V`) or the help message.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to
     /// automatically set your application's version to the same thing as your
     /// crate at compile time. See the [`examples/`] directory for more
-    /// information
+    /// information.
     ///
     /// `clap` can display two different version messages, a [long format] and a
     /// [short format] depending on whether the user used `-V` (short) or
@@ -614,16 +626,16 @@ impl<'help> App<'help> {
     }
 
     /// Sets a string of the version number to be displayed when the user
-    /// requets the long format version message (`--version`) or the help
+    /// requests the long format version message (`--version`) or the help
     /// message.
     ///
     /// This is often used to display things such as commit ID, or compile time
-    /// configured options
+    /// configured options.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to
     /// automatically set your application's version to the same thing as your
     /// crate at compile time. See the [`examples/`] directory for more
-    /// information
+    /// information.
     ///
     /// `clap` can display two different version messages, a [long format] and a
     /// [short format] depending on whether the user used `-V` (short) or
@@ -681,7 +693,7 @@ impl<'help> App<'help> {
     /// Overrides the `clap` generated help message. This should only be used
     /// when the auto-generated message does not suffice.
     ///
-    /// This will be displayed to the user when they use `--help` or `-h`
+    /// This will be displayed to the user when they use `--help` or `-h`.
     ///
     /// **NOTE:** This replaces the **entire** help message, so nothing will be
     /// auto-generated.
@@ -839,7 +851,7 @@ impl<'help> App<'help> {
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
     /// **NOTE:** The setting being unset will be unset from both local and
-    /// [global] settings
+    /// [global] settings.
     ///
     /// # Examples
     ///
@@ -951,12 +963,16 @@ impl<'help> App<'help> {
     }
 
     /// Set a custom section heading for future args. Every call to [`App::arg`]
-    /// (and it's related methods) will use this header (instead of the default
+    /// (and its related methods) will use this header (instead of the default
     /// header for the specified argument type) until a subsequent call to
-    /// [`App::`help_heading`] or [`App::stop_custom_headings`]
+    /// [`App::help_heading`] or [`App::stop_custom_headings`].
     ///
     /// This is useful if the default `FLAGS`, `OPTIONS`, or `ARGS` headings are
     /// not specific enough for one's use case.
+    ///
+    /// [`App::arg`]: ./struct.App.html#method.arg
+    /// [`App::help_heading`]: ./struct.App.html#method.help_heading
+    /// [`App::stop_custom_headings`]: ./struct.App.html#method.stop_custom_headings
     #[inline]
     pub fn help_heading(mut self, heading: &'help str) -> Self {
         self.current_help_heading = Some(heading);
@@ -1007,7 +1023,7 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
     /// message. If you're looking for aliases that will be displayed in the help
-    /// message, see [`App::visible_alias`]
+    /// message, see [`App::visible_alias`].
     ///
     /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
@@ -1023,7 +1039,8 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`ArgMathes`]: ./struct.ArgMatches.html
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [`App::visible_alias`]: ./struct.App.html#method.visible_alias
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), false));
         self
@@ -1080,7 +1097,7 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
     /// message. If looking for aliases that will be displayed in the help
-    /// message, see [`App::visible_aliases`]
+    /// message, see [`App::visible_aliases`].
     ///
     /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
@@ -1100,6 +1117,8 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "do-tests"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [`App::visible_aliases`]: ./struct.App.html#method.visible_aliases
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, false)));
         self
@@ -1169,7 +1188,7 @@ impl<'help> App<'help> {
     /// **NOTE:** The alias defined with this method is *visible* from the help
     /// message and displayed as if it were just another regular subcommand. If
     /// looking for an alias that will not be displayed in the help message, see
-    /// [`App::alias`]
+    /// [`App::alias`].
     ///
     /// **NOTE:** When using aliases and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
@@ -1185,6 +1204,7 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [`App::alias`]: ./struct.App.html#method.alias
     pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), true));
@@ -1241,9 +1261,9 @@ impl<'help> App<'help> {
     /// **NOTE:** The alias defined with this method is *visible* from the help
     /// message and displayed as if it were just another regular subcommand. If
     /// looking for an alias that will not be displayed in the help message, see
-    /// [`App::alias`]
+    /// [`App::alias`].
     ///
-    /// **NOTE:** When using aliases, and checking for the existance of a
+    /// **NOTE:** When using aliases, and checking for the existence of a
     /// particular subcommand within an [`ArgMatches`] struct, one only needs to
     /// search for the original name and not all aliases.
     ///
@@ -1257,7 +1277,8 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`App::aliases`]: ./struct.App.html#method.aliases
+    /// [`ArgMatches`]: ./struct.ArgMatches.html
+    /// [`App::alias`]: ./struct.App.html#method.alias
     pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
@@ -1300,7 +1321,7 @@ impl<'help> App<'help> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`App::short_flag_aliases`]: ./struct.App.html#method.short_flag_aliases
+    /// [`App::long_flag_aliases`]: ./struct.App.html#method.long_flag_aliases
     pub fn visible_long_flag_aliases(mut self, names: &[&'help str]) -> Self {
         for s in names {
             self.long_flag_aliases.push((s, true));
@@ -1334,7 +1355,7 @@ impl<'help> App<'help> {
     /// dispatch to `app module install` handling code. This is error prone and
     /// tedious.
     ///
-    /// We could instead use `App::replace` so that, when the user types `app
+    /// We could instead use [`App::replace`] so that, when the user types `app
     /// install`, `clap` will replace `install` with `module install` which will
     /// end up getting parsed as if the user typed the entire incantation.
     ///
@@ -1350,7 +1371,7 @@ impl<'help> App<'help> {
     /// assert!(m.subcommand_matches("module").unwrap().subcommand_matches("install").is_some());
     /// ```
     ///
-    /// Now let's show an argument exmaple!
+    /// Now let's show an argument example!
     ///
     /// Let's assume we have an application with two flags `--save-context` and
     /// `--save-runtime`. But often users end up needing to do *both* at the
@@ -1365,7 +1386,7 @@ impl<'help> App<'help> {
     /// and we forgot to update that code to *also* check `--save-all` it'd mean
     /// an error!
     ///
-    /// Luckily we can use `App::replace` so that when the user types
+    /// Luckily we can use [`App::replace`] so that when the user types
     /// `--save-all`, `clap` will replace that argument with `--save-context
     /// --save-runtime`, and parsing will continue like normal. Now all our code
     /// that was originally checking for things like `--save-context` doesn't
@@ -1409,6 +1430,8 @@ impl<'help> App<'help> {
     /// assert!(m.is_present("save-runtime"));
     /// assert_eq!(m.value_of("format"), Some("json"));
     /// ```
+    ///
+    /// [`App::replace`]: ./struct.App.html#method.replace
     #[inline]
     pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
         self.replacers.insert(name, target);
@@ -1428,7 +1451,7 @@ impl<'help> App<'help> {
     /// of determining exactly which argument was used.
     ///
     /// Finally, using [`ArgGroup`]s to ensure exclusion between arguments is another very common
-    /// use
+    /// use.
     ///
     /// # Examples
     ///
@@ -1485,7 +1508,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Adds a [``] to the list of valid possibilities. Subcommands are effectively
+    /// Adds a subcommand to the list of valid possibilities. Subcommands are effectively
     /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
     /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
     /// version, and usage.
@@ -1500,7 +1523,6 @@ impl<'help> App<'help> {
     ///         .arg("<config> 'Required configuration file to use'"))
     /// # ;
     /// ```
-    /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
     #[inline]
     pub fn subcommand(mut self, subcmd: App<'help>) -> Self {
@@ -1509,7 +1531,7 @@ impl<'help> App<'help> {
     }
 
     /// Adds multiple subcommands to the list of valid possibilities by iterating over an
-    /// [`IntoIterator`] of [``]s
+    /// [`IntoIterator`] of [`App`]s.
     ///
     /// # Examples
     ///
@@ -1522,7 +1544,7 @@ impl<'help> App<'help> {
     ///        App::new("debug").about("Controls debug functionality")])
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    /// [`App`]: ./struct.App.html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
     pub fn subcommands<I>(mut self, subcmds: I) -> Self
     where
@@ -1534,9 +1556,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows custom ordering of [``]s within the help message. Subcommands with a lower
+    /// Allows custom ordering of subcommands within the help message. Subcommands with a lower
     /// value will be displayed first in the help message. This is helpful when one would like to
-    /// emphasise frequently used subcommands, or prioritize those towards the top of the list.
+    /// emphasize frequently used subcommands, or prioritize those towards the top of the list.
     /// Duplicate values **are** allowed. Subcommands with duplicate display orders will be
     /// displayed in alphabetical order.
     ///
@@ -1580,14 +1602,13 @@ impl<'help> App<'help> {
     ///     beta    I should be first!
     ///     alpha   Some help and text
     /// ```
-    /// [``]: ./struct..html
     #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
         self
     }
 
-    /// Allows one to mutate an [`Arg`] after it's been added to an `App`.
+    /// Allows one to mutate an [`Arg`] after it's been added to an [`App`].
     ///
     /// # Examples
     ///
@@ -1610,6 +1631,7 @@ impl<'help> App<'help> {
     /// assert!(res.is_ok());
     /// ```
     /// [`Arg`]: ./struct.Arg.html
+    /// [`App`]: ./struct.App.html
     pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
     where
         F: FnOnce(Arg<'help>) -> Arg<'help>,
@@ -1628,10 +1650,10 @@ impl<'help> App<'help> {
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
-    /// method as if someone ran `-h` to request the help message
+    /// method as if someone ran `-h` to request the help message.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
     ///
     /// # Examples
     ///
@@ -1656,10 +1678,10 @@ impl<'help> App<'help> {
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
-    /// method as if someone ran `--help` to request the help message
+    /// method as if someone ran `--help` to request the help message.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
     ///
     /// # Examples
     ///
@@ -1684,10 +1706,10 @@ impl<'help> App<'help> {
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
-    /// the user ran `-h`
+    /// the user ran `-h`.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
     ///
     /// # Examples
     ///
@@ -1709,10 +1731,10 @@ impl<'help> App<'help> {
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
-    /// the user ran `--help`
+    /// the user ran `--help`.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)]
+    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
     ///
     /// # Examples
     ///
@@ -1736,7 +1758,7 @@ impl<'help> App<'help> {
     /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
-    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
     ///
     /// # Examples
     ///
@@ -1754,10 +1776,10 @@ impl<'help> App<'help> {
         self._write_version(w, false).map_err(From::from)
     }
 
-    /// Writes the version message to the user to a [`io::Write`] object
+    /// Writes the version message to the user to a [`io::Write`] object.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
-    /// depending on if the user ran [`-V` (short)] or [`--version` (long)]
+    /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
     ///
     /// # Examples
     ///
@@ -1777,7 +1799,7 @@ impl<'help> App<'help> {
 
     /// @TODO-v3-alpha @docs @p2: write docs
     pub fn generate_usage(&mut self) -> String {
-        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         if !self.settings.is_set(AppSettings::Built) {
             self._build();
@@ -1807,7 +1829,7 @@ impl<'help> App<'help> {
         self.get_matches_from(&mut env::args_os())
     }
 
-    /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`
+    /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`.
     ///
     /// # Examples
     ///
@@ -1843,7 +1865,7 @@ impl<'help> App<'help> {
     }
 
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
-    /// the process on failed parse. By default this method gets matches from [`env::args_os`]
+    /// the process on failed parse. By default this method gets matches from [`env::args_os`].
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a
@@ -1878,7 +1900,7 @@ impl<'help> App<'help> {
     /// what iterator to use when performing matches, such as a [`Vec`] of your making.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used
+    /// [`AppSettings::NoBinaryName`] is used.
     ///
     /// # Examples
     ///
@@ -1922,7 +1944,7 @@ impl<'help> App<'help> {
     }
 
     /// Starts the parsing process. A combination of [`App::get_matches_from`], and
-    /// [`App::try_get_matches`]
+    /// [`App::try_get_matches`].
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::DisplayHelp`]
@@ -1930,7 +1952,7 @@ impl<'help> App<'help> {
     /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used
+    /// [`AppSettings::NoBinaryName`] is used.
     ///
     /// # Examples
     ///
@@ -1966,7 +1988,7 @@ impl<'help> App<'help> {
     /// consume `self`.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
-    /// [`AppSettings::NoBinaryName`] is used
+    /// [`AppSettings::NoBinaryName`] is used.
     ///
     /// # Examples
     ///
@@ -2013,7 +2035,7 @@ impl<'help> App<'help> {
     }
 
     /// Sets the placeholder text used for subcommands when printing usage and help.
-    /// By default, this is "SUBCOMMAND" with a header of "SUBCOMMANDS"
+    /// By default, this is "SUBCOMMAND" with a header of "SUBCOMMANDS".
     ///
     /// # Examples
     ///
@@ -2086,7 +2108,7 @@ impl<'help> App<'help> {
         debug!("App::_do_parse");
         let mut matcher = ArgMatcher::default();
 
-        // If there are global arguments, or settings we need to propgate them down to subcommands
+        // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         if !self.settings.is_set(AppSettings::Built) {
             self._build();
