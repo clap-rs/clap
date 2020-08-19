@@ -3,7 +3,7 @@ use std::ffi::OsStr;
 use std::fs;
 use std::process::{Command, Output};
 
-fn run_example<'a, S: AsRef<str>>(name: S, args: &[&str]) -> Output {
+fn run_example<S: AsRef<str>>(name: S, args: &[&str]) -> Output {
     let mut all_args = vec![
         "run",
         "--example",
