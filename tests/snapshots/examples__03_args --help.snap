@@ -1,0 +1,23 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 
+
+USAGE:
+    03_args [FLAGS] [OPTIONS] <input> [output]
+
+ARGS:
+    <input>     the input file to use
+    <output>    Supply an output file to use
+
+FLAGS:
+    -d               turn on debugging information
+    -h, --help       Prints help information
+        --license    display the license file
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --config <config>    sets the config file to use
+    -i, --int <IFACE>        Set an interface to use
+

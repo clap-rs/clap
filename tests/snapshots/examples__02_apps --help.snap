@@ -1,0 +1,15 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 1.0
+Kevin K. <kbknapp@gmail.com>
+Does awesome things
+
+USAGE:
+    02_apps
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+

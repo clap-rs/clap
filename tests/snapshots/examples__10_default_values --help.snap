@@ -1,0 +1,20 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+does awesome things
+
+USAGE:
+    10_default_values [OPTIONS] [INPUT]
+
+ARGS:
+    <INPUT>    The input file to use [default: input.txt]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c <CONFIG>        The config file to use (default is "config.json")
+

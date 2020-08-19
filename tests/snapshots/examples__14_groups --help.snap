@@ -1,0 +1,24 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+
+USAGE:
+    14_groups [OPTIONS] <--set-ver <ver>|--major|--minor|--patch> [INPUT_FILE]
+
+ARGS:
+    <INPUT_FILE>    some regular input
+
+FLAGS:
+    -h, --help       Prints help information
+        --major      auto inc major
+        --minor      auto inc minor
+        --patch      auto inc patch
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c <config>                
+        --set-ver <ver>        set version manually
+        --spec-in <SPEC_IN>    some special input argument
+

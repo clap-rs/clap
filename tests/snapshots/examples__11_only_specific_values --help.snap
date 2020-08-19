@@ -1,0 +1,17 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+does awesome things
+
+USAGE:
+    11_only_specific_values <MODE>
+
+ARGS:
+    <MODE>    What mode to run the program in [possible values: fast, slow]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+

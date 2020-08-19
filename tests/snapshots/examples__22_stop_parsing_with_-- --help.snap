@@ -1,0 +1,20 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myprog 
+
+USAGE:
+    22_stop_parsing_with_-- [FLAGS] [OPTIONS] [-- <slop>...]
+
+ARGS:
+    <slop>...    
+
+FLAGS:
+    -f               
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -p <pea>        
+

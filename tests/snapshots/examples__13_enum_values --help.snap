@@ -1,0 +1,16 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+
+USAGE:
+    13_enum_values <type>
+
+ARGS:
+    <type>    The type to use [possible values: Foo, Bar, Baz, Qux]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+

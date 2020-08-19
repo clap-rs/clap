@@ -84,6 +84,7 @@ regex = "1.0"
 lazy_static = "1"
 version-sync = "0.8"
 criterion = "0.3.2"
+insta = "0.16.1"
 
 [features]
 default     = ["suggestions", "color", "derive", "std", "cargo"]

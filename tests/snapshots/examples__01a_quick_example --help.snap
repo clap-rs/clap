@@ -1,0 +1,26 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 1.0
+Kevin K. <kbknapp@gmail.com>
+Does awesome things
+
+USAGE:
+    01a_quick_example [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
+
+ARGS:
+    <output>    Sets an optional output file
+
+FLAGS:
+    -d               Turn debugging information on
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --config <FILE>    Sets a custom config file
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    does testing things
+

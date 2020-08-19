@@ -1,0 +1,29 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 1.0
+Alice
+Does awesome things
+
+USAGE:
+    18_builder_macro [OPTIONS] <input> --config <conf>... <output|-d <debug>...> <SUBCOMMAND>
+
+ARGS:
+    <input>     Input file
+    <output>    Sets an optional output file
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --config <conf>...                  Sets a custom config file
+    -d <debug>...                           Turn debugging information on
+        --proxy-hostname <proxyHostname>    Sets the hostname of the proxy to use
+
+SUBCOMMANDS:
+    foo     
+    help    Prints this message or the help of the given subcommand(s)
+    test    does testing things
+

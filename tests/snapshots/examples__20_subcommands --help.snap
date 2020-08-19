@@ -1,0 +1,21 @@
+---
+source: tests/examples.rs
+expression: help
+---
+git 1.0
+Me
+A fictional versioning CLI
+
+USAGE:
+    20_subcommands [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    add      adds things
+    clone    clones repos
+    help     Prints this message or the help of the given subcommand(s)
+    push     pushes things
+

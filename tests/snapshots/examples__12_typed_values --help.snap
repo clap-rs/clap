@@ -1,0 +1,19 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+
+USAGE:
+    12_typed_values [OPTIONS] <seq>...
+
+ARGS:
+    <seq>...    A sequence of whole positive numbers, i.e. 20 25 30
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l <len>        A length to use, defaults to 10 when omitted
+

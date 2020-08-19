@@ -1,0 +1,16 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+
+USAGE:
+    15_custom_validator <input>
+
+ARGS:
+    <input>    the input file to use
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+

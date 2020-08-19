@@ -1,0 +1,20 @@
+---
+source: tests/examples.rs
+expression: help
+---
+pacman 5.2.1
+Pacman Development Team
+package manager utility
+
+USAGE:
+    23_flag_subcommands_pacman <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    -Q, --query, query    Query the package database.
+    -S, --sync, sync      Synchronize packages.
+    help                  Prints this message or the help of the given subcommand(s)
+

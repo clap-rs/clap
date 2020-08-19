@@ -1,0 +1,20 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 
+
+USAGE:
+    05_flag_args [OPTIONS] <output>
+
+ARGS:
+    <output>    sets an output file
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -a, --awesome <awesome>...    turns up the awesome
+    -c, --config <FILE>           sets a custom config file
+

@@ -1,0 +1,14 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 3.0.0-beta.1
+does awesome things
+
+USAGE:
+    09_auto_version
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+

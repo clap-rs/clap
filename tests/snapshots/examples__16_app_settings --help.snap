@@ -1,0 +1,21 @@
+---
+source: tests/examples.rs
+expression: help
+---
+myapp 
+
+USAGE:
+    16_app_settings <input>
+    16_app_settings <SUBCOMMAND>
+
+ARGS:
+    <input>    input file to use
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    test    does some testing
+

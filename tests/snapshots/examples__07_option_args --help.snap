@@ -1,0 +1,20 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 
+
+USAGE:
+    07_option_args [OPTIONS] <output> --input <input>... --config <FILE>
+
+ARGS:
+    <output>    the output file to use
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --config <FILE>       the config file to use
+    -i, --input <input>...    the input file to use
+

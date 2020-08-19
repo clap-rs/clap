@@ -1,0 +1,30 @@
+---
+source: tests/examples.rs
+expression: help
+---
+yaml_app 1.0
+Kevin K. <kbknapp@gmail.com>
+an example using a .yaml file to build a CLI
+
+USAGE:
+    17_yaml [OPTIONS] [pos] [SUBCOMMAND]
+
+ARGS:
+    <pos>    example positional argument from yaml [possible values: fast, slow]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -F <flag>...                   demo flag argument
+        --max-vals <maxvals>...    you can only supply a max of 3 values for me!
+        --min-vals <minvals>...    you must supply at least two values to satisfy me
+        --mode <mode>              shows an option with specific values [possible values: vi, emacs]
+        --mult-vals <one> <two>    demos an option which has two named values
+    -o, --option <opt>...          example option argument from yaml
+
+SUBCOMMANDS:
+    help      Prints this message or the help of the given subcommand(s)
+    subcmd    demos subcommands from yaml
+

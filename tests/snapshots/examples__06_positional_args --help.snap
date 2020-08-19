@@ -1,0 +1,18 @@
+---
+source: tests/examples.rs
+expression: help
+---
+MyApp 
+
+USAGE:
+    06_positional_args <input> <config> [ARGS]
+
+ARGS:
+    <input>     the input file to use
+    <config>    the config file to use
+    <output>    the output file to use
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
