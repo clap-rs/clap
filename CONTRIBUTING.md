@@ -12,7 +12,7 @@ To test with all features both enabled and disabled, you can run these commands:
 $ cargo test --features "yaml unstable"
 ```
 
-Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
+Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. _Not_ using `just` is perfectly fine as well, it simply bundles commands automatically.
 
 For example, to test the code, as above simply run:
 
@@ -31,6 +31,17 @@ $ cargo test --test <test_name>
 
 $ just run-test <test_name>
 ```
+
+#### Snapshot Testing
+
+There are [snapshot tests](https://sqa.stackexchange.com/q/29696) for the [examples](../examples). If you've made a change that alters `clap`'s CLI output then you may need to update the snapshots. The friendliest way to do this is to install `cargo-insta` and interactively review the changes:
+
+```sh
+$ cargo install cargo-insta
+$ cargo insta test --review
+```
+
+For more details see [insta's documentation](https://docs.rs/insta).
 
 ### Linting Code
 
