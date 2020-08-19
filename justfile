@@ -24,6 +24,10 @@ run-tests:
 @bench:
 	cargo bench
 
+review-snapshots:
+	cargo install cargo-insta
+	cargo insta test --review
+
 @lint:
 	rustup component add clippy
 	rustup component add rustfmt
