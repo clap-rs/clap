@@ -57,16 +57,16 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -c, --config     
+    -c, --config
             Some help text describing the --config arg
 
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information
 
-    -v, --visible    
+    -v, --visible
             This text should be visible";
 
 /// Ensure hidden with short option
@@ -131,13 +131,13 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information
 
-    -v, --visible    
+    -v, --visible
             This text should be visible";
 
 #[test]
