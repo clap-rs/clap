@@ -15,6 +15,7 @@
     unused_allocation,
     trivial_numeric_casts
 )]
+#![forbid(unsafe_code)]
 #![allow(clippy::needless_doctest_main)]
 
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
