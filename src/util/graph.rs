@@ -25,13 +25,11 @@ where
     }
 
     pub(crate) fn insert(&mut self, req: T) -> usize {
-        if !self.contains(&req) {
+        self.0.iter().position(|e| e.id == req).unwrap_or_else(|| {
             let idx = self.0.len();
             self.0.push(Child::new(req));
             idx
-        } else {
-            self.0.iter().position(|e| e.id == req).unwrap()
-        }
+        })
     }
 
     pub(crate) fn insert_child(&mut self, parent: usize, child: T) -> usize {
