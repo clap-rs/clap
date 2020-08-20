@@ -111,10 +111,10 @@ USAGE:
     clap-test
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information
 
 
@@ -361,16 +361,16 @@ USAGE:
     prog [FLAGS]
 
 FLAGS:
-        --config     
+        --config
             The config file used by the myprog must be in JSON format
             with only valid keys and may not contain other nonsense
             that cannot be read by this program. Obviously I'm going on
             and on, so I'll stop now.
 
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information";
 
 static CUSTOM_VERSION_AND_HELP: &str = "customize 0.1
@@ -522,14 +522,14 @@ USAGE:
     myapp [arg1]
 
 ARGS:
-    <arg1>    
+    <arg1>
             some option
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information";
 
 static HIDE_ENV_VALS: &str = "ctest 0.1
@@ -1626,10 +1626,10 @@ USAGE:
     ctest foo
 
 FLAGS:
-    -h, --help       
+    -h, --help
             Prints help information
 
-    -V, --version    
+    -V, --version
             Prints version information";
 
 #[test]
