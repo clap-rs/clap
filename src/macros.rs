@@ -84,7 +84,8 @@ macro_rules! crate_authors {
             static ref CACHED: String = env!("CARGO_PKG_AUTHORS").replace(':', $sep);
         }
 
-        &*CACHED
+        let s: &'static str = &*CACHED;
+        s
     }};
     () => {
         env!("CARGO_PKG_AUTHORS")
