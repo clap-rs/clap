@@ -39,8 +39,8 @@ pub use yaml_rust::YamlLoader;
 #[cfg_attr(feature = "derive", doc(hidden))]
 pub use clap_derive::{self, *};
 
-#[cfg(feature = "derive")]
-#[cfg_attr(feature = "derive", doc(hidden))]
+#[cfg(any(feature = "derive", feature = "cargo"))]
+#[doc(hidden)]
 pub use lazy_static;
 
 #[macro_use]
