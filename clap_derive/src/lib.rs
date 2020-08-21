@@ -16,6 +16,8 @@
 //! directly. See [clap documentation](https://docs.rs/clap)
 //! for the usage of `#[derive(Clap)]`.
 
+#![forbid(unsafe_code)]
+
 extern crate proc_macro;
 
 use proc_macro::TokenStream;

@@ -17,6 +17,7 @@
     unused_allocation,
     trivial_numeric_casts
 )]
+#![forbid(unsafe_code)]
 
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
