@@ -2139,6 +2139,8 @@ impl<'help> App<'help> {
         // Make sure all the globally set flags apply to us as well
         self.settings = self.settings | self.g_settings;
 
+        self._propagate(Propagation::Full);
+
         self._derive_display_order();
         self._create_help_and_version();
 
@@ -2242,8 +2244,11 @@ impl<'help> App<'help> {
                     $sc.max_w = $_self.max_w;
                 }
                 {
+                    // FIXME: This doesn't belong here at all.
                     for a in $_self.args.args.iter().filter(|a| a.global) {
-                        $sc.args.push(a.clone());
+                        if $sc.find(&a.id).is_none() {
+                            $sc.args.push(a.clone());
+                        }
                     }
                 }
             }};

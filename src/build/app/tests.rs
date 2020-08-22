@@ -51,3 +51,13 @@ fn app_send_sync() {
     fn foo<T: Send + Sync>(_: T) {}
     foo(App::new("test"))
 }
+
+#[test]
+fn issue_2090() {
+    let mut app = App::new("app")
+        .global_setting(AppSettings::DisableVersion)
+        .subcommand(App::new("sub"));
+    app._build();
+
+    assert!(app.subcommands[0].is_set(AppSettings::DisableVersion));
+}
