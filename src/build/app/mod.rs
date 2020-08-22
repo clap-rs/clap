@@ -2220,6 +2220,12 @@ impl<'help> App<'help> {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }
 
+    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    #[doc(hidden)]
+    pub fn _full_propagate(&mut self) {
+        self._propagate(Propagation::Full)
+    }
+
     pub(crate) fn _propagate(&mut self, prop: Propagation) {
         macro_rules! propagate_subcmd {
             ($_self:expr, $sc:expr) => {{

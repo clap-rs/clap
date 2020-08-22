@@ -182,6 +182,7 @@ where
     app.set_bin_name(bin_name);
 
     if !app.is_set(clap::AppSettings::Built) {
+        app._full_propagate();
         app._build();
         app._build_bin_names();
     }
