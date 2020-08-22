@@ -8,7 +8,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [test, test-release]
+    needs: [test, test-release, format]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -137,3 +137,9 @@ jobs:
       - name: Cleanup cache
         if: steps.cache.outputs.cache-hit != 'true'
         run: cargo cache -a
+  format:
+    name: Check Code Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cargo fmt -- --check
