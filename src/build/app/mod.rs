@@ -106,6 +106,8 @@ pub struct App<'help> {
     pub(crate) current_help_heading: Option<&'help str>,
     pub(crate) subcommand_placeholder: Option<&'help str>,
     pub(crate) subcommand_header: Option<&'help str>,
+    pub(crate) help_about: Option<&'help str>,
+    pub(crate) global_help_about: bool,
 }
 
 impl<'help> App<'help> {
@@ -1525,7 +1527,13 @@ impl<'help> App<'help> {
     /// ```
     /// [`App`]: ./struct.App.html
     #[inline]
-    pub fn subcommand(mut self, subcmd: App<'help>) -> Self {
+    pub fn subcommand(mut self, mut subcmd: App<'help>) -> Self {
+        if self.global_help_about {
+            subcmd = subcmd.global_help_about();
+        }
+        if let Some(str) = self.help_about {
+            subcmd = subcmd.help_about(str);
+        }
         self.subcommands.push(subcmd);
         self
     }
@@ -2100,6 +2108,37 @@ impl<'help> App<'help> {
         self.subcommand_header = Some(header.into());
         self
     }
+
+    /// Sets the default text to be shown when calling the `help` subcommand.
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .subcommand(App::new("test"))
+    ///     .global_help_about()
+    /// # ;
+    /// ```
+    ///
+    #[inline]
+    pub fn global_help_about(mut self) -> Self {
+        self.global_help_about = true;
+        self
+    }
+
+    /// Sets the default text to be shown when calling the `help` args.
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .help_about("This help message overrides the auto-generated help message!")
+    /// # ;
+    /// ```
+    ///
+    #[inline]
+    pub fn help_about(mut self, str: &'help str) -> Self {
+        self.help_about = Some(str);
+        self
+    }
 }
 
 // Internally used only
@@ -2289,13 +2328,13 @@ impl<'help> App<'help> {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
                 .long("help")
-                .about("Prints help information");
+                .about(self.help_about.unwrap_or("Prints help information"));
             if !self.args.args.iter().any(|x| x.short == Some('h')) {
                 help = help.short('h');
             }
-
             self.args.push(help);
         }
+
         if !(self
             .args
             .args
@@ -2317,14 +2356,17 @@ impl<'help> App<'help> {
 
             self.args.push(version);
         }
+
         if self.has_subcommands()
             && !self.is_set(AppSettings::DisableHelpSubcommand)
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debug!("App::_create_help_and_version: Building help");
             self.subcommands.push(
-                App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"),
+                App::new("help").about(
+                    self.help_about
+                        .unwrap_or("Prints this message or the help of the given subcommand(s)"),
+                ),
             );
         }
     }

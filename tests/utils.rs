@@ -22,9 +22,9 @@ where
     if !b {
         println!();
         println!("--> left");
-        println!("{}", left);
+        println!("{:?}", left.as_bytes());
         println!("--> right");
-        println!("{}", right);
+        println!("{:?}", right.as_bytes());
         println!("--")
     }
     b

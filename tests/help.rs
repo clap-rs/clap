@@ -1825,3 +1825,28 @@ fn after_help_no_args() {
 
     assert_eq!(help, AFTER_HELP_NO_ARGS);
 }
+
+const ISSUE_2080: &str = "myapp 1.0
+
+USAGE:
+    myapp
+
+FLAGS:
+    -h, --help       Overridden help flag text
+    -V, --version    Prints version information
+";
+
+#[test]
+fn override_help_about() {
+    let mut app = App::new("myapp")
+        .version("1.0")
+        .help_about("Overridden help flag text");
+
+    let help = {
+        let mut output = Vec::new();
+        app.write_help(&mut output).unwrap();
+        String::from_utf8(output).unwrap()
+    };
+
+    assert_eq!(help, ISSUE_2080);
+}

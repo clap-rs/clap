@@ -93,6 +93,16 @@ USAGE:
 
 For more information try --help";
 
+static OVERRIDE_HELP_SUBCOMMAND_ABOUT: &str = "myprog-subcommand 
+About this subcommand
+
+USAGE:
+    myprog subcommand
+
+FLAGS:
+    -h, --help       Some global help about
+    -V, --version    Prints version information";
+
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -381,4 +391,19 @@ fn subcommand_placeholder_test() {
     assert!(String::from_utf8(help_text)
         .unwrap()
         .contains("TEST_HEADER:"));
+}
+
+#[test]
+fn global_help_about() {
+    let app = App::new("myprog")
+        .help_about("Some global help about")
+        .subcommand(App::new("subcommand").about("About this subcommand"))
+        .global_help_about();
+
+    assert!(utils::compare_output(
+        app,
+        "myprog subcommand --help",
+        OVERRIDE_HELP_SUBCOMMAND_ABOUT,
+        false,
+    ));
 }
