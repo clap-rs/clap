@@ -2,7 +2,6 @@
 use std::{
     cell::Cell,
     ffi::{OsStr, OsString},
-    io::Write,
 };
 
 // Internal
@@ -483,11 +482,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                                     || lossy_arg.parse::<f64>().is_ok())
                                 {
                                     return Err(ClapError::unknown_argument(
-                                        lossy_arg,
+                                        lossy_arg.to_string(),
                                         None,
-                                        &*Usage::new(self).create_usage_with_title(&[]),
+                                        Usage::new(self).create_usage_with_title(&[]),
                                         self.app.color(),
-                                    )?);
+                                    ));
                                 }
                             }
                             ParseResult::Opt(ref id)
@@ -537,12 +536,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                         let cands: Vec<_> =
                             cands.iter().map(|cand| format!("'{}'", cand)).collect();
                         return Err(ClapError::invalid_subcommand(
-                            arg_os.to_string_lossy().into_owned(),
+                            arg_os.to_string_lossy().to_string(),
                             cands.join(" or "),
-                            self.app.bin_name.as_ref().unwrap_or(&self.app.name),
-                            &*Usage::new(self).create_usage_with_title(&[]),
+                            self.app
+                                .bin_name
+                                .as_ref()
+                                .unwrap_or(&self.app.name)
+                                .to_string(),
+                            Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
-                        )?);
+                        ));
                     }
                 }
             }
@@ -630,11 +633,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
-                        &*arg_os.to_string_lossy(),
+                        arg_os.to_string_lossy().to_string(),
                         None,
-                        &*Usage::new(self).create_usage_with_title(&[]),
+                        Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
-                    )?);
+                    ));
                 }
 
                 if !self.is_set(AS::TrailingValues)
@@ -672,9 +675,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                     None => {
                         if !self.is_set(AS::StrictUtf8) {
                             return Err(ClapError::invalid_utf8(
-                                &*Usage::new(self).create_usage_with_title(&[]),
+                                Usage::new(self).create_usage_with_title(&[]),
                                 self.app.color(),
-                            )?);
+                            ));
                         }
                         arg_os.to_string_lossy().into_owned()
                     }
@@ -686,9 +689,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 while let Some((v, _)) = it.next(None) {
                     if v.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
                         return Err(ClapError::invalid_utf8(
-                            &*Usage::new(self).create_usage_with_title(&[]),
+                            Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
-                        )?);
+                        ));
                     }
                     sc_m.add_val_to(&Id::empty_hash(), v.to_os_string(), ValueType::CommandLine);
                 }
@@ -708,11 +711,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 && !self.is_set(AS::InferSubcommands)
             {
                 return Err(ClapError::unknown_argument(
-                    &*arg_os.to_string_lossy(),
+                    arg_os.to_string_lossy().to_string(),
                     None,
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                )?);
+                ));
             } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 let cands = suggestions::did_you_mean(
                     &*arg_os.to_string_lossy(),
@@ -721,26 +724,34 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if !cands.is_empty() {
                     let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
-                        arg_os.to_string_lossy().into_owned(),
+                        arg_os.to_string_lossy().to_string(),
                         cands.join(" or "),
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
-                        &*Usage::new(self).create_usage_with_title(&[]),
+                        self.app
+                            .bin_name
+                            .as_ref()
+                            .unwrap_or(&self.app.name)
+                            .to_string(),
+                        Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
-                    )?);
+                    ));
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
-                        arg_os.to_string_lossy().into_owned(),
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                        arg_os.to_string_lossy().to_string(),
+                        self.app
+                            .bin_name
+                            .as_ref()
+                            .unwrap_or(&self.app.name)
+                            .to_string(),
                         self.app.color(),
-                    )?);
+                    ));
                 }
             } else {
                 return Err(ClapError::unknown_argument(
-                    &*arg_os.to_string_lossy(),
+                    arg_os.to_string_lossy().to_string(),
                     None,
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                )?);
+                ));
             }
         }
 
@@ -756,18 +767,17 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else if self.is_set(AS::SubcommandRequired) {
                 let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
                 return Err(ClapError::missing_subcommand(
-                    bn,
-                    &Usage::new(self).create_usage_with_title(&[]),
+                    bn.to_string(),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                )?);
+                ));
             } else if self.is_set(AS::SubcommandRequiredElseHelp) {
                 debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
                 let message = self.write_help_err()?;
                 return Err(ClapError {
-                    cause: String::new(),
                     message,
                     kind: ErrorKind::MissingArgumentOrSubcommand,
-                    info: None,
+                    info: vec![],
                 });
             }
         }
@@ -941,10 +951,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
-                        cmd.to_string_lossy().into_owned(),
-                        self.app.bin_name.as_ref().unwrap_or(&self.app.name),
+                        cmd.to_string_lossy().to_string(),
+                        self.app
+                            .bin_name
+                            .as_ref()
+                            .unwrap_or(&self.app.name)
+                            .to_string(),
                         self.app.color(),
-                    )?);
+                    ));
                 }
 
                 bin_name = format!("{} {}", bin_name, &sc.name);
@@ -1327,11 +1341,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let arg = format!("-{}", c);
 
                 return Err(ClapError::unknown_argument(
-                    &*arg,
+                    arg,
                     None,
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                )?);
+                ));
             }
         }
         Ok(ret)
@@ -1360,9 +1374,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 debug!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
-                    &*Usage::new(self).create_usage_with_title(&[]),
+                    Usage::new(self).create_usage_with_title(&[]),
                     self.app.color(),
-                )?);
+                ));
             }
             debug!("Found - {:?}, len: {}", v, v.len());
             debug!(
@@ -1375,9 +1389,9 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
                 opt,
-                &*Usage::new(self).create_usage_with_title(&[]),
+                Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
-            )?);
+            ));
         } else if needs_eq && min_vals_zero {
             debug!("None and requires equals, but min_vals == 0");
             if !opt.default_missing_vals.is_empty() {
@@ -1722,24 +1736,16 @@ impl<'help, 'app> Parser<'help, 'app> {
             .collect();
 
         Err(ClapError::unknown_argument(
-            &*format!("--{}", arg),
+            format!("--{}", arg),
             did_you_mean,
-            &*Usage::new(self).create_usage_with_title(&*used),
+            Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
-        )?)
-    }
-
-    // Prints the version to the user and exits if quit=true
-    fn print_version<W: Write>(&self, w: &mut W, use_long: bool) -> ClapResult<()> {
-        self.app._write_version(w, use_long)?;
-        w.flush().map_err(ClapError::from)
+        ))
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
         let mut c = Colorizer::new(true, self.color_help());
-
         Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
-
         Ok(c)
     }
 
@@ -1753,12 +1759,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut c = Colorizer::new(false, self.color_help());
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
-            Err(e) => e,
+            Err(e) => e.into(),
             _ => ClapError {
-                cause: String::new(),
                 message: c,
                 kind: ErrorKind::DisplayHelp,
-                info: None,
+                info: vec![],
             },
         }
     }
@@ -1766,16 +1771,13 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn version_err(&self, use_long: bool) -> ClapError {
         debug!("Parser::version_err");
 
-        let mut c = Colorizer::new(false, self.app.color());
-
-        match self.print_version(&mut c, use_long) {
-            Err(e) => e,
-            _ => ClapError {
-                cause: String::new(),
-                message: c,
-                kind: ErrorKind::DisplayVersion,
-                info: None,
-            },
+        let msg = self.app._render_version(use_long);
+        let mut c = Colorizer::new(false, self.color_help());
+        c.none(msg);
+        ClapError {
+            message: c,
+            kind: ErrorKind::DisplayVersion,
+            info: vec![],
         }
     }
 }

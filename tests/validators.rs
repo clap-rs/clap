@@ -39,9 +39,11 @@ fn test_validator_msg_newline() {
     assert!(res.is_err());
     let err = res.unwrap_err();
 
-    assert_eq!(
-        err.cause,
-        "Invalid value for \'<test>\': invalid digit found in string"
+    assert!(
+        err.to_string()
+            .contains("Invalid value for '<test>': invalid digit found in string"),
+        "{}",
+        err
     );
 
     // This message is the only thing that gets printed -- make sure it ends with a newline
