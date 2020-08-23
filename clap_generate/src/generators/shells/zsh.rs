@@ -119,7 +119,8 @@ _{bin_name_underscore}_commands() {{
 }}",
             bin_name_underscore = bin_name.replace(" ", "__"),
             bin_name = bin_name,
-            subcommands_and_args = subcommands_of(parser_of(p, bin_name))
+            subcommands_and_args =
+                subcommands_of(parser_of(p, bin_name).expect(INTERNAL_ERROR_MSG))
         ));
     }
 
@@ -217,14 +218,20 @@ fn get_subcommands_of(p: &App) -> String {
     let mut subcmds = vec![];
 
     for &(ref name, ref bin_name) in &sc_names {
+        debug!(
+            "get_subcommands_of:iter: p={}, name={}, bin_name={}",
+            p.get_name(),
+            name,
+            bin_name,
+        );
         let mut v = vec![format!("({})", name)];
-        let subcommand_args = get_args_of(parser_of(p, &*bin_name));
+        let subcommand_args = get_args_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG));
 
         if !subcommand_args.is_empty() {
             v.push(subcommand_args);
         }
 
-        let subcommands = get_subcommands_of(parser_of(p, &*bin_name));
+        let subcommands = get_subcommands_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG));
 
         if !subcommands.is_empty() {
             v.push(subcommands);
@@ -252,15 +259,24 @@ esac",
     )
 }
 
-fn parser_of<'help, 'app>(p: &'app App<'help>, mut sc: &str) -> &'app App<'help> {
-    debug!("parser_of: sc={}", sc);
+// Get the App for a given subcommand tree.
+//
+// Given the bin_name "a b c" and the App for "a" this returns the "c" App.
+// Given the bin_name "a b c" and the App for "b" this returns the "c" App.
+fn parser_of<'help, 'app>(p: &'app App<'help>, bin_name: &str) -> Option<&'app App<'help>> {
+    debug!("parser_of: p={}, bin_name={}", p.get_name(), bin_name);
 
-    if sc == p.get_bin_name().unwrap_or(&String::new()) {
-        return p;
+    if bin_name == p.get_bin_name().unwrap_or(&String::new()) {
+        return Some(p);
     }
 
-    sc = sc.split(' ').last().unwrap();
-    p.find_subcommand(sc).expect(INTERNAL_ERROR_MSG)
+    for sc in p.get_subcommands() {
+        if let Some(ret) = parser_of(sc, bin_name) {
+            return Some(ret);
+        }
+    }
+
+    None
 }
 
 // Writes out the args section, which ends up being the flags, opts and positionals, and a jump to
