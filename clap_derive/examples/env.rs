@@ -1,7 +1,7 @@
 //! How to use environment variable fallback an how it
 //! interacts with `default_value`.
 
-use clap::Clap;
+use clap::{ArgSettings, Clap};
 
 /// Example for allowing to specify options via environment variables.
 #[derive(Clap, Debug)]
@@ -18,6 +18,12 @@ struct Opt {
     /// Number of retries
     #[clap(long, env = "RETRIES", default_value = "5")]
     retries: u32,
+
+    // If an environment variable contains a sensitive value, it can be hidden
+    // from the help screen with a special setting.
+    /// Secret token
+    #[clap(long, env = "SECRET_TOKEN", setting = ArgSettings::HideEnvValues)]
+    token: String,
 }
 
 fn main() {
