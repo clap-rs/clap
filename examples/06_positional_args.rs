@@ -33,8 +33,7 @@ fn main() {
         // requires "config"
         // Note, we also do not need to specify requires("input")
         // because requires lists are automatically two-way
-        // NOTE: In order to compile this example, comment out conflicts_with()
-        // because we have not defined an "output" argument.
+        .arg(Arg::new("output").about("the output file to use").index(3))
         .get_matches();
 
     // We can find out whether or not "input" or "config" were used

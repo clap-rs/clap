@@ -34,7 +34,7 @@ fn main() {
         .group(
             ArgGroup::new("vers")
                 .required(true)
-                .args(&["ver", "major", "minor", "patch"]),
+                .args(&["set-ver", "major", "minor", "patch"]),
         )
         // Arguments can also be added to a group individually, these two arguments
         // are part of the "input" group which is not required
