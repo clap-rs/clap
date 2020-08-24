@@ -1,3 +1,5 @@
+#![cfg(not(tarpaulin))]
+
 use std::ffi::OsStr;
 use std::fs;
 use std::process::{Command, Output};
