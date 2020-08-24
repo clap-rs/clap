@@ -712,6 +712,108 @@ _my_app_commands() {
 
 _my_app "$@""#;
 
+static ZSH_NESTED_SUBCOMMANDS: &str = r#"#compdef my_app
+
+autoload -U is-at-least
+
+_my_app() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+":: :_my_app_commands" \
+"*::: :->first" \
+&& ret=0
+    case $state in
+    (first)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my_app-command-$line[1]:"
+        case $line[1] in
+            (second)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+":: :_my_app__second_commands" \
+"*::: :->second" \
+&& ret=0
+case $state in
+    (second)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:my_app-second-command-$line[1]:"
+        case $line[1] in
+            (third)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_my_app_commands] )) ||
+_my_app_commands() {
+    local commands; commands=(
+        "second:" \
+"help:Prints this message or the help of the given subcommand(s)" \
+    )
+    _describe -t commands 'my_app commands' commands "$@"
+}
+(( $+functions[_my_app__help_commands] )) ||
+_my_app__help_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app help commands' commands "$@"
+}
+(( $+functions[_my_app__second_commands] )) ||
+_my_app__second_commands() {
+    local commands; commands=(
+        "third:" \
+    )
+    _describe -t commands 'my_app second commands' commands "$@"
+}
+(( $+functions[_my_app__second__third_commands] )) ||
+_my_app__second__third_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app second third commands' commands "$@"
+}
+
+_my_app "$@""#;
+
 fn build_app() -> App<'static> {
     build_app_with_name("myapp")
 }
@@ -775,6 +877,10 @@ fn build_app_special_help() -> App<'static> {
                 .long("expansions")
                 .about("Execute the shell command with $SHELL"),
         )
+}
+
+fn build_app_nested_subcommands() -> App<'static> {
+    App::new("first").subcommand(App::new("second").subcommand(App::new("third")))
 }
 
 pub fn common<G: Generator>(app: &mut App, name: &str, fixture: &str) {
@@ -855,4 +961,10 @@ fn fish_with_special_help() {
 fn zsh_with_special_help() {
     let mut app = build_app_special_help();
     common::<Zsh>(&mut app, "my_app", ZSH_SPECIAL_HELP);
+}
+
+#[test]
+fn zsh_with_nested_subcommands() {
+    let mut app = build_app_nested_subcommands();
+    common::<Zsh>(&mut app, "my_app", ZSH_NESTED_SUBCOMMANDS);
 }

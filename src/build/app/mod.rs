@@ -263,6 +263,8 @@ impl<'help> App<'help> {
     }
 
     /// Find subcommand such that its name or one of aliases equals `name`.
+    ///
+    /// This does not recurse through subcommands of subcommands.
     #[inline]
     pub fn find_subcommand<T>(&self, name: &T) -> Option<&App<'help>>
     where
