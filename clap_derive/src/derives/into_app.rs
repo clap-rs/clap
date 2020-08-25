@@ -103,6 +103,15 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
             fn augment_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
                 <#name as ::clap::Subcommand>::augment_subcommands(app)
             }
+
+            fn into_update_app<'b>() -> ::clap::App<'b> {
+                let app = ::clap::App::new(#app_name);
+                <#name as ::clap::IntoApp>::augment_update_clap(app)
+            }
+
+            fn augment_update_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+                <#name as ::clap::Subcommand>::augment_update_subcommands(app)
+            }
         }
     }
 }
@@ -123,6 +132,9 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
         fn into_app<'b>() -> ::clap::App<'b> {
             Self::augment_clap(::clap::App::new(#name))
         }
+        fn into_update_app<'b>() -> ::clap::App<'b> {
+            Self::augment_update_clap(::clap::App::new(#name))
+        }
     };
 
     (tokens, attrs)
@@ -130,10 +142,14 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
 
 fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
     let app_var = Ident::new("app", Span::call_site());
-    let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute);
+    let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute, false);
+    let augmentation_update = gen_app_augmentation(fields, &app_var, parent_attribute, true);
     quote! {
         fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
             #augmentation
+        }
+        fn augment_update_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+            #augmentation_update
         }
     }
 }
@@ -150,6 +166,7 @@ pub fn gen_app_augmentation(
     fields: &Punctuated<Field, Comma>,
     app_var: &Ident,
     parent_attribute: &Attrs,
+    override_required: bool,
 ) -> TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
         let attrs = Attrs::from_field(
@@ -174,9 +191,15 @@ pub fn gen_app_augmentation(
             };
 
             let span = field.span();
-            let ts = quote! {
-                let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands( #app_var );
-                #required
+            let ts = if override_required {
+                quote! {
+                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_update_subcommands( #app_var );
+                }
+            } else{
+                quote! {
+                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands( #app_var );
+                    #required
+                }
             };
             Some((span, ts))
         } else {
@@ -296,7 +319,7 @@ pub fn gen_app_augmentation(
                     },
 
                     Ty::Other => {
-                        let required = !attrs.has_method("default_value");
+                        let required = !attrs.has_method("default_value") && !override_required;
                         let mut possible_values = quote!();
 
                         if attrs.is_enum() {

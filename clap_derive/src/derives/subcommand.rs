@@ -35,6 +35,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 
     let from_subcommand = gen_from_subcommand(name, &e.variants, &attrs);
     let augment_subcommands = gen_augment_subcommands(&e.variants, &attrs);
+    let augment_update_subcommands = gen_augment_update_subcommands(&e.variants, &attrs);
     let update_from_subcommand = gen_update_from_subcommand(name, &e.variants, &attrs);
 
     quote! {
@@ -53,6 +54,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         impl ::clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
+            #augment_update_subcommands
             #update_from_subcommand
         }
     }
@@ -61,6 +63,27 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 fn gen_augment_subcommands(
     variants: &Punctuated<Variant, Token![,]>,
     parent_attribute: &Attrs,
+) -> TokenStream {
+    gen_augment("augment_subcommands", variants, parent_attribute, false)
+}
+
+fn gen_augment_update_subcommands(
+    variants: &Punctuated<Variant, Token![,]>,
+    parent_attribute: &Attrs,
+) -> TokenStream {
+    gen_augment(
+        "augment_update_subcommands",
+        variants,
+        parent_attribute,
+        true,
+    )
+}
+
+fn gen_augment(
+    fn_name: &str,
+    variants: &Punctuated<Variant, Token![,]>,
+    parent_attribute: &Attrs,
+    override_required: bool,
 ) -> TokenStream {
     use syn::Fields::*;
 
@@ -99,9 +122,12 @@ fn gen_augment_subcommands(
                 _ => {
                     let app_var = Ident::new("subcommand", Span::call_site());
                     let arg_block = match variant.fields {
-                        Named(ref fields) => {
-                            into_app::gen_app_augmentation(&fields.named, &app_var, &attrs)
-                        }
+                        Named(ref fields) => into_app::gen_app_augmentation(
+                            &fields.named,
+                            &app_var,
+                            &attrs,
+                            override_required,
+                        ),
                         Unit => quote!( #app_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
@@ -133,8 +159,9 @@ fn gen_augment_subcommands(
 
     let app_methods = parent_attribute.top_level_methods();
     let version = parent_attribute.version();
+    let fn_name = Ident::new(fn_name, Span::call_site());
     quote! {
-        fn augment_subcommands<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn #fn_name <'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
             let app = app #app_methods;
             #( #subcommands )*;
             app #version

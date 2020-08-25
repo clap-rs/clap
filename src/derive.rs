@@ -113,7 +113,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         // TODO find a way to get partial matches
-        let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
+        let matches = <Self as IntoApp>::into_update_app().get_matches_from(itr);
         <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
     }
 
@@ -124,8 +124,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
-        // TODO find a way to get partial matches
-        let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
+        let matches = <Self as IntoApp>::into_update_app().try_get_matches_from(itr)?;
         <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
         Ok(())
     }
@@ -139,6 +138,10 @@ pub trait IntoApp: Sized {
     fn into_app<'help>() -> App<'help>;
     /// @TODO @release @docs
     fn augment_clap(app: App<'_>) -> App<'_>;
+    /// @TODO @release @docs
+    fn into_update_app<'help>() -> App<'help>;
+    /// @TODO @release @docs
+    fn augment_update_clap(app: App<'_>) -> App<'_>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a consumer defined struct.
@@ -192,6 +195,8 @@ pub trait Subcommand: Sized {
     fn update_from_subcommand(&mut self, name: &str, matches: Option<&ArgMatches>);
     /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
+    /// @TODO @release @docs
+    fn augment_update_subcommands(app: App<'_>) -> App<'_>;
 }
 
 /// @TODO @release @docs
@@ -238,6 +243,12 @@ impl<T: IntoApp> IntoApp for Box<T> {
     fn augment_clap(app: App<'_>) -> App<'_> {
         <T as IntoApp>::augment_clap(app)
     }
+    fn into_update_app<'help>() -> App<'help> {
+        <T as IntoApp>::into_update_app()
+    }
+    fn augment_update_clap(app: App<'_>) -> App<'_> {
+        <T as IntoApp>::augment_update_clap(app)
+    }
 }
 
 impl<T: FromArgMatches> FromArgMatches for Box<T> {
@@ -258,5 +269,8 @@ impl<T: Subcommand> Subcommand for Box<T> {
     }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)
+    }
+    fn augment_update_subcommands(app: App<'_>) -> App<'_> {
+        <T as Subcommand>::augment_update_subcommands(app)
     }
 }
