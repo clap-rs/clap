@@ -142,13 +142,13 @@ fn update_every_custom_parser() {
         d: "D",
     };
 
-    opt.update_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"]);
+    opt.update_from(&["test", "-a=?", "-b=?", "-d=?"]);
 
     assert_eq!(
         NoOpOpt {
             a: "A",
             b: "B",
-            c: "C",
+            c: "0",
             d: "D"
         },
         opt
