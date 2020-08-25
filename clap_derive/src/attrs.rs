@@ -481,12 +481,15 @@ impl Attrs {
                         "parse attribute is not allowed for flattened entry"
                     );
                 }
-                if res.has_explicit_methods() || res.has_doc_methods() {
+                if res.has_explicit_methods() {
                     abort!(
                         res.kind.span(),
-                        "methods and doc comments are not allowed for flattened entry"
+                        "methods are not allowed for flattened entry"
                     );
                 }
+
+                // ignore doc comments
+                res.doc_comment = vec![];
             }
 
             Kind::ExternalSubcommand => {
@@ -694,14 +697,6 @@ impl Attrs {
         self.methods
             .iter()
             .any(|m| m.name != "about" && m.name != "long_about")
-    }
-
-    pub fn has_doc_methods(&self) -> bool {
-        !self.doc_comment.is_empty()
-            || self
-                .methods
-                .iter()
-                .any(|m| m.name == "about" || m.name == "long_about")
     }
 }
 
