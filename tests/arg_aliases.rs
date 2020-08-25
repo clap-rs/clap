@@ -9,12 +9,12 @@ USAGE:
     ct test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag        [aliases: v_flg, flag2, flg3]
+    -f, --flag       [aliases: v_flg, flag2, flg3]
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -o, --opt <opt>     [aliases: visible]";
+    -o, --opt <opt>    [aliases: visible]";
 
 static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help

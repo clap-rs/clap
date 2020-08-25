@@ -504,7 +504,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             } else {
                 String::new()
             };
-            let env_info = format!(" [env: {}{}]", env.0.to_string_lossy(), env_val);
+            let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
             spec_vals.push(env_info);
         }
         if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
@@ -520,7 +520,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .collect::<Vec<_>>()
                 .join(" ");
 
-            spec_vals.push(format!(" [default: {}]", pvs));
+            spec_vals.push(format!("[default: {}]", pvs));
         }
         if !a.aliases.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
@@ -534,7 +534,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .join(", ");
 
             if !als.is_empty() {
-                spec_vals.push(format!(" [aliases: {}]", als));
+                spec_vals.push(format!("[aliases: {}]", als));
             }
         }
 
@@ -566,12 +566,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 a.possible_vals
             );
 
-            spec_vals.push(format!(
-                " [possible values: {}]",
-                a.possible_vals.join(", ")
-            ));
+            spec_vals.push(format!("[possible values: {}]", a.possible_vals.join(", ")));
         }
-        spec_vals.join(" ")
+        let prefix = if !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
+            " "
+        } else {
+            ""
+        };
+        prefix.to_string() + &spec_vals.join(" ")
     }
 }
 

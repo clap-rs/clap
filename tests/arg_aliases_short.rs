@@ -9,7 +9,7 @@ USAGE:
     ct test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --flag        [aliases: flag1] [short aliases: a, b, 🦆]
+    -f, --flag       [aliases: flag1] [short aliases: a, b, 🦆]
     -h, --help       Prints help information
     -V, --version    Prints version information
 
