@@ -73,8 +73,7 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
                 <#name as ::clap::Subcommand>::from_subcommand(matches.subcommand()).unwrap()
             }
             fn update_from_arg_matches(&mut self, matches: &::clap::ArgMatches) {
-                let (name, subcmd) = matches.subcommand();
-                <#name as ::clap::Subcommand>::update_from_subcommand(self, name, subcmd);
+                <#name as ::clap::Subcommand>::update_from_subcommand(self, matches.subcommand());
             }
         }
     }
@@ -285,7 +284,7 @@ pub fn gen_updater(
                 };
 
                 let updater = quote_spanned!{ ty.span()=>
-                    <#subcmd_type as ::clap::Subcommand>::update_from_subcommand(#field_name, name, subcmd);
+                    <#subcmd_type as ::clap::Subcommand>::update_from_subcommand(#field_name, subcmd);
                 };
 
                 let updater = match **ty {
@@ -294,7 +293,6 @@ pub fn gen_updater(
                             #updater
                         } else {
                             *#field_name = <#subcmd_type as ::clap::Subcommand>::from_subcommand(
-                                name,
                                 subcmd
                             )
                         }
@@ -306,7 +304,7 @@ pub fn gen_updater(
 
                 quote_spanned! { kind.span()=>
                     {
-                        let (name, subcmd) = matches.subcommand();
+                        let subcmd = matches.subcommand();
                         #access
                         #updater
                     }

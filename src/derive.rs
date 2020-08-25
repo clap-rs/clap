@@ -192,7 +192,7 @@ pub trait Subcommand: Sized {
     /// @TODO @release @docs
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
     /// @TODO @release @docs
-    fn update_from_subcommand(&mut self, name: &str, matches: Option<&ArgMatches>);
+    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>);
     /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
     /// @TODO @release @docs
@@ -264,8 +264,8 @@ impl<T: Subcommand> Subcommand for Box<T> {
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
         <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
     }
-    fn update_from_subcommand(&mut self, name: &str, matches: Option<&ArgMatches>) {
-        <T as Subcommand>::update_from_subcommand(self, name, matches);
+    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>) {
+        <T as Subcommand>::update_from_subcommand(self, subcommand);
     }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)

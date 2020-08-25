@@ -405,7 +405,7 @@ fn gen_update_from_subcommand(
                 (
                     quote!((ref mut arg)),
                     quote! {
-                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, name, sub);
+                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, Some((name, matches)));
                     },
                 )
             }
@@ -422,17 +422,15 @@ fn gen_update_from_subcommand(
     quote! {
         fn update_from_subcommand<'b>(
             &mut self,
-            name: &'b str,
-            sub: Option<&'b ::clap::ArgMatches>)
-        {
-            if let Some(matches) = sub {
+            subcommand: Option<(&str, &::clap::ArgMatches)>
+        ) {
+            if let Some((name, matches)) = subcommand {
                 match (name, self) {
                     #( #subcommands ),*
                     #( #child_subcommands ),*
-                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(name, sub) {
+                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(Some((name, matches))) {
                         *s = sub;
                     }
-
                 }
             }
         }

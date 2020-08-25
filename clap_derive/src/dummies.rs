@@ -56,7 +56,7 @@ pub fn subcommand(name: &Ident) {
             fn from_subcommand(_sub: Option<(&str, &::clap::ArgMatches)>) -> Option<Self> {
                 unimplemented!()
             }
-            fn update_from_subcommand(&mut self, _name: &str, _matches: Option<&::clap::ArgMatches>) {
+            fn update_from_subcommand(&mut self, _sub: Option<(&str, &::clap::ArgMatches)>) {
                 unimplemented!()
             }
             fn augment_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {
