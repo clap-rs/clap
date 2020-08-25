@@ -568,9 +568,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
             spec_vals.push(format!("[possible values: {}]", a.possible_vals.join(", ")));
         }
-        let prefix = match !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
-            true => " ",
-            false => "",
+        let prefix = if !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
+            " "
+        } else {
+            ""
         };
         prefix.to_string() + &spec_vals.join(" ")
     }
