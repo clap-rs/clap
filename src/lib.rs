@@ -50,6 +50,9 @@ mod macros;
 #[cfg(feature = "derive")]
 mod derive;
 
+#[cfg(feature = "regex")]
+pub use crate::build::arg::RegexRef;
+
 mod build;
 mod mkeymap;
 mod output;
