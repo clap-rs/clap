@@ -1,4 +1,4 @@
-error: methods and doc comments are not allowed for flattened entry
+error: methods are not allowed for flattened entry
   --> $DIR/flatten_and_methods.rs:22:19
    |
 22 |     #[clap(short, flatten)]

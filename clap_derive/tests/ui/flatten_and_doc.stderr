@@ -1,5 +1,0 @@
-error: methods and doc comments are not allowed for flattened entry
-  --> $DIR/flatten_and_doc.rs:23:12
-   |
-23 |     #[clap(flatten)]
-   |            ^^^^^^^

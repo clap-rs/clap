@@ -132,3 +132,22 @@ fn merge_subcommands_with_flatten() {
         Opt::parse_from(&["test", "command2", "43"])
     );
 }
+
+#[test]
+fn flatten_with_doc_comment() {
+    #[derive(Clap, Debug)]
+    struct DaemonOpts {
+        #[clap(short)]
+        user: String,
+        #[clap(short)]
+        group: String,
+    }
+
+    #[derive(Clap, Debug)]
+    #[clap(name = "basic")]
+    struct Opt {
+        /// A very important doc comment I just can't leave out!
+        #[clap(flatten)]
+        opts: DaemonOpts,
+    }
+}
