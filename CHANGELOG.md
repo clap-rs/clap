@@ -8,18 +8,38 @@ TODO: `cargo`, `std` features
 
 * **Removed**
   * `From<&yaml_rust::yaml::Hash>` for `ArgGroup`
+  * **Error**
+    * `Error::cause` in favor of `<Error as Display>::to_string`
   * **Macros**
-    * `_clap_count_exprs`
+    * `_clap_count_exprs!`
 * **Renamed Methods**
-  * `App::set_term_width` => `App::term_width`
-  * `Arg::from_yaml` => `Arg::from`
-  * `Arg::with_name` => `Arg::new`
-  * `ArgGroup::from_yaml` => `ArgGroup::from`
-  * `ArgGroup::with_name` => `ArgGroup::new`
+  * **App**
+    * `App::set_term_width` => `App::term_width`
+  * **Arg**
+    * `Arg::from_yaml` => `Arg::from`
+    * `Arg::with_name` => `Arg::new`
+    * `Arg::required_if` => `Arg::required_if_eq`
+    * `Arg::required_ifs` => `Arg::required_if_eq_any`
+    * `Arg::required_unless` => `Arg::required_unless_present`
+    * `Arg::required_unless_one` => `Arg::required_unless_eq_any`
+    * `Arg::required_unless_all` => `Arg::required_unless_eq_all`
+  * **ArgGroup**
+    * `ArgGroup::from_yaml` => `ArgGroup::from`
+    * `ArgGroup::with_name` => `ArgGroup::new`
+* **Renamed Variants**
+  * **ErrorKind**
+    * `ErrorKind::HelpDisplayed` => `ErrorKind::DisplayHelp`
+    * `ErrorKind::VersionDisplayed` => `ErrorKind::DisplayVersion`
+* **Changed**
+  * `Error::info` now is of type `Vec<String>` instead of `Option<Vec<String>>`
+  * `short` in `#[clap()]` now accepts `char` instead of `&str`
+  * `ArgMatches::subcommand` now returns `Option<(&str, &ArgMatches)>`
 
 #### Features
 
+* Added support for subcommands that are flags (pacman style)
 * Added `Indices` that is returned by `ArgMatches::indices_of`
+* Added `@global_setting` for app's macro builder
 * **Added Methods**
   * **Arg**
     * `Arg::default_missing_value`
@@ -30,14 +50,21 @@ TODO: `cargo`, `std` features
     * `Arg::short_aliases`
     * `Arg::visible_short_alias`
     * `Arg::visible_short_aliases`
-* **Added Variants**
+    * `Arg::value_hint`
+  * **App**
+    * `App::subcommand_placeholder`
+    * `App::before_long_help`
+    * `App::after_long_help`
+* **Added Settings**
   * `AppSettings::DisableHelpFlags`
+* TODO: List App::get_* methods
 
 #### Enhancements
 
 * `help_heading` defined on `Arg` now has higher priority than `App`
 * Limited default text wrapping to 100 when `wrap_help` feature is not enabled
 * Multiple bug fixes and error message improvements
+* Size and Performance improvements
 
 
 <a name="v3.0.0-beta.1"></a>
@@ -95,11 +122,10 @@ TODO: `cargo`, `std` features
     * `Arg::from_usage` => `Arg::from`
     * `Arg::set` => `Arg::setting`
     * `Arg::unset` => `Arg::unset_setting`
-* **Renamed Variants**
+* **Renamed Settings**
   * `ArgSettings::CaseInsensitive` => `ArgSettings::IgnoreCase`
   * `ArgSettings::AllowLeadingHyphen` => `ArgSettings::AllowHyphenValues`
   * `ArgSettings::EmptyValues` => `ArgSettings::AllowEmptyValues`
-  * `ArgSettings::CaseInsensitive` => `ArgSettings::IgnoreCase`
 * **Renamed Fields**
   * `Error::message` => `Error::cause`
 * **Changed**
@@ -113,8 +139,8 @@ TODO: `cargo`, `std` features
   but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
   Before both resulted in the same thing
 * `App` and `Arg` now need only one lifetime
-* Allow empty values is no longer the default
-* UseValueDelimiter is no longer the default
+* Allowing empty values is no longer the default
+* `UseValueDelimiter` is no longer the default
 * `App::override_usage` no longer implies `\t` which allows multi lined usages
 
 #### Features
