@@ -1,10 +1,11 @@
-use crate::util::termcolor::{Buffer, BufferWriter, ColorChoice};
+#[cfg(not(feature = "color"))]
+use crate::util::termcolor::{Color, ColorChoice};
 #[cfg(feature = "color")]
-use crate::util::termcolor::{Color, ColorSpec, WriteColor};
+use termcolor::{Color, ColorChoice};
 
 use std::{
-    fmt::{self, Debug, Formatter},
-    io::{Result, Write},
+    fmt::{self, Display, Formatter},
+    io::{self, Write},
 };
 
 #[cfg(feature = "color")]
@@ -20,103 +21,102 @@ fn is_a_tty(stderr: bool) -> bool {
     atty::is(stream)
 }
 
-#[cfg(not(feature = "color"))]
-fn is_a_tty(_: bool) -> bool {
-    debug!("is_a_tty");
-    false
-}
-
+#[derive(Debug)]
 pub(crate) struct Colorizer {
-    writer: BufferWriter,
-    buffer: Buffer,
-}
-
-impl Debug for Colorizer {
-    #[cfg(feature = "color")]
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", String::from_utf8_lossy(self.buffer.as_slice()))
-    }
-
-    #[cfg(not(feature = "color"))]
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", String::from_utf8_lossy(&self.buffer))
-    }
+    use_stderr: bool,
+    color_when: ColorChoice,
+    pieces: Vec<(String, Option<Color>)>,
 }
 
 impl Colorizer {
-    pub(crate) fn new(use_stderr: bool, when: ColorChoice) -> Self {
-        let checked_when = if is_a_tty(use_stderr) {
-            when
+    #[inline]
+    pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
+        Colorizer {
+            use_stderr,
+            color_when,
+            pieces: vec![],
+        }
+    }
+
+    #[inline]
+    pub(crate) fn good(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), Some(Color::Green)));
+    }
+
+    #[inline]
+    pub(crate) fn warning(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), Some(Color::Yellow)));
+    }
+
+    #[inline]
+    pub(crate) fn error(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), Some(Color::Red)));
+    }
+
+    #[inline]
+    pub(crate) fn none(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), None));
+    }
+}
+
+/// Printing methods.
+impl Colorizer {
+    #[cfg(feature = "color")]
+    pub(crate) fn print(&self) -> io::Result<()> {
+        use termcolor::{BufferWriter, ColorSpec, WriteColor};
+
+        let color_when = if is_a_tty(self.use_stderr) {
+            self.color_when
         } else {
             ColorChoice::Never
         };
 
-        let writer = if use_stderr {
-            BufferWriter::stderr(checked_when)
+        let writer = if self.use_stderr {
+            BufferWriter::stderr(color_when)
         } else {
-            BufferWriter::stdout(checked_when)
+            BufferWriter::stdout(color_when)
         };
 
-        let buffer = writer.buffer();
+        let mut buffer = writer.buffer();
 
-        Self { writer, buffer }
-    }
+        for piece in &self.pieces {
+            let mut color = ColorSpec::new();
+            color.set_fg(piece.1);
+            if piece.1 == Some(Color::Red) {
+                color.set_bold(true);
+            }
 
-    pub(crate) fn print(&self) -> Result<()> {
-        self.writer.print(&self.buffer)
-    }
+            buffer.set_color(&color)?;
+            buffer.write_all(piece.0.as_bytes())?;
+            buffer.reset()?;
+        }
 
-    #[cfg(feature = "color")]
-    pub(crate) fn good(&mut self, msg: &str) -> Result<()> {
-        self.buffer
-            .set_color(ColorSpec::new().set_fg(Some(Color::Green)))?;
-        self.write_all(msg.as_bytes())?;
-        self.buffer.reset()
-    }
-
-    #[cfg(not(feature = "color"))]
-    pub(crate) fn good(&mut self, msg: &str) -> Result<()> {
-        self.none(msg)
-    }
-
-    #[cfg(feature = "color")]
-    pub(crate) fn warning(&mut self, msg: &str) -> Result<()> {
-        self.buffer
-            .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))?;
-        self.write_all(msg.as_bytes())?;
-        self.buffer.reset()
+        writer.print(&buffer)
     }
 
     #[cfg(not(feature = "color"))]
-    pub(crate) fn warning(&mut self, msg: &str) -> Result<()> {
-        self.none(msg)
-    }
-
-    #[cfg(feature = "color")]
-    pub(crate) fn error(&mut self, msg: &str) -> Result<()> {
-        self.buffer
-            .set_color(ColorSpec::new().set_fg(Some(Color::Red)).set_bold(true))?;
-        self.write_all(msg.as_bytes())?;
-        self.buffer.reset()
-    }
-
-    #[cfg(not(feature = "color"))]
-    pub(crate) fn error(&mut self, msg: &str) -> Result<()> {
-        self.none(msg)
-    }
-
-    pub(crate) fn none(&mut self, msg: &str) -> Result<()> {
-        self.write_all(msg.as_bytes())?;
-        Ok(())
+    pub(crate) fn print(&self) -> io::Result<()> {
+        // [e]println can't be used here because it panics
+        // if something went wrong. We don't want that.
+        if self.use_stderr {
+            let stderr = std::io::stderr();
+            let mut stderr = stderr.lock();
+            write!(stderr, "{}", self)
+        } else {
+            let stdout = std::io::stdout();
+            let mut stdout = stdout.lock();
+            write!(stdout, "{}", self)
+        }
     }
 }
 
-impl Write for Colorizer {
-    fn write(&mut self, buf: &[u8]) -> Result<usize> {
-        self.buffer.write(buf)
-    }
+/// Color-unaware printing. Never uses coloring.
+impl Display for Colorizer {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        for piece in &self.pieces {
+            Display::fmt(&piece.0, f)?;
+        }
 
-    fn flush(&mut self) -> Result<()> {
-        self.buffer.flush()
+        Ok(())
     }
 }

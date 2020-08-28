@@ -40,9 +40,7 @@ fn complex_version_output() {
     let _ = a.try_get_matches_from_mut(vec![""]);
 
     // Now we check the output of print_version()
-    let mut ver = vec![];
-    a.write_version(&mut ver).unwrap();
-    assert_eq!(str::from_utf8(&ver).unwrap(), VERSION);
+    assert_eq!(a.render_version(), VERSION);
 }
 
 #[test]

@@ -1665,18 +1665,15 @@ impl<'help> App<'help> {
     /// app.print_help();
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
-    /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
     /// [`-h` (short)]: ./struct.Arg.html#method.about
     /// [`--help` (long)]: ./struct.Arg.html#method.long_about
-    pub fn print_help(&mut self) -> ClapResult<()> {
+    pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
 
         let p = Parser::new(self);
         let mut c = Colorizer::new(false, p.color_help());
-
         Help::new(HelpWriter::Buffer(&mut c), &p, false).write_help()?;
-
-        Ok(c.print()?)
+        c.print()
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
@@ -1696,15 +1693,13 @@ impl<'help> App<'help> {
     /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
     /// [`-h` (short)]: ./struct.Arg.html#method.about
     /// [`--help` (long)]: ./struct.Arg.html#method.long_about
-    pub fn print_long_help(&mut self) -> ClapResult<()> {
+    pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
 
         let p = Parser::new(self);
         let mut c = Colorizer::new(false, p.color_help());
-
         Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
-
-        Ok(c.print()?)
+        c.print()
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1725,11 +1720,12 @@ impl<'help> App<'help> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-h` (short)]: ./struct.Arg.html#method.about
     /// [`--help` (long)]: ./struct.Arg.html#method.long_about
-    pub fn write_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+    pub fn write_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
         let p = Parser::new(self);
-        Help::new(HelpWriter::Normal(w), &p, false).write_help()
+        Help::new(HelpWriter::Normal(w), &p, false).write_help()?;
+        w.flush()
     }
 
     /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
@@ -1750,53 +1746,61 @@ impl<'help> App<'help> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-h` (short)]: ./struct.Arg.html#method.about
     /// [`--help` (long)]: ./struct.Arg.html#method.long_about
-    pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> ClapResult<()> {
+    pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
         let p = Parser::new(self);
-        Help::new(HelpWriter::Normal(w), &p, true).write_help()
+        Help::new(HelpWriter::Normal(w), &p, true).write_help()?;
+        w.flush()
     }
 
-    /// Writes the version message to the user to a [`io::Write`] object as if the user ran `-V`.
+    /// Returns the version message rendered as if the user ran `-V`.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
     /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
     ///
-    /// # Examples
+    /// ### Coloring
+    ///
+    /// This function does not try to color the message nor it inserts any [ANSI escape codes].
+    ///
+    /// ### Examples
     ///
     /// ```rust
     /// # use clap::App;
     /// use std::io;
-    /// let mut app = App::new("myprog");
-    /// let mut out = io::stdout();
-    /// app.write_version(&mut out).expect("failed to write to stdout");
+    /// let app = App::new("myprog");
+    /// println!("{}", app.render_version());
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-V` (short)]: ./struct.App.html#method.version
     /// [`--version` (long)]: ./struct.App.html#method.long_version
-    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self._write_version(w, false).map_err(From::from)
+    /// [ANSI escape codes]: https://en.wikipedia.org/wiki/ANSI_escape_code
+    pub fn render_version(&self) -> String {
+        self._render_version(false)
     }
 
-    /// Writes the version message to the user to a [`io::Write`] object.
+    /// Returns the version message rendered as if the user ran `--version`.
     ///
     /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
     /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
     ///
-    /// # Examples
+    /// ### Coloring
+    ///
+    /// This function does not try to color the message nor it inserts any [ANSI escape codes].
+    ///
+    /// ### Examples
     ///
     /// ```rust
     /// # use clap::App;
     /// use std::io;
-    /// let mut app = App::new("myprog");
-    /// let mut out = io::stdout();
-    /// app.write_long_version(&mut out).expect("failed to write to stdout");
+    /// let app = App::new("myprog");
+    /// println!("{}", app.render_long_version());
     /// ```
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-V` (short)]: ./struct.App.html#method.version
     /// [`--version` (long)]: ./struct.App.html#method.long_version
-    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
-        self._write_version(w, true).map_err(From::from)
+    pub fn render_long_version(&self) -> String {
+        self._render_version(true)
     }
 
     /// @TODO-v3-alpha @docs @p2: write docs
@@ -2111,7 +2115,7 @@ impl<'help> App<'help> {
         let mut matcher = ArgMatcher::default();
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
-        // before parsing incase we run into a subcommand
+        // before parsing in case we run into a subcommand
         if !self.settings.is_set(AppSettings::Built) {
             self._build();
         }
@@ -2150,12 +2154,9 @@ impl<'help> App<'help> {
         for a in self.args.args.iter_mut() {
             // Fill in the groups
             for g in &a.groups {
-                let mut found = false;
                 if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
                     ag.args.push(a.id.clone());
-                    found = true;
-                }
-                if !found {
+                } else {
                     let mut ag = ArgGroup::with_id(g.clone());
                     ag.args.push(a.id.clone());
                     self.groups.push(ag);
@@ -2396,8 +2397,8 @@ impl<'help> App<'help> {
         }
     }
 
-    pub(crate) fn _write_version<W: Write>(&self, w: &mut W, use_long: bool) -> io::Result<()> {
-        debug!("App::_write_version");
+    pub(crate) fn _render_version(&self, use_long: bool) -> String {
+        debug!("App::_render_version");
 
         let ver = if use_long {
             self.long_version
@@ -2409,12 +2410,12 @@ impl<'help> App<'help> {
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                writeln!(w, "{} {}", bn.replace(" ", "-"), ver)
+                format!("{} {}\n", bn.replace(" ", "-"), ver)
             } else {
-                writeln!(w, "{} {}", &self.name[..], ver)
+                format!("{} {}\n", &self.name[..], ver)
             }
         } else {
-            writeln!(w, "{} {}", &self.name[..], ver)
+            format!("{} {}\n", &self.name[..], ver)
         }
     }
 
