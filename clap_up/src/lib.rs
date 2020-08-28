@@ -1,6 +1,4 @@
-use cargo_up::{
-    ra_hir::Semantics, ra_ide_db::RootDatabase, ra_syntax::ast, Runner, Upgrader, Version,
-};
+use cargo_up::{ra_ap_syntax::ast, Runner, Semantics, Upgrader, Version};
 
 pub fn runner() -> Runner {
     Runner::new()
@@ -54,10 +52,25 @@ pub fn runner() -> Runner {
         .version(
             Version::new("3.0.0-rc.0")
                 .unwrap()
+                .rename_variants(
+                    "clap::parse::errors::ErrorKind",
+                    &[
+                        ["HelpDisplayed", "DisplayHelp"],
+                        ["VersionDisplayed", "DisplayVersion"],
+                    ],
+                )
                 .rename_methods("clap::build::app::App", &[["set_term_width", "term_width"]])
                 .rename_methods(
                     "clap::build::arg::Arg",
-                    &[["from_yaml", "from"], ["with_name", "new"]],
+                    &[
+                        ["from_yaml", "from"],
+                        ["with_name", "new"],
+                        ["required_if", "required_if_eq"],
+                        ["required_ifs", "required_if_eq_any"],
+                        ["required_unless", "required_unless_present"],
+                        ["required_unless_one", "required_unless_eq_any"],
+                        ["required_unless_all", "required_unless_eq_all"],
+                    ],
                 )
                 .rename_methods(
                     "clap::build::arg_group::ArgGroup",
@@ -69,7 +82,7 @@ pub fn runner() -> Runner {
 fn print_method_calls(
     upgrader: &mut Upgrader,
     method_call_expr: &ast::MethodCallExpr,
-    semantics: &Semantics<RootDatabase>,
+    semantics: &Semantics,
 ) {
     if let Some(name_ref) = method_call_expr.name_ref() {
         // println!("method: {}", name_ref.text());

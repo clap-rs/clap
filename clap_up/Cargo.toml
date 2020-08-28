@@ -28,7 +28,7 @@ maintenance = {status = "actively-developed"}
 bench = false
 
 [dependencies]
-cargo-up = { path = "../../../pksunkara/cargo-up/cargo-up" }
+cargo-up = { version = "=0.0.3" }
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
