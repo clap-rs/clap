@@ -306,30 +306,6 @@ impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn _build(&mut self) {
         debug!("Parser::_build");
 
-        //I wonder whether this part is even needed if we insert all Args using make_entries
-        let mut key = Vec::new();
-        let mut counter = 0;
-        for (i, a) in self.app.args.args.iter_mut().enumerate() {
-            if a.index == None && a.is_positional() {
-                counter += 1;
-                a.index = Some(counter);
-                key.push((KeyType::Position(counter), i));
-            }
-
-            // Add args with default requirements
-            if a.is_set(ArgSettings::Required) {
-                debug!("Parser::_build: adding {} to default requires", a.name);
-                let idx = self.required.insert(a.id.clone());
-                // If the arg is required, add all it's requirements to master required list
-                for (_, name) in a.requires.iter().filter(|(val, _)| val.is_none()) {
-                    self.required.insert_child(idx, name.clone());
-                }
-            }
-        }
-        for (k, i) in key.into_iter() {
-            self.app.args.insert_key(k, i);
-        }
-
         #[cfg(debug_assertions)]
         self._verify_positionals();
 
