@@ -696,14 +696,14 @@ impl<'help> Arg<'help> {
     /// * supplies *all* of the `names` arguments.
     ///
     /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
-    /// present see [`Arg::required_unless_eq_any`]
+    /// present see [`Arg::required_unless_present_any`]
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_eq_all(&["cfg", "dbg"])
+    ///     .required_unless_present_all(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
@@ -714,7 +714,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_eq_all(&["dbg", "infile"])
+    ///         .required_unless_present_all(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -729,14 +729,14 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`Arg::required_unless_eq_all(names)`] and *not* supplying
+    /// Setting [`Arg::required_unless_present_all(names)`] and *not* supplying
     /// either *all* of `unless` args or the `self` arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_eq_all(&["dbg", "infile"])
+    ///         .required_unless_present_all(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -751,9 +751,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::required_unless_eq_any`]: ./struct.Arg.html#method.required_unless_eq_any
-    /// [`Arg::required_unless_eq_all(names)`]: ./struct.Arg.html#method.required_unless_eq_all
-    pub fn required_unless_eq_all<T, I>(mut self, names: I) -> Self
+    /// [`Arg::required_unless_present_any`]: ./struct.Arg.html#method.required_unless_present_any
+    /// [`Arg::required_unless_present_all(names)`]: ./struct.Arg.html#method.required_unless_present_all
+    pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
         T: Key,
@@ -773,11 +773,11 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_eq_all(&["cfg", "dbg"])
+    ///     .required_unless_present_all(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_unless_eq_any(names)`] requires that the argument be used at runtime
+    /// Setting [`Arg::required_unless_present_any(names)`] requires that the argument be used at runtime
     /// *unless* *at least one of* the args in `names` are present. In the following example, the
     /// required argument is *not* provided, but it's not an error because one the `unless` args
     /// have been supplied.
@@ -786,7 +786,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_eq_any(&["dbg", "infile"])
+    ///         .required_unless_present_any(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -801,14 +801,14 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`Arg::required_unless_eq_any(names)`] and *not* supplying *at least one of* `names`
+    /// Setting [`Arg::required_unless_present_any(names)`] and *not* supplying *at least one of* `names`
     /// or this arg is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .required_unless_eq_any(&["dbg", "infile"])
+    ///         .required_unless_present_any(&["dbg", "infile"])
     ///         .takes_value(true)
     ///         .long("config"))
     ///     .arg(Arg::new("dbg")
@@ -824,9 +824,9 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: ./struct.Arg.html#method.required
-    /// [`Arg::required_unless_eq_any(names)`]: ./struct.Arg.html#method.required_unless_eq_any
-    /// [`Arg::required_unless_eq_all`]: ./struct.Arg.html#method.required_unless_eq_all
-    pub fn required_unless_eq_any<T, I>(mut self, names: I) -> Self
+    /// [`Arg::required_unless_present_any(names)`]: ./struct.Arg.html#method.required_unless_present_any
+    /// [`Arg::required_unless_present_all`]: ./struct.Arg.html#method.required_unless_present_all
+    pub fn required_unless_present_any<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
         T: Key,
@@ -4400,9 +4400,9 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "overrides_with" => yaml_vec_or_str!(a, v, overrides_with),
                 "possible_values" => yaml_vec_or_str!(a, v, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_eq_any" => yaml_vec!(a, v, required_unless_eq_any),
-                "required_unless_eq_all" => {
-                    a = yaml_vec!(a, v, required_unless_eq_all);
+                "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
+                "required_unless_present_all" => {
+                    a = yaml_vec!(a, v, required_unless_present_all);
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }

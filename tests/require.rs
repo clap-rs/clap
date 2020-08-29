@@ -252,11 +252,11 @@ fn required_unless_err() {
 // REQUIRED_UNLESS_ALL
 
 #[test]
-fn required_unless_eq_all() {
+fn required_unless_present_all() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_all(&["dbg", "infile"])
+                .required_unless_present_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -276,7 +276,7 @@ fn required_unless_all_err() {
     let res = App::new("unlessall")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_all(&["dbg", "infile"])
+                .required_unless_present_all(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -291,11 +291,11 @@ fn required_unless_all_err() {
 // REQUIRED_UNLESS_ONE
 
 #[test]
-fn required_unless_eq_any() {
+fn required_unless_present_any() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_any(&["dbg", "infile"])
+                .required_unless_present_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -311,12 +311,12 @@ fn required_unless_eq_any() {
 
 #[test]
 fn required_unless_any_2() {
-    // This tests that the required_unless_eq_any works when the second arg in the array is used
+    // This tests that the required_unless_present_any works when the second arg in the array is used
     // instead of the first.
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_any(&["dbg", "infile"])
+                .required_unless_present_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -336,7 +336,11 @@ fn required_unless_any_works_with_short() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").short('x').required_unless_eq_any(&["a", "b"]))
+        .arg(
+            Arg::new("x")
+                .short('x')
+                .required_unless_present_any(&["a", "b"]),
+        )
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
@@ -347,7 +351,11 @@ fn required_unless_any_works_with_short_err() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").short('x').required_unless_eq_any(&["a", "b"]))
+        .arg(
+            Arg::new("x")
+                .short('x')
+                .required_unless_present_any(&["a", "b"]),
+        )
         .try_get_matches_from(vec!["unlessone"]);
 
     assert!(!res.is_ok());
@@ -358,7 +366,7 @@ fn required_unless_any_works_without() {
     let res = App::new("unlessone")
         .arg(Arg::new("a").conflicts_with("b").short('a'))
         .arg(Arg::new("b").short('b'))
-        .arg(Arg::new("x").required_unless_eq_any(&["a", "b"]))
+        .arg(Arg::new("x").required_unless_present_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
     assert!(res.is_ok());
@@ -372,7 +380,7 @@ fn required_unless_any_works_with_long() {
         .arg(
             Arg::new("x")
                 .long("x_is_the_option")
-                .required_unless_eq_any(&["a", "b"]),
+                .required_unless_present_any(&["a", "b"]),
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
@@ -384,7 +392,7 @@ fn required_unless_any_1() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_any(&["dbg", "infile"])
+                .required_unless_present_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )
@@ -404,7 +412,7 @@ fn required_unless_any_err() {
     let res = App::new("unlessone")
         .arg(
             Arg::new("cfg")
-                .required_unless_eq_any(&["dbg", "infile"])
+                .required_unless_present_any(&["dbg", "infile"])
                 .takes_value(true)
                 .long("config"),
         )

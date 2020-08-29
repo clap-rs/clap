@@ -68,8 +68,8 @@ pub fn runner() -> Runner {
                         ["required_if", "required_if_eq"],
                         ["required_ifs", "required_if_eq_any"],
                         ["required_unless", "required_unless_present"],
-                        ["required_unless_one", "required_unless_eq_any"],
-                        ["required_unless_all", "required_unless_eq_all"],
+                        ["required_unless_one", "required_unless_present_any"],
+                        ["required_unless_all", "required_unless_present_all"],
                     ],
                 )
                 .rename_methods(
