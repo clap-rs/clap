@@ -77,15 +77,6 @@ impl<'help> MKeyMap<'help> {
     }
     //TODO ::push_many([x, y])
 
-    pub(crate) fn insert_key(&mut self, key: KeyType, index: usize) {
-        if index >= self.args.len() {
-            panic!("Index out of bounds");
-        }
-
-        self.keys.push(Key { key, index });
-    }
-    //TODO ::insert_keyset([Long, Key2])
-
     // ! Arg mutation functionality
 
     pub(crate) fn get(&self, key: &KeyType) -> Option<&Arg<'help>> {
