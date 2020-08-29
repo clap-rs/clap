@@ -689,7 +689,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let opts = self
             .parser
             .app
-            .get_opts_no_heading()
+            .get_opts_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let subcmds = self.parser.has_visible_subcommands();
@@ -734,7 +734,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     self.none("\n\n")?;
                 }
                 self.warning("FLAGS:\n")?;
-                let flags_v: Vec<_> = self.parser.app.get_flags_no_heading().collect();
+                let flags_v: Vec<_> = self.parser.app.get_flags_with_no_heading().collect();
                 self.write_args(&flags_v)?;
                 first = false;
             }
@@ -950,10 +950,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.write_args(&opts_flags)?;
                     }
                     "flags" => {
-                        self.write_args(&self.parser.app.get_flags_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_flags_with_no_heading().collect::<Vec<_>>())?;
                     }
                     "options" => {
-                        self.write_args(&self.parser.app.get_opts_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_opts_with_no_heading().collect::<Vec<_>>())?;
                     }
                     "positionals" => {
                         self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
