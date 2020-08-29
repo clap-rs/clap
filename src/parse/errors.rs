@@ -1,6 +1,7 @@
 // Std
 use std::{
     convert::From,
+    error,
     fmt::{self, Debug, Display, Formatter},
     io,
     result::Result as StdResult,
@@ -860,3 +861,5 @@ impl From<fmt::Error> for Error {
         Error::with_description(e.to_string(), ErrorKind::Format)
     }
 }
+
+impl error::Error for Error {}
