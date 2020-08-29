@@ -112,7 +112,8 @@ jobs:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.40.0
+          override: true
       - name: Checkout
         uses: actions/checkout@v2
       - name: Ready cache

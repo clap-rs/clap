@@ -21,8 +21,8 @@ TODO: `cargo`, `std` features
     * `Arg::required_if` => `Arg::required_if_eq`
     * `Arg::required_ifs` => `Arg::required_if_eq_any`
     * `Arg::required_unless` => `Arg::required_unless_present`
-    * `Arg::required_unless_one` => `Arg::required_unless_eq_any`
-    * `Arg::required_unless_all` => `Arg::required_unless_eq_all`
+    * `Arg::required_unless_one` => `Arg::required_unless_present_any`
+    * `Arg::required_unless_all` => `Arg::required_unless_present_all`
   * **ArgGroup**
     * `ArgGroup::from_yaml` => `ArgGroup::from`
     * `ArgGroup::with_name` => `ArgGroup::new`

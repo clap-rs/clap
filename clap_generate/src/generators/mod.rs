@@ -185,7 +185,7 @@ pub trait Generator {
     fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
         debug!("flags: name={}", p.get_name());
 
-        let mut flags: Vec<_> = p.get_flags_no_heading().cloned().collect();
+        let mut flags: Vec<_> = p.get_flags_with_no_heading().cloned().collect();
 
         if !flags.iter().any(|x| x.get_name() == "help") {
             flags.push(

@@ -56,7 +56,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
 
     debug!("gen_fish_inner: bin_name={}", bin_name);
 
-    for option in app.get_opts_no_heading() {
+    for option in app.get_opts_with_no_heading() {
         let mut template = basic_template.clone();
 
         if let Some(data) = option.get_short() {
