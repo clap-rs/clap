@@ -2221,6 +2221,9 @@ impl<'help> Arg<'help> {
             i += 1;
         }
 
+        if self.val_names.len() > 1 {
+            self.num_vals = Some(self.val_names.len() as u64);
+        }
         self.takes_value(true)
     }
 
