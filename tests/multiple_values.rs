@@ -502,6 +502,43 @@ fn positional_max_more() {
 }
 
 #[test]
+fn positional_value_names_exact_exact() {
+    let m = App::new("multiple_values")
+        .arg(Arg::new("pos").about("multiple positionals").value_names(&["a", "b", "c"]))
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("pos"));
+    assert_eq!(m.occurrences_of("pos"), 3);
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3"]
+    );
+}
+
+#[test]
+fn positional_value_names_exact_less() {
+    let m = App::new("multiple_values")
+        .arg(Arg::new("pos").about("multiple positionals").value_names(&["a", "b", "c"]))
+        .try_get_matches_from(vec!["myprog", "val1", "val2"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+}
+
+#[test]
+fn positional_value_names_exact_more() {
+    let m = App::new("multiple_values")
+        .arg(Arg::new("pos").about("multiple positionals").value_names(&["a", "b", "c"]))
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+}
+
+#[test]
 fn sep_long_equals() {
     let m = App::new("multiple_values")
         .arg(
