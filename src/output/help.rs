@@ -58,7 +58,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
-        USAGE:\n    {usage}\n\
+        {usage-heading}\n    {usage}\n\
         \n\
         {all-args}{after-help}\
     ";
@@ -66,7 +66,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
-        USAGE:\n    {usage}{after-help}\
+        {usage-heading}\n    {usage}{after-help}\
     ";
 
     /// Create a new `Help` instance.
@@ -931,6 +931,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             self.none(wrap_help(output, self.term_w))?;
                             self.none("\n")?;
                         }
+                    }
+                    "usage-heading" => {
+                        self.warning("USAGE:")?;
                     }
                     "usage" => {
                         self.none(Usage::new(self.parser).create_usage_no_title(&[]))?;

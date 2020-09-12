@@ -749,6 +749,7 @@ impl<'help> App<'help> {
     ///   * `{about}`               - General description (from [`App::about`] or
     ///                               [`App::long_about`]).
     ///   * `{about-with-newline}`  - About followed by `\n`.
+    ///   * `{usage-heading}`       - Automatically generated usage heading.
     ///   * `{usage}`               - Automatically generated or given usage string.
     ///   * `{all-args}`            - Help for all arguments (options, flags, positional
     ///                               arguments, and subcommands) including titles.
