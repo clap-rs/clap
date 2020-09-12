@@ -1799,6 +1799,7 @@ impl<'help> App<'help> {
     /// [`io::Write`]: https://doc.rust-lang.org/std/io/trait.Write.html
     /// [`-V` (short)]: ./struct.App.html#method.version
     /// [`--version` (long)]: ./struct.App.html#method.long_version
+    /// [ANSI escape codes]: https://en.wikipedia.org/wiki/ANSI_escape_code
     pub fn render_long_version(&self) -> String {
         self._render_version(true)
     }
