@@ -472,6 +472,18 @@ FLAGS:
 OPTIONS:
         --arg <argument>    Pass an argument to the program. [default: default-argument]";
 
+static ESCAPED_DEFAULT_VAL: &str = "default 0.1
+
+USAGE:
+    default [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --arg <argument>    Pass an argument to the program. [default: \"\\n\"]";
+
 static LAST_ARG_USAGE: &str = "flamegraph 0.1
 
 USAGE:
@@ -1372,6 +1384,23 @@ fn hidden_default_val() {
         app2,
         "default --help",
         HIDE_DEFAULT_VAL,
+        false
+    ));
+}
+
+#[test]
+fn escaped_default_val() {
+    let app1 = App::new("default").version("0.1").term_width(120).arg(
+        Arg::new("argument")
+            .about("Pass an argument to the program.")
+            .long("arg")
+            .default_value("\n")
+            .escape_default_values(true),
+    );
+    assert!(utils::compare_output(
+        app1,
+        "default --help",
+        ESCAPED_DEFAULT_VAL,
         false
     ));
 }

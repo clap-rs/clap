@@ -500,7 +500,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             let pvs = a
                 .default_vals
                 .iter()
-                .map(|&pvs| pvs.to_string_lossy())
+                .map(|&pvs| if a.is_set(ArgSettings::EscapeDefaultValues) {
+                    Cow::from(format!("{:?}", pvs))
+                } else {
+                    pvs.to_string_lossy()
+                })
                 .collect::<Vec<_>>()
                 .join(" ");
 

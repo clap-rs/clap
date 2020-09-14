@@ -6,27 +6,28 @@ use bitflags::bitflags;
 
 bitflags! {
     struct Flags: u32 {
-        const REQUIRED         = 1;
-        const MULTIPLE_OCC     = 1 << 1;
-        const EMPTY_VALS       = 1 << 2 | Self::TAKES_VAL.bits;
-        const GLOBAL           = 1 << 3;
-        const HIDDEN           = 1 << 4;
-        const TAKES_VAL        = 1 << 5;
-        const USE_DELIM        = 1 << 6;
-        const NEXT_LINE_HELP   = 1 << 7;
-        const R_UNLESS_ALL     = 1 << 8;
-        const REQ_DELIM        = 1 << 9 | Self::TAKES_VAL.bits | Self::USE_DELIM.bits;
-        const DELIM_NOT_SET    = 1 << 10;
-        const HIDE_POS_VALS    = 1 << 11 | Self::TAKES_VAL.bits;
-        const ALLOW_TAC_VALS   = 1 << 12 | Self::TAKES_VAL.bits;
-        const REQUIRE_EQUALS   = 1 << 13 | Self::TAKES_VAL.bits;
-        const LAST             = 1 << 14 | Self::TAKES_VAL.bits;
-        const HIDE_DEFAULT_VAL = 1 << 15 | Self::TAKES_VAL.bits;
-        const CASE_INSENSITIVE = 1 << 16;
-        const HIDE_ENV_VALS    = 1 << 17;
-        const HIDDEN_SHORT_H   = 1 << 18;
-        const HIDDEN_LONG_H    = 1 << 19;
-        const MULTIPLE_VALS    = 1 << 20 | Self::TAKES_VAL.bits;
+        const REQUIRED            = 1;
+        const MULTIPLE_OCC        = 1 << 1;
+        const EMPTY_VALS          = 1 << 2 | Self::TAKES_VAL.bits;
+        const GLOBAL              = 1 << 3;
+        const HIDDEN              = 1 << 4;
+        const TAKES_VAL           = 1 << 5;
+        const USE_DELIM           = 1 << 6;
+        const NEXT_LINE_HELP      = 1 << 7;
+        const R_UNLESS_ALL        = 1 << 8;
+        const REQ_DELIM           = 1 << 9 | Self::TAKES_VAL.bits | Self::USE_DELIM.bits;
+        const DELIM_NOT_SET       = 1 << 10;
+        const HIDE_POS_VALS       = 1 << 11 | Self::TAKES_VAL.bits;
+        const ALLOW_TAC_VALS      = 1 << 12 | Self::TAKES_VAL.bits;
+        const REQUIRE_EQUALS      = 1 << 13 | Self::TAKES_VAL.bits;
+        const LAST                = 1 << 14 | Self::TAKES_VAL.bits;
+        const HIDE_DEFAULT_VAL    = 1 << 15 | Self::TAKES_VAL.bits;
+        const CASE_INSENSITIVE    = 1 << 16;
+        const HIDE_ENV_VALS       = 1 << 17;
+        const HIDDEN_SHORT_H      = 1 << 18;
+        const HIDDEN_LONG_H       = 1 << 19;
+        const MULTIPLE_VALS       = 1 << 20 | Self::TAKES_VAL.bits;
+        const ESCAPE_DEFAULT_VALS = 1 << 21;
     }
 }
 
@@ -53,7 +54,8 @@ impl_settings! { ArgSettings, ArgFlags,
     HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
     HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
-    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H
+    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
+    EscapeDefaultValues("escapedefaultvalues") => Flags::ESCAPE_DEFAULT_VALS
 }
 
 impl Default for ArgFlags {
@@ -113,6 +115,8 @@ pub enum ArgSettings {
     HiddenLongHelp,
     #[doc(hidden)]
     RequiredUnlessAll,
+    /// Default values are escaped in the help message
+    EscapeDefaultValues,
 }
 
 #[cfg(test)]

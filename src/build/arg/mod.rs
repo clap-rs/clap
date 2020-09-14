@@ -94,6 +94,7 @@ pub struct Arg<'help> {
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
+    pub(crate) escape_default_values: bool,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<u64>,
@@ -2369,6 +2370,16 @@ impl<'help> Arg<'help> {
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.default_vals = vals.to_vec();
         self.takes_value(true)
+    }
+
+    /// The default values for the argument should be shown in the help message as escaped strings.
+    #[inline]
+    pub fn escape_default_values(self, escape_default_values: bool) -> Self {
+        if escape_default_values {
+            self.setting(ArgSettings::EscapeDefaultValues)
+        } else {
+            self.unset_setting(ArgSettings::EscapeDefaultValues)
+        }
     }
 
     /// Specifies a value for the argument when the argument is supplied and a value is required
