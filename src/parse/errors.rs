@@ -506,7 +506,11 @@ impl Error {
         let mut c = Colorizer::new(true, color);
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
 
-        let mut sorted: Vec<String> = good_vals.iter().map(|v| v.to_string()).collect();
+        let mut sorted: Vec<String> = good_vals
+            .iter()
+            .map(|v| v.to_string())
+            .map(|v| if v.contains(char::is_whitespace) { format!("{:?}", v) } else { v })
+            .collect();
         sorted.sort();
 
         start_error(&mut c, "'");
