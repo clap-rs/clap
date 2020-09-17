@@ -51,7 +51,8 @@ fn main() {
         .arg(
             Arg::new("debug")
                 .short('d')
-                .multiple(true)
+                .long("debug")
+                .multiple_occurrences(true)
                 .about("Turn debugging information on"),
         )
         .subcommand(
