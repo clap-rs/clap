@@ -35,7 +35,7 @@ fn main() {
         .about("Does awesome things")
         .arg("-c, --config=[FILE] 'Sets a custom config file'")
         .arg("<output> 'Sets an optional output file'")
-        .arg("-d... 'Turn debugging information on'")
+        .arg("-d..., --debug... 'Turn debugging information on'")
         .subcommand(
             App::new("test")
                 .about("does testing things")
@@ -54,7 +54,7 @@ fn main() {
 
     // You can see how many times a particular flag or argument occurred
     // Note, only flags can have multiple occurrences
-    match matches.occurrences_of("d") {
+    match matches.occurrences_of("debug") {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
         2 => println!("Debug mode is on"),
