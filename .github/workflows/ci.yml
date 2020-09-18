@@ -82,7 +82,7 @@ jobs:
         if: matrix.features == 'none'
         with:
           command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.1
+          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
       - name: Test all features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'

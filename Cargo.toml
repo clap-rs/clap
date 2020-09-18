@@ -1,6 +1,6 @@
 [package]
 name = "clap"
-version = "3.0.0-beta.1"
+version = "3.0.0-beta.2"
 edition = "2018"
 authors = [
 	"Kevin K. <kbknapp@gmail.com>",
@@ -77,7 +77,7 @@ atty        = { version = "0.2",  optional = true }
 termcolor   = { version = "1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }
 lazy_static = { version = "1", optional = true }
-clap_derive = { path = "./clap_derive", version = "3.0.0-beta.1", optional = true }
+clap_derive = { path = "./clap_derive", version = "3.0.0-beta.2", optional = true }
 regex = { version = "1.0", optional = true }
 
 [dev-dependencies]
