@@ -1,6 +1,6 @@
 [package]
 name = "clap_generate"
-version = "3.0.0-beta.1"
+version = "3.0.0-beta.2"
 edition = "2018"
 authors = [
 	"Kevin K. <kbknapp@gmail.com>",
@@ -35,7 +35,7 @@ is-it-maintained-open-issues = { repository = "clap-rs/clap" }
 maintenance = {status = "actively-developed"}
 
 [dependencies]
-clap = { path = "../", version = "3.0.0-beta.1" }
+clap = { path = "../", version = "3.0.0-beta.2" }
 
 [dev-dependencies]
 pretty_assertions = "0.6"

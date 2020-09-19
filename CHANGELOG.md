@@ -4,6 +4,9 @@ TODO: Structopt and traits
 TODO: `Shell`, `YamlLoader`
 TODO: `cargo`, `std` features
 
+<a name="v3.0.0-beta.2"></a>
+## v3.0.0-beta.2 (2020-09-18)
+
 #### BREAKING CHANGES
 
 * **Removed**
