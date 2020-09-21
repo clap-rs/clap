@@ -163,7 +163,7 @@ impl<'help> App<'help> {
             .map(|a| a.0)
     }
 
-    /// Iterate through the *visible* short aliases for this subcommand.
+    /// Iterate through the *visible* long aliases for this subcommand.
     #[inline]
     pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         self.long_flag_aliases
