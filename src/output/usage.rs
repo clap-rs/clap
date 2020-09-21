@@ -146,6 +146,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         if self.p.app.has_visible_subcommands() && incl_reqs
             || self.p.is_set(AS::AllowExternalSubcommands)
         {
+            let placeholder = self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND");
             if self.p.is_set(AS::SubcommandsNegateReqs) || self.p.is_set(AS::ArgsNegateSubcommands)
             {
                 if !self.p.is_set(AS::ArgsNegateSubcommands) {
@@ -153,25 +154,25 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     usage.push_str(&*self.create_help_usage(false));
 
                     usage.push_str(" <");
-                    usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                    usage.push_str(placeholder);
                     usage.push_str(">");
                 } else {
                     usage.push_str("\n    ");
                     usage.push_str(&*name);
 
                     usage.push_str(" <");
-                    usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                    usage.push_str(placeholder);
                     usage.push_str(">");
                 }
             } else if self.p.is_set(AS::SubcommandRequired)
                 || self.p.is_set(AS::SubcommandRequiredElseHelp)
             {
                 usage.push_str(" <");
-                usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                usage.push_str(placeholder);
                 usage.push_str(">");
             } else {
                 usage.push_str(" [");
-                usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
+                usage.push_str(placeholder);
                 usage.push_str("]");
             }
         }
