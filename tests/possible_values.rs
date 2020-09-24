@@ -3,22 +3,42 @@ mod utils;
 use clap::{App, Arg, ErrorKind};
 
 #[cfg(feature = "suggestions")]
-static PV_ERROR: &str = "error: 'slo' isn't a valid value for '--Option <option3>'
-\t[possible values: fast, slow]
+static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
+\t[possible values: \"ludicrous speed\", fast, slow]
 
-\tDid you mean 'slow'?
+\tDid you mean \"slow\"?
 
 USAGE:
-    clap-test --Option <option3>
+    clap-test -O <option>
 
 For more information try --help";
 
 #[cfg(not(feature = "suggestions"))]
-static PV_ERROR: &'static str = "error: 'slo' isn't a valid value for '--Option <option3>'
-\t[possible values: fast, slow]
+static PV_ERROR: &'static str = "error: \"slo\" isn't a valid value for '-O <option>'
+\t[possible values: \"ludicrous speed\", fast, slow]
 
 USAGE:
-    clap-test --Option <option3>
+    clap-test -O <option>
+
+For more information try --help";
+
+#[cfg(feature = "suggestions")]
+static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
+\t[possible values: \"ludicrous speed\", fast, slow]
+
+\tDid you mean \"ludicrous speed\"?
+
+USAGE:
+    clap-test -O <option>
+
+For more information try --help";
+
+#[cfg(not(feature = "suggestions"))]
+static PV_ERROR_ESCAPED: &'static str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
+\t[possible values: \"ludicrous speed\", fast, slow]
+
+USAGE:
+    clap-test -O <option>
 
 For more information try --help";
 
@@ -163,9 +183,19 @@ fn possible_values_of_option_multiple_fail() {
 #[test]
 fn possible_values_output() {
     assert!(utils::compare_output(
-        utils::complex_app(),
+        App::new("test").arg(Arg::new("option").short('O').possible_values(&["slow", "fast", "ludicrous speed"])),
         "clap-test -O slo",
         PV_ERROR,
+        true
+    ));
+}
+
+#[test]
+fn escaped_possible_values_output() {
+    assert!(utils::compare_output(
+        App::new("test").arg(Arg::new("option").short('O').possible_values(&["slow", "fast", "ludicrous speed"])),
+        "clap-test -O ludicrous",
+        PV_ERROR_ESCAPED,
         true
     ));
 }
