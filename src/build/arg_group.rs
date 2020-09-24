@@ -523,7 +523,7 @@ mod test {
     }
 
     #[cfg(feature = "yaml")]
-    #[cfg_attr(feature = "yaml", test)]
+    #[test]
     fn test_yaml() {
         let g_yaml = "name: test
 args:
