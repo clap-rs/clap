@@ -501,6 +501,13 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .default_vals
                 .iter()
                 .map(|&pvs| pvs.to_string_lossy())
+                .map(|pvs| {
+                    if pvs.contains(char::is_whitespace) {
+                        Cow::from(format!("{:?}", pvs))
+                    } else {
+                        pvs
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join(" ");
 
@@ -550,7 +557,20 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 a.possible_vals
             );
 
-            spec_vals.push(format!("[possible values: {}]", a.possible_vals.join(", ")));
+            let pvs = a
+                .possible_vals
+                .iter()
+                .map(|&pv| {
+                    if pv.contains(char::is_whitespace) {
+                        format!("{:?}", pv)
+                    } else {
+                        pv.to_string()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            spec_vals.push(format!("[possible values: {}]", pvs));
         }
         let prefix = if !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
             " "

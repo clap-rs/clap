@@ -506,12 +506,22 @@ impl Error {
         let mut c = Colorizer::new(true, color);
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
 
-        let mut sorted: Vec<String> = good_vals.iter().map(|v| v.to_string()).collect();
+        let mut sorted: Vec<String> = good_vals
+            .iter()
+            .map(|v| v.to_string())
+            .map(|v| {
+                if v.contains(char::is_whitespace) {
+                    format!("{:?}", v)
+                } else {
+                    v
+                }
+            })
+            .collect();
         sorted.sort();
 
-        start_error(&mut c, "'");
-        c.warning(bad_val.clone());
-        c.none("' isn't a valid value for '");
+        start_error(&mut c, "");
+        c.warning(format!("{:?}", bad_val));
+        c.none(" isn't a valid value for '");
         c.warning(arg.to_string());
         c.none("'\n\t[possible values: ");
 
@@ -527,9 +537,9 @@ impl Error {
         c.none("]");
 
         if let Some(val) = suffix {
-            c.none("\n\n\tDid you mean '");
-            c.good(val);
-            c.none("'?");
+            c.none("\n\n\tDid you mean ");
+            c.good(format!("{:?}", val));
+            c.none("?");
         }
 
         put_usage(&mut c, usage);
