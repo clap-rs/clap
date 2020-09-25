@@ -501,10 +501,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .default_vals
                 .iter()
                 .map(|&pvs| pvs.to_string_lossy())
-                .map(|pvs| if pvs.contains(char::is_whitespace) {
-                    Cow::from(format!("{:?}", pvs))
-                } else {
-                    pvs
+                .map(|pvs| {
+                    if pvs.contains(char::is_whitespace) {
+                        Cow::from(format!("{:?}", pvs))
+                    } else {
+                        pvs
+                    }
                 })
                 .collect::<Vec<_>>()
                 .join(" ");
@@ -558,10 +560,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             let pvs = a
                 .possible_vals
                 .iter()
-                .map(|&pv| if pv.contains(char::is_whitespace) {
-                    format!("{:?}", pv)
-                } else {
-                    pv.to_string()
+                .map(|&pv| {
+                    if pv.contains(char::is_whitespace) {
+                        format!("{:?}", pv)
+                    } else {
+                        pv.to_string()
+                    }
                 })
                 .collect::<Vec<_>>()
                 .join(", ");

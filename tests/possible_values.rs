@@ -183,7 +183,11 @@ fn possible_values_of_option_multiple_fail() {
 #[test]
 fn possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values(&["slow", "fast", "ludicrous speed"])),
+        App::new("test").arg(Arg::new("option").short('O').possible_values(&[
+            "slow",
+            "fast",
+            "ludicrous speed"
+        ])),
         "clap-test -O slo",
         PV_ERROR,
         true
@@ -193,7 +197,11 @@ fn possible_values_output() {
 #[test]
 fn escaped_possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values(&["slow", "fast", "ludicrous speed"])),
+        App::new("test").arg(Arg::new("option").short('O').possible_values(&[
+            "slow",
+            "fast",
+            "ludicrous speed"
+        ])),
         "clap-test -O ludicrous",
         PV_ERROR_ESCAPED,
         true

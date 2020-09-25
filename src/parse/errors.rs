@@ -509,7 +509,13 @@ impl Error {
         let mut sorted: Vec<String> = good_vals
             .iter()
             .map(|v| v.to_string())
-            .map(|v| if v.contains(char::is_whitespace) { format!("{:?}", v) } else { v })
+            .map(|v| {
+                if v.contains(char::is_whitespace) {
+                    format!("{:?}", v)
+                } else {
+                    v
+                }
+            })
             .collect();
         sorted.sort();
 
