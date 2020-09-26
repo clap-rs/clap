@@ -83,6 +83,8 @@ pub struct App<'help> {
     pub(crate) long_version: Option<&'help str>,
     pub(crate) about: Option<&'help str>,
     pub(crate) long_about: Option<&'help str>,
+    pub(crate) help_about: Option<&'help str>,
+    pub(crate) version_about: Option<&'help str>,
     pub(crate) before_help: Option<&'help str>,
     pub(crate) before_long_help: Option<&'help str>,
     pub(crate) after_help: Option<&'help str>,
@@ -417,6 +419,50 @@ impl<'help> App<'help> {
     /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.long_about = Some(about.into());
+        self
+    }
+
+    /// Sets the help text for the auto-generated help argument and subcommand.
+    ///
+    /// By default clap sets this to "Prints help information" for the help
+    /// argument and "Prints this message or the help of the given subcommand(s)"
+    /// for the help subcommand but if you're using a different convention
+    /// for your help messages and would prefer a different phrasing you can
+    /// override it.
+    ///
+    /// **NOTE:** This setting propagates to subcommands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .help_about("Print help information") // Impertive tone
+    /// # ;
+    /// ```
+    pub fn help_about<S: Into<&'help str>>(mut self, help_about: S) -> Self {
+        self.help_about = Some(help_about.into());
+        self
+    }
+
+    /// Sets the help text for the auto-generated version argument.
+    ///
+    /// By default clap sets this to "Prints versoin information" but if
+    /// you're using a different convention for your help messages and
+    /// would prefer a different phrasing you can override it.
+    ///
+    /// **NOTE:** This setting propagates to subcommands.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::App;
+    /// App::new("myprog")
+    ///     .version_about("Print version information") // Impertive tone
+    /// # ;
+    /// ```
+    pub fn version_about<S: Into<&'help str>>(mut self, version_about: S) -> Self {
+        self.version_about = Some(version_about.into());
         self
     }
 
@@ -2247,6 +2293,12 @@ impl<'help> App<'help> {
                     $sc.g_settings = $sc.g_settings | $_self.g_settings;
                     $sc.term_w = $_self.term_w;
                     $sc.max_w = $_self.max_w;
+                    if $sc.help_about.is_none() && $_self.help_about.is_some() {
+                        $sc.help_about = $_self.help_about.clone();
+                    }
+                    if $sc.version_about.is_none() && $_self.version_about.is_some() {
+                        $sc.version_about = $_self.version_about.clone();
+                    }
                 }
                 {
                     // FIXME: This doesn't belong here at all.
@@ -2299,7 +2351,7 @@ impl<'help> App<'help> {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
                 .long("help")
-                .about("Prints help information");
+                .about(self.help_about.unwrap_or("Prints help information"));
             if !self.args.args.iter().any(|x| x.short == Some('h')) {
                 help = help.short('h');
             }
@@ -2320,7 +2372,7 @@ impl<'help> App<'help> {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
                 .long("version")
-                .about("Prints version information");
+                .about(self.version_about.unwrap_or("Prints version information"));
             if !self.args.args.iter().any(|x| x.short == Some('V')) {
                 version = version.short('V');
             }
@@ -2333,8 +2385,10 @@ impl<'help> App<'help> {
         {
             debug!("App::_create_help_and_version: Building help");
             self.subcommands.push(
-                App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"),
+                App::new("help").about(
+                    self.help_about
+                        .unwrap_or("Prints this message or the help of the given subcommand(s)"),
+                ),
             );
         }
     }

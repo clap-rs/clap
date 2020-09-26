@@ -1855,3 +1855,307 @@ fn after_help_no_args() {
 
     assert_eq!(help, AFTER_HELP_NO_ARGS);
 }
+
+static HELP_ABOUT: &str = "myapp 1.0
+
+USAGE:
+    myapp
+
+FLAGS:
+    -h, --help       Print custom help about text
+    -V, --version    Prints version information";
+
+static HELP_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Print custom help about text
+    -V, --version    Prints version information";
+
+static HELP_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Print custom help about text from multi
+    -V, --version    Prints version information";
+
+#[test]
+fn help_about_short_flag() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .help_about("Print custom help about text");
+
+    assert!(utils::compare_output(app, "myapp -h", HELP_ABOUT, false));
+}
+
+#[test]
+fn help_about_long_flag() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .help_about("Print custom help about text");
+
+    assert!(utils::compare_output(
+        app,
+        "myapp --help",
+        HELP_ABOUT,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp help subcmd multi",
+        HELP_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd_short_flag() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi -h",
+        HELP_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd_long_flag() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi --help",
+        HELP_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd_override() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .help_about("Print custom help about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp help subcmd multi",
+        HELP_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd_override_short_flag() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .help_about("Print custom help about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi -h",
+        HELP_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+#[test]
+fn help_about_multi_subcmd_override_long_flag() {
+    let app = App::new("myapp")
+        .help_about("Print custom help about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .help_about("Print custom help about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi --help",
+        HELP_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+static VERSION_ABOUT: &str = "myapp 1.0
+
+USAGE:
+    myapp
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Print custom version about text";
+
+static VERSION_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Print custom version about text";
+
+static VERSION_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Print custom version about text from multi";
+
+#[test]
+fn version_about_short_flag() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .version_about("Print custom version about text");
+
+    assert!(utils::compare_output(app, "myapp -h", VERSION_ABOUT, false));
+}
+
+#[test]
+fn version_about_long_flag() {
+    let app = App::new("myapp")
+        .version("1.0")
+        .version_about("Print custom version about text");
+
+    assert!(utils::compare_output(
+        app,
+        "myapp --help",
+        VERSION_ABOUT,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp help subcmd multi",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd_short_flag() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi -h",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd_long_flag() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi --help",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd_override() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .version_about("Print custom version about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp help subcmd multi",
+        VERSION_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd_override_short_flag() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .version_about("Print custom version about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi -h",
+        VERSION_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+#[test]
+fn version_about_multi_subcmd_override_long_flag() {
+    let app = App::new("myapp")
+        .version_about("Print custom version about text")
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .version_about("Print custom version about text from multi"),
+            ),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi --help",
+        VERSION_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
