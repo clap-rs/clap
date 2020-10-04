@@ -93,6 +93,64 @@ USAGE:
 
 For more information try --help";
 
+static RECURSIVE_HELP: &str = "clap-test 2.6
+
+USAGE:
+    clap-test [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help           Prints this message or the help of the given subcommand(s)
+    subcommand1    Some help
+    subcommand2    Another subcommand
+
+. clap-test-subcommand1 
+. Some help
+. 
+. USAGE:
+.     clap-test subcommand1 [SUBCOMMAND]
+. 
+. SUBCOMMANDS:
+.     nested-subcommand    Subcommand below subcommand1
+. 
+. . clap-test-nested-subcommand 
+. . Subcommand below subcommand1
+. . 
+. . USAGE:
+. .     clap-test nested-subcommand [FLAGS] [some-arg]
+. . 
+. . ARGS:
+. .         
+. . 
+. . FLAGS:
+. .         
+. . 
+. clap-test-subcommand2 
+. Another subcommand
+. 
+. USAGE:
+.     clap-test subcommand2 [FLAGS] [argument]
+. 
+. ARGS:
+.         
+. 
+. FLAGS:
+.         
+. 
+. clap-test-help 
+. Prints this message or the help of the given subcommand(s)
+. 
+. USAGE:
+.     clap-test help [FLAGS]
+. 
+. FLAGS:
+.     -r, --recursive    Recursively print the help of all subcommand(s)
+.
+";
+
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -261,6 +319,30 @@ fn visible_aliases_help_output() {
         app,
         "clap-test --help",
         VISIBLE_ALIAS_HELP,
+        false
+    ));
+}
+
+#[test]
+fn recursive_subcommand_help() {
+    let app = App::new("clap-test")
+        .version("2.6")
+        .subcommand(
+            App::new("subcommand1").about("Some help").subcommand(
+                App::new("nested-subcommand")
+                    .about("Subcommand below subcommand1")
+                    .arg(Arg::new("some-arg")),
+            ),
+        )
+        .subcommand(
+            App::new("subcommand2")
+                .about("Another subcommand")
+                .arg(Arg::new("argument")),
+        );
+    assert!(utils::compare_output(
+        app,
+        "clap-test help -r",
+        RECURSIVE_HELP,
         false
     ));
 }

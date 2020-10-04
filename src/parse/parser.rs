@@ -894,6 +894,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::parse_help_subcommand");
 
         let mut help_help = false;
+        let mut recursive = false;
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
 
         let mut sc = {
@@ -906,6 +907,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // cmd help help
                     help_help = true;
                     break; // Maybe?
+                }
+                if cmd == OsStr::new("-r") || cmd == OsStr::new("--recursive") {
+                    recursive = true;
+                    continue;
                 }
                 if let Some(id) = sc.find_subcommand(cmd).map(|x| x.id.clone()) {
                     sc._propagate(Propagation::To(id));
@@ -943,7 +948,23 @@ impl<'help, 'app> Parser<'help, 'app> {
             sc
         };
 
-        let parser = Parser::new(&mut sc);
+        Err(self.get_app_help(
+            &mut sc,
+            &bin_name,
+            help_help,
+            if recursive { Some(0) } else { None },
+        ))
+    }
+
+    fn get_app_help(
+        &self,
+        sc: &mut App,
+        bin_name: &str,
+        help_help: bool,
+        recurse_with_indentation: Option<usize>,
+    ) -> ClapError {
+        debug!("Parser::get_app_help: app={:?}", sc.name);
+        let parser = Parser::new(sc);
 
         if help_help {
             let mut pb = Arg::new("subcommand")
@@ -961,7 +982,18 @@ impl<'help, 'app> Parser<'help, 'app> {
             parser.app.bin_name = Some(format!("{} {}", bin_name, parser.app.name));
         }
 
-        Err(parser.help_err(false))
+        let mut help = parser.help_err(false);
+        help.message.nest(recurse_with_indentation.unwrap_or(0));
+        if let Some(indentation) = recurse_with_indentation {
+            for mut next_sc in sc.subcommands.iter_mut() {
+                help.message.none("\n");
+                help.message.none(". ".repeat(indentation + 1));
+                let additional_help =
+                    self.get_app_help(&mut next_sc, &bin_name, help_help, Some(indentation + 1));
+                help.message.extend(additional_help.message);
+            }
+        }
+        help
     }
 
     fn is_new_arg(&mut self, arg_os: &ArgStr, needs_val_of: &ParseResult) -> bool {

@@ -2385,10 +2385,18 @@ impl<'help> App<'help> {
         {
             debug!("App::_create_help_and_version: Building help");
             self.subcommands.push(
-                App::new("help").about(
-                    self.help_about
-                        .unwrap_or("Prints this message or the help of the given subcommand(s)"),
-                ),
+                App::new("help")
+                    .about(
+                        self.help_about.unwrap_or(
+                            "Prints this message or the help of the given subcommand(s)",
+                        ),
+                    )
+                    .arg(
+                        Arg::new("recursive")
+                            .long("recursive")
+                            .short('r')
+                            .about("Recursively print the help of all subcommand(s)"),
+                    ),
             );
         }
     }

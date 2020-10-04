@@ -61,7 +61,7 @@ static BASH: &str = r#"_myapp() {
             ;;
         
         myapp__help)
-            opts=" -h -V  --help --version  "
+            opts=" -r -h -V  --recursive --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -142,6 +142,8 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
+'-r[Recursively print the help of all subcommand(s)]' \
+'--recursive[Recursively print the help of all subcommand(s)]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -185,6 +187,7 @@ complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Prints this messag
 complete -c myapp -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c myapp -n "__fish_seen_subcommand_from test" -s h -l help -d 'Prints help information'
 complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prints version information'
+complete -c myapp -n "__fish_seen_subcommand_from help" -s r -l recursive -d 'Recursively print the help of all subcommand(s)'
 complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints help information'
 complete -c myapp -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
 "#;
@@ -228,6 +231,8 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             break
         }
         'my_app;help' {
+            [CompletionResult]::new('-r', 'r', [CompletionResultType]::ParameterName, 'Recursively print the help of all subcommand(s)')
+            [CompletionResult]::new('--recursive', 'recursive', [CompletionResultType]::ParameterName, 'Recursively print the help of all subcommand(s)')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
@@ -273,6 +278,8 @@ edit:completion:arg-completer[my_app] = [@words]{
             cand --version 'Prints version information'
         }
         &'my_app;help'= {
+            cand -r 'Recursively print the help of all subcommand(s)'
+            cand --recursive 'Recursively print the help of all subcommand(s)'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
             cand -V 'Prints version information'
@@ -330,6 +337,8 @@ edit:completion:arg-completer[my_app] = [@words]{
             cand --version 'Prints version information'
         }
         &'my_app;help'= {
+            cand -r 'Recursively print the help of all subcommand(s)'
+            cand --recursive 'Recursively print the help of all subcommand(s)'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
             cand -V 'Prints version information'
@@ -396,6 +405,8 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             break
         }
         'my_app;help' {
+            [CompletionResult]::new('-r', 'r', [CompletionResultType]::ParameterName, 'Recursively print the help of all subcommand(s)')
+            [CompletionResult]::new('--recursive', 'recursive', [CompletionResultType]::ParameterName, 'Recursively print the help of all subcommand(s)')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
@@ -468,6 +479,8 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
+'-r[Recursively print the help of all subcommand(s)]' \
+'--recursive[Recursively print the help of all subcommand(s)]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \
@@ -534,6 +547,7 @@ complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Pr
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Prints version information'
 complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_seen_subcommand_from help" -s r -l recursive -d 'Recursively print the help of all subcommand(s)'
 complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints help information'
 complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
 "#;
@@ -588,7 +602,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             ;;
         
         my_app__help)
-            opts=" -h -V  --help --version  "
+            opts=" -r -h -V  --recursive --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -771,6 +785,8 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
+'-r[Recursively print the help of all subcommand(s)]' \
+'--recursive[Recursively print the help of all subcommand(s)]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '-V[Prints version information]' \

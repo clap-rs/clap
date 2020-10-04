@@ -57,6 +57,20 @@ impl Colorizer {
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), None));
     }
+
+    pub(crate) fn extend(&mut self, other: Colorizer) {
+        self.pieces.extend(other.pieces);
+    }
+
+    pub(crate) fn nest(&mut self, nesting_level: usize) {
+        let line_seperator = String::from("\n") + &". ".repeat(nesting_level);
+        let mut new_pieces = self
+            .pieces
+            .iter()
+            .map(|(s, c)| (s.replace('\n', &line_seperator), *c))
+            .collect();
+        std::mem::swap(&mut self.pieces, &mut new_pieces);
+    }
 }
 
 /// Printing methods.
