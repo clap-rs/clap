@@ -385,6 +385,7 @@ pub struct Error {
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
+    pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
 }
 
 impl Display for Error {
@@ -478,6 +479,7 @@ impl Error {
             message: c,
             kind: ErrorKind::ArgumentConflict,
             info,
+            source: None,
         }
     }
 
@@ -495,6 +497,7 @@ impl Error {
             message: c,
             kind: ErrorKind::EmptyValue,
             info: vec![arg],
+            source: None,
         }
     }
 
@@ -557,6 +560,7 @@ impl Error {
             message: c,
             kind: ErrorKind::InvalidValue,
             info: vec![],
+            source: None,
         }
     }
 
@@ -587,6 +591,7 @@ impl Error {
             message: c,
             kind: ErrorKind::InvalidSubcommand,
             info: vec![subcmd],
+            source: None,
         }
     }
 
@@ -608,6 +613,7 @@ impl Error {
             message: c,
             kind: ErrorKind::UnrecognizedSubcommand,
             info: vec![subcmd],
+            source: None,
         }
     }
 
@@ -637,6 +643,7 @@ impl Error {
             message: c,
             kind: ErrorKind::MissingRequiredArgument,
             info,
+            source: None,
         }
     }
 
@@ -653,6 +660,7 @@ impl Error {
             message: c,
             kind: ErrorKind::MissingSubcommand,
             info: vec![],
+            source: None,
         }
     }
 
@@ -670,6 +678,7 @@ impl Error {
             message: c,
             kind: ErrorKind::InvalidUtf8,
             info: vec![],
+            source: None,
         }
     }
 
@@ -693,6 +702,7 @@ impl Error {
             message: c,
             kind: ErrorKind::TooManyValues,
             info: vec![arg.to_string(), val],
+            source: None,
         }
     }
 
@@ -720,13 +730,14 @@ impl Error {
             message: c,
             kind: ErrorKind::TooFewValues,
             info: vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()],
+            source: None,
         }
     }
 
     pub(crate) fn value_validation(
         arg: String,
         val: String,
-        err: String,
+        err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
     ) -> Self {
         let mut c = Colorizer::new(true, color);
@@ -743,7 +754,8 @@ impl Error {
         Error {
             message: c,
             kind: ErrorKind::ValueValidation,
-            info: vec![arg, val, err],
+            info: vec![arg, val, err.to_string()],
+            source: Some(err),
         }
     }
 
@@ -771,6 +783,7 @@ impl Error {
             message: c,
             kind: ErrorKind::WrongNumberOfValues,
             info: vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()],
+            source: None,
         }
     }
 
@@ -788,6 +801,7 @@ impl Error {
             message: c,
             kind: ErrorKind::UnexpectedMultipleUsage,
             info: vec![arg],
+            source: None,
         }
     }
 
@@ -836,6 +850,7 @@ impl Error {
             message: c,
             kind: ErrorKind::UnknownArgument,
             info: vec![arg],
+            source: None,
         }
     }
 
@@ -857,6 +872,7 @@ impl Error {
             message: c,
             kind: ErrorKind::UnknownArgument,
             info: vec![arg],
+            source: None,
         }
     }
 
@@ -872,6 +888,7 @@ impl Error {
             message: c,
             kind: ErrorKind::ArgumentNotFound,
             info: vec![arg],
+            source: None,
         }
     }
 
@@ -888,6 +905,7 @@ impl Error {
             message: c,
             kind,
             info: vec![],
+            source: None,
         }
     }
 }
@@ -904,4 +922,12 @@ impl From<fmt::Error> for Error {
     }
 }
 
-impl error::Error for Error {}
+impl error::Error for Error {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        if let Some(source) = self.source.as_deref() {
+            Some(source)
+        } else {
+            None
+        }
+    }
+}

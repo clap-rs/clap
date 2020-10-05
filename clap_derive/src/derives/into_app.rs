@@ -227,7 +227,6 @@ pub fn gen_app_augmentation(
                         .validator(|s| {
                             #func(s)
                             .map(|_: #convert_type| ())
-                            .map_err(|e| e.to_string())
                         })
                     },
                     ParserKind::TryFromOsStr => quote_spanned! { func.span()=>

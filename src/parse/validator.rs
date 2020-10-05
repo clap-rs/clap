@@ -62,6 +62,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 message,
                 kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
                 info: vec![],
+                source: None,
             });
         }
         self.validate_conflicts(matcher)?;

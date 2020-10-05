@@ -11,6 +11,7 @@ use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
     env,
+    error::Error,
     ffi::{OsStr, OsString},
     fmt::{self, Display, Formatter},
     str,
@@ -38,8 +39,8 @@ use crate::{
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
-type Validator<'a> = dyn FnMut(&str) -> Result<(), String> + Send + 'a;
-type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), String> + Send + 'a;
+type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
+type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -1879,10 +1880,10 @@ impl<'help> Arg<'help> {
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
-        E: ToString,
+        E: Into<Box<dyn Error + Send + Sync + 'static>>,
     {
         self.validator = Some(Arc::new(Mutex::new(move |s: &str| {
-            f(s).map(|_| ()).map_err(|e| e.to_string())
+            f(s).map(|_| ()).map_err(|e| e.into())
         })));
         self
     }
@@ -1917,11 +1918,14 @@ impl<'help> Arg<'help> {
     /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
     /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
     /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
-    pub fn validator_os<F, O>(mut self, mut f: F) -> Self
+    pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
-        F: FnMut(&OsStr) -> Result<O, String> + Send + 'help,
+        F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
+        E: Into<Box<dyn Error + Send + Sync + 'static>>,
     {
-        self.validator_os = Some(Arc::new(Mutex::new(move |s: &OsStr| f(s).map(|_| ()))));
+        self.validator_os = Some(Arc::new(Mutex::new(move |s: &OsStr| {
+            f(s).map(|_| ()).map_err(|e| e.into())
+        })));
         self
     }
 
