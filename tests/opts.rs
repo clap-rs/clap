@@ -8,7 +8,7 @@ static DYM: &str =
 
 \tDid you mean '--option'?
 
-If you tried to supply `--optio` as a PATTERN use `-- --optio`
+If you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
 
 USAGE:
     clap-test --option <opt>...
@@ -21,7 +21,7 @@ static DYM_ISSUE_1073: &str =
 
 \tDid you mean '--files-without-match'?
 
-If you tried to supply `--files-without-matches` as a PATTERN use `-- --files-without-matches`
+If you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
 
 USAGE:
     ripgrep-616 --files-without-match

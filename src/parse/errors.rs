@@ -798,26 +798,32 @@ impl Error {
         c.warning(arg.clone());
         c.none("' which wasn't expected, or isn't valid in this context");
 
-        if let Some(s) = did_you_mean {
+        if let Some((flag, subcmd)) = did_you_mean {
+            let flag = format!("--{}", flag);
             c.none("\n\n\tDid you mean ");
 
-            if let Some(subcmd) = s.1 {
+            if let Some(subcmd) = subcmd {
                 c.none("to put '");
-                c.good(format!("--{}", &s.0));
+                c.good(flag);
                 c.none("' after the subcommand '");
                 c.good(subcmd);
                 c.none("'?");
             } else {
                 c.none("'");
-                c.good(format!("--{}", &s.0));
+                c.good(flag);
                 c.none("'?");
             }
         }
 
-        c.none(format!(
-            "\n\nIf you tried to supply `{}` as a PATTERN use `-- {}`",
-            arg, arg
-        ));
+        // If the user wants to supply things like `--a-flag` or `-b` as a value,
+        // suggest `--` for disambiguation.
+        if arg.starts_with('-') {
+            c.none(format!(
+                "\n\nIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                arg, arg
+            ));
+        }
+
         put_usage(&mut c, usage);
         try_help(&mut c);
 
