@@ -1180,7 +1180,7 @@ impl<'help> Arg<'help> {
     /// Require another argument if this arg was present on runtime, and its value equals to `val`.
     ///
     /// This method takes `value, another_arg` pair. At runtime, clap will check
-    /// if this arg (`self`) is is present and its value equals to `val`.
+    /// if this arg (`self`) is present and its value equals to `val`.
     /// If it does, `another_arg` will be marked as required.
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows
@@ -1411,7 +1411,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] and having any of the `arg`s used with it's
+    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] and having any of the `arg`s used with its
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust

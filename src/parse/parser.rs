@@ -178,7 +178,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             assert!(
                 ok,
                 "When using a positional argument with .multiple(true) that is *not the \
-                 last* positional argument, the last positional argument (i.e the one \
+                 last* positional argument, the last positional argument (i.e. the one \
                  with the highest index) *must* have .required(true) or .last(true) set."
             );
 

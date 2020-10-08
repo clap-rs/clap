@@ -78,7 +78,7 @@ I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/a5
     - `refactor` - Code functionality doesn't change, but underlying structure may
     - `style` - Stylistic changes only, no functionality changes
     - `wip` - A work in progress commit (Should typically be `git rebase`'ed away)
-    - `chore` - Catch all or things that have to do with the build system, etc
+    - `chore` - Catch all or things that have to do with the build system, etc.
     - `examples` - Changes to existing example, or a new example
  * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Parenthesis can be omitted if you are opting not to use the `COMPONENT`.
 

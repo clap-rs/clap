@@ -339,7 +339,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::val: Has switch...");
         if self.use_long {
             // long help prints messages on the next line so it don't need to align text
-            debug!("Help::val: printing long help so skip aligment");
+            debug!("Help::val: printing long help so skip alignment");
         } else if arg.has_switch() {
             debug!("Yes");
             debug!("Help::val: force_next_line...{:?}", self.force_next_line);

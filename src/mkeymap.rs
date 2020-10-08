@@ -52,7 +52,7 @@ impl PartialEq<char> for KeyType {
 }
 
 impl<'help> MKeyMap<'help> {
-    //TODO ::from(x), ::with_capacity(n) etc
+    //TODO ::from(x), ::with_capacity(n) etc.
     //? set theory ops?
 
     pub(crate) fn contains<K>(&self, key: K) -> bool
