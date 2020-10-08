@@ -76,3 +76,7 @@ How to express "`"true"` or `"false"` argument.
 ### [Author, description, and version from `Cargo.toml`](from_crate.rs)
 
 How to derive the author, description, and version from Cargo.toml
+
+### [Value hints for shell completion](value_hints_derive.rs)
+
+How to provide `ValueHint` attributes and generate shell completion files.
