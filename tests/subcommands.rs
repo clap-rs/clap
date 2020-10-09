@@ -86,7 +86,7 @@ static DYM_ARG: &str =
 
 	Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
 
-If you tried to supply `--subcm` as a PATTERN use `-- --subcm`
+If you tried to supply `--subcm` as a value rather than a flag, use `-- --subcm`
 
 USAGE:
     dym [SUBCOMMAND]

@@ -29,7 +29,7 @@ For more information try --help";
 static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
     "error: Found argument '--all' which wasn't expected, or isn't valid in this context
 
-If you tried to supply `--all` as a PATTERN use `-- --all`
+If you tried to supply `--all` as a value rather than a flag, use `-- --all`
 
 USAGE:
     clap-test <-a|--delete>
@@ -40,8 +40,6 @@ For more information try --help";
 //        Need to roll back somehow.
 static REQ_GROUP_CONFLICT_REV_DEGRADED: &str =
     "error: Found argument 'base' which wasn't expected, or isn't valid in this context
-
-If you tried to supply `base` as a PATTERN use `-- base`
 
 USAGE:
     clap-test <base|--delete>
