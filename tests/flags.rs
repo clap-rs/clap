@@ -4,7 +4,7 @@ use clap::{App, Arg};
 const USE_FLAG_AS_ARGUMENT: &str =
     "error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
 
-If you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
+\tIf you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
 
 USAGE:
     mycat [FLAGS] [filename]
