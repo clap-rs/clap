@@ -8,6 +8,13 @@ TODO: `cargo`, `std` features
 #### Minimum Required Rust
 * As of this release, `clap` requires `rustc 1.42.0` or greater.
 
+#### Features
+
+* **Added Methods**
+  * **App**
+    * `App::help_about`
+    * `App::version_about`
+
 
 <a name="v3.0.0-beta.2"></a>
 ## v3.0.0-beta.2 (2020-09-18)
@@ -16,6 +23,9 @@ TODO: `cargo`, `std` features
 
 * **Removed**
   * `From<&yaml_rust::yaml::Hash>` for `ArgGroup`
+  * **App**
+    * `App::write_version` in favor of `write!(w, App::render_version)`
+    * `App::write_long_version` in favor of `write!(w, App::render_long_version)`
   * **Error**
     * `Error::cause` in favor of `<Error as Display>::to_string`
   * **Macros**
@@ -39,6 +49,8 @@ TODO: `cargo`, `std` features
     * `ErrorKind::HelpDisplayed` => `ErrorKind::DisplayHelp`
     * `ErrorKind::VersionDisplayed` => `ErrorKind::DisplayVersion`
 * **Changed**
+  * `App::print_help` & `App::print_long_help` now return `std::io::Result`
+  * `App::write_help` & `App::write_long_help` now return `std::io::Result`
   * `Error::info` now is of type `Vec<String>` instead of `Option<Vec<String>>`
   * `short` in `#[clap()]` now accepts `char` instead of `&str`
   * `ArgMatches::subcommand` now returns `Option<(&str, &ArgMatches)>`
@@ -95,7 +107,7 @@ TODO: `cargo`, `std` features
     * `App::help_message` in favor of `App::mut_arg`
     * `App::help_short` in favor of `App::mut_arg`
     * `App::arg_from_usage` in favor of `App::arg`
-    * `App::args_from_usage` in favor of TODO:
+    * `App::args_from_usage` in favor of TODO: `App::args(usage.split('\n'))`
     * `App::gen_completions` in favor of TODO:
     * `App::gen_completions_to` in favor of TODO:
     * `App::settings` in favor of `App::setting(Setting1 | Setting2)`
