@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        rust: [1.40.0]
+        rust: [1.42.0]
         target:
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
@@ -112,7 +112,7 @@ jobs:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.40.0
+          toolchain: 1.42.0
           override: true
       - name: Checkout
         uses: actions/checkout@v2

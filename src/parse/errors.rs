@@ -420,10 +420,10 @@ impl Error {
     /// Should the message be written to `stdout` or not
     #[inline]
     pub fn use_stderr(&self) -> bool {
-        match self.kind {
-            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion => false,
-            _ => true,
-        }
+        !matches!(
+            self.kind,
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
+        )
     }
 
     /// Prints the error to `stderr` and exits with a status of `1`

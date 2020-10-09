@@ -1521,8 +1521,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     #[inline]
-    pub fn group(mut self, group: ArgGroup<'help>) -> Self {
-        self.groups.push(group);
+    pub fn group<G: Into<ArgGroup<'help>>>(mut self, group: G) -> Self {
+        self.groups.push(group.into());
         self
     }
 
@@ -1550,8 +1550,12 @@ impl<'help> App<'help> {
     /// ```
     /// [`ArgGroup`]: ./struct.ArgGroup.html
     /// [`App`]: ./struct.App.html
-    pub fn groups(mut self, groups: &[ArgGroup<'help>]) -> Self {
-        for g in groups {
+    pub fn groups<I, T>(mut self, groups: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<ArgGroup<'help>>,
+    {
+        for g in groups.into_iter() {
             self = self.group(g.into());
         }
         self
@@ -1574,8 +1578,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`App`]: ./struct.App.html
     #[inline]
-    pub fn subcommand(mut self, subcmd: App<'help>) -> Self {
-        self.subcommands.push(subcmd);
+    pub fn subcommand<S: Into<App<'help>>>(mut self, subcmd: S) -> Self {
+        self.subcommands.push(subcmd.into());
         self
     }
 
@@ -1595,12 +1599,13 @@ impl<'help> App<'help> {
     /// ```
     /// [`App`]: ./struct.App.html
     /// [`IntoIterator`]: https://doc.rust-lang.org/std/iter/trait.IntoIterator.html
-    pub fn subcommands<I>(mut self, subcmds: I) -> Self
+    pub fn subcommands<I, T>(mut self, subcmds: I) -> Self
     where
-        I: IntoIterator<Item = App<'help>>,
+        I: IntoIterator<Item = T>,
+        T: Into<App<'help>>,
     {
-        for subcmd in subcmds {
-            self.subcommands.push(subcmd);
+        for subcmd in subcmds.into_iter() {
+            self.subcommands.push(subcmd.into());
         }
         self
     }
@@ -1712,6 +1717,7 @@ impl<'help> App<'help> {
     /// app.print_help();
     /// ```
     /// [`io::stdout()`]: https://doc.rust-lang.org/std/io/fn.stdout.html
+    /// [`BufWriter`]: https://doc.rust-lang.org/std/io/struct.BufWriter.html
     /// [`-h` (short)]: ./struct.Arg.html#method.about
     /// [`--help` (long)]: ./struct.Arg.html#method.long_about
     pub fn print_help(&mut self) -> io::Result<()> {

@@ -14,7 +14,7 @@ stages:
     jobs:
       - job:
         variables:
-          rust: 1.40.0
+          rust: 1.42.0
         strategy:
           matrix:
             MinGW 32-bit:
