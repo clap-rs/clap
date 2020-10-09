@@ -29,7 +29,7 @@ For more information try --help";
 static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
     "error: Found argument '--all' which wasn't expected, or isn't valid in this context
 
-If you tried to supply `--all` as a value rather than a flag, use `-- --all`
+\tIf you tried to supply `--all` as a value rather than a flag, use `-- --all`
 
 USAGE:
     clap-test <-a|--delete>

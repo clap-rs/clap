@@ -35,6 +35,7 @@ where
 /// Returns a suffix that can be empty, or is the standard 'did you mean' phrase
 pub(crate) fn did_you_mean_flag<I, T>(
     arg: &str,
+    remaining_args: &[&str],
     longs: I,
     subcommands: &mut [App],
 ) -> Option<(String, Option<String>)>
@@ -46,9 +47,9 @@ where
 
     match did_you_mean(arg, longs).pop() {
         Some(candidate) => Some((candidate, None)),
-
-        None => {
-            for subcommand in subcommands {
+        None => subcommands
+            .iter_mut()
+            .filter_map(|subcommand| {
                 subcommand._build();
 
                 let longs = subcommand.args.keys.iter().map(|x| &x.key).filter_map(|a| {
@@ -59,12 +60,14 @@ where
                     }
                 });
 
-                if let Some(candidate) = did_you_mean(arg, longs).pop() {
-                    return Some((candidate, Some(subcommand.get_name().to_string())));
-                }
-            }
-            None
-        }
+                let subcommand_name = subcommand.get_name();
+
+                let candidate = did_you_mean(arg, longs).pop()?;
+                let score = remaining_args.iter().position(|x| *x == subcommand_name)?;
+                Some((score, (candidate, Some(subcommand_name.to_string()))))
+            })
+            .min_by_key(|(x, _)| *x)
+            .map(|(_, suggestion)| suggestion),
     }
 }
 

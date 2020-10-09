@@ -55,7 +55,7 @@ where
 }
 
 impl Input {
-    pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, Option<&OsStr>)> {
+    pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, &[OsString])> {
         if let Some(new) = new {
             let mut new_items: Vec<OsString> = new.iter().map(OsString::from).collect();
 
@@ -70,18 +70,11 @@ impl Input {
         if self.cursor >= self.items.len() {
             None
         } else {
+            let current = &self.items[self.cursor];
             self.cursor += 1;
-
-            if self.cursor >= self.items.len() {
-                Some((&self.items[self.cursor - 1], None))
-            } else {
-                Some((&self.items[self.cursor - 1], Some(&self.items[self.cursor])))
-            }
+            let remaining = &self.items[self.cursor..];
+            Some((current, remaining))
         }
-    }
-
-    pub(crate) fn remaining(&self) -> &[OsString] {
-        &self.items[self.cursor..]
     }
 }
 
@@ -357,7 +350,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut pos_counter = 1;
         let mut replace: Option<&[&str]> = None;
 
-        while let Some((arg_os, next_arg)) = it.next(replace) {
+        while let Some((arg_os, remaining_args)) = it.next(replace) {
             replace = None;
 
             let arg_os = ArgStr::new(arg_os);
@@ -408,7 +401,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                         if let Some(sc_name) = sc_name {
                             if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
-                                self.parse_help_subcommand(it.remaining())?;
+                                self.parse_help_subcommand(remaining_args)?;
                             }
 
                             subcmd_name = Some(sc_name.to_owned());
@@ -419,7 +412,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                 if starts_new_arg {
                     if arg_os.starts_with("--") {
-                        needs_val_of = self.parse_long_arg(matcher, &arg_os)?;
+                        needs_val_of = self.parse_long_arg(matcher, &arg_os, remaining_args)?;
                         debug!(
                             "Parser::get_matches_with: After parse_long_arg {:?}",
                             needs_val_of
@@ -548,7 +541,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             );
 
             if low_index_mults || missing_pos {
-                if let Some(n) = next_arg {
+                if let Some(n) = remaining_args.get(0) {
                     needs_val_of = match needs_val_of {
                         ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
 
@@ -1190,6 +1183,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         &mut self,
         matcher: &mut ArgMatcher,
         full_arg: &ArgStr,
+        remaining_args: &[OsString],
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -1233,7 +1227,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         debug!("Parser::parse_long_arg: Didn't match anything");
-        self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher)
+        let remaining_args: Vec<_> = remaining_args
+            .iter()
+            .map(|x| x.to_str().expect(INVALID_UTF8))
+            .collect();
+        self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher, &remaining_args)
             .map(|_| ParseResult::NotFound)
     }
 
@@ -1668,7 +1666,12 @@ impl<'help, 'app> Parser<'help, 'app> {
 
 // Error, Help, and Version Methods
 impl<'help, 'app> Parser<'help, 'app> {
-    fn did_you_mean_error(&mut self, arg: &str, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn did_you_mean_error(
+        &mut self,
+        arg: &str,
+        matcher: &mut ArgMatcher,
+        remaining_args: &[&str],
+    ) -> ClapResult<()> {
         debug!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
         let longs = self
@@ -1686,6 +1689,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         let did_you_mean = suggestions::did_you_mean_flag(
             arg,
+            remaining_args,
             longs.iter().map(|ref x| &x[..]),
             self.app.subcommands.as_mut_slice(),
         );

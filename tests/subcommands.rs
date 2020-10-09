@@ -80,23 +80,10 @@ USAGE:
 
 For more information try --help";
 
-#[cfg(feature = "suggestions")]
-static DYM_ARG: &str =
-    "error: Found argument '--subcm' which wasn't expected, or isn't valid in this context
-
-	Did you mean to put '--subcmdarg' after the subcommand 'subcmd'?
-
-If you tried to supply `--subcm` as a value rather than a flag, use `-- --subcm`
-
-USAGE:
-    dym [SUBCOMMAND]
-
-For more information try --help";
-
 static SUBCMD_AFTER_DOUBLE_DASH: &str =
     "error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
 
-If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
+\tIf you tried to supply `subcmd` as a subcommand, remove the '--' before it.
 
 USAGE:
     app [SUBCOMMAND]
@@ -244,9 +231,51 @@ fn subcmd_did_you_mean_output_ambiguous() {
 #[test]
 #[cfg(feature = "suggestions")]
 fn subcmd_did_you_mean_output_arg() {
-    let app =
-        App::new("dym").subcommand(App::new("subcmd").arg("-s --subcmdarg [subcmdarg] 'tests'"));
-    assert!(utils::compare_output(app, "dym --subcm foo", DYM_ARG, true));
+    static EXPECTED: &str =
+        "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
+\tDid you mean to put '--subcmdarg' after the subcommand 'subcmd'?
+
+\tIf you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
+    let app = App::new("dym")
+        .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));
+
+    assert!(utils::compare_output(
+        app,
+        "dym --subcmarg subcmd",
+        EXPECTED,
+        true
+    ));
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+fn subcmd_did_you_mean_output_arg_false_positives() {
+    static EXPECTED: &str =
+        "error: Found argument '--subcmarg' which wasn't expected, or isn't valid in this context
+
+\tIf you tried to supply `--subcmarg` as a value rather than a flag, use `-- --subcmarg`
+
+USAGE:
+    dym [SUBCOMMAND]
+
+For more information try --help";
+
+    let app = App::new("dym")
+        .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));
+
+    assert!(utils::compare_output(
+        app,
+        "dym --subcmarg foo",
+        EXPECTED,
+        true
+    ));
 }
 
 #[test]

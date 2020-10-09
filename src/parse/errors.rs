@@ -819,7 +819,7 @@ impl Error {
         // suggest `--` for disambiguation.
         if arg.starts_with('-') {
             c.none(format!(
-                "\n\nIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
                 arg, arg
             ));
         }
@@ -842,7 +842,7 @@ impl Error {
         c.none("' which wasn't expected, or isn't valid in this context");
 
         c.none(format!(
-            "\n\nIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
             arg
         ));
         put_usage(&mut c, usage);
