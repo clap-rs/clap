@@ -28,7 +28,7 @@ maintenance = {status = "actively-developed"}
 bench = false
 
 [dependencies]
-cargo-up = { version = "=0.0.3" }
+cargo-up = { version = "=0.0.4" }
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
