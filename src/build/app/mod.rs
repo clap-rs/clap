@@ -214,18 +214,26 @@ impl<'help> App<'help> {
         self.get_arguments().filter(|a| a.is_positional())
     }
 
-    /// Iterate through the *flags* that don't have custom heading.
-    pub fn get_flags_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+    /// Iterate through the *flags*.
+    pub fn get_flags(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
             .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| a.get_help_heading().is_none())
+    }
+
+    /// Iterate through the *options*.
+    pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_arguments()
+            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+    }
+
+    /// Iterate through the *flags* that don't have custom heading.
+    pub fn get_flags_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_flags().filter(|a| a.get_help_heading().is_none())
     }
 
     /// Iterate through the *options* that don't have custom heading.
     pub fn get_opts_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_arguments()
-            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-            .filter(|a| a.get_help_heading().is_none())
+        self.get_opts().filter(|a| a.get_help_heading().is_none())
     }
 
     /// Get a list of all arguments the given argument conflicts with.

@@ -1562,7 +1562,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
-        for o in self.app.get_opts_with_no_heading() {
+        for o in self.app.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
             self.add_value(o, matcher, ValueType::DefaultValue)?;
         }
