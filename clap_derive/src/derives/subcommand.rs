@@ -218,10 +218,7 @@ fn gen_from_subcommand(
         })
         .partition(|(_, attrs)| {
             let kind = attrs.kind();
-            match &*kind {
-                Kind::Flatten => true,
-                _ => false,
-            }
+            matches!(&*kind, Kind::Flatten)
         });
 
     let match_arms = variants.iter().map(|(variant, attrs)| {

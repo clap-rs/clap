@@ -34,10 +34,7 @@ pub fn derive_arg_enum(input: &DeriveInput) -> TokenStream {
 }
 
 pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    if !e.variants.iter().all(|v| match v.fields {
-        Fields::Unit => true,
-        _ => false,
-    }) {
+    if !e.variants.iter().all(|v| matches!(v.fields, Fields::Unit)) {
         return quote!();
     };
 

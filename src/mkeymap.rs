@@ -29,10 +29,7 @@ pub(crate) enum KeyType {
 
 impl KeyType {
     pub(crate) fn is_position(&self) -> bool {
-        match *self {
-            KeyType::Position(_) => true,
-            _ => false,
-        }
+        matches!(*self, KeyType::Position(_))
     }
 }
 
