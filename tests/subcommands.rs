@@ -93,6 +93,16 @@ USAGE:
 
 For more information try --help";
 
+static SUBCMD_AFTER_DOUBLE_DASH: &str =
+    "error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
+
+If you tried to supply `subcmd` as a subcommand, remove the '--' before it.
+
+USAGE:
+    app [SUBCOMMAND]
+
+For more information try --help";
+
 #[test]
 fn subcommand() {
     let m = App::new("test")
@@ -381,4 +391,16 @@ fn subcommand_placeholder_test() {
     assert!(String::from_utf8(help_text)
         .unwrap()
         .contains("TEST_HEADER:"));
+}
+
+#[test]
+fn subcommand_used_after_double_dash() {
+    let app = App::new("app").subcommand(App::new("subcmd"));
+
+    assert!(utils::compare_output(
+        app,
+        "app -- subcmd",
+        SUBCMD_AFTER_DOUBLE_DASH,
+        true
+    ));
 }

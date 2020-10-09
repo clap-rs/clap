@@ -350,8 +350,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Verify all positional assertions pass
         self._build();
 
-        let has_args = self.has_args();
-
         let mut subcmd_name: Option<String> = None;
         let mut keep_state = false;
         let mut external_subcommand = false;
@@ -681,18 +679,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 external_subcommand = true;
 
                 break;
-            } else if !((self.is_set(AS::AllowLeadingHyphen)
-                || self.is_set(AS::AllowNegativeNumbers))
-                && arg_os.starts_with("-"))
-                && !self.is_set(AS::InferSubcommands)
+            } else if !self.has_args()
+                || self.is_set(AS::InferSubcommands) && self.has_subcommands()
             {
-                return Err(ClapError::unknown_argument(
-                    arg_os.to_string_lossy().to_string(),
-                    None,
-                    Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            } else if !has_args || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                 let cands = suggestions::did_you_mean(
                     &*arg_os.to_string_lossy(),
                     self.app.all_subcommand_names(),
@@ -718,6 +707,22 @@ impl<'help, 'app> Parser<'help, 'app> {
                             .as_ref()
                             .unwrap_or(&self.app.name)
                             .to_string(),
+                        self.app.color(),
+                    ));
+                }
+            } else if self.is_set(AS::TrailingValues) {
+                // If argument followed by a `--`
+                if self.possible_subcommand(&arg_os).is_some() {
+                    return Err(ClapError::unnecessary_double_dash(
+                        arg_os.to_string_lossy().to_string(),
+                        Usage::new(self).create_usage_with_title(&[]),
+                        self.app.color(),
+                    ));
+                } else {
+                    return Err(ClapError::unknown_argument(
+                        arg_os.to_string_lossy().to_string(),
+                        None,
+                        Usage::new(self).create_usage_with_title(&[]),
                         self.app.color(),
                     ));
                 }
@@ -1192,18 +1197,16 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Update the curent index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
-        let mut val = None;
         debug!("Parser::parse_long_arg: Does it contain '='...");
         let matches;
-        let arg = if full_arg.contains_byte(b'=') {
+        let (arg, val) = if full_arg.contains_byte(b'=') {
             matches = full_arg.trim_start_matches(b'-');
             let (p0, p1) = matches.split_at_byte(b'=');
             debug!("Yes '{:?}'", p1);
-            val = Some(p1);
-            p0
+            (p0, Some(p1))
         } else {
             debug!("No");
-            full_arg.trim_start_matches(b'-')
+            (full_arg.trim_start_matches(b'-'), None)
         };
         if let Some(opt) = self.app.args.get(&KeyType::Long(arg.to_os_string())) {
             debug!(

@@ -828,6 +828,27 @@ impl Error {
         }
     }
 
+    pub(crate) fn unnecessary_double_dash(arg: String, usage: String, color: ColorChoice) -> Self {
+        let mut c = Colorizer::new(true, color);
+
+        start_error(&mut c, "Found argument '");
+        c.warning(arg.clone());
+        c.none("' which wasn't expected, or isn't valid in this context");
+
+        c.none(format!(
+            "\n\nIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+            arg
+        ));
+        put_usage(&mut c, usage);
+        try_help(&mut c);
+
+        Error {
+            message: c,
+            kind: ErrorKind::UnknownArgument,
+            info: vec![arg],
+        }
+    }
+
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
         let mut c = Colorizer::new(true, ColorChoice::Auto);
 
