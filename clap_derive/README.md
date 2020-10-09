@@ -42,7 +42,7 @@ struct Opt {
     speed: f64,
 
     /// Output file
-    #[clap(short, long, parse(from_os_str))]
+    #[clap(short, long, parse(from_os_str), value_hint = ValueHint::FilePath)]
     output: PathBuf,
 
     // the long option will be translated by default to kebab case,
@@ -56,7 +56,7 @@ struct Opt {
     level: Vec<String>,
 
     /// Files to process
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE", parse(from_os_str), value_hint = ValueHint::AnyPath)]
     files: Vec<PathBuf>,
 }
 

@@ -13,15 +13,14 @@
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::generators::{Elvish, Fish, PowerShell, Zsh};
-use clap_generate::{generate, generators::Bash};
+use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
+use clap_generate::{generate, Generator};
 use std::io;
 
-const APPNAME: &str = "value_hints";
-
 fn build_cli() -> App<'static> {
-    App::new(APPNAME)
+    App::new("value_hints")
         .setting(AppSettings::DisableVersion)
+        // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
         .setting(AppSettings::TrailingVarArg)
         .arg(Arg::new("generator").long("generate").possible_values(&[
             "bash",
@@ -96,6 +95,10 @@ fn build_cli() -> App<'static> {
         )
 }
 
+fn print_completions<G: Generator>(app: &mut App) {
+    generate::<G, _>(app, app.get_name().to_string(), &mut io::stdout());
+}
+
 fn main() {
     let matches = build_cli().get_matches();
 
@@ -103,11 +106,11 @@ fn main() {
         let mut app = build_cli();
         eprintln!("Generating completion file for {}...", generator);
         match generator {
-            "bash" => generate::<Bash, _>(&mut app, APPNAME, &mut io::stdout()),
-            "elvish" => generate::<Elvish, _>(&mut app, APPNAME, &mut io::stdout()),
-            "fish" => generate::<Fish, _>(&mut app, APPNAME, &mut io::stdout()),
-            "powershell" => generate::<PowerShell, _>(&mut app, APPNAME, &mut io::stdout()),
-            "zsh" => generate::<Zsh, _>(&mut app, APPNAME, &mut io::stdout()),
+            "bash" => print_completions::<Bash>(&mut app),
+            "elvish" => print_completions::<Elvish>(&mut app),
+            "fish" => print_completions::<Fish>(&mut app),
+            "powershell" => print_completions::<PowerShell>(&mut app),
+            "zsh" => print_completions::<Zsh>(&mut app),
             _ => panic!("Unknown generator"),
         }
     }

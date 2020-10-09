@@ -44,6 +44,7 @@ proc-macro-error = "1"
 
 [dev-dependencies]
 clap = { path = "../" }
+clap_generate = { path = "../clap_generate" }
 trybuild = "1.0"
 rustversion = "1"
 version-sync = "0.8"
