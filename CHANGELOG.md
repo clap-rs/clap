@@ -13,6 +13,7 @@ TODO: `cargo`, `std` features
 * **Renamed Settings**
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
+  * `AppSettings::VersionlessSubcommands` => `AppSettings::DisableVersionForSubcommands`
 
 #### Features
 

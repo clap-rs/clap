@@ -26,7 +26,7 @@ fn build_cli() -> App<'static> {
         .version("0.9.0") // Simulating
         .about("The Rust toolchain installer")
         .after_help(RUSTUP_HELP)
-        .setting(AppSettings::VersionlessSubcommands)
+        .setting(AppSettings::DisableVersionForSubcommands)
         .setting(AppSettings::DeriveDisplayOrder)
         // .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
@@ -107,7 +107,7 @@ fn build_cli() -> App<'static> {
         .subcommand(
             App::new("target")
                 .about("Modify a toolchain's supported targets")
-                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DisableVersionForSubcommands)
                 .setting(AppSettings::DeriveDisplayOrder)
                 // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
@@ -163,7 +163,7 @@ fn build_cli() -> App<'static> {
         .subcommand(
             App::new("component")
                 .about("Modify a toolchain's installed components")
-                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DisableVersionForSubcommands)
                 .setting(AppSettings::DeriveDisplayOrder)
                 // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(
@@ -210,7 +210,7 @@ fn build_cli() -> App<'static> {
             App::new("override")
                 .about("Modify directory toolchain overrides")
                 .after_help(OVERRIDE_HELP)
-                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DisableVersionForSubcommands)
                 .setting(AppSettings::DeriveDisplayOrder)
                 // .setting(AppSettings::SubcommandRequiredElseHelp)
                 .subcommand(App::new("list").about("List directory toolchain overrides"))
@@ -302,7 +302,7 @@ fn build_cli() -> App<'static> {
         .subcommand(
             App::new("self")
                 .about("Modify the rustup installation")
-                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DisableVersionForSubcommands)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(App::new("update").about("Download and install updates to rustup"))
                 .subcommand(
@@ -316,7 +316,7 @@ fn build_cli() -> App<'static> {
             App::new("telemetry")
                 .about("rustup telemetry commands")
                 .setting(AppSettings::Hidden)
-                .setting(AppSettings::VersionlessSubcommands)
+                .setting(AppSettings::DisableVersionForSubcommands)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .subcommand(App::new("enable").about("Enable rustup telemetry"))
                 .subcommand(App::new("disable").about("Disable rustup telemetry"))
