@@ -52,8 +52,8 @@ TODO: `cargo`, `std` features
   * `App::print_help` & `App::print_long_help` now return `std::io::Result`
   * `App::write_help` & `App::write_long_help` now return `std::io::Result`
   * `Error::info` now is of type `Vec<String>` instead of `Option<Vec<String>>`
-  * `short` in `#[clap()]` now accepts `char` instead of `&str`
   * `ArgMatches::subcommand` now returns `Option<(&str, &ArgMatches)>`
+  * `short` in `#[clap()]` now accepts `char` instead of `&str`
 
 #### Features
 
@@ -71,12 +71,11 @@ TODO: `cargo`, `std` features
     * `Arg::visible_short_alias`
     * `Arg::visible_short_aliases`
     * `Arg::value_hint`
+    * `Arg::validator_regex` (gated behind `regex` feature)
   * **App**
     * `App::subcommand_placeholder`
     * `App::before_long_help`
     * `App::after_long_help`
-* **Added Settings**
-  * `AppSettings::DisableHelpFlags`
 * TODO: List App::get_* methods
 
 #### Enhancements
@@ -107,7 +106,7 @@ TODO: `cargo`, `std` features
     * `App::help_message` in favor of `App::mut_arg`
     * `App::help_short` in favor of `App::mut_arg`
     * `App::arg_from_usage` in favor of `App::arg`
-    * `App::args_from_usage` in favor of TODO: `App::args(usage.split('\n'))`
+    * `App::args_from_usage` in favor of `App::args(usage.lines().map(|l| l.trim()).filter(|l| !l.is_empty()))`
     * `App::gen_completions` in favor of TODO:
     * `App::gen_completions_to` in favor of TODO:
     * `App::settings` in favor of `App::setting(Setting1 | Setting2)`
@@ -115,18 +114,18 @@ TODO: `cargo`, `std` features
     * `App::global_settings` in favor of `App::global_setting(Setting1 | Setting2)`
   * **Arg**
     * `Arg::empty_values` in favor of TODO:
-  * `ArgMatches::usage` in favor of `App::generate_usage`
-  * **Settings**
-    * `AppSettings::PropagateGlobalValuesDown`
-    * `ArgSettings::Global` in favor of `Arg::global` method
-    * `ArgSettings::Multiple` in favor of `ArgSettings::MultipleValues` and `ArgSettings::MultipleOccurrences`
+  * **ArgMatches**
+    * `ArgMatches::usage` in favor of `App::generate_usage`
   * **Macros**
     * `arg_enum!` in favor of `ArgEnum` derive macro.
     * `value_t!` in favor of `ArgMatches::value_of_t`
     * `value_t_or_exit!` in favor of `ArgMatches::value_of_t_or_exit`
     * `values_t!` in favor of `ArgMatches::values_of_t`
     * `values_t_or_exit!` in favor of `ArgMatches::values_of_t_or_exit`
-  * Support for `{n}` in help text
+* **Removed Settings**
+  * `AppSettings::PropagateGlobalValuesDown`
+  * `ArgSettings::Global` in favor of `Arg::global` method
+  * `ArgSettings::Multiple` in favor of `ArgSettings::MultipleValues` and `ArgSettings::MultipleOccurrences`
 * **Renamed Methods**
   * **App**
     * `App::from_yaml` => `App::from`
@@ -155,6 +154,7 @@ TODO: `cargo`, `std` features
     `Fn(String) -> Result<(), String>`
   * `Arg::validator_os` now takes first argument as `Fn(&OsStr) -> Result<O, OsString>` instead of
     `Fn(&OsStr) -> Result<(), OsString>`
+* Removed support for `{n}` in help text
 * In usage parser, for options `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`
   but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
   Before both resulted in the same thing
@@ -178,7 +178,7 @@ TODO: `cargo`, `std` features
     * `Arg::multiple_values`
     * `Arg::multiple_occurrences`
     * `Arg::help_heading`
-* **Added Variants**
+* **Added Settings**
   * `AppSettings::HelpRequired`
   * `AppSettings::NoAutoHelp`
   * `AppSettings::NoAutoVersion`
