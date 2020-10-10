@@ -1118,18 +1118,25 @@ impl<'help, 'app> Parser<'help, 'app> {
             arg
         );
 
-        // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
-        // both global and local settings, we only want to check local
-        if arg == "help" && !self.app.settings.is_set(AS::NoAutoHelp) {
-            debug!("Help");
-            return Err(self.help_err(true));
+        if let Some(help) = self.app.find(&Id::help_hash()) {
+            if let Some(h) = help.long {
+                if arg == h && !self.is_set(AS::NoAutoHelp) {
+                    debug!("Help");
+                    return Err(self.help_err(true));
+                }
+            }
         }
-        if arg == "version" && !self.app.settings.is_set(AS::NoAutoVersion) {
-            debug!("Version");
-            return Err(self.version_err(true));
-        }
-        debug!("Neither");
 
+        if let Some(version) = self.app.find(&Id::version_hash()) {
+            if let Some(v) = version.long {
+                if arg == v && !self.is_set(AS::NoAutoVersion) {
+                    debug!("Version");
+                    return Err(self.version_err(true));
+                }
+            }
+        }
+
+        debug!("Neither");
         Ok(())
     }
 
@@ -1139,24 +1146,25 @@ impl<'help, 'app> Parser<'help, 'app> {
             "Parser::check_for_help_and_version_char: Checking if -{} is help or version...",
             arg
         );
-        // Needs to use app.settings.is_set instead of just is_set() because is_set() checks
-        // both global and local settings, we only want to check local
+
         if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.short {
-                if arg == h && !self.app.settings.is_set(AS::NoAutoHelp) {
+                if arg == h && !self.is_set(AS::NoAutoHelp) {
                     debug!("Help");
                     return Err(self.help_err(false));
                 }
             }
         }
+
         if let Some(version) = self.app.find(&Id::version_hash()) {
             if let Some(v) = version.short {
-                if arg == v && !self.app.settings.is_set(AS::NoAutoVersion) {
+                if arg == v && !self.is_set(AS::NoAutoVersion) {
                     debug!("Version");
                     return Err(self.version_err(false));
                 }
             }
         }
+
         debug!("Neither");
         Ok(())
     }

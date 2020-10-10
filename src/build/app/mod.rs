@@ -2353,50 +2353,58 @@ impl<'help> App<'help> {
     pub(crate) fn _create_help_and_version(&mut self) {
         debug!("App::_create_help_and_version");
 
-        if !(self
-            .args
-            .args
-            .iter()
-            .any(|x| x.long == Some("help") || x.id == Id::help_hash())
-            || self.is_set(AppSettings::DisableHelpFlag)
+        if !(self.is_set(AppSettings::DisableHelpFlag)
+            || self
+                .args
+                .args
+                .iter()
+                .any(|x| x.long == Some("help") || x.id == Id::help_hash())
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.short_flag == Some('h') || sc.long_flag == Some("help")))
+                .any(|sc| sc.long_flag == Some("help")))
         {
             debug!("App::_create_help_and_version: Building --help");
             let mut help = Arg::new("help")
                 .long("help")
                 .about(self.help_about.unwrap_or("Prints help information"));
-            if !self.args.args.iter().any(|x| x.short == Some('h')) {
+
+            if !(self.args.args.iter().any(|x| x.short == Some('h'))
+                || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
+            {
                 help = help.short('h');
             }
 
             self.args.push(help);
         }
-        if !(self
-            .args
-            .args
-            .iter()
-            .any(|x| x.long == Some("version") || x.id == Id::version_hash())
-            || self.is_set(AppSettings::DisableVersionFlag)
+
+        if !(self.is_set(AppSettings::DisableVersionFlag)
+            || self
+                .args
+                .args
+                .iter()
+                .any(|x| x.long == Some("version") || x.id == Id::version_hash())
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.short_flag == Some('V') || sc.long_flag == Some("version")))
+                .any(|sc| sc.long_flag == Some("version")))
         {
             debug!("App::_create_help_and_version: Building --version");
             let mut version = Arg::new("version")
                 .long("version")
                 .about(self.version_about.unwrap_or("Prints version information"));
-            if !self.args.args.iter().any(|x| x.short == Some('V')) {
+
+            if !(self.args.args.iter().any(|x| x.short == Some('V'))
+                || self.subcommands.iter().any(|sc| sc.short_flag == Some('V')))
+            {
                 version = version.short('V');
             }
 
             self.args.push(version);
         }
-        if self.has_subcommands()
-            && !self.is_set(AppSettings::DisableHelpSubcommand)
+
+        if !self.is_set(AppSettings::DisableHelpSubcommand)
+            && self.has_subcommands()
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debug!("App::_create_help_and_version: Building help");

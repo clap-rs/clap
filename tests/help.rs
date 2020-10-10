@@ -1448,8 +1448,6 @@ fn escaped_whitespace_values() {
 
 fn issue_1112_setup() -> App<'static> {
     App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
         .version("1.3")
         .global_setting(AppSettings::NoAutoHelp)
         .arg(Arg::from("-h, --help 'some help'"))
