@@ -938,7 +938,7 @@ fn req_delimiter_complex() {
 #[test]
 #[should_panic = "When using a positional argument with \
 .multiple(true) that is *not the last* positional argument, the last \
-positional argument (i.e the one with the highest index) *must* have \
+positional argument (i.e. the one with the highest index) *must* have \
 .required(true) or .last(true) set."]
 fn low_index_positional_not_required() {
     let _ = App::new("lip")

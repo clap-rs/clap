@@ -36,7 +36,7 @@ use std::ffi::OsString;
 /// }
 /// ```
 ///
-/// The equivilant [`App`] struct + `From` implementation:
+/// The equivalent [`App`] struct + `From` implementation:
 ///
 /// ```rust
 /// # use clap::{App, Arg, ArgMatches};

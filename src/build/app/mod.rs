@@ -437,7 +437,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .help_about("Print help information") // Impertive tone
+    ///     .help_about("Print help information") // Imperative tone
     /// # ;
     /// ```
     pub fn help_about<S: Into<&'help str>>(mut self, help_about: S) -> Self {
@@ -447,7 +447,7 @@ impl<'help> App<'help> {
 
     /// Sets the help text for the auto-generated version argument.
     ///
-    /// By default clap sets this to "Prints versoin information" but if
+    /// By default clap sets this to "Prints version information" but if
     /// you're using a different convention for your help messages and
     /// would prefer a different phrasing you can override it.
     ///
@@ -458,7 +458,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::App;
     /// App::new("myprog")
-    ///     .version_about("Print version information") // Impertive tone
+    ///     .version_about("Print version information") // Imperative tone
     /// # ;
     /// ```
     pub fn version_about<S: Into<&'help str>>(mut self, version_about: S) -> Self {
@@ -1381,7 +1381,7 @@ impl<'help> App<'help> {
     /// Replaces an argument or subcommand used on the CLI at runtime with other arguments or subcommands.
     ///
     /// When this method is used, `name` is removed from the CLI, and `target`
-    /// is inserted in it's place. Parsing continues as if the user typed
+    /// is inserted in its place. Parsing continues as if the user typed
     /// `target` instead of `name`.
     ///
     /// This can be used to create "shortcuts" for subcommands, or if a
@@ -2631,7 +2631,7 @@ impl<'help> App<'help> {
         // Unfortunately, that would trigger
         // https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999
         //
-        // I think this "collect to vec" solution is better then the linked one
+        // I think this "collect to vec" solution is better than the linked one
         // because it's simpler and it doesn't really matter performance-wise.
         a.into_iter()
     }
