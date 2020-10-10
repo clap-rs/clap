@@ -55,9 +55,9 @@ fn app_send_sync() {
 #[test]
 fn issue_2090() {
     let mut app = App::new("app")
-        .global_setting(AppSettings::DisableVersion)
+        .global_setting(AppSettings::DisableVersionFlag)
         .subcommand(App::new("sub"));
     app._build();
 
-    assert!(app.subcommands[0].is_set(AppSettings::DisableVersion));
+    assert!(app.subcommands[0].is_set(AppSettings::DisableVersionFlag));
 }

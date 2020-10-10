@@ -16,7 +16,7 @@ bitflags! {
         const SC_REQUIRED_ELSE_HELP          = 1 << 7;
         const NO_AUTO_HELP                   = 1 << 8;
         const NO_AUTO_VERSION                = 1 << 9;
-        const DISABLE_VERSION                = 1 << 10;
+        const DISABLE_VERSION_FLAG           = 1 << 10;
         const HIDDEN                         = 1 << 11;
         const TRAILING_VARARG                = 1 << 12;
         const NO_BIN_NAME                    = 1 << 13;
@@ -103,8 +103,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag("disablehelpflag")
         => Flags::DISABLE_HELP_FLAG,
-    DisableVersion("disableversion")
-        => Flags::DISABLE_VERSION,
+    DisableVersionFlag("disableversionflag")
+        => Flags::DISABLE_VERSION_FLAG,
     GlobalVersion("globalversion")
         => Flags::GLOBAL_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
@@ -666,7 +666,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .setting(AppSettings::DisableVersionFlag)
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-V"
     ///     ]);
@@ -678,7 +678,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .setting(AppSettings::DisableVersionFlag)
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-V"
@@ -688,7 +688,7 @@ pub enum AppSettings {
     /// ```
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
-    DisableVersion,
+    DisableVersionFlag,
 
     /// Displays the arguments and [``]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -1130,8 +1130,8 @@ mod test {
             AppSettings::DisableHelpSubcommand
         );
         assert_eq!(
-            "disableversion".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableVersion
+            "disableversionflag".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableVersionFlag
         );
         assert_eq!(
             "dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
