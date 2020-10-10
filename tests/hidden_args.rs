@@ -46,8 +46,8 @@ USAGE:
 
 FLAGS:
     -h, --help       Prints help information
-    -V, --version    Prints version information
-    -v, --visible    This text should be visible";
+    -v, --visible    This text should be visible
+    -V, --version    Prints version information";
 
 static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
 Steve P.
@@ -63,11 +63,11 @@ FLAGS:
     -h, --help
             Prints help information
 
-    -V, --version
-            Prints version information
-
     -v, --visible
-            This text should be visible";
+            This text should be visible
+
+    -V, --version
+            Prints version information";
 
 /// Ensure hidden with short option
 #[test]
@@ -134,11 +134,11 @@ FLAGS:
     -h, --help
             Prints help information
 
-    -V, --version
-            Prints version information
-
     -v, --visible
-            This text should be visible";
+            This text should be visible
+
+    -V, --version
+            Prints version information";
 
 #[test]
 fn hidden_long_args() {
@@ -176,8 +176,8 @@ USAGE:
 FLAGS:
     -c, --config     Some help text describing the --config arg
     -h, --help       Prints help information
-    -V, --version    Prints version information
-    -v, --visible    This text should be visible";
+    -v, --visible    This text should be visible
+    -V, --version    Prints version information";
 
 #[test]
 fn hidden_long_args_short_help() {

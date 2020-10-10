@@ -210,9 +210,27 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 debug!("Help::write_args: New Longest...{}", self.longest);
             }
             let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
-            // We use name here for alphabetic sorting
-            // @TODO @maybe perhaps we could do some sort of ordering off of keys?
-            btm.insert(arg.name, arg);
+
+            // Formatting key like this to ensure that:
+            // 1. Argument has long flags are printed just after short flags.
+            // 2. For two args both have short flags like `-c` and `-C`, the
+            //    `-C` arg is printed just after the `-c` arg
+            // 3. For args without short or long flag, print them at last(sorted
+            //    by arg name).
+            // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
+
+            let key = if let Some(x) = arg.short {
+                let mut s = x.to_ascii_lowercase().to_string();
+                s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+                s
+            } else if let Some(x) = arg.long {
+                x.to_string()
+            } else {
+                let mut s = '{'.to_string();
+                s.push_str(arg.name);
+                s
+            };
+            btm.insert(key, arg);
         }
         let mut first = true;
         for btm in ord_m.values() {
