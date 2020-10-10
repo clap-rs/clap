@@ -35,13 +35,13 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -O, --Option <option3>           specific vals [possible values: fast, slow]
         --long-option-2 <option2>    tests long options with exclusions
         --maxvals3 <maxvals>...      Tests 3 max vals
         --minvals2 <minvals>...      Tests 2 min vals
         --multvals <one> <two>       Tests multiple values, not mult occs
         --multvalsmo <one> <two>     Tests multiple values, and mult occs
     -o, --option <opt>...            tests options
+    -O, --Option <option3>           specific vals [possible values: fast, slow]
 
 SUBCOMMANDS:
     help      Prints this message or the help of the given subcommand(s)
@@ -179,8 +179,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -O, --opt <opt>             tests options
-    -o, --option <option>...    tests options";
+    -o, --option <option>...    tests options
+    -O, --opt <opt>             tests options";
 
 static RIPGREP_USAGE: &str = "ripgrep 0.5
 
@@ -390,8 +390,8 @@ USAGE:
     conflict [FLAGS]
 
 FLAGS:
-        --help       Prints help information
     -h               
+        --help       Prints help information
     -V, --version    Prints version information";
 
 static LAST_ARG: &str = "last 0.1
@@ -613,6 +613,22 @@ FLAGS:
     -f               
     -h, --help       Prints help information
     -V, --version    Prints version information";
+
+static OPTION_USAGE_ORDER: &str = "order 
+
+USAGE:
+    order [FLAGS]
+
+FLAGS:
+    -a                     
+    -b                     
+    -B                     
+    -h, --help             Prints help information
+    -s                     
+        --select_file      
+        --select_folder    
+    -V, --version          Prints version information
+    -x";
 
 fn setup() -> App<'static> {
     App::new("test")
@@ -1587,8 +1603,8 @@ OPTIONS:
     -s, --speed <SPEED>        How fast? [possible values: fast, slow]
 
 NETWORKING:
-    -n, --no-proxy       Do not use system proxy settings
     -a, --server-addr    Set server address
+    -n, --no-proxy       Do not use system proxy settings
 
 SPECIAL:
     -b, --birthday-song <song>             Change which song is played for birthdays
@@ -2156,6 +2172,26 @@ fn version_about_multi_subcmd_override_long_flag() {
         app,
         "myapp subcmd multi --help",
         VERSION_ABOUT_MULTI_SC_OVERRIDE,
+        false
+    ));
+}
+
+#[test]
+fn option_usage_order() {
+    let app = App::new("order").args(&[
+        Arg::new("a").short('a'),
+        Arg::new("B").short('B'),
+        Arg::new("b").short('b'),
+        Arg::new("save").short('s'),
+        Arg::new("select_file").long("select_file"),
+        Arg::new("select_folder").long("select_folder"),
+        Arg::new("x").short('x'),
+    ]);
+
+    assert!(utils::compare_output(
+        app,
+        "order --help",
+        OPTION_USAGE_ORDER,
         false
     ));
 }
