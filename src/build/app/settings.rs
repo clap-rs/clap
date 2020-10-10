@@ -48,7 +48,7 @@ bitflags! {
         const ARGS_OVERRIDE_SELF             = 1 << 39;
         const HELP_REQUIRED                  = 1 << 40;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
-        const DISABLE_HELP_FLAGS             = 1 << 42;
+        const DISABLE_HELP_FLAG              = 1 << 42;
     }
 }
 
@@ -101,8 +101,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DERIVE_DISP_ORDER,
     DisableHelpSubcommand("disablehelpsubcommand")
         => Flags::DISABLE_HELP_SC,
-    DisableHelpFlags("disablehelpflags")
-        => Flags::DISABLE_HELP_FLAGS,
+    DisableHelpFlag("disablehelpflag")
+        => Flags::DISABLE_HELP_FLAG,
     DisableVersion("disableversion")
         => Flags::DISABLE_VERSION,
     GlobalVersion("globalversion")
@@ -613,7 +613,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .setting(AppSettings::DisableHelpFlag)
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-h"
     ///     ]);
@@ -624,7 +624,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .setting(AppSettings::DisableHelpFlag)
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-h"
@@ -634,7 +634,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
-    DisableHelpFlags,
+    DisableHelpFlag,
 
     /// Disables the `help` subcommand
     ///
@@ -1076,8 +1076,8 @@ mod test {
     #[test]
     fn app_settings_fromstr() {
         assert_eq!(
-            "disablehelpflags".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableHelpFlags
+            "disablehelpflag".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHelpFlag
         );
         assert_eq!(
             "argsnegatesubcommands".parse::<AppSettings>().unwrap(),

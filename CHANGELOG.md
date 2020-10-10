@@ -8,6 +8,11 @@ TODO: `cargo`, `std` features
 #### Minimum Required Rust
 * As of this release, `clap` requires `rustc 1.42.0` or greater.
 
+#### BREAKING CHANGES
+
+* **Renamed Settings**
+  * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
+
 #### Features
 
 * **Added Methods**

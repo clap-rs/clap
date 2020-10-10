@@ -2356,7 +2356,7 @@ impl<'help> App<'help> {
             .args
             .iter()
             .any(|x| x.long == Some("help") || x.id == Id::help_hash())
-            || self.is_set(AppSettings::DisableHelpFlags)
+            || self.is_set(AppSettings::DisableHelpFlag)
             || self
                 .subcommands
                 .iter()

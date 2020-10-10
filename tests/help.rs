@@ -1919,7 +1919,7 @@ This is after help.
 fn after_help_no_args() {
     let mut app = App::new("myapp")
         .version("1.0")
-        .setting(AppSettings::DisableHelpFlags)
+        .setting(AppSettings::DisableHelpFlag)
         .setting(AppSettings::DisableVersion)
         .after_help("This is after help.");
 
