@@ -70,6 +70,29 @@ FLAGS:
 OPTIONS:
     -o, --opt <opt>    some option";
 
+static ARG_REQUIRED_ELSE_HELP: &str = "test 
+
+USAGE:
+    test [FLAGS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -i, --info       Provides more info
+    -V, --version    Prints version information";
+
+static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 
+
+USAGE:
+    test <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    info";
+
 #[test]
 fn sub_command_negate_required() {
     App::new("sub_command_negate")
@@ -110,7 +133,10 @@ fn arg_required_else_help() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
+    assert_eq!(
+        err.kind,
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
 }
 
 #[test]
@@ -121,7 +147,55 @@ fn arg_required_else_help_over_reqs() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingArgumentOrSubcommand);
+    assert_eq!(
+        err.kind,
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
+}
+
+#[test]
+fn arg_required_else_help_error_message() {
+    let app = App::new("test")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .arg(
+            Arg::new("info")
+                .about("Provides more info")
+                .short('i')
+                .long("info"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "test",
+        ARG_REQUIRED_ELSE_HELP,
+        false
+    ));
+}
+
+#[test]
+fn subcommand_required_else_help() {
+    let result = App::new("test")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(App::new("info"))
+        .try_get_matches_from(&[""]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(
+        err.kind,
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
+}
+
+#[test]
+fn subcommand_required_else_help_error_message() {
+    let app = App::new("test")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(App::new("info").arg(Arg::new("filename")));
+    assert!(utils::compare_output(
+        app,
+        "test",
+        SUBCOMMAND_REQUIRED_ELSE_HELP,
+        false
+    ));
 }
 
 #[cfg(not(feature = "suggestions"))]

@@ -258,27 +258,6 @@ pub enum ErrorKind {
     /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     MissingSubcommand,
 
-    /// Occurs when either an argument or [``] is required, as defined by
-    /// [`AppSettings::ArgRequiredElseHelp`], but the user did not provide one.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings, ErrorKind, };
-    /// let result = App::new("prog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
-    ///     .subcommand(App::new("config")
-    ///         .about("Used for configuration")
-    ///         .arg(Arg::new("config_file")
-    ///             .about("The configuration file to use")))
-    ///     .try_get_matches_from(vec!["prog"]);
-    /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingArgumentOrSubcommand);
-    /// ```
-    /// [``]: ./struct..html
-    /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
-    MissingArgumentOrSubcommand,
-
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
     ///
     /// # Examples
@@ -339,6 +318,30 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
     DisplayHelp,
+
+    /// Occurs when either an argument or a [`subcommand`] is required, as defined by
+    /// [`AppSettings::ArgRequiredElseHelp`] and
+    /// [`AppSettings::SubcommandRequiredElseHelp`], but the user did not provide
+    /// one.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings, ErrorKind, };
+    /// let result = App::new("prog")
+    ///     .setting(AppSettings::ArgRequiredElseHelp)
+    ///     .subcommand(App::new("config")
+    ///         .about("Used for configuration")
+    ///         .arg(Arg::new("config_file")
+    ///             .about("The configuration file to use")))
+    ///     .try_get_matches_from(vec!["prog"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
+    /// ```
+    /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
+    /// [`AppSettings::SubcommandRequiredElseHelp`]: ./enum.AppSettings.html#variant.SubcommandRequiredElseHelp
+    /// [`subcommand`]: ./struct.App.html#method.subcommand
+    DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
     /// The message will be sent to `stdout`.
@@ -422,7 +425,9 @@ impl Error {
     pub fn use_stderr(&self) -> bool {
         !matches!(
             self.kind,
-            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
+            ErrorKind::DisplayHelp
+                | ErrorKind::DisplayVersion
+                | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
         )
     }
 

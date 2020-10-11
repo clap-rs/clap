@@ -750,7 +750,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let message = self.write_help_err()?;
                 return Err(ClapError {
                     message,
-                    kind: ErrorKind::MissingArgumentOrSubcommand,
+                    kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
                     info: vec![],
                 });
             }

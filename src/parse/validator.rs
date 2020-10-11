@@ -60,7 +60,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             let message = self.p.write_help_err()?;
             return Err(Error {
                 message,
-                kind: ErrorKind::MissingArgumentOrSubcommand,
+                kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
                 info: vec![],
             });
         }
