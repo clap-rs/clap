@@ -90,7 +90,15 @@ fn test_parse_hex() {
 fn custom_parser_1(_: &str) -> &'static str {
     "A"
 }
-fn custom_parser_2(_: &str) -> Result<&'static str, u32> {
+#[derive(Debug)]
+struct ErrCode(u32);
+impl std::error::Error for ErrCode {}
+impl std::fmt::Display for ErrCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.0, f)
+    }
+}
+fn custom_parser_2(_: &str) -> Result<&'static str, ErrCode> {
     Ok("B")
 }
 fn custom_parser_3(_: &OsStr) -> &'static str {

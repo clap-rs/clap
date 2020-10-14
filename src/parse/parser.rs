@@ -752,6 +752,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     message,
                     kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
                     info: vec![],
+                    source: None,
                 });
             }
         }
@@ -1747,6 +1748,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 message: c,
                 kind: ErrorKind::DisplayHelp,
                 info: vec![],
+                source: None,
             },
         }
     }
@@ -1761,6 +1763,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             message: c,
             kind: ErrorKind::DisplayVersion,
             info: vec![],
+            source: None,
         }
     }
 }
