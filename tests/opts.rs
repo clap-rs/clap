@@ -402,7 +402,7 @@ fn issue_1047_min_zero_vals_default_val() {
                 .long("del")
                 .setting(ArgSettings::RequireEquals)
                 .min_values(0)
-                .default_value("default"),
+                .default_missing_value("default"),
         )
         .get_matches_from(vec!["foo", "-d"]);
     assert_eq!(m.occurrences_of("del"), 1);

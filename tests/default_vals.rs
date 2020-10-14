@@ -12,6 +12,19 @@ fn opts() {
 }
 
 #[test]
+fn opt_without_value_fail() {
+    let r = App::new("df")
+        .arg(Arg::from("-o [opt] 'some opt'").default_value("default"))
+        .try_get_matches_from(vec!["", "-o"]);
+    assert!(r.is_err());
+    let err = r.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::EmptyValue);
+    assert!(err
+        .to_string()
+        .contains("The argument '-o <opt>' requires a value but none was supplied"));
+}
+
+#[test]
 fn opt_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'").default_value("default"))
