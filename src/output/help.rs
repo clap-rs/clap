@@ -491,6 +491,17 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         Ok(())
     }
 
+    /// Will use next line help on writing args.
+    fn will_args_wrapping(&self, args: &[&Arg<'help>], use_long: bool, longest: usize) -> bool {
+        args.iter()
+            .filter(|arg| should_show_arg(use_long, *arg))
+            .position(|arg| {
+                let spec_vals = &self.spec_vals(arg);
+                self.arg_next_line_help(arg, spec_vals, longest)
+            })
+            .is_some()
+    }
+
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
     fn write_args(&mut self, args: &[&Arg<'help>]) -> io::Result<()> {
         debug!("Help::write_args");
@@ -535,6 +546,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             btm.insert(key, arg);
         }
 
+        if self.will_args_wrapping(args, use_long, longest) {
+            self.next_line_help = true;
+        }
+
         let mut first = true;
         for btm in ord_m.values() {
             for arg in btm.values() {
@@ -549,12 +564,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         Ok(())
     }
 
-    /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg<'help>, prevent_nlh: bool, longest: usize) -> io::Result<()> {
-        debug!("Help::write_arg");
-
-        let spec_vals = &self.spec_vals(arg);
-
+    fn arg_next_line_help(&self, arg: &Arg<'help>, spec_vals: &str, longest: usize) -> bool {
         let setting_next_line =
             self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
 
@@ -567,7 +577,15 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             && (taken as f32 / self.term_w as f32) > 0.40
             && h_w > (self.term_w - taken);
 
-        let next_line_help = setting_next_line || force_next_line;
+        setting_next_line || force_next_line
+    }
+
+    /// Writes help for an argument to the wrapped stream.
+    fn write_arg(&mut self, arg: &Arg<'help>, prevent_nlh: bool, longest: usize) -> io::Result<()> {
+        debug!("Help::write_arg");
+        let spec_vals = &self.spec_vals(arg);
+
+        let next_line_help = self.arg_next_line_help(arg, spec_vals, longest);
 
         self.writer.write_arg(
             arg,
@@ -740,6 +758,21 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
 /// Methods to write a single subcommand
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
+    fn subcommand_next_line_help(&self, app: &App<'help>, spec_vals: &str, longest: usize) -> bool {
+        let setting_next_line = self.next_line_help;
+
+        let h = app.about.unwrap_or("");
+        let h_w = str_width(h) + str_width(spec_vals);
+
+        let taken = longest + 12;
+        let force_next_line = !setting_next_line
+            && self.term_w >= taken
+            && (taken as f32 / self.term_w as f32) > 0.40
+            && h_w > (self.term_w - taken);
+
+        setting_next_line | force_next_line
+    }
+
     fn write_subcommand(
         &mut self,
         sc_str: &str,
@@ -750,17 +783,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         let spec_vals = &self.sc_spec_vals(app);
 
-        let h = app.about.unwrap_or("");
-        let h_w = str_width(h) + str_width(spec_vals);
-        let setting_next_line = self.next_line_help;
-
-        let taken = longest + 12;
-        let force_next_line = !setting_next_line
-            && self.term_w >= taken
-            && (taken as f32 / self.term_w as f32) > 0.40
-            && h_w > (self.term_w - taken);
-
-        let next_line_help = setting_next_line | force_next_line;
+        let next_line_help = self.subcommand_next_line_help(app, spec_vals, longest);
 
         self.writer.write_subcommand(
             sc_str,
@@ -916,27 +939,51 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         Ok(())
     }
 
+    /// Will use next line help on writing subcommands.
+    fn will_subcommands_wrapping(&self, subcommands: &[App<'help>], longest: usize) -> bool {
+        subcommands
+            .iter()
+            .filter(|&subcommand| should_show_subcommand(subcommand))
+            .position(|subcommand| {
+                let spec_vals = &self.sc_spec_vals(subcommand);
+                self.subcommand_next_line_help(subcommand, spec_vals, longest)
+            })
+            .is_some()
+    }
+
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, app: &App<'help>) -> io::Result<()> {
         debug!("Help::write_subcommands");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
         let mut ord_m = VecMap::new();
-        for sc in app
+        for subcommand in app
             .subcommands
             .iter()
-            .filter(|s| !s.is_set(AppSettings::Hidden))
+            .filter(|subcommand| should_show_subcommand(subcommand))
         {
-            let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
+            let btm = ord_m.entry(subcommand.disp_ord).or_insert(BTreeMap::new());
             let mut sc_str = String::new();
-            sc_str.push_str(&sc.short_flag.map_or(String::new(), |c| format!("-{}, ", c)));
-            sc_str.push_str(&sc.long_flag.map_or(String::new(), |c| format!("--{}, ", c)));
-            sc_str.push_str(&sc.name);
+            sc_str.push_str(
+                &subcommand
+                    .short_flag
+                    .map_or(String::new(), |c| format!("-{}, ", c)),
+            );
+            sc_str.push_str(
+                &subcommand
+                    .long_flag
+                    .map_or(String::new(), |c| format!("--{}, ", c)),
+            );
+            sc_str.push_str(&subcommand.name);
             longest = longest.max(str_width(&sc_str));
-            btm.insert(sc_str, sc.clone());
+            btm.insert(sc_str, subcommand.clone());
         }
 
         debug!("Help::write_subcommands longest = {}", longest);
+
+        if self.will_subcommands_wrapping(&app.subcommands, longest) {
+            self.next_line_help = true;
+        }
 
         let mut first = true;
         for btm in ord_m.values() {
@@ -1098,6 +1145,10 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
     (!arg.is_set(ArgSettings::HiddenLongHelp) && use_long)
         || (!arg.is_set(ArgSettings::HiddenShortHelp) && !use_long)
         || arg.is_set(ArgSettings::NextLineHelp)
+}
+
+fn should_show_subcommand(subcommand: &App) -> bool {
+    !subcommand.is_set(AppSettings::Hidden)
 }
 
 fn text_wrapper(help: &str, width: usize) -> String {
