@@ -2926,7 +2926,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Last`] ensures the arg has the highest [index] of all positional args
+    /// Setting [`ArgSettings::Last`] ensures the arg has the highest [index] of all positional args
     /// and requires that the `--` syntax be used to access it early.
     ///
     /// ```rust
@@ -2967,8 +2967,9 @@ impl<'help> Arg<'help> {
     /// [`AppSettings::DontCollapseArgsInUsage`]: ./enum.AppSettings.html#variant.DontCollapseArgsInUsage
     /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
     /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
-    /// [`ArgSettings::Required`]: ./enum.ArgSetings.html#variant.Required
+    /// [`ArgSettings::Required`]: ./enum.ArgSettings.html#variant.Required
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    /// [`ArgSettings::Last`]: ./enum.ArgSettings.html#variant.Last
     #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
