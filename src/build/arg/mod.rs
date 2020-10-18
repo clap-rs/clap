@@ -2358,7 +2358,7 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[val])
     }
 
-    /// Like [`Arg::default_value'] but for args taking multiple values
+    /// Like [`Arg::default_value`] but for args taking multiple values
     ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
@@ -2465,7 +2465,7 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&[val])
     }
 
-    /// Like [`Arg::default_missing_value'] but for args taking multiple values
+    /// Like [`Arg::default_missing_value`] but for args taking multiple values
     ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
