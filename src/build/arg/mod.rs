@@ -1462,7 +1462,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_all(&[arg, arg2])`] requires that all the arguments be used at
+    /// Setting `Arg::requires_all(&[arg, arg2])` requires that all the arguments be used at
     /// runtime if the defining argument is used. If the defining argument isn't used, the other
     /// argument isn't required
     ///
@@ -1484,7 +1484,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use cfg, so input and output weren't required
     /// ```
     ///
-    /// Setting [`Arg::requires_all(&[arg, arg2])`] and *not* supplying all the arguments is an
+    /// Setting `Arg::requires_all(&[arg, arg2])` and *not* supplying all the arguments is an
     /// error.
     ///
     /// ```rust
@@ -1508,7 +1508,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    /// [`Arg::requires_all(&[arg, arg2])`]: ./struct.Arg.html#method.requires_all
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         self.requires.extend(names.iter().map(|s| (None, s.into())));
         self
