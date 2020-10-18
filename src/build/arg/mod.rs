@@ -1519,9 +1519,12 @@ impl<'help> Arg<'help> {
     /// **NOTE:** The index refers to position according to **other positional argument**. It does
     /// not define position in the argument list as a whole.
     ///
-    /// **NOTE:** If no [`Arg::short`], or [`Arg::long`] have been defined, you can optionally
-    /// leave off the `index` method, and the index will be assigned in order of evaluation.
-    /// Utilizing the `index` method allows for setting indexes out of order
+    /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
+    /// with [`Arg::short`] or [`Arg::long`]. If they are defined, they will be ignored.
+    ///
+    /// **NOTE:** You can optionally leave off the `index` method, and the index will be
+    /// assigned in order of evaluation. Utilizing the `index` method allows for setting
+    /// indexes out of order
     ///
     /// **NOTE:** When utilized with [`Arg::multiple(true)`], only the **last** positional argument
     /// may be defined as multiple (i.e. with the highest index)
@@ -4367,6 +4370,14 @@ impl Arg<'_> {
                     "Argument '{}' uses hint CommandWithArguments and must accept multiple values",
                 )
             }
+        }
+
+        if self.index.is_some() {
+            assert!(
+                self.short.is_none() && self.long.is_none(),
+                "Argument '{}' is a positional argument and can't have short or long name versions",
+                self.name
+            );
         }
     }
 }
