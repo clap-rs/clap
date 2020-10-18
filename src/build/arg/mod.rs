@@ -1200,7 +1200,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_if(val, arg)`] requires that the `arg` be used at runtime if the
+    /// Setting `Arg::requires_if(val, arg)` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument is anything other than
     /// `val`, the other argument isn't required.
     ///
@@ -1219,7 +1219,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
     /// ```
     ///
-    /// Setting [`Arg::requires_if(val, arg)`] and setting the value to `val` but *not* supplying
+    /// Setting `Arg::requires_if(val, arg)` and setting the value to `val` but *not* supplying
     /// `arg` is an error.
     ///
     /// ```rust
@@ -1268,7 +1268,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_ifs(&["val", "arg"])`] requires that the `arg` be used at runtime if the
+    /// Setting `Arg::requires_ifs(&["val", "arg"])` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument's value is anything other
     /// than `val`, `arg` isn't required.
     ///
@@ -1385,7 +1385,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] makes this arg required if any of the `arg`s
+    /// Setting `Arg::required_if_eq_any(&[(arg, val)])` makes this arg required if any of the `arg`s
     /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
     /// anything other than `val`, this argument isn't required.
     ///
@@ -1412,7 +1412,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] and having any of the `arg`s used with its
+    /// Setting `Arg::required_if_eq_any(&[(arg, val)])` and having any of the `arg`s used with its
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
