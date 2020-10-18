@@ -492,22 +492,24 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::spec_vals: a={}", a);
         let mut spec_vals = vec![];
         if let Some(ref env) = a.env {
-            debug!(
-                "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
-                env.0, env.1
-            );
-            let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
-                format!(
-                    "={}",
-                    env.1
-                        .as_ref()
-                        .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
-                )
-            } else {
-                String::new()
-            };
-            let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
-            spec_vals.push(env_info);
+            if !a.is_set(ArgSettings::HideEnv) {
+                debug!(
+                    "Help::spec_vals: Found environment variable...[{:?}:{:?}]",
+                    env.0, env.1
+                );
+                let env_val = if !a.is_set(ArgSettings::HideEnvValues) {
+                    format!(
+                        "={}",
+                        env.1
+                            .as_ref()
+                            .map_or(Cow::Borrowed(""), |val| val.to_string_lossy())
+                    )
+                } else {
+                    String::new()
+                };
+                let env_info = format!("[env: {}{}]", env.0.to_string_lossy(), env_val);
+                spec_vals.push(env_info);
+            }
         }
         if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
             debug!(

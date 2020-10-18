@@ -3565,6 +3565,42 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Specifies that environment variable arguments should not be displayed in the help text.
+    ///
+    /// This is useful when the variable option is explained elsewhere in the help text.
+    ///
+    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// Arg::new("config")
+    ///     .setting(ArgSettings::HideEnv)
+    /// # ;
+    /// ```
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::new("mode")
+    ///         .long("mode")
+    ///         .env("MODE")
+    ///         .setting(ArgSettings::HideEnv));
+    ///
+    /// ```
+    ///
+    /// If we were to run the above program with `--help` the `[env: MODE]` portion of the help
+    /// text would be omitted.
+    #[inline]
+    pub fn hide_env(self, hide: bool) -> Self {
+        if hide {
+            self.setting(ArgSettings::HideEnv)
+        } else {
+            self.unset_setting(ArgSettings::HideEnv)
+        }
+    }
+
     /// Specifies that any values inside the associated ENV variables of an argument should not be
     /// displayed in the help text.
     ///

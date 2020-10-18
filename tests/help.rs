@@ -545,6 +545,30 @@ FLAGS:
     -V, --version
             Prints version information";
 
+static HIDE_ENV: &str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.";
+
+static SHOW_ENV: &str = "ctest 0.1
+
+USAGE:
+    ctest [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]";
+
 static HIDE_ENV_VALS: &str = "ctest 0.1
 
 USAGE:
@@ -1490,6 +1514,42 @@ fn issue_1052_require_delim_help() {
         REQUIRE_DELIM_HELP,
         false
     ));
+}
+
+#[test]
+fn hide_env() {
+    use std::env;
+
+    env::set_var("ENVVAR", "MYVAL");
+    let app = App::new("ctest").version("0.1").arg(
+        Arg::new("cafe")
+            .short('c')
+            .long("cafe")
+            .value_name("FILE")
+            .hide_env(true)
+            .env("ENVVAR")
+            .about("A coffeehouse, coffee shop, or café.")
+            .takes_value(true),
+    );
+    assert!(utils::compare_output(app, "ctest --help", HIDE_ENV, false));
+}
+
+#[test]
+fn show_env() {
+    use std::env;
+
+    env::set_var("ENVVAR", "MYVAL");
+    let app = App::new("ctest").version("0.1").arg(
+        Arg::new("cafe")
+            .short('c')
+            .long("cafe")
+            .value_name("FILE")
+            .hide_env(false)
+            .env("ENVVAR")
+            .about("A coffeehouse, coffee shop, or café.")
+            .takes_value(true),
+    );
+    assert!(utils::compare_output(app, "ctest --help", SHOW_ENV, false));
 }
 
 #[test]
