@@ -71,6 +71,7 @@ use yaml_rust::Yaml;
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
 /// [`ArgGroup::multiple(true)`]: ./struct.ArgGroup.html#method.multiple
+/// [`ArgGroup::multiple(false)`]: ./struct.ArgGroup.html#method.multiple
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
