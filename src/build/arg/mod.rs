@@ -1200,7 +1200,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_if(val, arg)`] requires that the `arg` be used at runtime if the
+    /// Setting `Arg::requires_if(val, arg)` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument is anything other than
     /// `val`, the other argument isn't required.
     ///
@@ -1219,7 +1219,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --config=my.cfg, so other wasn't required
     /// ```
     ///
-    /// Setting [`Arg::requires_if(val, arg)`] and setting the value to `val` but *not* supplying
+    /// Setting `Arg::requires_if(val, arg)` and setting the value to `val` but *not* supplying
     /// `arg` is an error.
     ///
     /// ```rust
@@ -1268,7 +1268,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_ifs(&["val", "arg"])`] requires that the `arg` be used at runtime if the
+    /// Setting `Arg::requires_ifs(&["val", "arg"])` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument's value is anything other
     /// than `val`, `arg` isn't required.
     ///
@@ -1385,7 +1385,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] makes this arg required if any of the `arg`s
+    /// Setting `Arg::required_if_eq_any(&[(arg, val)])` makes this arg required if any of the `arg`s
     /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
     /// anything other than `val`, this argument isn't required.
     ///
@@ -1412,7 +1412,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use --option=spec, or --extra=val so "cfg" isn't required
     /// ```
     ///
-    /// Setting [`Arg::required_if_eq_any(&[(arg, val)])`] and having any of the `arg`s used with its
+    /// Setting `Arg::required_if_eq_any(&[(arg, val)])` and having any of the `arg`s used with its
     /// value of `val` but *not* using this arg is an error.
     ///
     /// ```rust
@@ -1462,7 +1462,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Arg::requires_all(&[arg, arg2])`] requires that all the arguments be used at
+    /// Setting `Arg::requires_all(&[arg, arg2])` requires that all the arguments be used at
     /// runtime if the defining argument is used. If the defining argument isn't used, the other
     /// argument isn't required
     ///
@@ -1484,7 +1484,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok()); // We didn't use cfg, so input and output weren't required
     /// ```
     ///
-    /// Setting [`Arg::requires_all(&[arg, arg2])`] and *not* supplying all the arguments is an
+    /// Setting `Arg::requires_all(&[arg, arg2])` and *not* supplying all the arguments is an
     /// error.
     ///
     /// ```rust
@@ -1508,7 +1508,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [override]: ./struct.Arg.html#method.overrides_with
-    /// [`Arg::requires_all(&[arg, arg2])`]: ./struct.Arg.html#method.requires_all
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         self.requires.extend(names.iter().map(|s| (None, s.into())));
         self
@@ -2353,6 +2352,7 @@ impl<'help> Arg<'help> {
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2360,7 +2360,8 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[val])
     }
 
-    /// Like [`Arg::default_value'] but for args taking multiple values
+    /// Like [`Arg::default_value`] but for args taking multiple values
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
@@ -2370,6 +2371,7 @@ impl<'help> Arg<'help> {
 
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2457,24 +2459,27 @@ impl<'help> Arg<'help> {
 
     /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
     /// only using [`OsStr`]s instead.
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    ///
+    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
         self.default_missing_values_os(&[val])
     }
 
-    /// Like [`Arg::default_missing_value'] but for args taking multiple values
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// Like [`Arg::default_missing_value`] but for args taking multiple values
+    ///
+    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
     #[inline]
     pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_missing_values_os(&vals_vec[..])
     }
 
-    /// Provides default values in the exact same manner as [`Arg::default_values`]
+    /// Provides default values in the exact same manner as [`Arg::default_missing_values`]
     /// only using [`OsStr`]s instead.
-    /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
+    ///
+    /// [`Arg::default_missing_values`]: ./struct.Arg.html#method.default_missing_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
@@ -2588,6 +2593,7 @@ impl<'help> Arg<'help> {
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_if_os<T: Key>(
@@ -2685,7 +2691,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value_ifs<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help str>, &'help str)],
@@ -2698,6 +2704,7 @@ impl<'help> Arg<'help> {
 
     /// Provides multiple conditional default values in the exact same manner as
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_ifs_os<T: Key>(
@@ -2809,6 +2816,12 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
+    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
+    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
+    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
     #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
@@ -2921,7 +2934,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// Setting [`Last`] ensures the arg has the highest [index] of all positional args
+    /// Setting [`ArgSettings::Last`] ensures the arg has the highest [index] of all positional args
     /// and requires that the `--` syntax be used to access it early.
     ///
     /// ```rust
@@ -2962,8 +2975,9 @@ impl<'help> Arg<'help> {
     /// [`AppSettings::DontCollapseArgsInUsage`]: ./enum.AppSettings.html#variant.DontCollapseArgsInUsage
     /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
     /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
-    /// [`ArgSettings::Required`]: ./enum.ArgSetings.html#variant.Required
+    /// [`ArgSettings::Required`]: ./enum.ArgSettings.html#variant.Required
     /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    /// [`ArgSettings::Last`]: ./enum.ArgSettings.html#variant.Last
     #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
@@ -3122,7 +3136,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("pat"), Some("-file"));
     /// ```
     ///
-    /// Not setting [`Arg::allow_hyphen_values(true)`] and supplying a value which starts with a
+    /// Not setting `Arg::allow_hyphen_values(true)` and supplying a value which starts with a
     /// hyphen is an error.
     ///
     /// ```rust
@@ -4188,6 +4202,7 @@ impl<'help> Arg<'help> {
 
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
@@ -4195,6 +4210,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn setting(mut self, s: ArgSettings) -> Self {
@@ -4204,6 +4220,7 @@ impl<'help> Arg<'help> {
 
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Sets multiple [`ArgSettings`] for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn settings(mut self, settings: &[ArgSettings]) -> Self {
         for s in settings {
@@ -4213,6 +4230,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Unsets one of the [`ArgSettings`] for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {

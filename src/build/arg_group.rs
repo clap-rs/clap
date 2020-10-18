@@ -71,6 +71,7 @@ use yaml_rust::Yaml;
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
 /// [`ArgGroup::multiple(true)`]: ./struct.ArgGroup.html#method.multiple
+/// [`ArgGroup::multiple(false)`]: ./struct.ArgGroup.html#method.multiple
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
@@ -165,7 +166,7 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Allows more than one of the ['Arg']s in this group to be used. (Default: `false`)
+    /// Allows more than one of the [`Arg`]s in this group to be used. (Default: `false`)
     ///
     /// # Examples
     ///
@@ -204,7 +205,7 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
-    /// ['Arg']: ./struct.Arg.html
+    /// [`Arg`]: ./struct.Arg.html
     #[inline]
     pub fn multiple(mut self, m: bool) -> Self {
         self.multiple = m;

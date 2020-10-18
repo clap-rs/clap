@@ -357,13 +357,16 @@ pub enum ErrorKind {
     /// ```
     DisplayVersion,
 
-    /// Occurs when using the [`ArgMathes::value_of_t`] and friends to convert an argument value
+    /// Occurs when using the [`ArgMatches::value_of_t`] and friends to convert an argument value
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
     /// with name `config` to be converted, but `config` wasn't used by the user.
+    ///
+    /// [`ArgMatches::value_of_t`]: ./struct.ArgMatches.html#method.value_of_t
     ArgumentNotFound,
 
     /// Represents an [I/O error].
     /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
+    ///
     /// [I/O error]: https://doc.rust-lang.org/std/io/struct.Error.html
     Io,
 
