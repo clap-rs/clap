@@ -2458,7 +2458,7 @@ impl<'help> Arg<'help> {
     /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
@@ -2467,17 +2467,17 @@ impl<'help> Arg<'help> {
 
     /// Like [`Arg::default_missing_value`] but for args taking multiple values
     ///
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
     #[inline]
     pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_missing_values_os(&vals_vec[..])
     }
 
-    /// Provides default values in the exact same manner as [`Arg::default_values`]
+    /// Provides default values in the exact same manner as [`Arg::default_missing_values`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
+    /// [`Arg::default_missing_values`]: ./struct.Arg.html#method.default_missing_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
     pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
@@ -2689,7 +2689,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value_ifs<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help str>, &'help str)],
