@@ -3128,7 +3128,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("pat"), Some("-file"));
     /// ```
     ///
-    /// Not setting [`Arg::allow_hyphen_values(true)`] and supplying a value which starts with a
+    /// Not setting `Arg::allow_hyphen_values(true)` and supplying a value which starts with a
     /// hyphen is an error.
     ///
     /// ```rust
