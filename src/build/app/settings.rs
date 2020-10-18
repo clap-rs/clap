@@ -232,6 +232,7 @@ pub enum AppSettings {
 
     /// Specifies that all arguments override themselves. This is the equivolent to saying the `foo`
     /// arg using [`Arg::overrides_with("foo")`] for all defined arguments.
+    ///
     /// [`Arg::overrides_with("foo")`]: ./struct.Arg.html#method.overrides_with
     AllArgsOverrideSelf,
 

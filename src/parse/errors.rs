@@ -364,6 +364,7 @@ pub enum ErrorKind {
 
     /// Represents an [I/O error].
     /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
+    ///
     /// [I/O error]: https://doc.rust-lang.org/std/io/struct.Error.html
     Io,
 

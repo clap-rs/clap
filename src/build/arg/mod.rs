@@ -2350,6 +2350,7 @@ impl<'help> Arg<'help> {
 
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2358,6 +2359,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Like [`Arg::default_value'] but for args taking multiple values
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
@@ -2367,6 +2369,7 @@ impl<'help> Arg<'help> {
 
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2454,6 +2457,7 @@ impl<'help> Arg<'help> {
 
     /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2462,6 +2466,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Like [`Arg::default_missing_value'] but for args taking multiple values
+    ///
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
     #[inline]
     pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
@@ -2471,6 +2476,7 @@ impl<'help> Arg<'help> {
 
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     #[inline]
@@ -2585,6 +2591,7 @@ impl<'help> Arg<'help> {
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
     /// only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_if_os<T: Key>(
@@ -2695,6 +2702,7 @@ impl<'help> Arg<'help> {
 
     /// Provides multiple conditional default values in the exact same manner as
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
+    ///
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_ifs_os<T: Key>(
@@ -4185,6 +4193,7 @@ impl<'help> Arg<'help> {
 
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
@@ -4192,6 +4201,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Sets one of the [`ArgSettings`] settings for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn setting(mut self, s: ArgSettings) -> Self {
@@ -4201,6 +4211,7 @@ impl<'help> Arg<'help> {
 
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Sets multiple [`ArgSettings`] for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     pub fn settings(mut self, settings: &[ArgSettings]) -> Self {
         for s in settings {
@@ -4210,6 +4221,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Unsets one of the [`ArgSettings`] for the argument
+    ///
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn unset_setting(mut self, s: ArgSettings) -> Self {
