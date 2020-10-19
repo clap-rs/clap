@@ -146,7 +146,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
     let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = String::new();
 
-    for o in p.get_opts_with_no_heading() {
+    for o in p.get_opts() {
         if let Some(l) = o.get_long() {
             opts = format!(
                 "{}
