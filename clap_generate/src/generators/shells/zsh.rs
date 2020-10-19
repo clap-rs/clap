@@ -406,7 +406,7 @@ fn write_opts_of(p: &App) -> String {
 
     let mut ret = vec![];
 
-    for o in p.get_opts_with_no_heading() {
+    for o in p.get_opts() {
         debug!("write_opts_of:iter: o={}", o.get_name());
 
         let help = o.get_about().map_or(String::new(), escape_help);
