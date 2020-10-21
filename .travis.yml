@@ -35,15 +35,6 @@ jobs:
       script:
         - cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
         - cargo test --features "yaml unstable doc"
-    - name: Linting (fmt + clippy)
-      before_script:
-        - rustup component add clippy
-        - rustup component add rustfmt
-      script:
-        - echo "Checking codebase with Clippy release `cargo clippy --version`."
-        - cargo clippy --lib --features "yaml unstable" -- -D warnings
-        - cargo clippy --tests --examples --features "yaml unstable" -- -D warnings
-        - cargo fmt -- --check
     - name: Coverage
       addons:
         apt:
