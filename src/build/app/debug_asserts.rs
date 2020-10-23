@@ -219,14 +219,27 @@ pub(crate) fn assert_app(app: &App) {
             group.name,
         );
 
-        // Args listed inside groups should exist
         for arg in &group.args {
+            // Args listed inside groups should exist
             assert!(
                 app.args.args.iter().any(|x| x.id == *arg),
                 "Argument group '{}' contains non-existent argument '{:?}'",
                 group.name,
                 arg
-            )
+            );
+
+            // Required groups shouldn't have args with default values
+            if group.required {
+                assert!(
+                    app.args
+                        .args
+                        .iter()
+                        .any(|x| x.id == *arg && x.default_vals.is_empty()),
+                    "Argument group '{}' is required but contains argument '{:?}' which has a default value.",
+                    group.name,
+                    arg
+                )
+            }
         }
     }
 
