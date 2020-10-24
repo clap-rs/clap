@@ -4397,6 +4397,14 @@ impl Arg<'_> {
                 self.name
             );
         }
+
+        if self.is_set(ArgSettings::Required) {
+            assert!(
+                self.default_vals.is_empty(),
+                "Argument '{}' is required and can't have a default value",
+                self.name
+            );
+        }
     }
 }
 
