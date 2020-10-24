@@ -347,10 +347,7 @@ fn gen_update_from_subcommand(
         })
         .partition(|(_, attrs)| {
             let kind = attrs.kind();
-            match &*kind {
-                Kind::Flatten => true,
-                _ => false,
-            }
+            matches!(&*kind, Kind::Flatten)
         });
 
     let subcommands = variants.iter().map(|(variant, attrs)| {
