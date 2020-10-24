@@ -885,7 +885,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conlicts per
+    /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conflicts per
     /// argument.
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
@@ -894,6 +894,9 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
     /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
     /// need to also do B.conflicts_with(A))
+    ///
+    /// **NOTE:** This option does not exist when using a YAML configuration file. Using [`Arg::conflicts_with`]
+    /// followed by an array of strings will achieve the equivalent effect.
     ///
     /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///

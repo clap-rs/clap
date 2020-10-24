@@ -69,10 +69,14 @@
           "type": "boolean"
         },
         "conflicts_with": {
-          "type": "string"
-        },
-        "conflicts_with_all": {
-          "$ref": "#/structures/arrayStrUnique"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/structures/arrayStrUnique"
+            }
+          ]
         },
         "default_value": {
           "type": "string"
