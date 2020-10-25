@@ -117,7 +117,6 @@ FLAGS:
     -V, --version
             Prints version information
 
-
 some longer text that comes after the help";
 
 static HIDDEN_ARGS: &str = "prog 1.0
@@ -883,6 +882,114 @@ fn no_wrap_default_help() {
         app,
         "ctest --help",
         DEFAULT_HELP,
+        false
+    ));
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn wrapped_help() {
+    static WRAPPED_HELP: &str = "test 
+
+USAGE:
+    rust_test.exe [FLAGS]
+
+FLAGS:
+    -a, --all
+            Also do versioning for private crates (will not be
+            published)
+
+        --exact
+            Specify inter dependency version numbers exactly with
+            `=`
+
+    -h, --help
+            Prints help information
+
+        --no-git-commit
+            Do not commit version changes
+
+        --no-git-push
+            Do not push generated commit and tags to git remote
+
+    -V, --version
+            Prints version information";
+    let app = App::new("test")
+        .term_width(67)
+        .arg(
+            Arg::new("all")
+                .short('a')
+                .long("all")
+                .about("Also do versioning for private crates (will not be published)"),
+        )
+        .arg(
+            Arg::new("exact")
+                .long("exact")
+                .about("Specify inter dependency version numbers exactly with `=`"),
+        )
+        .arg(
+            Arg::new("no_git_commit")
+                .long("no-git-commit")
+                .about("Do not commit version changes"),
+        )
+        .arg(
+            Arg::new("no_git_push")
+                .long("no-git-push")
+                .about("Do not push generated commit and tags to git remote"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        WRAPPED_HELP,
+        false
+    ));
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn unwrapped_help() {
+    static UNWRAPPED_HELP: &str = "test 
+
+USAGE:
+    rust_test.exe [FLAGS]
+
+FLAGS:
+    -a, --all              Also do versioning for private crates
+                           (will not be published)
+        --exact            Specify inter dependency version numbers
+                           exactly with `=`
+    -h, --help             Prints help information
+        --no-git-commit    Do not commit version changes
+        --no-git-push      Do not push generated commit and tags to
+                           git remote
+    -V, --version          Prints version information";
+    let app = App::new("test")
+        .term_width(68)
+        .arg(
+            Arg::new("all")
+                .short('a')
+                .long("all")
+                .about("Also do versioning for private crates (will not be published)"),
+        )
+        .arg(
+            Arg::new("exact")
+                .long("exact")
+                .about("Specify inter dependency version numbers exactly with `=`"),
+        )
+        .arg(
+            Arg::new("no_git_commit")
+                .long("no-git-commit")
+                .about("Do not commit version changes"),
+        )
+        .arg(
+            Arg::new("no_git_push")
+                .long("no-git-push")
+                .about("Do not push generated commit and tags to git remote"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        UNWRAPPED_HELP,
         false
     ));
 }
