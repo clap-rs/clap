@@ -48,8 +48,6 @@ pub(crate) struct Help<'help, 'app, 'parser, 'writer> {
     next_line_help: bool,
     hide_pv: bool,
     term_w: usize,
-    longest: usize,
-    force_next_line: bool,
     use_long: bool,
 }
 
@@ -71,7 +69,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
     /// Create a new `Help` instance.
     pub(crate) fn new(
-        w: HelpWriter<'writer>,
+        writer: HelpWriter<'writer>,
         parser: &'parser Parser<'help, 'app>,
         use_long: bool,
     ) -> Self {
@@ -87,17 +85,15 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 },
             ),
         };
-        let nlh = parser.is_set(AppSettings::NextLineHelp);
+        let next_line_help = parser.is_set(AppSettings::NextLineHelp);
         let hide_pv = parser.is_set(AppSettings::HidePossibleValuesInHelp);
 
         Help {
-            writer: w,
+            writer,
             parser,
-            next_line_help: nlh,
+            next_line_help,
             hide_pv,
             term_w,
-            longest: 0,
-            force_next_line: false,
             use_long,
         }
     }
@@ -141,15 +137,6 @@ macro_rules! write_method {
     };
 }
 
-macro_rules! write_nspaces {
-    ($_self:ident, $num:expr) => {{
-        debug!("Help::write_nspaces!: num={}", $num);
-        for _ in 0..$num {
-            $_self.none(" ")?;
-        }
-    }};
-}
-
 // Methods to write Arg help.
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     fn good<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
@@ -164,28 +151,32 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         write_method!(self, msg, none)
     }
 
+    fn spaces(&mut self, n: usize) -> io::Result<()> {
+        self.none(" ".repeat(n))
+    }
+
     /// Writes help for each argument in the order they were declared to the wrapped stream.
     fn write_args_unsorted(&mut self, args: &[&Arg<'help>]) -> io::Result<()> {
         debug!("Help::write_args_unsorted");
         // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        let mut longest = 2;
         let mut arg_v = Vec::with_capacity(10);
-        let use_long = self.use_long;
-        for arg in args.iter().filter(|arg| should_show_arg(use_long, *arg)) {
+
+        for arg in args
+            .iter()
+            .filter(|arg| should_show_arg(self.use_long, *arg))
+        {
             if arg.longest_filter() {
-                self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
+                longest = longest.max(str_width(arg.to_string().as_str()));
             }
             arg_v.push(arg)
         }
-        let mut first = true;
-        let arg_c = arg_v.len();
+
+        let next_line_help = self.will_args_wrap(args, longest);
+
+        let argc = arg_v.len();
         for (i, arg) in arg_v.iter().enumerate() {
-            if first {
-                first = false;
-            } else {
-                self.none("\n")?;
-            }
-            self.write_arg(arg, i < arg_c)?;
+            self.write_arg(arg, i + 1 == argc, next_line_help, longest)?;
         }
         Ok(())
     }
@@ -194,20 +185,20 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     fn write_args(&mut self, args: &[&Arg<'help>]) -> io::Result<()> {
         debug!("Help::write_args");
         // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        let mut longest = 2;
         let mut ord_m = VecMap::new();
-        let use_long = self.use_long;
+
         // Determine the longest
         for arg in args.iter().filter(|arg| {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
-            should_show_arg(use_long, *arg)
+            should_show_arg(self.use_long, *arg)
         }) {
             if arg.longest_filter() {
-                debug!("Help::write_args: Current Longest...{}", self.longest);
-                self.longest = cmp::max(self.longest, str_width(arg.to_string().as_str()));
-                debug!("Help::write_args: New Longest...{}", self.longest);
+                debug!("Help::write_args: Current Longest...{}", longest);
+                longest = longest.max(str_width(arg.to_string().as_str()));
+                debug!("Help::write_args: New Longest...{}", longest);
             }
             let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
 
@@ -232,27 +223,39 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             };
             btm.insert(key, arg);
         }
-        let mut first = true;
-        for btm in ord_m.values() {
-            for arg in btm.values() {
-                if first {
-                    first = false;
-                } else {
-                    self.none("\n")?;
-                }
-                self.write_arg(arg, false)?;
+
+        let next_line_help = self.will_args_wrap(args, longest);
+
+        let num_ord_m = ord_m.len();
+        for (i, btm) in ord_m.values().enumerate() {
+            let last_btm = i + 1 == num_ord_m;
+            let num_args = btm.len();
+            for (i, arg) in btm.values().enumerate() {
+                let last_arg = last_btm && i + 1 == num_args;
+                self.write_arg(arg, last_arg, next_line_help, longest)?;
             }
         }
         Ok(())
     }
 
     /// Writes help for an argument to the wrapped stream.
-    fn write_arg(&mut self, arg: &Arg<'help>, prevent_nlh: bool) -> io::Result<()> {
-        debug!("Help::write_arg");
-        self.short(arg)?;
-        self.long(arg)?;
-        let spec_vals = self.val(arg)?;
-        self.help(arg, &*spec_vals, prevent_nlh)?;
+    fn write_arg(
+        &mut self,
+        arg: &Arg<'help>,
+        last_arg: bool,
+        next_line_help: bool,
+        longest: usize,
+    ) -> io::Result<()> {
+        let spec_vals = &self.spec_vals(arg);
+
+        self.write_arg_inner(arg, spec_vals, next_line_help, longest)?;
+
+        if !last_arg {
+            self.none("\n")?;
+            if next_line_help {
+                self.none("\n")?;
+            }
+        }
         Ok(())
     }
 
@@ -301,7 +304,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg) -> Result<String, io::Error> {
+    fn val(&mut self, arg: &Arg<'help>, next_line_help: bool, longest: usize) -> io::Result<()> {
         debug!("Help::val: arg={}", arg.name);
         let mult =
             arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
@@ -344,36 +347,17 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             }
         }
 
-        let spec_vals = self.spec_vals(arg);
-        let h = arg.about.unwrap_or("");
-        let h_w = str_width(h) + str_width(&*spec_vals);
-        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp);
-        let taken = self.longest + 12;
-        self.force_next_line = !nlh
-            && self.term_w >= taken
-            && (taken as f32 / self.term_w as f32) > 0.40
-            && h_w > (self.term_w - taken);
-
         debug!("Help::val: Has switch...");
         if self.use_long {
             // long help prints messages on the next line so it don't need to align text
             debug!("Help::val: printing long help so skip alignment");
         } else if arg.has_switch() {
             debug!("Yes");
-            debug!("Help::val: force_next_line...{:?}", self.force_next_line);
-            debug!("Help::val: nlh...{:?}", nlh);
-            debug!("Help::val: taken...{}", taken);
-            debug!(
-                "val: help_width > (width - taken)...{} > ({} - {})",
-                h_w, self.term_w, taken
-            );
-            debug!("Help::val: longest...{}", self.longest);
-            debug!("Help::val: next_line...");
-            if !(nlh || self.force_next_line) {
-                debug!("No");
+            debug!("Help::val: nlh...{:?}", next_line_help);
+            if !next_line_help {
                 let self_len = str_width(arg.to_string().as_str());
                 // subtract ourself
-                let mut spcs = self.longest - self_len;
+                let mut spcs = longest - self_len;
                 // Since we're writing spaces from the tab point we first need to know if we
                 // had a long and short, or just short
                 if arg.long.is_some() {
@@ -384,87 +368,86 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     spcs += 8;
                 }
 
-                write_nspaces!(self, spcs);
-            } else {
-                debug!("Yes");
+                self.spaces(spcs)?;
             }
-        } else if !(nlh || self.force_next_line) {
+        } else if !next_line_help {
             debug!("No, and not next_line");
-            write_nspaces!(
-                self,
-                self.longest + 4 - (str_width(arg.to_string().as_str()))
-            );
+            self.spaces(longest + 4 - str_width(&arg.to_string()))?;
         } else {
             debug!("No");
         }
-        Ok(spec_vals)
+        Ok(())
     }
 
-    fn write_before_after_help(&mut self, h: &str) -> io::Result<()> {
-        debug!("Help::write_before_after_help");
-        let mut help = String::from(h);
-        // determine if our help fits or needs to wrap
-        debug!(
-            "Help::write_before_after_help: Term width...{}",
-            self.term_w
-        );
-        let too_long = str_width(h) >= self.term_w;
-
-        debug!("Help::write_before_after_help: Too long...");
-        if too_long {
-            debug!("Yes");
-            debug!("Help::write_before_after_help: help: {}", help);
-            debug!(
-                "Help::write_before_after_help: help width: {}",
-                str_width(&*help)
-            );
-            // Determine how many newlines we need to insert
-            debug!(
-                "Help::write_before_after_help: Usable space: {}",
-                self.term_w
-            );
-            help = wrap_help(&help, self.term_w);
+    fn write_before_help(&mut self) -> io::Result<()> {
+        debug!("Help::write_before_help");
+        let before_help = if self.use_long {
+            self.parser
+                .app
+                .before_long_help
+                .or(self.parser.app.before_help)
         } else {
-            debug!("No");
+            self.parser.app.before_help
+        };
+        if let Some(output) = before_help {
+            self.none(text_wrapper(output, self.term_w))?;
+            self.none("\n\n")?;
         }
-        self.none(&help)?;
+        Ok(())
+    }
+
+    fn write_after_help(&mut self) -> io::Result<()> {
+        debug!("Help::write_after_help");
+        let after_help = if self.use_long {
+            self.parser
+                .app
+                .after_long_help
+                .or(self.parser.app.after_help)
+        } else {
+            self.parser.app.after_help
+        };
+        if let Some(output) = after_help {
+            self.none("\n\n")?;
+            self.none(text_wrapper(output, self.term_w))?;
+        }
         Ok(())
     }
 
     /// Writes argument's help to the wrapped stream.
-    fn help(&mut self, arg: &Arg, spec_vals: &str, prevent_nlh: bool) -> io::Result<()> {
+    fn help(
+        &mut self,
+        has_switch: bool,
+        about: &str,
+        spec_vals: &str,
+        next_line_help: bool,
+        longest: usize,
+    ) -> io::Result<()> {
         debug!("Help::help");
-        let h = if self.use_long {
-            arg.long_about.unwrap_or_else(|| arg.about.unwrap_or(""))
-        } else {
-            arg.about.unwrap_or_else(|| arg.long_about.unwrap_or(""))
-        };
-        let mut help = String::from(h) + spec_vals;
-        let nlh = self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long;
-        debug!("Help::help: Next Line...{:?}", nlh);
+        let mut help = String::from(about) + spec_vals;
+        debug!("Help::help: Next Line...{:?}", next_line_help);
 
-        let spcs = if nlh || self.force_next_line {
+        let spaces = if next_line_help {
             12 // "tab" * 3
         } else {
-            self.longest + 12
+            longest + 12
         };
 
-        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
+        let too_long = spaces + str_width(about) + str_width(spec_vals) >= self.term_w;
 
         // Is help on next line, if so then indent
-        if nlh || self.force_next_line {
+        if next_line_help {
             self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
         }
 
         debug!("Help::help: Too long...");
-        if too_long && spcs <= self.term_w {
+        if too_long && spaces <= self.term_w {
             debug!("Yes");
             debug!("Help::help: help...{}", help);
-            debug!("Help::help: help width...{}", str_width(&*help));
+            debug!("Help::help: help width...{}", str_width(&help));
             // Determine how many newlines we need to insert
-            let avail_chars = self.term_w - spcs;
+            let avail_chars = self.term_w - spaces;
             debug!("Help::help: Usable space...{}", avail_chars);
-            help = wrap_help(&help, avail_chars);
+            help = text_wrapper(&help, avail_chars);
         } else {
             debug!("No");
         }
@@ -473,19 +456,63 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         }
         for part in help.lines().skip(1) {
             self.none("\n")?;
-            if nlh || self.force_next_line {
+            if next_line_help {
                 self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
-            } else if arg.has_switch() {
-                write_nspaces!(self, self.longest + 12);
+            } else if has_switch {
+                self.spaces(longest + 12)?;
             } else {
-                write_nspaces!(self, self.longest + 8);
+                self.spaces(longest + 8)?;
             }
             self.none(part)?;
         }
-        if !prevent_nlh && (nlh || self.force_next_line) {
-            self.none("\n")?;
-        }
         Ok(())
+    }
+
+    /// Writes help for an argument to the wrapped stream.
+    fn write_arg_inner(
+        &mut self,
+        arg: &Arg<'help>,
+        spec_vals: &str,
+        next_line_help: bool,
+        longest: usize,
+    ) -> io::Result<()> {
+        self.short(arg)?;
+        self.long(arg)?;
+        self.val(arg, next_line_help, longest)?;
+
+        let about = if self.use_long {
+            arg.long_about.unwrap_or_else(|| arg.about.unwrap_or(""))
+        } else {
+            arg.about.unwrap_or_else(|| arg.long_about.unwrap_or(""))
+        };
+
+        self.help(arg.has_switch(), about, spec_vals, next_line_help, longest)?;
+        Ok(())
+    }
+
+    /// Will use next line help on writing args.
+    fn will_args_wrap(&self, args: &[&Arg<'help>], longest: usize) -> bool {
+        args.iter()
+            .filter(|arg| should_show_arg(self.use_long, *arg))
+            .any(|arg| {
+                let spec_vals = &self.spec_vals(arg);
+                self.arg_next_line_help(arg, spec_vals, longest)
+            })
+    }
+
+    fn arg_next_line_help(&self, arg: &Arg<'help>, spec_vals: &str, longest: usize) -> bool {
+        if self.next_line_help || arg.is_set(ArgSettings::NextLineHelp) || self.use_long {
+            // setting_next_line
+            true
+        } else {
+            // force_next_line
+            let h = arg.about.unwrap_or("");
+            let h_w = str_width(h) + str_width(spec_vals);
+            let taken = longest + 12;
+            self.term_w >= taken
+                && (taken as f32 / self.term_w as f32) > 0.40
+                && h_w > (self.term_w - taken)
+        }
     }
 
     fn spec_vals(&self, a: &Arg) -> String {
@@ -599,35 +626,54 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         };
         prefix.to_string() + &spec_vals.join(" ")
     }
+
+    fn write_about(&mut self, new_line: bool) -> io::Result<()> {
+        let about = if self.use_long {
+            self.parser.app.long_about.or(self.parser.app.about)
+        } else {
+            self.parser.app.about
+        };
+        if let Some(output) = about {
+            self.none(text_wrapper(output, self.term_w))?;
+            if new_line {
+                self.none("\n")?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_author(&mut self, new_line: bool) -> io::Result<()> {
+        if let Some(author) = self.parser.app.author {
+            self.none(text_wrapper(author, self.term_w))?;
+            if new_line {
+                self.none("\n")?;
+            }
+        }
+        Ok(())
+    }
 }
 
 /// Methods to write a single subcommand
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
-    fn write_subcommand(&mut self, sc_str: &str, app: &App<'help>) -> io::Result<()> {
+    fn write_subcommand(
+        &mut self,
+        sc_str: &str,
+        app: &App<'help>,
+        next_line_help: bool,
+        longest: usize,
+    ) -> io::Result<()> {
         debug!("Help::write_subcommand");
-        self.none(TAB)?;
-        self.good(sc_str)?;
-        let spec_vals = self.sc_val(sc_str, app)?;
-        self.sc_help(app, &*spec_vals)?;
-        Ok(())
-    }
 
-    fn sc_val(&mut self, sc_str: &str, app: &App) -> Result<String, io::Error> {
-        debug!("Help::sc_val: app={}", app.name);
-        let spec_vals = self.sc_spec_vals(app);
-        let h = app.about.unwrap_or("");
-        let h_w = str_width(h) + str_width(&*spec_vals);
-        let nlh = self.next_line_help;
-        let taken = self.longest + 12;
-        self.force_next_line = !nlh
-            && self.term_w >= taken
-            && (taken as f32 / self.term_w as f32) > 0.40
-            && h_w > (self.term_w - taken);
+        let spec_vals = &self.sc_spec_vals(app);
 
-        if !(nlh || self.force_next_line) {
-            write_nspaces!(self, self.longest + 4 - (str_width(sc_str)));
-        }
-        Ok(spec_vals)
+        let about = if self.use_long {
+            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
+        } else {
+            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
+        };
+
+        self.subcmd(sc_str, next_line_help, longest)?;
+        self.help(false, about, spec_vals, next_line_help, longest)
     }
 
     fn sc_spec_vals(&self, a: &App) -> String {
@@ -658,56 +704,28 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         spec_vals.join(" ")
     }
 
-    fn sc_help(&mut self, app: &App<'help>, spec_vals: &str) -> io::Result<()> {
-        debug!("Help::sc_help");
-        let h = if self.use_long {
-            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
+    fn subcommand_next_line_help(&self, app: &App<'help>, spec_vals: &str, longest: usize) -> bool {
+        if self.next_line_help | self.use_long {
+            // setting_next_line
+            true
         } else {
-            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
-        };
-        let mut help = String::from(h) + spec_vals;
-        let nlh = self.next_line_help || self.use_long;
-        debug!("Help::sc_help: Next Line...{:?}", nlh);
-
-        let spcs = if nlh || self.force_next_line {
-            12 // "tab" * 3
-        } else {
-            self.longest + 12
-        };
-
-        let too_long = spcs + str_width(h) + str_width(&*spec_vals) >= self.term_w;
-
-        // Is help on next line, if so then indent
-        if nlh || self.force_next_line {
-            self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
+            // force_next_line
+            let h = app.about.unwrap_or("");
+            let h_w = str_width(h) + str_width(spec_vals);
+            let taken = longest + 12;
+            self.term_w >= taken
+                && (taken as f32 / self.term_w as f32) > 0.40
+                && h_w > (self.term_w - taken)
         }
+    }
 
-        debug!("Help::sc_help: Too long...");
-        if too_long && spcs <= self.term_w {
-            debug!("Yes");
-            debug!("Help::sc_help: help...{}", help);
-            debug!("Help::sc_help: help width...{}", str_width(&*help));
-            // Determine how many newlines we need to insert
-            let avail_chars = self.term_w - spcs;
-            debug!("Help::sc_help: Usable space...{}", avail_chars);
-            help = wrap_help(&help, avail_chars);
-        } else {
-            debug!("No");
-        }
-        if let Some(part) = help.lines().next() {
-            self.none(part)?;
-        }
-        for part in help.lines().skip(1) {
-            self.none("\n")?;
-            if nlh || self.force_next_line {
-                self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
-            } else {
-                write_nspaces!(self, self.longest + 8);
-            }
-            self.none(part)?;
-        }
-        if !help.contains('\n') && (nlh || self.force_next_line) {
-            self.none("\n")?;
+    /// Writes subcommand to the wrapped stream.
+    fn subcmd(&mut self, sc_str: &str, next_line_help: bool, longest: usize) -> io::Result<()> {
+        self.none(TAB)?;
+        self.good(sc_str)?;
+        if !next_line_help {
+            let width = str_width(sc_str);
+            self.spaces(width.max(longest + 4) - width)?;
         }
         Ok(())
     }
@@ -744,6 +762,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .collect::<IndexSet<_>>();
 
         let mut first = if pos {
+            // Write positional args if any
             self.warning("ARGS:\n")?;
             self.write_args_unsorted(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
             false
@@ -825,27 +844,48 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         Ok(())
     }
 
+    /// Will use next line help on writing subcommands.
+    fn will_subcommands_wrap(&self, subcommands: &[App<'help>], longest: usize) -> bool {
+        subcommands
+            .iter()
+            .filter(|&subcommand| should_show_subcommand(subcommand))
+            .any(|subcommand| {
+                let spec_vals = &self.sc_spec_vals(subcommand);
+                self.subcommand_next_line_help(subcommand, spec_vals, longest)
+            })
+    }
+
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, app: &App<'help>) -> io::Result<()> {
         debug!("Help::write_subcommands");
         // The shortest an arg can legally be is 2 (i.e. '-x')
-        self.longest = 2;
+        let mut longest = 2;
         let mut ord_m = VecMap::new();
-        for sc in app
+        for subcommand in app
             .subcommands
             .iter()
-            .filter(|s| !s.is_set(AppSettings::Hidden))
+            .filter(|subcommand| should_show_subcommand(subcommand))
         {
-            let btm = ord_m.entry(sc.disp_ord).or_insert(BTreeMap::new());
+            let btm = ord_m.entry(subcommand.disp_ord).or_insert(BTreeMap::new());
             let mut sc_str = String::new();
-            sc_str.push_str(&sc.short_flag.map_or(String::new(), |c| format!("-{}, ", c)));
-            sc_str.push_str(&sc.long_flag.map_or(String::new(), |c| format!("--{}, ", c)));
-            sc_str.push_str(&sc.name);
-            self.longest = cmp::max(self.longest, str_width(&sc_str));
-            btm.insert(sc_str, sc.clone());
+            sc_str.push_str(
+                &subcommand
+                    .short_flag
+                    .map_or(String::new(), |c| format!("-{}, ", c)),
+            );
+            sc_str.push_str(
+                &subcommand
+                    .long_flag
+                    .map_or(String::new(), |c| format!("--{}, ", c)),
+            );
+            sc_str.push_str(&subcommand.name);
+            longest = longest.max(str_width(&sc_str));
+            btm.insert(sc_str, subcommand.clone());
         }
 
-        debug!("Help::write_subcommands longest = {}", self.longest);
+        debug!("Help::write_subcommands longest = {}", longest);
+
+        let next_line_help = self.will_subcommands_wrap(&app.subcommands, longest);
 
         let mut first = true;
         for btm in ord_m.values() {
@@ -855,7 +895,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 } else {
                     self.none("\n")?;
                 }
-                self.write_subcommand(sc_str, sc)?;
+                self.write_subcommand(sc_str, sc, next_line_help, longest)?;
             }
         }
         Ok(())
@@ -864,22 +904,18 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes binary name of a Parser Object to the wrapped stream.
     fn write_bin_name(&mut self) -> io::Result<()> {
         debug!("Help::write_bin_name");
-        let term_w = self.term_w;
-        macro_rules! write_name {
-            () => {{
-                self.good(&*wrap_help(&self.parser.app.name, term_w))?;
-            }};
-        }
-        if let Some(bn) = self.parser.app.bin_name.as_ref() {
+
+        let bin_name = if let Some(bn) = self.parser.app.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                self.good(&bn.replace(" ", "-"))?
+                bn.replace(" ", "-")
             } else {
-                write_name!();
+                text_wrapper(&self.parser.app.name, self.term_w)
             }
         } else {
-            write_name!();
-        }
+            text_wrapper(&self.parser.app.name, self.term_w)
+        };
+        self.good(&bin_name)?;
         Ok(())
     }
 }
@@ -941,36 +977,16 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         }
                     }
                     "author" => {
-                        if let Some(s) = self.parser.app.author {
-                            self.none(&wrap_help(s, self.term_w))?;
-                        }
+                        self.write_author(false)?;
                     }
                     "author-with-newline" => {
-                        if let Some(s) = self.parser.app.author {
-                            self.none(&wrap_help(s, self.term_w))?;
-                            self.none("\n")?;
-                        }
+                        self.write_author(true)?;
                     }
                     "about" => {
-                        let about = if self.use_long {
-                            self.parser.app.long_about.or(self.parser.app.about)
-                        } else {
-                            self.parser.app.about
-                        };
-                        if let Some(output) = about {
-                            self.none(wrap_help(output, self.term_w))?;
-                        }
+                        self.write_about(false)?;
                     }
                     "about-with-newline" => {
-                        let about = if self.use_long {
-                            self.parser.app.long_about.or(self.parser.app.about)
-                        } else {
-                            self.parser.app.about
-                        };
-                        if let Some(output) = about {
-                            self.none(wrap_help(output, self.term_w))?;
-                            self.none("\n")?;
-                        }
+                        self.write_about(true)?;
                     }
                     "usage-heading" => {
                         self.warning("USAGE:")?;
@@ -1005,32 +1021,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.write_subcommands(self.parser.app)?;
                     }
                     "after-help" => {
-                        let after_help = if self.use_long {
-                            self.parser
-                                .app
-                                .after_long_help
-                                .or(self.parser.app.after_help)
-                        } else {
-                            self.parser.app.after_help
-                        };
-                        if let Some(output) = after_help {
-                            self.none("\n\n")?;
-                            self.write_before_after_help(output)?;
-                        }
+                        self.write_after_help()?;
                     }
                     "before-help" => {
-                        let before_help = if self.use_long {
-                            self.parser
-                                .app
-                                .before_long_help
-                                .or(self.parser.app.before_help)
-                        } else {
-                            self.parser.app.before_help
-                        };
-                        if let Some(output) = before_help {
-                            self.write_before_after_help(output)?;
-                            self.none("\n\n")?;
-                        }
+                        self.write_before_help()?;
                     }
                 }
             }
@@ -1050,8 +1044,12 @@ fn should_show_arg(use_long: bool, arg: &Arg) -> bool {
         || arg.is_set(ArgSettings::NextLineHelp)
 }
 
-fn wrap_help(help: &str, avail_chars: usize) -> String {
-    let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
+fn should_show_subcommand(subcommand: &App) -> bool {
+    !subcommand.is_set(AppSettings::Hidden)
+}
+
+fn text_wrapper(help: &str, width: usize) -> String {
+    let wrapper = textwrap::Wrapper::new(width).break_words(false);
     help.lines()
         .map(|line| wrapper.fill(line))
         .collect::<Vec<String>>()
@@ -1060,11 +1058,11 @@ fn wrap_help(help: &str, avail_chars: usize) -> String {
 
 #[cfg(test)]
 mod test {
-    use super::wrap_help;
+    use super::text_wrapper;
 
     #[test]
     fn wrap_help_last_word() {
         let help = String::from("foo bar baz");
-        assert_eq!(wrap_help(&help, 5), "foo\nbar\nbaz");
+        assert_eq!(text_wrapper(&help, 5), "foo\nbar\nbaz");
     }
 }
