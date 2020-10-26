@@ -2392,6 +2392,10 @@ impl<'help> App<'help> {
                 let is_generated = a.provider == ArgProvider::Generated;
 
                 // Remove generated help and version args in the subcommand
+                //
+                // Any mut_arg modification to the generated args in subcommands are ignored
+                // in favor of the modifications in upper apps because all these are global.
+                // But what if the user modifies the subcommand only? Should it not take priority?
                 if is_generated {
                     sc.args.remove_by_name(&a.id);
                 }

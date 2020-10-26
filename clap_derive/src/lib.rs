@@ -12,6 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
+#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.2")]
+
 //! This crate is custom derive for clap. It should not be used
 //! directly. See [clap documentation](https://docs.rs/clap)
 //! for the usage of `#[derive(Clap)]`.
@@ -42,8 +45,8 @@ pub fn arg_enum(input: TokenStream) -> TokenStream {
 ///
 /// This is far less verbose than defining the [`App`] struct manually,
 /// receiving an instance of [`ArgMatches`] from conducting parsing, and then
-/// implementing a conversion code (usually `impl From<ArgMatches> for
-/// MyStruct`) to instantiate an instance of the user context struct.
+/// implementing a conversion code to instantiate an instance of the user
+/// context struct.
 #[proc_macro_derive(Clap, attributes(clap))]
 #[proc_macro_error]
 pub fn clap(input: TokenStream) -> TokenStream {

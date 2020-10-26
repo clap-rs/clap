@@ -2,7 +2,7 @@ mod utils;
 
 use std::str;
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{App, Arg, ErrorKind};
 
 static VERSION: &str = "clap-test v1.4.8\n";
 
@@ -102,18 +102,99 @@ fn prefer_user_subcmd_version_short() {
         .is_present("version1"));
 }
 
-#[test]
-fn override_ver() {
-    let m = App::new("test")
-        .setting(AppSettings::NoAutoVersion)
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .mut_arg("version", |a| {
-            a.short('v').long("version").about("some version")
-        })
-        .try_get_matches_from(vec!["test", "--version"]);
+static OVERRIDE_VERSION_SHORT: &str = "test 1.3
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
-    assert!(m.unwrap().is_present("version"));
+USAGE:
+    test
+
+FLAGS:
+    -h, --help       Prints help information
+    -v, --version    Prints version information";
+
+#[test]
+fn override_version_short() {
+    let app = App::new("test")
+        .version("1.3")
+        .mut_arg("version", |a| a.short('v'));
+
+    let m = app.clone().try_get_matches_from(vec!["test", "-v"]);
+
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "test 1.3\n");
+
+    let m = app.clone().try_get_matches_from(vec!["test", "--version"]);
+
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "test 1.3\n");
+
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        OVERRIDE_VERSION_SHORT,
+        false
+    ));
+}
+
+static OVERRIDE_VERSION_LONG: &str = "test 1.3
+
+USAGE:
+    test [FLAGS]
+
+FLAGS:
+    -h, --help    Prints help information
+    -V, --vers    Prints version information";
+
+#[test]
+fn override_version_long() {
+    let app = App::new("test")
+        .version("1.3")
+        .mut_arg("version", |a| a.long("vers"));
+
+    let m = app.clone().try_get_matches_from(vec!["test", "-V"]);
+
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "test 1.3\n");
+
+    let m = app.clone().try_get_matches_from(vec!["test", "--vers"]);
+
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "test 1.3\n");
+
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        OVERRIDE_VERSION_LONG,
+        false
+    ));
+}
+
+static OVERRIDE_VERSION_ABOUT: &str = "test 1.3
+
+USAGE:
+    test
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    version info";
+
+#[test]
+fn override_version_about() {
+    let app = App::new("test")
+        .version("1.3")
+        .mut_arg("version", |a| a.about("version info"));
+
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        OVERRIDE_VERSION_ABOUT,
+        false
+    ));
 }

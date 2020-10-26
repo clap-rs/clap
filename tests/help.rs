@@ -372,17 +372,6 @@ FLAGS:
     -V, --version
             Prints version information";
 
-static CUSTOM_VERSION_AND_HELP: &str = "customize 0.1
-Nobody <odysseus@example.com>
-You can customize the version and help text
-
-USAGE:
-    customize
-
-FLAGS:
-    -H, --help       Print help information
-    -v, --version    Print version information";
-
 static HELP_CONFLICT: &str = "conflict 
 
 USAGE:
@@ -1391,24 +1380,89 @@ fn issue_777_wrap_all_things() {
     assert!(utils::compare_output(app, "ctest --help", ISSUE_777, false));
 }
 
+static OVERRIDE_HELP_SHORT: &str = "test 0.1
+
+USAGE:
+    test
+
+FLAGS:
+    -H, --help       Prints help information
+    -V, --version    Prints version information";
+
 #[test]
-fn customize_version_and_help() {
-    let app = App::new("customize")
+fn override_help_short() {
+    let app = App::new("test")
         .version("0.1")
-        .author("Nobody <odysseus@example.com>")
-        .about("You can customize the version and help text")
-        .mut_arg("help", |h| {
-            h.short('H').long("help").about("Print help information")
-        })
-        .mut_arg("version", |v| {
-            v.short('v')
-                .long("version")
-                .about("Print version information")
-        });
+        .mut_arg("help", |h| h.short('H'));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "test --help",
+        OVERRIDE_HELP_SHORT,
+        false
+    ));
     assert!(utils::compare_output(
         app,
-        "customize --help",
-        CUSTOM_VERSION_AND_HELP,
+        "test -H",
+        OVERRIDE_HELP_SHORT,
+        false
+    ));
+}
+
+static OVERRIDE_HELP_LONG: &str = "test 0.1
+
+USAGE:
+    test [FLAGS]
+
+FLAGS:
+    -h, --hell       Prints help information
+    -V, --version    Prints version information";
+
+#[test]
+fn override_help_long() {
+    let app = App::new("test")
+        .version("0.1")
+        .mut_arg("help", |h| h.long("hell"));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "test --hell",
+        OVERRIDE_HELP_LONG,
+        false
+    ));
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        OVERRIDE_HELP_LONG,
+        false
+    ));
+}
+
+static OVERRIDE_HELP_ABOUT: &str = "test 0.1
+
+USAGE:
+    test
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Prints version information";
+
+#[test]
+fn override_help_about() {
+    let app = App::new("test")
+        .version("0.1")
+        .mut_arg("help", |h| h.about("Print help information"));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "test --help",
+        OVERRIDE_HELP_ABOUT,
+        false
+    ));
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        OVERRIDE_HELP_ABOUT,
         false
     ));
 }
