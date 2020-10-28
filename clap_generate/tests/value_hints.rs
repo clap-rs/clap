@@ -6,7 +6,7 @@ mod completions;
 
 pub fn build_app_with_value_hints() -> App<'static> {
     App::new("my_app")
-        .setting(AppSettings::DisableVersion)
+        .setting(AppSettings::DisableVersionFlag)
         .setting(AppSettings::TrailingVarArg)
         .arg(
             Arg::new("choice")

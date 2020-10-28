@@ -19,7 +19,7 @@ use std::io;
 
 fn build_cli() -> App<'static> {
     App::new("value_hints")
-        .setting(AppSettings::DisableVersion)
+        .setting(AppSettings::DisableVersionFlag)
         // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
         .setting(AppSettings::TrailingVarArg)
         .arg(Arg::new("generator").long("generate").possible_values(&[

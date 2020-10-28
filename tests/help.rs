@@ -1555,8 +1555,6 @@ fn escaped_whitespace_values() {
 
 fn issue_1112_setup() -> App<'static> {
     App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
         .version("1.3")
         .global_setting(AppSettings::NoAutoHelp)
         .arg(Arg::from("-h, --help 'some help'"))
@@ -2026,8 +2024,8 @@ This is after help.
 fn after_help_no_args() {
     let mut app = App::new("myapp")
         .version("1.0")
-        .setting(AppSettings::DisableHelpFlags)
-        .setting(AppSettings::DisableVersion)
+        .setting(AppSettings::DisableHelpFlag)
+        .setting(AppSettings::DisableVersionFlag)
         .after_help("This is after help.");
 
     let help = {

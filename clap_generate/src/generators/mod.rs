@@ -144,7 +144,7 @@ pub trait Generator {
             shorts_and_visible_aliases.push('h');
         }
 
-        if !p.is_set(AppSettings::DisableVersion)
+        if !p.is_set(AppSettings::DisableVersionFlag)
             && !shorts_and_visible_aliases.iter().any(|&x| x == 'V')
         {
             shorts_and_visible_aliases.push('V');
@@ -173,7 +173,7 @@ pub trait Generator {
             longs.push(String::from("help"));
         }
 
-        if !p.is_set(AppSettings::DisableVersion) && !longs.iter().any(|x| *x == "version") {
+        if !p.is_set(AppSettings::DisableVersionFlag) && !longs.iter().any(|x| *x == "version") {
             longs.push(String::from("version"));
         }
 
@@ -196,7 +196,7 @@ pub trait Generator {
             );
         }
 
-        if !p.is_set(AppSettings::DisableVersion)
+        if !p.is_set(AppSettings::DisableVersionFlag)
             && !flags.iter().any(|x| x.get_name() == "version")
         {
             flags.push(

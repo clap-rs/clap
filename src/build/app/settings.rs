@@ -10,13 +10,13 @@ bitflags! {
         const SC_REQUIRED                    = 1 << 1;
         const A_REQUIRED_ELSE_HELP           = 1 << 2;
         const GLOBAL_VERSION                 = 1 << 3;
-        const VERSIONLESS_SC                 = 1 << 4;
+        const DISABLE_VERSION_FOR_SC         = 1 << 4;
         const UNIFIED_HELP                   = 1 << 5;
         const WAIT_ON_ERROR                  = 1 << 6;
         const SC_REQUIRED_ELSE_HELP          = 1 << 7;
         const NO_AUTO_HELP                   = 1 << 8;
         const NO_AUTO_VERSION                = 1 << 9;
-        const DISABLE_VERSION                = 1 << 10;
+        const DISABLE_VERSION_FLAG           = 1 << 10;
         const HIDDEN                         = 1 << 11;
         const TRAILING_VARARG                = 1 << 12;
         const NO_BIN_NAME                    = 1 << 13;
@@ -48,7 +48,7 @@ bitflags! {
         const ARGS_OVERRIDE_SELF             = 1 << 39;
         const HELP_REQUIRED                  = 1 << 40;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
-        const DISABLE_HELP_FLAGS             = 1 << 42;
+        const DISABLE_HELP_FLAG              = 1 << 42;
     }
 }
 
@@ -101,10 +101,10 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DERIVE_DISP_ORDER,
     DisableHelpSubcommand("disablehelpsubcommand")
         => Flags::DISABLE_HELP_SC,
-    DisableHelpFlags("disablehelpflags")
-        => Flags::DISABLE_HELP_FLAGS,
-    DisableVersion("disableversion")
-        => Flags::DISABLE_VERSION,
+    DisableHelpFlag("disablehelpflag")
+        => Flags::DISABLE_HELP_FLAG,
+    DisableVersionFlag("disableversionflag")
+        => Flags::DISABLE_VERSION_FLAG,
     GlobalVersion("globalversion")
         => Flags::GLOBAL_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
@@ -135,8 +135,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::UNIFIED_HELP,
     NextLineHelp("nextlinehelp")
         => Flags::NEXT_LINE_HELP,
-    VersionlessSubcommands("versionlesssubcommands")
-        => Flags::VERSIONLESS_SC,
+    DisableVersionForSubcommands("disableversionforsubcommands")
+        => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
         => Flags::WAIT_ON_ERROR,
     TrailingValues("trailingvalues")
@@ -613,7 +613,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .setting(AppSettings::DisableHelpFlag)
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-h"
     ///     ]);
@@ -624,7 +624,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlags)
+    ///     .setting(AppSettings::DisableHelpFlag)
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-h"
@@ -634,7 +634,7 @@ pub enum AppSettings {
     /// ```
     /// [`SubCommand`]: ./struct.SubCommand.html
     /// [`App`]: ./struct.App.html
-    DisableHelpFlags,
+    DisableHelpFlag,
 
     /// Disables the `help` subcommand
     ///
@@ -657,7 +657,7 @@ pub enum AppSettings {
     /// [``]: ./struct..html
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` [`App`] without affecting any of the [``]s
+    /// Disables `-V` and `--version` for this [`App`] without affecting any of the [``]s
     /// (Defaults to `false`; application *does* have a version flag)
     ///
     /// # Examples
@@ -666,7 +666,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .setting(AppSettings::DisableVersionFlag)
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-V"
     ///     ]);
@@ -678,7 +678,7 @@ pub enum AppSettings {
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersion)
+    ///     .setting(AppSettings::DisableVersionFlag)
     ///     .subcommand(App::new("test"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "test", "-V"
@@ -688,7 +688,28 @@ pub enum AppSettings {
     /// ```
     /// [``]: ./struct..html
     /// [`App`]: ./struct.App.html
-    DisableVersion,
+    DisableVersionFlag,
+
+    /// Disables `-V` and `--version` for all [`subcommand`]s of this [`App`]
+    /// (Defaults to `false`; subcommands *do* have version flags.)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let res = App::new("myprog")
+    ///     .version("v1.1")
+    ///     .setting(AppSettings::DisableVersionForSubcommands)
+    ///     .subcommand(App::new("test"))
+    ///     .try_get_matches_from(vec![
+    ///         "myprog", "test", "-V"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    /// [`App`]: ./struct.App.html
+    /// [``]: ./struct..html
+    DisableVersionForSubcommands,
 
     /// Displays the arguments and [``]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -706,9 +727,6 @@ pub enum AppSettings {
 
     /// Specifies to use the version of the current command for all child [``]s.
     /// (Defaults to `false`; subcommands have independent version strings from their parents.)
-    ///
-    /// **NOTE:** The version for the current command **and** this setting must be set **prior** to
-    /// adding any child subcommands
     ///
     /// # Examples
     ///
@@ -999,28 +1017,6 @@ pub enum AppSettings {
     /// ```
     UnifiedHelpMessage,
 
-    /// Disables `-V` and `--version` for all [``]s
-    /// (Defaults to `false`; subcommands *do* have version flags.)
-    ///
-    /// **NOTE:** This setting must be set **prior** to adding any subcommands.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::VersionlessSubcommands)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// ```
-    /// [``]: ./struct..html
-    VersionlessSubcommands,
-
     /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting
     ///
@@ -1076,8 +1072,8 @@ mod test {
     #[test]
     fn app_settings_fromstr() {
         assert_eq!(
-            "disablehelpflags".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableHelpFlags
+            "disablehelpflag".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHelpFlag
         );
         assert_eq!(
             "argsnegatesubcommands".parse::<AppSettings>().unwrap(),
@@ -1130,8 +1126,8 @@ mod test {
             AppSettings::DisableHelpSubcommand
         );
         assert_eq!(
-            "disableversion".parse::<AppSettings>().unwrap(),
-            AppSettings::DisableVersion
+            "disableversionflag".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableVersionFlag
         );
         assert_eq!(
             "dontcollapseargsinusage".parse::<AppSettings>().unwrap(),
@@ -1198,8 +1194,10 @@ mod test {
             AppSettings::UnifiedHelpMessage
         );
         assert_eq!(
-            "versionlesssubcommands".parse::<AppSettings>().unwrap(),
-            AppSettings::VersionlessSubcommands
+            "disableversionforsubcommands"
+                .parse::<AppSettings>()
+                .unwrap(),
+            AppSettings::DisableVersionForSubcommands
         );
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),
