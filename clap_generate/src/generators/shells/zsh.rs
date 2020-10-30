@@ -493,7 +493,6 @@ fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
     match (app_global, App::test_global(arg)) {
         (Some(x), true) => {
             let conflicts = x.get_global_arg_conflicts_with(arg);
-            // let conflicts = app.get_arg_conflicts_with(arg);
 
             if conflicts.is_empty() {
                 return String::new();
