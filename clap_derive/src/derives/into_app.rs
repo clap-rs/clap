@@ -42,7 +42,7 @@ pub fn derive_into_app(input: &DeriveInput) -> TokenStream {
             fields: Fields::Unit,
             ..
         }) => gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs).0,
-        Data::Enum(_) => gen_for_enum(ident),
+        Data::Enum(_) => gen_for_enum(ident, &input.attrs),
         _ => abort_call_site!("`#[derive(IntoApp)]` only supports non-tuple structs and enums"),
     }
 }
@@ -77,8 +77,17 @@ pub fn gen_for_struct(
     (tokens, attrs)
 }
 
-pub fn gen_for_enum(name: &Ident) -> TokenStream {
+pub fn gen_for_enum(name: &Ident, attrs: &[Attribute]) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
+
+    let attrs = Attrs::from_struct(
+        Span::call_site(),
+        attrs,
+        Name::Assigned(quote!(#app_name)),
+        Sp::call_site(DEFAULT_CASING),
+        Sp::call_site(DEFAULT_ENV_CASING),
+    );
+    let app_name = attrs.cased_name();
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
