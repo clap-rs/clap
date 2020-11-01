@@ -8,7 +8,11 @@ fn env() {
     env::set_var("CLP_TEST_ENV", "env");
 
     let r = App::new("df")
-        .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
+        .arg(
+            Arg::from("[arg] 'some opt'")
+                .env("CLP_TEST_ENV")
+                .takes_value(true),
+        )
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
@@ -19,11 +23,30 @@ fn env() {
 }
 
 #[test]
+fn env_no_takes_value() {
+    env::set_var("CLP_TEST_ENV", "env");
+
+    let r = App::new("df")
+        .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.occurrences_of("arg"), 0);
+    assert_eq!(m.value_of("arg"), None);
+}
+
+#[test]
 fn env_os() {
     env::set_var("CLP_TEST_ENV_OS", "env");
 
     let r = App::new("df")
-        .arg(Arg::from("[arg] 'some opt'").env_os(OsStr::new("CLP_TEST_ENV_OS")))
+        .arg(
+            Arg::from("[arg] 'some opt'")
+                .env_os(OsStr::new("CLP_TEST_ENV_OS"))
+                .takes_value(true),
+        )
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
@@ -35,6 +58,27 @@ fn env_os() {
 
 #[test]
 fn no_env() {
+    // All the other tests use the presence of the Environment variable...
+    // we need another variable just in case one of the others is running at the same time...
+    env::remove_var("CLP_TEST_ENV_NONE");
+
+    let r = App::new("df")
+        .arg(
+            Arg::from("[arg] 'some opt'")
+                .env("CLP_TEST_ENV_NONE")
+                .takes_value(true),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(!m.is_present("arg"));
+    assert_eq!(m.occurrences_of("arg"), 0);
+    assert_eq!(m.value_of("arg"), None);
+}
+
+#[test]
+fn no_env_no_takes_value() {
     // All the other tests use the presence of the Environment variable...
     // we need another variable just in case one of the others is running at the same time...
     env::remove_var("CLP_TEST_ENV_NONE");
@@ -58,6 +102,7 @@ fn with_default() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_WD")
+                .takes_value(true)
                 .default_value("default"),
         )
         .try_get_matches_from(vec![""]);
@@ -74,7 +119,11 @@ fn opt_user_override() {
     env::set_var("CLP_TEST_ENV_OR", "env");
 
     let r = App::new("df")
-        .arg(Arg::from("--arg [FILE] 'some arg'").env("CLP_TEST_ENV_OR"))
+        .arg(
+            Arg::from("--arg [FILE] 'some arg'")
+                .env("CLP_TEST_ENV_OR")
+                .takes_value(true),
+        )
         .try_get_matches_from(vec!["", "--arg", "opt"]);
 
     assert!(r.is_ok());
@@ -93,7 +142,11 @@ fn positionals() {
     env::set_var("CLP_TEST_ENV_P", "env");
 
     let r = App::new("df")
-        .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV_P"))
+        .arg(
+            Arg::from("[arg] 'some opt'")
+                .env("CLP_TEST_ENV_P")
+                .takes_value(true),
+        )
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
@@ -108,7 +161,11 @@ fn positionals_user_override() {
     env::set_var("CLP_TEST_ENV_POR", "env");
 
     let r = App::new("df")
-        .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV_POR"))
+        .arg(
+            Arg::from("[arg] 'some opt'")
+                .env("CLP_TEST_ENV_POR")
+                .takes_value(true),
+        )
         .try_get_matches_from(vec!["", "opt"]);
 
     assert!(r.is_ok());
@@ -130,6 +187,7 @@ fn multiple_one() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_MO")
+                .takes_value(true)
                 .use_delimiter(true)
                 .multiple(true),
         )
@@ -150,6 +208,7 @@ fn multiple_three() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_MULTI1")
+                .takes_value(true)
                 .use_delimiter(true)
                 .multiple(true),
         )
@@ -173,6 +232,7 @@ fn multiple_no_delimiter() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_MULTI2")
+                .takes_value(true)
                 .multiple(true),
         )
         .try_get_matches_from(vec![""]);
@@ -195,6 +255,7 @@ fn possible_value() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_PV")
+                .takes_value(true)
                 .possible_value("env"),
         )
         .try_get_matches_from(vec![""]);
@@ -214,6 +275,7 @@ fn not_possible_value() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_NPV")
+                .takes_value(true)
                 .possible_value("never"),
         )
         .try_get_matches_from(vec![""]);
@@ -229,6 +291,7 @@ fn validator() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_VDOR")
+                .takes_value(true)
                 .validator(|s| {
                     if s == "env" {
                         Ok(())
@@ -254,6 +317,7 @@ fn validator_output() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_VO")
+                .takes_value(true)
                 .validator(|s| s.parse::<i32>()),
         )
         .get_matches_from(vec![""]);
@@ -269,6 +333,7 @@ fn validator_invalid() {
         .arg(
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_IV")
+                .takes_value(true)
                 .validator(|s| {
                     if s != "env" {
                         Ok(())
