@@ -451,7 +451,7 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 * **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above
 * **"suggestions"**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. (builds dependency `ansi-term`)
+* **"color"**: Turns on colored error messages. This feature only works on non-Windows OSs. It does not turns on colored help, use `AppSettings::ColoredHelp` to have it. (builds dependency `ansi-term`)
 * **"vec_map"**: Use [`VecMap`](https://crates.io/crates/vec_map) internally instead of a [`BTreeMap`](https://doc.rust-lang.org/stable/std/collections/struct.BTreeMap.html). This feature provides a _slight_ performance improvement. (builds dependency `vec_map`)
 
 To disable these, add this to your `Cargo.toml`:
