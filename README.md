@@ -434,7 +434,7 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 * **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **color**: Turns on colored error messages. (builds dependency `termcolor`)
+* **color**: Turns on colored error messages. You still have to turn on colored help by setting `AppSettings::ColoredHelp`. (builds dependency `termcolor`)
 
 To disable these, add this to your `Cargo.toml`:
 
