@@ -1,10 +1,8 @@
 status = [
-	"continuous-integration/travis-ci/push",
 	"clap-rs.clap",
 	"CI",
 ]
 pr_status = [
-	"continuous-integration/travis-ci/pr",
 	"clap-rs.clap",
 	"CI",
 ]
