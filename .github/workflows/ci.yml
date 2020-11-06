@@ -8,7 +8,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [test, test-release, lint]
+    needs: [test, test-release, lint, coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -18,50 +18,65 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        rust: [1.42.0]
-        target:
-          - i686-pc-windows-msvc
-          - x86_64-pc-windows-msvc
-          # - i686-pc-windows-gnu
-          # - x86_64-pc-windows-gnu
-          # - i686-unknown-linux-gnu
-          - x86_64-unknown-linux-gnu
-          - x86_64-apple-darwin
-        features: [all, none]
-        exclude:
-          - os: windows-latest
+        include:
+          - os: macos-latest
             target: x86_64-apple-darwin
-          # - os: windows-latest
-          #   target: i686-unknown-linux-gnu
-          - os: windows-latest
-            target: x86_64-unknown-linux-gnu
+            rust: 1.42.0
+            features: none
           - os: macos-latest
-            target: i686-pc-windows-msvc
-          - os: macos-latest
-            target: x86_64-pc-windows-msvc
-          # - os: macos-latest
-          #   target: i686-pc-windows-gnu
-          # - os: macos-latest
-          #   target: x86_64-pc-windows-gnu
-          # - os: macos-latest
-          #   target: i686-unknown-linux-gnu
-          - os: macos-latest
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: i686-pc-windows-msvc
-          - os: ubuntu-latest
-            target: x86_64-pc-windows-msvc
-          # - os: ubuntu-latest
-          #   target: i686-pc-windows-gnu
-          # - os: ubuntu-latest
-          #   target: x86_64-pc-windows-gnu
-          - os: ubuntu-latest
             target: x86_64-apple-darwin
+            rust: 1.42.0
+            features: all
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: 1.42.0
+            features: none
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: 1.42.0
+            features: all
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+            rust: 1.42.0
+            features: none
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+            rust: 1.42.0
+            features: all
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+            rust: 1.42.0
+            features: none
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+            rust: 1.42.0
+            features: all
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            rust: 1.42.0
+            features: none
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            rust: 1.42.0
+            features: all
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: stable
+            features: none
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: stable
+            features: all
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: beta
+            features: none
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rust: beta
+            features: all
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
@@ -69,15 +84,11 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
-      - name: Ready cache
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-      - name: Cache cargo
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install linker
+        if: matrix.target == 'i686-unknown-linux-gnu'
+        run: sudo apt-get install gcc-5-multilib lib32gcc-5-dev
       - name: Test almost no features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'none'
@@ -90,22 +101,6 @@ jobs:
         with:
           command: test
           args: --target ${{ matrix.target }} --features "yaml unstable"
-      - name: Install cargo-cache
-        uses: actions-rs/install@v0.1
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          crate: cargo-cache
-          use-tool-cache: true
-      - name: Cleanup cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: cargo cache -a
-      # https://github.com/rust-lang/rust/issues/29497
-      - name: Cleanup windows cache
-        if: steps.cache.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
-        shell: bash
-        run: |
-          rm -rf ~/.cargo/git/checkouts
-          rm -rf ~/.cargo/registry/index
   test-release:
     name: Release Profile Tests
     runs-on: ubuntu-latest
@@ -117,28 +112,54 @@ jobs:
           override: true
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Ready cache
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-      - name: Cache cargo
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --release --features "yaml unstable"
-      - name: Install cargo-cache
-        uses: actions-rs/install@v0.1
-        if: steps.cache.outputs.cache-hit != 'true'
+  nightly:
+    name: Nightly Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
         with:
-          crate: cargo-cache
-          use-tool-cache: true
-      - name: Cleanup cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: cargo cache -a
+          toolchain: nightly
+          override: true
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Test almost no features
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'none'
+        with:
+          command: test
+          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
+      - name: Test all features
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features "yaml unstable"
+  wasm:
+    name: Wasm Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm32-unknown-unknown, wasm32-wasi]
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.42.0
+          target: ${{ matrix.target }}
+          override: true
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --target ${{ matrix.target }} --features "yaml unstable"
   lint:
     name: Linting (fmt + clippy)
     runs-on: ubuntu-latest
@@ -152,14 +173,6 @@ jobs:
           components: rustfmt, clippy
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Ready cache
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-      - name: Cache cargo
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Clippy for almost no features
         uses: actions-rs/cargo@v1
         with:
@@ -175,12 +188,30 @@ jobs:
         with:
           command: fmt
           args: -- --check
-      - name: Install cargo-cache
-        uses: actions-rs/install@v0.1
-        if: steps.cache.outputs.cache-hit != 'true'
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
         with:
-          crate: cargo-cache
+          toolchain: stable
+          override: true
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install linker
+        run: sudo apt-get install libssl-dev cmake pkg-config zlib1g-dev
+      - name: Install tarpaulin
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
           use-tool-cache: true
-      - name: Cleanup cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: cargo cache -a
+      - name: Coverage
+        uses: actions-rs/cargo@v1
+        with:
+          command: tarpaulin
+          args: --features "yaml unstable" --timeout 300 --out Lcov --output-dir coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
