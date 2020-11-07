@@ -433,3 +433,23 @@ fn subcommand_used_after_double_dash() {
         true
     ));
 }
+
+#[test]
+fn subcommand_after_argument() {
+    let m = App::new("myprog")
+        .arg(Arg::new("some_text"))
+        .subcommand(App::new("test"))
+        .get_matches_from(vec!["myprog", "teat", "test"]);
+    assert_eq!(m.value_of("some_text"), Some("teat"));
+    assert_eq!(m.subcommand().unwrap().0, "test");
+}
+
+#[test]
+fn subcommand_after_argument_looks_like_help() {
+    let m = App::new("myprog")
+        .arg(Arg::new("some_text"))
+        .subcommand(App::new("test"))
+        .get_matches_from(vec!["myprog", "helt", "test"]);
+    assert_eq!(m.value_of("some_text"), Some("helt"));
+    assert_eq!(m.subcommand().unwrap().0, "test");
+}

@@ -490,31 +490,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // get the next value from the iterator
                     continue;
                 }
-
-                if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)
-                    || self.is_set(AS::AllowExternalSubcommands)
-                    || self.is_set(AS::InferSubcommands))
-                {
-                    let cands = suggestions::did_you_mean(
-                        &*arg_os.to_string_lossy(),
-                        self.app.all_subcommand_names(),
-                    );
-                    if !cands.is_empty() {
-                        let cands: Vec<_> =
-                            cands.iter().map(|cand| format!("'{}'", cand)).collect();
-                        return Err(ClapError::invalid_subcommand(
-                            arg_os.to_string_lossy().to_string(),
-                            cands.join(" or "),
-                            self.app
-                                .bin_name
-                                .as_ref()
-                                .unwrap_or(&self.app.name)
-                                .to_string(),
-                            Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
-                        ));
-                    }
-                }
             }
 
             let positional_count = self
@@ -672,54 +647,55 @@ impl<'help, 'app> Parser<'help, 'app> {
                 external_subcommand = true;
 
                 break;
-            } else if !self.has_args()
-                || self.is_set(AS::InferSubcommands) && self.has_subcommands()
-            {
-                let cands = suggestions::did_you_mean(
-                    &*arg_os.to_string_lossy(),
-                    self.app.all_subcommand_names(),
-                );
-                if !cands.is_empty() {
-                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
-                    return Err(ClapError::invalid_subcommand(
-                        arg_os.to_string_lossy().to_string(),
-                        cands.join(" or "),
-                        self.app
-                            .bin_name
-                            .as_ref()
-                            .unwrap_or(&self.app.name)
-                            .to_string(),
-                        Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
-                } else {
-                    return Err(ClapError::unrecognized_subcommand(
-                        arg_os.to_string_lossy().to_string(),
-                        self.app
-                            .bin_name
-                            .as_ref()
-                            .unwrap_or(&self.app.name)
-                            .to_string(),
-                        self.app.color(),
-                    ));
-                }
-            } else if self.is_set(AS::TrailingValues) {
-                // If argument followed by a `--`
-                if self.possible_subcommand(&arg_os).is_some() {
-                    return Err(ClapError::unnecessary_double_dash(
-                        arg_os.to_string_lossy().to_string(),
-                        Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
-                } else {
-                    return Err(ClapError::unknown_argument(
-                        arg_os.to_string_lossy().to_string(),
-                        None,
-                        Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
-                    ));
-                }
             } else {
+                // Start error processing
+
+                // If argument follows a `--`
+                if self.is_set(AS::TrailingValues) {
+                    // If the arg matches a subcommand name, or any of its aliases (if defined)
+                    if self.possible_subcommand(&arg_os).is_some() {
+                        return Err(ClapError::unnecessary_double_dash(
+                            arg_os.to_string_lossy().to_string(),
+                            Usage::new(self).create_usage_with_title(&[]),
+                            self.app.color(),
+                        ));
+                    }
+                } else {
+                    let cands = suggestions::did_you_mean(
+                        &arg_os.to_string_lossy(),
+                        self.app.all_subcommand_names(),
+                    );
+                    // If the argument looks like a subcommand.
+                    if !cands.is_empty() {
+                        let cands: Vec<_> =
+                            cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                        return Err(ClapError::invalid_subcommand(
+                            arg_os.to_string_lossy().to_string(),
+                            cands.join(" or "),
+                            self.app
+                                .bin_name
+                                .as_ref()
+                                .unwrap_or(&self.app.name)
+                                .to_string(),
+                            Usage::new(self).create_usage_with_title(&[]),
+                            self.app.color(),
+                        ));
+                    }
+                    // If the argument must be a subcommand.
+                    if !self.has_args()
+                        || self.is_set(AS::InferSubcommands) && self.has_subcommands()
+                    {
+                        return Err(ClapError::unrecognized_subcommand(
+                            arg_os.to_string_lossy().to_string(),
+                            self.app
+                                .bin_name
+                                .as_ref()
+                                .unwrap_or(&self.app.name)
+                                .to_string(),
+                            self.app.color(),
+                        ));
+                    }
+                }
                 return Err(ClapError::unknown_argument(
                     arg_os.to_string_lossy().to_string(),
                     None,

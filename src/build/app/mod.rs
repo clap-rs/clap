@@ -163,7 +163,7 @@ impl<'help> App<'help> {
             .map(|a| a.0)
     }
 
-    /// Iterate through the *visible* short aliases for this subcommand.
+    /// Iterate through the *visible* long aliases for this subcommand.
     #[inline]
     pub fn get_visible_long_flag_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         self.long_flag_aliases
@@ -2090,7 +2090,7 @@ impl<'help> App<'help> {
                 let p = Path::new(name);
 
                 if let Some(f) = p.file_name() {
-                    if let Some(s) = f.to_os_string().to_str() {
+                    if let Some(s) = f.to_str() {
                         if self.bin_name.is_none() {
                             self.bin_name = Some(s.to_owned());
                         }
