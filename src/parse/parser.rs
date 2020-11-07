@@ -55,18 +55,7 @@ where
 }
 
 impl Input {
-    pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, &[OsString])> {
-        if let Some(new) = new {
-            let mut new_items: Vec<OsString> = new.iter().map(OsString::from).collect();
-
-            for i in self.cursor..self.items.len() {
-                new_items.push(self.items[i].clone());
-            }
-
-            self.items = new_items;
-            self.cursor = 0;
-        }
-
+    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
         if self.cursor >= self.items.len() {
             None
         } else {
@@ -75,6 +64,19 @@ impl Input {
             let remaining = &self.items[self.cursor..];
             Some((current, remaining))
         }
+    }
+
+    /// Insert some items to the Input items just after current parsing cursor.
+    /// Usually used by replaced items recovering.
+    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
+        self.items = {
+            let mut new_items: Vec<OsString> = insert_items.iter().map(OsString::from).collect();
+            for unparsed_item in &self.items[self.cursor..self.items.len()] {
+                new_items.push(unparsed_item.clone());
+            }
+            new_items
+        };
+        self.cursor = 0;
     }
 }
 
@@ -346,12 +348,20 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut subcmd_name: Option<String> = None;
         let mut keep_state = false;
         let mut external_subcommand = false;
-        let mut needs_val_of: ParseResult = ParseResult::NotFound;
+        let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let mut replace: Option<&[&str]> = None;
 
-        while let Some((arg_os, remaining_args)) = it.next(replace) {
-            replace = None;
+        while let Some((arg_os, remaining_args)) = it.next() {
+            // Recover the replaced items if any.
+            if let Some((_, replaced_items)) = self
+                .app
+                .replacers
+                .iter()
+                .find(|(key, _)| OsStr::new(key) == arg_os)
+            {
+                it.insert(replaced_items);
+                continue;
+            }
 
             let arg_os = ArgStr::new(arg_os);
             debug!(
@@ -359,20 +369,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os,
                 arg_os.as_raw_bytes()
             );
-
-            for (key, val) in &self.app.replacers {
-                if *key == arg_os {
-                    debug!(
-                        "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
-                        key, val
-                    );
-                    replace = Some(val);
-                }
-            }
-
-            if replace.is_some() {
-                continue;
-            }
 
             self.unset(AS::ValidNegNumFound);
 
@@ -628,7 +624,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::default();
 
-                while let Some((v, _)) = it.next(None) {
+                while let Some((v, _)) = it.next() {
                     if v.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
                         return Err(ClapError::invalid_utf8(
                             Usage::new(self).create_usage_with_title(&[]),
@@ -1005,17 +1001,15 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         debug!("Parser::parse_subcommand");
 
-        let mut mid_string = String::new();
+        let mut mid_string = String::from(" ");
 
         if !self.is_set(AS::SubcommandsNegateReqs) {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
-                write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
+                write!(&mut mid_string, "{} ", s).expect(INTERNAL_ERROR_MSG);
             }
         }
-
-        mid_string.push_str(" ");
 
         if let Some(x) = self.app.find_subcommand(sc_name) {
             let id = x.id.clone();
@@ -1040,16 +1034,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 sc_names = format!("{{{}}}", sc_names);
             }
 
-            sc.usage = Some(format!(
-                "{}{}{}",
-                self.app.bin_name.as_ref().unwrap_or(&String::new()),
-                if self.app.bin_name.is_some() {
-                    &*mid_string
-                } else {
-                    ""
-                },
+            sc.usage = Some(if let Some(ref bin_name) = self.app.bin_name {
+                format!("{}{}{}", bin_name, mid_string, sc_names)
+            } else {
                 sc_names
-            ));
+            });
 
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -1075,10 +1064,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
-            let name = &sc.name;
+            let name = sc.name.clone();
             matcher.subcommand(SubCommand {
-                id: Id::from_ref(&*name), // @TODO @maybe: should be sc.id?
-                name: name.to_string(),
+                id: Id::from_ref(&name), // @TODO @maybe: should be sc.id?
+                name,
                 matches: sc_matcher.into_inner(),
             });
         }
