@@ -1178,8 +1178,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
-        } else if self.is_set(AS::ValidNegNumFound) {
-            return Ok(ParseResult::MaybeNegNum);
         }
 
         debug!("Parser::parse_long_arg: Didn't match anything");
