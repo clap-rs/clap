@@ -70,7 +70,7 @@ impl Input {
     pub(crate) fn insert(&mut self, insert_items: &[&str]) {
         self.items = {
             let mut new_items: Vec<OsString> = insert_items.iter().map(OsString::from).collect();
-            for unparsed_item in &self.items[self.cursor..self.items.len()] {
+            for unparsed_item in &self.items[self.cursor..] {
                 new_items.push(unparsed_item.clone());
             }
             new_items
@@ -352,13 +352,17 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
-            if let Some((_, replaced_items)) = self
+            if let Some((_replacer, replaced_items)) = self
                 .app
                 .replacers
                 .iter()
                 .find(|(key, _)| OsStr::new(key) == arg_os)
             {
                 it.insert(replaced_items);
+                debug!(
+                    "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
+                    _replacer, replaced_items
+                );
                 continue;
             }
 
@@ -369,7 +373,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
-            // Is this a new argument, or values from a previous option?
+            // Is this a new argument, or a value for previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
 
             if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
@@ -391,7 +395,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                             sc_name.is_some(),
                             sc_name
                         );
-
                         if let Some(sc_name) = sc_name {
                             if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
                                 self.parse_help_subcommand(remaining_args)?;
@@ -1000,11 +1003,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 sc_names = format!("{{{}}}", sc_names);
             }
 
-            sc.usage = Some(if let Some(ref bin_name) = self.app.bin_name {
-                format!("{}{}{}", bin_name, mid_string, sc_names)
-            } else {
-                sc_names
-            });
+            sc.usage = Some(
+                self.app
+                    .bin_name
+                    .as_ref()
+                    .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+                    .unwrap_or(sc_names),
+            );
 
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
