@@ -370,10 +370,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
-            self.unset(AS::ValidNegNumFound);
-
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
+
+            if self.is_set(AS::AllowNegativeNumbers)
+                && arg_os.to_string_lossy().parse::<f64>().is_ok()
+            {
+                self.set(AS::ValidNegNumFound);
+            } else {
+                self.unset(AS::ValidNegNumFound);
+            }
 
             if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
                 debug!("Parser::get_matches_with: setting TrailingVals=true");
@@ -515,7 +521,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some(n) = remaining_args.get(0) {
                     needs_val_of = match needs_val_of {
                         ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
-
                         _ => {
                             if let Some(p) = self
                                 .app
@@ -935,59 +940,36 @@ impl<'help, 'app> Parser<'help, 'app> {
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr, needs_val_of: &ParseResult) -> bool {
-        debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, needs_val_of);
+    fn is_new_arg(&mut self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
+        debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, last_result);
 
-        let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
-            true
-        } else if self.is_set(AS::AllowNegativeNumbers) {
-            let a = arg_os.to_string_lossy();
-
-            if a.parse::<i64>().is_ok() || a.parse::<f64>().is_ok() {
-                self.set(AS::ValidNegNumFound);
-                true
-            } else {
-                false
-            }
-        } else {
-            false
-        };
-
-        let arg_allows_tac = match needs_val_of {
+        let want_value = match last_result {
             ParseResult::Opt(name) | ParseResult::Pos(name) => {
-                app_wide_settings || self.app[name].is_set(ArgSettings::AllowHyphenValues)
+                self.is_set(AS::AllowLeadingHyphen)
+                    || self.app[name].is_set(ArgSettings::AllowHyphenValues)
+                    || (self.is_set(AS::AllowNegativeNumbers)
+                        && arg_os.to_string_lossy().parse::<f64>().is_ok())
             }
-
             ParseResult::ValuesDone(..) => return true,
             _ => false,
         };
 
-        debug!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
+        debug!("Parser::is_new_arg: want_value={:?}", want_value);
 
         // Is this a new argument, or values from a previous option?
-        let mut ret = if arg_os.starts_with("--") {
+        if want_value {
+            false
+        } else if arg_os.starts_with("--") {
             debug!("Parser::is_new_arg: -- found");
-
-            if arg_os.len() == 2 && !arg_allows_tac {
-                return true; // We have to return true so override everything else
-            } else if arg_allows_tac {
-                return false;
-            }
-
             true
         } else if arg_os.starts_with("-") {
             debug!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
             arg_os.len() != 1
         } else {
-            debug!("Parser::is_new_arg: probably value");
+            debug!("Parser::is_new_arg: value");
             false
-        };
-
-        ret = ret && !arg_allows_tac;
-
-        debug!("Parser::is_new_arg: starts_new_arg={:?}", ret);
-        ret
+        }
     }
 
     fn parse_subcommand(
