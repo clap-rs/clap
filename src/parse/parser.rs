@@ -30,7 +30,6 @@ pub(crate) enum ParseResult {
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
-    MaybeNegNum,
     NotFound,
     ValuesDone(Id),
 }
@@ -373,14 +372,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             // Is this a new argument, or values from a previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
 
-            if self.is_set(AS::AllowNegativeNumbers)
-                && arg_os.to_string_lossy().parse::<f64>().is_ok()
-            {
-                self.set(AS::ValidNegNumFound);
-            } else {
-                self.unset(AS::ValidNegNumFound);
-            }
-
             if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
                 debug!("Parser::get_matches_with: setting TrailingVals=true");
                 self.set(AS::TrailingValues);
@@ -434,7 +425,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                             ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
                             _ => (),
                         }
-                    } else if arg_os.starts_with("-") && arg_os.len() != 1 {
+                    } else if arg_os.starts_with("-")
+                        && arg_os.len() != 1
+                        && !(self.is_set(AS::AllowNegativeNumbers)
+                            && arg_os.to_string_lossy().parse::<f64>().is_ok())
+                    {
+                        // Arg looks like a short flag, and not a possible number
+
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
@@ -445,19 +442,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::MaybeNegNum => {
-                                let lossy_arg = arg_os.to_string_lossy();
-                                if !(lossy_arg.parse::<i64>().is_ok()
-                                    || lossy_arg.parse::<f64>().is_ok())
-                                {
-                                    return Err(ClapError::unknown_argument(
-                                        lossy_arg.to_string(),
-                                        None,
-                                        Usage::new(self).create_usage_with_title(&[]),
-                                        self.app.color(),
-                                    ));
-                                }
-                            }
                             ParseResult::Opt(ref id)
                             | ParseResult::Flag(ref id)
                             | ParseResult::ValuesDone(ref id) => {
@@ -1200,19 +1184,12 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
         // `-v` `-a` `-l` assuming `v` `a` and `l` are all, or mostly, valid shorts.
-        if self.is_set(AS::AllowLeadingHyphen) {
-            if arg.chars().any(|c| !self.contains_short(c)) {
-                debug!(
-                    "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
-                    arg
-                );
-                return Ok(ParseResult::MaybeHyphenValue);
-            }
-        } else if self.is_set(AS::ValidNegNumFound) {
-            // TODO: Add docs about having AllowNegativeNumbers and `-2` as a valid short
-            // May be better to move this to *after* not finding a valid flag/opt?
-            debug!("Parser::parse_short_arg: Valid negative num...");
-            return Ok(ParseResult::MaybeNegNum);
+        if self.is_set(AS::AllowLeadingHyphen) && arg.chars().any(|c| !self.contains_short(c)) {
+            debug!(
+                "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
+                arg
+            );
+            return Ok(ParseResult::MaybeHyphenValue);
         }
 
         let mut ret = ParseResult::NotFound;
@@ -1781,9 +1758,5 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     pub(crate) fn set(&mut self, s: AS) {
         self.app.set(s)
-    }
-
-    pub(crate) fn unset(&mut self, s: AS) {
-        self.app.unset(s)
     }
 }

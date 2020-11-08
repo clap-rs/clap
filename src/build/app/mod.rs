@@ -2555,11 +2555,6 @@ impl<'help> App<'help> {
     }
 
     #[inline]
-    pub(crate) fn unset(&mut self, s: AppSettings) {
-        self.settings.unset(s)
-    }
-
-    #[inline]
     pub(crate) fn has_args(&self) -> bool {
         !self.args.is_empty()
     }

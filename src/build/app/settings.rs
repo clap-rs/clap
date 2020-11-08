@@ -40,7 +40,6 @@ bitflags! {
         const PROPAGATE_VALS_DOWN            = 1 << 31;
         const ALLOW_MISSING_POS              = 1 << 32;
         const TRAILING_VALUES                = 1 << 33;
-        const VALID_NEG_NUM_FOUND            = 1 << 34;
         const BUILT                          = 1 << 35;
         const VALID_ARG_FOUND                = 1 << 36;
         const INFER_SUBCOMMANDS              = 1 << 37;
@@ -141,8 +140,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::WAIT_ON_ERROR,
     TrailingValues("trailingvalues")
         => Flags::TRAILING_VALUES,
-    ValidNegNumFound("validnegnumfound")
-        => Flags::VALID_NEG_NUM_FOUND,
     Built("built")
         => Flags::BUILT,
     ValidArgFound("validargfound")
@@ -1052,9 +1049,6 @@ pub enum AppSettings {
     TrailingValues,
 
     #[doc(hidden)]
-    ValidNegNumFound,
-
-    #[doc(hidden)]
     Built,
 
     #[doc(hidden)]
@@ -1202,10 +1196,6 @@ mod test {
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),
             AppSettings::WaitOnError
-        );
-        assert_eq!(
-            "validnegnumfound".parse::<AppSettings>().unwrap(),
-            AppSettings::ValidNegNumFound
         );
         assert_eq!(
             "validargfound".parse::<AppSettings>().unwrap(),
