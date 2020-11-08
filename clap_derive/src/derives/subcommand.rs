@@ -33,9 +33,10 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         Sp::call_site(DEFAULT_ENV_CASING),
     );
 
+    let augment_subcommands = gen_augment("augment_subcommands", &e.variants, &attrs, false);
+    let augment_update_subcommands =
+        gen_augment("augment_update_subcommands", &e.variants, &attrs, true);
     let from_subcommand = gen_from_subcommand(name, &e.variants, &attrs);
-    let augment_subcommands = gen_augment_subcommands(&e.variants, &attrs);
-    let augment_update_subcommands = gen_augment_update_subcommands(&e.variants, &attrs);
     let update_from_subcommand = gen_update_from_subcommand(name, &e.variants, &attrs);
 
     quote! {
@@ -58,25 +59,6 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             #update_from_subcommand
         }
     }
-}
-
-fn gen_augment_subcommands(
-    variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
-) -> TokenStream {
-    gen_augment("augment_subcommands", variants, parent_attribute, false)
-}
-
-fn gen_augment_update_subcommands(
-    variants: &Punctuated<Variant, Token![,]>,
-    parent_attribute: &Attrs,
-) -> TokenStream {
-    gen_augment(
-        "augment_update_subcommands",
-        variants,
-        parent_attribute,
-        true,
-    )
 }
 
 fn gen_augment(
