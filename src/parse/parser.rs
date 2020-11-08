@@ -30,7 +30,6 @@ pub(crate) enum ParseResult {
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
-    MaybeNegNum,
     NotFound,
     ValuesDone(Id),
 }
@@ -55,18 +54,7 @@ where
 }
 
 impl Input {
-    pub(crate) fn next(&mut self, new: Option<&[&str]>) -> Option<(&OsStr, &[OsString])> {
-        if let Some(new) = new {
-            let mut new_items: Vec<OsString> = new.iter().map(OsString::from).collect();
-
-            for i in self.cursor..self.items.len() {
-                new_items.push(self.items[i].clone());
-            }
-
-            self.items = new_items;
-            self.cursor = 0;
-        }
-
+    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
         if self.cursor >= self.items.len() {
             None
         } else {
@@ -75,6 +63,19 @@ impl Input {
             let remaining = &self.items[self.cursor..];
             Some((current, remaining))
         }
+    }
+
+    /// Insert some items to the Input items just after current parsing cursor.
+    /// Usually used by replaced items recovering.
+    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
+        self.items = {
+            let mut new_items: Vec<OsString> = insert_items.iter().map(OsString::from).collect();
+            for unparsed_item in &self.items[self.cursor..] {
+                new_items.push(unparsed_item.clone());
+            }
+            new_items
+        };
+        self.cursor = 0;
     }
 }
 
@@ -346,12 +347,24 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut subcmd_name: Option<String> = None;
         let mut keep_state = false;
         let mut external_subcommand = false;
-        let mut needs_val_of: ParseResult = ParseResult::NotFound;
+        let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let mut replace: Option<&[&str]> = None;
 
-        while let Some((arg_os, remaining_args)) = it.next(replace) {
-            replace = None;
+        while let Some((arg_os, remaining_args)) = it.next() {
+            // Recover the replaced items if any.
+            if let Some((_replacer, replaced_items)) = self
+                .app
+                .replacers
+                .iter()
+                .find(|(key, _)| OsStr::new(key) == arg_os)
+            {
+                it.insert(replaced_items);
+                debug!(
+                    "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
+                    _replacer, replaced_items
+                );
+                continue;
+            }
 
             let arg_os = ArgStr::new(arg_os);
             debug!(
@@ -360,23 +373,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
-            for (key, val) in &self.app.replacers {
-                if *key == arg_os {
-                    debug!(
-                        "Parser::get_matches_with: found replacer: {:?}, target: {:?}",
-                        key, val
-                    );
-                    replace = Some(val);
-                }
-            }
-
-            if replace.is_some() {
-                continue;
-            }
-
-            self.unset(AS::ValidNegNumFound);
-
-            // Is this a new argument, or values from a previous option?
+            // Is this a new argument, or a value for previous option?
             let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
 
             if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
@@ -398,7 +395,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                             sc_name.is_some(),
                             sc_name
                         );
-
                         if let Some(sc_name) = sc_name {
                             if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
                                 self.parse_help_subcommand(remaining_args)?;
@@ -432,7 +428,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                             ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
                             _ => (),
                         }
-                    } else if arg_os.starts_with("-") && arg_os.len() != 1 {
+                    } else if arg_os.starts_with("-")
+                        && arg_os.len() != 1
+                        && !(self.is_set(AS::AllowNegativeNumbers)
+                            && arg_os.to_string_lossy().parse::<f64>().is_ok())
+                    {
+                        // Arg looks like a short flag, and not a possible number
+
                         // Try to parse short args like normal, if AllowLeadingHyphen or
                         // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                         // an error, and instead return Ok(None)
@@ -443,19 +445,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                             needs_val_of
                         );
                         match needs_val_of {
-                            ParseResult::MaybeNegNum => {
-                                let lossy_arg = arg_os.to_string_lossy();
-                                if !(lossy_arg.parse::<i64>().is_ok()
-                                    || lossy_arg.parse::<f64>().is_ok())
-                                {
-                                    return Err(ClapError::unknown_argument(
-                                        lossy_arg.to_string(),
-                                        None,
-                                        Usage::new(self).create_usage_with_title(&[]),
-                                        self.app.color(),
-                                    ));
-                                }
-                            }
                             ParseResult::Opt(ref id)
                             | ParseResult::Flag(ref id)
                             | ParseResult::ValuesDone(ref id) => {
@@ -519,7 +508,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some(n) = remaining_args.get(0) {
                     needs_val_of = match needs_val_of {
                         ParseResult::ValuesDone(id) => ParseResult::ValuesDone(id),
-
                         _ => {
                             if let Some(p) = self
                                 .app
@@ -628,7 +616,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::default();
 
-                while let Some((v, _)) = it.next(None) {
+                while let Some((v, _)) = it.next() {
                     if v.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
                         return Err(ClapError::invalid_utf8(
                             Usage::new(self).create_usage_with_title(&[]),
@@ -939,59 +927,36 @@ impl<'help, 'app> Parser<'help, 'app> {
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr, needs_val_of: &ParseResult) -> bool {
-        debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, needs_val_of);
+    fn is_new_arg(&mut self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
+        debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, last_result);
 
-        let app_wide_settings = if self.is_set(AS::AllowLeadingHyphen) {
-            true
-        } else if self.is_set(AS::AllowNegativeNumbers) {
-            let a = arg_os.to_string_lossy();
-
-            if a.parse::<i64>().is_ok() || a.parse::<f64>().is_ok() {
-                self.set(AS::ValidNegNumFound);
-                true
-            } else {
-                false
-            }
-        } else {
-            false
-        };
-
-        let arg_allows_tac = match needs_val_of {
+        let want_value = match last_result {
             ParseResult::Opt(name) | ParseResult::Pos(name) => {
-                app_wide_settings || self.app[name].is_set(ArgSettings::AllowHyphenValues)
+                self.is_set(AS::AllowLeadingHyphen)
+                    || self.app[name].is_set(ArgSettings::AllowHyphenValues)
+                    || (self.is_set(AS::AllowNegativeNumbers)
+                        && arg_os.to_string_lossy().parse::<f64>().is_ok())
             }
-
             ParseResult::ValuesDone(..) => return true,
             _ => false,
         };
 
-        debug!("Parser::is_new_arg: arg_allows_tac={:?}", arg_allows_tac);
+        debug!("Parser::is_new_arg: want_value={:?}", want_value);
 
         // Is this a new argument, or values from a previous option?
-        let mut ret = if arg_os.starts_with("--") {
+        if want_value {
+            false
+        } else if arg_os.starts_with("--") {
             debug!("Parser::is_new_arg: -- found");
-
-            if arg_os.len() == 2 && !arg_allows_tac {
-                return true; // We have to return true so override everything else
-            } else if arg_allows_tac {
-                return false;
-            }
-
             true
         } else if arg_os.starts_with("-") {
             debug!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
             arg_os.len() != 1
         } else {
-            debug!("Parser::is_new_arg: probably value");
+            debug!("Parser::is_new_arg: value");
             false
-        };
-
-        ret = ret && !arg_allows_tac;
-
-        debug!("Parser::is_new_arg: starts_new_arg={:?}", ret);
-        ret
+        }
     }
 
     fn parse_subcommand(
@@ -1005,17 +970,15 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         debug!("Parser::parse_subcommand");
 
-        let mut mid_string = String::new();
+        let mut mid_string = String::from(" ");
 
         if !self.is_set(AS::SubcommandsNegateReqs) {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
-                write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
+                write!(&mut mid_string, "{} ", s).expect(INTERNAL_ERROR_MSG);
             }
         }
-
-        mid_string.push_str(" ");
 
         if let Some(x) = self.app.find_subcommand(sc_name) {
             let id = x.id.clone();
@@ -1040,16 +1003,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 sc_names = format!("{{{}}}", sc_names);
             }
 
-            sc.usage = Some(format!(
-                "{}{}{}",
-                self.app.bin_name.as_ref().unwrap_or(&String::new()),
-                if self.app.bin_name.is_some() {
-                    &*mid_string
-                } else {
-                    ""
-                },
-                sc_names
-            ));
+            sc.usage = Some(
+                self.app
+                    .bin_name
+                    .as_ref()
+                    .map(|bin_name| format!("{}{}{}", bin_name, mid_string, sc_names))
+                    .unwrap_or(sc_names),
+            );
 
             // bin_name should be parent's bin_name + [<reqs>] + the sc's name separated by
             // a space
@@ -1075,10 +1035,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
-            let name = &sc.name;
+            let name = sc.name.clone();
             matcher.subcommand(SubCommand {
-                id: Id::from_ref(&*name), // @TODO @maybe: should be sc.id?
-                name: name.to_string(),
+                id: Id::from_ref(&name), // @TODO @maybe: should be sc.id?
+                name,
                 matches: sc_matcher.into_inner(),
             });
         }
@@ -1207,8 +1167,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
         } else if self.is_set(AS::AllowLeadingHyphen) {
             return Ok(ParseResult::MaybeHyphenValue);
-        } else if self.is_set(AS::ValidNegNumFound) {
-            return Ok(ParseResult::MaybeNegNum);
         }
 
         debug!("Parser::parse_long_arg: Didn't match anything");
@@ -1231,19 +1189,12 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
         // `-v` `-a` `-l` assuming `v` `a` and `l` are all, or mostly, valid shorts.
-        if self.is_set(AS::AllowLeadingHyphen) {
-            if arg.chars().any(|c| !self.contains_short(c)) {
-                debug!(
-                    "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
-                    arg
-                );
-                return Ok(ParseResult::MaybeHyphenValue);
-            }
-        } else if self.is_set(AS::ValidNegNumFound) {
-            // TODO: Add docs about having AllowNegativeNumbers and `-2` as a valid short
-            // May be better to move this to *after* not finding a valid flag/opt?
-            debug!("Parser::parse_short_arg: Valid negative num...");
-            return Ok(ParseResult::MaybeNegNum);
+        if self.is_set(AS::AllowLeadingHyphen) && arg.chars().any(|c| !self.contains_short(c)) {
+            debug!(
+                "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
+                arg
+            );
+            return Ok(ParseResult::MaybeHyphenValue);
         }
 
         let mut ret = ParseResult::NotFound;
@@ -1812,9 +1763,5 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     pub(crate) fn set(&mut self, s: AS) {
         self.app.set(s)
-    }
-
-    pub(crate) fn unset(&mut self, s: AS) {
-        self.app.unset(s)
     }
 }

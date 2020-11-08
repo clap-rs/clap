@@ -2086,7 +2086,7 @@ impl<'help> App<'help> {
         // to display
         // the full path when displaying help messages and such
         if !self.settings.is_set(AppSettings::NoBinaryName) {
-            if let Some((name, _)) = it.next(None) {
+            if let Some((name, _)) = it.next() {
                 let p = Path::new(name);
 
                 if let Some(f) = p.file_name() {
@@ -2552,11 +2552,6 @@ impl<'help> App<'help> {
     #[inline]
     pub(crate) fn set(&mut self, s: AppSettings) {
         self.settings.set(s)
-    }
-
-    #[inline]
-    pub(crate) fn unset(&mut self, s: AppSettings) {
-        self.settings.unset(s)
     }
 
     #[inline]
