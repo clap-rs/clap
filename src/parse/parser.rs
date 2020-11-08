@@ -539,8 +539,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                     debug!("Parser::get_matches_with: Bumping the positional counter...");
                     pos_counter += 1;
                 }
-            } else if (self.is_set(AS::AllowMissingPositional) && self.is_set(AS::TrailingValues))
-                || (self.is_set(AS::ContainsLast) && self.is_set(AS::TrailingValues))
+            } else if self.is_set(AS::TrailingValues)
+                && (self.is_set(AS::AllowMissingPositional) || self.is_set(AS::ContainsLast))
             {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
@@ -603,7 +603,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let sc_name = match arg_os.to_str() {
                     Some(s) => s.to_string(),
                     None => {
-                        if !self.is_set(AS::StrictUtf8) {
+                        if self.is_set(AS::StrictUtf8) {
                             return Err(ClapError::invalid_utf8(
                                 Usage::new(self).create_usage_with_title(&[]),
                                 self.app.color(),
@@ -617,7 +617,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::default();
 
                 while let Some((v, _)) = it.next() {
-                    if v.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
+                    if self.is_set(AS::StrictUtf8) && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),
