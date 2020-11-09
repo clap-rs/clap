@@ -247,7 +247,7 @@ fn gen_from_subcommand(
 
         quote! {
             Some((#sub_name, arg_matches)) => {
-                Some(#name :: #variant_name #constructor_block)
+                Ok(#name :: #variant_name #constructor_block)
             }
         }
     });
@@ -257,8 +257,13 @@ fn gen_from_subcommand(
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
                 quote! {
-                    if let Some(res) = <#ty as clap::Subcommand>::from_subcommand(other) {
-                        return Some(#name :: #variant_name (res));
+                    match <#ty as clap::Subcommand>::from_subcommand(other) {
+                        Ok(res) => return Ok(#name :: #variant_name (res)),
+                        Err(clap::Error {
+                            kind: clap::ErrorKind::UnrecognizedSubcommand,
+                            ..
+                        }) => {}
+                        Err(e) => return Err(e),
                     }
                 }
             }
@@ -271,10 +276,13 @@ fn gen_from_subcommand(
 
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
-            None => ::std::option::Option::None,
+            None => Err(clap::Error::with_description(
+                format!("The subcommand wasn't recognized"),
+                clap::ErrorKind::UnrecognizedSubcommand
+            )),
 
             Some((external, arg_matches)) => {
-                ::std::option::Option::Some(#name::#var_name(
+                ::std::result::Result::Ok(#name::#var_name(
                     ::std::iter::once(#str_ty::from(external))
                     .chain(
                         arg_matches.#values_of("").into_iter().flatten().map(#str_ty::from)
@@ -284,11 +292,14 @@ fn gen_from_subcommand(
             }
         },
 
-        None => quote!(_ => None),
+        None => quote!(_ => Err(clap::Error::with_description(
+            format!("The subcommand wasn't recognized"),
+            clap::ErrorKind::UnrecognizedSubcommand
+        ))),
     };
 
     quote! {
-        fn from_subcommand(subcommand: Option<(&str, &clap::ArgMatches)>) -> Option<Self> {
+        fn from_subcommand(subcommand: Option<(&str, &clap::ArgMatches)>) -> clap::Result<Self> {
             match subcommand {
                 #( #match_arms, )*
                 other => {
@@ -385,7 +396,7 @@ fn gen_update_from_subcommand(
                 (
                     quote!((ref mut arg)),
                     quote! {
-                        <#ty as clap::Subcommand>::update_from_subcommand(arg, Some((name, arg_matches)));
+                        <#ty as clap::Subcommand>::update_from_subcommand(arg, Some((name, arg_matches)))?;
                     },
                 )
             }
@@ -403,16 +414,19 @@ fn gen_update_from_subcommand(
         fn update_from_subcommand<'b>(
             &mut self,
             subcommand: Option<(&str, &clap::ArgMatches)>
-        ) {
+        ) -> clap::Result<()> {
             if let Some((name, arg_matches)) = subcommand {
                 match (name, self) {
                     #( #subcommands ),*
                     #( #child_subcommands ),*
-                    (_, s) => if let Some(sub) = <Self as clap::Subcommand>::from_subcommand(Some((name, arg_matches))) {
-                        *s = sub;
+                    (_, s) => match <Self as clap::Subcommand>::from_subcommand(Some((name, arg_matches))) {
+                        Ok(sub) => *s = sub,
+                        Err(clap::Error { kind: clap::ErrorKind::UnrecognizedSubcommand, .. }) => (),
+                        Err(e) => return Err(e),
                     }
                 }
             }
+            Ok(())
         }
     }
 }

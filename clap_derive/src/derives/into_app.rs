@@ -242,33 +242,9 @@ pub fn gen_app_augmentation(
                 })
             }
             Kind::Arg(ty) => {
-                let convert_type = match **ty {
-                    Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
-                    Ty::OptionOption | Ty::OptionVec => {
-                        sub_type(&field.ty).and_then(sub_type).unwrap_or(&field.ty)
-                    }
-                    _ => &field.ty,
-                };
-
-                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
-                let flag = *attrs.parser().kind == ParserKind::FromFlag;
-
                 let parser = attrs.parser();
-                let func = &parser.func;
-
-                let validator = match *parser.kind {
-                    _ if attrs.is_enum() => quote!(),
-                    ParserKind::TryFromStr => quote_spanned! { func.span()=>
-                        .validator(|s| {
-                            #func(s)
-                            .map(|_: #convert_type| ())
-                        })
-                    },
-                    ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
-                        .validator_os(|s| #func(s).map(|_: #convert_type| ()))
-                    },
-                    _ => quote!(),
-                };
+                let occurrences = parser.kind == ParserKind::FromOccurrences;
+                let flag = parser.kind == ParserKind::FromFlag;
 
                 let modifier = match **ty {
                     Ty::Bool => quote!(),
@@ -285,7 +261,6 @@ pub fn gen_app_augmentation(
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             #possible_values
-                            #validator
                         }
                     }
 
@@ -294,14 +269,12 @@ pub fn gen_app_augmentation(
                         .multiple_values(false)
                         .min_values(0)
                         .max_values(1)
-                        #validator
                     },
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
                         .takes_value(true)
                         .multiple_values(true)
                         .min_values(0)
-                        #validator
                     },
 
                     Ty::Vec => {
@@ -317,7 +290,6 @@ pub fn gen_app_augmentation(
                             .takes_value(true)
                             .multiple_values(true)
                             #possible_values
-                            #validator
                         }
                     }
 
@@ -342,7 +314,6 @@ pub fn gen_app_augmentation(
                             .takes_value(true)
                             .required(#required)
                             #possible_values
-                            #validator
                         }
                     }
                 };

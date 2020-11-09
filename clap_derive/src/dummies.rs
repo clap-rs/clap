@@ -40,10 +40,13 @@ pub fn into_app(name: &Ident) {
 pub fn from_arg_matches(name: &Ident) {
     append_dummy(quote! {
         impl clap::FromArgMatches for #name {
-            fn from_arg_matches(_m: &clap::ArgMatches) -> Self {
+            fn try_from_arg_matches(_m: &clap::ArgMatches) -> clap::Result<Self> {
                 unimplemented!()
             }
-            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) {
+            fn try_update_from_arg_matches(
+                &mut self,
+                matches: &clap::ArgMatches
+            ) -> clap::Result<()> {
                 unimplemented!()
             }
         }
@@ -53,10 +56,13 @@ pub fn from_arg_matches(name: &Ident) {
 pub fn subcommand(name: &Ident) {
     append_dummy(quote! {
         impl clap::Subcommand for #name {
-            fn from_subcommand(_sub: Option<(&str, &clap::ArgMatches)>) -> Option<Self> {
+            fn from_subcommand(_sub: Option<(&str, &clap::ArgMatches)>) -> clap::Result<Self> {
                 unimplemented!()
             }
-            fn update_from_subcommand(&mut self, _sub: Option<(&str, &clap::ArgMatches)>) {
+            fn update_from_subcommand(
+                &mut self,
+                _sub: Option<(&str, &clap::ArgMatches)>
+            ) -> clap::Result<()> {
                 unimplemented!()
             }
             fn augment_subcommands(_app: clap::App<'_>) -> clap::App<'_> {
