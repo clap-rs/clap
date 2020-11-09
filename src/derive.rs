@@ -80,7 +80,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
         let matches = <Self as IntoApp>::into_app().try_get_matches()?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
+        <Self as FromArgMatches>::try_from_arg_matches(&matches)
     }
 
     /// Parse from iterator, exit on error
@@ -102,7 +102,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
+        <Self as FromArgMatches>::try_from_arg_matches(&matches)
     }
 
     /// Update from iterator, exit on error
@@ -181,18 +181,33 @@ pub trait FromArgMatches: Sized {
     ///    }
     /// }
     /// ```
-    fn from_arg_matches(matches: &ArgMatches) -> Self;
+    fn from_arg_matches(matches: &ArgMatches) -> Self {
+        Self::try_from_arg_matches(matches).unwrap_or_else(|e| e.exit())
+    }
 
     /// @TODO@ @release @docs
-    fn update_from_arg_matches(&mut self, matches: &ArgMatches);
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
+        Self::try_update_from_arg_matches(self, matches).unwrap_or_else(|e| e.exit())
+    }
+
+    /// Similar to `from_arg_matches`, but instead of exiting returns errors
+    /// via a `Result` value.
+    fn try_from_arg_matches(matches: &ArgMatches) -> Result<Self, Error>;
+
+    /// Similar to `update_from_arg_matches`, but instead of exiting returns errors
+    /// via a `Result` value.
+    fn try_update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error>;
 }
 
 /// @TODO @release @docs
 pub trait Subcommand: Sized {
     /// @TODO @release @docs
-    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
+    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Result<Self, Error>;
     /// @TODO @release @docs
-    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>);
+    fn update_from_subcommand(
+        &mut self,
+        subcommand: Option<(&str, &ArgMatches)>,
+    ) -> Result<(), Error>;
     /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
     /// @TODO @release @docs
@@ -255,17 +270,31 @@ impl<T: FromArgMatches> FromArgMatches for Box<T> {
     fn from_arg_matches(matches: &ArgMatches) -> Self {
         Box::new(<T as FromArgMatches>::from_arg_matches(matches))
     }
+
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
         <T as FromArgMatches>::update_from_arg_matches(self, matches);
+    }
+
+    fn try_from_arg_matches(matches: &ArgMatches) -> Result<Self, Error> {
+        Ok(Box::new(<T as FromArgMatches>::try_from_arg_matches(
+            matches,
+        )?))
+    }
+
+    fn try_update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
+        <T as FromArgMatches>::try_update_from_arg_matches(self, matches)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
+    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Result<Self, Error> {
         <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
     }
-    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>) {
-        <T as Subcommand>::update_from_subcommand(self, subcommand);
+    fn update_from_subcommand(
+        &mut self,
+        subcommand: Option<(&str, &ArgMatches)>,
+    ) -> Result<(), Error> {
+        <T as Subcommand>::update_from_subcommand(self, subcommand)
     }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)

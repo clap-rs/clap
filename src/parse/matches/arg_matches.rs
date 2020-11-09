@@ -359,8 +359,112 @@ impl ArgMatches {
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
-        if let Some(v) = self.value_of(name) {
-            v.parse::<R>().map_err(|e| {
+        self.parse_t(name, R::from_str)
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using `parse`.
+    ///
+    /// There are two types of errors, parse failures and those where the argument wasn't present
+    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parse_vec_t`] as this method will only return the *first*
+    /// value.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # use std::str::FromStr;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: u32 = matches.parse_t("length", FromStr::from_str).unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, 12);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches
+    ///     .parse_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// // Something that expects u32
+    /// let _: u32 = also_len;
+    /// ```
+    ///
+    /// [`ErrorKind`]: enum.ErrorKind.html
+    /// [`ArgMatches::parse_vec_t`]: ./struct.ArgMatches.html#method.parse_vec_t
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_t<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&str) -> Result<R, E>,
+    ) -> Result<R, Error>
+    where
+        E: Display,
+    {
+        self.parse_optional_t(name, parse)?
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))
+    }
+
+    /// Gets the optional value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using `parse`.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(value))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parse_optional_vec_t`] as this method will only return the *first*
+    /// value.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # use std::str::FromStr;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length] @20 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .get_matches_from(&["test", "12"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Option<u32> = matches
+    ///     .parse_optional_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, Some(12));
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches
+    ///     .parse_optional_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// // Something that expects Option<u32>
+    /// let _: Option<u32> = also_len;
+    /// ```
+    ///
+    /// [`ErrorKind`]: enum.ErrorKind.html
+    /// [`ArgMatches::parse_optional_vec_t`]: ./struct.ArgMatches.html#method.parse_optional_vec_t
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_optional_t<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&str) -> Result<R, E>,
+    ) -> Result<Option<R>, Error>
+    where
+        E: Display,
+    {
+        Ok(match self.value_of(name) {
+            Some(v) => Some(parse(v).map_err(|e| {
                 let message = format!(
                     "The argument '{}' isn't a valid value for '{}': {}",
                     v, name, e
@@ -372,10 +476,100 @@ impl ArgMatches {
                     message.into(),
                     ColorChoice::Auto,
                 )
-            })
-        } else {
-            Err(Error::argument_not_found_auto(name.to_string()))
-        }
+            })?),
+            None => None,
+        })
+    }
+
+    /// Gets the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// There are two types of errors, parse failures and those where the argument wasn't present
+    /// (such as a non-required argument). Check [`ErrorKind`] to distinguish them.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parse_vec_t_os`] as `Arg::parse_t_os` will only return the *first*
+    /// value.
+    ///
+    /// # Examples
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             // "Hi {0xe9}!"
+    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
+    /// ```
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`ArgMatches::parse_vec_t_os`]: ./struct.ArgMatches.html#method.parse_vec_t_os
+    pub fn parse_t_os<R>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, OsString>,
+    ) -> Result<R, Error> {
+        self.parse_optional_t_os(name, parse)?
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))
+    }
+
+    /// Gets optional the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(value))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parse_vec_t_os`] as `Arg::parse_t_os` will only return the *first*
+    /// value.
+    ///
+    /// # Examples
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```")]
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    ///
+    /// let m = App::new("utf8")
+    ///     .arg(Arg::from("<arg> 'some arg'"))
+    ///     .get_matches_from(vec![OsString::from("myprog"),
+    ///                             // "Hi {0xe9}!"
+    ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
+    /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
+    /// ```
+    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`ArgMatches::parse_vec_t_os`]: ./struct.ArgMatches.html#method.parse_vec_t_os
+    pub fn parse_optional_t_os<R>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, OsString>,
+    ) -> Result<Option<R>, Error> {
+        Ok(match self.value_of_os(name) {
+            Some(v) => Some(parse(v).map_err(|e| {
+                let message = format!(
+                    "The argument '{}' isn't a valid value for '{}': {}",
+                    v.to_string_lossy(),
+                    name,
+                    e.to_string_lossy()
+                );
+
+                Error::value_validation(
+                    name.to_string(),
+                    v.to_string_lossy().to_string(),
+                    message.into(),
+                    ColorChoice::Auto,
+                )
+            })?),
+            None => None,
+        })
     }
 
     /// Gets the value of a specific argument (i.e. an argument that takes an additional
@@ -451,23 +645,179 @@ impl ArgMatches {
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
-        if let Some(vals) = self.values_of(name) {
-            vals.map(|v| {
-                v.parse::<R>().map_err(|e| {
-                    let message = format!("The argument '{}' isn't a valid value: {}", v, e);
+        self.parse_vec_t(name, R::from_str)
+    }
 
-                    Error::value_validation(
-                        name.to_string(),
-                        v.to_string(),
-                        message.into(),
-                        ColorChoice::Auto,
-                    )
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using `parse`.
+    ///
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # use std::str::FromStr;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Vec<u32> = matches
+    ///     .parse_vec_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, vec![12, 77, 40]);
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches
+    ///     .parse_vec_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// // Something that expects Vec<u32>
+    /// let _: Vec<u32> = also_len;
+    /// ```
+    ///
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_vec_t<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&str) -> Result<R, E>,
+    ) -> Result<Vec<R>, Error>
+    where
+        E: Display,
+    {
+        self.parse_optional_vec_t(name, parse)?
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))
+    }
+
+    /// Gets the optional typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using `parse`.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(vec))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # extern crate clap;
+    /// # use clap::App;
+    /// # use std::str::FromStr;
+    /// let matches = App::new("myapp")
+    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .get_matches_from(&["test", "12", "77", "40"]);
+    ///
+    /// // Specify the type explicitly (or use turbofish)
+    /// let len: Option<Vec<u32>> = matches
+    ///     .parse_optional_vec_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// assert_eq!(len, Some(vec![12, 77, 40]));
+    ///
+    /// // You can often leave the type for rustc to figure out
+    /// let also_len = matches
+    ///     .parse_optional_vec_t("length", FromStr::from_str)
+    ///     .unwrap_or_else(|e| e.exit());
+    /// // Something that expects Option<Vec<u32>>
+    /// let _: Option<Vec<u32>> = also_len;
+    /// ```
+    ///
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_optional_vec_t<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&str) -> Result<R, E>,
+    ) -> Result<Option<Vec<R>>, Error>
+    where
+        E: Display,
+    {
+        Ok(match self.values_of(name) {
+            Some(vals) => Some(
+                vals.map(|v| {
+                    parse(v).map_err(|e| {
+                        let message = format!("The argument '{}' isn't a valid value: {}", v, e);
+
+                        Error::value_validation(
+                            name.to_string(),
+                            v.to_string(),
+                            message.into(),
+                            ColorChoice::Auto,
+                        )
+                    })
                 })
-            })
-            .collect()
-        } else {
-            Err(Error::argument_not_found_auto(name.to_string()))
-        }
+                .collect::<Result<_, _>>()?,
+            ),
+            None => None,
+        })
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_vec_t_os<R>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, OsString>,
+    ) -> Result<Vec<R>, Error> {
+        self.parse_optional_vec_t_os(name, parse)?
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(vec))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// # Panics
+    ///
+    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    ///
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    pub fn parse_optional_vec_t_os<R>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, OsString>,
+    ) -> Result<Option<Vec<R>>, Error> {
+        Ok(match self.values_of_os(name) {
+            Some(vals) => Some(
+                vals.map(|v| {
+                    parse(v).map_err(|e| {
+                        let message = format!(
+                            "The argument '{}' isn't a valid value: {}",
+                            v.to_string_lossy(),
+                            e.to_string_lossy()
+                        );
+
+                        Error::value_validation(
+                            name.to_string(),
+                            v.to_string_lossy().to_string(),
+                            message.into(),
+                            ColorChoice::Auto,
+                        )
+                    })
+                })
+                .collect::<Result<_, _>>()?,
+            ),
+            None => None,
+        })
     }
 
     /// Gets the typed values of a specific argument (i.e. an argument that takes multiple

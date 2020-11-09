@@ -14,7 +14,7 @@
 
 use clap::Clap;
 
-use std::ffi::{CString, OsStr};
+use std::ffi::{CString, OsStr, OsString};
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
@@ -104,7 +104,7 @@ fn custom_parser_2(_: &str) -> Result<&'static str, ErrCode> {
 fn custom_parser_3(_: &OsStr) -> &'static str {
     "C"
 }
-fn custom_parser_4(_: &OsStr) -> Result<&'static str, String> {
+fn custom_parser_4(_: &OsStr) -> Result<&'static str, OsString> {
     Ok("D")
 }
 
