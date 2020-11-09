@@ -172,6 +172,11 @@ impl<'help> Arg<'help> {
     pub fn get_value_hint(&self) -> ValueHint {
         self.value_hint
     }
+
+    /// Get information on if this argument is global or not
+    pub fn get_global(&self) -> bool {
+        self.global
+    }
 }
 
 impl<'help> Arg<'help> {

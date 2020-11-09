@@ -236,22 +236,20 @@ impl<'help> App<'help> {
         self.get_opts().filter(|a| a.get_help_heading().is_none())
     }
 
-    /// Test if the provided Argument is a global Argument
-    pub fn test_global(arg: &Arg) -> bool {
-        arg.global
-    }
-
-    /// Get a list of subcommands which contain the provided Argument
-    ///
-    /// This command will only include subcommands in its list for which the subcommands
-    /// parent also contains the Argument.
-    ///
-    /// **NOTE:** In this case only Sucommand_1 will be included
-    ///   Subcommand_1 (contains Arg)
-    ///     Subcommand_1.1 (doesn't contain Arg)
-    ///       Subcommand_1.1.1 (contains Arg)
-    ///
-    pub fn get_subcommands_containing(&self, arg: &Arg) -> Vec<&App<'help>> {
+    // Get a list of subcommands which contain the provided Argument
+    //
+    // This command will only include subcommands in its list for which the subcommands
+    // parent also contains the Argument.
+    //
+    // This search follows the propagation rules of global arguments.
+    // It is useful to finding subcommands, that have inherited a global argument.
+    //
+    // **NOTE:** In this case only Sucommand_1 will be included
+    //   Subcommand_1 (contains Arg)
+    //     Subcommand_1.1 (doesn't contain Arg)
+    //       Subcommand_1.1.1 (contains Arg)
+    //
+    fn get_subcommands_containing(&self, arg: &Arg) -> Vec<&App<'help>> {
         let mut vec = std::vec::Vec::new();
         for idx in 0..self.subcommands.len() {
             if self.subcommands[idx]
@@ -275,13 +273,16 @@ impl<'help> App<'help> {
         vec
     }
 
-    /// Get a unique list of all arguments of all commands and continuous subcommands the given argument conflicts with.
-    ///
-    /// ### Panics
-    ///
-    /// If the given arg contains a conflict with an argument that is unknown to
-    /// this `App`.
-    pub fn get_global_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
+    // Get a unique list of all arguments of all commands and continuous subcommands the given argument conflicts with.
+    //
+    // This behavior follows the propagation rules of global arguments.
+    // It is useful for finding conflicts for arguments declared as global.
+    //
+    // ### Panics
+    //
+    // If the given arg contains a conflict with an argument that is unknown to
+    // this `App`.
+    fn get_global_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
         arg.blacklist
             .iter()
@@ -305,21 +306,28 @@ impl<'help> App<'help> {
 
     /// Get a list of all arguments the given argument conflicts with.
     ///
+    /// If the provided argument is declared as global, the conflicts will be determined
+    /// based on the propagation rules of global arguments.
+    ///
     /// ### Panics
     ///
     /// If the given arg contains a conflict with an argument that is unknown to
     /// this `App`.
     pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
-        arg.blacklist
-            .iter()
-            .map(|id| {
-                self.args.args.iter().find(|arg| arg.id == *id).expect(
-                    "App::get_arg_conflicts_with: \
+        if arg.global {
+            self.get_global_arg_conflicts_with(arg)
+        } else {
+            arg.blacklist
+                .iter()
+                .map(|id| {
+                    self.args.args.iter().find(|arg| arg.id == *id).expect(
+                        "App::get_arg_conflicts_with: \
                     The passed arg conflicts with an arg unknown to the app",
-                )
-            })
-            .collect()
+                    )
+                })
+                .collect()
+        }
     }
 
     /// Returns `true` if the given [`AppSettings`] variant is currently set in
