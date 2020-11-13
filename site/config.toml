@@ -1,0 +1,11 @@
+base_url = "https://clap.rs"
+
+title = "Clap"
+description = "Fast & Modern CLI Framework for Rust"
+
+compile_sass = false
+highlight_code = true
+highlight_theme = "material-light"
+build_search_index = true
+
+default_language = "en"

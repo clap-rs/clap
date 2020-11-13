@@ -8,7 +8,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [test, test-release, lint]
+    needs: [test, test-release, lint, coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -190,6 +190,7 @@ jobs:
           args: -- --check
   coverage:
     name: Coverage
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
