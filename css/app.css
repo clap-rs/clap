@@ -1,0 +1,175 @@
+html {
+  background: #211f1a;
+  color: #f5f5f5;
+  font-size: 16px;
+  font-family: 'Raleway', sans-serif;
+}
+
+.maxview {
+  max-width: 1440px;
+  width: 100%;
+  margin: auto;
+}
+
+.maxview article, .maxview section {
+  max-width: 1200px;
+  width: 100%;
+  margin: auto;
+}
+
+header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+}
+
+nav {
+  padding: 1.25rem 0;
+}
+
+nav a {
+  font-size: 20px;
+  line-height: 50px;
+  margin-left: 1.25rem;
+}
+
+nav a:hover, nav a:focus {
+  border-bottom: 1px dashed rgb(255,168,106);
+}
+
+#nav-btn, #nav-check {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  header {
+    padding: 0 0 1.5rem;
+  }
+
+  #nav-btn {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  #nav-btn label {
+    display: inline-block;
+    width: 50px;
+    height: 46px;
+    padding: 1.5rem 1.25rem 1rem;
+  }
+
+  #nav-btn span {
+    display: block;
+    width: 50px;
+    height: 16px;
+    border-top: 2px solid rgb(255, 168, 106);
+  }
+
+  .nav {
+    position: absolute;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: 0;
+    transition: all 0.3s ease-in;
+    overflow-y: hidden;
+    top: 90px;
+    left: 0px;
+    padding: 0;
+    background: #FBF5F3;
+  }
+
+  nav a {
+    display: block;
+    margin: 0;
+    text-align: center;
+  }
+
+  #nav-check:not(:checked) ~ .nav {
+    height: 0px;
+  }
+
+  #nav-check:checked ~ .nav {
+    height: auto;
+    overflow-y: auto;
+  }
+}
+
+footer {
+  text-align: center;
+  padding: 2.5rem 0;
+  background: #211f1a;
+  color: rgba(255, 168, 106, .7);
+}
+
+footer a, #content a {
+  font-weight: bold;
+}
+
+#content {
+  padding: 1.25rem 2.5rem 3rem;
+  min-height: calc(100vh - 10.5rem - 18px - 50px);
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  #content {
+    padding: 1.25rem 0.5rem 3rem;
+    width: 100% !important;
+  }
+}
+
+a {
+  color: rgb(255, 168, 106);
+  text-decoration: none;
+}
+
+p {
+  margin-bottom: 30px;
+  line-height: 30px;
+}
+
+h1, h2, h3, h4 {
+  margin-bottom: 20px;
+  font-family: 'Lato', sans-serif;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.anchor {
+  font-weight: 300 !important;
+  opacity: 0.75;
+  font-size: 1.75rem;
+}
+
+.anchor.level-3 {
+  font-size: 1.25rem;
+  margin: 0 0.25rem;
+}
+
+.anchor.level-4 {
+  font-size: 1rem;
+  margin: 0 0.375rem;
+}
