@@ -5,11 +5,11 @@ pub fn runner() -> Runner {
         .minimum("2.33.0")
         .unwrap()
         .version(
-            Version::new("3.0.0-beta.1")
+            Version::new("3.0.0-rc.0")
                 .unwrap()
                 .peers(&["structopt"])
-                // .replace("clap::args::SubCommand", "App")
                 // .replace_dep("structopt", "clap", features = ["derive"])
+                .rename_structs("clap::args::subcommand", &[["SubCommand", "App"]])
                 .rename_methods(
                     "structopt::StructOpt",
                     &[
@@ -18,6 +18,33 @@ pub fn runner() -> Runner {
                         ["from_iter_safe", "try_parse_from"],
                         ["from_clap", "from_arg_matches"],
                         ["clap", "into_app"],
+                    ],
+                )
+                .rename_variants(
+                    "clap::errors::ErrorKind",
+                    &[
+                        ["HelpDisplayed", "DisplayHelp"],
+                        ["VersionDisplayed", "DisplayVersion"],
+                        [
+                            "MissingArgumentOrSubcommand",
+                            "DisplayHelpOnMissingArgumentOrSubcommand",
+                        ],
+                    ],
+                )
+                .rename_variants(
+                    "clap::app::settings::AppSettings",
+                    &[
+                        ["DisableHelpFlags", "DisableHelpFlag"],
+                        ["DisableVersion", "DisableVersionFlag"],
+                        ["VersionlessSubcommands", "DisableVersionForSubcommands"],
+                    ],
+                )
+                .rename_variants(
+                    "clap::args::settings::ArgSettings",
+                    &[
+                        ["CaseInsensitive", "IgnoreCase"],
+                        ["AllowLeadingHyphen", "AllowHyphenValues"],
+                        ["EmptyValues", "AllowEmptyValues"],
                     ],
                 )
                 .rename_methods(
@@ -31,6 +58,7 @@ pub fn runner() -> Runner {
                         ["get_matches_safe", "try_get_matches"],
                         ["get_matches_from_safe", "try_get_matches_from"],
                         ["get_matches_from_safe_borrow", "try_get_matches_from_mut"],
+                        ["set_term_width", "term_width"],
                     ],
                 )
                 .rename_methods(
@@ -40,29 +68,6 @@ pub fn runner() -> Runner {
                         ["from_usage", "from"],
                         ["set", "setting"],
                         ["unset", "unset_setting"],
-                    ],
-                )
-                .rename_methods(
-                    "clap::args::subcommand::SubCommand",
-                    &[["with_name", "new"], ["from_yaml", "from"]],
-                )
-                .rename_members("clap::errors::Error", &[["message", "cause"]])
-                .hook_method_call_expr(&print_method_calls),
-        )
-        .version(
-            Version::new("3.0.0-rc.0")
-                .unwrap()
-                .rename_variants(
-                    "clap::parse::errors::ErrorKind",
-                    &[
-                        ["HelpDisplayed", "DisplayHelp"],
-                        ["VersionDisplayed", "DisplayVersion"],
-                    ],
-                )
-                .rename_methods("clap::build::app::App", &[["set_term_width", "term_width"]])
-                .rename_methods(
-                    "clap::build::arg::Arg",
-                    &[
                         ["from_yaml", "from"],
                         ["with_name", "new"],
                         ["required_if", "required_if_eq"],
@@ -73,10 +78,17 @@ pub fn runner() -> Runner {
                     ],
                 )
                 .rename_methods(
-                    "clap::build::arg_group::ArgGroup",
+                    "clap::args::group::ArgGroup",
                     &[["from_yaml", "from"], ["with_name", "new"]],
-                ),
+                )
+                .rename_methods(
+                    "clap::args::subcommand::SubCommand",
+                    &[["from_yaml", "from"], ["with_name", "new"]],
+                )
+                .rename_members("clap::errors::Error", &[["message", "cause"]]) // TODO: check
+                .hook_method_call_expr(&print_method_calls),
         )
+        .version(Version::new("3.0.0").unwrap())
 }
 
 fn print_method_calls(

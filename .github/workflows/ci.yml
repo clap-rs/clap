@@ -8,7 +8,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [test, test-release, lint, coverage]
+    needs: [test, test-release, lint]
     runs-on: ubuntu-latest
     steps:
       - name: Done

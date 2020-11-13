@@ -14,6 +14,11 @@ TODO: `cargo`, `std` features
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
   * `AppSettings::VersionlessSubcommands` => `AppSettings::DisableVersionForSubcommands`
+* **Renamed Variants**
+  * **ErrorKind**
+    * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
+* **Changed**
+  * `Arg::env` & `Arg::env_os` does not set `ArgSettings::TakesValue` anymore
 
 #### Features
 
@@ -21,6 +26,10 @@ TODO: `cargo`, `std` features
   * **App**
     * `App::help_about`
     * `App::version_about`
+  * **Arg**
+    * `Arg::hide_env`
+* **Added Settings**
+  * `ArgSettings::HideEnv`
 
 
 <a name="v3.0.0-beta.2"></a>
