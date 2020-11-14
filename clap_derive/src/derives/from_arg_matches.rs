@@ -18,7 +18,7 @@ use syn::{punctuated::Punctuated, spanned::Spanned, token::Comma, Field, Ident, 
 
 use crate::{
     attrs::{Attrs, Kind, ParserKind},
-    utils::{sub_type, subty_if_name, Ty},
+    utils::{sub_type, subty_if_name, Sp, Ty},
 };
 
 pub fn gen_for_struct(
@@ -87,6 +87,142 @@ fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
     }
 }
 
+fn gen_parsers(
+    attrs: &Attrs,
+    ty: &Sp<Ty>,
+    field_name: &Ident,
+    field: &Field,
+    update: Option<&TokenStream>,
+) -> TokenStream {
+    use self::ParserKind::*;
+
+    let parser = attrs.parser();
+    let func = &parser.func;
+    let span = parser.kind.span();
+    let (value_of, values_of, mut parse) = match *parser.kind {
+        FromStr => (
+            quote_spanned!(span=> value_of),
+            quote_spanned!(span=> values_of),
+            func.clone(),
+        ),
+        TryFromStr => (
+            quote_spanned!(span=> value_of),
+            quote_spanned!(span=> values_of),
+            quote_spanned!(func.span()=> |s| #func(s).unwrap()),
+        ),
+        FromOsStr => (
+            quote_spanned!(span=> value_of_os),
+            quote_spanned!(span=> values_of_os),
+            func.clone(),
+        ),
+        TryFromOsStr => (
+            quote_spanned!(span=> value_of_os),
+            quote_spanned!(span=> values_of_os),
+            quote_spanned!(func.span()=> |s| #func(s).unwrap()),
+        ),
+        FromOccurrences => (
+            quote_spanned!(span=> occurrences_of),
+            quote!(),
+            func.clone(),
+        ),
+        FromFlag => (quote!(), quote!(), func.clone()),
+    };
+
+    let flag = *attrs.parser().kind == ParserKind::FromFlag;
+    let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
+    let name = attrs.cased_name();
+
+    let field_value = match **ty {
+        Ty::Bool => {
+            if update.is_some() {
+                quote_spanned! { ty.span()=>
+                    *#field_name || matches.is_present(#name)
+                }
+            } else {
+                quote_spanned! { ty.span()=>
+                    matches.is_present(#name)
+                }
+            }
+        }
+
+        Ty::Option => {
+            if attrs.is_enum() {
+                if let Some(subty) = subty_if_name(&field.ty, "Option") {
+                    parse = gen_arg_enum_parse(subty, &attrs);
+                }
+            }
+
+            quote_spanned! { ty.span()=>
+                matches.#value_of(#name)
+                    .map(#parse)
+            }
+        }
+
+        Ty::OptionOption => quote_spanned! { ty.span()=>
+            if matches.is_present(#name) {
+                Some(matches.#value_of(#name).map(#parse))
+            } else {
+                None
+            }
+        },
+
+        Ty::OptionVec => quote_spanned! { ty.span()=>
+            if matches.is_present(#name) {
+                Some(matches.#values_of(#name)
+                     .map(|v| v.map(#parse).collect())
+                     .unwrap_or_else(Vec::new))
+            } else {
+                None
+            }
+        },
+
+        Ty::Vec => {
+            if attrs.is_enum() {
+                if let Some(subty) = subty_if_name(&field.ty, "Vec") {
+                    parse = gen_arg_enum_parse(subty, &attrs);
+                }
+            }
+
+            quote_spanned! { ty.span()=>
+                matches.#values_of(#name)
+                    .map(|v| v.map(#parse).collect())
+                    .unwrap_or_else(Vec::new)
+            }
+        }
+
+        Ty::Other if occurrences => quote_spanned! { ty.span()=>
+            #parse(matches.#value_of(#name))
+        },
+
+        Ty::Other if flag => quote_spanned! { ty.span()=>
+            #parse(matches.is_present(#name))
+        },
+
+        Ty::Other => {
+            if attrs.is_enum() {
+                parse = gen_arg_enum_parse(&field.ty, &attrs);
+            }
+
+            quote_spanned! { ty.span()=>
+                matches.#value_of(#name)
+                    .map(#parse)
+                    .unwrap()
+            }
+        }
+    };
+
+    if let Some(access) = update {
+        quote_spanned! { field.span()=>
+            if matches.is_present(#name) {
+                #access
+                *#field_name = #field_value
+            }
+        }
+    } else {
+        quote_spanned!(field.span()=> #field_name: #field_value )
+    }
+}
+
 pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
     let fields = fields.iter().map(|field| {
         let attrs = Attrs::from_field(
@@ -128,118 +264,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
             },
 
-            Kind::Arg(ty) => {
-                use self::ParserKind::*;
-
-                let parser = attrs.parser();
-                let func = &parser.func;
-                let span = parser.kind.span();
-                let (value_of, values_of, mut parse) = match *parser.kind {
-                    FromStr => (
-                        quote_spanned!(span=> value_of),
-                        quote_spanned!(span=> values_of),
-                        func.clone(),
-                    ),
-                    TryFromStr => (
-                        quote_spanned!(span=> value_of),
-                        quote_spanned!(span=> values_of),
-                        quote_spanned!(func.span()=> |s| #func(s).unwrap()),
-                    ),
-                    FromOsStr => (
-                        quote_spanned!(span=> value_of_os),
-                        quote_spanned!(span=> values_of_os),
-                        func.clone(),
-                    ),
-                    TryFromOsStr => (
-                        quote_spanned!(span=> value_of_os),
-                        quote_spanned!(span=> values_of_os),
-                        quote_spanned!(func.span()=> |s| #func(s).unwrap()),
-                    ),
-                    FromOccurrences => (
-                        quote_spanned!(span=> occurrences_of),
-                        quote!(),
-                        func.clone(),
-                    ),
-                    FromFlag => (quote!(), quote!(), func.clone()),
-                };
-
-                let flag = *attrs.parser().kind == ParserKind::FromFlag;
-                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
-                let name = attrs.cased_name();
-
-                let field_value = match **ty {
-                    Ty::Bool => quote_spanned! { ty.span()=>
-                        matches.is_present(#name)
-                    },
-
-                    Ty::Option => {
-                        if attrs.is_enum() {
-                            if let Some(subty) = subty_if_name(&field.ty, "Option") {
-                                parse = gen_arg_enum_parse(subty, &attrs);
-                            }
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#value_of(#name)
-                                .map(#parse)
-                        }
-                    }
-
-                    Ty::OptionOption => quote_spanned! { ty.span()=>
-                        if matches.is_present(#name) {
-                            Some(matches.#value_of(#name).map(#parse))
-                        } else {
-                            None
-                        }
-                    },
-
-                    Ty::OptionVec => quote_spanned! { ty.span()=>
-                        if matches.is_present(#name) {
-                            Some(matches.#values_of(#name)
-                                 .map(|v| v.map(#parse).collect())
-                                 .unwrap_or_else(Vec::new))
-                        } else {
-                            None
-                        }
-                    },
-
-                    Ty::Vec => {
-                        if attrs.is_enum() {
-                            if let Some(subty) = subty_if_name(&field.ty, "Vec") {
-                                parse = gen_arg_enum_parse(subty, &attrs);
-                            }
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#values_of(#name)
-                                .map(|v| v.map(#parse).collect())
-                                .unwrap_or_else(Vec::new)
-                        }
-                    }
-
-                    Ty::Other if occurrences => quote_spanned! { ty.span()=>
-                        #parse(matches.#value_of(#name))
-                    },
-
-                    Ty::Other if flag => quote_spanned! { ty.span()=>
-                        #parse(matches.is_present(#name))
-                    },
-
-                    Ty::Other => {
-                        if attrs.is_enum() {
-                            parse = gen_arg_enum_parse(&field.ty, &attrs);
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#value_of(#name)
-                                .map(#parse)
-                                .unwrap()
-                        }
-                    }
-                };
-
-                quote_spanned!(field.span()=> #field_name: #field_value )
-            }
+            Kind::Arg(ty) => gen_parsers(&attrs, ty, field_name, field, None),
         }
     });
 
@@ -320,121 +345,7 @@ pub fn gen_updater(
             Kind::Skip(_) => quote!(),
 
             Kind::Arg(ty) => {
-                use self::ParserKind::*;
-
-                let parser = attrs.parser();
-                let func = &parser.func;
-                let span = parser.kind.span();
-                let (value_of, values_of, mut parse) = match *parser.kind {
-                    FromStr => (
-                        quote_spanned!(span=> value_of),
-                        quote_spanned!(span=> values_of),
-                        func.clone(),
-                    ),
-                    TryFromStr => (
-                        quote_spanned!(span=> value_of),
-                        quote_spanned!(span=> values_of),
-                        quote_spanned!(func.span()=> |s| #func(s).unwrap()),
-                    ),
-                    FromOsStr => (
-                        quote_spanned!(span=> value_of_os),
-                        quote_spanned!(span=> values_of_os),
-                        func.clone(),
-                    ),
-                    TryFromOsStr => (
-                        quote_spanned!(span=> value_of_os),
-                        quote_spanned!(span=> values_of_os),
-                        quote_spanned!(func.span()=> |s| #func(s).unwrap()),
-                    ),
-                    FromOccurrences => (
-                        quote_spanned!(span=> occurrences_of),
-                        quote!(),
-                        func.clone(),
-                    ),
-                    FromFlag => (quote!(), quote!(), func.clone()),
-                };
-
-                let flag = *attrs.parser().kind == ParserKind::FromFlag;
-                let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
-                let name = attrs.cased_name();
-
-                let field_value = match **ty {
-                    Ty::Bool => quote_spanned! { ty.span()=>
-                        *#field_name || matches.is_present(#name)
-                    },
-
-                    Ty::Option => {
-                        if attrs.is_enum() {
-                            if let Some(subty) = sub_type(&field.ty) {
-                                parse = gen_arg_enum_parse(subty, &attrs);
-                            }
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#value_of(#name)
-                                .map(#parse)
-                        }
-                    }
-
-                    Ty::OptionOption => quote_spanned! { ty.span()=>
-                        if matches.is_present(#name) {
-                            Some(matches.#value_of(#name).map(#parse))
-                        } else {
-                            None
-                        }
-                    },
-
-                    Ty::OptionVec => quote_spanned! { ty.span()=>
-                        if matches.is_present(#name) {
-                            Some(matches.#values_of(#name)
-                                 .map(|v| v.map(#parse).collect())
-                                 .unwrap_or_else(Vec::new))
-                        } else {
-                            None
-                        }
-                    },
-
-                    Ty::Vec => {
-                        if attrs.is_enum() {
-                            if let Some(subty) = subty_if_name(&field.ty, "Vec") {
-                                parse = gen_arg_enum_parse(subty, &attrs);
-                            }
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#values_of(#name)
-                                .map(|v| v.map(#parse).collect())
-                                .unwrap_or_else(Vec::new)
-                        }
-                    }
-
-                    Ty::Other if occurrences => quote_spanned! { ty.span()=>
-                        #parse(matches.#value_of(#name))
-                    },
-
-                    Ty::Other if flag => quote_spanned! { ty.span()=>
-                        #parse(matches.is_present(#name))
-                    },
-
-                    Ty::Other => {
-                        if attrs.is_enum() {
-                            parse = gen_arg_enum_parse(&field.ty, &attrs);
-                        }
-
-                        quote_spanned! { ty.span()=>
-                            matches.#value_of(#name)
-                                .map(#parse)
-                                .unwrap()
-                        }
-                    }
-                };
-
-                quote_spanned! { field.span()=>
-                    if matches.is_present(#name) {
-                        #access
-                        *#field_name = #field_value
-                    }
-                }
+                gen_parsers(&attrs, ty, field_name, field, Some(&access))
             }
         }
     });
