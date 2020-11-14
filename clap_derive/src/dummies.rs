@@ -27,10 +27,10 @@ pub fn into_app(name: &Ident) {
             fn augment_clap<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
                 unimplemented!()
             }
-            fn into_update_app<'b>() -> ::clap::App<'b> {
+            fn into_app_for_update<'b>() -> ::clap::App<'b> {
                 unimplemented!()
             }
-            fn augment_update_clap<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
+            fn augment_clap_for_update<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
                 unimplemented!()
             }
         }
@@ -62,7 +62,7 @@ pub fn subcommand(name: &Ident) {
             fn augment_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {
                 unimplemented!()
             }
-            fn augment_update_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {
+            fn augment_subcommands_for_update(_app: ::clap::App<'_>) -> ::clap::App<'_> {
                 unimplemented!()
             }
         }

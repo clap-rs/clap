@@ -104,13 +104,13 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
                 <#name as ::clap::Subcommand>::augment_subcommands(app)
             }
 
-            fn into_update_app<'b>() -> ::clap::App<'b> {
+            fn into_app_for_update<'b>() -> ::clap::App<'b> {
                 let app = ::clap::App::new(#app_name);
-                <#name as ::clap::IntoApp>::augment_update_clap(app)
+                <#name as ::clap::IntoApp>::augment_clap_for_update(app)
             }
 
-            fn augment_update_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
-                <#name as ::clap::Subcommand>::augment_update_subcommands(app)
+            fn augment_clap_for_update<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+                <#name as ::clap::Subcommand>::augment_subcommands_for_update(app)
             }
         }
     }
@@ -132,8 +132,8 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
         fn into_app<'b>() -> ::clap::App<'b> {
             Self::augment_clap(::clap::App::new(#name))
         }
-        fn into_update_app<'b>() -> ::clap::App<'b> {
-            Self::augment_update_clap(::clap::App::new(#name))
+        fn into_app_for_update<'b>() -> ::clap::App<'b> {
+            Self::augment_clap_for_update(::clap::App::new(#name))
         }
     };
 
@@ -148,7 +148,7 @@ fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
         fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
             #augmentation
         }
-        fn augment_update_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn augment_clap_for_update<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
             #augmentation_update
         }
     }
@@ -193,7 +193,7 @@ pub fn gen_app_augmentation(
             let span = field.span();
             let ts = if override_required {
                 quote! {
-                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_update_subcommands( #app_var );
+                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands_for_update( #app_var );
                 }
             } else{
                 quote! {

@@ -34,8 +34,8 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     );
 
     let augment_subcommands = gen_augment("augment_subcommands", &e.variants, &attrs, false);
-    let augment_update_subcommands =
-        gen_augment("augment_update_subcommands", &e.variants, &attrs, true);
+    let augment_subcommands_for_update =
+        gen_augment("augment_subcommands_for_update", &e.variants, &attrs, true);
     let from_subcommand = gen_from_subcommand(name, &e.variants, &attrs);
     let update_from_subcommand = gen_update_from_subcommand(name, &e.variants, &attrs);
 
@@ -55,7 +55,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         impl ::clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
-            #augment_update_subcommands
+            #augment_subcommands_for_update
             #update_from_subcommand
         }
     }
