@@ -133,6 +133,28 @@ fn test_every_custom_parser() {
     );
 }
 
+#[test]
+fn update_every_custom_parser() {
+    let mut opt = NoOpOpt {
+        a: "0",
+        b: "0",
+        c: "0",
+        d: "D",
+    };
+
+    opt.update_from(&["test", "-a=?", "-b=?", "-d=?"]);
+
+    assert_eq!(
+        NoOpOpt {
+            a: "A",
+            b: "B",
+            c: "0",
+            d: "D"
+        },
+        opt
+    );
+}
+
 // Note: can't use `Vec<u8>` directly, as clap would instead look for
 // conversion function from `&str` to `u8`.
 type Bytes = Vec<u8>;

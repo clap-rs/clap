@@ -104,6 +104,30 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
         Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
     }
+
+    /// Update from iterator, exit on error
+    fn update_from<I, T>(&mut self, itr: I)
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        // TODO find a way to get partial matches
+        let matches = <Self as IntoApp>::into_app_for_update().get_matches_from(itr);
+        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
+    }
+
+    /// Update from iterator, return Err on error.
+    fn try_update_from<I, T>(&mut self, itr: I) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        let matches = <Self as IntoApp>::into_app_for_update().try_get_matches_from(itr)?;
+        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
+        Ok(())
+    }
 }
 
 /// Build an App according to the struct
@@ -114,6 +138,10 @@ pub trait IntoApp: Sized {
     fn into_app<'help>() -> App<'help>;
     /// @TODO @release @docs
     fn augment_clap(app: App<'_>) -> App<'_>;
+    /// @TODO @release @docs
+    fn into_app_for_update<'help>() -> App<'help>;
+    /// @TODO @release @docs
+    fn augment_clap_for_update(app: App<'_>) -> App<'_>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a consumer defined struct.
@@ -154,6 +182,9 @@ pub trait FromArgMatches: Sized {
     /// }
     /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Self;
+
+    /// @TODO@ @release @docs
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches);
 }
 
 /// @TODO @release @docs
@@ -161,7 +192,11 @@ pub trait Subcommand: Sized {
     /// @TODO @release @docs
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
     /// @TODO @release @docs
+    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>);
+    /// @TODO @release @docs
     fn augment_subcommands(app: App<'_>) -> App<'_>;
+    /// @TODO @release @docs
+    fn augment_subcommands_for_update(app: App<'_>) -> App<'_>;
 }
 
 /// @TODO @release @docs
@@ -208,11 +243,20 @@ impl<T: IntoApp> IntoApp for Box<T> {
     fn augment_clap(app: App<'_>) -> App<'_> {
         <T as IntoApp>::augment_clap(app)
     }
+    fn into_app_for_update<'help>() -> App<'help> {
+        <T as IntoApp>::into_app_for_update()
+    }
+    fn augment_clap_for_update(app: App<'_>) -> App<'_> {
+        <T as IntoApp>::augment_clap_for_update(app)
+    }
 }
 
 impl<T: FromArgMatches> FromArgMatches for Box<T> {
     fn from_arg_matches(matches: &ArgMatches) -> Self {
         Box::new(<T as FromArgMatches>::from_arg_matches(matches))
+    }
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
+        <T as FromArgMatches>::update_from_arg_matches(self, matches);
     }
 }
 
@@ -220,7 +264,13 @@ impl<T: Subcommand> Subcommand for Box<T> {
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
         <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
     }
+    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>) {
+        <T as Subcommand>::update_from_subcommand(self, subcommand);
+    }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)
+    }
+    fn augment_subcommands_for_update(app: App<'_>) -> App<'_> {
+        <T as Subcommand>::augment_subcommands_for_update(app)
     }
 }

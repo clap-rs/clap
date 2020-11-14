@@ -30,6 +30,21 @@ fn basic() {
 }
 
 #[test]
+fn update_basic() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short = 'a', long = "arg")]
+        single_value: i32,
+    }
+
+    let mut opt = Opt::parse_from(&["test", "-a0"]);
+
+    opt.update_from(&["test", "-a42"]);
+
+    assert_eq!(Opt { single_value: 42 }, opt);
+}
+
+#[test]
 fn unit_struct() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt;

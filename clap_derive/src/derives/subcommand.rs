@@ -33,8 +33,11 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         Sp::call_site(DEFAULT_ENV_CASING),
     );
 
+    let augment_subcommands = gen_augment("augment_subcommands", &e.variants, &attrs, false);
+    let augment_subcommands_for_update =
+        gen_augment("augment_subcommands_for_update", &e.variants, &attrs, true);
     let from_subcommand = gen_from_subcommand(name, &e.variants, &attrs);
-    let augment_subcommands = gen_augment_subcommands(&e.variants, &attrs);
+    let update_from_subcommand = gen_update_from_subcommand(name, &e.variants, &attrs);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -52,13 +55,17 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         impl ::clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
+            #augment_subcommands_for_update
+            #update_from_subcommand
         }
     }
 }
 
-fn gen_augment_subcommands(
+fn gen_augment(
+    fn_name: &str,
     variants: &Punctuated<Variant, Token![,]>,
     parent_attribute: &Attrs,
+    override_required: bool,
 ) -> TokenStream {
     use syn::Fields::*;
 
@@ -97,9 +104,12 @@ fn gen_augment_subcommands(
                 _ => {
                     let app_var = Ident::new("subcommand", Span::call_site());
                     let arg_block = match variant.fields {
-                        Named(ref fields) => {
-                            into_app::gen_app_augmentation(&fields.named, &app_var, &attrs)
-                        }
+                        Named(ref fields) => into_app::gen_app_augmentation(
+                            &fields.named,
+                            &app_var,
+                            &attrs,
+                            override_required,
+                        ),
                         Unit => quote!( #app_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
@@ -131,8 +141,9 @@ fn gen_augment_subcommands(
 
     let app_methods = parent_attribute.top_level_methods();
     let version = parent_attribute.version();
+    let fn_name = Ident::new(fn_name, Span::call_site());
     quote! {
-        fn augment_subcommands<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn #fn_name <'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
             let app = app #app_methods;
             #( #subcommands )*;
             app #version
@@ -285,6 +296,119 @@ fn gen_from_subcommand(
 
                     match other {
                         #wildcard
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn gen_update_from_subcommand(
+    name: &Ident,
+    variants: &Punctuated<Variant, Token![,]>,
+    parent_attribute: &Attrs,
+) -> TokenStream {
+    use syn::Fields::*;
+
+    let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
+        .iter()
+        .filter_map(|variant| {
+            let attrs = Attrs::from_struct(
+                variant.span(),
+                &variant.attrs,
+                Name::Derived(variant.ident.clone()),
+                parent_attribute.casing(),
+                parent_attribute.env_casing(),
+            );
+
+            if let Kind::ExternalSubcommand = &*attrs.kind() {
+                None
+            } else {
+                Some((variant, attrs))
+            }
+        })
+        .partition(|(_, attrs)| {
+            let kind = attrs.kind();
+            matches!(&*kind, Kind::Flatten)
+        });
+
+    let subcommands = variants.iter().map(|(variant, attrs)| {
+        let sub_name = attrs.cased_name();
+        let variant_name = &variant.ident;
+        let (pattern, updater) = match variant.fields {
+            Named(ref fields) => {
+                let (fields, update): (Vec<_>, Vec<_>) = fields
+                    .named
+                    .iter()
+                    .map(|field| {
+                        let attrs = Attrs::from_field(
+                            field,
+                            parent_attribute.casing(),
+                            parent_attribute.env_casing(),
+                        );
+                        let field_name = field.ident.as_ref().unwrap();
+                        (
+                            quote!( ref mut #field_name ),
+                            from_arg_matches::gen_updater(&fields.named, &attrs, false),
+                        )
+                    })
+                    .unzip();
+                (quote!( { #( #fields, )* }), quote!( { #( #update )* } ))
+            }
+            Unit => (quote!(), quote!({})),
+            Unnamed(ref fields) => {
+                if fields.unnamed.len() == 1 {
+                    (
+                        quote!((ref mut arg)),
+                        quote!(::clap::FromArgMatches::update_from_arg_matches(
+                            arg, matches
+                        )),
+                    )
+                } else {
+                    abort_call_site!("{}: tuple enums are not supported", variant.ident)
+                }
+            }
+        };
+
+        quote! {
+            (#sub_name, #name :: #variant_name #pattern) => { #updater }
+        }
+    });
+
+    let child_subcommands = flatten_variants.iter().map(|(variant, attrs)| {
+        let sub_name = attrs.cased_name();
+        let variant_name = &variant.ident;
+        let (pattern, updater) = match variant.fields {
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
+                (
+                    quote!((ref mut arg)),
+                    quote! {
+                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, Some((name, matches)));
+                    },
+                )
+            }
+            _ => abort!(
+                variant,
+                "`flatten` is usable only with single-typed tuple variants"
+            ),
+        };
+        quote! {
+            (#sub_name, #name :: #variant_name #pattern) => { #updater }
+        }
+    });
+
+    quote! {
+        fn update_from_subcommand<'b>(
+            &mut self,
+            subcommand: Option<(&str, &::clap::ArgMatches)>
+        ) {
+            if let Some((name, matches)) = subcommand {
+                match (name, self) {
+                    #( #subcommands ),*
+                    #( #child_subcommands ),*
+                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(Some((name, matches))) {
+                        *s = sub;
                     }
                 }
             }

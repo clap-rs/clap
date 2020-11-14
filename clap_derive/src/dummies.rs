@@ -27,6 +27,12 @@ pub fn into_app(name: &Ident) {
             fn augment_clap<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
                 unimplemented!()
             }
+            fn into_app_for_update<'b>() -> ::clap::App<'b> {
+                unimplemented!()
+            }
+            fn augment_clap_for_update<'b>(_app: ::clap::App<'b>) -> ::clap::App<'b> {
+                unimplemented!()
+            }
         }
     });
 }
@@ -35,6 +41,9 @@ pub fn from_arg_matches(name: &Ident) {
     append_dummy(quote! {
         impl ::clap::FromArgMatches for #name {
             fn from_arg_matches(_m: &::clap::ArgMatches) -> Self {
+                unimplemented!()
+            }
+            fn update_from_arg_matches(&mut self, matches: &::clap::ArgMatches) {
                 unimplemented!()
             }
         }
@@ -47,7 +56,13 @@ pub fn subcommand(name: &Ident) {
             fn from_subcommand(_sub: Option<(&str, &::clap::ArgMatches)>) -> Option<Self> {
                 unimplemented!()
             }
+            fn update_from_subcommand(&mut self, _sub: Option<(&str, &::clap::ArgMatches)>) {
+                unimplemented!()
+            }
             fn augment_subcommands(_app: ::clap::App<'_>) -> ::clap::App<'_> {
+                unimplemented!()
+            }
+            fn augment_subcommands_for_update(_app: ::clap::App<'_>) -> ::clap::App<'_> {
                 unimplemented!()
             }
         }

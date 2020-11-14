@@ -19,13 +19,20 @@ fn skip_1() {
     }
 
     assert!(Opt::try_parse_from(&["test", "-x", "10", "20"]).is_err());
+
+    let mut opt = Opt::parse_from(&["test", "-x", "10"]);
     assert_eq!(
-        Opt::parse_from(&["test", "-x", "10"]),
+        opt,
         Opt {
             x: 10,
             s: 0, // default
         }
     );
+    opt.s = 42;
+
+    opt.update_from(&["test", "-x", "22"]);
+
+    assert_eq!(opt, Opt { x: 22, s: 42 });
 }
 
 #[test]
