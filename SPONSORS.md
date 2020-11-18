@@ -1,6 +1,6 @@
 Below is a list of sponsors for the clap-rs project
 
-If you are interested in becoming a sponsor for this project please our [sponsorship page](https://clap.rs/sponsorship/).
+If you are interested in becoming a sponsor for this project please our see [sponsorship page](https://clap.rs/sponsorship/).
 
 ## Recurring Sponsors:
 
