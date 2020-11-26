@@ -43,7 +43,7 @@ _{name}() {{
 
 _{name} \"$@\"",
                 name = app.get_bin_name().unwrap(),
-                initial_args = get_args_of(app),
+                initial_args = get_args_of(app, None),
                 subcommands = get_subcommands_of(app),
                 subcommand_details = subcommand_details(app)
             )
@@ -225,7 +225,8 @@ fn get_subcommands_of(p: &App) -> String {
             bin_name,
         );
         let mut v = vec![format!("({})", name)];
-        let subcommand_args = get_args_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG));
+        let subcommand_args =
+            get_args_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG), Some(p));
 
         if !subcommand_args.is_empty() {
             v.push(subcommand_args);
@@ -299,12 +300,12 @@ fn parser_of<'help, 'app>(p: &'app App<'help>, bin_name: &str) -> Option<&'app A
 //    -C: modify the $context internal variable
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
-fn get_args_of(p: &App) -> String {
+fn get_args_of(p: &App, p_global: Option<&App>) -> String {
     debug!("get_args_of");
 
     let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
-    let opts = write_opts_of(p);
-    let flags = write_flags_of(p);
+    let opts = write_opts_of(p, p_global);
+    let flags = write_flags_of(p, p_global);
     let positionals = write_positionals_of(p);
 
     let sc_or_a = if p.has_subcommands() {
@@ -401,7 +402,7 @@ fn escape_value(string: &str) -> String {
         .replace(" ", "\\ ")
 }
 
-fn write_opts_of(p: &App) -> String {
+fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
     debug!("write_opts_of");
 
     let mut ret = vec![];
@@ -410,7 +411,7 @@ fn write_opts_of(p: &App) -> String {
         debug!("write_opts_of:iter: o={}", o.get_name());
 
         let help = o.get_about().map_or(String::new(), escape_help);
-        let conflicts = arg_conflicts(p, o);
+        let conflicts = arg_conflicts(p, o, p_global);
 
         // @TODO @soundness should probably be either multiple occurrences or multiple values and
         // not both
@@ -475,28 +476,45 @@ fn write_opts_of(p: &App) -> String {
     ret.join("\n")
 }
 
-fn arg_conflicts(app: &App, arg: &Arg) -> String {
-    let conflicts = app.get_arg_conflicts_with(arg);
+fn arg_conflicts(app: &App, arg: &Arg, app_global: Option<&App>) -> String {
+    fn push_conflicts(conflicts: &[&Arg], res: &mut Vec<String>) {
+        for conflict in conflicts {
+            if let Some(s) = conflict.get_short() {
+                res.push(format!("-{}", s));
+            }
 
-    if conflicts.is_empty() {
-        return String::new();
+            if let Some(l) = conflict.get_long() {
+                res.push(format!("--{}", l));
+            }
+        }
     }
 
     let mut res = vec![];
-    for conflict in conflicts {
-        if let Some(s) = conflict.get_short() {
-            res.push(format!("-{}", s));
-        }
+    match (app_global, arg.get_global()) {
+        (Some(x), true) => {
+            let conflicts = x.get_arg_conflicts_with(arg);
 
-        if let Some(l) = conflict.get_long() {
-            res.push(format!("--{}", l));
+            if conflicts.is_empty() {
+                return String::new();
+            }
+
+            push_conflicts(&conflicts, &mut res);
         }
-    }
+        (_, _) => {
+            let conflicts = app.get_arg_conflicts_with(arg);
+
+            if conflicts.is_empty() {
+                return String::new();
+            }
+
+            push_conflicts(&conflicts, &mut res);
+        }
+    };
 
     format!("({})", res.join(" "))
 }
 
-fn write_flags_of(p: &App) -> String {
+fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
     debug!("write_flags_of;");
 
     let mut ret = vec![];
@@ -505,7 +523,7 @@ fn write_flags_of(p: &App) -> String {
         debug!("write_flags_of:iter: f={}", f.get_name());
 
         let help = f.get_about().map_or(String::new(), escape_help);
-        let conflicts = arg_conflicts(p, &f);
+        let conflicts = arg_conflicts(p, &f, p_global);
 
         let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
             "*"
