@@ -220,7 +220,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if foundx2 && !p.is_set(ArgSettings::Required) {
                     assert!(
                         p.is_set(ArgSettings::Required),
-                        "Found unrequired positional argument with a lower \
+                        "Found non-required positional argument with a lower \
                          index than a required positional argument by two or more: {:?} \
                          index {:?}",
                         p.name,
@@ -254,7 +254,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
-                        "Found unrequired positional argument with a lower \
+                        "Found non-required positional argument with a lower \
                          index than a required positional argument: {:?} index {:?}",
                         p.name,
                         p.index
