@@ -240,13 +240,13 @@ fn gen_from_subcommand(
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
-                quote!( ( <#ty as ::clap::FromArgMatches>::from_arg_matches(matches) ) )
+                quote!( ( <#ty as ::clap::FromArgMatches>::from_arg_matches(arg_matches) ) )
             }
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
 
         quote! {
-            Some((#sub_name, matches)) => {
+            Some((#sub_name, arg_matches)) => {
                 Some(#name :: #variant_name #constructor_block)
             }
         }
@@ -273,11 +273,11 @@ fn gen_from_subcommand(
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
             None => ::std::option::Option::None,
 
-            Some((external, matches)) => {
+            Some((external, arg_matches)) => {
                 ::std::option::Option::Some(#name::#var_name(
                     ::std::iter::once(#str_ty::from(external))
                     .chain(
-                        matches.#values_of("").into_iter().flatten().map(#str_ty::from)
+                        arg_matches.#values_of("").into_iter().flatten().map(#str_ty::from)
                     )
                     .collect::<::std::vec::Vec<_>>()
                 ))
@@ -361,7 +361,8 @@ fn gen_update_from_subcommand(
                     (
                         quote!((ref mut arg)),
                         quote!(::clap::FromArgMatches::update_from_arg_matches(
-                            arg, matches
+                            arg,
+                            arg_matches
                         )),
                     )
                 } else {
@@ -384,7 +385,7 @@ fn gen_update_from_subcommand(
                 (
                     quote!((ref mut arg)),
                     quote! {
-                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, Some((name, matches)));
+                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, Some((name, arg_matches)));
                     },
                 )
             }
@@ -403,11 +404,11 @@ fn gen_update_from_subcommand(
             &mut self,
             subcommand: Option<(&str, &::clap::ArgMatches)>
         ) {
-            if let Some((name, matches)) = subcommand {
+            if let Some((name, arg_matches)) = subcommand {
                 match (name, self) {
                     #( #subcommands ),*
                     #( #child_subcommands ),*
-                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(Some((name, matches))) {
+                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(Some((name, arg_matches))) {
                         *s = sub;
                     }
                 }
