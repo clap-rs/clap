@@ -457,9 +457,10 @@ features = [ "suggestions", "color" ]
 
 #### Opt-in features
 
-* **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
-* **"unstable"**: Enables unstable `clap` features that may change from release to release
 * **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
+* **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
+* **"regex"**: Enables regex validators. (builds dependency `regex`)
+* **"unstable"**: Enables unstable `clap` features that may change from release to release
 
 ### More Information
 
@@ -518,7 +519,7 @@ The following is a list of the minimum required version of Rust to compile `clap
 
 |  clap  |  MSRV  |
 | :----: | :----: |
-| >=3.0  | 1.42.0 |
+| >=3.0  | 1.46.0 |
 | >=2.21 | 1.24.0 |
 | >=2.2  | 1.12.0 |
 | >=2.1  | 1.6.0  |

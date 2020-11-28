@@ -892,7 +892,7 @@ fn wrapped_help() {
     static WRAPPED_HELP: &str = "test 
 
 USAGE:
-    rust_test.exe [FLAGS]
+    test [FLAGS]
 
 FLAGS:
     -a, --all
@@ -951,7 +951,7 @@ fn unwrapped_help() {
     static UNWRAPPED_HELP: &str = "test 
 
 USAGE:
-    rust_test.exe [FLAGS]
+    test [FLAGS]
 
 FLAGS:
     -a, --all              Also do versioning for private crates

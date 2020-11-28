@@ -1,80 +1,68 @@
 name: CI
 on:
   push:
-    branches: [staging, trying]
+    branches: [master, staging, trying]
   pull_request:
     branches: [master]
     types: [opened, reopened, synchronize]
 jobs:
   ci:
     name: CI
-    needs: [test, test-release, lint, coverage]
+    needs: [test, wasm, lint]
     runs-on: ubuntu-latest
     steps:
       - name: Done
         run: exit 0
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
   test:
     name: Tests
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            rust: 1.42.0
-            features: none
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            rust: 1.42.0
-            features: all
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            rust: 1.42.0
-            features: none
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            rust: 1.42.0
-            features: all
-          - os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-            rust: 1.42.0
-            features: none
-          - os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-            rust: 1.42.0
-            features: all
-          - os: windows-latest
-            target: i686-pc-windows-msvc
-            rust: 1.42.0
-            features: none
-          - os: windows-latest
-            target: i686-pc-windows-msvc
-            rust: 1.42.0
-            features: all
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            rust: 1.42.0
-            features: none
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            rust: 1.42.0
-            features: all
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
+        rust: [1.46.0, stable, beta]
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        target:
+          - i686-pc-windows-msvc
+          - x86_64-pc-windows-msvc
+          - x86_64-unknown-linux-gnu
+          - i686-unknown-linux-gnu
+          - x86_64-apple-darwin
+        features:
+          - none
+          - all
+          - release
+        exclude:
+          - features: release
             rust: stable
-            features: none
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            rust: stable
-            features: all
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
+          - features: release
             rust: beta
-            features: none
-          - os: ubuntu-latest
+          - os: windows-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
             target: x86_64-unknown-linux-gnu
-            rust: beta
-            features: all
+          - os: windows-latest
+            target: i686-unknown-linux-gnu
+          - os: macos-latest
+            target: i686-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: i686-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: i686-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install rust
@@ -100,25 +88,16 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "yaml unstable"
-  test-release:
-    name: Release Profile Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.42.0
-          override: true
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Test
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable"
+      - name: Test release
         uses: actions-rs/cargo@v1
+        if: matrix.features == 'release'
         with:
           command: test
-          args: --release --features "yaml unstable"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable" --release
   nightly:
     name: Nightly Tests
+    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -138,9 +117,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features "yaml unstable"
+          args: --features "wrap_help yaml regex unstable"
   wasm:
     name: Wasm Check
+    needs: [prepare]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -150,7 +130,7 @@ jobs:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.42.0
+          toolchain: 1.46.0
           target: ${{ matrix.target }}
           override: true
       - name: Checkout
@@ -159,9 +139,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "yaml unstable"
+          args: --target ${{ matrix.target }} --features "yaml regex unstable"
   lint:
     name: Linting (fmt + clippy)
+    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -182,7 +163,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --features "yaml unstable" -- -D warnings
+          args: --features "wrap_help yaml regex unstable" -- -D warnings
       - name: Format check
         uses: actions-rs/cargo@v1
         with:
@@ -190,6 +171,7 @@ jobs:
           args: -- --check
   coverage:
     name: Coverage
+    needs: [prepare]
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -211,7 +193,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: tarpaulin
-          args: --features "yaml unstable" --timeout 300 --out Lcov --output-dir coverage
+          args: --features "wrap_help yaml regex unstable" --timeout 300 --out Lcov --output-dir coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

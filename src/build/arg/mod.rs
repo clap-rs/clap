@@ -4410,6 +4410,7 @@ impl Arg<'_> {
                 assert!(
                     self.is_set(ArgSettings::MultipleValues),
                     "Argument '{}' uses hint CommandWithArguments and must accept multiple values",
+                    self.name
                 )
             }
         }

@@ -4,7 +4,16 @@ on:
     branches: [master]
     types: [opened, reopened, synchronize]
 jobs:
-  Benchmark:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fkirc/skip-duplicate-actions@master
+        with:
+          github_token: ${{ github.token }}
+  benchmark:
+    name: Benchmark
+    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust

@@ -80,7 +80,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
         template.push_str(value_completion(option).as_str());
 
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     for flag in Fish::flags(app) {
@@ -105,7 +105,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
         }
 
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     for subcommand in app.get_subcommands() {
@@ -119,7 +119,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
         }
 
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     // generate options of subcommands
