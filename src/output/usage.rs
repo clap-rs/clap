@@ -134,10 +134,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     usage.push_str(" [-- <");
                 }
                 usage.push_str(&*pos.name_no_brackets());
-                usage.push_str(">");
+                usage.push('>');
                 usage.push_str(pos.multiple_str());
                 if !req {
-                    usage.push_str("]");
+                    usage.push(']');
                 }
             }
         }
@@ -155,25 +155,25 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
 
                     usage.push_str(" <");
                     usage.push_str(placeholder);
-                    usage.push_str(">");
+                    usage.push('>');
                 } else {
                     usage.push_str("\n    ");
                     usage.push_str(&*name);
 
                     usage.push_str(" <");
                     usage.push_str(placeholder);
-                    usage.push_str(">");
+                    usage.push('>');
                 }
             } else if self.p.is_set(AS::SubcommandRequired)
                 || self.p.is_set(AS::SubcommandRequiredElseHelp)
             {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
-                usage.push_str(">");
+                usage.push('>');
             } else {
                 usage.push_str(" [");
                 usage.push_str(placeholder);
-                usage.push_str("]");
+                usage.push(']');
             }
         }
         usage.shrink_to_fit();
@@ -204,7 +204,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         if self.p.is_set(AS::SubcommandRequired) {
             usage.push_str(" <");
             usage.push_str(self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND"));
-            usage.push_str(">");
+            usage.push('>');
         }
         usage.shrink_to_fit();
         usage

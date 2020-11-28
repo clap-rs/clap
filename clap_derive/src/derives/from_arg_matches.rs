@@ -43,11 +43,11 @@ pub fn gen_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl ::clap::FromArgMatches for #struct_name {
-            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
+            fn from_arg_matches(arg_matches: &::clap::ArgMatches) -> Self {
                 #struct_name #constructor
             }
 
-            fn update_from_arg_matches(&mut self, matches: &::clap::ArgMatches) {
+            fn update_from_arg_matches(&mut self, arg_matches: &::clap::ArgMatches) {
                 #updater
             }
         }
@@ -69,11 +69,11 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
         )]
         #[deny(clippy::correctness)]
         impl ::clap::FromArgMatches for #name {
-            fn from_arg_matches(matches: &::clap::ArgMatches) -> Self {
-                <#name as ::clap::Subcommand>::from_subcommand(matches.subcommand()).unwrap()
+            fn from_arg_matches(arg_matches: &::clap::ArgMatches) -> Self {
+                <#name as ::clap::Subcommand>::from_subcommand(arg_matches.subcommand()).unwrap()
             }
-            fn update_from_arg_matches(&mut self, matches: &::clap::ArgMatches) {
-                <#name as ::clap::Subcommand>::update_from_subcommand(self, matches.subcommand());
+            fn update_from_arg_matches(&mut self, arg_matches: &::clap::ArgMatches) {
+                <#name as ::clap::Subcommand>::update_from_subcommand(self, arg_matches.subcommand());
             }
         }
     }
@@ -136,11 +136,11 @@ fn gen_parsers(
         Ty::Bool => {
             if update.is_some() {
                 quote_spanned! { ty.span()=>
-                    *#field_name || matches.is_present(#name)
+                    *#field_name || arg_matches.is_present(#name)
                 }
             } else {
                 quote_spanned! { ty.span()=>
-                    matches.is_present(#name)
+                    arg_matches.is_present(#name)
                 }
             }
         }
@@ -153,22 +153,22 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                matches.#value_of(#name)
+                arg_matches.#value_of(#name)
                     .map(#parse)
             }
         }
 
         Ty::OptionOption => quote_spanned! { ty.span()=>
-            if matches.is_present(#name) {
-                Some(matches.#value_of(#name).map(#parse))
+            if arg_matches.is_present(#name) {
+                Some(arg_matches.#value_of(#name).map(#parse))
             } else {
                 None
             }
         },
 
         Ty::OptionVec => quote_spanned! { ty.span()=>
-            if matches.is_present(#name) {
-                Some(matches.#values_of(#name)
+            if arg_matches.is_present(#name) {
+                Some(arg_matches.#values_of(#name)
                      .map(|v| v.map(#parse).collect())
                      .unwrap_or_else(Vec::new))
             } else {
@@ -184,18 +184,18 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                matches.#values_of(#name)
+                arg_matches.#values_of(#name)
                     .map(|v| v.map(#parse).collect())
                     .unwrap_or_else(Vec::new)
             }
         }
 
         Ty::Other if occurrences => quote_spanned! { ty.span()=>
-            #parse(matches.#value_of(#name))
+            #parse(arg_matches.#value_of(#name))
         },
 
         Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(matches.is_present(#name))
+            #parse(arg_matches.is_present(#name))
         },
 
         Ty::Other => {
@@ -204,7 +204,7 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                matches.#value_of(#name)
+                arg_matches.#value_of(#name)
                     .map(#parse)
                     .unwrap()
             }
@@ -213,7 +213,7 @@ fn gen_parsers(
 
     if let Some(access) = update {
         quote_spanned! { field.span()=>
-            if matches.is_present(#name) {
+            if arg_matches.is_present(#name) {
                 #access
                 *#field_name = #field_value
             }
@@ -249,14 +249,14 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
-                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(matches.subcommand())
+                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(arg_matches.subcommand())
                         #unwrapper
                     }
                 }
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: ::clap::FromArgMatches::from_arg_matches(matches)
+                #field_name: ::clap::FromArgMatches::from_arg_matches(arg_matches)
             },
 
             Kind::Skip(val) => match val {
@@ -329,7 +329,7 @@ pub fn gen_updater(
 
                 quote_spanned! { kind.span()=>
                     {
-                        let subcmd = matches.subcommand();
+                        let subcmd = arg_matches.subcommand();
                         #access
                         #updater
                     }
@@ -338,7 +338,7 @@ pub fn gen_updater(
 
             Kind::Flatten => quote_spanned! { kind.span()=> {
                     #access
-                    ::clap::FromArgMatches::update_from_arg_matches(#field_name, matches);
+                    ::clap::FromArgMatches::update_from_arg_matches(#field_name, arg_matches);
                 }
             },
 

@@ -9,7 +9,7 @@ Another really great way to help is if you find an interesting, or helpful way i
 To test with all features both enabled and disabled, you can run these commands:
 
 ```sh
-$ cargo test --features "yaml unstable"
+$ cargo test --features "wrap_help yaml regex unstable"
 ```
 
 Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
@@ -39,8 +39,7 @@ During the CI process `clap` runs against many different lints using [`clippy`](
 In order to check the code for lints and to format it run either:
 
 ```sh
-$ cargo clippy --lib --features "yaml unstable" -- -D warnings
-$ cargo clippy --tests --examples --features "yaml unstable"
+$ cargo clippy --features "wrap_help yaml regex unstable" -- -D warnings
 $ cargo fmt -- --check
 
 # Or
