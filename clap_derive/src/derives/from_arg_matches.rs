@@ -131,16 +131,20 @@ fn gen_parsers(
     let flag = *attrs.parser().kind == ParserKind::FromFlag;
     let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
     let name = attrs.cased_name();
+    // Use `quote!` to give this identifier the same hygiene
+    // as the `arg_matches` parameter definition. This
+    // allows us to refer to `arg_matches` within a `quote_spanned` block
+    let arg_matches = quote! { arg_matches };
 
     let field_value = match **ty {
         Ty::Bool => {
             if update.is_some() {
                 quote_spanned! { ty.span()=>
-                    *#field_name || arg_matches.is_present(#name)
+                    *#field_name || #arg_matches.is_present(#name)
                 }
             } else {
                 quote_spanned! { ty.span()=>
-                    arg_matches.is_present(#name)
+                    #arg_matches.is_present(#name)
                 }
             }
         }
@@ -153,22 +157,22 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                arg_matches.#value_of(#name)
+                #arg_matches.#value_of(#name)
                     .map(#parse)
             }
         }
 
         Ty::OptionOption => quote_spanned! { ty.span()=>
-            if arg_matches.is_present(#name) {
-                Some(arg_matches.#value_of(#name).map(#parse))
+            if #arg_matches.is_present(#name) {
+                Some(#arg_matches.#value_of(#name).map(#parse))
             } else {
                 None
             }
         },
 
         Ty::OptionVec => quote_spanned! { ty.span()=>
-            if arg_matches.is_present(#name) {
-                Some(arg_matches.#values_of(#name)
+            if #arg_matches.is_present(#name) {
+                Some(#arg_matches.#values_of(#name)
                      .map(|v| v.map(#parse).collect())
                      .unwrap_or_else(Vec::new))
             } else {
@@ -184,18 +188,18 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                arg_matches.#values_of(#name)
+                #arg_matches.#values_of(#name)
                     .map(|v| v.map(#parse).collect())
                     .unwrap_or_else(Vec::new)
             }
         }
 
         Ty::Other if occurrences => quote_spanned! { ty.span()=>
-            #parse(arg_matches.#value_of(#name))
+            #parse(#arg_matches.#value_of(#name))
         },
 
         Ty::Other if flag => quote_spanned! { ty.span()=>
-            #parse(arg_matches.is_present(#name))
+            #parse(#arg_matches.is_present(#name))
         },
 
         Ty::Other => {
@@ -204,7 +208,7 @@ fn gen_parsers(
             }
 
             quote_spanned! { ty.span()=>
-                arg_matches.#value_of(#name)
+                #arg_matches.#value_of(#name)
                     .map(#parse)
                     .unwrap()
             }
@@ -213,7 +217,7 @@ fn gen_parsers(
 
     if let Some(access) = update {
         quote_spanned! { field.span()=>
-            if arg_matches.is_present(#name) {
+            if #arg_matches.is_present(#name) {
                 #access
                 *#field_name = #field_value
             }
@@ -232,6 +236,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
         );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
+        let arg_matches = quote! { arg_matches };
         match &*kind {
             Kind::ExternalSubcommand => {
                 abort! { kind.span(),
@@ -249,14 +254,14 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
-                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(arg_matches.subcommand())
+                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
                         #unwrapper
                     }
                 }
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: ::clap::FromArgMatches::from_arg_matches(arg_matches)
+                #field_name: ::clap::FromArgMatches::from_arg_matches(#arg_matches)
             },
 
             Kind::Skip(val) => match val {
@@ -295,6 +300,7 @@ pub fn gen_updater(
         } else {
             quote!()
         };
+        let arg_matches = quote! { arg_matches };
 
         match &*kind {
             Kind::ExternalSubcommand => {
@@ -329,7 +335,7 @@ pub fn gen_updater(
 
                 quote_spanned! { kind.span()=>
                     {
-                        let subcmd = arg_matches.subcommand();
+                        let subcmd = #arg_matches.subcommand();
                         #access
                         #updater
                     }
@@ -338,7 +344,7 @@ pub fn gen_updater(
 
             Kind::Flatten => quote_spanned! { kind.span()=> {
                     #access
-                    ::clap::FromArgMatches::update_from_arg_matches(#field_name, arg_matches);
+                    ::clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches);
                 }
             },
 
