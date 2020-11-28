@@ -259,15 +259,7 @@ impl<'help> App<'help> {
                 .any(|ar| ar.id == arg.id)
             {
                 vec.push(&self.subcommands[idx]);
-                // TODO rustc >= 1.46: change  .get(dix).unwrap()  to [idx]
-                // improved readability
-                vec.append(
-                    &mut self
-                        .subcommands
-                        .get(idx)
-                        .unwrap()
-                        .get_subcommands_containing(arg),
-                );
+                vec.append(&mut self.subcommands[idx].get_subcommands_containing(arg));
             }
         }
         vec
