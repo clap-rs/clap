@@ -250,7 +250,7 @@ The next example shows a far less verbose method, but sacrifices some of the adv
 //
 // This example demonstrates clap's "usage strings" method of creating arguments
 // which is less verbose
-use clap::{Arg, App};
+use clap::App;
 
 fn main() {
     let matches = App::new("myapp")
