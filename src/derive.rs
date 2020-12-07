@@ -47,7 +47,7 @@ use std::ffi::OsString;
 ///         .about("More verbose output"))
 ///     .arg(Arg::new("name")
 ///         .long("name")
-///         .short("n")
+///         .short('n')
 ///         .about("An optional name")
 ///         .takes_value(true));
 ///
