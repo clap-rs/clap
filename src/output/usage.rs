@@ -214,7 +214,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     fn get_args_tag(&self, incl_reqs: bool) -> Option<String> {
         debug!("Usage::get_args_tag; incl_reqs = {:?}", incl_reqs);
         let mut count = 0;
-        'outer: for pos in self
+        for pos in self
             .p
             .app
             .get_positionals()
@@ -223,24 +223,22 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
-            for grp_s in self.p.app.groups_for_arg(&pos.id) {
+            let in_required_group = self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
-                if self
-                    .p
+                self.p
                     .app
                     .groups
                     .iter()
                     .any(|g| g.required && (g.id == grp_s))
-                {
-                    continue 'outer;
-                }
+            });
+            if !in_required_group {
+                count += 1;
+                debug!(
+                    "Usage::get_args_tag:iter: {} Args not required or hidden",
+                    count
+                );
             }
-            count += 1;
-            debug!(
-                "Usage::get_args_tag:iter: {} Args not required or hidden",
-                count
-            );
         }
 
         if !self.p.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
@@ -257,6 +255,15 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     !pos.is_set(ArgSettings::Required)
                         && !pos.is_set(ArgSettings::Hidden)
                         && !pos.is_set(ArgSettings::Last)
+                        && !self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
+                            debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
+                            // if it's part of a required group we don't want to count it
+                            self.p
+                                .app
+                                .groups
+                                .iter()
+                                .any(|g| g.required && (g.id == grp_s))
+                        })
                 })
                 .expect(INTERNAL_ERROR_MSG);
 
