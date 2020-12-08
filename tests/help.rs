@@ -2360,3 +2360,38 @@ fn option_usage_order() {
         false
     ));
 }
+
+#[test]
+fn issue_1794_usage() {
+    static USAGE_WITH_GROUP: &'static str = "hello 
+
+USAGE:
+    deno <pos1|--option1> [pos2]
+
+ARGS:
+    <pos1>    
+    <pos2>    
+
+FLAGS:
+    -h, --help       Prints help information
+        --option1    
+    -V, --version    Prints version information";
+
+    let app = clap::App::new("hello")
+        .bin_name("deno")
+        .arg(Arg::new("option1").long("option1").takes_value(false))
+        .arg(Arg::new("pos1").takes_value(true))
+        .group(
+            ArgGroup::new("arg1")
+                .args(&["pos1", "option1"])
+                .required(true),
+        )
+        .arg(Arg::new("pos2").takes_value(true));
+
+    assert!(utils::compare_output(
+        app,
+        "deno --help",
+        USAGE_WITH_GROUP,
+        false
+    ));
+}
