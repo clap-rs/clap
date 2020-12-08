@@ -16,6 +16,7 @@ fn main() {
     // argument.
     let matches = App::new("MyApp")
         .about("Parses an input file to do awesome things")
+        .license("MIT OR Apache-2.0")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .arg(

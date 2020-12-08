@@ -6,6 +6,7 @@ fn main() {
             App::new("ls")
                 .aliases(&["list", "dir"])
                 .about("Adds files to myapp")
+                .license("MIT OR Apache-2.0")
                 .version("0.1")
                 .author("Kevin K.")
                 .arg(

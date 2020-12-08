@@ -23,6 +23,7 @@ fn main() {
         (@setting SubcommandRequiredElseHelp)
         (version: "1.0")
         (author: "Alice")
+        (license: "MIT OR Apache-2.0")
         (about: "Does awesome things")
         (@arg config: -c --config <conf> #{1, 2} {file_exists} "Sets a custom config file")
         (@arg proxyHostname: --("proxy-hostname") +takes_value "Sets the hostname of the proxy to use")

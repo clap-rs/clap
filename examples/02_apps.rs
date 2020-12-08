@@ -20,6 +20,7 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
+        .license("MIT OR Apache-2.0")
         .get_matches();
 
     // This example doesn't do much, but it *does* give automatic -h, --help, -V, and --version functionality ;)

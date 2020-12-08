@@ -32,6 +32,7 @@ fn main() {
         (version: "1.0")
         (author: "Kevin K. <kbknapp@gmail.com>")
         (about: "Does awesome things")
+        (license: "MIT OR Apache-2.0")
         (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
         (@arg INPUT: +required "Sets the input file to use")
         (@arg debug: -d ... "Sets the level of debugging information")
