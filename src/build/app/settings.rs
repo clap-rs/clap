@@ -112,8 +112,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::HELP_REQUIRED,
     Hidden("hidden")
         => Flags::HIDDEN,
-    LowIndexMultiplePositional("lowindexmultiplepositional")
-        => Flags::LOW_INDEX_MUL_POS,
     NoAutoHelp("noautohelp")
         => Flags::NO_AUTO_HELP,
     NoAutoVersion("noautoversion")
@@ -1043,9 +1041,6 @@ pub enum AppSettings {
     NoAutoVersion,
 
     #[doc(hidden)]
-    LowIndexMultiplePositional,
-
-    #[doc(hidden)]
     TrailingValues,
 
     #[doc(hidden)]
@@ -1150,10 +1145,6 @@ mod test {
         assert_eq!(
             "helprequired".parse::<AppSettings>().unwrap(),
             AppSettings::HelpRequired
-        );
-        assert_eq!(
-            "lowindexmultiplePositional".parse::<AppSettings>().unwrap(),
-            AppSettings::LowIndexMultiplePositional
         );
         assert_eq!(
             "nobinaryname".parse::<AppSettings>().unwrap(),
