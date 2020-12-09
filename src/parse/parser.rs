@@ -303,23 +303,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         #[cfg(debug_assertions)]
         self._verify_positionals();
 
-        // Set the LowIndexMultiple flag if required
-        if self.app.get_positionals().any(|a| {
-            a.is_set(ArgSettings::MultipleValues)
-                && (a.index.unwrap_or(0) as usize
-                    != self
-                        .app
-                        .args
-                        .keys
-                        .iter()
-                        .filter(|x| x.key.is_position())
-                        .count())
-        }) && self.app.get_positionals().last().map_or(false, |p_name| {
-            !self.app[&p_name.id].is_set(ArgSettings::Last)
-        }) {
-            self.app.settings.set(AS::LowIndexMultiplePositional);
-        }
-
         for group in &self.app.groups {
             if group.required {
                 let idx = self.required.insert(group.id.clone());
@@ -349,6 +332,13 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut external_subcommand = false;
         let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
+        let positional_count = self
+            .app
+            .args
+            .keys
+            .iter()
+            .filter(|x| x.key.is_position())
+            .count();
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -481,16 +471,21 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
             }
 
-            let positional_count = self
-                .app
-                .args
-                .keys
-                .iter()
-                .filter(|x| x.key.is_position())
-                .count();
-            let is_second_to_last = positional_count > 1 && (pos_counter == (positional_count - 1));
+            let is_second_to_last = pos_counter + 1 == positional_count;
 
-            let low_index_mults = self.is_set(AS::LowIndexMultiplePositional) && is_second_to_last;
+            // The last positional argument, or second to last positional
+            // argument may be set to .multiple(true)
+            let low_index_mults = is_second_to_last
+                && self.app.get_positionals().any(|a| {
+                    a.is_set(ArgSettings::MultipleValues)
+                        && (positional_count != a.index.unwrap_or(0) as usize)
+                })
+                && self
+                    .app
+                    .get_positionals()
+                    .last()
+                    .map_or(false, |p_name| !p_name.is_set(ArgSettings::Last));
+
             let missing_pos = self.is_set(AS::AllowMissingPositional)
                 && is_second_to_last
                 && !self.is_set(AS::TrailingValues);
