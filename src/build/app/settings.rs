@@ -33,7 +33,6 @@ bitflags! {
         const COLOR_NEVER                    = 1 << 24;
         const DONT_DELIM_TRAIL               = 1 << 25;
         const ALLOW_NEG_NUMS                 = 1 << 26;
-        const LOW_INDEX_MUL_POS              = 1 << 27;
         const DISABLE_HELP_SC                = 1 << 28;
         const DONT_COLLAPSE_ARGS             = 1 << 29;
         const ARGS_NEGATE_SCS                = 1 << 30;
