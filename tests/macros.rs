@@ -309,6 +309,86 @@ fn group_macro_set_not_required() {
 }
 
 #[test]
+fn group_macro_multiple_methods() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty (+multiple +required) =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    assert!(result.is_ok());
+    let matches = result.expect("Expected to successfully match the given args.");
+    assert!(matches.is_present("difficulty"));
+    assert!(matches.is_present("hard"));
+    assert!(matches.is_present("easy"));
+    assert!(!matches.is_present("normal"));
+
+    let result = app.try_get_matches_from(vec!["bin_name"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn group_macro_multiple_methods_alternative() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+             (@group difficulty (* ...) =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    assert!(result.is_ok());
+    let matches = result.expect("Expected to successfully match the given args.");
+    assert!(matches.is_present("difficulty"));
+    assert!(matches.is_present("hard"));
+    assert!(matches.is_present("easy"));
+    assert!(!matches.is_present("normal"));
+
+    let result = app.try_get_matches_from(vec!["bin_name"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn group_macro_multiple_invokations() {
+    let app = clap_app!(claptests =>
+        (version: "0.1")
+        (about: "tests clap library")
+        (author: "Kevin K. <kbknapp@gmail.com>")
+        (@arg foo: --foo)
+        (@arg bar: --bar)
+             (@group difficulty (conflicts_with[foo bar]) =>
+                 (@arg hard: -h --hard "Sets hard mode")
+                 (@arg normal: -n --normal "Sets normal mode")
+                 (@arg easy: -e --easy "Sets easy mode")
+             )
+    );
+
+    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--foo"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--bar"]);
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn literals() {
     let app = clap_app!("clap-tests" =>
         (version: "0.1")

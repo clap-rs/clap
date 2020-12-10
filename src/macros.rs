@@ -226,7 +226,7 @@ macro_rules! app_from_crate {
 ///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
 ///     (@arg INPUT: +required "Sets the input file to use")
 ///     (@arg debug: -d ... "Sets the level of debugging information")
-///     (@group difficulty =>
+///     (@group difficulty (+required !multiple) =>
 ///         (@arg hard: -h --hard "Sets hard mode")
 ///         (@arg normal: -n --normal "Sets normal mode")
 ///         (@arg easy: -e --easy "Sets easy mode")
@@ -270,9 +270,11 @@ macro_rules! app_from_crate {
 ///
 /// # Shorthand Syntax for Groups
 ///
-/// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
-///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
-///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
+/// * To set methods on a group, wrap them inside a pair of parentheses,
+/// such as `(@group group1 (+required conflicts_with("group2")) => ...)`
+/// will set `ArgGroup::required(true)` and `ArgGroup::conflicts_with("group2")`
+/// * All shorthand syntaxes for `Arg` are available for `ArgGroup`, although some may not make
+/// sense with an `ArgGroup` such as `#{min, max}` and `{fn}`
 ///
 /// # Alternative form for non-ident values
 ///
@@ -350,6 +352,13 @@ macro_rules! clap_app {
     (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(true)) $($tail)* })
+            $($tt)*
+        }
+    };
+    // Handle multiple attributes in enclosing parentheses
+    (@app ($builder:expr) (@group $name:ident ($($attrs:tt)*) => $($tail:tt)*) $($tt:tt)*) => {
+        $crate::clap_app!{ @app
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) (@attributes $($attrs)*) $($tail)* })
             $($tt)*
         }
     };
