@@ -807,6 +807,54 @@ fn issue_1158_app() -> App<'static> {
 }
 
 #[test]
+fn multiple_required_unless_usage_printing() {
+    static MULTIPLE_REQUIRED_UNLESS_USAGE: &'static str =
+        "error: The following required arguments were not provided:
+    --a <a>
+    --b <b>
+
+USAGE:
+    test --c <c> --a <a> --b <b>
+
+For more information try --help";
+    let app = App::new("test")
+        .arg(
+            Arg::new("a")
+                .long("a")
+                .takes_value(true)
+                .required_unless_present("b")
+                .conflicts_with("b"),
+        )
+        .arg(
+            Arg::new("b")
+                .long("b")
+                .takes_value(true)
+                .required_unless_present("a")
+                .conflicts_with("a"),
+        )
+        .arg(
+            Arg::new("c")
+                .long("c")
+                .takes_value(true)
+                .required_unless_present("d")
+                .conflicts_with("d"),
+        )
+        .arg(
+            Arg::new("d")
+                .long("d")
+                .takes_value(true)
+                .required_unless_present("c")
+                .conflicts_with("c"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "test --c asd",
+        MULTIPLE_REQUIRED_UNLESS_USAGE,
+        true
+    ));
+}
+
+#[test]
 fn issue_1158_conflicting_requirements() {
     let app = issue_1158_app();
 

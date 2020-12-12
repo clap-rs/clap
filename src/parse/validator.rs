@@ -415,7 +415,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .find(|g| g.id == *name)
                     .expect(INTERNAL_ERROR_MSG);
                 if grp.requires.iter().any(|n| !matcher.contains(n)) {
-                    return self.missing_required_error(matcher, Some(name));
+                    return self.missing_required_error(matcher, vec![name.clone()]);
                 }
             }
         }
@@ -519,10 +519,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             if let Some(val) = val {
                 let missing_req = |v| v == val && !matcher.contains(&name);
                 if ma.vals.iter().any(missing_req) {
-                    return self.missing_required_error(matcher, Some(&a.id));
+                    return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
             } else if !matcher.contains(&name) {
-                return self.missing_required_error(matcher, Some(&name));
+                return self.missing_required_error(matcher, vec![name.clone()]);
             }
         }
         Ok(())
@@ -540,7 +540,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             if let Some(arg) = self.p.app.find(&arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !self.is_missing_required_ok(arg, matcher) {
-                    return self.missing_required_error(matcher, None);
+                    return self.missing_required_error(matcher, vec![]);
                 }
             } else if let Some(group) = self.p.app.groups.iter().find(|g| g.id == *arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
@@ -551,7 +551,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .iter()
                     .any(|a| matcher.contains(a))
                 {
-                    return self.missing_required_error(matcher, None);
+                    return self.missing_required_error(matcher, vec![]);
                 }
             }
         }
@@ -561,7 +561,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
                     if ma.contains_val(val) && !matcher.contains(&a.id) {
-                        return self.missing_required_error(matcher, Some(&a.id));
+                        return self.missing_required_error(matcher, vec![a.id.clone()]);
                     }
                 }
             }
@@ -590,7 +590,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_required_unless");
-        for a in self
+        let failed_args: Vec<_> = self
             .p
             .app
             .args
@@ -598,14 +598,14 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .iter()
             .filter(|a| !a.r_unless.is_empty())
             .filter(|a| !matcher.contains(&a.id))
-        {
-            debug!("Validator::validate_required_unless:iter:{}", a.name);
-            if self.fails_arg_required_unless(a, matcher) {
-                return self.missing_required_error(matcher, Some(&a.id));
-            }
+            .filter(|a| self.fails_arg_required_unless(a, matcher))
+            .map(|a| a.id.clone())
+            .collect();
+        if failed_args.is_empty() {
+            Ok(())
+        } else {
+            self.missing_required_error(matcher, failed_args)
         }
-
-        Ok(())
     }
 
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
@@ -621,7 +621,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     }
 
     // `incl`: an arg to include in the error even if not used
-    fn missing_required_error(&self, matcher: &ArgMatcher, incl: Option<&Id>) -> ClapResult<()> {
+    fn missing_required_error(&self, matcher: &ArgMatcher, incl: Vec<Id>) -> ClapResult<()> {
         debug!("Validator::missing_required_error; incl={:?}", incl);
         debug!(
             "Validator::missing_required_error: reqs={:?}",
@@ -630,11 +630,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         let usg = Usage::new(self.p);
 
-        let req_args = if let Some(x) = incl {
-            usg.get_required_usage_from(&[x.clone()], Some(matcher), true)
-        } else {
-            usg.get_required_usage_from(&[], Some(matcher), true)
-        };
+        let req_args = usg.get_required_usage_from(&incl, Some(matcher), true);
 
         debug!(
             "Validator::missing_required_error: req_args={:#?}",
@@ -649,7 +645,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 })
             })
             .cloned()
-            .chain(incl.cloned())
+            .chain(incl)
             .collect();
 
         Err(Error::missing_required_argument(
