@@ -31,17 +31,6 @@ use crate::{
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
-// @TODO FIXME (@CreepySkeleton): some of these variants (None) are never constructed
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) enum Propagation {
-    To(Id),
-    Full,
-    #[cfg_attr(not(test), allow(unused))]
-    NextLevel,
-    #[allow(unused)]
-    None,
-}
-
 /// Represents a command line interface which is made up of all possible
 /// command line arguments and subcommands. Interface arguments and settings are
 /// configured using the "builder pattern." Once all configuration is complete,
@@ -1958,9 +1947,7 @@ impl<'help> App<'help> {
     pub fn generate_usage(&mut self) -> String {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
-        if !self.settings.is_set(AppSettings::Built) {
-            self._build();
-        }
+        self._build();
 
         let mut parser = Parser::new(self);
         parser._build();
@@ -2267,9 +2254,7 @@ impl<'help> App<'help> {
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing in case we run into a subcommand
-        if !self.settings.is_set(AppSettings::Built) {
-            self._build();
-        }
+        self._build();
 
         // do the real parsing
         let mut parser = Parser::new(self);
@@ -2292,47 +2277,50 @@ impl<'help> App<'help> {
     #[doc(hidden)]
     pub fn _build(&mut self) {
         debug!("App::_build");
+        if !self.settings.is_set(AppSettings::Built) {
+            // Make sure all the globally set flags apply to us as well
+            self.settings = self.settings | self.g_settings;
 
-        // Make sure all the globally set flags apply to us as well
-        self.settings = self.settings | self.g_settings;
+            self._propagate();
 
-        self._propagate(Propagation::Full);
+            self._derive_display_order();
+            self._create_help_and_version();
 
-        self._derive_display_order();
-        self._create_help_and_version();
+            let mut pos_counter = 1;
+            for a in self.args.args.iter_mut() {
+                // Fill in the groups
+                for g in &a.groups {
+                    if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
+                        ag.args.push(a.id.clone());
+                    } else {
+                        let mut ag = ArgGroup::with_id(g.clone());
+                        ag.args.push(a.id.clone());
+                        self.groups.push(ag);
+                    }
+                }
 
-        let mut pos_counter = 1;
-        for a in self.args.args.iter_mut() {
-            // Fill in the groups
-            for g in &a.groups {
-                if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
-                    ag.args.push(a.id.clone());
-                } else {
-                    let mut ag = ArgGroup::with_id(g.clone());
-                    ag.args.push(a.id.clone());
-                    self.groups.push(ag);
+                // Figure out implied settings
+                if a.is_set(ArgSettings::Last) {
+                    // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
+                    // in the usage string don't get confused or left out.
+                    self.settings.set(AppSettings::DontCollapseArgsInUsage);
+                    self.settings.set(AppSettings::ContainsLast);
+                }
+                a._build();
+                if a.short.is_none() && a.long.is_none() && a.index.is_none() {
+                    a.index = Some(pos_counter);
+                    pos_counter += 1;
                 }
             }
 
-            // Figure out implied settings
-            if a.is_set(ArgSettings::Last) {
-                // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
-                // in the usage string don't get confused or left out.
-                self.settings.set(AppSettings::DontCollapseArgsInUsage);
-                self.settings.set(AppSettings::ContainsLast);
-            }
-            a._build();
-            if a.short.is_none() && a.long.is_none() && a.index.is_none() {
-                a.index = Some(pos_counter);
-                pos_counter += 1;
-            }
+            self.args._build();
+
+            #[cfg(debug_assertions)]
+            self::debug_asserts::assert_app(self);
+            self.settings.set(AppSettings::Built);
+        } else {
+            debug!("App::_build: already built");
         }
-
-        self.args._build();
-        self.settings.set(AppSettings::Built);
-
-        #[cfg(debug_assertions)]
-        self::debug_asserts::assert_app(self);
     }
 
     fn _panic_on_missing_help(&self, help_required_globally: bool) {
@@ -2376,7 +2364,8 @@ impl<'help> App<'help> {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }
 
-    pub(crate) fn _propagate(&mut self, prop: Propagation) {
+    /// Propagate one and only one level.
+    pub(crate) fn _propagate(&mut self) {
         macro_rules! propagate_subcmd {
             ($_self:expr, $sc:expr) => {{
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
@@ -2418,24 +2407,8 @@ impl<'help> App<'help> {
 
         debug!("App::_propagate:{}", self.name);
 
-        match prop {
-            Propagation::NextLevel | Propagation::Full => {
-                for sc in &mut self.subcommands {
-                    propagate_subcmd!(self, sc);
-                    if prop == Propagation::Full {
-                        sc._propagate(prop.clone());
-                    }
-                }
-            }
-            Propagation::To(id) => {
-                let mut sc = self
-                    .subcommands
-                    .iter_mut()
-                    .find(|sc| sc.id == id)
-                    .expect(INTERNAL_ERROR_MSG);
-                propagate_subcmd!(self, sc);
-            }
-            Propagation::None => (),
+        for sc in &mut self.subcommands {
+            propagate_subcmd!(self, sc);
         }
     }
 

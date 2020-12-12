@@ -6,7 +6,6 @@ use std::{
 
 // Internal
 use crate::{
-    build::app::Propagation,
     build::AppSettings as AS,
     build::{App, Arg, ArgSettings},
     mkeymap::KeyType,
@@ -865,9 +864,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     help_help = true;
                     break; // Maybe?
                 }
-                if let Some(id) = sc.find_subcommand(cmd).map(|x| x.id.clone()) {
-                    sc._propagate(Propagation::To(id));
-                }
 
                 if let Some(mut c) = sc.find_subcommand(cmd).cloned() {
                     c._build();
@@ -973,11 +969,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             for s in &reqs {
                 write!(&mut mid_string, "{} ", s).expect(INTERNAL_ERROR_MSG);
             }
-        }
-
-        if let Some(x) = self.app.find_subcommand(sc_name) {
-            let id = x.id.clone();
-            self.app._propagate(Propagation::To(id));
         }
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {

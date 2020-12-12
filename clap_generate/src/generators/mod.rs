@@ -117,7 +117,7 @@ pub trait Generator {
 
     /// Gets all the short options, their visible aliases and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `h` and `V` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
-    fn shorts_and_visible_aliases<'help>(p: &App<'help>) -> Vec<char> {
+    fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
         debug!("shorts: name={}", p.get_name());
 
         let mut shorts_and_visible_aliases: Vec<char> = p
@@ -155,7 +155,7 @@ pub trait Generator {
 
     /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
-    fn longs<'help>(p: &App<'help>) -> Vec<String> {
+    fn longs(p: &App) -> Vec<String> {
         debug!("longs: name={}", p.get_name());
 
         let mut longs: Vec<String> = p
