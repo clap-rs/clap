@@ -2512,30 +2512,35 @@ impl<'help> App<'help> {
     pub fn _build_bin_names(&mut self) {
         debug!("App::_build_bin_names");
 
-        for mut sc in &mut self.subcommands {
-            debug!("App::_build_bin_names:iter: bin_name set...");
+        if !self.is_set(AppSettings::BinNameBuilt) {
+            for mut sc in &mut self.subcommands {
+                debug!("App::_build_bin_names:iter: bin_name set...");
 
-            if sc.bin_name.is_none() {
-                debug!("No");
-                let bin_name = format!(
-                    "{}{}{}",
-                    self.bin_name.as_ref().unwrap_or(&self.name.clone()),
-                    if self.bin_name.is_some() { " " } else { "" },
-                    &*sc.name
-                );
+                if sc.bin_name.is_none() {
+                    debug!("No");
+                    let bin_name = format!(
+                        "{}{}{}",
+                        self.bin_name.as_ref().unwrap_or(&self.name.clone()),
+                        if self.bin_name.is_some() { " " } else { "" },
+                        &*sc.name
+                    );
+                    debug!(
+                        "App::_build_bin_names:iter: Setting bin_name of {} to {}",
+                        self.name, bin_name
+                    );
+                    sc.bin_name = Some(bin_name);
+                } else {
+                    debug!("yes ({:?})", sc.bin_name);
+                }
                 debug!(
-                    "App::_build_bin_names:iter: Setting bin_name of {} to {}",
-                    self.name, bin_name
+                    "App::_build_bin_names:iter: Calling build_bin_names from...{}",
+                    sc.name
                 );
-                sc.bin_name = Some(bin_name);
-            } else {
-                debug!("yes ({:?})", sc.bin_name);
+                sc._build_bin_names();
             }
-            debug!(
-                "App::_build_bin_names:iter: Calling build_bin_names from...{}",
-                sc.name
-            );
-            sc._build_bin_names();
+            self.set(AppSettings::BinNameBuilt);
+        } else {
+            debug!("App::_build_bin_names: already built");
         }
     }
 

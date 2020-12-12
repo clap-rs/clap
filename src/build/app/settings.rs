@@ -39,7 +39,8 @@ bitflags! {
         const PROPAGATE_VALS_DOWN            = 1 << 31;
         const ALLOW_MISSING_POS              = 1 << 32;
         const TRAILING_VALUES                = 1 << 33;
-        const BUILT                          = 1 << 35;
+        const BUILT                          = 1 << 34;
+        const BIN_NAME_BUILT                 = 1 << 35;
         const VALID_ARG_FOUND                = 1 << 36;
         const INFER_SUBCOMMANDS              = 1 << 37;
         const CONTAINS_LAST                  = 1 << 38;
@@ -139,6 +140,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::TRAILING_VALUES,
     Built("built")
         => Flags::BUILT,
+    BinNameBuilt("binnamebuilt")
+        => Flags::BIN_NAME_BUILT,
     ValidArgFound("validargfound")
         => Flags::VALID_ARG_FOUND,
     InferSubcommands("infersubcommands")
@@ -1046,6 +1049,9 @@ pub enum AppSettings {
     Built,
 
     #[doc(hidden)]
+    BinNameBuilt,
+
+    #[doc(hidden)]
     ValidArgFound,
 
     #[doc(hidden)]
@@ -1192,6 +1198,10 @@ mod test {
             AppSettings::ValidArgFound
         );
         assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
+        assert_eq!(
+            "binnamebuilt".parse::<AppSettings>().unwrap(),
+            AppSettings::BinNameBuilt
+        );
         assert_eq!(
             "trailingvalues".parse::<AppSettings>().unwrap(),
             AppSettings::TrailingValues
