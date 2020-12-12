@@ -181,10 +181,8 @@ where
 {
     app.set_bin_name(bin_name);
 
-    if !app.is_set(clap::AppSettings::Built) {
-        app._build();
-        app._build_bin_names();
-    }
+    app._build();
+    app._build_bin_names();
 
     G::generate(app, buf)
 }
