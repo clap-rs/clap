@@ -322,7 +322,9 @@ fn group_macro_attributes_alternative() {
              )
     );
 
-    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    let result = app
+                .clone()
+                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -349,7 +351,9 @@ fn group_macro_multiple_methods() {
              )
     );
 
-    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    let result = app
+                .clone()
+                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -373,11 +377,12 @@ fn group_macro_multiple_methods_alternative() {
                  (@arg hard: -h --hard "Sets hard mode")
                  (@arg normal: -n --normal "Sets normal mode")
                  (@arg easy: -e --easy "Sets easy mode")
-             
              )
     );
 
-    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+    let result = app
+                .clone()
+                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -406,7 +411,9 @@ fn group_macro_multiple_invokations() {
              )
     );
 
-    let result = app.clone().try_get_matches_from(vec!["bin_name", "--hard", "--foo"]);
+    let result = app
+                .clone()
+                .try_get_matches_from(vec!["bin_name", "--hard", "--foo"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
@@ -423,7 +430,7 @@ fn literals() {
         (version: "0.1")
         (@arg "task-num": -"t-n" --"task-num" +takes_value possible_value["all" 0 1 2]
             "Task number")
-        (@group priority: 
+        (@group priority:
             (@arg "4": -4 --4 "Sets priority to 4")
             (@arg ("5"): -('5') --5 "Sets priority to 5")
             (@arg 6: -6 --6 "Sets priority to 6")
