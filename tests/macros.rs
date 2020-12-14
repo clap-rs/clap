@@ -323,8 +323,8 @@ fn group_macro_attributes_alternative() {
     );
 
     let result = app
-                .clone()
-                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+        .clone()
+        .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -352,8 +352,8 @@ fn group_macro_multiple_methods() {
     );
 
     let result = app
-                .clone()
-                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+        .clone()
+        .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -381,8 +381,8 @@ fn group_macro_multiple_methods_alternative() {
     );
 
     let result = app
-                .clone()
-                .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
+        .clone()
+        .try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_ok());
     let matches = result.expect("Expected to successfully match the given args.");
     assert!(matches.is_present("difficulty"));
@@ -412,8 +412,8 @@ fn group_macro_multiple_invokations() {
     );
 
     let result = app
-                .clone()
-                .try_get_matches_from(vec!["bin_name", "--hard", "--foo"]);
+        .clone()
+        .try_get_matches_from(vec!["bin_name", "--hard", "--foo"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
