@@ -52,7 +52,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::Subcommand for #name {
+        impl clap::Subcommand for #name {
             #augment_subcommands
             #from_subcommand
             #augment_subcommands_for_update
@@ -84,7 +84,7 @@ fn gen_augment(
             match &*kind {
                 Kind::ExternalSubcommand => {
                     quote_spanned! { kind.span()=>
-                        let app = app.setting(::clap::AppSettings::AllowExternalSubcommands);
+                        let app = app.setting(clap::AppSettings::AllowExternalSubcommands);
                     }
                 }
 
@@ -92,7 +92,7 @@ fn gen_augment(
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
                         quote! {
-                            let app = <#ty as ::clap::Subcommand>::augment_subcommands(app);
+                            let app = <#ty as clap::Subcommand>::augment_subcommands(app);
                         }
                     }
                     _ => abort!(
@@ -115,7 +115,7 @@ fn gen_augment(
                             let ty = &unnamed[0];
                             quote_spanned! { ty.span()=>
                                 {
-                                    <#ty as ::clap::IntoApp>::augment_clap(#app_var)
+                                    <#ty as clap::IntoApp>::augment_clap(#app_var)
                                 }
                             }
                         }
@@ -129,7 +129,7 @@ fn gen_augment(
                     let version = attrs.version();
                     quote! {
                         let app = app.subcommand({
-                            let #app_var = ::clap::App::new(#name);
+                            let #app_var = clap::App::new(#name);
                             let #app_var = #arg_block;
                             #app_var#from_attrs#version
                         });
@@ -143,7 +143,7 @@ fn gen_augment(
     let version = parent_attribute.version();
     let fn_name = Ident::new(fn_name, Span::call_site());
     quote! {
-        fn #fn_name <'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn #fn_name <'b>(app: clap::App<'b>) -> clap::App<'b> {
             let app = app #app_methods;
             #( #subcommands )*;
             app #version
@@ -240,7 +240,7 @@ fn gen_from_subcommand(
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
-                quote!( ( <#ty as ::clap::FromArgMatches>::from_arg_matches(arg_matches) ) )
+                quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches(arg_matches) ) )
             }
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
@@ -257,7 +257,7 @@ fn gen_from_subcommand(
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
                 quote! {
-                    if let Some(res) = <#ty as ::clap::Subcommand>::from_subcommand(other) {
+                    if let Some(res) = <#ty as clap::Subcommand>::from_subcommand(other) {
                         return Some(#name :: #variant_name (res));
                     }
                 }
@@ -288,7 +288,7 @@ fn gen_from_subcommand(
     };
 
     quote! {
-        fn from_subcommand(subcommand: Option<(&str, &::clap::ArgMatches)>) -> Option<Self> {
+        fn from_subcommand(subcommand: Option<(&str, &clap::ArgMatches)>) -> Option<Self> {
             match subcommand {
                 #( #match_arms, )*
                 other => {
@@ -360,7 +360,7 @@ fn gen_update_from_subcommand(
                 if fields.unnamed.len() == 1 {
                     (
                         quote!((ref mut arg)),
-                        quote!(::clap::FromArgMatches::update_from_arg_matches(
+                        quote!(clap::FromArgMatches::update_from_arg_matches(
                             arg,
                             arg_matches
                         )),
@@ -385,7 +385,7 @@ fn gen_update_from_subcommand(
                 (
                     quote!((ref mut arg)),
                     quote! {
-                        <#ty as ::clap::Subcommand>::update_from_subcommand(arg, Some((name, arg_matches)));
+                        <#ty as clap::Subcommand>::update_from_subcommand(arg, Some((name, arg_matches)));
                     },
                 )
             }
@@ -402,13 +402,13 @@ fn gen_update_from_subcommand(
     quote! {
         fn update_from_subcommand<'b>(
             &mut self,
-            subcommand: Option<(&str, &::clap::ArgMatches)>
+            subcommand: Option<(&str, &clap::ArgMatches)>
         ) {
             if let Some((name, arg_matches)) = subcommand {
                 match (name, self) {
                     #( #subcommands ),*
                     #( #child_subcommands ),*
-                    (_, s) => if let Some(sub) = <Self as ::clap::Subcommand>::from_subcommand(Some((name, arg_matches))) {
+                    (_, s) => if let Some(sub) = <Self as clap::Subcommand>::from_subcommand(Some((name, arg_matches))) {
                         *s = sub;
                     }
                 }

@@ -63,7 +63,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::ArgEnum for #name {
+        impl clap::ArgEnum for #name {
             #variants
             #from_str
         }

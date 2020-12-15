@@ -60,7 +60,7 @@ fn gen_for_struct(
     let from_arg_matches = from_arg_matches::gen_for_struct(name, fields, &attrs);
 
     quote! {
-        impl ::clap::Clap for #name {}
+        impl clap::Clap for #name {}
 
         #into_app
         #from_arg_matches
@@ -74,7 +74,7 @@ fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream 
     let arg_enum = arg_enum::gen_for_enum(name, attrs, e);
 
     quote! {
-        impl ::clap::Clap for #name {}
+        impl clap::Clap for #name {}
 
         #into_app
         #from_arg_matches

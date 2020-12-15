@@ -68,7 +68,7 @@ pub fn gen_for_struct(
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::IntoApp for #struct_name {
+        impl clap::IntoApp for #struct_name {
             #into_app
             #augment_clap
         }
@@ -93,24 +93,24 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::IntoApp for #name {
-            fn into_app<'b>() -> ::clap::App<'b> {
-                let app = ::clap::App::new(#app_name)
-                    .setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-                <#name as ::clap::IntoApp>::augment_clap(app)
+        impl clap::IntoApp for #name {
+            fn into_app<'b>() -> clap::App<'b> {
+                let app = clap::App::new(#app_name)
+                    .setting(clap::AppSettings::SubcommandRequiredElseHelp);
+                <#name as clap::IntoApp>::augment_clap(app)
             }
 
-            fn augment_clap<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
-                <#name as ::clap::Subcommand>::augment_subcommands(app)
+            fn augment_clap<'b>(app: clap::App<'b>) -> clap::App<'b> {
+                <#name as clap::Subcommand>::augment_subcommands(app)
             }
 
-            fn into_app_for_update<'b>() -> ::clap::App<'b> {
-                let app = ::clap::App::new(#app_name);
-                <#name as ::clap::IntoApp>::augment_clap_for_update(app)
+            fn into_app_for_update<'b>() -> clap::App<'b> {
+                let app = clap::App::new(#app_name);
+                <#name as clap::IntoApp>::augment_clap_for_update(app)
             }
 
-            fn augment_clap_for_update<'b>(app: ::clap::App<'b>) -> ::clap::App<'b> {
-                <#name as ::clap::Subcommand>::augment_subcommands_for_update(app)
+            fn augment_clap_for_update<'b>(app: clap::App<'b>) -> clap::App<'b> {
+                <#name as clap::Subcommand>::augment_subcommands_for_update(app)
             }
         }
     }
@@ -129,11 +129,11 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
     let name = attrs.cased_name();
 
     let tokens = quote! {
-        fn into_app<'b>() -> ::clap::App<'b> {
-            Self::augment_clap(::clap::App::new(#name))
+        fn into_app<'b>() -> clap::App<'b> {
+            Self::augment_clap(clap::App::new(#name))
         }
-        fn into_app_for_update<'b>() -> ::clap::App<'b> {
-            Self::augment_clap_for_update(::clap::App::new(#name))
+        fn into_app_for_update<'b>() -> clap::App<'b> {
+            Self::augment_clap_for_update(clap::App::new(#name))
         }
     };
 
@@ -145,10 +145,10 @@ fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute, false);
     let augmentation_update = gen_app_augmentation(fields, &app_var, parent_attribute, true);
     quote! {
-        fn augment_clap<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn augment_clap<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
             #augmentation
         }
-        fn augment_clap_for_update<'b>(#app_var: ::clap::App<'b>) -> ::clap::App<'b> {
+        fn augment_clap_for_update<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
             #augmentation_update
         }
     }
@@ -156,7 +156,7 @@ fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
 
 fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
     quote_spanned! { ty.span()=>
-        .possible_values(&<#ty as ::clap::ArgEnum>::VARIANTS)
+        .possible_values(&<#ty as clap::ArgEnum>::VARIANTS)
     }
 }
 
@@ -185,7 +185,7 @@ pub fn gen_app_augmentation(
             } else {
                 quote_spanned! { kind.span()=>
                     let #app_var = #app_var.setting(
-                        ::clap::AppSettings::SubcommandRequiredElseHelp
+                        clap::AppSettings::SubcommandRequiredElseHelp
                     );
                 }
             };
@@ -193,11 +193,11 @@ pub fn gen_app_augmentation(
             let span = field.span();
             let ts = if override_required {
                 quote! {
-                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands_for_update( #app_var );
+                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands_for_update( #app_var );
                 }
             } else{
                 quote! {
-                    let #app_var = <#subcmd_type as ::clap::Subcommand>::augment_subcommands( #app_var );
+                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
                     #required
                 }
             };
@@ -226,7 +226,7 @@ pub fn gen_app_augmentation(
             Kind::Flatten => {
                 let ty = &field.ty;
                 Some(quote_spanned! { kind.span()=>
-                    let #app_var = <#ty as ::clap::IntoApp>::augment_clap(#app_var);
+                    let #app_var = <#ty as clap::IntoApp>::augment_clap(#app_var);
                 })
             }
             Kind::Arg(ty) => {
@@ -340,7 +340,7 @@ pub fn gen_app_augmentation(
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg(
-                        ::clap::Arg::new(#name)
+                        clap::Arg::new(#name)
                             #modifier
                             #methods
                     );
