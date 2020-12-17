@@ -42,12 +42,12 @@ pub fn gen_for_struct(
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::FromArgMatches for #struct_name {
-            fn from_arg_matches(arg_matches: &::clap::ArgMatches) -> Self {
+        impl clap::FromArgMatches for #struct_name {
+            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Self {
                 #struct_name #constructor
             }
 
-            fn update_from_arg_matches(&mut self, arg_matches: &::clap::ArgMatches) {
+            fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
                 #updater
             }
         }
@@ -68,12 +68,12 @@ pub fn gen_for_enum(name: &Ident) -> TokenStream {
             clippy::cargo
         )]
         #[deny(clippy::correctness)]
-        impl ::clap::FromArgMatches for #name {
-            fn from_arg_matches(arg_matches: &::clap::ArgMatches) -> Self {
-                <#name as ::clap::Subcommand>::from_subcommand(arg_matches.subcommand()).unwrap()
+        impl clap::FromArgMatches for #name {
+            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Self {
+                <#name as clap::Subcommand>::from_subcommand(arg_matches.subcommand()).unwrap()
             }
-            fn update_from_arg_matches(&mut self, arg_matches: &::clap::ArgMatches) {
-                <#name as ::clap::Subcommand>::update_from_subcommand(self, arg_matches.subcommand());
+            fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
+                <#name as clap::Subcommand>::update_from_subcommand(self, arg_matches.subcommand());
             }
         }
     }
@@ -83,7 +83,7 @@ fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
     let ci = attrs.case_insensitive();
 
     quote_spanned! { ty.span()=>
-        |s| <#ty as ::clap::ArgEnum>::from_str(s, #ci).unwrap()
+        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).unwrap()
     }
 }
 
@@ -254,14 +254,14 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
-                        <#subcmd_type as ::clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
+                        <#subcmd_type as clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
                         #unwrapper
                     }
                 }
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: ::clap::FromArgMatches::from_arg_matches(#arg_matches)
+                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches)
             },
 
             Kind::Skip(val) => match val {
@@ -314,8 +314,8 @@ pub fn gen_updater(
                     _ => &field.ty,
                 };
 
-                let updater = quote_spanned!{ ty.span()=>
-                    <#subcmd_type as ::clap::Subcommand>::update_from_subcommand(#field_name, subcmd);
+                let updater = quote_spanned! { ty.span()=>
+                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, subcmd);
                 };
 
                 let updater = match **ty {
@@ -323,14 +323,14 @@ pub fn gen_updater(
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = <#subcmd_type as ::clap::Subcommand>::from_subcommand(
+                            *#field_name = <#subcmd_type as clap::Subcommand>::from_subcommand(
                                 subcmd
                             )
                         }
                     },
-                    _ => quote_spanned!{ kind.span()=>
+                    _ => quote_spanned! { kind.span()=>
                         #updater
-                    }
+                    },
                 };
 
                 quote_spanned! { kind.span()=>
@@ -344,15 +344,13 @@ pub fn gen_updater(
 
             Kind::Flatten => quote_spanned! { kind.span()=> {
                     #access
-                    ::clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches);
+                    clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches);
                 }
             },
 
             Kind::Skip(_) => quote!(),
 
-            Kind::Arg(ty) => {
-                gen_parsers(&attrs, ty, field_name, field, Some(&access))
-            }
+            Kind::Arg(ty) => gen_parsers(&attrs, ty, field_name, field, Some(&access)),
         }
     });
 

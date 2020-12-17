@@ -356,7 +356,7 @@ impl Attrs {
                         };
 
                         quote_spanned!(ident.span()=> {
-                            ::clap::lazy_static::lazy_static! {
+                            clap::lazy_static::lazy_static! {
                                 static ref DEFAULT_VALUE: &'static str = {
                                     let val = <#ty as ::std::default::Default>::default();
                                     let s = ::std::string::ToString::to_string(&val);
