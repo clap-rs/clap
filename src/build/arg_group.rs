@@ -75,7 +75,7 @@ use yaml_rust::Yaml;
 /// [arguments]: ./struct.Arg.html
 /// [conflict]: ./struct.Arg.html#method.conflicts_with
 /// [requirement]: ./struct.Arg.html#method.requires
-#[derive(Default, Debug)]
+#[derive(Default, Debug, PartialEq, Eq)]
 pub struct ArgGroup<'help> {
     pub(crate) id: Id,
     pub(crate) name: &'help str,
