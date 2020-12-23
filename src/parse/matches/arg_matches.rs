@@ -96,6 +96,9 @@ impl ArgMatches {
     /// prefer [`ArgMatches::values_of`] as `ArgMatches::value_of` will only return the *first*
     /// value.
     ///
+    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
     /// # Panics
     ///
     /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
@@ -115,6 +118,8 @@ impl ArgMatches {
     /// [positional]: ./struct.Arg.html#method.index
     /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    /// [`default_value`]: ./struct.Arg.html#method.default_value
+    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.vals.get(0) {
@@ -130,6 +135,9 @@ impl ArgMatches {
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer [`Arg::values_of_lossy`] as `value_of_lossy()` will only return the *first* value.
+    ///    
+    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
     ///
     /// # Examples
     ///
@@ -146,6 +154,8 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
+    /// [`default_value`]: ./struct.Arg.html#method.default_value
+    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
     /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
@@ -166,6 +176,9 @@ impl ArgMatches {
     /// prefer [`ArgMatches::values_of_os`] as `Arg::value_of_os` will only return the *first*
     /// value.
     ///
+    /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
     /// # Examples
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
@@ -181,6 +194,8 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
+    /// [`default_value`]: ./struct.Arg.html#method.default_value
+    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
     /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
@@ -495,6 +510,9 @@ impl ArgMatches {
 
     /// Returns `true` if an argument was present at runtime, otherwise `false`.
     ///
+    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -508,6 +526,9 @@ impl ArgMatches {
     ///
     /// assert!(m.is_present("debug"));
     /// ```
+    ///
+    /// [`default_value`]: ./struct.Arg.html#method.default_value
+    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
