@@ -34,28 +34,27 @@ bitflags! {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct ArgFlags(Flags);
 
-// @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,
-    Required("required") => Flags::REQUIRED,
-    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
-    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
     AllowEmptyValues("allowemptyvalues") => Flags::EMPTY_VALS,
-    Hidden("hidden") => Flags::HIDDEN,
-    TakesValue("takesvalue") => Flags::TAKES_VAL,
-    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
-    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
-    RequiredUnlessAll("requiredunlessall") => Flags::R_UNLESS_ALL,
-    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
-    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
     AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
-    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
-    Last("last") => Flags::LAST,
-    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    Hidden("hidden") => Flags::HIDDEN,
+    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
+    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
+    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
     HideEnv("hideenv") => Flags::HIDE_ENV,
     HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
-    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
-    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
-    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H
+    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
+    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    Last("last") => Flags::LAST,
+    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
+    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
+    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
+    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
+    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
+    Required("required") => Flags::REQUIRED,
+    RequiredUnlessAll("requiredunlessall") => Flags::R_UNLESS_ALL,
+    TakesValue("takesvalue") => Flags::TAKES_VAL,
+    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM
 }
 
 impl Default for ArgFlags {
