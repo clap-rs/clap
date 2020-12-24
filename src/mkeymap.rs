@@ -1,9 +1,6 @@
 use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
 
-use std::{
-    ffi::{OsStr, OsString},
-    ops::Index,
-};
+use std::{ffi::OsString, ops::Index};
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
@@ -15,9 +12,6 @@ pub(crate) struct Key {
 pub(crate) struct MKeyMap<'help> {
     pub(crate) keys: Vec<Key>,
     pub(crate) args: Vec<Arg<'help>>,
-
-    // FIXME (@CreepySkeleton): this seems useless
-    built: bool, // mutation isn't possible after being built
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -29,14 +23,23 @@ pub(crate) enum KeyType {
 
 impl KeyType {
     pub(crate) fn is_position(&self) -> bool {
-        matches!(*self, KeyType::Position(_))
+        matches!(self, KeyType::Position(_))
     }
 }
 
 impl PartialEq<&str> for KeyType {
     fn eq(&self, rhs: &&str) -> bool {
         match self {
-            KeyType::Long(ref l) => l == OsStr::new(rhs),
+            KeyType::Long(l) => l == rhs,
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<OsString> for KeyType {
+    fn eq(&self, rhs: &OsString) -> bool {
+        match self {
+            KeyType::Long(l) => l == rhs,
             _ => false,
         }
     }
@@ -63,23 +66,21 @@ impl<'help> MKeyMap<'help> {
     }
 
     pub(crate) fn push(&mut self, value: Arg<'help>) -> usize {
-        if self.built {
-            panic!("Cannot add Args to the map after the map is built");
-        }
-
         let index = self.args.len();
         self.args.push(value);
-
         index
     }
     //TODO ::push_many([x, y])
 
     // ! Arg mutation functionality
 
-    pub(crate) fn get(&self, key: &KeyType) -> Option<&Arg<'help>> {
+    pub(crate) fn get<K>(&self, key: &K) -> Option<&Arg<'help>>
+    where
+        KeyType: PartialEq<K>,
+    {
         self.keys
             .iter()
-            .find(|k| k.key == *key)
+            .find(|k| &k.key == key)
             .map(|k| &self.args[k.index])
     }
     //TODO ::get_first([KeyA, KeyB])
@@ -89,8 +90,6 @@ impl<'help> MKeyMap<'help> {
     }
 
     pub(crate) fn _build(&mut self) {
-        self.built = true;
-
         for (i, arg) in self.args.iter_mut().enumerate() {
             for k in _get_keys(arg) {
                 self.keys.push(Key { key: k, index: i });
@@ -103,13 +102,9 @@ impl<'help> MKeyMap<'help> {
     //? or remove by replacement by some dummy object, so the order is preserved
 
     pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'help>> {
-        if self.built {
-            panic!("Cannot remove args after being built");
-        }
-
         self.args
             .iter()
-            .position(|arg| arg.id == *name)
+            .position(|arg| &arg.id == name)
             .map(|i| self.args.swap_remove(i))
     }
 }

@@ -1133,7 +1133,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("No");
             (full_arg.trim_start_matches(b'-'), None)
         };
-        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.to_os_string())) {
+        if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1196,7 +1196,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             // concatenated value: -oval
             // Option: -o
             // Value: val
-            if let Some(opt) = self.app.args.get(&KeyType::Short(c)) {
+            if let Some(opt) = self.app.args.get(&c) {
                 debug!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
@@ -1641,12 +1641,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         // Add the arg to the matches to build a proper usage string
-        if let Some(ref name) = did_you_mean {
-            if let Some(opt) = self
-                .app
-                .args
-                .get(&KeyType::Long(OsString::from(name.0.clone())))
-            {
+        if let Some((name, _)) = did_you_mean.as_ref() {
+            if let Some(opt) = self.app.args.get(&name.as_ref()) {
                 for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
