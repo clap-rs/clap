@@ -27,6 +27,15 @@ impl KeyType {
     }
 }
 
+impl PartialEq<u64> for KeyType {
+    fn eq(&self, rhs: &u64) -> bool {
+        match self {
+            KeyType::Position(x) => x == rhs,
+            _ => false,
+        }
+    }
+}
+
 impl PartialEq<&str> for KeyType {
     fn eq(&self, rhs: &&str) -> bool {
         match self {

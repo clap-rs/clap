@@ -248,7 +248,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             let mut found = false;
             for p in (1..=num_p)
                 .rev()
-                .filter_map(|n| self.app.args.get(&KeyType::Position(n as u64)))
+                .filter_map(|n| self.app.args.get(&(n as u64)))
             {
                 if found {
                     assert!(
