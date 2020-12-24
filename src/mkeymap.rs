@@ -1,19 +1,12 @@
 use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
+use std::collections::HashMap;
 
-use std::{
-    ffi::{OsStr, OsString},
-    ops::Index,
-};
-
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) struct Key {
-    pub(crate) key: KeyType,
-    pub(crate) index: usize,
-}
+use std::{ffi::OsString, ops::Index};
 
 #[derive(Default, PartialEq, Debug, Clone)]
 pub(crate) struct MKeyMap<'help> {
-    pub(crate) keys: Vec<Key>,
+    pub(crate) key_map: HashMap<KeyType, usize>,
+    pub(crate) id_map: HashMap<Id, usize>,
     pub(crate) args: Vec<Arg<'help>>,
 
     // FIXME (@CreepySkeleton): this seems useless
@@ -29,14 +22,14 @@ pub(crate) enum KeyType {
 
 impl KeyType {
     pub(crate) fn is_position(&self) -> bool {
-        matches!(*self, KeyType::Position(_))
+        matches!(self, KeyType::Position(_))
     }
 }
 
 impl PartialEq<&str> for KeyType {
     fn eq(&self, rhs: &&str) -> bool {
         match self {
-            KeyType::Long(ref l) => l == OsStr::new(rhs),
+            KeyType::Long(l) => l == rhs,
             _ => false,
         }
     }
@@ -55,11 +48,8 @@ impl<'help> MKeyMap<'help> {
     //TODO ::from(x), ::with_capacity(n) etc.
     //? set theory ops?
 
-    pub(crate) fn contains<K>(&self, key: K) -> bool
-    where
-        KeyType: PartialEq<K>,
-    {
-        self.keys.iter().any(|x| x.key == key)
+    pub(crate) fn contains(&self, key: &KeyType) -> bool {
+        self.key_map.contains_key(key)
     }
 
     pub(crate) fn push(&mut self, value: Arg<'help>) -> usize {
@@ -77,23 +67,23 @@ impl<'help> MKeyMap<'help> {
     // ! Arg mutation functionality
 
     pub(crate) fn get(&self, key: &KeyType) -> Option<&Arg<'help>> {
-        self.keys
-            .iter()
-            .find(|k| k.key == *key)
-            .map(|k| &self.args[k.index])
+        let index = *self.key_map.get(key)?;
+        let result = self.args.get(index);
+        debug_assert!(result.is_some());
+        result
     }
     //TODO ::get_first([KeyA, KeyB])
 
     pub(crate) fn is_empty(&self) -> bool {
-        self.keys.is_empty() && self.args.is_empty()
+        self.args.is_empty()
     }
 
     pub(crate) fn _build(&mut self) {
         self.built = true;
 
-        for (i, arg) in self.args.iter_mut().enumerate() {
+        for (i, arg) in self.args.iter().enumerate() {
             for k in _get_keys(arg) {
-                self.keys.push(Key { key: k, index: i });
+                self.key_map.insert(k, i);
             }
         }
     }
@@ -128,24 +118,17 @@ fn _get_keys(arg: &Arg) -> Vec<KeyType> {
     }
 
     let mut keys = vec![];
-    for short in arg.short_aliases.iter().map(|(c, _)| KeyType::Short(*c)) {
-        keys.push(short);
+    for (c, _) in arg.short_aliases.iter() {
+        keys.push(KeyType::Short(*c));
     }
     if let Some(c) = arg.short {
         keys.push(KeyType::Short(c));
     }
-
-    for long in arg
-        .aliases
-        .iter()
-        .map(|(a, _)| KeyType::Long(OsString::from(a)))
-    {
-        keys.push(long);
+    for (long, _) in arg.aliases.iter() {
+        keys.push(KeyType::Long(OsString::from(long)));
     }
-
     if let Some(long) = arg.long {
         keys.push(KeyType::Long(OsString::from(long)));
     }
-
     keys
 }

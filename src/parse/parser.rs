@@ -122,11 +122,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         let highest_idx = self
             .app
             .args
-            .keys
+            .key_map
             .iter()
-            .filter_map(|x| {
-                if let KeyType::Position(n) = x.key {
-                    Some(n)
+            .filter_map(|(key, _)| {
+                if let KeyType::Position(n) = key {
+                    Some(*n)
                 } else {
                     None
                 }
@@ -139,10 +139,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         let num_p = self
             .app
             .args
-            .keys
+            .key_map
             .iter()
-            .map(|x| &x.key)
-            .filter(|x| x.is_position())
+            .filter(|(key, _)| key.is_position())
             .count();
 
         assert!(
@@ -334,9 +333,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         let positional_count = self
             .app
             .args
-            .keys
+            .key_map
             .iter()
-            .filter(|x| x.key.is_position())
+            .filter(|(key, _)| key.is_position())
             .count();
 
         while let Some((arg_os, remaining_args)) = it.next() {
@@ -539,13 +538,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self
-                    .app
-                    .args
-                    .keys
-                    .iter()
-                    .filter(|x| x.key.is_position())
-                    .count();
+                pos_counter = positional_count;
             }
 
             if let Some(p) = self
@@ -565,15 +558,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg)
-                        && pos_counter
-                            == self
-                                .app
-                                .args
-                                .keys
-                                .iter()
-                                .filter(|x| x.key.is_position())
-                                .count())
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == positional_count)
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -586,7 +571,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     matcher.inc_occurrence_of(&grp);
                 }
 
-                self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
                     pos_counter += 1;
@@ -1623,11 +1607,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let longs = self
             .app
             .args
-            .keys
+            .key_map
             .iter()
-            .map(|x| &x.key)
-            .filter_map(|x| match x {
-                KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
+            .filter_map(|(x, _)| match x {
+                KeyType::Long(l) => Some(l.to_string_lossy().to_owned()),
                 _ => None,
             })
             .collect::<Vec<_>>();
@@ -1732,7 +1715,11 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys.iter().any(|x| x.key.is_position())
+        self.app
+            .args
+            .key_map
+            .iter()
+            .any(|(key, _)| key.is_position())
     }
 
     pub(crate) fn has_subcommands(&self) -> bool {

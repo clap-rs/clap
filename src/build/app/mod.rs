@@ -24,7 +24,7 @@ use yaml_rust::Yaml;
 // Internal
 use crate::{
     build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings},
-    mkeymap::MKeyMap,
+    mkeymap::{KeyType, MKeyMap},
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
     util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
@@ -2627,7 +2627,7 @@ impl<'help> App<'help> {
             panic!("If App::_build hasn't been called, manually search through Arg shorts");
         }
 
-        self.args.contains(s)
+        self.args.contains(&KeyType::Short(s))
     }
 
     #[inline]
