@@ -5,13 +5,13 @@ use std::{
     ops::Index,
 };
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct Key {
     pub(crate) key: KeyType,
     pub(crate) index: usize,
 }
 
-#[derive(Default, PartialEq, Debug, Clone)]
+#[derive(Default, PartialEq, Eq, Debug, Clone)]
 pub(crate) struct MKeyMap<'help> {
     pub(crate) keys: Vec<Key>,
     pub(crate) args: Vec<Arg<'help>>,

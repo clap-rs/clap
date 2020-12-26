@@ -60,7 +60,7 @@ use crate::{
 /// // Your program logic starts here...
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
     pub(crate) id: Id,
     pub(crate) name: String,

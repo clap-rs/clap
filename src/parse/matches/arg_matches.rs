@@ -18,7 +18,7 @@ use crate::{
     {Error, INVALID_UTF8},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SubCommand {
     pub(crate) id: Id,
     pub(crate) name: String,
@@ -72,7 +72,7 @@ pub(crate) struct SubCommand {
 /// }
 /// ```
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArgMatches {
     pub(crate) args: IndexMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,

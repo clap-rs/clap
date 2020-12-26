@@ -9,7 +9,7 @@ pub(crate) enum ValueType {
     DefaultValue,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
     pub(crate) ty: ValueType,
