@@ -195,7 +195,7 @@ impl<'help> App<'help> {
     /// Iterate through the set of arguments.
     #[inline]
     pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.args.args.iter()
+        self.args.args()
     }
 
     /// Get the list of *positional* arguments.
@@ -242,12 +242,7 @@ impl<'help> App<'help> {
     fn get_subcommands_containing(&self, arg: &Arg) -> Vec<&App<'help>> {
         let mut vec = std::vec::Vec::new();
         for idx in 0..self.subcommands.len() {
-            if self.subcommands[idx]
-                .args
-                .args
-                .iter()
-                .any(|ar| ar.id == arg.id)
-            {
+            if self.subcommands[idx].args.args().any(|ar| ar.id == arg.id) {
                 vec.push(&self.subcommands[idx]);
                 vec.append(&mut self.subcommands[idx].get_subcommands_containing(arg));
             }
@@ -270,12 +265,11 @@ impl<'help> App<'help> {
             .iter()
             .map(|id| {
                 self.args
-                    .args
-                    .iter()
+                    .args()
                     .chain(
                         self.get_subcommands_containing(arg)
                             .iter()
-                            .flat_map(|x| x.args.args.iter()),
+                            .flat_map(|x| x.args.args()),
                     )
                     .find(|arg| arg.id == *id)
                     .expect(
@@ -303,7 +297,7 @@ impl<'help> App<'help> {
             arg.blacklist
                 .iter()
                 .map(|id| {
-                    self.args.args.iter().find(|arg| arg.id == *id).expect(
+                    self.args.args().find(|arg| arg.id == *id).expect(
                         "App::get_arg_conflicts_with: \
                     The passed arg conflicts with an arg unknown to the app",
                     )
@@ -2251,8 +2245,7 @@ impl<'help> App<'help> {
     fn get_used_global_args(&self, matcher: &ArgMatcher) -> Vec<Id> {
         let global_args: Vec<_> = self
             .args
-            .args
-            .iter()
+            .args()
             .filter(|a| a.global)
             .map(|ga| ga.id.clone())
             .collect();
@@ -2301,7 +2294,7 @@ impl<'help> App<'help> {
             self._create_help_and_version();
 
             let mut pos_counter = 1;
-            for a in self.args.args.iter_mut() {
+            for a in self.args.args_mut() {
                 // Fill in the groups
                 for g in &a.groups {
                     if let Some(ag) = self.groups.iter_mut().find(|grp| grp.id == *g) {
@@ -2341,8 +2334,7 @@ impl<'help> App<'help> {
         if self.is_set(AppSettings::HelpRequired) || help_required_globally {
             let args_missing_help: Vec<String> = self
                 .args
-                .args
-                .iter()
+                .args()
                 .filter(|arg| arg.about.is_none() && arg.long_about.is_none())
                 .map(|arg| String::from(arg.name))
                 .collect();
@@ -2366,7 +2358,7 @@ impl<'help> App<'help> {
     where
         F: Fn(&Arg) -> bool,
     {
-        two_elements_of(self.args.args.iter().filter(|a: &&Arg| condition(a)))
+        two_elements_of(self.args.args().filter(|a: &&Arg| condition(a)))
     }
 
     // just in case
@@ -2410,7 +2402,7 @@ impl<'help> App<'help> {
                 }
                 {
                     // FIXME: This doesn't belong here at all.
-                    for a in $_self.args.args.iter().filter(|a| a.global) {
+                    for a in $_self.args.args().filter(|a| a.global) {
                         if $sc.find(&a.id).is_none() {
                             $sc.args.push(a.clone());
                         }
@@ -2432,8 +2424,7 @@ impl<'help> App<'help> {
         if !(self.is_set(AppSettings::DisableHelpFlag)
             || self
                 .args
-                .args
-                .iter()
+                .args()
                 .any(|x| x.long == Some("help") || x.id == Id::help_hash())
             || self
                 .subcommands
@@ -2445,7 +2436,7 @@ impl<'help> App<'help> {
                 .long("help")
                 .about(self.help_about.unwrap_or("Prints help information"));
 
-            if !(self.args.args.iter().any(|x| x.short == Some('h'))
+            if !(self.args.args().any(|x| x.short == Some('h'))
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
             {
                 help = help.short('h');
@@ -2457,8 +2448,7 @@ impl<'help> App<'help> {
         if !(self.is_set(AppSettings::DisableVersionFlag)
             || self
                 .args
-                .args
-                .iter()
+                .args()
                 .any(|x| x.long == Some("version") || x.id == Id::version_hash())
             || self
                 .subcommands
@@ -2470,7 +2460,7 @@ impl<'help> App<'help> {
                 .long("version")
                 .about(self.version_about.unwrap_or("Prints version information"));
 
-            if !(self.args.args.iter().any(|x| x.short == Some('V'))
+            if !(self.args.args().any(|x| x.short == Some('V'))
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('V')))
             {
                 version = version.short('V');
@@ -2499,8 +2489,7 @@ impl<'help> App<'help> {
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
             for (i, a) in self
                 .args
-                .args
-                .iter_mut()
+                .args_mut()
                 .filter(|a| a.has_switch())
                 .filter(|a| a.disp_ord == 999)
                 .enumerate()
@@ -2601,7 +2590,7 @@ impl<'help> App<'help> {
 // Internal Query Methods
 impl<'help> App<'help> {
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
-        self.args.args.iter().find(|a| a.id == *arg_id)
+        self.args.args().find(|a| a.id == *arg_id)
     }
 
     #[inline]
@@ -2691,7 +2680,7 @@ impl<'help> App<'help> {
 
     #[cfg(debug_assertions)]
     pub(crate) fn id_exists(&self, id: &Id) -> bool {
-        self.args.args.iter().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
+        self.args.args().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
     }
 
     /// Iterate through the groups this arg is member of.

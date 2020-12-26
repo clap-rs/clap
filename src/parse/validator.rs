@@ -557,7 +557,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
 
         // Validate the conditionally required args
-        for a in self.p.app.args.args.iter() {
+        for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
                     if ma.contains_val(val) && !matcher.contains(&a.id) {
@@ -594,8 +594,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .p
             .app
             .args
-            .args
-            .iter()
+            .args()
             .filter(|a| !a.r_unless.is_empty())
             .filter(|a| !matcher.contains(&a.id))
             .filter(|a| self.fails_arg_required_unless(a, matcher))

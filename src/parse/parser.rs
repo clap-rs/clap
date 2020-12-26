@@ -93,8 +93,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
-            .args
-            .iter()
+            .args()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
         {
             reqs.insert(a.id.clone());
@@ -135,12 +134,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         //_highest_idx(&self.positionals);
 
-        let num_p = self
-            .app
-            .args
-            .keys()
-            .filter(|x| x.is_position())
-            .count();
+        let num_p = self.app.args.keys().filter(|x| x.is_position()).count();
 
         assert!(
             highest_idx == num_p as u64,
@@ -328,12 +322,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut external_subcommand = false;
         let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let positional_count = self
-            .app
-            .args
-            .keys()
-            .filter(|x| x.is_position())
-            .count();
+        let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -535,19 +524,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self
-                    .app
-                    .args
-                    .keys()
-                    .filter(|x| x.is_position())
-                    .count();
+                pos_counter = self.app.args.keys().filter(|x| x.is_position()).count();
             }
 
             if let Some(p) = self
                 .app
                 .args
-                .args
-                .iter()
+                .args()
                 .find(|a| a.is_positional() && a.index == Some(pos_counter as u64))
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -561,13 +544,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                 if !self.is_set(AS::TrailingValues)
                     && (self.is_set(AS::TrailingVarArg)
-                        && pos_counter
-                            == self
-                                .app
-                                .args
-                                .keys()
-                                .filter(|x| x.is_position())
-                                .count())
+                        && pos_counter == self.app.args.keys().filter(|x| x.is_position()).count())
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -1100,7 +1077,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.app.long_about.is_some()
             || self.app.before_long_help.is_some()
             || self.app.after_long_help.is_some()
-            || self.app.args.args.iter().any(should_long)
+            || self.app.args.args().any(should_long)
             || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
@@ -1584,7 +1561,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        for a in self.app.args.args.iter() {
+        for a in self.app.args.args() {
             // Use env only if the arg was not present among command line args
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
                 if let Some((_, Some(ref val))) = a.env {

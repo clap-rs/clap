@@ -1,6 +1,6 @@
 use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
 
-use std::{ffi::OsString, ops::Index, iter::Iterator};
+use std::{ffi::OsString, iter::Iterator, ops::Index};
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
@@ -10,8 +10,8 @@ pub(crate) struct Key {
 
 #[derive(Default, PartialEq, Debug, Clone)]
 pub(crate) struct MKeyMap<'help> {
-    pub(crate) keys: Vec<Key>,
-    pub(crate) args: Vec<Arg<'help>>,
+    keys: Vec<Key>,
+    args: Vec<Arg<'help>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -98,8 +98,18 @@ impl<'help> MKeyMap<'help> {
     }
 
     /// Return iterators of all keys.
-    pub(crate) fn keys<'key>(&'key self) -> impl Iterator<Item = &'key KeyType> {
+    pub(crate) fn keys(&self) -> impl Iterator<Item = &KeyType> {
         self.keys.iter().map(|x| &x.key)
+    }
+
+    /// Return iterators of all args.
+    pub(crate) fn args(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.args.iter()
+    }
+
+    /// Return mutable iterators of all args.
+    pub(crate) fn args_mut<'map>(&'map mut self) -> impl Iterator<Item = &'map mut Arg<'help>> {
+        self.args.iter_mut()
     }
 
     pub(crate) fn _build(&mut self) {
