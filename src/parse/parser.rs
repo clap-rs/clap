@@ -356,25 +356,25 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                // Does the arg match a subcommand name, or any of its aliases (if defined)
-                match needs_val_of {
-                    ParseResult::Opt(_) | ParseResult::Pos(_)
-                        if !self.is_set(AS::SubcommandPrecedenceOverArg) => {}
-                    _ => {
-                        let sc_name = self.possible_subcommand(&arg_os);
-                        debug!(
-                            "Parser::get_matches_with: possible_sc={:?}, sc={:?}",
-                            sc_name.is_some(),
-                            sc_name
-                        );
-                        if let Some(sc_name) = sc_name {
-                            if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
-                                self.parse_help_subcommand(remaining_args)?;
-                            }
+                let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
+                    true
+                } else {
+                    match needs_val_of {
+                        ParseResult::Opt(_) | ParseResult::Pos(_) => false,
+                        _ => true,
+                    }
+                };
 
-                            subcmd_name = Some(sc_name.to_owned());
-                            break;
+                if can_be_subcommand {
+                    // Does the arg match a subcommand name, or any of its aliases (if defined)
+                    let sc_name = self.possible_subcommand(&arg_os);
+                    debug!("Parser::get_matches_with: sc={:?}", sc_name);
+                    if let Some(sc_name) = sc_name {
+                        if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
+                            self.parse_help_subcommand(remaining_args)?;
                         }
+                        subcmd_name = Some(sc_name.to_owned());
+                        break;
                     }
                 }
 
@@ -477,31 +477,20 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             if low_index_mults || missing_pos {
                 if let Some(n) = remaining_args.get(0) {
-                    needs_val_of = match needs_val_of {
-                        ParseResult::ValuesDone => ParseResult::ValuesDone,
-                        _ => {
-                            if let Some(p) = self
-                                .app
-                                .get_positionals()
-                                .find(|p| p.index == Some(pos_counter as u64))
-                            {
-                                ParseResult::Pos(p.id.clone())
-                            } else {
-                                ParseResult::ValuesDone
-                            }
-                        }
+                    needs_val_of = if let Some(p) = self
+                        .app
+                        .get_positionals()
+                        .find(|p| p.index == Some(pos_counter as u64))
+                    {
+                        ParseResult::Pos(p.id.clone())
+                    } else {
+                        ParseResult::ValuesDone
                     };
 
+                    // If the arg doesn't looks like a new_arg and it's not a
+                    // subcommand, don't bump the position counter.
                     let n = ArgStr::new(n);
-                    let sc_match = { self.possible_subcommand(&n).is_some() };
-
-                    if self.is_new_arg(&n, &needs_val_of)
-                        || sc_match
-                        || !suggestions::did_you_mean(
-                            &n.to_string_lossy(),
-                            self.app.all_subcommand_names(),
-                        )
-                        .is_empty()
+                    if self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
                     {
                         debug!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -548,7 +537,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     matcher.inc_occurrence_of(&grp);
                 }
 
-                self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
                     pos_counter += 1;
