@@ -10,8 +10,12 @@ pub(crate) struct Key {
 
 #[derive(Default, PartialEq, Debug, Clone)]
 pub(crate) struct MKeyMap<'help> {
-    keys: Vec<Key>,
+    /// All of the arguments.
     args: Vec<Arg<'help>>,
+
+    // Cache part:
+    /// Will be set after `_build()`.
+    keys: Vec<Key>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -112,6 +116,8 @@ impl<'help> MKeyMap<'help> {
         self.args.iter_mut()
     }
 
+    /// We need a lazy build here since some we may change args after creating
+    /// the map, you can checkout who uses `args_mut`.
     pub(crate) fn _build(&mut self) {
         for (i, arg) in self.args.iter_mut().enumerate() {
             for k in _get_keys(arg) {

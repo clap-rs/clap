@@ -109,6 +109,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
+    #[cfg(debug_assertions)]
     fn _verify_positionals(&self) -> bool {
         debug!("Parser::_verify_positionals");
         // Because you must wait until all arguments have been supplied, this is the first chance
@@ -134,10 +135,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         //_highest_idx(&self.positionals);
 
-        let num_p = self.app.args.keys().filter(|x| x.is_position()).count();
+        let num_p = self.app.args.keys().filter(|x| x.is_position()).count() as u64;
 
         assert!(
-            highest_idx == num_p as u64,
+            highest_idx == num_p,
             "Found positional argument whose index is {} but there \
              are only {} positional arguments defined",
             highest_idx,
@@ -237,10 +238,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in (1..=num_p)
-                .rev()
-                .filter_map(|n| self.app.args.get(&(n as u64)))
-            {
+            for p in (1..=num_p).rev().filter_map(|n| self.app.args.get(&n)) {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -524,7 +522,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self.app.args.keys().filter(|x| x.is_position()).count();
+                pos_counter = positional_count;
             }
 
             if let Some(p) = self
@@ -543,8 +541,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg)
-                        && pos_counter == self.app.args.keys().filter(|x| x.is_position()).count())
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == positional_count)
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
