@@ -1,11 +1,11 @@
 use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
 
-use std::{ffi::OsString, ops::Index};
+use std::{ffi::OsString, ops::Index, iter::Iterator};
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Key {
-    pub(crate) key: KeyType,
-    pub(crate) index: usize,
+    key: KeyType,
+    index: usize,
 }
 
 #[derive(Default, PartialEq, Debug, Clone)]
@@ -95,6 +95,11 @@ impl<'help> MKeyMap<'help> {
     /// Find out if the map have no arg.
     pub(crate) fn is_empty(&self) -> bool {
         self.args.is_empty()
+    }
+
+    /// Return iterators of all keys.
+    pub(crate) fn keys<'key>(&'key self) -> impl Iterator<Item = &'key KeyType> {
+        self.keys.iter().map(|x| &x.key)
     }
 
     pub(crate) fn _build(&mut self) {

@@ -122,11 +122,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let highest_idx = self
             .app
             .args
-            .keys
-            .iter()
+            .keys()
             .filter_map(|x| {
-                if let KeyType::Position(n) = x.key {
-                    Some(n)
+                if let KeyType::Position(n) = x {
+                    Some(*n)
                 } else {
                     None
                 }
@@ -139,9 +138,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let num_p = self
             .app
             .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
+            .keys()
             .filter(|x| x.is_position())
             .count();
 
@@ -334,9 +331,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         let positional_count = self
             .app
             .args
-            .keys
-            .iter()
-            .filter(|x| x.key.is_position())
+            .keys()
+            .filter(|x| x.is_position())
             .count();
 
         while let Some((arg_os, remaining_args)) = it.next() {
@@ -542,9 +538,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 pos_counter = self
                     .app
                     .args
-                    .keys
-                    .iter()
-                    .filter(|x| x.key.is_position())
+                    .keys()
+                    .filter(|x| x.is_position())
                     .count();
             }
 
@@ -570,9 +565,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                             == self
                                 .app
                                 .args
-                                .keys
-                                .iter()
-                                .filter(|x| x.key.is_position())
+                                .keys()
+                                .filter(|x| x.is_position())
                                 .count())
                 {
                     self.app.settings.set(AS::TrailingValues);
@@ -1621,9 +1615,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let longs = self
             .app
             .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
+            .keys()
             .filter_map(|x| match x {
                 KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
                 _ => None,
@@ -1726,7 +1718,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys.iter().any(|x| x.key.is_position())
+        self.app.args.keys().any(|x| x.is_position())
     }
 
     pub(crate) fn has_subcommands(&self) -> bool {

@@ -52,7 +52,7 @@ where
             .filter_map(|subcommand| {
                 subcommand._build();
 
-                let longs = subcommand.args.keys.iter().map(|x| &x.key).filter_map(|a| {
+                let longs = subcommand.args.keys().filter_map(|a| {
                     if let KeyType::Long(v) = a {
                         Some(v.to_string_lossy().into_owned())
                     } else {
