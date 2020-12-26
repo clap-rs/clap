@@ -64,9 +64,9 @@ impl PartialEq<char> for KeyType {
 }
 
 impl<'help> MKeyMap<'help> {
-    //TODO ::from(x), ::with_capacity(n) etc.
-    //? set theory ops?
-
+    /// If any arg has corresponding key in this map, we can search the key with
+    /// u64(for positional argument), char(for short flag), &str and OsString
+    /// (for long flag)
     pub(crate) fn contains<K>(&self, key: K) -> bool
     where
         KeyType: PartialEq<K>,
@@ -74,15 +74,14 @@ impl<'help> MKeyMap<'help> {
         self.keys.iter().any(|x| x.key == key)
     }
 
-    pub(crate) fn push(&mut self, value: Arg<'help>) -> usize {
-        let index = self.args.len();
-        self.args.push(value);
-        index
+    /// Push an argument in the map.
+    pub(crate) fn push(&mut self, new_arg: Arg<'help>) {
+        self.args.push(new_arg);
     }
-    //TODO ::push_many([x, y])
 
-    // ! Arg mutation functionality
-
+    /// Find the arg have corresponding key in this map, we can search the key
+    /// with u64(for positional argument), char(for short flag), &str and
+    /// OsString (for long flag)
     pub(crate) fn get<K>(&self, key: &K) -> Option<&Arg<'help>>
     where
         KeyType: PartialEq<K>,
@@ -92,10 +91,10 @@ impl<'help> MKeyMap<'help> {
             .find(|k| &k.key == key)
             .map(|k| &self.args[k.index])
     }
-    //TODO ::get_first([KeyA, KeyB])
 
+    /// Find out if the map have no arg.
     pub(crate) fn is_empty(&self) -> bool {
-        self.keys.is_empty() && self.args.is_empty()
+        self.args.is_empty()
     }
 
     pub(crate) fn _build(&mut self) {
@@ -106,14 +105,13 @@ impl<'help> MKeyMap<'help> {
         }
     }
 
-    //TODO ::remove_many([KeyA, KeyB])
-    //? probably shouldn't add a possibility for removal?
-    //? or remove by replacement by some dummy object, so the order is preserved
-
+    /// Remove an arg in the graph by Id, usually used by `mut_arg`. Return
+    /// `Some(arg)` if removed.
     pub(crate) fn remove_by_name(&mut self, name: &Id) -> Option<Arg<'help>> {
         self.args
             .iter()
             .position(|arg| &arg.id == name)
+            // since it's a cold function, using this wouldn't hurt much
             .map(|i| self.args.swap_remove(i))
     }
 }
@@ -126,30 +124,26 @@ impl<'help> Index<&'_ KeyType> for MKeyMap<'help> {
     }
 }
 
+/// Generate key types for an specific Arg.
 fn _get_keys(arg: &Arg) -> Vec<KeyType> {
     if let Some(index) = arg.index {
         return vec![KeyType::Position(index)];
     }
 
     let mut keys = vec![];
-    for short in arg.short_aliases.iter().map(|(c, _)| KeyType::Short(*c)) {
-        keys.push(short);
-    }
-    if let Some(c) = arg.short {
-        keys.push(KeyType::Short(c));
-    }
 
-    for long in arg
-        .aliases
-        .iter()
-        .map(|(a, _)| KeyType::Long(OsString::from(a)))
-    {
-        keys.push(long);
+    if let Some(short) = arg.short {
+        keys.push(KeyType::Short(short));
     }
-
     if let Some(long) = arg.long {
         keys.push(KeyType::Long(OsString::from(long)));
     }
 
+    for (short, _) in arg.short_aliases.iter() {
+        keys.push(KeyType::Short(*short));
+    }
+    for (long, _) in arg.aliases.iter() {
+        keys.push(KeyType::Long(OsString::from(long)));
+    }
     keys
 }
