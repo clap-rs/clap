@@ -123,6 +123,10 @@ fn build_app_special_commands() -> App<'static> {
             ),
         )
         .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(
+            App::new("some_cmd_with_special_characters")
+                .about("This 'is' a \"special\" [character] string \\"),
+        )
 }
 
 static ZSH_SPECIAL_CMDS: &str = r#"#compdef my_app
@@ -182,6 +186,14 @@ _arguments "${_arguments_options[@]}" \
 '--version[Prints version information]' \
 && ret=0
 ;;
+(some_cmd_with_special_characters)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+&& ret=0
+;;
 (help)
 _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
@@ -201,6 +213,7 @@ _my_app_commands() {
         'test:tests things' \
 'some_cmd:tests other things' \
 'some-cmd-with-hypens:' \
+'some_cmd_with_special_characters:This '\''is'\'' a "special" \[character\] string \\' \
 'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
@@ -225,6 +238,13 @@ _my_app__some_cmd_commands() {
         
     )
     _describe -t commands 'my_app some_cmd commands' commands "$@"
+}
+(( $+functions[_my_app__some_cmd_with_special_characters_commands] )) ||
+_my_app__some_cmd_with_special_characters_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'my_app some_cmd_with_special_characters commands' commands "$@"
 }
 (( $+functions[_my_app__test_commands] )) ||
 _my_app__test_commands() {
