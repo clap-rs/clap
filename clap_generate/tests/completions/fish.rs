@@ -1,5 +1,27 @@
 use super::*;
 
+fn build_app() -> App<'static> {
+    build_app_with_name("myapp")
+}
+
+fn build_app_with_name(s: &'static str) -> App<'static> {
+    App::new(s)
+        .about("Tests completions")
+        .arg(
+            Arg::new("file")
+                .value_hint(ValueHint::FilePath)
+                .about("some input file"),
+        )
+        .subcommand(
+            App::new("test").about("tests things").arg(
+                Arg::new("case")
+                    .long("case")
+                    .takes_value(true)
+                    .about("the case to test"),
+            ),
+        )
+}
+
 #[test]
 fn fish() {
     let mut app = build_app();
@@ -21,6 +43,19 @@ complete -c myapp -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prin
 fn fish_with_special_commands() {
     let mut app = build_app_special_commands();
     common::<Fish>(&mut app, "my_app", FISH_SPECIAL_CMDS);
+}
+
+fn build_app_special_commands() -> App<'static> {
+    build_app_with_name("my_app")
+        .subcommand(
+            App::new("some_cmd").about("tests other things").arg(
+                Arg::new("config")
+                    .long("--config")
+                    .takes_value(true)
+                    .about("the other case to test"),
+            ),
+        )
+        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
 static FISH_SPECIAL_CMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
@@ -45,6 +80,36 @@ complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Pri
 fn fish_with_special_help() {
     let mut app = build_app_special_help();
     common::<Fish>(&mut app, "my_app", FISH_SPECIAL_HELP);
+}
+
+fn build_app_special_help() -> App<'static> {
+    App::new("my_app")
+        .arg(
+            Arg::new("single-quotes")
+                .long("single-quotes")
+                .about("Can be 'always', 'auto', or 'never'"),
+        )
+        .arg(
+            Arg::new("double-quotes")
+                .long("double-quotes")
+                .about("Can be \"always\", \"auto\", or \"never\""),
+        )
+        .arg(
+            Arg::new("backticks")
+                .long("backticks")
+                .about("For more information see `echo test`"),
+        )
+        .arg(Arg::new("backslash").long("backslash").about("Avoid '\\n'"))
+        .arg(
+            Arg::new("brackets")
+                .long("brackets")
+                .about("List packages [filter]"),
+        )
+        .arg(
+            Arg::new("expansions")
+                .long("expansions")
+                .about("Execute the shell command with $SHELL"),
+        )
 }
 
 static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''

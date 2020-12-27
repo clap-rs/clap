@@ -1,5 +1,27 @@
 use super::*;
 
+fn build_app() -> App<'static> {
+    build_app_with_name("myapp")
+}
+
+fn build_app_with_name(s: &'static str) -> App<'static> {
+    App::new(s)
+        .about("Tests completions")
+        .arg(
+            Arg::new("file")
+                .value_hint(ValueHint::FilePath)
+                .about("some input file"),
+        )
+        .subcommand(
+            App::new("test").about("tests things").arg(
+                Arg::new("case")
+                    .long("case")
+                    .takes_value(true)
+                    .about("the case to test"),
+            ),
+        )
+}
+
 #[test]
 fn zsh() {
     let mut app = build_app();
@@ -88,6 +110,19 @@ _myapp "$@""#;
 fn zsh_with_special_commands() {
     let mut app = build_app_special_commands();
     common::<Zsh>(&mut app, "my_app", ZSH_SPECIAL_CMDS);
+}
+
+fn build_app_special_commands() -> App<'static> {
+    build_app_with_name("my_app")
+        .subcommand(
+            App::new("some_cmd").about("tests other things").arg(
+                Arg::new("config")
+                    .long("--config")
+                    .takes_value(true)
+                    .about("the other case to test"),
+            ),
+        )
+        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
 static ZSH_SPECIAL_CMDS: &str = r#"#compdef my_app
@@ -207,6 +242,36 @@ fn zsh_with_special_help() {
     common::<Zsh>(&mut app, "my_app", ZSH_SPECIAL_HELP);
 }
 
+fn build_app_special_help() -> App<'static> {
+    App::new("my_app")
+        .arg(
+            Arg::new("single-quotes")
+                .long("single-quotes")
+                .about("Can be 'always', 'auto', or 'never'"),
+        )
+        .arg(
+            Arg::new("double-quotes")
+                .long("double-quotes")
+                .about("Can be \"always\", \"auto\", or \"never\""),
+        )
+        .arg(
+            Arg::new("backticks")
+                .long("backticks")
+                .about("For more information see `echo test`"),
+        )
+        .arg(Arg::new("backslash").long("backslash").about("Avoid '\\n'"))
+        .arg(
+            Arg::new("brackets")
+                .long("brackets")
+                .about("List packages [filter]"),
+        )
+        .arg(
+            Arg::new("expansions")
+                .long("expansions")
+                .about("Execute the shell command with $SHELL"),
+        )
+}
+
 static ZSH_SPECIAL_HELP: &str = r#"#compdef my_app
 
 autoload -U is-at-least
@@ -252,6 +317,10 @@ _my_app "$@""#;
 fn zsh_with_nested_subcommands() {
     let mut app = build_app_nested_subcommands();
     common::<Zsh>(&mut app, "my_app", ZSH_NESTED_SUBCOMMANDS);
+}
+
+fn build_app_nested_subcommands() -> App<'static> {
+    App::new("first").subcommand(App::new("second").subcommand(App::new("third")))
 }
 
 static ZSH_NESTED_SUBCOMMANDS: &str = r#"#compdef my_app
