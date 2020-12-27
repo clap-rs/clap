@@ -84,8 +84,8 @@ esac
 (( $+functions[_myapp_commands] )) ||
 _myapp_commands() {
     local commands; commands=(
-        "test:tests things" \
-"help:Prints this message or the help of the given subcommand(s)" \
+        'test:tests things' \
+'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'myapp commands' commands "$@"
 }
@@ -198,10 +198,10 @@ esac
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-        "test:tests things" \
-"some_cmd:tests other things" \
-"some-cmd-with-hypens:" \
-"help:Prints this message or the help of the given subcommand(s)" \
+        'test:tests things' \
+'some_cmd:tests other things' \
+'some-cmd-with-hypens:' \
+'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
@@ -396,8 +396,8 @@ esac
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-        "second:" \
-"help:Prints this message or the help of the given subcommand(s)" \
+        'second:' \
+'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
@@ -411,7 +411,7 @@ _my_app__help_commands() {
 (( $+functions[_my_app__second_commands] )) ||
 _my_app__second_commands() {
     local commands; commands=(
-        "third:" \
+        'third:' \
     )
     _describe -t commands 'my_app second commands' commands "$@"
 }

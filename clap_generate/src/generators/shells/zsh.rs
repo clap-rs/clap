@@ -147,13 +147,9 @@ fn subcommands_of(p: &App) -> String {
         debug!("add_sc");
 
         let s = format!(
-            "\"{name}:{help}\" \\",
+            "'{name}:{help}' \\",
             name = n,
-            help = sc
-                .get_about()
-                .unwrap_or("")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
+            help = escape_help(sc.get_about().unwrap_or(""))
         );
 
         if !s.is_empty() {
@@ -383,7 +379,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
     }
 }
 
-// Escape help string inside single quotes and brackets
+/// Escape help string inside single quotes and brackets
 fn escape_help(string: &str) -> String {
     string
         .replace("\\", "\\\\")
@@ -392,7 +388,7 @@ fn escape_help(string: &str) -> String {
         .replace("]", "\\]")
 }
 
-// Escape value string inside single quotes and parentheses
+/// Escape value string inside single quotes and parentheses
 fn escape_value(string: &str) -> String {
     string
         .replace("\\", "\\\\")
