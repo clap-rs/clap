@@ -124,9 +124,7 @@ _my_app() {
 
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app commands' commands "$@"
 }
 

@@ -84,23 +84,19 @@ esac
 (( $+functions[_myapp_commands] )) ||
 _myapp_commands() {
     local commands; commands=(
-        'test:tests things' \
+'test:tests things' \
 'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'myapp commands' commands "$@"
 }
 (( $+functions[_myapp__help_commands] )) ||
 _myapp__help_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'myapp help commands' commands "$@"
 }
 (( $+functions[_myapp__test_commands] )) ||
 _myapp__test_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'myapp test commands' commands "$@"
 }
 
@@ -210,7 +206,7 @@ esac
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-        'test:tests things' \
+'test:tests things' \
 'some_cmd:tests other things' \
 'some-cmd-with-hypens:' \
 'some_cmd_with_special_characters:This '\''is'\'' a "special" \[character\] string \\' \
@@ -220,37 +216,27 @@ _my_app_commands() {
 }
 (( $+functions[_my_app__help_commands] )) ||
 _my_app__help_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app help commands' commands "$@"
 }
 (( $+functions[_my_app__some-cmd-with-hypens_commands] )) ||
 _my_app__some-cmd-with-hypens_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app some-cmd-with-hypens commands' commands "$@"
 }
 (( $+functions[_my_app__some_cmd_commands] )) ||
 _my_app__some_cmd_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app some_cmd commands' commands "$@"
 }
 (( $+functions[_my_app__some_cmd_with_special_characters_commands] )) ||
 _my_app__some_cmd_with_special_characters_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app some_cmd_with_special_characters commands' commands "$@"
 }
 (( $+functions[_my_app__test_commands] )) ||
 _my_app__test_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app test commands' commands "$@"
 }
 
@@ -325,9 +311,7 @@ _my_app() {
 
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app commands' commands "$@"
 }
 
@@ -416,30 +400,26 @@ esac
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-        'second:' \
+'second:' \
 'help:Prints this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
 (( $+functions[_my_app__help_commands] )) ||
 _my_app__help_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app help commands' commands "$@"
 }
 (( $+functions[_my_app__second_commands] )) ||
 _my_app__second_commands() {
     local commands; commands=(
-        'third:' \
+'third:' \
     )
     _describe -t commands 'my_app second commands' commands "$@"
 }
 (( $+functions[_my_app__second__third_commands] )) ||
 _my_app__second__third_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'my_app second third commands' commands "$@"
 }
 
