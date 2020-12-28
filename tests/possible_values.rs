@@ -176,6 +176,50 @@ fn possible_values_of_option_multiple_fail() {
 }
 
 #[test]
+fn possible_values_of_option_multiple_with_delimiter() {
+    let m = App::new("possible_values")
+        .arg(
+            Arg::with_name("option")
+                .short("-o")
+                .long("--option")
+                .takes_value(true)
+                .possible_value("test123")
+                .possible_value("test321")
+                .use_delimiter(true)
+                .multiple(true),
+        )
+        .get_matches_from_safe(vec!["", "--option=test123,test321"]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("option"));
+    assert_eq!(
+        m.values_of("option").unwrap().collect::<Vec<_>>(),
+        vec!["test123", "test321"]
+    );
+}
+
+#[test]
+fn possible_values_of_option_multiple_with_delimiter_fail() {
+    let m = App::new("possible_values")
+        .arg(
+            Arg::with_name("option")
+                .short("-o")
+                .long("--option")
+                .takes_value(true)
+                .possible_value("test123")
+                .possible_value("test321")
+                .use_delimiter(true)
+                .multiple(true),
+        )
+        .get_matches_from_safe(vec!["", "--option=test123,notest"]);
+
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+}
+
+#[test]
 fn possible_values_output() {
     assert!(test::compare_output(
         test::complex_app(),
