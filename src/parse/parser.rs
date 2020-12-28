@@ -93,8 +93,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut reqs = ChildGraph::with_capacity(5);
         for a in app
             .args
-            .args
-            .iter()
+            .args()
             .filter(|a| a.settings.is_set(ArgSettings::Required))
         {
             reqs.insert(a.id.clone());
@@ -110,6 +109,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
+    #[cfg(debug_assertions)]
     fn _verify_positionals(&self) -> bool {
         debug!("Parser::_verify_positionals");
         // Because you must wait until all arguments have been supplied, this is the first chance
@@ -122,11 +122,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let highest_idx = self
             .app
             .args
-            .keys
-            .iter()
+            .keys()
             .filter_map(|x| {
-                if let KeyType::Position(n) = x.key {
-                    Some(n)
+                if let KeyType::Position(n) = x {
+                    Some(*n)
                 } else {
                     None
                 }
@@ -136,17 +135,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         //_highest_idx(&self.positionals);
 
-        let num_p = self
-            .app
-            .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
-            .filter(|x| x.is_position())
-            .count();
+        let num_p = self.app.args.keys().filter(|x| x.is_position()).count() as u64;
 
         assert!(
-            highest_idx == num_p as u64,
+            highest_idx == num_p,
             "Found positional argument whose index is {} but there \
              are only {} positional arguments defined",
             highest_idx,
@@ -246,10 +238,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
             let mut found = false;
-            for p in (1..=num_p)
-                .rev()
-                .filter_map(|n| self.app.args.get(&KeyType::Position(n as u64)))
-            {
+            for p in (1..=num_p).rev().filter_map(|n| self.app.args.get(&n)) {
                 if found {
                     assert!(
                         p.is_set(ArgSettings::Required),
@@ -331,13 +320,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut external_subcommand = false;
         let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
-        let positional_count = self
-            .app
-            .args
-            .keys
-            .iter()
-            .filter(|x| x.key.is_position())
-            .count();
+        let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -539,20 +522,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = self
-                    .app
-                    .args
-                    .keys
-                    .iter()
-                    .filter(|x| x.key.is_position())
-                    .count();
+                pos_counter = positional_count;
             }
 
             if let Some(p) = self
                 .app
                 .args
-                .args
-                .iter()
+                .args()
                 .find(|a| a.is_positional() && a.index == Some(pos_counter as u64))
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -565,15 +541,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg)
-                        && pos_counter
-                            == self
-                                .app
-                                .args
-                                .keys
-                                .iter()
-                                .filter(|x| x.key.is_position())
-                                .count())
+                    && (self.is_set(AS::TrailingVarArg) && pos_counter == positional_count)
                 {
                     self.app.settings.set(AS::TrailingValues);
                 }
@@ -1106,7 +1074,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.app.long_about.is_some()
             || self.app.before_long_help.is_some()
             || self.app.after_long_help.is_some()
-            || self.app.args.args.iter().any(should_long)
+            || self.app.args.args().any(should_long)
             || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
@@ -1133,7 +1101,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("No");
             (full_arg.trim_start_matches(b'-'), None)
         };
-        if let Some(opt) = self.app.args.get(&KeyType::Long(arg.to_os_string())) {
+        if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
@@ -1196,7 +1164,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             // concatenated value: -oval
             // Option: -o
             // Value: val
-            if let Some(opt) = self.app.args.get(&KeyType::Short(c)) {
+            if let Some(opt) = self.app.args.get(&c) {
                 debug!(
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
@@ -1590,18 +1558,16 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
-        for a in self.app.args.args.iter() {
+        for a in self.app.args.args() {
             // Use env only if the arg was not present among command line args
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
-                if let Some((_, ref val)) = a.env {
-                    if let Some(ref val) = val {
-                        let val = &ArgStr::new(val);
-                        if a.is_set(ArgSettings::TakesValue) {
-                            self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable)?;
-                        } else {
-                            self.check_for_help_and_version_str(val)?;
-                            matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
-                        }
+                if let Some((_, Some(ref val))) = a.env {
+                    let val = &ArgStr::new(val);
+                    if a.is_set(ArgSettings::TakesValue) {
+                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable)?;
+                    } else {
+                        self.check_for_help_and_version_str(val)?;
+                        matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
                     }
                 }
             }
@@ -1623,9 +1589,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let longs = self
             .app
             .args
-            .keys
-            .iter()
-            .map(|x| &x.key)
+            .keys()
             .filter_map(|x| match x {
                 KeyType::Long(l) => Some(l.to_string_lossy().into_owned()),
                 _ => None,
@@ -1641,12 +1605,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         // Add the arg to the matches to build a proper usage string
-        if let Some(ref name) = did_you_mean {
-            if let Some(opt) = self
-                .app
-                .args
-                .get(&KeyType::Long(OsString::from(name.0.clone())))
-            {
+        if let Some((name, _)) = did_you_mean.as_ref() {
+            if let Some(opt) = self.app.args.get(&name.as_ref()) {
                 for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
@@ -1732,7 +1692,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys.iter().any(|x| x.key.is_position())
+        self.app.args.keys().any(|x| x.is_position())
     }
 
     pub(crate) fn has_subcommands(&self) -> bool {

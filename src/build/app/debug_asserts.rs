@@ -62,7 +62,7 @@ pub(crate) fn assert_app(app: &App) {
         }
     }
 
-    for arg in &app.args.args {
+    for arg in app.args.args() {
         arg._debug_asserts();
 
         if let Some(s) = arg.short.as_ref() {
@@ -214,7 +214,7 @@ pub(crate) fn assert_app(app: &App) {
 
         // Groups should not have naming conflicts with Args
         assert!(
-            !app.args.args.iter().any(|x| x.id == group.id),
+            !app.args.args().any(|x| x.id == group.id),
             "Argument group name '{}' must not conflict with argument name",
             group.name,
         );
@@ -222,7 +222,7 @@ pub(crate) fn assert_app(app: &App) {
         for arg in &group.args {
             // Args listed inside groups should exist
             assert!(
-                app.args.args.iter().any(|x| x.id == *arg),
+                app.args.args().any(|x| x.id == *arg),
                 "Argument group '{}' contains non-existent argument '{:?}'",
                 group.name,
                 arg
@@ -232,8 +232,7 @@ pub(crate) fn assert_app(app: &App) {
             if group.required {
                 assert!(
                     app.args
-                        .args
-                        .iter()
+                        .args ()
                         .any(|x| x.id == *arg && x.default_vals.is_empty()),
                     "Argument group '{}' is required but contains argument '{:?}' which has a default value.",
                     group.name,

@@ -756,8 +756,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .parser
             .app
             .args
-            .args
-            .iter()
+            .args()
             .filter_map(|arg| arg.help_heading)
             .collect::<IndexSet<_>>();
 
@@ -777,8 +776,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .parser
                 .app
                 .args
-                .args
-                .iter()
+                .args()
                 .filter(|a| a.has_switch())
                 .collect::<Vec<_>>();
             if !first {
@@ -815,8 +813,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         .parser
                         .app
                         .args
-                        .args
-                        .iter()
+                        .args()
                         .filter(|a| {
                             if let Some(help_heading) = a.help_heading {
                                 return help_heading == heading;
@@ -1002,8 +999,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             .parser
                             .app
                             .args
-                            .args
-                            .iter()
+                            .args()
                             .filter(|a| a.has_switch())
                             .collect::<Vec<_>>();
                         self.write_args(&opts_flags)?;
