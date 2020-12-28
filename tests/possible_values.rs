@@ -208,7 +208,7 @@ fn case_insensitive() {
 }
 
 #[test]
-fn case_insensitive_faili() {
+fn case_insensitive_fail() {
     let m = App::new("pv")
         .arg(
             Arg::with_name("option")
