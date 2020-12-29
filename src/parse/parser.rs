@@ -357,10 +357,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
                     true
                 } else {
-                    match needs_val_of {
-                        ParseResult::Opt(_) | ParseResult::Pos(_) => false,
-                        _ => true,
-                    }
+                    !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_))
                 };
 
                 if can_be_subcommand {
@@ -439,7 +436,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         &arg_os,
                         matcher,
                         ValueType::CommandLine,
-                    )?;
+                    );
                     // get the next value from the iterator
                     continue;
                 }
@@ -523,7 +520,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
-                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine)?;
+                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine);
 
                 matcher.inc_occurrence_of(&p.id);
                 for grp in self.app.groups_for_arg(&p.id) {
@@ -1034,7 +1031,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?);
             }
             self.check_for_help_and_version_str(&arg)?;
-            self.parse_flag(opt, matcher)?;
+            self.parse_flag(opt, matcher);
 
             return Ok(ParseResult::Flag);
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
@@ -1093,7 +1090,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.seen.push(opt.id.clone());
                 if !opt.is_set(ArgSettings::TakesValue) {
                     self.check_for_help_and_version_char(c)?;
-                    ret = self.parse_flag(opt, matcher)?;
+                    ret = self.parse_flag(opt, matcher);
                     continue;
                 }
 
@@ -1171,7 +1168,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine)?;
+            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine);
         } else if needs_eq && !(empty_vals || min_vals_zero) {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1188,7 +1185,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         "Parser::parse_opt: adding value from default_missing_values; val = {:?}",
                         val
                     );
-                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine)?;
+                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine);
                 }
             };
         } else {
@@ -1221,7 +1218,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         val: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ClapResult<ParseResult> {
+    ) -> ParseResult {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debug!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
@@ -1232,14 +1229,14 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(delim) = arg.val_delim {
                 let mut iret = ParseResult::ValuesDone;
                 for v in val.split(delim) {
-                    iret = self.add_single_val_to_arg(arg, &v, matcher, ty)?;
+                    iret = self.add_single_val_to_arg(arg, &v, matcher, ty);
                 }
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values, we're not looking for more values.
                 if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
                     iret = ParseResult::ValuesDone;
                 }
-                return Ok(iret);
+                return iret;
             }
         }
         self.add_single_val_to_arg(arg, val, matcher, ty)
@@ -1251,7 +1248,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         v: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ClapResult<ParseResult> {
+    ) -> ParseResult {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", v);
 
         // update the current index because each value is a distinct index to clap
@@ -1260,7 +1257,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
-                return Ok(ParseResult::ValuesDone);
+                return ParseResult::ValuesDone;
             }
         }
 
@@ -1273,13 +1270,13 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         if matcher.needs_more_vals(arg) {
-            Ok(ParseResult::Opt(arg.id.clone()))
+            ParseResult::Opt(arg.id.clone())
         } else {
-            Ok(ParseResult::ValuesDone)
+            ParseResult::ValuesDone
         }
     }
 
-    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
+    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
         matcher.inc_occurrence_of(&flag.id);
@@ -1289,7 +1286,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             matcher.inc_occurrence_of(&grp);
         }
 
-        Ok(ParseResult::Flag)
+        ParseResult::Flag
     }
 
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
@@ -1362,28 +1359,21 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
-    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) {
         debug!("Parser::add_defaults");
 
         for o in self.app.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_value(o, matcher, ValueType::DefaultValue)?;
+            self.add_value(o, matcher, ValueType::DefaultValue);
         }
 
         for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_value(p, matcher, ValueType::DefaultValue)?;
+            self.add_value(p, matcher, ValueType::DefaultValue);
         }
-
-        Ok(())
     }
 
-    fn add_value(
-        &self,
-        arg: &Arg<'help>,
-        matcher: &mut ArgMatcher,
-        ty: ValueType,
-    ) -> ClapResult<()> {
+    fn add_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher, ty: ValueType) {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
 
@@ -1401,7 +1391,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty)?;
+                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty);
                         done = true;
                         break;
                     }
@@ -1409,7 +1399,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
 
             if done {
-                return Ok(());
+                return;
             }
         } else {
             debug!("Parser::add_value: doesn't have conditional defaults");
@@ -1424,7 +1414,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
                 for val in &arg.default_vals {
-                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
                 }
             }
         } else {
@@ -1448,7 +1438,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         arg.name
                     );
                     for val in &arg.default_missing_vals {
-                        self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
+                        self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
                     }
                 }
                 None => {
@@ -1468,8 +1458,6 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // do nothing
         }
-
-        Ok(())
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
@@ -1479,7 +1467,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some((_, Some(ref val))) = a.env {
                     let val = &ArgStr::new(val);
                     if a.is_set(ArgSettings::TakesValue) {
-                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable)?;
+                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable);
                     } else {
                         self.check_for_help_and_version_str(val)?;
                         matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
