@@ -892,7 +892,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             {
                 let mut p = Parser::new(sc);
                 // HACK: maintain indexes between parsers
-                // FlagSubCommand short arg needs to revist the current short args, but skip the subcommand itself
+                // FlagSubCommand short arg needs to revisit the current short args, but skip the subcommand itself
                 if keep_state {
                     p.cur_idx.set(self.cur_idx.get());
                     p.skip_idxs = self.skip_idxs;
@@ -1034,8 +1034,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .iter()
                 .map(|x| x.to_str().expect(INVALID_UTF8))
                 .collect();
-            self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher, &remaining_args)
-                .map(|_| ParseResult::NotFound)
+            Err(self.did_you_mean_error(
+                arg.to_str().expect(INVALID_UTF8),
+                matcher,
+                &remaining_args,
+            ))
         }
     }
 
@@ -1470,7 +1473,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         arg: &str,
         matcher: &mut ArgMatcher,
         remaining_args: &[&str],
-    ) -> ClapResult<()> {
+    ) -> ClapError {
         debug!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
         let longs = self
@@ -1511,12 +1514,12 @@ impl<'help, 'app> Parser<'help, 'app> {
             .cloned()
             .collect();
 
-        Err(ClapError::unknown_argument(
+        ClapError::unknown_argument(
             format!("--{}", arg),
             did_you_mean,
             Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
-        ))
+        )
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
