@@ -1046,12 +1046,16 @@ pub enum AppSettings {
     TrailingValues,
 
     #[doc(hidden)]
+    /// If the app is already built, used for caching.
     Built,
 
     #[doc(hidden)]
+    /// If the app's bin name is already built, used for caching.
     BinNameBuilt,
 
     #[doc(hidden)]
+    /// This is paired with `ArgsNegateSubcommands`. Used to determine if we
+    /// already met any valid arg(then we shouldn't expect subcommands after it).
     ValidArgFound,
 
     #[doc(hidden)]
