@@ -347,13 +347,6 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                // Is this a new argument, or a value for previous option?
-                let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
-                if arg_os == "--" && starts_new_arg {
-                    debug!("Parser::get_matches_with: setting TrailingVals=true");
-                    self.set(AS::TrailingValues);
-                    continue;
-                }
                 let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
                     true
                 } else {
@@ -373,8 +366,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 }
 
+                // Is this a new argument, or a value for previous option?
+                let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
                 if starts_new_arg {
-                    if arg_os.starts_with("--") {
+                    if arg_os == "--" {
+                        debug!("Parser::get_matches_with: setting TrailingVals=true");
+                        self.set(AS::TrailingValues);
+                        continue;
+                    } else if arg_os.starts_with("--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os, remaining_args)?;
                         debug!(
                             "Parser::get_matches_with: After parse_long_arg {:?}",
