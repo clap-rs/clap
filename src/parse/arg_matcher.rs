@@ -130,7 +130,10 @@ impl ArgMatcher {
 
     pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
         let ma = self.entry(arg).or_insert(MatchedArg {
-            occurs: 0, // @TODO @question Shouldn't this be 1 if we're already adding a value to this arg?
+            // We will manually inc occurrences later(for flexibility under
+            // specific circumstances, like only add one occurrence for flag
+            // when we met: `--flag=one,two`).
+            occurs: 0,
             ty,
             indices: Vec::with_capacity(1),
             vals: Vec::with_capacity(1),
