@@ -345,17 +345,15 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
-            // Is this a new argument, or a value for previous option?
-            let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
-
-            if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
-                debug!("Parser::get_matches_with: setting TrailingVals=true");
-                self.set(AS::TrailingValues);
-                continue;
-            }
-
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
+                // Is this a new argument, or a value for previous option?
+                let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
+                if arg_os == "--" && starts_new_arg {
+                    debug!("Parser::get_matches_with: setting TrailingVals=true");
+                    self.set(AS::TrailingValues);
+                    continue;
+                }
                 let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
                     true
                 } else {
@@ -508,11 +506,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 pos_counter = positional_count;
             }
 
-            if let Some(p) = self
-                .app
-                .args
-                .get(&(pos_counter as u64))
-            {
+            if let Some(p) = self.app.args.get(&(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
                         arg_os.to_string_lossy().to_string(),
@@ -1236,25 +1230,19 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                if val.is_empty() {
-                    Ok(self.add_single_val_to_arg(arg, val, matcher, ty)?)
-                } else {
-                    let mut iret = ParseResult::ValuesDone;
-                    for v in val.split(delim) {
-                        iret = self.add_single_val_to_arg(arg, &v, matcher, ty)?;
-                    }
-                    // If there was a delimiter used, we're not looking for more values
-                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                        iret = ParseResult::ValuesDone;
-                    }
-                    Ok(iret)
+                let mut iret = ParseResult::ValuesDone;
+                for v in val.split(delim) {
+                    iret = self.add_single_val_to_arg(arg, &v, matcher, ty)?;
                 }
-            } else {
-                self.add_single_val_to_arg(arg, val, matcher, ty)
+                // If there was a delimiter used or we must use the delimiter to
+                // separate the values, we're not looking for more values.
+                if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
+                    iret = ParseResult::ValuesDone;
+                }
+                return Ok(iret);
             }
-        } else {
-            self.add_single_val_to_arg(arg, val, matcher, ty)
         }
+        self.add_single_val_to_arg(arg, val, matcher, ty)
     }
 
     fn add_single_val_to_arg(
@@ -1280,14 +1268,15 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&arg.id) {
-            matcher.add_val_to(&grp, v.to_os_string(), ty);
+        for group in self.app.groups_for_arg(&arg.id) {
+            matcher.add_val_to(&group, v.to_os_string(), ty);
         }
 
         if matcher.needs_more_vals(arg) {
-            return Ok(ParseResult::Opt(arg.id.clone()));
+            Ok(ParseResult::Opt(arg.id.clone()))
+        } else {
+            Ok(ParseResult::ValuesDone)
         }
-        Ok(ParseResult::ValuesDone)
     }
 
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
