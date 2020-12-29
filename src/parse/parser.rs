@@ -1376,8 +1376,6 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn add_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher, ty: ValueType) {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
-
-            let mut done = false;
             if matcher.get(&arg.id).is_none() {
                 for (id, val, default) in arg.default_vals_ifs.values() {
                     let add = if let Some(a) = matcher.get(&id) {
@@ -1392,14 +1390,9 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                     if add {
                         self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty);
-                        done = true;
-                        break;
+                        return;
                     }
                 }
-            }
-
-            if done {
-                return;
             }
         } else {
             debug!("Parser::add_value: doesn't have conditional defaults");
