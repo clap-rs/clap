@@ -667,30 +667,27 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn possible_subcommand(&self, arg_os: &ArgStr) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
-        if self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) {
-            return None;
-        }
+        if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)) {
+            if self.is_set(AS::InferSubcommands) {
+                // For subcommand `test`, we accepts it's prefix: `t`, `te`,
+                // `tes` and `test`.
+                let v = self
+                    .app
+                    .all_subcommand_names()
+                    .filter(|s| arg_os.is_prefix_of(s))
+                    .collect::<Vec<_>>();
 
-        if self.is_set(AS::InferSubcommands) {
-            let v = self
-                .app
-                .all_subcommand_names()
-                .filter(|s| arg_os.is_prefix_of(s))
-                .collect::<Vec<_>>();
-
-            if v.len() == 1 {
-                return Some(v[0]);
-            }
-
-            for sc in &v {
-                if sc == arg_os {
-                    return Some(sc);
+                if v.len() == 1 {
+                    return Some(v[0]);
                 }
-            }
-        } else if let Some(sc) = self.app.find_subcommand(arg_os) {
-            return Some(&sc.name);
-        }
 
+                // If there is any ambiguity, fallback to non-infer subcommand
+                // search.
+            }
+            if let Some(sc) = self.app.find_subcommand(arg_os) {
+                return Some(&sc.name);
+            }
+        }
         None
     }
 
