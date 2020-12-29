@@ -511,8 +511,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(p) = self
                 .app
                 .args
-                .args()
-                .find(|a| a.is_positional() && a.index == Some(pos_counter as u64))
+                .get(&(pos_counter as u64))
             {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
@@ -599,8 +598,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 );
                 // If the argument looks like a subcommand.
                 if !cands.is_empty() {
-                    let cands: Vec<_> =
-                        cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
                     return Err(ClapError::invalid_subcommand(
                         arg_os.to_string_lossy().to_string(),
                         cands.join(" or "),
@@ -614,9 +612,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     ));
                 }
                 // If the argument must be a subcommand.
-                if !self.has_args()
-                    || self.is_set(AS::InferSubcommands) && self.has_subcommands()
-                {
+                if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
                     return Err(ClapError::unrecognized_subcommand(
                         arg_os.to_string_lossy().to_string(),
                         self.app
