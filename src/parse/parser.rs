@@ -1001,15 +1001,14 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.cur_idx.set(self.cur_idx.get() + 1);
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
-        let matches;
+        let long_arg = full_arg.trim_start_matches(b'-');
         let (arg, val) = if full_arg.contains_byte(b'=') {
-            matches = full_arg.trim_start_matches(b'-');
-            let (p0, p1) = matches.split_at_byte(b'=');
+            let (p0, p1) = long_arg.split_at_byte(b'=');
             debug!("Yes '{:?}'", p1);
             (p0, Some(p1))
         } else {
             debug!("No");
-            (full_arg.trim_start_matches(b'-'), None)
+            (long_arg, None)
         };
         if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
@@ -1017,29 +1016,27 @@ impl<'help, 'app> Parser<'help, 'app> {
                 opt.to_string()
             );
             self.app.settings.set(AS::ValidArgFound);
-
             self.seen.push(opt.id.clone());
-
             if opt.is_set(ArgSettings::TakesValue) {
-                return Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?);
+                Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?)
+            } else {
+                self.check_for_help_and_version_str(&arg)?;
+                self.parse_flag(opt, matcher);
+                Ok(ParseResult::Flag)
             }
-            self.check_for_help_and_version_str(&arg)?;
-            self.parse_flag(opt, matcher);
-
-            return Ok(ParseResult::Flag);
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
-            return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
+            Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
         } else if self.is_set(AS::AllowLeadingHyphen) {
-            return Ok(ParseResult::MaybeHyphenValue);
+            Ok(ParseResult::MaybeHyphenValue)
+        } else {
+            debug!("Parser::parse_long_arg: Didn't match anything");
+            let remaining_args: Vec<_> = remaining_args
+                .iter()
+                .map(|x| x.to_str().expect(INVALID_UTF8))
+                .collect();
+            self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher, &remaining_args)
+                .map(|_| ParseResult::NotFound)
         }
-
-        debug!("Parser::parse_long_arg: Didn't match anything");
-        let remaining_args: Vec<_> = remaining_args
-            .iter()
-            .map(|x| x.to_str().expect(INVALID_UTF8))
-            .collect();
-        self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher, &remaining_args)
-            .map(|_| ParseResult::NotFound)
     }
 
     fn parse_short_arg(
@@ -1137,6 +1134,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
+        // has_eq: --flag=value
         let mut has_eq = false;
         let no_val = val.is_none();
         let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
