@@ -367,8 +367,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 // Is this a new argument, or a value for previous option?
-                let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
-                if starts_new_arg {
+                if self.is_new_arg(&arg_os, &needs_val_of) {
                     if arg_os == "--" {
                         debug!("Parser::get_matches_with: setting TrailingVals=true");
                         self.set(AS::TrailingValues);
@@ -512,9 +511,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     ));
                 }
 
-                if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg) && pos_counter == positional_count)
-                {
+                if self.is_set(AS::TrailingVarArg) && pos_counter == positional_count {
                     self.app.settings.set(AS::TrailingValues);
                 }
 
@@ -1003,7 +1000,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
 
-        // Update the curent index
+        // Update the current index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
