@@ -72,7 +72,7 @@ _{name} \"$@\"",
 // (( $+functions[_rustup_commands] )) ||
 // _rustup_commands() {
 //     local commands; commands=(
-//         'show:Show the active and installed toolchains'
+//      'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
 //      # ... snip for brevity
 //      'help:Prints this message or the help of the given subcommand(s)'
@@ -84,20 +84,21 @@ fn subcommand_details(p: &App) -> String {
 
     let name = p.get_bin_name().unwrap();
 
+    let mut ret = vec![];
+
     // First we do ourself
-    let mut ret = vec![format!(
+    let parent_text = format!(
         "\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
 _{bin_name_underscore}_commands() {{
-    local commands; commands=(
-        {subcommands_and_args}
-    )
+    local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
         bin_name_underscore = name.replace(" ", "__"),
         bin_name = name,
         subcommands_and_args = subcommands_of(p)
-    )];
+    );
+    ret.push(parent_text);
 
     // Next we start looping through all the children, grandchildren, etc.
     let mut all_subcommands = Zsh::all_subcommands(p);
@@ -112,9 +113,7 @@ _{bin_name_underscore}_commands() {{
             "\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
 _{bin_name_underscore}_commands() {{
-    local commands; commands=(
-        {subcommands_and_args}
-    )
+    local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
             bin_name_underscore = bin_name.replace(" ", "__"),
@@ -141,38 +140,42 @@ _{bin_name_underscore}_commands() {{
 fn subcommands_of(p: &App) -> String {
     debug!("subcommands_of");
 
-    let mut ret = vec![];
+    let mut segments = vec![];
 
-    fn add_sc(sc: &App, n: &str, ret: &mut Vec<String>) {
-        debug!("add_sc");
+    fn add_subcommands(subcommand: &App, name: &str, ret: &mut Vec<String>) {
+        debug!("add_subcommands");
 
-        let s = format!(
-            "\"{name}:{help}\" \\",
-            name = n,
-            help = sc
-                .get_about()
-                .unwrap_or("")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
+        let text = format!(
+            "'{name}:{help}' \\",
+            name = name,
+            help = escape_help(subcommand.get_about().unwrap_or(""))
         );
 
-        if !s.is_empty() {
-            ret.push(s);
+        if !text.is_empty() {
+            ret.push(text);
         }
     }
 
     // The subcommands
-    for sc in p.get_subcommands() {
-        debug!("subcommands_of:iter: subcommand={}", sc.get_name());
+    for command in p.get_subcommands() {
+        debug!("subcommands_of:iter: subcommand={}", command.get_name());
 
-        add_sc(sc, &sc.get_name(), &mut ret);
+        add_subcommands(command, &command.get_name(), &mut segments);
 
-        for alias in sc.get_visible_aliases() {
-            add_sc(sc, alias, &mut ret);
+        for alias in command.get_visible_aliases() {
+            add_subcommands(command, alias, &mut segments);
         }
     }
 
-    ret.join("\n")
+    // Surround the text with newlines for proper formatting.
+    // We need this to prevent weirdly formatted `command=(\n        \n)` sections.
+    // When there are no (sub-)commands.
+    if !segments.is_empty() {
+        segments.insert(0, "".to_string());
+        segments.push("    ".to_string());
+    }
+
+    segments.join("\n")
 }
 
 // Get's the subcommand section of a completion file
@@ -204,42 +207,45 @@ fn subcommands_of(p: &App) -> String {
 //    [name_hyphen] = The full space delineated bin_name, but replace spaces with hyphens
 //    [repeat] = From the same recursive calls, but for all subcommands
 //    [subcommand_args] = The same as zsh::get_args_of
-fn get_subcommands_of(p: &App) -> String {
+fn get_subcommands_of(parent: &App) -> String {
     debug!(
         "get_subcommands_of: Has subcommands...{:?}",
-        p.has_subcommands()
+        parent.has_subcommands()
     );
 
-    if !p.has_subcommands() {
+    if !parent.has_subcommands() {
         return String::new();
     }
 
-    let sc_names = Zsh::subcommands(p);
-    let mut subcmds = vec![];
+    let subcommand_names = Zsh::subcommands(parent);
+    let mut all_subcommands = vec![];
 
-    for &(ref name, ref bin_name) in &sc_names {
+    for &(ref name, ref bin_name) in &subcommand_names {
         debug!(
-            "get_subcommands_of:iter: p={}, name={}, bin_name={}",
-            p.get_name(),
+            "get_subcommands_of:iter: parent={}, name={}, bin_name={}",
+            parent.get_name(),
             name,
             bin_name,
         );
-        let mut v = vec![format!("({})", name)];
-        let subcommand_args =
-            get_args_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG), Some(p));
+        let mut segments = vec![format!("({})", name)];
+        let subcommand_args = get_args_of(
+            parser_of(parent, &*bin_name).expect(INTERNAL_ERROR_MSG),
+            Some(parent),
+        );
 
         if !subcommand_args.is_empty() {
-            v.push(subcommand_args);
+            segments.push(subcommand_args);
         }
 
-        let subcommands = get_subcommands_of(parser_of(p, &*bin_name).expect(INTERNAL_ERROR_MSG));
+        // Get the help text of all child subcommands.
+        let children = get_subcommands_of(parser_of(parent, &*bin_name).expect(INTERNAL_ERROR_MSG));
 
-        if !subcommands.is_empty() {
-            v.push(subcommands);
+        if !children.is_empty() {
+            segments.push(children);
         }
 
-        v.push(String::from(";;"));
-        subcmds.push(v.join("\n"));
+        segments.push(String::from(";;"));
+        all_subcommands.push(segments.join("\n"));
     }
 
     format!(
@@ -253,10 +259,10 @@ fn get_subcommands_of(p: &App) -> String {
         esac
     ;;
 esac",
-        name = p.get_name(),
-        name_hyphen = p.get_bin_name().unwrap().replace(" ", "-"),
-        subcommands = subcmds.join("\n"),
-        pos = p.get_positionals().count() + 1
+        name = parent.get_name(),
+        name_hyphen = parent.get_bin_name().unwrap().replace(" ", "-"),
+        subcommands = all_subcommands.join("\n"),
+        pos = parent.get_positionals().count() + 1
     )
 }
 
@@ -264,15 +270,15 @@ esac",
 //
 // Given the bin_name "a b c" and the App for "a" this returns the "c" App.
 // Given the bin_name "a b c" and the App for "b" this returns the "c" App.
-fn parser_of<'help, 'app>(p: &'app App<'help>, bin_name: &str) -> Option<&'app App<'help>> {
-    debug!("parser_of: p={}, bin_name={}", p.get_name(), bin_name);
+fn parser_of<'help, 'app>(parent: &'app App<'help>, bin_name: &str) -> Option<&'app App<'help>> {
+    debug!("parser_of: p={}, bin_name={}", parent.get_name(), bin_name);
 
-    if bin_name == p.get_bin_name().unwrap_or(&String::new()) {
-        return Some(p);
+    if bin_name == parent.get_bin_name().unwrap_or(&String::new()) {
+        return Some(parent);
     }
 
-    for sc in p.get_subcommands() {
-        if let Some(ret) = parser_of(sc, bin_name) {
+    for subcommand in parent.get_subcommands() {
+        if let Some(ret) = parser_of(subcommand, bin_name) {
             return Some(ret);
         }
     }
@@ -300,51 +306,39 @@ fn parser_of<'help, 'app>(p: &'app App<'help>, bin_name: &str) -> Option<&'app A
 //    -C: modify the $context internal variable
 //    -s: Allow stacking of short args (i.e. -a -b -c => -abc)
 //    -S: Do not complete anything after '--' and treat those as argument values
-fn get_args_of(p: &App, p_global: Option<&App>) -> String {
+fn get_args_of(parent: &App, p_global: Option<&App>) -> String {
     debug!("get_args_of");
 
-    let mut ret = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
-    let opts = write_opts_of(p, p_global);
-    let flags = write_flags_of(p, p_global);
-    let positionals = write_positionals_of(p);
-
-    let sc_or_a = if p.has_subcommands() {
-        format!(
-            "\":: :_{name}_commands\" \\",
-            name = p.get_bin_name().as_ref().unwrap().replace(" ", "__")
-        )
-    } else {
-        String::new()
-    };
-
-    let sc = if p.has_subcommands() {
-        format!("\"*::: :->{name}\" \\", name = p.get_name())
-    } else {
-        String::new()
-    };
+    let mut segments = vec![String::from("_arguments \"${_arguments_options[@]}\" \\")];
+    let opts = write_opts_of(parent, p_global);
+    let flags = write_flags_of(parent, p_global);
+    let positionals = write_positionals_of(parent);
 
     if !opts.is_empty() {
-        ret.push(opts);
+        segments.push(opts);
     }
 
     if !flags.is_empty() {
-        ret.push(flags);
+        segments.push(flags);
     }
 
     if !positionals.is_empty() {
-        ret.push(positionals);
+        segments.push(positionals);
     }
 
-    if !sc_or_a.is_empty() {
-        ret.push(sc_or_a);
-    }
+    if parent.has_subcommands() {
+        let subcommand_bin_name = format!(
+            "\":: :_{name}_commands\" \\",
+            name = parent.get_bin_name().as_ref().unwrap().replace(" ", "__")
+        );
+        segments.push(subcommand_bin_name);
 
-    if !sc.is_empty() {
-        ret.push(sc);
-    }
+        let subcommand_text = format!("\"*::: :->{name}\" \\", name = parent.get_name());
+        segments.push(subcommand_text);
+    };
 
-    ret.push(String::from("&& ret=0"));
-    ret.join("\n")
+    segments.push(String::from("&& ret=0"));
+    segments.join("\n")
 }
 
 // Uses either `possible_vals` or `value_hint` to give hints about possible argument values
@@ -383,7 +377,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
     }
 }
 
-// Escape help string inside single quotes and brackets
+/// Escape help string inside single quotes and brackets
 fn escape_help(string: &str) -> String {
     string
         .replace("\\", "\\\\")
@@ -392,7 +386,7 @@ fn escape_help(string: &str) -> String {
         .replace("]", "\\]")
 }
 
-// Escape value string inside single quotes and parentheses
+/// Escape value string inside single quotes and parentheses
 fn escape_value(string: &str) -> String {
     string
         .replace("\\", "\\\\")

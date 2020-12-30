@@ -1,5 +1,27 @@
 use super::*;
 
+fn build_app() -> App<'static> {
+    build_app_with_name("myapp")
+}
+
+fn build_app_with_name(s: &'static str) -> App<'static> {
+    App::new(s)
+        .about("Tests completions")
+        .arg(
+            Arg::new("file")
+                .value_hint(ValueHint::FilePath)
+                .about("some input file"),
+        )
+        .subcommand(
+            App::new("test").about("tests things").arg(
+                Arg::new("case")
+                    .long("case")
+                    .takes_value(true)
+                    .about("the case to test"),
+            ),
+        )
+}
+
 #[test]
 fn bash() {
     let mut app = build_app();
@@ -93,6 +115,19 @@ complete -F _myapp -o bashdefault -o default myapp
 fn bash_with_special_commands() {
     let mut app = build_app_special_commands();
     common::<Bash>(&mut app, "my_app", BASH_SPECIAL_CMDS);
+}
+
+fn build_app_special_commands() -> App<'static> {
+    build_app_with_name("my_app")
+        .subcommand(
+            App::new("some_cmd").about("tests other things").arg(
+                Arg::new("config")
+                    .long("--config")
+                    .takes_value(true)
+                    .about("the other case to test"),
+            ),
+        )
+        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
 static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
