@@ -1000,7 +1000,7 @@ impl<'help> App<'help> {
     }
 
     /// Sets the terminal width at which to wrap help messages. Defaults to
-    /// `120`. Using `0` will ignore terminal widths and use source formatting.
+    /// `100`. Using `0` will ignore terminal widths and use source formatting.
     ///
     /// `clap` automatically tries to determine the terminal width on Unix,
     /// Linux, OSX and Windows if the `wrap_help` cargo "feature" has been enabled
