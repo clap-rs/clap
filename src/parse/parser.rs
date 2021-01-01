@@ -1024,7 +1024,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app.settings.set(AS::ValidArgFound);
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
-                Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?)
+                Ok(self.parse_opt(&val, opt, matcher)?)
             } else {
                 self.check_for_help_and_version_str(&arg)?;
                 self.parse_flag(opt, matcher);
@@ -1114,7 +1114,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 };
 
                 // Default to "we're expecting a value later"
-                return self.parse_opt(&val, opt, false, matcher);
+                return self.parse_opt(&val, opt, matcher);
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
@@ -1138,7 +1138,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         &self,
         val: &Option<ArgStr>,
         opt: &Arg<'help>,
-        had_eq: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
@@ -1152,7 +1151,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with("=") || had_eq;
+            has_eq = fv.starts_with("=");
             let v = fv.trim_start_n_matches(1, b'=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 debug!("Found Empty - Error");
@@ -1201,7 +1200,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::MultipleValues);
         // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
-        if no_val && min_vals_zero && !has_eq && needs_eq {
+        if no_val && min_vals_zero && needs_eq {
             debug!("Parser::parse_opt: More arg vals not required...");
             return Ok(ParseResult::ValuesDone);
         } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
