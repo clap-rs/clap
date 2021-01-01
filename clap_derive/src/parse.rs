@@ -24,6 +24,7 @@ pub enum ClapAttr {
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
     Author(Ident, Option<LitStr>),
+    Name(Ident, Option<LitStr>),
     Version(Ident, Option<LitStr>),
     DefaultValue(Ident, Option<LitStr>),
 
@@ -79,6 +80,11 @@ impl Parse for ClapAttr {
                     "version" => {
                         check_empty_lit("version");
                         Ok(Version(name, Some(lit)))
+                    }
+
+                    "name" => {
+                        check_empty_lit("name");
+                        Ok(Name(name, Some(lit)))
                     }
 
                     "author" => {
@@ -177,6 +183,7 @@ impl Parse for ClapAttr {
                 "default_value" => Ok(DefaultValue(name, None)),
                 "about" => (Ok(About(name, None))),
                 "author" => (Ok(Author(name, None))),
+                "name" => Ok(Name(name, None)),
                 "version" => Ok(Version(name, None)),
 
                 "skip" => Ok(Skip(name, None)),

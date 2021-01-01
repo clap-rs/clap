@@ -30,6 +30,18 @@ fn no_author_version_about() {
 #[test]
 fn use_env() {
     #[derive(Clap, PartialEq, Debug)]
+    #[clap(author, name, about, version)]
+    struct Opt {}
+
+    let output = get_long_help::<Opt>();
+    assert!(output.starts_with(clap::crate_name!()));
+    assert!(output.contains("Guillaume Pinot <texitoi@texitoi.eu>, Clap Maintainers"));
+    assert!(output.contains("Parse command line argument by defining a struct, derive crate"));
+}
+
+#[test]
+fn use_env_no_name() {
+    #[derive(Clap, PartialEq, Debug)]
     #[clap(author, about, version)]
     struct Opt {}
 

@@ -381,6 +381,14 @@ impl Attrs {
                     self.author = Method::from_lit_or_env(ident, author, "CARGO_PKG_AUTHORS");
                 }
 
+                Name(ident, name) => {
+                    let method = Method::from_lit_or_env(ident, name, "CARGO_PKG_NAME");
+                    if let Some(m) = method {
+                        let args = m.args;
+                        self.name = self::Name::Assigned(quote!(#args));
+                    }
+                }
+
                 Version(ident, version) => {
                     self.version = Method::from_lit_or_env(ident, version, "CARGO_PKG_VERSION");
                 }
