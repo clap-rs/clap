@@ -319,7 +319,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut external_subcommand = false;
         let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
+        // Count of positional args
         let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
+        // If any arg sets .last(true)
+        let contains_last = self.app.args.args().any(|x| x.is_set(ArgSettings::Last));
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -467,8 +470,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 low_index_mults
             );
 
-            if low_index_mults || missing_pos {
-                if let Some(n) = remaining_args.get(0) {
+            pos_counter = if low_index_mults || missing_pos {
+                let bump = if let Some(n) = remaining_args.get(0) {
                     needs_val_of = if let Some(p) = self
                         .app
                         .get_positionals()
@@ -482,23 +485,27 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // If the arg doesn't looks like a new_arg and it's not a
                     // subcommand, don't bump the position counter.
                     let n = ArgStr::new(n);
-                    if self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
-                    {
-                        debug!("Parser::get_matches_with: Bumping the positional counter...");
-                        pos_counter += 1;
-                    }
+                    self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
                 } else {
+                    true
+                };
+
+                if bump {
                     debug!("Parser::get_matches_with: Bumping the positional counter...");
-                    pos_counter += 1;
+                    pos_counter + 1
+                } else {
+                    pos_counter
                 }
             } else if self.is_set(AS::TrailingValues)
-                && (self.is_set(AS::AllowMissingPositional) || self.is_set(AS::ContainsLast))
+                && (self.is_set(AS::AllowMissingPositional) || contains_last)
             {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = positional_count;
-            }
+                positional_count
+            } else {
+                pos_counter
+            };
 
             if let Some(p) = self.app.args.get(&(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -795,7 +802,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
+    fn is_new_arg(&self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
         debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, last_result);
 
         let want_value = match last_result {

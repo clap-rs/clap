@@ -2310,7 +2310,6 @@ impl<'help> App<'help> {
                     // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
                     // in the usage string don't get confused or left out.
                     self.settings.set(AppSettings::DontCollapseArgsInUsage);
-                    self.settings.set(AppSettings::ContainsLast);
                 }
                 a._build();
                 if a.short.is_none() && a.long.is_none() && a.index.is_none() {
