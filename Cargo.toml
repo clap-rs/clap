@@ -67,8 +67,8 @@ maintenance = {status = "actively-developed"}
 [dependencies]
 clap_derive = { path = "./clap_derive", version = "3.0.0-beta.2", optional = true }
 bitflags = "1.2"
-unicode-width = "0.1"
-textwrap = "0.12"
+textwrap = { version = "0.13", default-features = false, features = [] }
+unicode-width = { version = "0.1", optional = true }
 indexmap = "1.0"
 os_str_bytes = { version = "2.4", features = ["raw"] }
 vec_map = "0.8"
@@ -87,11 +87,12 @@ version-sync = "0.8"
 criterion = "0.3.2"
 
 [features]
-default     = ["suggestions", "color", "derive", "std", "cargo"]
+default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo"]
 std         = [] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
 wrap_help   = ["terminal_size", "textwrap/terminal_size"]
+unicode_help= ["unicode-width", "textwrap/unicode-width"] # Enable if any unicode in help message
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
