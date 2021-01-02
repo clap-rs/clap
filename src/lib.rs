@@ -554,7 +554,6 @@ extern crate strsim;
 #[cfg(feature = "wrap_help")]
 extern crate term_size;
 extern crate textwrap;
-extern crate unicode_width;
 #[cfg(feature = "vec_map")]
 extern crate vec_map;
 #[cfg(feature = "yaml")]

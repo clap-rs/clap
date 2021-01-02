@@ -24,14 +24,14 @@ maintenance = {status = "actively-developed"}
 
 [dependencies]
 bitflags              = "1.0"
-unicode-width         = "0.1.4"
-textwrap              = "0.11.0"
+unicode-width = { version = "0.1", optional = true }
+textwrap  = { version = "0.13", default-features = false, features = [] }
 strsim    = { version = "0.8",  optional = true }
 yaml-rust = { version = "0.3.5",  optional = true }
 clippy    = { version = "~0.0.166", optional = true }
 atty      = { version = "0.2.2",  optional = true }
 vec_map   = { version = "0.8", optional = true }
-term_size = { version = "0.3.0", optional = true }
+terminal_size = { version = "0.1.12", optional = true }
 
 [target.'cfg(not(windows))'.dependencies]
 ansi_term = { version = "0.11",  optional = true }
@@ -45,7 +45,8 @@ version-sync = "0.8"
 default     = ["suggestions", "color", "vec_map"]
 suggestions = ["strsim"]
 color       = ["ansi_term", "atty"]
-wrap_help   = ["term_size", "textwrap/term_size"]
+wrap_help   = ["terminal_size", "textwrap/terminal_size"]
+unicode_help= ["unicode-width", "textwrap/unicode-width"] # Enable if any unicode in help message
 yaml        = ["yaml-rust"]
 unstable    = [] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 nightly     = [] # for building with unstable Rust features (currently none)

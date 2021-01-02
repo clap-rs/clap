@@ -20,7 +20,6 @@ use INTERNAL_ERROR_MSG;
 #[cfg(feature = "wrap_help")]
 use term_size;
 use textwrap;
-use unicode_width::UnicodeWidthStr;
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
@@ -30,6 +29,10 @@ mod term_size {
 }
 
 fn str_width(s: &str) -> usize {
+    #[cfg(not(feature = "unicode_help"))]
+    return s.len();
+
+    #[cfg(feature = "unicode_help")]
     UnicodeWidthStr::width(s)
 }
 
@@ -1012,9 +1015,9 @@ impl<'a> Help<'a> {
 }
 
 fn wrap_help(help: &str, avail_chars: usize) -> String {
-    let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
+    let wrapper = textwrap::Options::new(avail_chars).break_words(false);
     help.lines()
-        .map(|line| wrapper.fill(line))
+        .map(|line| textwrap::fill(line, &wrapper))
         .collect::<Vec<String>>()
         .join("\n")
 }
