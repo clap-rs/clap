@@ -132,7 +132,7 @@ impl ArgMatcher {
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
         let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
-        ma.indices.push(idx);
+        ma.push_index(idx);
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
