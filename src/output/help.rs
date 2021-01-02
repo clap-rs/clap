@@ -18,7 +18,6 @@ use crate::{
 
 // Third party
 use indexmap::IndexSet;
-use unicode_width::UnicodeWidthStr;
 
 pub(crate) fn dimensions() -> Option<(usize, usize)> {
     #[cfg(not(feature = "wrap_help"))]
@@ -29,7 +28,11 @@ pub(crate) fn dimensions() -> Option<(usize, usize)> {
 }
 
 fn str_width(s: &str) -> usize {
-    UnicodeWidthStr::width(s)
+    #[cfg(not(feature = "unicode_help"))]
+    return s.len();
+
+    #[cfg(feature = "unicode_help")]
+    unicode_width::UnicodeWidthStr::width(s)
 }
 
 const TAB: &str = "    ";
@@ -1045,9 +1048,9 @@ fn should_show_subcommand(subcommand: &App) -> bool {
 }
 
 fn text_wrapper(help: &str, width: usize) -> String {
-    let wrapper = textwrap::Wrapper::new(width).break_words(false);
+    let wrapper = textwrap::Options::new(width).break_words(false);
     help.lines()
-        .map(|line| wrapper.fill(line))
+        .map(|line| textwrap::fill(line, &wrapper))
         .collect::<Vec<String>>()
         .join("\n")
 }
