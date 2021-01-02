@@ -1505,7 +1505,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
-                matcher.insert(&opt.id);
+                matcher.inc_occurrence_of(&opt.id);
             }
         }
 

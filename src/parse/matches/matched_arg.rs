@@ -17,20 +17,14 @@ pub(crate) struct MatchedArg {
     pub(crate) vals: Vec<OsString>,
 }
 
-impl Default for MatchedArg {
-    fn default() -> Self {
+impl MatchedArg {
+    pub(crate) fn new(ty: ValueType) -> Self {
         MatchedArg {
-            occurs: 1,
-            ty: ValueType::CommandLine,
+            occurs: 0,
+            ty,
             indices: Vec::new(),
             vals: Vec::new(),
         }
-    }
-}
-
-impl MatchedArg {
-    pub(crate) fn new() -> Self {
-        MatchedArg::default()
     }
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals
