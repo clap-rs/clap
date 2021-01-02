@@ -14,7 +14,7 @@ pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
     pub(crate) ty: ValueType,
     indices: Vec<usize>,
-    pub(crate) vals: Vec<OsString>,
+    vals: Vec<OsString>,
 }
 
 impl MatchedArg {
@@ -27,7 +27,7 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn indices<'a>(&'a self) -> Cloned<Iter<'a, usize>> {
+    pub(crate) fn indices(&self) -> Cloned<Iter<'_, usize>> {
         self.indices.iter().cloned()
     }
 
@@ -37,6 +37,30 @@ impl MatchedArg {
 
     pub(crate) fn push_index(&mut self, index: usize) {
         self.indices.push(index)
+    }
+
+    pub(crate) fn vals(&self) -> Iter<'_, OsString> {
+        self.vals.iter()
+    }
+
+    pub(crate) fn get_val(&self, index: usize) -> Option<&OsString> {
+        self.vals.get(index)
+    }
+
+    pub(crate) fn push_val(&mut self, val: OsString) {
+        self.vals.push(val)
+    }
+
+    pub(crate) fn num_vals(&self) -> usize {
+        self.vals.len()
+    }
+
+    pub(crate) fn no_val(&self) -> bool {
+        self.vals.is_empty()
+    }
+
+    pub(crate) fn remove_vals(&mut self, len: usize) {
+        self.vals.drain(0..len);
     }
 
     pub(crate) fn contains_val(&self, val: &str) -> bool {

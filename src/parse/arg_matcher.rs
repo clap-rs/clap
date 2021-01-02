@@ -127,7 +127,7 @@ impl ArgMatcher {
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
         let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
-        ma.vals.push(val);
+        ma.push_val(val);
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
@@ -141,13 +141,13 @@ impl ArgMatcher {
             if let Some(num) = o.num_vals {
                 debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::MultipleValues) {
-                    ((ma.vals.len() as u64) % num) != 0
+                    ((ma.num_vals() as u64) % num) != 0
                 } else {
-                    num != (ma.vals.len() as u64)
+                    num != (ma.num_vals() as u64)
                 };
             } else if let Some(num) = o.max_vals {
                 debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return (ma.vals.len() as u64) < num;
+                return (ma.num_vals() as u64) < num;
             } else if o.min_vals.is_some() {
                 debug!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;

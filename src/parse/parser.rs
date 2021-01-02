@@ -1345,8 +1345,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 ma.occurs = 1;
 
-                let len = ma.vals.len().saturating_sub(1);
-                ma.vals.drain(0..len);
+                let len = ma.num_vals().saturating_sub(1);
+                ma.remove_vals(len);
             }
         }
 
@@ -1379,7 +1379,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 for (id, val, default) in arg.default_vals_ifs.values() {
                     let add = if let Some(a) = matcher.get(&id) {
                         if let Some(v) = val {
-                            a.vals.iter().any(|value| v == value)
+                            a.vals().any(|value| v == value)
                         } else {
                             true
                         }
@@ -1424,7 +1424,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg.name
             );
             match matcher.get(&arg.id) {
-                Some(ma) if ma.vals.is_empty() => {
+                Some(ma) if ma.no_val() => {
                     debug!(
                         "Parser::add_value:iter:{}: has no user defined vals",
                         arg.name
