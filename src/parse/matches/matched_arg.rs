@@ -59,6 +59,15 @@ impl MatchedArg {
         self.vals.push(vec![val])
     }
 
+    pub(crate) fn append_val(&mut self, val: OsString) {
+        if let Some(val_last) = self.vals.last_mut() {
+            val_last.push(val);
+        } else {
+            // Fall back to push val when no val
+            self.push_val(val);
+        }
+    }
+
     pub(crate) fn push_vals(&mut self, vals: Vec<OsString>) {
         self.vals.push(vals)
     }
