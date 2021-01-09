@@ -1,5 +1,9 @@
 // Std
-use std::{ffi::{OsStr, OsString}, slice::Iter, iter::Cloned};
+use std::{
+    ffi::{OsStr, OsString},
+    iter::{Cloned, Flatten},
+    slice::Iter,
+};
 
 // TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -14,7 +18,7 @@ pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
     pub(crate) ty: ValueType,
     indices: Vec<usize>,
-    vals: Vec<OsString>,
+    vals: Vec<Vec<OsString>>,
 }
 
 impl MatchedArg {
@@ -39,16 +43,24 @@ impl MatchedArg {
         self.indices.push(index)
     }
 
-    pub(crate) fn vals(&self) -> Iter<'_, OsString> {
+    pub(crate) fn vals(&self) -> Iter<Vec<OsString>> {
         self.vals.iter()
     }
 
+    pub(crate) fn vals_flatten(&self) -> Flatten<Iter<Vec<OsString>>> {
+        self.vals.iter().flatten()
+    }
+
     pub(crate) fn get_val(&self, index: usize) -> Option<&OsString> {
-        self.vals.get(index)
+        self.vals.get(0)?.get(index)
     }
 
     pub(crate) fn push_val(&mut self, val: OsString) {
-        self.vals.push(val)
+        self.vals.push(vec![val])
+    }
+
+    pub(crate) fn push_vals(&mut self, vals: Vec<OsString>) {
+        self.vals.push(vals)
     }
 
     pub(crate) fn num_vals(&self) -> usize {
@@ -64,8 +76,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn contains_val(&self, val: &str) -> bool {
-        self.vals
-            .iter()
+        self.vals_flatten()
             .any(|v| OsString::as_os_str(v) == OsStr::new(val))
     }
 }

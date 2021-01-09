@@ -130,6 +130,11 @@ impl ArgMatcher {
         ma.push_val(val);
     }
 
+    pub(crate) fn add_vals_to(&mut self, arg: &Id, vals: Vec<OsString>, ty: ValueType) {
+        let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
+        ma.push_vals(vals);
+    }
+
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
         let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
         ma.push_index(idx);

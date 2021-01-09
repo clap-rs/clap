@@ -3,7 +3,7 @@ use std::{
     borrow::Cow,
     ffi::{OsStr, OsString},
     fmt::{Debug, Display},
-    iter::{Cloned, Map},
+    iter::{Cloned, Flatten, Map},
     slice::Iter,
     str::FromStr,
 };
@@ -234,12 +234,16 @@ impl ArgMatches {
             fn to_str_slice(o: &OsString) -> &str {
                 o.to_str().expect(INVALID_UTF8)
             }
-            let to_str_slice: fn(&OsString) -> &str = to_str_slice; // coerce to fn pointer
 
             Values {
-                iter: arg.vals().map(to_str_slice),
+                iter: arg.vals_flatten().map(to_str_slice),
             }
         })
+    }
+
+    /// Placeholder documentation.
+    pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<Iter<Vec<OsString>>> {
+        self.args.get(&Id::from(id)).map(|arg| arg.vals())
     }
 
     /// Gets the lossy values of a specific argument. If the option wasn't present at runtime
@@ -268,7 +272,7 @@ impl ArgMatches {
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         self.args.get(&Id::from(id)).map(|arg| {
-            arg.vals()
+            arg.vals_flatten()
                 .map(|v| v.to_string_lossy().into_owned())
                 .collect()
         })
@@ -305,14 +309,13 @@ impl ArgMatches {
     /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
     /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
     /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    pub fn values_of_os<'a, T: Key>(&'a self, id: T) -> Option<OsValues<'a>> {
+    pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         fn to_str_slice(o: &OsString) -> &OsStr {
-            &*o
+            o
         }
-        let to_str_slice: fn(&'a OsString) -> &'a OsStr = to_str_slice; // coerce to fn pointer
 
         self.args.get(&Id::from(id)).map(|arg| OsValues {
-            iter: arg.vals().map(to_str_slice),
+            iter: arg.vals_flatten().map(to_str_slice),
         })
     }
 
@@ -987,7 +990,8 @@ impl ArgMatches {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
-    iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a str>,
+    #[allow(clippy::type_complexity)]
+    iter: Map<Flatten<std::slice::Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
 }
 
 impl<'a> Iterator for Values<'a> {
@@ -1012,13 +1016,13 @@ impl<'a> ExactSizeIterator for Values<'a> {}
 /// Creates an empty iterator.
 impl<'a> Default for Values<'a> {
     fn default() -> Self {
-        static EMPTY: [OsString; 0] = [];
+        static EMPTY: [Vec<OsString>; 0] = [];
         // This is never called because the iterator is empty:
         fn to_str_slice(_: &OsString) -> &str {
             unreachable!()
         }
         Values {
-            iter: EMPTY[..].iter().map(to_str_slice),
+            iter: EMPTY[..].iter().flatten().map(to_str_slice),
         }
     }
 }
@@ -1047,7 +1051,8 @@ impl<'a> Default for Values<'a> {
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
-    iter: Map<Iter<'a, OsString>, fn(&'a OsString) -> &'a OsStr>,
+    #[allow(clippy::type_complexity)]
+    iter: Map<Flatten<std::slice::Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
 }
 
 impl<'a> Iterator for OsValues<'a> {
@@ -1072,13 +1077,13 @@ impl<'a> ExactSizeIterator for OsValues<'a> {}
 /// Creates an empty iterator.
 impl Default for OsValues<'_> {
     fn default() -> Self {
-        static EMPTY: [OsString; 0] = [];
+        static EMPTY: [Vec<OsString>; 0] = [];
         // This is never called because the iterator is empty:
         fn to_str_slice(_: &OsString) -> &OsStr {
             unreachable!()
         }
         OsValues {
-            iter: EMPTY[..].iter().map(to_str_slice),
+            iter: EMPTY[..].iter().flatten().map(to_str_slice),
         }
     }
 }

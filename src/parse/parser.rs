@@ -1226,46 +1226,88 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                let mut iret = ParseResult::ValuesDone;
-                for v in val.split(delim) {
-                    iret = self.add_single_val_to_arg(arg, &v, matcher, ty);
-                }
+                let arg_split = val.split(delim);
+                let vals = if let Some(t) = arg.terminator {
+                    let mut vals = vec![];
+                    for val in arg_split {
+                        if t == val {
+                            break;
+                        }
+                        vals.push(val);
+                    }
+                    vals
+                } else {
+                    arg_split.into_iter().collect()
+                };
+                let mut parse_result = if vals.is_empty() {
+                    ParseResult::ValuesDone
+                } else {
+                    self.add_multiple_val_to_arg(arg, vals, matcher, ty)
+                };
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values, we're not looking for more values.
                 if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                    iret = ParseResult::ValuesDone;
+                    parse_result = ParseResult::ValuesDone;
                 }
-                return iret;
+                return parse_result;
+            }
+        }
+        if let Some(t) = arg.terminator {
+            if t == val {
+                return ParseResult::ValuesDone;
             }
         }
         self.add_single_val_to_arg(arg, val, matcher, ty)
     }
 
-    fn add_single_val_to_arg(
+    fn add_multiple_val_to_arg(
         &self,
         arg: &Arg<'help>,
-        v: &ArgStr,
+        vals: Vec<ArgStr>,
         matcher: &mut ArgMatcher,
         ty: ValueType,
     ) -> ParseResult {
-        debug!("Parser::add_single_val_to_arg: adding val...{:?}", v);
+        debug!("Parser::add_multiple_val_to_arg: adding vals...{:?}", vals);
+
+        let num_vals = vals.len();
+        let begin_index = self.cur_idx.get() + 1;
+        self.cur_idx.set(self.cur_idx.get() + num_vals);
+        for i in begin_index..begin_index + num_vals {
+            matcher.add_index_to(&arg.id, i, ty);
+        }
+        let vals: Vec<_> = vals.into_iter().map(|x| x.to_os_string()).collect();
+        // Increment or create the group "args"
+        for val in vals.iter() {
+            for group in self.app.groups_for_arg(&arg.id) {
+                matcher.add_val_to(&group, val.clone(), ty);
+            }
+        }
+        matcher.add_vals_to(&arg.id, vals, ty);
+        if matcher.needs_more_vals(arg) {
+            ParseResult::Opt(arg.id.clone())
+        } else {
+            ParseResult::ValuesDone
+        }
+    }
+
+    fn add_single_val_to_arg(
+        &self,
+        arg: &Arg<'help>,
+        val: &ArgStr,
+        matcher: &mut ArgMatcher,
+        ty: ValueType,
+    ) -> ParseResult {
+        debug!("Parser::add_single_val_to_arg: adding val...{:?}", val);
 
         // update the current index because each value is a distinct index to clap
         self.cur_idx.set(self.cur_idx.get() + 1);
 
-        // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
-        if let Some(t) = arg.terminator {
-            if t == v {
-                return ParseResult::ValuesDone;
-            }
-        }
-
-        matcher.add_val_to(&arg.id, v.to_os_string(), ty);
+        matcher.add_val_to(&arg.id, val.to_os_string(), ty);
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {
-            matcher.add_val_to(&group, v.to_os_string(), ty);
+            matcher.add_val_to(&group, val.to_os_string(), ty);
         }
 
         if matcher.needs_more_vals(arg) {
@@ -1379,7 +1421,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 for (id, val, default) in arg.default_vals_ifs.values() {
                     let add = if let Some(a) = matcher.get(&id) {
                         if let Some(v) = val {
-                            a.vals().any(|value| v == value)
+                            a.vals_flatten().any(|value| v == value)
                         } else {
                             true
                         }
