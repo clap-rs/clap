@@ -23,6 +23,7 @@ impl Default for MatchedArg {
 }
 
 impl MatchedArg {
+    #[doc(hidden)]
     pub fn new() -> Self {
         MatchedArg::default()
     }

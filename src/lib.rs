@@ -561,7 +561,7 @@ extern crate vec_map;
 extern crate yaml_rust;
 
 pub use app::{App, AppSettings};
-pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, OsValues, SubCommand, Values};
+pub use args::{Arg, ArgGroup, ArgMatches, ArgSettings, MatchedArg, OsValues, SubCommand, Values};
 pub use completions::Shell;
 pub use errors::{Error, ErrorKind, Result};
 pub use fmt::Format;
