@@ -1147,13 +1147,13 @@ impl<'help, 'app> Parser<'help, 'app> {
         let no_val = val.is_none();
         let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
         let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
-        let needs_eq = opt.is_set(ArgSettings::RequireEquals);
+        let require_equals = opt.is_set(ArgSettings::RequireEquals);
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
             has_eq = fv.starts_with("=");
             let v = fv.trim_start_n_matches(1, b'=');
-            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.is_empty() || (require_equals && !has_eq)) {
                 debug!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
@@ -1168,24 +1168,28 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv.starts_with("=")
             );
             self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine);
-        } else if needs_eq && !empty_vals && !min_vals_zero {
+        } else if require_equals && !empty_vals && !min_vals_zero {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
                 opt,
                 Usage::new(self).create_usage_with_title(&[]),
                 self.app.color(),
             ));
-        } else if needs_eq && min_vals_zero {
+        } else if require_equals && min_vals_zero {
             debug!("None and requires equals, but min_vals == 0");
             if !opt.default_missing_vals.is_empty() {
                 debug!("Parser::parse_opt: has default_missing_vals");
-                for val in &opt.default_missing_vals {
-                    debug!(
-                        "Parser::parse_opt: adding value from default_missing_values; val = {:?}",
-                        val
-                    );
-                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine);
-                }
+                let default_missing_vals = opt
+                    .default_missing_vals
+                    .iter()
+                    .map(|x| ArgStr::new(x))
+                    .collect();
+                self.add_multiple_vals_to_arg(
+                    opt,
+                    default_missing_vals,
+                    matcher,
+                    ValueType::CommandLine,
+                );
             };
         } else {
             debug!("None");
@@ -1200,10 +1204,12 @@ impl<'help, 'app> Parser<'help, 'app> {
         let needs_delimiter = opt.is_set(ArgSettings::RequireDelimiter);
         let multiple = opt.is_set(ArgSettings::MultipleValues);
         // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
-        if no_val && min_vals_zero && needs_eq {
+        if no_val && min_vals_zero && require_equals {
             debug!("Parser::parse_opt: More arg vals not required...");
             Ok(ParseResult::ValuesDone)
-        } else if no_val || (multiple && !needs_delimiter) && !has_eq && matcher.needs_more_vals(opt) {
+        } else if no_val
+            || (multiple && !needs_delimiter) && !has_eq && matcher.needs_more_vals(opt)
+        {
             debug!("Parser::parse_opt: More arg vals required...");
             Ok(ParseResult::Opt(opt.id.clone()))
         } else {
@@ -1243,7 +1249,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut parse_result = if vals.is_empty() {
                     ParseResult::ValuesDone
                 } else {
-                    self.add_multiple_val_to_arg(arg, vals, matcher, ty)
+                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty)
                 };
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values, we're not looking for more values.
@@ -1261,7 +1267,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.add_single_val_to_arg(arg, val, matcher, ty)
     }
 
-    fn add_multiple_val_to_arg(
+    fn add_multiple_vals_to_arg(
         &self,
         arg: &Arg<'help>,
         vals: Vec<ArgStr>,
