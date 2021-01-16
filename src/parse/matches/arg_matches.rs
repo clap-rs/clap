@@ -572,6 +572,67 @@ impl ArgMatches {
         })
     }
 
+    /// Gets optional the value of a specific argument (i.e. an argument that takes an additional
+    /// value at runtime) and then converts it into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(value))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
+    /// prefer [`ArgMatches::parse_optional_vec_t_auto`] as `Arg::parse_optional_t_auto` will
+    /// only return the *first* value.
+    ///
+    /// `parse` returns a result which is either `Ok` to indicate a successful parse,
+    /// `Err(Ok(err))` to indicate a parse error, or `Err(Err(err))` to indicate that
+    /// invalid UTF-8 encodings were encountered and not supported.
+    ///
+    /// This routine is used to support `parse(auto)`.
+    pub fn parse_optional_t_auto<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, Result<E, OsString>>,
+    ) -> Result<Option<R>, Error>
+    where
+        E: Display,
+    {
+        Ok(match self.value_of_os(name) {
+            Some(v) => Some(parse(v).map_err(|e| match e {
+                Ok(e) => {
+                    let message = format!(
+                        "The argument '{}' isn't a valid value for '{}': {}",
+                        v.to_string_lossy(),
+                        name,
+                        e
+                    );
+
+                    Error::value_validation(
+                        name.to_string(),
+                        v.to_string_lossy().to_string(),
+                        message.into(),
+                        ColorChoice::Auto,
+                    )
+                }
+                Err(_e) => {
+                    let message = format!(
+                        "The argument '{}' isn't a valid encoding for '{}'",
+                        v.to_string_lossy(),
+                        name,
+                    );
+
+                    Error::value_validation(
+                        name.to_string(),
+                        v.to_string_lossy().to_string(),
+                        message.into(),
+                        ColorChoice::Auto,
+                    )
+                }
+            })?),
+            None => None,
+        })
+    }
+
     /// Gets the value of a specific argument (i.e. an argument that takes an additional
     /// value at runtime) and then converts it into the result type using [`std::str::FromStr`].
     ///
@@ -812,6 +873,67 @@ impl ArgMatches {
                             message.into(),
                             ColorChoice::Auto,
                         )
+                    })
+                })
+                .collect::<Result<_, _>>()?,
+            ),
+            None => None,
+        })
+    }
+
+    /// Gets the typed values of a specific argument (i.e. an argument that takes multiple
+    /// values at runtime) and then converts them into the result type using `parse`, which takes
+    /// the OS version of the string value of the argument.
+    ///
+    /// In the case where the argument wasn't present, `Ok(None)` is returned. In the
+    /// case where it was present and parsing succeeded, `Ok(Some(vec))` is returned.
+    /// If parsing (of any value) has failed, returns Err.
+    ///
+    /// `parse` returns a result which is either `Ok` to indicate a successful parse,
+    /// `Err(Ok(err))` to indicate a parse error, or `Err(Err(err))` to indicate that
+    /// invalid UTF-8 encodings were encountered and not supported.
+    ///
+    /// This routine is used to support `parse(auto)`.
+    pub fn parse_optional_vec_t_auto<R, E>(
+        &self,
+        name: &str,
+        parse: impl Fn(&OsStr) -> Result<R, Result<E, OsString>>,
+    ) -> Result<Option<Vec<R>>, Error>
+    where
+        E: Display,
+    {
+        Ok(match self.values_of_os(name) {
+            Some(vals) => Some(
+                vals.map(|v| {
+                    parse(v).map_err(|e| match e {
+                        Ok(e) => {
+                            let message = format!(
+                                "The argument '{}' isn't a valid value: {}",
+                                v.to_string_lossy(),
+                                e
+                            );
+
+                            Error::value_validation(
+                                name.to_string(),
+                                v.to_string_lossy().to_string(),
+                                message.into(),
+                                ColorChoice::Auto,
+                            )
+                        }
+                        Err(e) => {
+                            let message = format!(
+                                "The argument '{}' isn't a valid encoding: {}",
+                                v.to_string_lossy(),
+                                e.to_string_lossy(),
+                            );
+
+                            Error::value_validation(
+                                name.to_string(),
+                                v.to_string_lossy().to_string(),
+                                message.into(),
+                                ColorChoice::Auto,
+                            )
+                        }
                     })
                 })
                 .collect::<Result<_, _>>()?,

@@ -37,7 +37,7 @@ pub const DEFAULT_ENV_CASING: CasingStyle = CasingStyle::ScreamingSnake;
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone)]
 pub enum Kind {
-    Arg(Sp<Ty>),
+    Arg(Sp<Ty>, TokenStream),
     Subcommand(Sp<Ty>),
     Flatten,
     Skip(Option<Expr>),
@@ -53,11 +53,12 @@ pub struct Method {
 #[derive(Clone)]
 pub struct Parser {
     pub kind: Sp<ParserKind>,
-    pub func: TokenStream,
+    pub parse_func: Option<Expr>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum ParserKind {
+    Auto,
     FromStr,
     TryFromStr,
     FromOsStr,
@@ -155,15 +156,16 @@ impl ToTokens for Method {
 
 impl Parser {
     fn default_spanned(span: Span) -> Sp<Self> {
-        let kind = Sp::new(ParserKind::TryFromStr, span);
-        let func = quote_spanned!(span=> ::std::str::FromStr::from_str);
-        Sp::new(Parser { kind, func }, span)
+        let kind = Sp::new(ParserKind::Auto, span);
+        let parse_func = None;
+        Sp::new(Parser { kind, parse_func }, span)
     }
 
     fn from_spec(parse_ident: Ident, spec: ParserSpec) -> Sp<Self> {
         use self::ParserKind::*;
 
         let kind = match &*spec.kind.to_string() {
+            "auto" => Auto,
             "from_str" => FromStr,
             "try_from_str" => TryFromStr,
             "from_os_str" => FromOsStr,
@@ -173,28 +175,11 @@ impl Parser {
             s => abort!(spec.kind.span(), "unsupported parser `{}`", s),
         };
 
-        let func = match spec.parse_func {
-            None => match kind {
-                FromStr | FromOsStr => {
-                    quote_spanned!(spec.kind.span()=> ::std::convert::From::from)
-                }
-                TryFromStr => quote_spanned!(spec.kind.span()=> ::std::str::FromStr::from_str),
-                TryFromOsStr => abort!(
-                    spec.kind.span(),
-                    "you must set parser for `try_from_os_str` explicitly"
-                ),
-                FromOccurrences => quote_spanned!(spec.kind.span()=> { |v| v as _ }),
-                FromFlag => quote_spanned!(spec.kind.span()=> ::std::convert::From::from),
-            },
-
-            Some(func) => match func {
-                Expr::Path(_) => quote!(#func),
-                _ => abort!(func, "`parse` argument must be a function path"),
-            },
-        };
-
         let kind = Sp::new(kind, spec.kind.span());
-        let parser = Parser { kind, func };
+        let parser = Parser {
+            kind,
+            parse_func: spec.parse_func,
+        };
         Sp::new(parser, parse_ident.span())
     }
 }
@@ -283,7 +268,10 @@ impl Attrs {
             verbatim_doc_comment: None,
             is_enum: false,
             has_custom_parser: false,
-            kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
+            kind: Sp::new(
+                Kind::Arg(Sp::new(Ty::Other, default_span), TokenStream::new()),
+                default_span,
+            ),
         }
     }
 
@@ -453,7 +441,7 @@ impl Attrs {
         match &*res.kind {
             Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
             Kind::Skip(_) => abort!(res.kind.span(), "skip is only allowed on fields"),
-            Kind::Arg(_) | Kind::Flatten | Kind::ExternalSubcommand => res,
+            Kind::Arg(_, _) | Kind::Flatten | Kind::ExternalSubcommand => res,
         }
     }
 
@@ -512,7 +500,7 @@ impl Attrs {
                     );
                 }
 
-                let ty = Ty::from_syn_ty(&field.ty);
+                let (ty, _inner) = Ty::from_syn_ty(&field.ty);
                 match *ty {
                     Ty::OptionOption => {
                         abort!(
@@ -539,8 +527,9 @@ impl Attrs {
                     );
                 }
             }
-            Kind::Arg(orig_ty) => {
-                let mut ty = Ty::from_syn_ty(&field.ty);
+            Kind::Arg(orig_ty, inner) => {
+                assert!(inner.is_empty());
+                let (mut ty, inner) = Ty::from_syn_ty(&field.ty);
                 if res.has_custom_parser {
                     match *ty {
                         Ty::Option | Ty::Vec | Ty::OptionVec => (),
@@ -596,7 +585,13 @@ impl Attrs {
 
                     _ => (),
                 }
-                res.kind = Sp::new(Kind::Arg(ty), orig_ty.span());
+
+                // Serialize the `inner` type (eg. the `T` in `Vec<T>`) into
+                // tokens so that we can include it in macro expansions.
+                let mut inner_tokens = TokenStream::new();
+                inner.to_tokens(&mut inner_tokens);
+
+                res.kind = Sp::new(Kind::Arg(ty, inner_tokens), orig_ty.span());
             }
         }
 
@@ -604,7 +599,7 @@ impl Attrs {
     }
 
     fn set_kind(&mut self, kind: Sp<Kind>) {
-        if let Kind::Arg(_) = *self.kind {
+        if let Kind::Arg(_, _) = *self.kind {
             self.kind = kind;
         } else {
             abort!(

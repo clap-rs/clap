@@ -229,7 +229,7 @@ pub fn gen_app_augmentation(
                     let #app_var = <#ty as clap::IntoApp>::augment_clap(#app_var);
                 })
             }
-            Kind::Arg(ty) => {
+            Kind::Arg(ty, _inner) => {
                 let parser = attrs.parser();
                 let occurrences = parser.kind == ParserKind::FromOccurrences;
                 let flag = parser.kind == ParserKind::FromFlag;

@@ -53,7 +53,7 @@ struct Opt {
     dir: Option<PathBuf>,
     #[clap(short, long, value_hint = ValueHint::ExecutablePath)]
     exe: Option<PathBuf>,
-    #[clap(long, parse(from_os_str), value_hint = ValueHint::CommandName)]
+    #[clap(long, value_hint = ValueHint::CommandName)]
     cmd_name: Option<OsString>,
     #[clap(short, long, value_hint = ValueHint::CommandString)]
     cmd: Option<String>,

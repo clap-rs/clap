@@ -18,24 +18,26 @@ pub enum Ty {
 }
 
 impl Ty {
-    pub fn from_syn_ty(ty: &syn::Type) -> Sp<Self> {
+    /// Detect whether `ty` is one of our special-cased types above, and if so,
+    /// also return the inner type (eg. the `T` in `Vec<T>`).
+    pub fn from_syn_ty(ty: &syn::Type) -> (Sp<Self>, &syn::Type) {
         use self::Ty::*;
         let t = |kind| Sp::new(kind, ty.span());
 
         if is_simple_ty(ty, "bool") {
-            t(Bool)
-        } else if is_generic_ty(ty, "Vec") {
-            t(Vec)
+            (t(Bool), ty)
+        } else if let Some(elt) = subty_if_name(ty, "Vec") {
+            (t(Vec), elt)
         } else if let Some(subty) = subty_if_name(ty, "Option") {
-            if is_generic_ty(subty, "Option") {
-                t(OptionOption)
-            } else if is_generic_ty(subty, "Vec") {
-                t(OptionVec)
+            if let Some(subsubty) = subty_if_name(subty, "Option") {
+                (t(OptionOption), subsubty)
+            } else if let Some(elt) = subty_if_name(subty, "Vec") {
+                (t(OptionVec), elt)
             } else {
-                t(Option)
+                (t(Option), subty)
             }
         } else {
-            t(Other)
+            (t(Other), ty)
         }
     }
 }
@@ -97,10 +99,6 @@ pub fn is_simple_ty(ty: &syn::Type, name: &str) -> bool {
             }
         })
         .unwrap_or(false)
-}
-
-fn is_generic_ty(ty: &syn::Type, name: &str) -> bool {
-    subty_if_name(ty, name).is_some()
 }
 
 fn only_one<I, T>(mut iter: I) -> Option<T>
