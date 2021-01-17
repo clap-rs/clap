@@ -126,8 +126,8 @@ impl Colorizer {
         }
     }
 
-    fn is_label(s: &String) -> bool {
-        s.ends_with(":")
+    fn is_label(s: &str) -> bool {
+        s.ends_with(':')
     }
 }
 
