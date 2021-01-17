@@ -1251,7 +1251,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                     vals
                 } else {
-                    arg_split.into_iter().collect()
+                    arg_split.collect()
                 };
                 let vals = vals.into_iter().map(|x| x.to_os_string()).collect();
                 self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);

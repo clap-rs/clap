@@ -242,8 +242,21 @@ impl ArgMatches {
     }
 
     /// Placeholder documentation.
-    pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<Iter<Vec<OsString>>> {
-        self.args.get(&Id::from(id)).map(|arg| arg.vals())
+    pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
+        #[allow(clippy::type_complexity)]
+        let arg_values: for<'a> fn(
+            &'a MatchedArg,
+        ) -> Map<
+            std::slice::Iter<'a, Vec<OsString>>,
+            fn(&Vec<OsString>) -> Vec<&str>,
+        > = |arg| {
+            arg.vals()
+                .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect())
+        };
+        self.args
+            .get(&Id::from(id))
+            .map(arg_values)
+            .map(|iter| GroupedValues { iter })
     }
 
     /// Gets the lossy values of a specific argument. If the option wasn't present at runtime
@@ -991,7 +1004,7 @@ impl ArgMatches {
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<std::slice::Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
+    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
 }
 
 impl<'a> Iterator for Values<'a> {
@@ -1017,12 +1030,44 @@ impl<'a> ExactSizeIterator for Values<'a> {}
 impl<'a> Default for Values<'a> {
     fn default() -> Self {
         static EMPTY: [Vec<OsString>; 0] = [];
-        // This is never called because the iterator is empty:
-        fn to_str_slice(_: &OsString) -> &str {
-            unreachable!()
-        }
         Values {
-            iter: EMPTY[..].iter().flatten().map(to_str_slice),
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+        }
+    }
+}
+
+#[derive(Clone)]
+#[allow(missing_debug_implementations)]
+pub struct GroupedValues<'a> {
+    #[allow(clippy::type_complexity)]
+    iter: Map<std::slice::Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> Vec<&str>>,
+}
+
+impl<'a> Iterator for GroupedValues<'a> {
+    type Item = Vec<&'a str>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for GroupedValues<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+    }
+}
+
+impl<'a> ExactSizeIterator for GroupedValues<'a> {}
+
+/// Creates an empty iterator. Used for `unwrap_or_default()`.
+impl<'a> Default for GroupedValues<'a> {
+    fn default() -> Self {
+        static EMPTY: [Vec<OsString>; 0] = [];
+        GroupedValues {
+            iter: EMPTY[..].iter().map(|_| unreachable!()),
         }
     }
 }
@@ -1052,7 +1097,7 @@ impl<'a> Default for Values<'a> {
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<Flatten<std::slice::Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
+    iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
 }
 
 impl<'a> Iterator for OsValues<'a> {
@@ -1078,12 +1123,8 @@ impl<'a> ExactSizeIterator for OsValues<'a> {}
 impl Default for OsValues<'_> {
     fn default() -> Self {
         static EMPTY: [Vec<OsString>; 0] = [];
-        // This is never called because the iterator is empty:
-        fn to_str_slice(_: &OsString) -> &OsStr {
-            unreachable!()
-        }
         OsValues {
-            iter: EMPTY[..].iter().flatten().map(to_str_slice),
+            iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
         }
     }
 }
