@@ -63,7 +63,7 @@ impl Colorizer {
 impl Colorizer {
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::{BufferWriter, WriteColor, ColorSpec};
+        use termcolor::{BufferWriter, ColorSpec, WriteColor};
 
         let color_when = if is_a_tty(self.use_stderr) {
             self.color_when
