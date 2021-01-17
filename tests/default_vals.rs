@@ -338,6 +338,78 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
+// Unsetting the default
+
+#[test]
+fn option_default_if_arg_present_with_value_no_default() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(Arg::from("[arg] 'some arg'").default_value_if("opt", Some("value"), Some("default")))
+        .try_get_matches_from(vec!["", "--opt", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "default");
+}
+
+#[test]
+fn no_default_if_arg_present_with_value_no_default() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(Arg::from("[arg] 'some arg'").default_value_if("opt", Some("value"), None))
+        .try_get_matches_from(vec!["", "--opt", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(!m.is_present("arg"));
+}
+
+#[test]
+fn no_default_if_arg_present_with_value_with_default() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(
+            Arg::from("[arg] 'some arg'")
+                .default_value("default")
+                .default_value_if("opt", Some("value"), None),
+        )
+        .try_get_matches_from(vec!["", "--opt", "value"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(!m.is_present("arg"));
+}
+
+#[test]
+fn no_default_if_arg_present_with_value_with_default_user_override() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(
+            Arg::from("[arg] 'some arg'")
+                .default_value("default")
+                .default_value_if("opt", Some("value"), None),
+        )
+        .try_get_matches_from(vec!["", "--opt", "value", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "other");
+}
+
+#[test]
+fn no_default_if_arg_present_no_arg_with_value_with_default() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(
+            Arg::from("[arg] 'some arg'")
+                .default_value("default")
+                .default_value_if("opt", Some("value"), None),
+        )
+        .try_get_matches_from(vec!["", "--opt", "other"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(m.is_present("arg"));
+    assert_eq!(m.value_of("arg").unwrap(), "default");
+}
+
 // Multiple conditions
 
 #[test]
@@ -355,6 +427,22 @@ fn default_ifs_arg_present() {
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "flg");
+}
+
+#[test]
+fn no_default_ifs_arg_present() {
+    let r = App::new("df")
+        .arg(Arg::from("--opt [FILE] 'some arg'"))
+        .arg(Arg::from("--flag 'some arg'"))
+        .arg(
+            Arg::from("[arg] 'some arg'")
+                .default_value("first")
+                .default_value_ifs(&[("opt", Some("some"), Some("default")), ("flag", None, None)]),
+        )
+        .try_get_matches_from(vec!["", "--flag"]);
+    assert!(r.is_ok());
+    let m = r.unwrap();
+    assert!(!m.is_present("arg"));
 }
 
 #[test]
