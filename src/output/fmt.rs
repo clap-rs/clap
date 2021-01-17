@@ -7,7 +7,6 @@ use std::{
     fmt::{self, Display, Formatter},
     io::{self, Write},
 };
-use termcolor::WriteColor;
 
 #[cfg(feature = "color")]
 fn is_a_tty(stderr: bool) -> bool {
@@ -64,7 +63,7 @@ impl Colorizer {
 impl Colorizer {
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::BufferWriter;
+        use termcolor::{BufferWriter, WriteColor};
 
         let color_when = if is_a_tty(self.use_stderr) {
             self.color_when
