@@ -1,12 +1,13 @@
 #[cfg(not(feature = "color"))]
 use crate::util::termcolor::{Color, ColorChoice};
 #[cfg(feature = "color")]
-use termcolor::{Color, ColorChoice};
+use termcolor::{Color, ColorChoice, ColorSpec};
 
 use std::{
     fmt::{self, Display, Formatter},
     io::{self, Write},
 };
+use termcolor::WriteColor;
 
 #[cfg(feature = "color")]
 fn is_a_tty(stderr: bool) -> bool {
@@ -63,7 +64,7 @@ impl Colorizer {
 impl Colorizer {
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::{BufferWriter, ColorSpec, WriteColor};
+        use termcolor::BufferWriter;
 
         let color_when = if is_a_tty(self.use_stderr) {
             self.color_when
@@ -79,15 +80,30 @@ impl Colorizer {
 
         let mut buffer = writer.buffer();
 
-        for piece in &self.pieces {
-            let mut color = ColorSpec::new();
-            color.set_fg(piece.1);
-            if piece.1 == Some(Color::Red) {
-                color.set_bold(true);
+        for (string, color) in &self.pieces {
+            if Colorizer::is_label(string) {
+                let mut label = string.clone();
+                label.pop(); // pops off the trailing colon ":".
+
+                let mut label_spec = Colorizer::bold_with_color(color);
+                buffer.set_color(&label_spec)?;
+                buffer.write_all(label.as_bytes())?;
+
+                label_spec.set_fg(None); // the colon should be plane (with no color).
+                buffer.set_color(&label_spec)?;
+                buffer.write_all(":".as_bytes())?;
+            } else {
+                let mut color_spec = ColorSpec::new();
+                color_spec.set_fg(*color);
+
+                if *color == Some(Color::Red) {
+                    color_spec.set_bold(true);
+                }
+
+                buffer.set_color(&color_spec)?;
+                buffer.write_all(string.as_bytes())?;
             }
 
-            buffer.set_color(&color)?;
-            buffer.write_all(piece.0.as_bytes())?;
             buffer.reset()?;
         }
 
@@ -107,6 +123,17 @@ impl Colorizer {
             let mut stdout = stdout.lock();
             write!(stdout, "{}", self)
         }
+    }
+
+    fn is_label(s: &String) -> bool {
+        s.ends_with(":")
+    }
+
+    fn bold_with_color(color: &Option<termcolor::Color>) -> ColorSpec {
+        let mut spec = ColorSpec::new();
+        spec.set_fg(*color);
+        spec.set_bold(true);
+        spec
     }
 }
 
