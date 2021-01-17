@@ -1,7 +1,7 @@
 #[cfg(not(feature = "color"))]
-use crate::util::termcolor::{Color, ColorChoice};
+use crate::util::termcolor::{Color, ColorChoice, ColorSpec};
 #[cfg(feature = "color")]
-use termcolor::{Color, ColorChoice};
+use termcolor::{Color, ColorChoice, ColorSpec};
 
 use std::{
     fmt::{self, Display, Formatter},
@@ -63,7 +63,7 @@ impl Colorizer {
 impl Colorizer {
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::{BufferWriter, ColorSpec, WriteColor};
+        use termcolor::{BufferWriter, WriteColor};
 
         let color_when = if is_a_tty(self.use_stderr) {
             self.color_when
@@ -128,8 +128,8 @@ impl Colorizer {
         s.ends_with(":")
     }
 
-    fn bold_with_color(color: &Option<Color>) -> termcolor::ColorSpec {
-        let mut spec = termcolor::ColorSpec::new();
+    fn bold_with_color(color: &Option<Color>) -> ColorSpec {
+        let mut spec = ColorSpec::new();
         spec.set_fg(*color);
         spec.set_bold(true);
         spec
