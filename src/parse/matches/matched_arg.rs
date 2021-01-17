@@ -10,6 +10,7 @@ use crate::INTERNAL_ERROR_MSG;
 // TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ValueType {
+    Unknown,
     EnvVariable,
     CommandLine,
     DefaultValue,
@@ -23,11 +24,17 @@ pub(crate) struct MatchedArg {
     vals: Vec<Vec<OsString>>,
 }
 
+impl Default for MatchedArg {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MatchedArg {
-    pub(crate) fn new(ty: ValueType) -> Self {
+    pub(crate) fn new() -> Self {
         MatchedArg {
             occurs: 0,
-            ty,
+            ty: ValueType::Unknown,
             indices: Vec::new(),
             vals: Vec::new(),
         }
@@ -89,5 +96,9 @@ impl MatchedArg {
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals_flatten()
             .any(|v| OsString::as_os_str(v) == OsStr::new(val))
+    }
+
+    pub(crate) fn set_ty(&mut self, ty: ValueType) {
+        self.ty = ty;
     }
 }
