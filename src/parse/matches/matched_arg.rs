@@ -5,6 +5,8 @@ use std::{
     slice::Iter,
 };
 
+use crate::INTERNAL_ERROR_MSG;
+
 // TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ValueType {
@@ -59,13 +61,13 @@ impl MatchedArg {
         self.vals.push(vec![val])
     }
 
+    pub(crate) fn new_val_group(&mut self) {
+        self.vals.push(vec![])
+    }
+
     pub(crate) fn append_val(&mut self, val: OsString) {
-        if let Some(val_last) = self.vals.last_mut() {
-            val_last.push(val);
-        } else {
-            // Fall back to push val when no val
-            self.push_val(val);
-        }
+        // We assume there is always a group created before.
+        self.vals.last_mut().expect(INTERNAL_ERROR_MSG).push(val)
     }
 
     pub(crate) fn push_vals(&mut self, vals: Vec<OsString>) {
@@ -73,11 +75,11 @@ impl MatchedArg {
     }
 
     pub(crate) fn num_vals(&self) -> usize {
-        self.vals.len()
+        self.vals.iter().flatten().count()
     }
 
     pub(crate) fn no_val(&self) -> bool {
-        self.vals.is_empty()
+        self.vals.iter().flatten().count() == 0
     }
 
     pub(crate) fn remove_vals(&mut self, len: usize) {
