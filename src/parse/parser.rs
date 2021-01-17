@@ -435,6 +435,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         &arg_os,
                         matcher,
                         ValueType::CommandLine,
+                        true,
                     );
                     // get the next value from the iterator
                     continue;
@@ -521,7 +522,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
-                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine);
+                let append = self.arg_have_val(matcher, p);
+                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine, append);
 
                 matcher.inc_occurrence_of(&p.id);
                 for grp in self.app.groups_for_arg(&p.id) {
@@ -558,7 +560,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                             self.app.color(),
                         ));
                     }
-                    sc_m.add_val_to(&Id::empty_hash(), v.to_os_string(), ValueType::CommandLine);
+                    sc_m.add_val_to(
+                        &Id::empty_hash(),
+                        v.to_os_string(),
+                        ValueType::CommandLine,
+                        false,
+                    );
                 }
 
                 matcher.subcommand(SubCommand {
@@ -1167,7 +1174,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine);
+            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine, false);
         } else if require_equals && !empty_vals && !min_vals_zero {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1179,17 +1186,12 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("None and requires equals, but min_vals == 0");
             if !opt.default_missing_vals.is_empty() {
                 debug!("Parser::parse_opt: has default_missing_vals");
-                let default_missing_vals = opt
+                let vals = opt
                     .default_missing_vals
                     .iter()
-                    .map(|x| ArgStr::new(x))
+                    .map(OsString::from)
                     .collect();
-                self.add_multiple_vals_to_arg(
-                    opt,
-                    default_missing_vals,
-                    matcher,
-                    ValueType::CommandLine,
-                );
+                self.add_multiple_vals_to_arg(opt, vals, matcher, ValueType::CommandLine, false);
             };
         } else {
             debug!("None");
@@ -1211,6 +1213,10 @@ impl<'help, 'app> Parser<'help, 'app> {
             || (multiple && !needs_delimiter) && !has_eq && matcher.needs_more_vals(opt)
         {
             debug!("Parser::parse_opt: More arg vals required...");
+            matcher.new_val_group(&opt.id);
+            for group in self.app.groups_for_arg(&opt.id) {
+                matcher.new_val_group(&group);
+            }
             Ok(ParseResult::Opt(opt.id.clone()))
         } else {
             debug!("Parser::parse_opt: More arg vals not required...");
@@ -1224,6 +1230,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         val: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
+        append: bool,
     ) -> ParseResult {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debug!(
@@ -1246,16 +1253,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else {
                     arg_split.into_iter().collect()
                 };
-                let mut parse_result = if vals.is_empty() {
-                    ParseResult::ValuesDone
-                } else {
-                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty)
-                };
+                let vals = vals.into_iter().map(|x| x.to_os_string()).collect();
+                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values, we're not looking for more values.
-                if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                    parse_result = ParseResult::ValuesDone;
-                }
+                let parse_result =
+                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
+                        ParseResult::ValuesDone
+                    } else {
+                        self.need_more_vals(matcher, arg)
+                    };
                 return parse_result;
             }
         }
@@ -1264,64 +1271,59 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return ParseResult::ValuesDone;
             }
         }
-        self.add_single_val_to_arg(arg, val, matcher, ty)
+        self.add_single_val_to_arg(arg, val.to_os_string(), matcher, ty, append);
+        self.need_more_vals(matcher, arg)
     }
 
     fn add_multiple_vals_to_arg(
         &self,
         arg: &Arg<'help>,
-        vals: Vec<ArgStr>,
+        vals: Vec<OsString>,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ParseResult {
-        debug!("Parser::add_multiple_val_to_arg: adding vals...{:?}", vals);
-
-        let num_vals = vals.len();
-        let begin_index = self.cur_idx.get() + 1;
-        self.cur_idx.set(self.cur_idx.get() + num_vals);
-        for i in begin_index..begin_index + num_vals {
-            matcher.add_index_to(&arg.id, i, ty);
+        append: bool,
+    ) {
+        // If not appending, create a new val group and then append vals in.
+        if !append {
+            matcher.new_val_group(&arg.id);
         }
-        let vals: Vec<_> = vals.into_iter().map(|x| x.to_os_string()).collect();
-        // Increment or create the group "args"
-        for val in vals.iter() {
-            for group in self.app.groups_for_arg(&arg.id) {
-                matcher.add_val_to(&group, val.clone(), ty);
-            }
-        }
-        matcher.add_vals_to(&arg.id, vals, ty);
-        if matcher.needs_more_vals(arg) {
-            ParseResult::Opt(arg.id.clone())
-        } else {
-            ParseResult::ValuesDone
+        for val in vals {
+            self.add_single_val_to_arg(arg, val.clone(), matcher, ty, true);
         }
     }
 
     fn add_single_val_to_arg(
         &self,
         arg: &Arg<'help>,
-        val: &ArgStr,
+        val: OsString,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ParseResult {
+        append: bool,
+    ) {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", val);
 
         // update the current index because each value is a distinct index to clap
         self.cur_idx.set(self.cur_idx.get() + 1);
 
-        matcher.add_val_to(&arg.id, val.to_os_string(), ty);
-        matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
-
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {
-            matcher.add_val_to(&group, val.to_os_string(), ty);
+            matcher.add_val_to(&group, val.clone(), ty, append);
         }
 
+        matcher.add_val_to(&arg.id, val, ty, append);
+        matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
+    }
+
+    fn need_more_vals(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> ParseResult {
         if matcher.needs_more_vals(arg) {
             ParseResult::Opt(arg.id.clone())
         } else {
             ParseResult::ValuesDone
         }
+    }
+
+    fn arg_have_val(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
+        matcher.arg_have_val(&arg.id)
     }
 
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
@@ -1437,7 +1439,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty);
+                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty, false);
                         return;
                     }
                 }
@@ -1454,9 +1456,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else {
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
-                for val in &arg.default_vals {
-                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
-                }
+                let vals = arg.default_vals.iter().map(OsString::from).collect();
+                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
             }
         } else {
             debug!(
@@ -1478,9 +1479,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                         "Parser::add_value:iter:{}: has no user defined vals",
                         arg.name
                     );
-                    for val in &arg.default_missing_vals {
-                        self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
-                    }
+                    let vals = arg
+                        .default_missing_vals
+                        .iter()
+                        .map(OsString::from)
+                        .collect();
+                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
                 }
                 None => {
                     debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
@@ -1508,7 +1512,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some((_, Some(ref val))) = a.env {
                     let val = &ArgStr::new(val);
                     if a.is_set(ArgSettings::TakesValue) {
-                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable);
+                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable, false);
                     } else {
                         self.check_for_help_and_version_str(val)?;
                         matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);

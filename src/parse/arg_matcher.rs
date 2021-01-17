@@ -8,6 +8,9 @@ use crate::{
     util::Id,
 };
 
+// Third party
+use indexmap::map::Entry;
+
 #[derive(Debug)]
 pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
 
@@ -121,7 +124,15 @@ impl ArgMatcher {
         ma.occurs += 1;
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType, append: bool) {
+        if append {
+            self.append_val_to(arg, val, ty);
+        } else {
+            self.push_val_to(arg, val, ty);
+        }
+    }
+
+    pub(crate) fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
@@ -130,15 +141,8 @@ impl ArgMatcher {
         ma.push_val(val);
     }
 
-    pub(crate) fn add_vals_to(&mut self, arg: &Id, vals: Vec<OsString>, ty: ValueType) {
+    pub(crate) fn new_val_group(&mut self, arg: &Id) {
         let ma = self.entry(arg).or_default();
-        ma.set_ty(ty);
-        ma.push_vals(vals);
-    }
-
-    pub(crate) fn add_val_group_to(&mut self, arg: &Id, ty: ValueType) {
-        let ma = self.entry(arg).or_default();
-        ma.set_ty(ty);
         ma.new_val_group();
     }
 
@@ -154,19 +158,24 @@ impl ArgMatcher {
         ma.push_index(idx);
     }
 
+    pub(crate) fn arg_have_val(&mut self, arg: &Id) -> bool {
+        matches!(self.entry(arg), Entry::Occupied(_))
+    }
+
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
         debug!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(&o.id) {
+            let current_num = ma.num_vals_current_group() as u64;
             if let Some(num) = o.num_vals {
                 debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::MultipleValues) {
-                    ((ma.num_vals() as u64) % num) != 0
+                    (current_num % num) != 0
                 } else {
-                    num != (ma.num_vals() as u64)
+                    num != current_num
                 };
             } else if let Some(num) = o.max_vals {
                 debug!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return (ma.num_vals() as u64) < num;
+                return current_num < num;
             } else if o.min_vals.is_some() {
                 debug!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
