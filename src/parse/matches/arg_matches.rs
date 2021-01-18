@@ -702,6 +702,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
+    ///         .use_delimiter(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///             // ARGV idices: ^0       ^1
@@ -710,6 +711,7 @@ impl ArgMatches {
     ///             // clap sees the above as 'myapp -o val1 val2 val3'
     ///             //                         ^0    ^1 ^2   ^3   ^4
     /// assert_eq!(m.index_of("option"), Some(2));
+    /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
     /// ```
     /// [`ArgMatches`]: ./struct.ArgMatches.html
     /// [delimiter]: ./struct.Arg.html#method.value_delimiter
