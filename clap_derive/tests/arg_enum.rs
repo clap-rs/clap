@@ -21,7 +21,7 @@ fn basic() {
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -51,7 +51,7 @@ fn multi_word_is_renamed_kebab() {
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -80,7 +80,7 @@ fn variant_with_defined_casing() {
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -103,7 +103,7 @@ fn casing_is_propogated_from_parent() {
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -127,7 +127,7 @@ fn casing_propogation_is_overridden() {
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -150,7 +150,7 @@ fn case_insensitive() {
     struct Opt {
         #[clap(arg_enum, case_insensitive(true))]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -177,7 +177,7 @@ fn case_insensitive_set_to_false() {
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -200,7 +200,7 @@ fn alias() {
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -228,7 +228,7 @@ fn multiple_alias() {
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
-    };
+    }
 
     assert_eq!(
         Opt {
@@ -262,7 +262,7 @@ fn option() {
     struct Opt {
         #[clap(arg_enum)]
         arg: Option<ArgChoice>,
-    };
+    }
 
     assert_eq!(Opt { arg: None }, Opt::parse_from(&[""]));
     assert_eq!(
@@ -292,7 +292,7 @@ fn vector() {
     struct Opt {
         #[clap(arg_enum, short, long)]
         arg: Vec<ArgChoice>,
-    };
+    }
 
     assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&[""]));
     assert_eq!(
