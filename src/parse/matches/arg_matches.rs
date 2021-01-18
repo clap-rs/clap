@@ -702,6 +702,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
+    ///         .use_delimiter(true)
     ///         .multiple(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///             // ARGV idices: ^0       ^1
