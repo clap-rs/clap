@@ -1015,7 +1015,7 @@ impl<'a> Default for Values<'a> {
         // This is never called because the iterator is empty:
         fn to_str_slice(_: &OsString) -> &str {
             unreachable!()
-        };
+        }
         Values {
             iter: EMPTY[..].iter().map(to_str_slice),
         }
@@ -1075,7 +1075,7 @@ impl Default for OsValues<'_> {
         // This is never called because the iterator is empty:
         fn to_str_slice(_: &OsString) -> &OsStr {
             unreachable!()
-        };
+        }
         OsValues {
             iter: EMPTY[..].iter().map(to_str_slice),
         }
