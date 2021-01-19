@@ -116,6 +116,16 @@ args:
         long: value-hint
         help: Test value_hint
         value_hint: FilePath
+    - visiblealiases:
+        long: visiblealiases
+        about: Tests visible aliases
+        visible_alias: visals1
+        visible_aliases: [visals2, visals2, visals3]
+    - visibleshortaliases:
+        long: visibleshortaliases
+        about: Tests visible short aliases
+        visible_short_alias: e
+        visible_short_aliases: [l, m]
 
 arg_groups:
     - test:
