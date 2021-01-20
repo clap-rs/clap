@@ -519,3 +519,20 @@ fn issue_2022_get_flags_misuse() {
     let matches = app.get_matches_from(&[""]);
     assert!(matches.value_of("a").is_some())
 }
+
+#[test]
+fn issue_2279() {
+    let before_help_heading = App::new("app")
+        .arg(Arg::new("foo").short('f').default_value("bar"))
+        .help_heading("This causes default_value to be ignored")
+        .get_matches_from(&[""]);
+
+    assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
+
+    let after_help_heading = App::new("app")
+        .help_heading("This causes default_value to be ignored")
+        .arg(Arg::new("foo").short('f').default_value("bar"))
+        .get_matches_from(&[""]);
+
+    assert_eq!(after_help_heading.value_of("foo"), Some("bar"));
+}
