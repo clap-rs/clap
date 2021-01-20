@@ -4508,6 +4508,10 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                     a.set_mut(ArgSettings::RequiredUnlessAll);
                     a
                 }
+                "visible_alias" => yaml_to_str!(a, v, visible_alias),
+                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
+                "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
+                "visible_short_aliases" => yaml_to_chars!(a, v, visible_short_aliases),
                 #[cfg(feature = "regex")]
                 "validator_regex" => {
                     if let Some(vec) = v.as_vec() {

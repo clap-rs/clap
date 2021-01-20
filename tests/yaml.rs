@@ -26,7 +26,7 @@ fn help_message() {
     app.write_help(&mut help_buffer).unwrap();
     let help_string = String::from_utf8(help_buffer).unwrap();
     assert!(help_string
-        .contains("-h, --help                prints help with a nonstandard description\n"));
+        .contains("-h, --help                   prints help with a nonstandard description\n"));
 }
 
 #[test]
