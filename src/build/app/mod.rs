@@ -947,7 +947,6 @@ impl<'help> App<'help> {
     #[inline]
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
-        self.g_settings.unset(setting);
         self
     }
 
