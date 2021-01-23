@@ -226,7 +226,7 @@ macro_rules! app_from_crate {
 ///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
 ///     (@arg INPUT: +required "Sets the input file to use")
 ///     (@arg debug: -d ... "Sets the level of debugging information")
-///     (@group difficulty =>
+///     (@group difficulty: +required !multiple
 ///         (@arg hard: -h --hard "Sets hard mode")
 ///         (@arg normal: -n --normal "Sets normal mode")
 ///         (@arg easy: -e --easy "Sets easy mode")
@@ -269,10 +269,11 @@ macro_rules! app_from_crate {
 /// (note the lack of quotes around the values in the macro)
 ///
 /// # Shorthand Syntax for Groups
-///
-/// * There are short hand syntaxes for `ArgGroup` methods that accept booleans
-///   * A plus sign will set that method to `true` such as `+required` = `ArgGroup::required(true)`
-///   * An exclamation will set that method to `false` such as `!required` = `ArgGroup::required(false)`
+/// * Some shorthand syntaxes for `Arg` are also available for `ArgGroup`:
+///   * For methods accepting a boolean: `+required` and `!multiple`, etc.
+///   * For methods accepting strings: `conflicts_with[FOO]` and `conflicts_with[FOO BAR BAZ]`, etc.
+///   * `*` for `ArgGroup::required`
+///   * `...` for `ArgGroup::multiple`
 ///
 /// # Alternative form for non-ident values
 ///
@@ -335,21 +336,9 @@ macro_rules! clap_app {
         $crate::clap_app!{ @app ($crate::clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
     // ArgGroup
-    (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident: $($attrs:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($tail)* })
-            $($tt)*
-        }
-    };
-    (@app ($builder:expr) (@group $name:ident !$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(false)) $($tail)* })
-            $($tt)*
-        }
-    };
-    (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(true)) $($tail)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($attrs)* })
             $($tt)*
         }
     };
@@ -389,7 +378,7 @@ macro_rules! clap_app {
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     // Treat the group builder as an argument to set its attributes
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $crate::clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
+        $crate::clap_app!{ @group ($builder, $group) $($attr)* $($tt)* }
     };
     (@group ($builder:expr, $group:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @group
@@ -412,6 +401,32 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
+    // Handle group attributes
+    (@group ($builder:expr, $group:expr) !$ident:ident $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group.$ident(false)) $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) +$ident:ident $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group.$ident(true)) $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) * $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group) +required $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) ... $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group) +multiple $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) $ident:ident[$($target:literal)*] $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target).trim_matches('"')) )*) $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) $ident:ident[$($target:ident)*] $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target)) )*) $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr),*) $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
+    };
+    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
+        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
+    };
+
     // No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
     // Shorthand tokens influenced by the usage_string

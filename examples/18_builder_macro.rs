@@ -28,7 +28,7 @@ fn main() {
         (@arg config: -c --config <conf> #{1, 2} {file_exists} "Sets a custom config file")
         (@arg proxyHostname: --("proxy-hostname") +takes_value "Sets the hostname of the proxy to use")
         (@arg input: * "Input file")
-        (@group test =>
+        (@group test:
             (@attributes +required)
             (@arg output: "Sets an optional output file")
             (@arg debug: -d ... "Turn debugging information on")
