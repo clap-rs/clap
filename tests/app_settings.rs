@@ -542,8 +542,8 @@ fn unset_settings() {
     assert!(&m.is_set(AppSettings::ColorAuto));
 
     let m = m
-        .unset_setting(AppSettings::AllowInvalidUtf8)
-        .unset_setting(AppSettings::ColorAuto);
+        .unset_global_setting(AppSettings::AllowInvalidUtf8)
+        .unset_global_setting(AppSettings::ColorAuto);
     assert!(!m.is_set(AppSettings::AllowInvalidUtf8), "{:#?}", m);
     assert!(!m.is_set(AppSettings::ColorAuto), "{:#?}", m);
 }
