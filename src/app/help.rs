@@ -1012,9 +1012,9 @@ impl<'a> Help<'a> {
 }
 
 fn wrap_help(help: &str, avail_chars: usize) -> String {
-    let wrapper = textwrap::Wrapper::new(avail_chars).break_words(false);
+    let wrapper = textwrap::Options::new(avail_chars).break_words(false);
     help.lines()
-        .map(|line| wrapper.fill(line))
+        .map(|line| textwrap::fill(line, &wrapper))
         .collect::<Vec<String>>()
         .join("\n")
 }
