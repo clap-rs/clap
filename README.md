@@ -240,7 +240,7 @@ fn main() {
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
-    if let Some(i) = matches.value_of("input") {
+    if let Some(i) = matches.value_of("INPUT") {
         println!("Value for input: {}", i);
     }
 
