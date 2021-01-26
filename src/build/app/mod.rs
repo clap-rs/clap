@@ -2575,8 +2575,10 @@ impl<'help> App<'help> {
             .filter_map(|x| self.find(x))
             .map(|x| {
                 if x.index.is_some() {
-                    x.name.to_owned()
+                    // Print val_name for positional arguments. e.g. <file_name>
+                    x.name_no_brackets().to_string()
                 } else {
+                    // Print useage string for flags arguments, e.g. <--help>
                     x.to_string()
                 }
             })

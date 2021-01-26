@@ -275,6 +275,30 @@ fn group_multiple_args_error() {
 }
 
 #[test]
+fn group_usage_use_val_name() {
+    static GROUP_USAGE_USE_VAL_NAME: &str = "prog 
+
+USAGE:
+    prog <A>
+
+ARGS:
+    <A>    
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+    let app = App::new("prog")
+        .arg(Arg::new("a").value_name("A"))
+        .group(ArgGroup::new("group").arg("a").required(true));
+    assert!(utils::compare_output(
+        app,
+        "prog --help",
+        GROUP_USAGE_USE_VAL_NAME,
+        false,
+    ));
+}
+
+#[test]
 fn group_acts_like_arg() {
     let m = App::new("prog")
         .arg(Arg::new("debug").long("debug").group("mode"))
