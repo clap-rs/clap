@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg};
 
 #[test]
 fn value_sets_works() {
@@ -144,4 +144,47 @@ fn value_sets_multiple_positional_arg_last_multiple() {
         grouped_vals,
         vec![vec!["val2", "val3", "val4", "val5", "val6"]]
     );
+}
+
+#[test]
+fn issue_1374() {
+    let app = App::new("MyApp").arg(
+        Arg::new("input")
+            .takes_value(true)
+            .long("input")
+            .overrides_with("input")
+            .min_values(0),
+    );
+    let matches = app
+        .clone()
+        .get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"]);
+    let vs = matches.values_of("input").unwrap();
+    assert_eq!(vs.collect::<Vec<_>>(), vec!["d"]);
+    let matches = app
+        .clone()
+        .get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"]);
+    let vs = matches.values_of("input").unwrap();
+    assert_eq!(vs.collect::<Vec<_>>(), vec!["c", "d"]);
+}
+
+#[test]
+fn issue_2171() {
+    let schema = App::new("ripgrep#1701 reproducer")
+        .setting(AppSettings::AllArgsOverrideSelf)
+        .arg(Arg::new("pretty").short('p').long("pretty"))
+        .arg(Arg::new("search_zip").short('z').long("search-zip"));
+
+    let test_args = &[
+        vec!["reproducer", "-pz", "-p"],
+        vec!["reproducer", "-pzp"],
+        vec!["reproducer", "-zpp"],
+        vec!["reproducer", "-pp", "-z"],
+        vec!["reproducer", "-p", "-p", "-z"],
+        vec!["reproducer", "-p", "-pz"],
+        vec!["reproducer", "-ppz"],
+    ];
+
+    for argv in test_args {
+        let _ = schema.clone().try_get_matches_from(argv).unwrap();
+    }
 }
