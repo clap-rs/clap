@@ -223,7 +223,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
-            let in_required_group = self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
+            let required = self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
                 self.p
@@ -232,7 +232,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     .iter()
                     .any(|g| g.required && (g.id == grp_s))
             });
-            if !in_required_group {
+            if !required {
                 count += 1;
                 debug!(
                     "Usage::get_args_tag:iter: {} Args not required or hidden",
