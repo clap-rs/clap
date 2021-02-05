@@ -86,10 +86,6 @@ impl ArgMatcher {
         self.0.args.swap_remove(arg);
     }
 
-    pub(crate) fn insert(&mut self, name: &Id) {
-        self.0.args.insert(name.clone(), MatchedArg::new());
-    }
-
     pub(crate) fn contains(&self, arg: &Id) -> bool {
         self.0.args.contains_key(arg)
     }
@@ -120,34 +116,22 @@ impl ArgMatcher {
 
     pub(crate) fn inc_occurrence_of(&mut self, arg: &Id) {
         debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
-        if let Some(a) = self.get_mut(arg) {
-            a.occurs += 1;
-            return;
-        }
-        debug!("ArgMatcher::inc_occurrence_of: first instance");
-        self.insert(arg);
+        let ma = self
+            .entry(arg)
+            .or_insert(MatchedArg::new(ValueType::CommandLine));
+        ma.occurs += 1;
     }
 
     pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
-        let ma = self.entry(arg).or_insert(MatchedArg {
-            // We will manually inc occurrences later(for flexibility under
-            // specific circumstances, like only add one occurrence for flag
-            // when we met: `--flag=one,two`).
-            occurs: 0,
-            ty,
-            indices: Vec::with_capacity(1),
-            vals: Vec::with_capacity(1),
-        });
+        // We will manually inc occurrences later(for flexibility under
+        // specific circumstances, like only add one occurrence for flag
+        // when we met: `--flag=one,two`).
+        let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
         ma.vals.push(val);
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
-        let ma = self.entry(arg).or_insert(MatchedArg {
-            occurs: 0,
-            indices: Vec::with_capacity(1),
-            vals: Vec::new(),
-            ty,
-        });
+        let ma = self.entry(arg).or_insert(MatchedArg::new(ty));
         ma.indices.push(idx);
     }
 

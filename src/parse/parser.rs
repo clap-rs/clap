@@ -319,7 +319,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut external_subcommand = false;
         let mut needs_val_of = ParseResult::NotFound;
         let mut pos_counter = 1;
+        // Count of positional args
         let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
+        // If any arg sets .last(true)
+        let contains_last = self.app.args.args().any(|x| x.is_set(ArgSettings::Last));
 
         while let Some((arg_os, remaining_args)) = it.next() {
             // Recover the replaced items if any.
@@ -467,8 +470,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 low_index_mults
             );
 
-            if low_index_mults || missing_pos {
-                if let Some(n) = remaining_args.get(0) {
+            pos_counter = if low_index_mults || missing_pos {
+                let bump = if let Some(n) = remaining_args.get(0) {
                     needs_val_of = if let Some(p) = self
                         .app
                         .get_positionals()
@@ -482,23 +485,27 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // If the arg doesn't looks like a new_arg and it's not a
                     // subcommand, don't bump the position counter.
                     let n = ArgStr::new(n);
-                    if self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
-                    {
-                        debug!("Parser::get_matches_with: Bumping the positional counter...");
-                        pos_counter += 1;
-                    }
+                    self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
                 } else {
+                    true
+                };
+
+                if bump {
                     debug!("Parser::get_matches_with: Bumping the positional counter...");
-                    pos_counter += 1;
+                    pos_counter + 1
+                } else {
+                    pos_counter
                 }
             } else if self.is_set(AS::TrailingValues)
-                && (self.is_set(AS::AllowMissingPositional) || self.is_set(AS::ContainsLast))
+                && (self.is_set(AS::AllowMissingPositional) || contains_last)
             {
                 // Came to -- and one positional has .last(true) set, so we go immediately
                 // to the last (highest index) positional
                 debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                pos_counter = positional_count;
-            }
+                positional_count
+            } else {
+                pos_counter
+            };
 
             if let Some(p) = self.app.args.get(&(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
@@ -795,7 +802,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         Err(parser.help_err(false))
     }
 
-    fn is_new_arg(&mut self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
+    fn is_new_arg(&self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {
         debug!("Parser::is_new_arg: {:?}:{:?}", arg_os, last_result);
 
         let want_value = match last_result {
@@ -1017,7 +1024,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app.settings.set(AS::ValidArgFound);
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
-                Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?)
+                Ok(self.parse_opt(&val, opt, matcher)?)
             } else {
                 self.check_for_help_and_version_str(&arg)?;
                 self.parse_flag(opt, matcher);
@@ -1107,7 +1114,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 };
 
                 // Default to "we're expecting a value later"
-                return self.parse_opt(&val, opt, false, matcher);
+                return self.parse_opt(&val, opt, matcher);
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
@@ -1131,7 +1138,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         &self,
         val: &Option<ArgStr>,
         opt: &Arg<'help>,
-        had_eq: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
@@ -1145,7 +1151,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         debug!("Parser::parse_opt; Checking for val...");
         if let Some(fv) = val {
-            has_eq = fv.starts_with("=") || had_eq;
+            has_eq = fv.starts_with("=");
             let v = fv.trim_start_n_matches(1, b'=');
             if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 debug!("Found Empty - Error");
@@ -1194,7 +1200,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::MultipleValues);
         // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
-        if no_val && min_vals_zero && !has_eq && needs_eq {
+        if no_val && min_vals_zero && needs_eq {
             debug!("Parser::parse_opt: More arg vals not required...");
             return Ok(ParseResult::ValuesDone);
         } else if no_val || (mult && !needs_delim) && !has_eq && matcher.needs_more_vals(opt) {
@@ -1499,7 +1505,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 for g in self.app.groups_for_arg(&opt.id) {
                     matcher.inc_occurrence_of(&g);
                 }
-                matcher.insert(&opt.id);
+                matcher.inc_occurrence_of(&opt.id);
             }
         }
 

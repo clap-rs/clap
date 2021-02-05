@@ -147,9 +147,7 @@ impl_settings! { AppSettings, AppFlags,
     InferSubcommands("infersubcommands")
         => Flags::INFER_SUBCOMMANDS,
     AllArgsOverrideSelf("allargsoverrideself")
-        => Flags::ARGS_OVERRIDE_SELF,
-    ContainsLast("containslast")
-        => Flags::CONTAINS_LAST
+        => Flags::ARGS_OVERRIDE_SELF
 }
 
 /// Application level settings, which affect how [`App`] operates
@@ -1057,9 +1055,6 @@ pub enum AppSettings {
     /// This is paired with `ArgsNegateSubcommands`. Used to determine if we
     /// already met any valid arg(then we shouldn't expect subcommands after it).
     ValidArgFound,
-
-    #[doc(hidden)]
-    ContainsLast,
 }
 
 #[cfg(test)]
