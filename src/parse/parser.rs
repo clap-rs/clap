@@ -283,7 +283,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         true
     }
 
-    #[allow(clippy::blocks_in_if_conditions)]
     // Does all the initializing and prepares the parser
     pub(crate) fn _build(&mut self) {
         debug!("Parser::_build");
@@ -345,41 +344,34 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
-            // Is this a new argument, or a value for previous option?
-            let starts_new_arg = self.is_new_arg(&arg_os, &needs_val_of);
-
-            if !self.is_set(AS::TrailingValues) && arg_os == "--" && starts_new_arg {
-                debug!("Parser::get_matches_with: setting TrailingVals=true");
-                self.set(AS::TrailingValues);
-                continue;
-            }
-
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                // Does the arg match a subcommand name, or any of its aliases (if defined)
-                match needs_val_of {
-                    ParseResult::Opt(_) | ParseResult::Pos(_)
-                        if !self.is_set(AS::SubcommandPrecedenceOverArg) => {}
-                    _ => {
-                        let sc_name = self.possible_subcommand(&arg_os);
-                        debug!(
-                            "Parser::get_matches_with: possible_sc={:?}, sc={:?}",
-                            sc_name.is_some(),
-                            sc_name
-                        );
-                        if let Some(sc_name) = sc_name {
-                            if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
-                                self.parse_help_subcommand(remaining_args)?;
-                            }
+                let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
+                    true
+                } else {
+                    !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_))
+                };
 
-                            subcmd_name = Some(sc_name.to_owned());
-                            break;
+                if can_be_subcommand {
+                    // Does the arg match a subcommand name, or any of its aliases (if defined)
+                    let sc_name = self.possible_subcommand(&arg_os);
+                    debug!("Parser::get_matches_with: sc={:?}", sc_name);
+                    if let Some(sc_name) = sc_name {
+                        if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
+                            self.parse_help_subcommand(remaining_args)?;
                         }
+                        subcmd_name = Some(sc_name.to_owned());
+                        break;
                     }
                 }
 
-                if starts_new_arg {
-                    if arg_os.starts_with("--") {
+                // Is this a new argument, or a value for previous option?
+                if self.is_new_arg(&arg_os, &needs_val_of) {
+                    if arg_os == "--" {
+                        debug!("Parser::get_matches_with: setting TrailingVals=true");
+                        self.set(AS::TrailingValues);
+                        continue;
+                    } else if arg_os.starts_with("--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os, remaining_args)?;
                         debug!(
                             "Parser::get_matches_with: After parse_long_arg {:?}",
@@ -441,7 +433,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         &arg_os,
                         matcher,
                         ValueType::CommandLine,
-                    )?;
+                    );
                     // get the next value from the iterator
                     continue;
                 }
@@ -477,31 +469,20 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             if low_index_mults || missing_pos {
                 if let Some(n) = remaining_args.get(0) {
-                    needs_val_of = match needs_val_of {
-                        ParseResult::ValuesDone => ParseResult::ValuesDone,
-                        _ => {
-                            if let Some(p) = self
-                                .app
-                                .get_positionals()
-                                .find(|p| p.index == Some(pos_counter as u64))
-                            {
-                                ParseResult::Pos(p.id.clone())
-                            } else {
-                                ParseResult::ValuesDone
-                            }
-                        }
+                    needs_val_of = if let Some(p) = self
+                        .app
+                        .get_positionals()
+                        .find(|p| p.index == Some(pos_counter as u64))
+                    {
+                        ParseResult::Pos(p.id.clone())
+                    } else {
+                        ParseResult::ValuesDone
                     };
 
+                    // If the arg doesn't looks like a new_arg and it's not a
+                    // subcommand, don't bump the position counter.
                     let n = ArgStr::new(n);
-                    let sc_match = { self.possible_subcommand(&n).is_some() };
-
-                    if self.is_new_arg(&n, &needs_val_of)
-                        || sc_match
-                        || !suggestions::did_you_mean(
-                            &n.to_string_lossy(),
-                            self.app.all_subcommand_names(),
-                        )
-                        .is_empty()
+                    if self.is_new_arg(&n, &needs_val_of) || self.possible_subcommand(&n).is_some()
                     {
                         debug!("Parser::get_matches_with: Bumping the positional counter...");
                         pos_counter += 1;
@@ -519,12 +500,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 pos_counter = positional_count;
             }
 
-            if let Some(p) = self
-                .app
-                .args
-                .args()
-                .find(|a| a.is_positional() && a.index == Some(pos_counter as u64))
-            {
+            if let Some(p) = self.app.args.get(&(pos_counter as u64)) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
                         arg_os.to_string_lossy().to_string(),
@@ -534,21 +510,18 @@ impl<'help, 'app> Parser<'help, 'app> {
                     ));
                 }
 
-                if !self.is_set(AS::TrailingValues)
-                    && (self.is_set(AS::TrailingVarArg) && pos_counter == positional_count)
-                {
+                if self.is_set(AS::TrailingVarArg) && pos_counter == positional_count {
                     self.app.settings.set(AS::TrailingValues);
                 }
 
                 self.seen.push(p.id.clone());
-                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine)?;
+                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine);
 
                 matcher.inc_occurrence_of(&p.id);
                 for grp in self.app.groups_for_arg(&p.id) {
                     matcher.inc_occurrence_of(&grp);
                 }
 
-                self.app.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
                     pos_counter += 1;
@@ -604,41 +577,37 @@ impl<'help, 'app> Parser<'help, 'app> {
                             self.app.color(),
                         ));
                     }
-                } else {
-                    let cands = suggestions::did_you_mean(
-                        &arg_os.to_string_lossy(),
-                        self.app.all_subcommand_names(),
-                    );
-                    // If the argument looks like a subcommand.
-                    if !cands.is_empty() {
-                        let cands: Vec<_> =
-                            cands.iter().map(|cand| format!("'{}'", cand)).collect();
-                        return Err(ClapError::invalid_subcommand(
-                            arg_os.to_string_lossy().to_string(),
-                            cands.join(" or "),
-                            self.app
-                                .bin_name
-                                .as_ref()
-                                .unwrap_or(&self.app.name)
-                                .to_string(),
-                            Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
-                        ));
-                    }
-                    // If the argument must be a subcommand.
-                    if !self.has_args()
-                        || self.is_set(AS::InferSubcommands) && self.has_subcommands()
-                    {
-                        return Err(ClapError::unrecognized_subcommand(
-                            arg_os.to_string_lossy().to_string(),
-                            self.app
-                                .bin_name
-                                .as_ref()
-                                .unwrap_or(&self.app.name)
-                                .to_string(),
-                            self.app.color(),
-                        ));
-                    }
+                }
+                let cands = suggestions::did_you_mean(
+                    &arg_os.to_string_lossy(),
+                    self.app.all_subcommand_names(),
+                );
+                // If the argument looks like a subcommand.
+                if !cands.is_empty() {
+                    let cands: Vec<_> = cands.iter().map(|cand| format!("'{}'", cand)).collect();
+                    return Err(ClapError::invalid_subcommand(
+                        arg_os.to_string_lossy().to_string(),
+                        cands.join(" or "),
+                        self.app
+                            .bin_name
+                            .as_ref()
+                            .unwrap_or(&self.app.name)
+                            .to_string(),
+                        Usage::new(self).create_usage_with_title(&[]),
+                        self.app.color(),
+                    ));
+                }
+                // If the argument must be a subcommand.
+                if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
+                    return Err(ClapError::unrecognized_subcommand(
+                        arg_os.to_string_lossy().to_string(),
+                        self.app
+                            .bin_name
+                            .as_ref()
+                            .unwrap_or(&self.app.name)
+                            .to_string(),
+                        self.app.color(),
+                    ));
                 }
                 return Err(ClapError::unknown_argument(
                     arg_os.to_string_lossy().to_string(),
@@ -697,30 +666,27 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn possible_subcommand(&self, arg_os: &ArgStr) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
-        if self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound) {
-            return None;
-        }
+        if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)) {
+            if self.is_set(AS::InferSubcommands) {
+                // For subcommand `test`, we accepts it's prefix: `t`, `te`,
+                // `tes` and `test`.
+                let v = self
+                    .app
+                    .all_subcommand_names()
+                    .filter(|s| arg_os.is_prefix_of(s))
+                    .collect::<Vec<_>>();
 
-        if self.is_set(AS::InferSubcommands) {
-            let v = self
-                .app
-                .all_subcommand_names()
-                .filter(|s| arg_os.is_prefix_of(s))
-                .collect::<Vec<_>>();
-
-            if v.len() == 1 {
-                return Some(v[0]);
-            }
-
-            for sc in &v {
-                if sc == arg_os {
-                    return Some(sc);
+                if v.len() == 1 {
+                    return Some(v[0]);
                 }
-            }
-        } else if let Some(sc) = self.app.find_subcommand(arg_os) {
-            return Some(&sc.name);
-        }
 
+                // If there is any ambiguity, fallback to non-infer subcommand
+                // search.
+            }
+            if let Some(sc) = self.app.find_subcommand(arg_os) {
+                return Some(&sc.name);
+            }
+        }
         None
     }
 
@@ -925,7 +891,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             {
                 let mut p = Parser::new(sc);
                 // HACK: maintain indexes between parsers
-                // FlagSubCommand short arg needs to revist the current short args, but skip the subcommand itself
+                // FlagSubCommand short arg needs to revisit the current short args, but skip the subcommand itself
                 if keep_state {
                     p.cur_idx.set(self.cur_idx.get());
                     p.skip_idxs = self.skip_idxs;
@@ -1030,19 +996,18 @@ impl<'help, 'app> Parser<'help, 'app> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
 
-        // Update the curent index
+        // Update the current index
         self.cur_idx.set(self.cur_idx.get() + 1);
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
-        let matches;
+        let long_arg = full_arg.trim_start_matches(b'-');
         let (arg, val) = if full_arg.contains_byte(b'=') {
-            matches = full_arg.trim_start_matches(b'-');
-            let (p0, p1) = matches.split_at_byte(b'=');
+            let (p0, p1) = long_arg.split_at_byte(b'=');
             debug!("Yes '{:?}'", p1);
             (p0, Some(p1))
         } else {
             debug!("No");
-            (full_arg.trim_start_matches(b'-'), None)
+            (long_arg, None)
         };
         if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
@@ -1050,29 +1015,30 @@ impl<'help, 'app> Parser<'help, 'app> {
                 opt.to_string()
             );
             self.app.settings.set(AS::ValidArgFound);
-
             self.seen.push(opt.id.clone());
-
             if opt.is_set(ArgSettings::TakesValue) {
-                return Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?);
+                Ok(self.parse_opt(&val, opt, val.is_some(), matcher)?)
+            } else {
+                self.check_for_help_and_version_str(&arg)?;
+                self.parse_flag(opt, matcher);
+                Ok(ParseResult::Flag)
             }
-            self.check_for_help_and_version_str(&arg)?;
-            self.parse_flag(opt, matcher)?;
-
-            return Ok(ParseResult::Flag);
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
-            return Ok(ParseResult::FlagSubCommand(sc_name.to_string()));
+            Ok(ParseResult::FlagSubCommand(sc_name.to_string()))
         } else if self.is_set(AS::AllowLeadingHyphen) {
-            return Ok(ParseResult::MaybeHyphenValue);
+            Ok(ParseResult::MaybeHyphenValue)
+        } else {
+            debug!("Parser::parse_long_arg: Didn't match anything");
+            let remaining_args: Vec<_> = remaining_args
+                .iter()
+                .map(|x| x.to_str().expect(INVALID_UTF8))
+                .collect();
+            Err(self.did_you_mean_error(
+                arg.to_str().expect(INVALID_UTF8),
+                matcher,
+                &remaining_args,
+            ))
         }
-
-        debug!("Parser::parse_long_arg: Didn't match anything");
-        let remaining_args: Vec<_> = remaining_args
-            .iter()
-            .map(|x| x.to_str().expect(INVALID_UTF8))
-            .collect();
-        self.did_you_mean_error(arg.to_str().expect(INVALID_UTF8), matcher, &remaining_args)
-            .map(|_| ParseResult::NotFound)
     }
 
     fn parse_short_arg(
@@ -1116,7 +1082,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.seen.push(opt.id.clone());
                 if !opt.is_set(ArgSettings::TakesValue) {
                     self.check_for_help_and_version_char(c)?;
-                    ret = self.parse_flag(opt, matcher)?;
+                    ret = self.parse_flag(opt, matcher);
                     continue;
                 }
 
@@ -1170,6 +1136,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
+        // has_eq: --flag=value
         let mut has_eq = false;
         let no_val = val.is_none();
         let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
@@ -1194,7 +1161,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine)?;
+            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine);
         } else if needs_eq && !(empty_vals || min_vals_zero) {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1211,7 +1178,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         "Parser::parse_opt: adding value from default_missing_values; val = {:?}",
                         val
                     );
-                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine)?;
+                    self.add_val_to_arg(opt, &ArgStr::new(val), matcher, ValueType::CommandLine);
                 }
             };
         } else {
@@ -1244,7 +1211,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         val: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ClapResult<ParseResult> {
+    ) -> ParseResult {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debug!(
             "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
@@ -1253,25 +1220,19 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
         if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                if val.is_empty() {
-                    Ok(self.add_single_val_to_arg(arg, val, matcher, ty)?)
-                } else {
-                    let mut iret = ParseResult::ValuesDone;
-                    for v in val.split(delim) {
-                        iret = self.add_single_val_to_arg(arg, &v, matcher, ty)?;
-                    }
-                    // If there was a delimiter used, we're not looking for more values
-                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                        iret = ParseResult::ValuesDone;
-                    }
-                    Ok(iret)
+                let mut iret = ParseResult::ValuesDone;
+                for v in val.split(delim) {
+                    iret = self.add_single_val_to_arg(arg, &v, matcher, ty);
                 }
-            } else {
-                self.add_single_val_to_arg(arg, val, matcher, ty)
+                // If there was a delimiter used or we must use the delimiter to
+                // separate the values, we're not looking for more values.
+                if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
+                    iret = ParseResult::ValuesDone;
+                }
+                return iret;
             }
-        } else {
-            self.add_single_val_to_arg(arg, val, matcher, ty)
         }
+        self.add_single_val_to_arg(arg, val, matcher, ty)
     }
 
     fn add_single_val_to_arg(
@@ -1280,7 +1241,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         v: &ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
-    ) -> ClapResult<ParseResult> {
+    ) -> ParseResult {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", v);
 
         // update the current index because each value is a distinct index to clap
@@ -1289,7 +1250,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // @TODO @docs @p4 docs should probably note that terminator doesn't get an index
         if let Some(t) = arg.terminator {
             if t == v {
-                return Ok(ParseResult::ValuesDone);
+                return ParseResult::ValuesDone;
             }
         }
 
@@ -1297,17 +1258,18 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
 
         // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&arg.id) {
-            matcher.add_val_to(&grp, v.to_os_string(), ty);
+        for group in self.app.groups_for_arg(&arg.id) {
+            matcher.add_val_to(&group, v.to_os_string(), ty);
         }
 
         if matcher.needs_more_vals(arg) {
-            return Ok(ParseResult::Opt(arg.id.clone()));
+            ParseResult::Opt(arg.id.clone())
+        } else {
+            ParseResult::ValuesDone
         }
-        Ok(ParseResult::ValuesDone)
     }
 
-    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ClapResult<ParseResult> {
+    fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
         matcher.inc_occurrence_of(&flag.id);
@@ -1317,7 +1279,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             matcher.inc_occurrence_of(&grp);
         }
 
-        Ok(ParseResult::Flag)
+        ParseResult::Flag
     }
 
     fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
@@ -1390,32 +1352,23 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
-    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) {
         debug!("Parser::add_defaults");
 
         for o in self.app.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_value(o, matcher, ValueType::DefaultValue)?;
+            self.add_value(o, matcher, ValueType::DefaultValue);
         }
 
         for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_value(p, matcher, ValueType::DefaultValue)?;
+            self.add_value(p, matcher, ValueType::DefaultValue);
         }
-
-        Ok(())
     }
 
-    fn add_value(
-        &self,
-        arg: &Arg<'help>,
-        matcher: &mut ArgMatcher,
-        ty: ValueType,
-    ) -> ClapResult<()> {
+    fn add_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher, ty: ValueType) {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
-
-            let mut done = false;
             if matcher.get(&arg.id).is_none() {
                 for (id, val, default) in arg.default_vals_ifs.values() {
                     let add = if let Some(a) = matcher.get(&id) {
@@ -1429,15 +1382,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty)?;
-                        done = true;
-                        break;
+                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty);
+                        return;
                     }
                 }
-            }
-
-            if done {
-                return Ok(());
             }
         } else {
             debug!("Parser::add_value: doesn't have conditional defaults");
@@ -1452,7 +1400,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
                 for val in &arg.default_vals {
-                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
+                    self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
                 }
             }
         } else {
@@ -1476,7 +1424,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         arg.name
                     );
                     for val in &arg.default_missing_vals {
-                        self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty)?;
+                        self.add_val_to_arg(arg, &ArgStr::new(val), matcher, ty);
                     }
                 }
                 None => {
@@ -1496,8 +1444,6 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // do nothing
         }
-
-        Ok(())
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
@@ -1507,7 +1453,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some((_, Some(ref val))) = a.env {
                     let val = &ArgStr::new(val);
                     if a.is_set(ArgSettings::TakesValue) {
-                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable)?;
+                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable);
                     } else {
                         self.check_for_help_and_version_str(val)?;
                         matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
@@ -1526,7 +1472,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         arg: &str,
         matcher: &mut ArgMatcher,
         remaining_args: &[&str],
-    ) -> ClapResult<()> {
+    ) -> ClapError {
         debug!("Parser::did_you_mean_error: arg={}", arg);
         // Didn't match a flag or option
         let longs = self
@@ -1567,12 +1513,12 @@ impl<'help, 'app> Parser<'help, 'app> {
             .cloned()
             .collect();
 
-        Err(ClapError::unknown_argument(
+        ClapError::unknown_argument(
             format!("--{}", arg),
             did_you_mean,
             Usage::new(self).create_usage_with_title(&*used),
             self.app.color(),
-        ))
+        )
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {

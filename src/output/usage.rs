@@ -365,6 +365,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     // `incl_last`: should we include args that are Arg::Last? (i.e. `prog [foo] -- [last]). We
     // can't do that for required usages being built for subcommands because it would look like:
     // `prog [foo] -- [last] <subcommand>` which is totally wrong.
+    // TODO: remove the allow clippy when we update the compiler version.
+    #[allow(clippy::needless_collect)]
     pub(crate) fn get_required_usage_from(
         &self,
         incls: &[Id],
@@ -419,7 +421,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
 
         for p in pmap.values() {
             debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
-            if args_in_groups.is_empty() || !args_in_groups.contains(&p.id) {
+            if !args_in_groups.contains(&p.id) {
                 ret_val.push(p.to_string());
             }
         }

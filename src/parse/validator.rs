@@ -32,7 +32,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         debug!("Validator::validate");
         let mut reqs_validated = false;
         self.p.add_env(matcher)?;
-        self.p.add_defaults(matcher)?;
+        self.p.add_defaults(matcher);
         if let ParseResult::Opt(a) = needs_val_of {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
