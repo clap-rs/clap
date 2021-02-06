@@ -146,3 +146,24 @@ fn issue_1284_argument_in_flag_style() {
         true
     ));
 }
+
+#[test]
+fn issue_2308_multiple_dashes() {
+    static MULTIPLE_DASHES: &str =
+        "error: Found argument '-----' which wasn't expected, or isn't valid in this context
+
+	If you tried to supply `-----` as a value rather than a flag, use `-- -----`
+
+USAGE:
+    test <arg>
+
+For more information try --help";
+    let app = App::new("test").arg(Arg::new("arg").takes_value(true).required(true));
+
+    assert!(utils::compare_output(
+        app,
+        "test -----",
+        MULTIPLE_DASHES,
+        true
+    ));
+}

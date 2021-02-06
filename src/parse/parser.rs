@@ -1007,7 +1007,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.cur_idx.set(self.cur_idx.get() + 1);
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
-        let long_arg = full_arg.trim_start_matches(b'-');
+        let long_arg = full_arg.trim_start_n_matches(2, b'-');
         let (arg, val) = if full_arg.contains_byte(b'=') {
             let (p0, p1) = long_arg.split_at_byte(b'=');
             debug!("Yes '{:?}'", p1);
@@ -1473,6 +1473,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
 // Error, Help, and Version Methods
 impl<'help, 'app> Parser<'help, 'app> {
+    /// Is only used for the long flag(which is the only one needs fuzzy searching)
     fn did_you_mean_error(
         &mut self,
         arg: &str,
