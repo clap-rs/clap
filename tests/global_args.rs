@@ -2,8 +2,9 @@ mod utils;
 
 use clap::{App, Arg};
 
-fn get_app() -> App<'static> {
-    App::new("myprog")
+#[test]
+fn issue_1076() {
+    let mut app = App::new("myprog")
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
@@ -19,12 +20,7 @@ fn get_app() -> App<'static> {
                 .multiple(true)
                 .global(true),
         )
-        .subcommand(App::new("outer").subcommand(App::new("inner")))
-}
-
-#[test]
-fn issue_1076() {
-    let mut app = get_app();
+        .subcommand(App::new("outer").subcommand(App::new("inner")));
     let _ = app.try_get_matches_from_mut(vec!["myprog"]);
     let _ = app.try_get_matches_from_mut(vec!["myprog"]);
     let _ = app.try_get_matches_from_mut(vec!["myprog"]);
@@ -51,7 +47,7 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
 }
 
 #[test]
-fn propagate_global_arg_in_subcommand_to_subsubcommand_2053() {
+fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
     let m = App::new("opts")
         .arg(Arg::from("--global-flag").global(true))
         .arg(

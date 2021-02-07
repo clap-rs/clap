@@ -1556,29 +1556,30 @@ fn escaped_whitespace_values() {
 fn issue_1112_setup() -> App<'static> {
     App::new("test")
         .version("1.3")
-        .global_setting(AppSettings::NoAutoHelp)
-        .arg(Arg::from("-h, --help 'some help'"))
-        .subcommand(App::new("foo").arg(Arg::from("-h, --help 'some help'")))
+        .arg(Arg::new("help1").long("help").short('h').about("some help"))
+        .subcommand(
+            App::new("foo").arg(Arg::new("help1").long("help").short('h').about("some help")),
+        )
 }
 
 #[test]
-fn issue_1112_override_help_long() {
+fn prefer_user_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "--help"]);
 
     assert!(m.is_ok());
-    assert!(m.unwrap().is_present("help"));
+    assert!(m.unwrap().is_present("help1"));
 }
 
 #[test]
-fn issue_1112_override_help_short() {
+fn prefer_user_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "-h"]);
 
     assert!(m.is_ok());
-    assert!(m.unwrap().is_present("help"));
+    assert!(m.unwrap().is_present("help1"));
 }
 
 #[test]
-fn issue_1112_override_help_subcmd_long() {
+fn prefer_user_subcmd_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "--help"]);
 
     assert!(m.is_ok());
@@ -1586,11 +1587,11 @@ fn issue_1112_override_help_subcmd_long() {
         .unwrap()
         .subcommand_matches("foo")
         .unwrap()
-        .is_present("help"));
+        .is_present("help1"));
 }
 
 #[test]
-fn issue_1112_override_help_subcmd_short() {
+fn prefer_user_subcmd_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "-h"]);
 
     assert!(m.is_ok());
@@ -1598,7 +1599,7 @@ fn issue_1112_override_help_subcmd_short() {
         .unwrap()
         .subcommand_matches("foo")
         .unwrap()
-        .is_present("help"));
+        .is_present("help1"));
 }
 
 #[test]

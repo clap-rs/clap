@@ -112,12 +112,12 @@ fn build_app_special_help() -> App<'static> {
         )
 }
 
-static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
+static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
+complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c my_app -n "__fish_use_subcommand" -l double-quotes -d 'Can be "always", "auto", or "never"'
 complete -c my_app -n "__fish_use_subcommand" -l backticks -d 'For more information see `echo test`'
 complete -c my_app -n "__fish_use_subcommand" -l backslash -d 'Avoid \'\\n\''
 complete -c my_app -n "__fish_use_subcommand" -l brackets -d 'List packages [filter]'
 complete -c my_app -n "__fish_use_subcommand" -l expansions -d 'Execute the shell command with $SHELL'
-complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
 "#;

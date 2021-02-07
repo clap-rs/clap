@@ -295,16 +295,16 @@ _my_app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
 '--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
 '--double-quotes[Can be "always", "auto", or "never"]' \
 '--backticks[For more information see `echo test`]' \
 '--backslash[Avoid '\''\\n'\'']' \
 '--brackets[List packages \[filter\]]' \
 '--expansions[Execute the shell command with $SHELL]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
 && ret=0
     
 }
@@ -374,9 +374,7 @@ case $state in
         case $line[1] in
             (third)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
 '--help[Prints help information]' \
-'-V[Prints version information]' \
 '--version[Prints version information]' \
 && ret=0
 ;;
