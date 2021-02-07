@@ -3,7 +3,7 @@ mod utils;
 use clap::{App, AppSettings, Arg};
 
 #[test]
-fn value_sets_works() {
+fn grouped_value_works() {
     let m = App::new("cli")
         .arg(Arg::new("option").long("option").multiple(true))
         .get_matches_from(&[
@@ -48,7 +48,7 @@ fn issue_1026() {
 }
 
 #[test]
-fn value_sets_long_flag_delimiter() {
+fn grouped_value_long_flag_delimiter() {
     let m = App::new("myapp")
         .arg(
             Arg::new("option")
@@ -76,7 +76,7 @@ fn value_sets_long_flag_delimiter() {
 }
 
 #[test]
-fn value_sets_short_flag_delimiter() {
+fn grouped_value_short_flag_delimiter() {
     let m = App::new("myapp")
         .arg(
             Arg::new("option")
@@ -94,7 +94,7 @@ fn value_sets_short_flag_delimiter() {
 }
 
 #[test]
-fn value_sets_positional_arg() {
+fn grouped_value_positional_arg() {
     let m = App::new("multiple_values")
         .arg(Arg::new("pos").about("multiple positionals").multiple(true))
         .get_matches_from(vec![
@@ -108,7 +108,7 @@ fn value_sets_positional_arg() {
 }
 
 #[test]
-fn value_sets_multiple_positional_arg() {
+fn grouped_value_multiple_positional_arg() {
     let m = App::new("multiple_values")
         .arg(Arg::new("pos1").about("multiple positionals"))
         .arg(
@@ -127,7 +127,7 @@ fn value_sets_multiple_positional_arg() {
 }
 
 #[test]
-fn value_sets_multiple_positional_arg_last_multiple() {
+fn grouped_value_multiple_positional_arg_last_multiple() {
     let m = App::new("multiple_values")
         .arg(Arg::new("pos1").about("multiple positionals"))
         .arg(
