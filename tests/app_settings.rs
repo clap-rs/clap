@@ -70,7 +70,7 @@ FLAGS:
 OPTIONS:
     -o, --opt <opt>    some option";
 
-static ARG_REQUIRED_ELSE_HELP: &str = "test 
+static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
 
 USAGE:
     test [FLAGS]
@@ -80,7 +80,7 @@ FLAGS:
     -i, --info       Provides more info
     -V, --version    Prints version information";
 
-static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 
+static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 1.0
 
 USAGE:
     test <SUBCOMMAND>
@@ -157,6 +157,7 @@ fn arg_required_else_help_over_reqs() {
 fn arg_required_else_help_error_message() {
     let app = App::new("test")
         .setting(AppSettings::ArgRequiredElseHelp)
+        .version("1.0")
         .arg(
             Arg::new("info")
                 .about("Provides more info")
@@ -189,6 +190,7 @@ fn subcommand_required_else_help() {
 fn subcommand_required_else_help_error_message() {
     let app = App::new("test")
         .setting(AppSettings::SubcommandRequiredElseHelp)
+        .version("1.0")
         .subcommand(App::new("info").arg(Arg::new("filename")));
     assert!(utils::compare_output(
         app,

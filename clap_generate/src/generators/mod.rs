@@ -4,7 +4,7 @@ mod shells;
 use std::io::Write;
 
 // Internal
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 pub use shells::*;
 
 /// Generator trait which can be used to write generators
@@ -120,8 +120,7 @@ pub trait Generator {
     fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
         debug!("shorts: name={}", p.get_name());
 
-        let mut shorts_and_visible_aliases: Vec<char> = p
-            .get_arguments()
+        p.get_arguments()
             .filter_map(|a| {
                 if a.get_index().is_none() {
                     if a.get_visible_short_aliases().is_some() && a.get_short().is_some() {
@@ -138,19 +137,7 @@ pub trait Generator {
                 }
             })
             .flatten()
-            .collect();
-
-        if !shorts_and_visible_aliases.iter().any(|&x| x == 'h') {
-            shorts_and_visible_aliases.push('h');
-        }
-
-        if !p.is_set(AppSettings::DisableVersionFlag)
-            && !shorts_and_visible_aliases.iter().any(|&x| x == 'V')
-        {
-            shorts_and_visible_aliases.push('V');
-        }
-
-        shorts_and_visible_aliases
+            .collect()
     }
 
     /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
@@ -158,8 +145,7 @@ pub trait Generator {
     fn longs(p: &App) -> Vec<String> {
         debug!("longs: name={}", p.get_name());
 
-        let mut longs: Vec<String> = p
-            .get_arguments()
+        p.get_arguments()
             .filter_map(|a| {
                 if a.get_index().is_none() && a.get_long().is_some() {
                     Some(a.get_long().unwrap().to_string())
@@ -167,47 +153,14 @@ pub trait Generator {
                     None
                 }
             })
-            .collect();
-
-        if !longs.iter().any(|x| *x == "help") {
-            longs.push(String::from("help"));
-        }
-
-        if !p.is_set(AppSettings::DisableVersionFlag) && !longs.iter().any(|x| *x == "version") {
-            longs.push(String::from("version"));
-        }
-
-        longs
+            .collect()
     }
 
     /// Gets all the flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
     fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
         debug!("flags: name={}", p.get_name());
-
-        let mut flags: Vec<_> = p.get_flags().cloned().collect();
-
-        if !flags.iter().any(|x| x.get_name() == "help") {
-            flags.push(
-                Arg::new("help")
-                    .short('h')
-                    .long("help")
-                    .about("Prints help information"),
-            );
-        }
-
-        if !p.is_set(AppSettings::DisableVersionFlag)
-            && !flags.iter().any(|x| x.get_name() == "version")
-        {
-            flags.push(
-                Arg::new("version")
-                    .short('V')
-                    .long("version")
-                    .about("Prints version information"),
-            );
-        }
-
-        flags
+        p.get_flags().cloned().collect()
     }
 }
 

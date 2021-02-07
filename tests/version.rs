@@ -2,7 +2,7 @@ mod utils;
 
 use std::str;
 
-use clap::{App, AppSettings, ErrorKind};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 static VERSION: &str = "clap-test v1.4.8\n";
 
@@ -41,6 +41,65 @@ fn complex_version_output() {
 
     // Now we check the output of print_version()
     assert_eq!(a.render_version(), VERSION);
+}
+
+fn prefer_user_app() -> App<'static> {
+    App::new("test")
+        .version("1.3")
+        .arg(
+            Arg::new("version1")
+                .long("version")
+                .short('V')
+                .about("some version"),
+        )
+        .subcommand(
+            App::new("foo").arg(
+                Arg::new("version1")
+                    .long("version")
+                    .short('V')
+                    .about("some version"),
+            ),
+        )
+}
+
+#[test]
+fn prefer_user_version_long() {
+    let m = prefer_user_app().try_get_matches_from(vec!["test", "--version"]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().is_present("version1"));
+}
+
+#[test]
+fn prefer_user_version_short() {
+    let m = prefer_user_app().try_get_matches_from(vec!["test", "-V"]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().is_present("version1"));
+}
+
+#[test]
+fn prefer_user_subcmd_version_long() {
+    let m = prefer_user_app().try_get_matches_from(vec!["test", "foo", "--version"]);
+
+    assert!(m.is_ok());
+    assert!(m
+        .unwrap()
+        .subcommand_matches("foo")
+        .unwrap()
+        .is_present("version1"));
+}
+
+#[test]
+fn prefer_user_subcmd_version_short() {
+    let m = prefer_user_app().try_get_matches_from(vec!["test", "foo", "-V"]);
+
+    assert!(m.is_ok());
+    assert!(m
+        .unwrap()
+        .subcommand_matches("foo")
+        .unwrap()
+        .is_present("version1"));
 }
 
 #[test]

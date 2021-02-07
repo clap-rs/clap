@@ -23,7 +23,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::{
-    build::{app::settings::AppFlags, Arg, ArgGroup, ArgSettings},
+    build::{app::settings::AppFlags, arg::ArgProvider, Arg, ArgGroup, ArgSettings},
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
@@ -356,12 +356,27 @@ impl<'help> App<'help> {
     /// ```
     pub fn new<S: Into<String>>(name: S) -> Self {
         let name = name.into();
+
         App {
             id: Id::from(&*name),
             name,
             disp_ord: 999,
             ..Default::default()
         }
+        .arg(
+            Arg::new("help")
+                .long("help")
+                .about("Prints help information")
+                .global(true)
+                .generated(),
+        )
+        .arg(
+            Arg::new("version")
+                .long("version")
+                .about("Prints version information")
+                .global(true)
+                .generated(),
+        )
     }
 
     /// Sets a string of author(s) that will be displayed to the user when they
@@ -2288,9 +2303,9 @@ impl<'help> App<'help> {
             self.settings = self.settings | self.g_settings;
 
             self._propagate();
-
+            self._check_help_and_version();
+            self._propagate_global_args();
             self._derive_display_order();
-            self._create_help_and_version();
 
             let mut pos_counter = 1;
             for a in self.args.args_mut() {
@@ -2368,7 +2383,27 @@ impl<'help> App<'help> {
         two_elements_of(self.groups.iter().filter(|a| condition(a)))
     }
 
-    /// Propagate one and only one level.
+    /// Propagate global args
+    pub(crate) fn _propagate_global_args(&mut self) {
+        debug!("App::_propagate_global_args:{}", self.name);
+
+        for sc in &mut self.subcommands {
+            for a in self.args.args().filter(|a| a.global) {
+                let is_generated = a.provider == ArgProvider::Generated;
+
+                // Remove generated help and version args in the subcommand
+                if is_generated {
+                    sc.args.remove_by_name(&a.id);
+                }
+
+                if is_generated || sc.find(&a.id).is_none() {
+                    sc.args.push(a.clone());
+                }
+            }
+        }
+    }
+
+    /// Propagate settings
     pub(crate) fn _propagate(&mut self) {
         macro_rules! propagate_subcmd {
             ($_self:expr, $sc:expr) => {{
@@ -2398,14 +2433,6 @@ impl<'help> App<'help> {
                         $sc.version_about = $_self.version_about.clone();
                     }
                 }
-                {
-                    // FIXME: This doesn't belong here at all.
-                    for a in $_self.args.args().filter(|a| a.global) {
-                        if $sc.find(&a.id).is_none() {
-                            $sc.args.push(a.clone());
-                        }
-                    }
-                }
             }};
         }
 
@@ -2416,62 +2443,95 @@ impl<'help> App<'help> {
         }
     }
 
-    pub(crate) fn _create_help_and_version(&mut self) {
-        debug!("App::_create_help_and_version");
+    #[allow(clippy::blocks_in_if_conditions)]
+    pub(crate) fn _check_help_and_version(&mut self) {
+        debug!("App::_check_help_and_version");
 
-        if !(self.is_set(AppSettings::DisableHelpFlag)
-            || self
-                .args
-                .args()
-                .any(|x| x.long == Some("help") || x.id == Id::help_hash())
+        if self.is_set(AppSettings::DisableHelpFlag)
+            || self.args.args().any(|x| {
+                x.provider == ArgProvider::User
+                    && (x.long == Some("help") || x.id == Id::help_hash())
+            })
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.long_flag == Some("help")))
+                .any(|sc| sc.long_flag == Some("help"))
         {
-            debug!("App::_create_help_and_version: Building --help");
-            let mut help = Arg::new("help")
-                .long("help")
-                .about(self.help_about.unwrap_or("Prints help information"));
+            debug!("App::_check_help_and_version: Removing generated help");
 
-            if !(self.args.args().any(|x| x.short == Some('h'))
+            let generated_help_pos = self
+                .args
+                .args()
+                .position(|x| x.id == Id::help_hash() && x.provider == ArgProvider::Generated);
+
+            if let Some(index) = generated_help_pos {
+                self.args.remove(index);
+            }
+        } else {
+            let other_arg_has_short = self.args.args().any(|x| x.short == Some('h'));
+            let help = self
+                .args
+                .args_mut()
+                .find(|x| x.id == Id::help_hash())
+                .expect(INTERNAL_ERROR_MSG);
+
+            if !(help.short.is_some()
+                || other_arg_has_short
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
             {
-                help = help.short('h');
+                help.short = Some('h');
             }
 
-            self.args.push(help);
+            if self.help_about.is_some() {
+                help.about = self.help_about;
+            }
         }
 
-        if !(self.is_set(AppSettings::DisableVersionFlag)
-            || self
-                .args
-                .args()
-                .any(|x| x.long == Some("version") || x.id == Id::version_hash())
+        if self.is_set(AppSettings::DisableVersionFlag)
+            || self.args.args().any(|x| {
+                x.provider == ArgProvider::User
+                    && (x.long == Some("version") || x.id == Id::version_hash())
+            })
             || self
                 .subcommands
                 .iter()
-                .any(|sc| sc.long_flag == Some("version")))
+                .any(|sc| sc.long_flag == Some("version"))
         {
-            debug!("App::_create_help_and_version: Building --version");
-            let mut version = Arg::new("version")
-                .long("version")
-                .about(self.version_about.unwrap_or("Prints version information"));
+            debug!("App::_check_help_and_version: Removing generated version");
 
-            if !(self.args.args().any(|x| x.short == Some('V'))
+            let generated_version_pos = self
+                .args
+                .args()
+                .position(|x| x.id == Id::version_hash() && x.provider == ArgProvider::Generated);
+
+            if let Some(index) = generated_version_pos {
+                self.args.remove(index);
+            }
+        } else {
+            let other_arg_has_short = self.args.args().any(|x| x.short == Some('V'));
+            let version = self
+                .args
+                .args_mut()
+                .find(|x| x.id == Id::version_hash())
+                .expect(INTERNAL_ERROR_MSG);
+
+            if !(version.short.is_some()
+                || other_arg_has_short
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('V')))
             {
-                version = version.short('V');
+                version.short = Some('V');
             }
 
-            self.args.push(version);
+            if self.version_about.is_some() {
+                version.about = self.version_about;
+            }
         }
 
         if !self.is_set(AppSettings::DisableHelpSubcommand)
             && self.has_subcommands()
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
-            debug!("App::_create_help_and_version: Building help");
+            debug!("App::_check_help_and_version: Building help subcommand");
             self.subcommands.push(
                 App::new("help").about(
                     self.help_about

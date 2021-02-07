@@ -42,6 +42,18 @@ use yaml_rust::Yaml;
 type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub(crate) enum ArgProvider {
+    Generated,
+    User,
+}
+
+impl Default for ArgProvider {
+    fn default() -> Self {
+        ArgProvider::User
+    }
+}
+
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
 ///
@@ -68,6 +80,7 @@ type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sy
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
     pub(crate) id: Id,
+    pub(crate) provider: ArgProvider,
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
     pub(crate) long_about: Option<&'help str>,
@@ -206,6 +219,11 @@ impl<'help> Arg<'help> {
             unified_ord: 999,
             ..Default::default()
         }
+    }
+
+    pub(crate) fn generated(mut self) -> Self {
+        self.provider = ArgProvider::Generated;
+        self
     }
 
     /// Sets the short version of the argument without the preceding `-`.
@@ -4671,6 +4689,7 @@ impl<'help> fmt::Debug for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         f.debug_struct("Arg")
             .field("id", &self.id)
+            .field("provider", &self.provider)
             .field("name", &self.name)
             .field("about", &self.about)
             .field("long_about", &self.long_about)

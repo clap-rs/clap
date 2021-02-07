@@ -181,6 +181,7 @@ where
 {
     app.set_bin_name(bin_name);
 
+    // TODO: All the subcommands need to be built instead of just the top one
     app._build();
     app._build_bin_names();
 
