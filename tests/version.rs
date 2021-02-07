@@ -192,9 +192,77 @@ fn override_version_about() {
         .mut_arg("version", |a| a.about("version info"));
 
     assert!(utils::compare_output(
-        app,
+        app.clone(),
         "test -h",
         OVERRIDE_VERSION_ABOUT,
+        false
+    ));
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        OVERRIDE_VERSION_ABOUT,
+        false
+    ));
+}
+
+static VERSION_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Print custom version about text";
+
+#[test]
+fn version_about_multi_subcmd() {
+    let app = App::new("myapp")
+        .mut_arg("version", |a| a.about("Print custom version about text"))
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "myapp help subcmd multi",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+    assert!(utils::compare_output(
+        app.clone(),
+        "myapp subcmd multi -h",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+    assert!(utils::compare_output(
+        app,
+        "myapp subcmd multi --help",
+        VERSION_ABOUT_MULTI_SC,
+        false
+    ));
+}
+
+static VERSION_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
+
+USAGE:
+    myapp subcmd multi
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Print custom version about text from multi";
+
+#[test]
+fn version_about_multi_subcmd_override() {
+    let app = App::new("myapp")
+        .mut_arg("version", |a| a.about("Print custom version about text"))
+        .subcommand(App::new("subcmd").subcommand(
+            App::new("multi").version("1.0").mut_arg("version", |a| {
+                a.about("Print custom version about text from multi")
+            }),
+        ));
+
+    assert!(utils::compare_output(
+        app,
+        "myapp help subcmd multi",
+        VERSION_ABOUT_MULTI_SC_OVERRIDE,
         false
     ));
 }
