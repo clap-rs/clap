@@ -165,7 +165,7 @@ impl ArgMatcher {
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {
         debug!("ArgMatcher::needs_more_vals: o={}", o.name);
         if let Some(ma) = self.get(&o.id) {
-            let current_num = ma.num_vals_current_group() as u64;
+            let current_num = ma.num_vals_last_group() as u64;
             if let Some(num) = o.num_vals {
                 debug!("ArgMatcher::needs_more_vals: num_vals...{}", num);
                 return if o.is_set(ArgSettings::MultipleValues) {

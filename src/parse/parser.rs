@@ -1462,7 +1462,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg.name
             );
             match matcher.get(&arg.id) {
-                Some(ma) if ma.no_val() => {
+                Some(ma) if ma.is_vals_empty() => {
                     debug!(
                         "Parser::add_value:iter:{}: has no user defined vals",
                         arg.name

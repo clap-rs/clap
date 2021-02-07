@@ -247,7 +247,7 @@ impl ArgMatches {
         let arg_values: for<'a> fn(
             &'a MatchedArg,
         ) -> Map<
-            std::slice::Iter<'a, Vec<OsString>>,
+            Iter<'a, Vec<OsString>>,
             fn(&Vec<OsString>) -> Vec<&str>,
         > = |arg| {
             arg.vals()
@@ -1040,7 +1040,7 @@ impl<'a> Default for Values<'a> {
 #[allow(missing_debug_implementations)]
 pub struct GroupedValues<'a> {
     #[allow(clippy::type_complexity)]
-    iter: Map<std::slice::Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> Vec<&str>>,
+    iter: Map<Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> Vec<&str>>,
 }
 
 impl<'a> Iterator for GroupedValues<'a> {

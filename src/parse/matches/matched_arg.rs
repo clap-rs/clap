@@ -81,11 +81,11 @@ impl MatchedArg {
         self.vals.iter().flatten().count()
     }
 
-    pub(crate) fn num_vals_current_group(&self) -> usize {
+    pub(crate) fn num_vals_last_group(&self) -> usize {
         self.vals.last().map(|x| x.len()).unwrap_or(0)
     }
 
-    pub(crate) fn no_val(&self) -> bool {
+    pub(crate) fn is_vals_empty(&self) -> bool {
         self.vals.iter().flatten().count() == 0
     }
 
