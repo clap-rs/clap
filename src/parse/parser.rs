@@ -1288,7 +1288,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             matcher.new_val_group(&arg.id);
         }
         for val in vals {
-            self.add_single_val_to_arg(arg, val.clone(), matcher, ty, true);
+            self.add_single_val_to_arg(arg, val, matcher, ty, true);
         }
     }
 
