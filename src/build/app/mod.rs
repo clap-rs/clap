@@ -1765,13 +1765,18 @@ impl<'help> App<'help> {
     {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
-        let a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
+
+        let mut a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
             id,
             name: arg_id,
             ..Arg::default()
         });
-        self.args.push(f(a));
 
+        if a.provider == ArgProvider::Generated {
+            a.provider = ArgProvider::GeneratedMutated;
+        }
+
+        self.args.push(f(a));
         self
     }
 
@@ -2367,18 +2372,28 @@ impl<'help> App<'help> {
 
         for sc in &mut self.subcommands {
             for a in self.args.args().filter(|a| a.global) {
-                let is_generated = a.provider == ArgProvider::Generated;
+                let mut propagate = false;
+                let is_generated = matches!(
+                    a.provider,
+                    ArgProvider::Generated | ArgProvider::GeneratedMutated
+                );
 
                 // Remove generated help and version args in the subcommand
                 //
-                // Any mut_arg modification to the generated args in subcommands are ignored
-                // in favor of the modifications in upper apps because all these are global.
-                // But what if the user modifies the subcommand only? Should it not take priority?
+                // Don't remove if those args are futher mutated
                 if is_generated {
-                    sc.args.remove_by_name(&a.id);
+                    let generated_pos = sc
+                        .args
+                        .args()
+                        .position(|x| x.id == a.id && x.provider == ArgProvider::Generated);
+
+                    if let Some(index) = generated_pos {
+                        sc.args.remove(index);
+                        propagate = true;
+                    }
                 }
 
-                if is_generated || sc.find(&a.id).is_none() {
+                if propagate || sc.find(&a.id).is_none() {
                     sc.args.push(a.clone());
                 }
             }
