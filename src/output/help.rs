@@ -110,10 +110,22 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         } else if let Some(tmpl) = self.parser.app.template {
             self.write_templated_help(tmpl)?;
         } else {
-            let flags = self.parser.has_flags();
-            let pos = self.parser.has_positionals();
-            let opts = self.parser.has_opts();
-            let subcmds = self.parser.has_subcommands();
+            let pos = self
+                .parser
+                .app
+                .get_positionals()
+                .any(|arg| should_show_arg(self.use_long, arg));
+            let flags = self
+                .parser
+                .app
+                .get_flags()
+                .any(|arg| should_show_arg(self.use_long, arg));
+            let opts = self
+                .parser
+                .app
+                .get_opts()
+                .any(|arg| should_show_arg(self.use_long, arg));
+            let subcmds = self.parser.app.has_visible_subcommands();
 
             if flags || opts || pos || subcmds {
                 self.write_templated_help(Self::DEFAULT_TEMPLATE)?;
@@ -740,20 +752,25 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// including titles of a Parser Object to the wrapped stream.
     pub(crate) fn write_all_args(&mut self) -> io::Result<()> {
         debug!("Help::write_all_args");
-        let flags = self.parser.has_flags();
         let pos = self
             .parser
             .app
-            .get_positionals()
+            .get_positionals_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
-            .any(|_| true);
+            .collect::<Vec<_>>();
+        let flags = self
+            .parser
+            .app
+            .get_flags_with_no_heading()
+            .filter(|arg| should_show_arg(self.use_long, arg))
+            .collect::<Vec<_>>();
         let opts = self
             .parser
             .app
             .get_opts_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
-        let subcmds = self.parser.has_visible_subcommands();
+        let subcmds = self.parser.app.has_visible_subcommands();
 
         let custom_headings = self
             .parser
@@ -763,10 +780,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter_map(|arg| arg.help_heading)
             .collect::<IndexSet<_>>();
 
-        let mut first = if pos {
+        let mut first = if !pos.is_empty() {
             // Write positional args if any
             self.warning("ARGS:\n")?;
-            self.write_args_unsorted(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
+            self.write_args_unsorted(&pos)?;
             false
         } else {
             true
@@ -774,7 +791,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
 
-        if unified_help && (flags || !opts.is_empty()) {
+        if unified_help && (!flags.is_empty() || !opts.is_empty()) {
             let opts_flags = self
                 .parser
                 .app
@@ -789,13 +806,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             self.write_args(&*opts_flags)?;
             first = false;
         } else {
-            if flags {
+            if !flags.is_empty() {
                 if !first {
                     self.none("\n\n")?;
                 }
                 self.warning("FLAGS:\n")?;
-                let flags_v: Vec<_> = self.parser.app.get_flags_with_no_heading().collect();
-                self.write_args(&flags_v)?;
+                self.write_args(&flags)?;
                 first = false;
             }
             if !opts.is_empty() {

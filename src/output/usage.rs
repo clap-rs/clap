@@ -278,7 +278,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 pos.multiple_str()
             ))
         } else if self.p.is_set(AS::DontCollapseArgsInUsage)
-            && self.p.has_positionals()
+            && self.p.app.has_positionals()
             && incl_reqs
         {
             debug!("Usage::get_args_tag:iter: Don't collapse returning all");
