@@ -73,8 +73,6 @@ pub struct App<'help> {
     pub(crate) license: Option<&'help str>,
     pub(crate) about: Option<&'help str>,
     pub(crate) long_about: Option<&'help str>,
-    pub(crate) help_about: Option<&'help str>,
-    pub(crate) version_about: Option<&'help str>,
     pub(crate) before_help: Option<&'help str>,
     pub(crate) before_long_help: Option<&'help str>,
     pub(crate) after_help: Option<&'help str>,
@@ -493,50 +491,6 @@ impl<'help> App<'help> {
     /// [`App::about`]: ./struct.App.html#method.about
     pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.long_about = Some(about.into());
-        self
-    }
-
-    /// Sets the help text for the auto-generated help argument and subcommand.
-    ///
-    /// By default clap sets this to "Prints help information" for the help
-    /// argument and "Prints this message or the help of the given subcommand(s)"
-    /// for the help subcommand but if you're using a different convention
-    /// for your help messages and would prefer a different phrasing you can
-    /// override it.
-    ///
-    /// **NOTE:** This setting propagates to subcommands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// App::new("myprog")
-    ///     .help_about("Print help information") // Imperative tone
-    /// # ;
-    /// ```
-    pub fn help_about<S: Into<&'help str>>(mut self, help_about: S) -> Self {
-        self.help_about = Some(help_about.into());
-        self
-    }
-
-    /// Sets the help text for the auto-generated version argument.
-    ///
-    /// By default clap sets this to "Prints version information" but if
-    /// you're using a different convention for your help messages and
-    /// would prefer a different phrasing you can override it.
-    ///
-    /// **NOTE:** This setting propagates to subcommands.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::App;
-    /// App::new("myprog")
-    ///     .version_about("Print version information") // Imperative tone
-    /// # ;
-    /// ```
-    pub fn version_about<S: Into<&'help str>>(mut self, version_about: S) -> Self {
-        self.version_about = Some(version_about.into());
         self
     }
 
@@ -1787,13 +1741,18 @@ impl<'help> App<'help> {
     {
         let arg_id: &str = arg_id.into();
         let id = Id::from(arg_id);
-        let a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
+
+        let mut a = self.args.remove_by_name(&id).unwrap_or_else(|| Arg {
             id,
             name: arg_id,
             ..Arg::default()
         });
-        self.args.push(f(a));
 
+        if a.provider == ArgProvider::Generated {
+            a.provider = ArgProvider::GeneratedMutated;
+        }
+
+        self.args.push(f(a));
         self
     }
 
@@ -2389,14 +2348,28 @@ impl<'help> App<'help> {
 
         for sc in &mut self.subcommands {
             for a in self.args.args().filter(|a| a.global) {
-                let is_generated = a.provider == ArgProvider::Generated;
+                let mut propagate = false;
+                let is_generated = matches!(
+                    a.provider,
+                    ArgProvider::Generated | ArgProvider::GeneratedMutated
+                );
 
                 // Remove generated help and version args in the subcommand
+                //
+                // Don't remove if those args are futher mutated
                 if is_generated {
-                    sc.args.remove_by_name(&a.id);
+                    let generated_pos = sc
+                        .args
+                        .args()
+                        .position(|x| x.id == a.id && x.provider == ArgProvider::Generated);
+
+                    if let Some(index) = generated_pos {
+                        sc.args.remove(index);
+                        propagate = true;
+                    }
                 }
 
-                if is_generated || sc.find(&a.id).is_none() {
+                if propagate || sc.find(&a.id).is_none() {
                     sc.args.push(a.clone());
                 }
             }
@@ -2426,12 +2399,6 @@ impl<'help> App<'help> {
                     $sc.g_settings = $sc.g_settings | $_self.g_settings;
                     $sc.term_w = $_self.term_w;
                     $sc.max_w = $_self.max_w;
-                    if $sc.help_about.is_none() && $_self.help_about.is_some() {
-                        $sc.help_about = $_self.help_about.clone();
-                    }
-                    if $sc.version_about.is_none() && $_self.version_about.is_some() {
-                        $sc.version_about = $_self.version_about.clone();
-                    }
                 }
             }};
         }
@@ -2481,10 +2448,6 @@ impl<'help> App<'help> {
             {
                 help.short = Some('h');
             }
-
-            if self.help_about.is_some() {
-                help.about = self.help_about;
-            }
         }
 
         if self.is_set(AppSettings::DisableVersionFlag)
@@ -2521,10 +2484,6 @@ impl<'help> App<'help> {
             {
                 version.short = Some('V');
             }
-
-            if self.version_about.is_some() {
-                version.about = self.version_about;
-            }
         }
 
         if !self.is_set(AppSettings::DisableHelpSubcommand)
@@ -2533,10 +2492,8 @@ impl<'help> App<'help> {
         {
             debug!("App::_check_help_and_version: Building help subcommand");
             self.subcommands.push(
-                App::new("help").about(
-                    self.help_about
-                        .unwrap_or("Prints this message or the help of the given subcommand(s)"),
-                ),
+                App::new("help")
+                    .about("Prints this message or the help of the given subcommand(s)"),
             );
         }
     }

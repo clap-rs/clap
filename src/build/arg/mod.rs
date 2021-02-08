@@ -45,6 +45,7 @@ type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sy
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum ArgProvider {
     Generated,
+    GeneratedMutated,
     User,
 }
 

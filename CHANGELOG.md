@@ -24,8 +24,6 @@ TODO: `cargo`, `std` features
 
 * **Added Methods**
   * **App**
-    * `App::help_about`
-    * `App::version_about`
   * **Arg**
     * `Arg::hide_env`
 * **Added Settings**

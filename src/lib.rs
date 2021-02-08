@@ -4,6 +4,7 @@
 // notice may not be copied, modified, or distributed except according to those terms.
 
 #![cfg_attr(feature = "doc", feature(external_doc))]
+#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap/3.0.0-beta.2")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 //! https://github.com/clap-rs/clap
