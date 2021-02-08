@@ -271,7 +271,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             .app
             .get_positionals()
             .any(|p| p.is_set(ArgSettings::Last) && p.is_set(ArgSettings::Required))
-            && self.has_subcommands()
+            && self.app.has_subcommands()
             && !self.is_set(AS::SubcommandsNegateReqs)
         {
             panic!(
@@ -371,7 +371,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if self.is_new_arg(&arg_os, &needs_val_of) {
                     if arg_os == "--" {
                         debug!("Parser::get_matches_with: setting TrailingVals=true");
-                        self.set(AS::TrailingValues);
+                        self.app.set(AS::TrailingValues);
                         continue;
                     } else if arg_os.starts_with("--") {
                         needs_val_of = self.parse_long_arg(matcher, &arg_os, remaining_args)?;
@@ -647,7 +647,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             );
         }
         // If the argument must be a subcommand.
-        if !self.has_args() || self.is_set(AS::InferSubcommands) && self.has_subcommands() {
+        if !self.app.has_args() || self.is_set(AS::InferSubcommands) && self.app.has_subcommands() {
             return ClapError::unrecognized_subcommand(
                 arg_os.to_string_lossy().to_string(),
                 self.app
@@ -1066,7 +1066,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
         // `-v` `-a` `-l` assuming `v` `a` and `l` are all, or mostly, valid shorts.
-        if self.is_set(AS::AllowLeadingHyphen) && arg.chars().any(|c| !self.contains_short(c)) {
+        if self.is_set(AS::AllowLeadingHyphen) && arg.chars().any(|c| !self.app.contains_short(c)) {
             debug!(
                 "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
                 arg
@@ -1612,39 +1612,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
 // Query Methods
 impl<'help, 'app> Parser<'help, 'app> {
-    fn contains_short(&self, s: char) -> bool {
-        self.app.contains_short(s)
-    }
-
-    pub(crate) fn has_args(&self) -> bool {
-        self.app.has_args()
-    }
-
-    pub(crate) fn has_opts(&self) -> bool {
-        self.app.has_opts()
-    }
-
-    pub(crate) fn has_flags(&self) -> bool {
-        self.app.has_flags()
-    }
-
-    pub(crate) fn has_positionals(&self) -> bool {
-        self.app.args.keys().any(|x| x.is_position())
-    }
-
-    pub(crate) fn has_subcommands(&self) -> bool {
-        self.app.has_subcommands()
-    }
-
-    pub(crate) fn has_visible_subcommands(&self) -> bool {
-        self.app.has_visible_subcommands()
-    }
-
     pub(crate) fn is_set(&self, s: AS) -> bool {
         self.app.is_set(s)
-    }
-
-    pub(crate) fn set(&mut self, s: AS) {
-        self.app.set(s)
     }
 }

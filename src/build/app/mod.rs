@@ -196,7 +196,7 @@ impl<'help> App<'help> {
         self.args.args()
     }
 
-    /// Get the list of *positional* arguments.
+    /// Iterate through the *positionals*.
     #[inline]
     pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments().filter(|a| a.is_positional())
@@ -212,6 +212,12 @@ impl<'help> App<'help> {
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
             .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+    }
+
+    /// Iterate through the *positionals* that don't have custom heading.
+    pub fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_positionals()
+            .filter(|a| a.get_help_heading().is_none())
     }
 
     /// Iterate through the *flags* that don't have custom heading.
@@ -2646,14 +2652,8 @@ impl<'help> App<'help> {
         !self.args.is_empty()
     }
 
-    #[inline]
-    pub(crate) fn has_opts(&self) -> bool {
-        self.get_opts_with_no_heading().count() > 0
-    }
-
-    #[inline]
-    pub(crate) fn has_flags(&self) -> bool {
-        self.get_flags_with_no_heading().count() > 0
+    pub(crate) fn has_positionals(&self) -> bool {
+        self.args.keys().any(|x| x.is_position())
     }
 
     pub(crate) fn has_visible_subcommands(&self) -> bool {

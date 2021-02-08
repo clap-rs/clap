@@ -2220,3 +2220,197 @@ FLAGS:
         false
     ));
 }
+
+static ONLY_CUSTOM_HEADING_FLAGS: &'static str = "test 1.4
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --speed <speed>    How fast
+
+NETWORKING:
+        --flag    Some flag";
+
+#[test]
+fn only_custom_heading_flags() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .mut_arg("help", |a| a.hidden(true))
+        .arg(
+            Arg::new("speed")
+                .long("speed")
+                .takes_value(true)
+                .about("How fast"),
+        )
+        .help_heading("NETWORKING")
+        .arg(Arg::new("flag").long("flag").about("Some flag"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_FLAGS,
+        false
+    ));
+}
+
+static ONLY_CUSTOM_HEADING_OPTS: &'static str = "test 1.4
+
+USAGE:
+    test
+
+FLAGS:
+    -h, --help    Prints help information
+
+NETWORKING:
+    -s, --speed <SPEED>    How fast";
+
+#[test]
+fn only_custom_heading_opts() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .help_heading("NETWORKING")
+        .arg(Arg::from("-s, --speed [SPEED] 'How fast'"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_OPTS,
+        false
+    ));
+}
+
+static CUSTOM_HEADING_POS: &'static str = "test 1.4
+
+USAGE:
+    test [ARGS]
+
+ARGS:
+    <gear>    Which gear
+
+FLAGS:
+    -h, --help    Prints help information
+
+NETWORKING:
+    <speed>    How fast";
+
+#[test]
+fn custom_heading_pos() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .arg(Arg::new("gear").about("Which gear"))
+        .help_heading("NETWORKING")
+        .arg(Arg::new("speed").about("How fast"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        CUSTOM_HEADING_POS,
+        false
+    ));
+}
+
+static ONLY_CUSTOM_HEADING_POS: &'static str = "test 1.4
+
+USAGE:
+    test [speed]
+
+FLAGS:
+    -h, --help    Prints help information
+
+NETWORKING:
+    <speed>    How fast";
+
+#[test]
+fn only_custom_heading_pos() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .help_heading("NETWORKING")
+        .arg(Arg::new("speed").about("How fast"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_POS,
+        false
+    ));
+}
+
+static ONLY_CUSTOM_HEADING_FLAGS_NO_ARGS: &'static str = "test 1.4
+
+USAGE:
+    test
+
+NETWORKING:
+        --flag    Some flag";
+
+#[test]
+fn only_custom_heading_flags_no_args() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .mut_arg("help", |a| a.hidden(true))
+        .help_heading("NETWORKING")
+        .arg(Arg::new("flag").long("flag").about("Some flag"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_FLAGS_NO_ARGS,
+        false
+    ));
+}
+
+static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &'static str = "test 1.4
+
+USAGE:
+    test
+
+NETWORKING:
+    -s, --speed <SPEED>    How fast";
+
+#[test]
+fn only_custom_heading_opts_no_args() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .mut_arg("help", |a| a.hidden(true))
+        .help_heading("NETWORKING")
+        .arg(Arg::from("-s, --speed [SPEED] 'How fast'"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_OPTS_NO_ARGS,
+        false
+    ));
+}
+
+static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &'static str = "test 1.4
+
+USAGE:
+    test [speed]
+
+NETWORKING:
+    <speed>    How fast";
+
+#[test]
+fn only_custom_heading_pos_no_args() {
+    let app = App::new("test")
+        .version("1.4")
+        .setting(AppSettings::DisableVersionFlag)
+        .mut_arg("help", |a| a.hidden(true))
+        .help_heading("NETWORKING")
+        .arg(Arg::new("speed").about("How fast"));
+
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        ONLY_CUSTOM_HEADING_POS_NO_ARGS,
+        false
+    ));
+}
