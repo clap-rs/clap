@@ -19,13 +19,17 @@ TODO: `cargo`, `std` features
     * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
 * **Changed**
   * `Arg::env` & `Arg::env_os` does not set `ArgSettings::TakesValue` anymore
+  * `@group` in `clap_app!` now needs `:` instead of `=>`
 
 #### Features
 
 * **Added Methods**
   * **App**
+    * `App::license`
   * **Arg**
     * `Arg::hide_env`
+  * **Macros**
+    * `crate_license!`
 * **Added Settings**
   * `ArgSettings::HideEnv`
 

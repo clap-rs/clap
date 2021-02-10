@@ -3067,7 +3067,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Not setting [`Required`] and then *not* supplying that argument at runtime is an error.
+    /// Setting [`Required`] and then *not* supplying that argument at runtime is an error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings, ErrorKind};
