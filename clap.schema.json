@@ -51,7 +51,6 @@
   "definitions": {
     "arg": {
       "type": "object",
-
       "properties": {
         "about": {
           "type": "string"
@@ -315,7 +314,6 @@
       "type": "string"
     }
   },
-
   "type": "object",
   "TODO:": "set 'name' as required",
   "properties": {

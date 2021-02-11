@@ -262,11 +262,12 @@ fn build_cli() -> App<'static> {
                 .after_help(RUN_HELP)
                 .setting(AppSettings::TrailingVarArg)
                 .arg(Arg::new("toolchain").setting(ArgSettings::Required))
-                .arg(Arg::new("command").settings(&[
-                    ArgSettings::Required,
-                    ArgSettings::MultipleValues,
-                    ArgSettings::MultipleOccurrences,
-                ])),
+                .arg(
+                    Arg::new("command")
+                        .setting(ArgSettings::Required)
+                        .setting(ArgSettings::MultipleValues)
+                        .setting(ArgSettings::MultipleOccurrences),
+                ),
         )
         .subcommand(
             App::new("which")

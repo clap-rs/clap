@@ -332,11 +332,9 @@ where
         .arg(
             flag("regexp")
                 .short('e')
-                .settings(&[
-                    ArgSettings::AllowHyphenValues,
-                    ArgSettings::MultipleOccurrences,
-                    ArgSettings::TakesValue,
-                ])
+                .setting(ArgSettings::AllowHyphenValues)
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::TakesValue)
                 .value_name("pattern"),
         )
         .arg(
@@ -358,13 +356,15 @@ where
         .arg(
             flag("colors")
                 .value_name("SPEC")
-                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue]),
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::TakesValue),
         )
         .arg(flag("fixed-strings").short('F'))
         .arg(
             flag("glob")
                 .short('g')
-                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::TakesValue)
                 .value_name("GLOB"),
         )
         .arg(flag("ignore-case").short('i'))
@@ -374,13 +374,15 @@ where
         .arg(
             flag("type")
                 .short('t')
-                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::TakesValue)
                 .value_name("TYPE"),
         )
         .arg(
             flag("type-not")
                 .short('T')
-                .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::TakesValue)
                 .value_name("TYPE"),
         )
         .arg(

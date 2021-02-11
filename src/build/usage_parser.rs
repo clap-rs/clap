@@ -71,7 +71,7 @@ impl<'help> UsageParser<'help> {
         };
         if !arg.has_switch() && arg.is_set(ArgSettings::MultipleOccurrences) {
             // We had a positional and need to set mult vals too
-            arg.set_mut(ArgSettings::MultipleValues);
+            arg.settings.set(ArgSettings::MultipleValues);
         }
         debug!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
@@ -87,7 +87,7 @@ impl<'help> UsageParser<'help> {
             == b'<'
             && !self.explicit_name_set
         {
-            arg.set_mut(ArgSettings::Required);
+            arg.settings.set(ArgSettings::Required);
         }
         self.pos += 1;
         self.stop_at(name_end);
@@ -104,7 +104,7 @@ impl<'help> UsageParser<'help> {
         } else {
             debug!("UsageParser::name: setting val name...{}", name);
             if arg.val_names.is_empty() {
-                arg.set_mut(ArgSettings::TakesValue);
+                arg.settings.set(ArgSettings::TakesValue);
             }
             let len = arg.val_names.len();
             arg.val_names.insert(len, name);
@@ -183,9 +183,9 @@ impl<'help> UsageParser<'help> {
             if dot_counter == 3 {
                 debug!("UsageParser::multiple: setting multiple");
                 if arg.is_set(ArgSettings::TakesValue) {
-                    arg.set_mut(ArgSettings::MultipleValues);
+                    arg.settings.set(ArgSettings::MultipleValues);
                 }
-                arg.set_mut(ArgSettings::MultipleOccurrences);
+                arg.settings.set(ArgSettings::MultipleOccurrences);
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
                 break;
@@ -218,7 +218,7 @@ impl<'help> UsageParser<'help> {
             "UsageParser::default: setting default...\"{}\"",
             &self.usage[self.start..self.pos]
         );
-        arg.set_mut(ArgSettings::TakesValue);
+        arg.settings.set(ArgSettings::TakesValue);
         arg.default_vals = vec![std::ffi::OsStr::new(&self.usage[self.start..self.pos])];
         self.prev = UsageToken::Default;
     }
