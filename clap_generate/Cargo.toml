@@ -39,7 +39,7 @@ clap = { path = "../", version = "3.0.0-beta.2" }
 
 [dev-dependencies]
 pretty_assertions = "0.6"
-version-sync = "0.8"
+version-sync = "0.9"
 
 [features]
 default = []
