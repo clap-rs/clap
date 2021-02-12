@@ -3058,10 +3058,11 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .settings(&[ArgSettings::Required, ArgSettings::TakesValue])
+    ///         .setting(ArgSettings::Required)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
-    ///         "prog", "--config", "file.conf"
+    ///         "prog", "--config", "file.conf",
     ///     ]);
     ///
     /// assert!(res.is_ok());
@@ -3073,7 +3074,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
-    ///         .settings(&[ArgSettings::Required, ArgSettings::TakesValue])
+    ///         .setting(ArgSettings::Required)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
     ///         "prog"
@@ -3340,7 +3342,8 @@ impl<'help> Arg<'help> {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
-    ///         .settings(&[ArgSettings::RequireDelimiter, ArgSettings::MultipleValues]))
+    ///         .setting(ArgSettings::RequireDelimiter)
+    ///         .setting(ArgSettings::MultipleValues))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1,val2,val3",
     ///     ]);
@@ -3545,7 +3548,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .long("--option")
-    ///         .settings(&[ArgSettings::IgnoreCase, ArgSettings::MultipleValues])
+    ///         .setting(ArgSettings::IgnoreCase)
+    ///         .setting(ArgSettings::MultipleValues)
     ///         .possible_value("test123")
     ///         .possible_value("test321"))
     ///     .get_matches_from(vec![
@@ -3713,7 +3717,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("opt")
     ///         .long("long-option-flag")
     ///         .short('o')
-    ///         .settings(&[ArgSettings::TakesValue, ArgSettings::NextLineHelp])
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::NextLineHelp)
     ///         .value_names(&["value1", "value2"])
     ///         .about("Some really long help and complex\n\
     ///                help that makes more sense to be\n\
@@ -3888,7 +3893,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+    ///         .setting(ArgSettings::MultipleOccurrences)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -3908,7 +3914,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+    ///         .setting(ArgSettings::MultipleOccurrences)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -4032,7 +4039,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .settings(&[ArgSettings::MultipleOccurrences, ArgSettings::TakesValue])
+    ///         .setting(ArgSettings::MultipleOccurrences)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .short('F'))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
@@ -4252,32 +4260,42 @@ impl<'help> Arg<'help> {
         self.settings.is_set(s)
     }
 
-    /// Sets one of the [`ArgSettings`] settings for the argument
+    /// Enables a single setting for the current (this `Arg` instance) argument.
     ///
+    /// See [`ArgSettings`] for a full list of possibilities and examples.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{Arg, ArgSettings};
+    /// Arg::new("config")
+    ///     .setting(ArgSettings::Required)
+    ///     .setting(ArgSettings::TakesValue)
+    /// # ;
+    /// ```
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
-    pub fn setting(mut self, s: ArgSettings) -> Self {
-        self.set_mut(s);
+    pub fn setting(mut self, setting: ArgSettings) -> Self {
+        self.settings.set(setting);
         self
     }
 
-    // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
-    /// Sets multiple [`ArgSettings`] for the argument
+    /// Disables a single setting for the current (this `Arg` instance) argument.
     ///
-    /// [`ArgSettings`]: ./enum.ArgSettings.html
-    pub fn settings(mut self, settings: &[ArgSettings]) -> Self {
-        for s in settings {
-            self.settings.set(*s);
-        }
-        self
-    }
-
-    /// Unsets one of the [`ArgSettings`] for the argument
+    /// See [`ArgSettings`] for a full list of possibilities and examples.
     ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{Arg, ArgSettings};
+    /// Arg::new("config")
+    ///     .unset_setting(ArgSettings::Required)
+    /// # ;
+    /// ```
     /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
-    pub fn unset_setting(mut self, s: ArgSettings) -> Self {
-        self.unset_mut(s);
+    pub fn unset_setting(mut self, setting: ArgSettings) -> Self {
+        self.settings.unset(setting);
         self
     }
 
@@ -4315,7 +4333,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
-        self.set_mut(ArgSettings::TakesValue);
+        self.settings.set(ArgSettings::TakesValue);
         self.value_hint = value_hint;
         self
     }
@@ -4334,20 +4352,12 @@ impl<'help> Arg<'help> {
                 || self.min_vals.is_some()
                 || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
             {
-                self.set_mut(ArgSettings::MultipleValues);
-                self.set_mut(ArgSettings::MultipleOccurrences);
+                self.settings.set(ArgSettings::MultipleValues);
+                self.settings.set(ArgSettings::MultipleOccurrences);
             }
         } else if self.is_set(ArgSettings::TakesValue) && self.val_names.len() > 1 {
             self.num_vals = Some(self.val_names.len() as u64);
         }
-    }
-
-    pub(crate) fn set_mut(&mut self, s: ArgSettings) {
-        self.settings.set(s);
-    }
-
-    pub(crate) fn unset_mut(&mut self, s: ArgSettings) {
-        self.settings.unset(s);
     }
 
     pub(crate) fn has_switch(&self) -> bool {
@@ -4524,7 +4534,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
                 "required_unless_present_all" => {
                     a = yaml_vec!(a, v, required_unless_present_all);
-                    a.set_mut(ArgSettings::RequiredUnlessAll);
+                    a.settings.set(ArgSettings::RequiredUnlessAll);
                     a
                 }
                 "visible_alias" => yaml_to_str!(a, v, visible_alias),
@@ -4870,16 +4880,16 @@ mod test {
 
     #[test]
     fn positiona_display_mult() {
-        let mut p = Arg::new("pos").index(1);
-        p.set_mut(ArgSettings::MultipleValues);
+        let p = Arg::new("pos")
+            .index(1)
+            .setting(ArgSettings::MultipleValues);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
     }
 
     #[test]
     fn positional_display_required() {
-        let mut p2 = Arg::new("pos").index(1);
-        p2.settings.set(ArgSettings::Required);
+        let p2 = Arg::new("pos").index(1).setting(ArgSettings::Required);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
     }
@@ -4897,8 +4907,7 @@ mod test {
 
     #[test]
     fn positional_display_val_names_req() {
-        let mut p2 = Arg::new("pos").index(1);
-        p2.settings.set(ArgSettings::Required);
+        let mut p2 = Arg::new("pos").index(1).setting(ArgSettings::Required);
         let mut vm = VecMap::new();
         vm.insert(0, "file1");
         vm.insert(1, "file2");

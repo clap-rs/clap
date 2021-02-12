@@ -10,6 +10,9 @@ TODO: `cargo`, `std` features
 
 #### BREAKING CHANGES
 
+* **Removed Methods**
+  * **Arg**
+    * `Arg::settings` in favor of `Arg::setting(Setting1 | Setting2)`
 * **Renamed Settings**
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
@@ -196,6 +199,7 @@ TODO: `cargo`, `std` features
     * `Arg::multiple_values`
     * `Arg::multiple_occurrences`
     * `Arg::help_heading`
+    * `Arg::settings`
 * **Added Settings**
   * `AppSettings::HelpRequired`
   * `AppSettings::NoAutoHelp`

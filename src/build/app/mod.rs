@@ -918,7 +918,6 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`AppSettings`]: ./enum.AppSettings.html
-    /// [global]: ./struct.App.html#method.global_setting
     #[inline]
     pub fn unset_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);

@@ -740,11 +740,9 @@ fn args_with_last_usage() {
         .arg(
             Arg::new("pass through args")
                 .about("Any arguments you wish to pass to the being profiled.")
-                .settings(&[
-                    ArgSettings::MultipleValues,
-                    ArgSettings::MultipleOccurrences,
-                    ArgSettings::Last,
-                ])
+                .setting(ArgSettings::MultipleValues)
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::Last)
                 .value_name("ARGS"),
         );
     assert!(utils::compare_output(

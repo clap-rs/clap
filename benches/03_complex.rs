@@ -67,7 +67,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .about("tests flags")
                         .long("flag")
                         .global(true)
-                        .settings(&[ArgSettings::MultipleOccurrences]),
+                        .setting(ArgSettings::MultipleOccurrences),
                 )
                 .arg(
                     Arg::new("flag2")

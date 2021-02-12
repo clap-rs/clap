@@ -112,11 +112,9 @@ fn app_example7<'c>() -> App<'c> {
         .arg(
             Arg::new("input")
                 .about("the input file to use")
-                .settings(&[
-                    ArgSettings::MultipleValues,
-                    ArgSettings::MultipleOccurrences,
-                    ArgSettings::Required,
-                ])
+                .setting(ArgSettings::MultipleValues)
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::Required)
                 .short('i')
                 .long("input")
                 .requires("config")
@@ -131,11 +129,9 @@ fn app_example8<'c>() -> App<'c> {
         .arg(
             Arg::new("input")
                 .about("the input file to use")
-                .settings(&[
-                    ArgSettings::MultipleValues,
-                    ArgSettings::MultipleOccurrences,
-                    ArgSettings::Required,
-                ])
+                .setting(ArgSettings::MultipleValues)
+                .setting(ArgSettings::MultipleOccurrences)
+                .setting(ArgSettings::Required)
                 .short('i')
                 .long("input")
                 .requires("config")
