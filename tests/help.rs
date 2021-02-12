@@ -344,7 +344,7 @@ Show how the about text is not
 wrapped
 
 USAGE:
-    ctest
+    test
 
 FLAGS:
     -h, --help
@@ -588,7 +588,7 @@ Will M.
 does stuff
 
 USAGE:
-    test --fake <some>:<val>
+    blorp --fake <some>:<val>
 
 FLAGS:
     -h, --help       Prints help information
@@ -603,7 +603,7 @@ NETWORKING:
 static ISSUE_1487: &str = "test 
 
 USAGE:
-    ctest <arg1|arg2>
+    test <arg1|arg2>
 
 ARGS:
     <arg1>    
@@ -1373,11 +1373,12 @@ fn issue_1046_hidden_scs() {
 #[test]
 fn issue_777_wrap_all_things() {
     let app = App::new("A app with a crazy very long long long name hahaha")
+        .bin_name("test")
         .version("1.0")
         .author("Some Very Long Name and crazy long email <email@server.com>")
         .about("Show how the about text is not wrapped")
         .term_width(35);
-    assert!(utils::compare_output(app, "ctest --help", ISSUE_777, false));
+    assert!(utils::compare_output(app, "test --help", ISSUE_777, false));
 }
 
 static OVERRIDE_HELP_SHORT: &str = "test 0.1
@@ -1801,7 +1802,7 @@ fn custom_headers_headers() {
 
     assert!(utils::compare_output(
         app,
-        "test --help",
+        "blorp --help",
         CUSTOM_HELP_SECTION,
         false
     ));
@@ -1812,7 +1813,7 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
+    blorp [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
 
 FLAGS:
     -h, --help       Prints help information
@@ -1879,7 +1880,7 @@ fn multiple_custom_help_headers() {
 
     assert!(utils::compare_output(
         app,
-        "test --help",
+        "blorp --help",
         MULTIPLE_CUSTOM_HELP_SECTIONS,
         false
     ));
@@ -1966,7 +1967,7 @@ fn issue_1487() {
         .group(ArgGroup::new("group1")
             .args(&["arg1", "arg2"])
             .required(true));
-    assert!(utils::compare_output(app, "ctest -h", ISSUE_1487, false));
+    assert!(utils::compare_output(app, "test -h", ISSUE_1487, false));
 }
 
 #[cfg(debug_assertions)]

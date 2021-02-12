@@ -14,7 +14,6 @@ use std::{
     fmt,
     io::{self, BufRead, Write},
     ops::Index,
-    path::Path,
 };
 
 // Third Party
@@ -2127,25 +2126,12 @@ impl<'help> App<'help> {
         T: Into<OsString> + Clone,
     {
         let mut it = Input::from(itr.into_iter());
-        // Get the name of the program (argument 1 of env::args()) and determine the
-        // actual file
-        // that was used to execute the program. This is because a program called
-        // ./target/release/my_prog -a
-        // will have two arguments, './target/release/my_prog', '-a' but we don't want
-        // to display
-        // the full path when displaying help messages and such
         if !self.settings.is_set(AppSettings::NoBinaryName) {
-            if let Some((name, _)) = it.next() {
-                let p = Path::new(name);
-
-                if let Some(f) = p.file_name() {
-                    if let Some(s) = f.to_str() {
-                        if self.bin_name.is_none() {
-                            self.bin_name = Some(s.to_owned());
-                        }
-                    }
-                }
+            if self.bin_name.is_none() {
+                self.bin_name = Some(self.name.to_owned());
             }
+            // Consume the name of the program executed (argument 1 of env::args())
+            it.next();
         }
 
         self._do_parse(&mut it)

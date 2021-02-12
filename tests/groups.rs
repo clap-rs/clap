@@ -6,7 +6,7 @@ static REQ_GROUP_USAGE: &str = "error: The following required arguments were not
     <base|--delete>
 
 USAGE:
-    clap-test <base|--delete>
+    req_group <base|--delete>
 
 For more information try --help";
 
@@ -14,7 +14,7 @@ static REQ_GROUP_CONFLICT_USAGE: &str =
     "error: The argument '--delete' cannot be used with '<base>'
 
 USAGE:
-    clap-test <base|--delete>
+    req_group <base|--delete>
 
 For more information try --help";
 
@@ -22,7 +22,7 @@ static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
     "error: The argument '--delete' cannot be used with '--all'
 
 USAGE:
-    clap-test <--all|--delete>
+    req_group <--all|--delete>
 
 For more information try --help";
 
@@ -175,7 +175,7 @@ fn req_group_usage_string() {
 
     assert!(utils::compare_output(
         app,
-        "clap-test",
+        "req_group",
         REQ_GROUP_USAGE,
         true
     ));

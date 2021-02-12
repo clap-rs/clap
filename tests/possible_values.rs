@@ -9,7 +9,7 @@ static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
 \tDid you mean \"slow\"?
 
 USAGE:
-    clap-test -O <option>
+    test -O <option>
 
 For more information try --help";
 
@@ -18,7 +18,7 @@ static PV_ERROR: &'static str = "error: \"slo\" isn't a valid value for '-O <opt
 \t[possible values: \"ludicrous speed\", fast, slow]
 
 USAGE:
-    clap-test -O <option>
+    test -O <option>
 
 For more information try --help";
 
@@ -29,7 +29,7 @@ static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-
 \tDid you mean \"ludicrous speed\"?
 
 USAGE:
-    clap-test -O <option>
+    test -O <option>
 
 For more information try --help";
 
@@ -38,7 +38,7 @@ static PV_ERROR_ESCAPED: &'static str = "error: \"ludicrous\" isn't a valid valu
 \t[possible values: \"ludicrous speed\", fast, slow]
 
 USAGE:
-    clap-test -O <option>
+    test -O <option>
 
 For more information try --help";
 
@@ -188,7 +188,7 @@ fn possible_values_output() {
             "fast",
             "ludicrous speed"
         ])),
-        "clap-test -O slo",
+        "test -O slo",
         PV_ERROR,
         true
     ));
@@ -202,7 +202,7 @@ fn escaped_possible_values_output() {
             "fast",
             "ludicrous speed"
         ])),
-        "clap-test -O ludicrous",
+        "test -O ludicrous",
         PV_ERROR_ESCAPED,
         true
     ));

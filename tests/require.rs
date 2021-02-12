@@ -535,7 +535,7 @@ fn required_if_val_present_fail() {
 
 #[test]
 fn list_correct_required_args() {
-    let app = App::new("Test app")
+    let app = App::new("test")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
@@ -569,7 +569,7 @@ fn list_correct_required_args() {
 
 #[test]
 fn required_if_val_present_fail_error_output() {
-    let app = App::new("Test app")
+    let app = App::new("test")
         .version("1.0")
         .author("F0x06")
         .about("Arg test")
