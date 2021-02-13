@@ -720,7 +720,7 @@ impl<'help> Arg<'help> {
     /// * supplies the `self` arg.
     /// * supplies *all* of the `names` arguments.
     ///
-    /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
+    /// **NOTE:** If you wish for this argument to only be required unless *any of* these args are
     /// present see [`Arg::required_unless_present_any`]
     ///
     /// # Examples
@@ -794,7 +794,7 @@ impl<'help> Arg<'help> {
     /// * supplies the `self` arg.
     /// * supplies *one or more* of the `unless` arguments.
     ///
-    /// **NOTE:** If you wish for this argument to be required if *all of* these args are
+    /// **NOTE:** If you wish for this argument to be required unless *all of* these args are
     /// present see [`Arg::required_unless_present_all`]
     ///
     /// # Examples
