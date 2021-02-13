@@ -798,7 +798,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_present_all(&["cfg", "dbg"])
+    ///     .required_unless_present_any(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
