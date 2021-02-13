@@ -179,16 +179,6 @@ macro_rules! yaml_to_bool {
 }
 
 #[cfg(feature = "yaml")]
-macro_rules! yaml_to_u64 {
-    ($a:ident, $v:ident, $c:ident) => {{
-        $a.$c($v
-            .as_i64()
-            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
-            as u64)
-    }};
-}
-
-#[cfg(feature = "yaml")]
 macro_rules! yaml_to_usize {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c($v

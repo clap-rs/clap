@@ -135,7 +135,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         //_highest_idx(&self.positionals);
 
-        let num_p = self.app.args.keys().filter(|x| x.is_position()).count() as u64;
+        let num_p = self.app.args.keys().filter(|x| x.is_position()).count();
 
         assert!(
             highest_idx == num_p,
@@ -449,7 +449,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             let low_index_mults = is_second_to_last
                 && self.app.get_positionals().any(|a| {
                     a.is_set(ArgSettings::MultipleValues)
-                        && (positional_count != a.index.unwrap_or(0) as usize)
+                        && (positional_count != a.index.unwrap_or(0))
                 })
                 && self
                     .app
@@ -475,7 +475,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     needs_val_of = if let Some(p) = self
                         .app
                         .get_positionals()
-                        .find(|p| p.index == Some(pos_counter as u64))
+                        .find(|p| p.index == Some(pos_counter))
                     {
                         ParseResult::Pos(p.id.clone())
                     } else {
@@ -507,7 +507,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 pos_counter
             };
 
-            if let Some(p) = self.app.args.get(&(pos_counter as u64)) {
+            if let Some(p) = self.app.args.get(&pos_counter) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
                         arg_os.to_string_lossy().to_string(),

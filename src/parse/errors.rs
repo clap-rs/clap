@@ -711,7 +711,7 @@ impl Error {
 
     pub(crate) fn too_few_values(
         arg: &Arg,
-        min_vals: u64,
+        min_vals: usize,
         curr_vals: usize,
         usage: String,
         color: ColorChoice,
@@ -764,7 +764,7 @@ impl Error {
 
     pub(crate) fn wrong_number_of_values(
         arg: &Arg,
-        num_vals: u64,
+        num_vals: usize,
         curr_vals: usize,
         usage: String,
         color: ColorChoice,

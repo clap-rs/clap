@@ -100,9 +100,9 @@ pub struct Arg<'help> {
     pub(crate) unified_ord: usize,
     pub(crate) possible_vals: Vec<&'help str>,
     pub(crate) val_names: VecMap<&'help str>,
-    pub(crate) num_vals: Option<u64>,
-    pub(crate) max_vals: Option<u64>,
-    pub(crate) min_vals: Option<u64>,
+    pub(crate) num_vals: Option<usize>,
+    pub(crate) max_vals: Option<usize>,
+    pub(crate) min_vals: Option<usize>,
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
@@ -111,7 +111,7 @@ pub struct Arg<'help> {
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
-    pub(crate) index: Option<u64>,
+    pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<&'help str>,
     pub(crate) global: bool,
     pub(crate) exclusive: bool,
@@ -178,7 +178,7 @@ impl<'help> Arg<'help> {
 
     /// Get the index of this argument, if any
     #[inline]
-    pub fn get_index(&self) -> Option<u64> {
+    pub fn get_index(&self) -> Option<usize> {
         self.index
     }
 
@@ -1591,7 +1591,7 @@ impl<'help> Arg<'help> {
     /// [`App`]: ./struct.App.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[inline]
-    pub fn index(mut self, idx: u64) -> Self {
+    pub fn index(mut self, idx: usize) -> Self {
         self.index = Some(idx);
         self
     }
@@ -1865,7 +1865,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
-    pub fn number_of_values(mut self, qty: u64) -> Self {
+    pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
         self.takes_value(true)
     }
@@ -2087,7 +2087,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
-    pub fn max_values(mut self, qty: u64) -> Self {
+    pub fn max_values(mut self, qty: usize) -> Self {
         self.max_vals = Some(qty);
         self.takes_value(true).multiple_values(true)
     }
@@ -2150,7 +2150,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     #[inline]
-    pub fn min_values(mut self, qty: u64) -> Self {
+    pub fn min_values(mut self, qty: usize) -> Self {
         self.min_vals = Some(qty);
         self.takes_value(true)
     }
@@ -4338,7 +4338,7 @@ impl<'help> Arg<'help> {
                 self.set_mut(ArgSettings::MultipleOccurrences);
             }
         } else if self.is_set(ArgSettings::TakesValue) && self.val_names.len() > 1 {
-            self.num_vals = Some(self.val_names.len() as u64);
+            self.num_vals = Some(self.val_names.len());
         }
     }
 
@@ -4487,15 +4487,15 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
                 "required_if_eq_any" => yaml_tuple2!(a, v, required_if_eq),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
-                "index" => yaml_to_u64!(a, v, index),
+                "index" => yaml_to_usize!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
                 "multiple" => yaml_to_bool!(a, v, multiple),
                 "hidden" => yaml_to_bool!(a, v, hidden),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
                 "group" => yaml_to_str!(a, v, group),
-                "number_of_values" => yaml_to_u64!(a, v, number_of_values),
-                "max_values" => yaml_to_u64!(a, v, max_values),
-                "min_values" => yaml_to_u64!(a, v, min_values),
+                "number_of_values" => yaml_to_usize!(a, v, number_of_values),
+                "max_values" => yaml_to_usize!(a, v, max_values),
+                "min_values" => yaml_to_usize!(a, v, min_values),
                 "value_name" => yaml_to_str!(a, v, value_name),
                 "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
                 "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),

@@ -65,7 +65,7 @@ impl<'help> UsageParser<'help> {
             }
         }
         arg.num_vals = if arg.val_names.len() > 1 {
-            Some(arg.val_names.len() as u64)
+            Some(arg.val_names.len())
         } else {
             None
         };

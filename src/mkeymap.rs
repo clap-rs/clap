@@ -22,7 +22,7 @@ pub(crate) struct MKeyMap<'help> {
 pub(crate) enum KeyType {
     Short(char),
     Long(OsString),
-    Position(u64),
+    Position(usize),
 }
 
 impl KeyType {
@@ -31,8 +31,8 @@ impl KeyType {
     }
 }
 
-impl PartialEq<u64> for KeyType {
-    fn eq(&self, rhs: &u64) -> bool {
+impl PartialEq<usize> for KeyType {
+    fn eq(&self, rhs: &usize) -> bool {
         match self {
             KeyType::Position(x) => x == rhs,
             _ => false,
