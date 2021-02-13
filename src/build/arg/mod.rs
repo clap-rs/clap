@@ -776,6 +776,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    /// [required]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless_present_any`]: ./struct.Arg.html#method.required_unless_present_any
     /// [`Arg::required_unless_present_all(names)`]: ./struct.Arg.html#method.required_unless_present_all
     pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
