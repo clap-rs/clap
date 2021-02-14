@@ -525,10 +525,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let append = self.arg_have_val(matcher, p);
                 self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine, append);
 
-                matcher.inc_occurrence_of(&p.id);
-                for grp in self.app.groups_for_arg(&p.id) {
-                    matcher.inc_occurrence_of(&grp);
-                }
+                self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
@@ -1197,11 +1194,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("None");
         }
 
-        matcher.inc_occurrence_of(&opt.id);
-        // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&opt.id) {
-            matcher.inc_occurrence_of(&grp);
-        }
+        self.inc_occurrence_of_arg(matcher, opt);
 
         let needs_delimiter = opt.is_set(ArgSettings::RequireDelimiter);
         let multiple = opt.is_set(ArgSettings::MultipleValues);
@@ -1327,12 +1320,8 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
-        matcher.inc_occurrence_of(&flag.id);
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
-        // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&flag.id) {
-            matcher.inc_occurrence_of(&grp);
-        }
+        self.inc_occurrence_of_arg(matcher, flag);
 
         ParseResult::Flag
     }
@@ -1508,6 +1497,14 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
         Ok(())
     }
+
+    fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
+        matcher.inc_occurrence_of(&arg.id);
+        // Increment or create the group "args"
+        for group in self.app.groups_for_arg(&arg.id) {
+            matcher.inc_occurrence_of(&group);
+        }
+    }
 }
 
 // Error, Help, and Version Methods
@@ -1542,10 +1539,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Add the arg to the matches to build a proper usage string
         if let Some((name, _)) = did_you_mean.as_ref() {
             if let Some(opt) = self.app.args.get(&name.as_ref()) {
-                for g in self.app.groups_for_arg(&opt.id) {
-                    matcher.inc_occurrence_of(&g);
-                }
-                matcher.inc_occurrence_of(&opt.id);
+                self.inc_occurrence_of_arg(matcher, opt);
             }
         }
 
