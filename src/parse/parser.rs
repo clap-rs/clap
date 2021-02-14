@@ -1256,14 +1256,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let vals = vals.into_iter().map(|x| x.to_os_string()).collect();
                 self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
-                // separate the values, we're not looking for more values.
-                let parse_result =
-                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                        ParseResult::ValuesDone
-                    } else {
-                        self.need_more_vals(matcher, arg)
-                    };
-                return parse_result;
+                // separate the values or no more vals is needed, we're not
+                // looking for more values.
+                return if val.contains_char(delim)
+                    || arg.is_set(ArgSettings::RequireDelimiter)
+                    || !matcher.needs_more_vals(arg)
+                {
+                    ParseResult::ValuesDone
+                } else {
+                    ParseResult::Opt(arg.id.clone())
+                };
             }
         }
         if let Some(t) = arg.terminator {
@@ -1272,7 +1274,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
         self.add_single_val_to_arg(arg, val.to_os_string(), matcher, ty, append);
-        self.need_more_vals(matcher, arg)
+        if matcher.needs_more_vals(arg) {
+            ParseResult::Opt(arg.id.clone())
+        } else {
+            ParseResult::ValuesDone
+        }
     }
 
     fn add_multiple_vals_to_arg(
@@ -1312,14 +1318,6 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         matcher.add_val_to(&arg.id, val, ty, append);
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
-    }
-
-    fn need_more_vals(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> ParseResult {
-        if matcher.needs_more_vals(arg) {
-            ParseResult::Opt(arg.id.clone())
-        } else {
-            ParseResult::ValuesDone
-        }
     }
 
     fn arg_have_val(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
