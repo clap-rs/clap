@@ -348,11 +348,8 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
-                    true
-                } else {
-                    !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_))
-                };
+                let can_be_subcommand = self.is_set(AS::SubcommandPrecedenceOverArg)
+                    || !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_));
 
                 if can_be_subcommand {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
@@ -1498,6 +1495,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         Ok(())
     }
 
+    /// Increase occurrence of specific argument and the grouped arg it's in.
     fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
         matcher.inc_occurrence_of(&arg.id);
         // Increment or create the group "args"
