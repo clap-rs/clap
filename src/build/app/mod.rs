@@ -2317,11 +2317,11 @@ impl<'help> App<'help> {
                 .collect();
 
             if !args_missing_help.is_empty() {
-                panic!(format!(
+                panic!(
                     "AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
-                ));
+                );
             }
         }
 

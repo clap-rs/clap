@@ -149,6 +149,7 @@ fn test_parse_hex_function_path() {
     let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
     assert!(
         err.to_string().contains("invalid digit found in string"),
+        "{}",
         err
     );
 }

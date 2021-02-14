@@ -242,7 +242,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             ));
         }
 
-        panic!(INTERNAL_ERROR_MSG);
+        panic!("{}", INTERNAL_ERROR_MSG);
     }
 
     fn validate_conflicts(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
