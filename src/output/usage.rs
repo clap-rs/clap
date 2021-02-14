@@ -307,7 +307,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     }
                 })
                 .max()
-                .unwrap_or_else(|| Some(self.p.app.get_positionals().count() as u64));
+                .unwrap_or_else(|| Some(self.p.app.get_positionals().count()));
             Some(
                 self.p
                     .app
@@ -417,7 +417,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
             .filter(|pos| !args_in_groups.contains(&pos.id))
             .map(|pos| (pos.index.unwrap(), pos))
-            .collect::<BTreeMap<u64, &Arg>>(); // sort by index
+            .collect::<BTreeMap<usize, &Arg>>(); // sort by index
 
         for p in pmap.values() {
             debug!("Usage::get_required_usage_from:iter:{:?}", p.id);

@@ -444,9 +444,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         if let Some(num) = a.num_vals {
             debug!("Validator::validate_arg_num_vals: num_vals set...{}", num);
             let should_err = if a.is_set(ArgSettings::MultipleValues) {
-                ((ma.num_vals() as u64) % num) != 0
+                ma.num_vals() % num != 0
             } else {
-                num != (ma.num_vals() as u64)
+                num != ma.num_vals()
             };
             if should_err {
                 debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
@@ -454,7 +454,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     a,
                     num,
                     if a.is_set(ArgSettings::MultipleValues) {
-                        ma.num_vals() % num as usize
+                        ma.num_vals() % num
                     } else {
                         ma.num_vals()
                     },
@@ -465,7 +465,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
         if let Some(num) = a.max_vals {
             debug!("Validator::validate_arg_num_vals: max_vals set...{}", num);
-            if (ma.num_vals() as u64) > num {
+            if ma.num_vals() > num {
                 debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
                 return Err(Error::too_many_values(
                     ma.vals_flatten()
@@ -482,7 +482,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
         let min_vals_zero = if let Some(num) = a.min_vals {
             debug!("Validator::validate_arg_num_vals: min_vals set: {}", num);
-            if (ma.num_vals() as u64) < num && num != 0 {
+            if ma.num_vals() < num && num != 0 {
                 debug!("Validator::validate_arg_num_vals: Sending error TooFewValues");
                 return Err(Error::too_few_values(
                     a,
