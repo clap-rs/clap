@@ -140,19 +140,33 @@ pub trait Generator {
             .collect()
     }
 
-    /// Gets all the long options and flags of a [`clap::App`](../clap/struct.App.html).
+    /// Gets all the long options, their visible aliases and flags of a [`clap::App`](../clap/struct.App.html).
     /// Includes `help` and `version` depending on the [`clap::AppSettings`](../clap/enum.AppSettings.html).
-    fn longs(p: &App) -> Vec<String> {
+    fn longs_and_visible_aliases(p: &App) -> Vec<String> {
         debug!("longs: name={}", p.get_name());
 
         p.get_arguments()
             .filter_map(|a| {
-                if a.get_index().is_none() && a.get_long().is_some() {
-                    Some(a.get_long().unwrap().to_string())
+                if a.get_index().is_none() {
+                    if a.get_visible_aliases().is_some() && a.get_long().is_some() {
+                        let mut visible_aliases: Vec<_> = a
+                            .get_visible_aliases()
+                            .unwrap()
+                            .into_iter()
+                            .map(|s| s.to_string())
+                            .collect();
+                        visible_aliases.push(a.get_long().unwrap().to_string());
+                        Some(visible_aliases)
+                    } else if a.get_visible_aliases().is_none() && a.get_long().is_some() {
+                        Some(vec![a.get_long().unwrap().to_string()])
+                    } else {
+                        None
+                    }
                 } else {
                     None
                 }
             })
+            .flatten()
             .collect()
     }
 
@@ -187,7 +201,8 @@ mod tests {
                         .short('f')
                         .short_alias('c')
                         .visible_short_alias('p')
-                        .long("file"),
+                        .long("file")
+                        .visible_alias("path"),
                 ),
             )
             .subcommand(App::new("hello"))
@@ -274,17 +289,19 @@ mod tests {
     #[test]
     fn test_longs() {
         let app = common();
-        let longs = Foo::longs(&app);
+        let longs = Foo::longs_and_visible_aliases(&app);
 
         assert_eq!(longs.len(), 2);
         assert_eq!(longs[0], "help");
         assert_eq!(longs[1], "version");
 
-        let sc_longs = Foo::longs(Foo::find_subcommand_with_path(&app, vec!["test"]));
+        let sc_longs =
+            Foo::longs_and_visible_aliases(Foo::find_subcommand_with_path(&app, vec!["test"]));
 
-        assert_eq!(sc_longs.len(), 3);
-        assert_eq!(sc_longs[0], "file");
-        assert_eq!(sc_longs[1], "help");
-        assert_eq!(sc_longs[2], "version");
+        assert_eq!(sc_longs.len(), 4);
+        assert_eq!(sc_longs[0], "path");
+        assert_eq!(sc_longs[1], "file");
+        assert_eq!(sc_longs[2], "help");
+        assert_eq!(sc_longs[3], "version");
     }
 }

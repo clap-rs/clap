@@ -166,6 +166,22 @@ impl<'help> Arg<'help> {
         self.long
     }
 
+    /// Get visible aliases for this argument, if any
+    #[inline]
+    pub fn get_visible_aliases(&self) -> Option<Vec<&str>> {
+        if self.aliases.is_empty() {
+            None
+        } else {
+            Some(
+                self.aliases
+                    .iter()
+                    .filter_map(|(s, v)| if *v { Some(s) } else { None })
+                    .copied()
+                    .collect(),
+            )
+        }
+    }
+
     /// Get the list of the possible values for this argument, if any
     #[inline]
     pub fn get_possible_values(&self) -> Option<&[&str]> {

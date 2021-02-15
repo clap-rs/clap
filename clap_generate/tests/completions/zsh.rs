@@ -422,3 +422,74 @@ _my_app__second__third_commands() {
 }
 
 _my_app "$@""#;
+
+#[test]
+fn zsh_with_aliases() {
+    let mut app = build_app_with_aliases();
+    common::<Zsh>(&mut app, "cmd", ZSH_ALIASES);
+}
+
+fn build_app_with_aliases() -> App<'static> {
+    App::new("cmd")
+        .about("testing bash completions")
+        .arg(
+            Arg::new("flag")
+                .short('f')
+                .visible_short_alias('F')
+                .long("flag")
+                .visible_alias("flg")
+                .about("cmd flag"),
+        )
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .visible_short_alias('O')
+                .long("option")
+                .visible_alias("opt")
+                .about("cmd option")
+                .takes_value(true),
+        )
+        .arg(Arg::new("positional"))
+}
+
+static ZSH_ALIASES: &str = r#"#compdef cmd
+
+autoload -U is-at-least
+
+_cmd() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'-o+[cmd option]' \
+'-O+[cmd option]' \
+'--option=[cmd option]' \
+'--opt=[cmd option]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+'-f[cmd flag]' \
+'-F[cmd flag]' \
+'--flag[cmd flag]' \
+'--flg[cmd flag]' \
+'::positional:' \
+&& ret=0
+    
+}
+
+(( $+functions[_cmd_commands] )) ||
+_cmd_commands() {
+    local commands; commands=()
+    _describe -t commands 'cmd commands' commands "$@"
+}
+
+_cmd "$@""#;

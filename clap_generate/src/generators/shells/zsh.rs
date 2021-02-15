@@ -464,6 +464,22 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
 
             debug!("write_opts_of:iter: Wrote...{}", &*l);
             ret.push(l);
+
+            if let Some(aliases) = o.get_visible_aliases() {
+                for alias in aliases {
+                    let l = format!(
+                        "'{conflicts}{multiple}--{arg}=[{help}]{value_completion}' \\",
+                        conflicts = conflicts,
+                        multiple = multiple,
+                        arg = alias,
+                        value_completion = vc,
+                        help = help
+                    );
+
+                    debug!("write_opts_of:iter: Wrote...{}", &*l);
+                    ret.push(l);
+                }
+            }
         }
     }
 
@@ -567,6 +583,22 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
             debug!("write_flags_of:iter: Wrote...{}", &*l);
 
             ret.push(l);
+
+            if let Some(aliases) = f.get_visible_aliases() {
+                for alias in aliases {
+                    let l = format!(
+                        "'{conflicts}{multiple}--{arg}[{help}]' \\",
+                        conflicts = conflicts,
+                        multiple = multiple,
+                        arg = alias,
+                        help = help
+                    );
+
+                    debug!("write_flags_of:iter: Wrote...{}", &*l);
+
+                    ret.push(l);
+                }
+            }
         }
     }
 

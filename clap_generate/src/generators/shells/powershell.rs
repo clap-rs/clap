@@ -122,6 +122,19 @@ fn generate_inner<'help>(
                 )
                 .as_str(),
             );
+
+            if let Some(aliases) = option.get_visible_aliases() {
+                for data in aliases {
+                    completions.push_str(&preamble);
+                    completions.push_str(
+                        format!(
+                            "'--{}', '{}', {}, '{}')",
+                            data, data, "[CompletionResultType]::ParameterName", tooltip
+                        )
+                        .as_str(),
+                    );
+                }
+            }
         }
     }
 
@@ -163,6 +176,19 @@ fn generate_inner<'help>(
                 )
                 .as_str(),
             );
+
+            if let Some(aliases) = flag.get_visible_aliases() {
+                for data in aliases {
+                    completions.push_str(&preamble);
+                    completions.push_str(
+                        format!(
+                            "'--{}', '{}', {}, '{}')",
+                            data, data, "[CompletionResultType]::ParameterName", tooltip
+                        )
+                        .as_str(),
+                    );
+                }
+            }
         }
     }
 

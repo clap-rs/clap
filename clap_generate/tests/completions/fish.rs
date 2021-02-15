@@ -121,3 +121,38 @@ complete -c my_app -n "__fish_use_subcommand" -l backslash -d 'Avoid \'\\n\''
 complete -c my_app -n "__fish_use_subcommand" -l brackets -d 'List packages [filter]'
 complete -c my_app -n "__fish_use_subcommand" -l expansions -d 'Execute the shell command with $SHELL'
 "#;
+
+#[test]
+fn fish_with_aliases() {
+    let mut app = build_app_with_aliases();
+    common::<Fish>(&mut app, "cmd", FISH_ALIASES);
+}
+
+fn build_app_with_aliases() -> App<'static> {
+    App::new("cmd")
+        .about("testing bash completions")
+        .arg(
+            Arg::new("flag")
+                .short('f')
+                .visible_short_alias('F')
+                .long("flag")
+                .visible_alias("flg")
+                .about("cmd flag"),
+        )
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .visible_short_alias('O')
+                .long("option")
+                .visible_alias("opt")
+                .about("cmd option")
+                .takes_value(true),
+        )
+        .arg(Arg::new("positional"))
+}
+
+static FISH_ALIASES: &str = r#"complete -c cmd -n "__fish_use_subcommand" -s o -s O -l option -l opt -d 'cmd option' -r
+complete -c cmd -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
+complete -c cmd -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
+complete -c cmd -n "__fish_use_subcommand" -s f -s F -l flag -l flg -d 'cmd flag'
+"#;
