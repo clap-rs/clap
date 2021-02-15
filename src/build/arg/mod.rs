@@ -720,7 +720,7 @@ impl<'help> Arg<'help> {
     /// * supplies the `self` arg.
     /// * supplies *all* of the `names` arguments.
     ///
-    /// **NOTE:** If you wish for this argument to only be required if *one of* these args are
+    /// **NOTE:** If you wish for this argument to only be required unless *any of* these args are
     /// present see [`Arg::required_unless_present_any`]
     ///
     /// # Examples
@@ -776,6 +776,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    /// [required]: ./struct.Arg.html#method.required
     /// [`Arg::required_unless_present_any`]: ./struct.Arg.html#method.required_unless_present_any
     /// [`Arg::required_unless_present_all(names)`]: ./struct.Arg.html#method.required_unless_present_all
     pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
@@ -793,12 +794,15 @@ impl<'help> Arg<'help> {
     /// * supplies the `self` arg.
     /// * supplies *one or more* of the `unless` arguments.
     ///
+    /// **NOTE:** If you wish for this argument to be required unless *all of* these args are
+    /// present see [`Arg::required_unless_present_all`]
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::Arg;
     /// Arg::new("config")
-    ///     .required_unless_present_all(&["cfg", "dbg"])
+    ///     .required_unless_present_any(&["cfg", "dbg"])
     /// # ;
     /// ```
     ///
