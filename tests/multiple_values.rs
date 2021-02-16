@@ -1192,3 +1192,19 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
+
+#[test]
+fn issue_2229() {
+    let m = App::new("multiple_values")
+        .arg(
+            Arg::new("pos")
+                .about("multiple positionals")
+                .number_of_values(3),
+        )
+        .try_get_matches_from(vec![
+            "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
+        ]);
+
+    assert!(m.is_err()); // This panics, because `m.is_err() == false`.
+    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+}
