@@ -519,9 +519,15 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
+                // Creating new value group rather than appending when the arg
+                // doesn't have any value. This behaviour is right because
+                // positional arguments are always present continiously.
                 let append = self.arg_have_val(matcher, p);
                 self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine, append);
 
+                // Increase occurence no matter if we are appending, Occurences
+                // of positional argument equals to number of values rather than
+                // the number of value groups.
                 self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1282,6 +1288,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         // If not appending, create a new val group and then append vals in.
         if !append {
             matcher.new_val_group(&arg.id);
+            for group in self.app.groups_for_arg(&arg.id) {
+                matcher.new_val_group(&group);
+            }
         }
         for val in vals {
             self.add_single_val_to_arg(arg, val, matcher, ty, true);
@@ -1341,6 +1350,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         arg_overrides.push((overridee.clone(), &overrider.id));
                     }
                 }
+                // Only do self override for argument that is not positional
+                // argument or flag with one of the Multiple* setting
+                // enabled(which is a feature).
                 if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
                     && !overrider.is_set(ArgSettings::MultipleValues)
                     && !overrider.is_set(ArgSettings::MultipleOccurrences)

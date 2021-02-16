@@ -153,18 +153,19 @@ fn issue_1374() {
             .takes_value(true)
             .long("input")
             .overrides_with("input")
-            .min_values(0),
+            .min_values(0)
+            .multiple_occurrences(true),
     );
     let matches = app
         .clone()
         .get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"]);
     let vs = matches.values_of("input").unwrap();
-    assert_eq!(vs.collect::<Vec<_>>(), vec!["d"]);
+    assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
     let matches = app
         .clone()
         .get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"]);
     let vs = matches.values_of("input").unwrap();
-    assert_eq!(vs.collect::<Vec<_>>(), vec!["c", "d"]);
+    assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
 }
 
 #[test]
