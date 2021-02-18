@@ -348,11 +348,8 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
-                let can_be_subcommand = if self.is_set(AS::SubcommandPrecedenceOverArg) {
-                    true
-                } else {
-                    !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_))
-                };
+                let can_be_subcommand = self.is_set(AS::SubcommandPrecedenceOverArg)
+                    || !matches!(needs_val_of, ParseResult::Opt(_) | ParseResult::Pos(_));
 
                 if can_be_subcommand {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
@@ -522,13 +519,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
+                // Creating new value group rather than appending when the arg
+                // doesn't have any value. This behaviour is right because
+                // positional arguments are always present continiously.
                 let append = self.arg_have_val(matcher, p);
                 self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine, append);
 
-                matcher.inc_occurrence_of(&p.id);
-                for grp in self.app.groups_for_arg(&p.id) {
-                    matcher.inc_occurrence_of(&grp);
-                }
+                // Increase occurence no matter if we are appending, Occurences
+                // of positional argument equals to number of values rather than
+                // the number of value groups.
+                self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
@@ -1197,11 +1197,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("None");
         }
 
-        matcher.inc_occurrence_of(&opt.id);
-        // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&opt.id) {
-            matcher.inc_occurrence_of(&grp);
-        }
+        self.inc_occurrence_of_arg(matcher, opt);
 
         let needs_delimiter = opt.is_set(ArgSettings::RequireDelimiter);
         let multiple = opt.is_set(ArgSettings::MultipleValues);
@@ -1256,14 +1252,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let vals = vals.into_iter().map(|x| x.to_os_string()).collect();
                 self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
-                // separate the values, we're not looking for more values.
-                let parse_result =
-                    if val.contains_char(delim) || arg.is_set(ArgSettings::RequireDelimiter) {
-                        ParseResult::ValuesDone
-                    } else {
-                        self.need_more_vals(matcher, arg)
-                    };
-                return parse_result;
+                // separate the values or no more vals is needed, we're not
+                // looking for more values.
+                return if val.contains_char(delim)
+                    || arg.is_set(ArgSettings::RequireDelimiter)
+                    || !matcher.needs_more_vals(arg)
+                {
+                    ParseResult::ValuesDone
+                } else {
+                    ParseResult::Opt(arg.id.clone())
+                };
             }
         }
         if let Some(t) = arg.terminator {
@@ -1272,7 +1270,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
         self.add_single_val_to_arg(arg, val.to_os_string(), matcher, ty, append);
-        self.need_more_vals(matcher, arg)
+        if matcher.needs_more_vals(arg) {
+            ParseResult::Opt(arg.id.clone())
+        } else {
+            ParseResult::ValuesDone
+        }
     }
 
     fn add_multiple_vals_to_arg(
@@ -1286,6 +1288,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         // If not appending, create a new val group and then append vals in.
         if !append {
             matcher.new_val_group(&arg.id);
+            for group in self.app.groups_for_arg(&arg.id) {
+                matcher.new_val_group(&group);
+            }
         }
         for val in vals {
             self.add_single_val_to_arg(arg, val, matcher, ty, true);
@@ -1314,14 +1319,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
     }
 
-    fn need_more_vals(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> ParseResult {
-        if matcher.needs_more_vals(arg) {
-            ParseResult::Opt(arg.id.clone())
-        } else {
-            ParseResult::ValuesDone
-        }
-    }
-
     fn arg_have_val(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
         matcher.arg_have_val(&arg.id)
     }
@@ -1329,12 +1326,8 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
-        matcher.inc_occurrence_of(&flag.id);
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
-        // Increment or create the group "args"
-        for grp in self.app.groups_for_arg(&flag.id) {
-            matcher.inc_occurrence_of(&grp);
-        }
+        self.inc_occurrence_of_arg(matcher, flag);
 
         ParseResult::Flag
     }
@@ -1360,6 +1353,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         arg_overrides.push((overridee.clone(), &overrider.id));
                     }
                 }
+                // Only do self override for argument that is not positional
+                // argument or flag with one of the Multiple* setting
+                // enabled(which is a feature).
                 if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
                     && !overrider.is_set(ArgSettings::MultipleValues)
                     && !overrider.is_set(ArgSettings::MultipleOccurrences)
@@ -1513,6 +1509,15 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
         Ok(())
     }
+
+    /// Increase occurrence of specific argument and the grouped arg it's in.
+    fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
+        matcher.inc_occurrence_of(&arg.id);
+        // Increment or create the group "args"
+        for group in self.app.groups_for_arg(&arg.id) {
+            matcher.inc_occurrence_of(&group);
+        }
+    }
 }
 
 // Error, Help, and Version Methods
@@ -1547,10 +1552,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Add the arg to the matches to build a proper usage string
         if let Some((name, _)) = did_you_mean.as_ref() {
             if let Some(opt) = self.app.args.get(&name.as_ref()) {
-                for g in self.app.groups_for_arg(&opt.id) {
-                    matcher.inc_occurrence_of(&g);
-                }
-                matcher.inc_occurrence_of(&opt.id);
+                self.inc_occurrence_of_arg(matcher, opt);
             }
         }
 

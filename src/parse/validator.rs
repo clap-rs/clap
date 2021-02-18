@@ -428,7 +428,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             "Validator::validate_arg_num_occurs: {:?}={}",
             a.name, ma.occurs
         );
-        if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) {
+        // Occurence of positional argument equals to number of values rather
+        // than number of grouped values.
+        if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) && !a.is_positional() {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 a,
@@ -442,21 +444,22 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn validate_arg_num_vals(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!("Validator::validate_arg_num_vals");
         if let Some(num) = a.num_vals {
+            let total_num = ma.num_vals();
             debug!("Validator::validate_arg_num_vals: num_vals set...{}", num);
-            let should_err = if a.is_set(ArgSettings::MultipleValues) {
-                ma.num_vals() % num != 0
+            let should_err = if a.is_set(ArgSettings::MultipleOccurrences) {
+                total_num % num != 0
             } else {
-                num != ma.num_vals()
+                num != total_num
             };
             if should_err {
                 debug!("Validator::validate_arg_num_vals: Sending error WrongNumberOfValues");
                 return Err(Error::wrong_number_of_values(
                     a,
                     num,
-                    if a.is_set(ArgSettings::MultipleValues) {
-                        ma.num_vals() % num
+                    if a.is_set(ArgSettings::MultipleOccurrences) {
+                        total_num % num
                     } else {
-                        ma.num_vals()
+                        total_num
                     },
                     Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),

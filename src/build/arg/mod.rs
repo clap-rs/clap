@@ -1871,7 +1871,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
-        self.takes_value(true)
+        self.takes_value(true).multiple_values(true)
     }
 
     /// Allows one to perform a custom validation on the argument value. You provide a closure
@@ -2156,7 +2156,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn min_values(mut self, qty: usize) -> Self {
         self.min_vals = Some(qty);
-        self.takes_value(true)
+        self.takes_value(true).multiple_values(true)
     }
 
     /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
@@ -4351,15 +4351,10 @@ impl<'help> Arg<'help> {
         {
             self.val_delim = Some(',');
         }
-        if self.index.is_some() || (self.short.is_none() && self.long.is_none()) {
-            if self.max_vals.is_some()
-                || self.min_vals.is_some()
-                || (self.num_vals.is_some() && self.num_vals.unwrap() > 1)
-            {
-                self.settings.set(ArgSettings::MultipleValues);
-                self.settings.set(ArgSettings::MultipleOccurrences);
-            }
-        } else if self.is_set(ArgSettings::TakesValue) && self.val_names.len() > 1 {
+        if !(self.index.is_some() || (self.short.is_none() && self.long.is_none()))
+            && self.is_set(ArgSettings::TakesValue)
+            && self.val_names.len() > 1
+        {
             self.num_vals = Some(self.val_names.len());
         }
     }
