@@ -1349,7 +1349,10 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(overrider) = self.app.find(name) {
                 let mut override_self = false;
                 for overridee in &overrider.overrides {
-                    debug!("Parser::remove_overrides:iter:{:?} => {:?}", name, o);
+                    debug!(
+                        "Parser::remove_overrides:iter:{:?} => {:?}",
+                        name, overrider
+                    );
                     if *overridee == overrider.id {
                         override_self = true;
                     } else {
@@ -1364,7 +1367,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 {
                     debug!(
                         "Parser::remove_overrides:iter:{:?}:iter:{:?}: self override",
-                        name, o
+                        name, overrider
                     );
                     self_override.push(overrider.id.clone());
                 }

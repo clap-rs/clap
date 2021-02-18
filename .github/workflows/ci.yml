@@ -89,6 +89,12 @@ jobs:
         with:
           command: test
           args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable"
+      - name: Check debug statement
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'all'
+        with:
+          command: check
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
