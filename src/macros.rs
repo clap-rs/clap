@@ -44,7 +44,7 @@ macro_rules! load_yaml {
 /// # use clap::App;
 /// # fn main() {
 /// let m = App::new("app")
-///             .version(crate_license!())
+///             .license(crate_license!())
 ///             .get_matches();
 /// # }
 /// ```
