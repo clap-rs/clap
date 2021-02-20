@@ -18,6 +18,7 @@ use crate::{
 
 // Third party
 use indexmap::IndexSet;
+use textwrap::core::display_width;
 
 pub(crate) fn dimensions() -> Option<(usize, usize)> {
     #[cfg(not(feature = "wrap_help"))]
@@ -25,14 +26,6 @@ pub(crate) fn dimensions() -> Option<(usize, usize)> {
 
     #[cfg(feature = "wrap_help")]
     terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
-}
-
-fn str_width(s: &str) -> usize {
-    #[cfg(not(feature = "unicode_help"))]
-    return s.len();
-
-    #[cfg(feature = "unicode_help")]
-    unicode_width::UnicodeWidthStr::width(s)
 }
 
 const TAB: &str = "    ";
@@ -182,7 +175,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter(|arg| should_show_arg(self.use_long, *arg))
         {
             if arg.longest_filter() {
-                longest = longest.max(str_width(arg.to_string().as_str()));
+                longest = longest.max(display_width(arg.to_string().as_str()));
             }
             arg_v.push(arg)
         }
@@ -212,7 +205,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         }) {
             if arg.longest_filter() {
                 debug!("Help::write_args: Current Longest...{}", longest);
-                longest = longest.max(str_width(arg.to_string().as_str()));
+                longest = longest.max(display_width(arg.to_string().as_str()));
                 debug!("Help::write_args: New Longest...{}", longest);
             }
             let btm = ord_m.entry(arg.disp_ord).or_insert(BTreeMap::new());
@@ -370,7 +363,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             debug!("Yes");
             debug!("Help::val: nlh...{:?}", next_line_help);
             if !next_line_help {
-                let self_len = str_width(arg.to_string().as_str());
+                let self_len = display_width(arg.to_string().as_str());
                 // subtract ourself
                 let mut spcs = longest - self_len;
                 // Since we're writing spaces from the tab point we first need to know if we
@@ -387,7 +380,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             }
         } else if !next_line_help {
             debug!("No, and not next_line");
-            self.spaces(longest + 4 - str_width(&arg.to_string()))?;
+            self.spaces(longest + 4 - display_width(&arg.to_string()))?;
         } else {
             debug!("No");
         }
@@ -447,7 +440,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             longest + 12
         };
 
-        let too_long = spaces + str_width(about) + str_width(spec_vals) >= self.term_w;
+        let too_long = spaces + display_width(about) + display_width(spec_vals) >= self.term_w;
 
         // Is help on next line, if so then indent
         if next_line_help {
@@ -458,7 +451,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         if too_long && spaces <= self.term_w {
             debug!("Yes");
             debug!("Help::help: help...{}", help);
-            debug!("Help::help: help width...{}", str_width(&help));
+            debug!("Help::help: help width...{}", display_width(&help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spaces;
             debug!("Help::help: Usable space...{}", avail_chars);
@@ -522,7 +515,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         } else {
             // force_next_line
             let h = arg.about.unwrap_or("");
-            let h_w = str_width(h) + str_width(spec_vals);
+            let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -726,7 +719,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         } else {
             // force_next_line
             let h = app.about.unwrap_or("");
-            let h_w = str_width(h) + str_width(spec_vals);
+            let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
@@ -739,7 +732,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.none(TAB)?;
         self.good(sc_str)?;
         if !next_line_help {
-            let width = str_width(sc_str);
+            let width = display_width(sc_str);
             self.spaces(width.max(longest + 4) - width)?;
         }
         Ok(())
@@ -895,7 +888,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     .map_or(String::new(), |c| format!("--{}, ", c)),
             );
             sc_str.push_str(&subcommand.name);
-            longest = longest.max(str_width(&sc_str));
+            longest = longest.max(display_width(&sc_str));
             btm.insert(sc_str, subcommand.clone());
         }
 
@@ -1073,11 +1066,32 @@ fn text_wrapper(help: &str, width: usize) -> String {
 
 #[cfg(test)]
 mod test {
-    use super::text_wrapper;
+    use super::*;
 
     #[test]
     fn wrap_help_last_word() {
         let help = String::from("foo bar baz");
         assert_eq!(text_wrapper(&help, 5), "foo\nbar\nbaz");
+    }
+
+    #[test]
+    fn display_width_handles_non_ascii() {
+        // Popular Danish tounge-twister, the name of a fruit dessert.
+        let text = "rødgrød med fløde";
+        assert_eq!(display_width(text), 17);
+        // Note that the string width is smaller than the string
+        // length. This is due to the precomposed non-ASCII letters:
+        assert_eq!(text.len(), 20);
+    }
+
+    #[test]
+    fn display_width_handles_emojis() {
+        let text = "😂";
+        // There is a single `char`...
+        assert_eq!(text.chars().count(), 1);
+        // but it is double-width:
+        assert_eq!(display_width(text), 2);
+        // This is much less than the byte length:
+        assert_eq!(text.len(), 4);
     }
 }
