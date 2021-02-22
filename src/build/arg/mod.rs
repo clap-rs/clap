@@ -160,6 +160,19 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Get the short option name and its visible aliases, if any
+    #[inline]
+    pub fn get_short_and_visible_aliases(&self) -> Option<Vec<char>> {
+        let mut shorts = match self.short {
+            Some(short) => vec![short],
+            None => return None,
+        };
+        if let Some(aliases) = self.get_visible_short_aliases() {
+            shorts.extend(aliases);
+        }
+        Some(shorts)
+    }
+
     /// Get the long option name for this argument, if any
     #[inline]
     pub fn get_long(&self) -> Option<&str> {
@@ -180,6 +193,19 @@ impl<'help> Arg<'help> {
                     .collect(),
             )
         }
+    }
+
+    /// Get the long option name and its visible aliases, if any
+    #[inline]
+    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&str>> {
+        let mut longs = match self.long {
+            Some(long) => vec![long],
+            None => return None,
+        };
+        if let Some(aliases) = self.get_visible_aliases() {
+            longs.extend(aliases);
+        }
+        Some(longs)
     }
 
     /// Get the list of the possible values for this argument, if any

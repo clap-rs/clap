@@ -315,7 +315,15 @@ static BASH_ALIASES: &str = r#"_cmd() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                    -o)
+                --opt)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -o)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -O)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
