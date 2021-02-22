@@ -59,18 +59,16 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     for option in app.get_opts() {
         let mut template = basic_template.clone();
 
-        if let Some(data) = option.get_short() {
-            template.push_str(format!(" -s {}", data).as_str());
-
-            if let Some(short_aliases) = option.get_visible_short_aliases() {
-                for data in short_aliases {
-                    template.push_str(format!(" -s {}", data).as_str());
-                }
+        if let Some(shorts) = option.get_short_and_visible_aliases() {
+            for short in shorts {
+                template.push_str(format!(" -s {}", short).as_str());
             }
         }
 
-        if let Some(data) = option.get_long() {
-            template.push_str(format!(" -l {}", data).as_str());
+        if let Some(longs) = option.get_long_and_visible_aliases() {
+            for long in longs {
+                template.push_str(format!(" -l {}", escape_string(long)).as_str());
+            }
         }
 
         if let Some(data) = option.get_about() {
@@ -86,18 +84,16 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     for flag in Fish::flags(app) {
         let mut template = basic_template.clone();
 
-        if let Some(data) = flag.get_short() {
-            template.push_str(format!(" -s {}", data).as_str());
-
-            if let Some(short_aliases) = flag.get_visible_short_aliases() {
-                for data in short_aliases {
-                    template.push_str(format!(" -s {}", data).as_str());
-                }
+        if let Some(shorts) = flag.get_short_and_visible_aliases() {
+            for short in shorts {
+                template.push_str(format!(" -s {}", short).as_str());
             }
         }
 
-        if let Some(data) = flag.get_long() {
-            template.push_str(format!(" -l {}", data).as_str());
+        if let Some(longs) = flag.get_long_and_visible_aliases() {
+            for long in longs {
+                template.push_str(format!(" -l {}", escape_string(long)).as_str());
+            }
         }
 
         if let Some(data) = flag.get_about() {

@@ -147,30 +147,34 @@ fn option_details_for_path(app: &App, path: &str) -> String {
     let mut opts = String::new();
 
     for o in p.get_opts() {
-        if let Some(l) = o.get_long() {
-            opts = format!(
-                "{}
+        if let Some(longs) = o.get_long_and_visible_aliases() {
+            for long in longs {
+                opts = format!(
+                    "{}
                 --{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                opts,
-                l,
-                vals_for(o)
-            );
+                    opts,
+                    long,
+                    vals_for(o)
+                );
+            }
         }
 
-        if let Some(s) = o.get_short() {
-            opts = format!(
-                "{}
-                    -{})
+        if let Some(shorts) = o.get_short_and_visible_aliases() {
+            for short in shorts {
+                opts = format!(
+                    "{}
+                -{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                opts,
-                s,
-                vals_for(o)
-            );
+                    opts,
+                    short,
+                    vals_for(o)
+                );
+            }
         }
     }
 
@@ -198,7 +202,7 @@ fn all_options_for_path(app: &App, path: &str) -> String {
         shorts = Bash::shorts_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        longs = Bash::longs(p)
+        longs = Bash::longs_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
         pos = p

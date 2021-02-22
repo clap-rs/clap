@@ -252,3 +252,91 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
 
 complete -F _my_app -o bashdefault -o default my_app
 "#;
+
+#[test]
+fn bash_with_aliases() {
+    let mut app = build_app_with_aliases();
+    common::<Bash>(&mut app, "cmd", BASH_ALIASES);
+}
+
+fn build_app_with_aliases() -> App<'static> {
+    App::new("cmd")
+        .about("testing bash completions")
+        .arg(
+            Arg::new("flag")
+                .short('f')
+                .visible_short_alias('F')
+                .long("flag")
+                .visible_alias("flg")
+                .about("cmd flag"),
+        )
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .visible_short_alias('O')
+                .long("option")
+                .visible_alias("opt")
+                .about("cmd option")
+                .takes_value(true),
+        )
+        .arg(Arg::new("positional"))
+}
+
+static BASH_ALIASES: &str = r#"_cmd() {
+    local i cur prev opts cmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    cmd=""
+    opts=""
+
+    for i in ${COMP_WORDS[@]}
+    do
+        case "${i}" in
+            cmd)
+                cmd="cmd"
+                ;;
+            
+            *)
+                ;;
+        esac
+    done
+
+    case "${cmd}" in
+        cmd)
+            opts=" -h -V -F -f -O -o  --help --version --flg --flag --opt --option  <positional> "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                
+                --option)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --opt)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -o)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -O)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        
+    esac
+}
+
+complete -F _cmd -o bashdefault -o default cmd
+"#;

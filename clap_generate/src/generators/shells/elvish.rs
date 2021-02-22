@@ -78,48 +78,38 @@ fn generate_inner<'help>(
     let preamble = String::from("\n            cand ");
 
     for option in p.get_opts() {
-        if let Some(data) = option.get_short() {
-            let tooltip = get_tooltip(option.get_about(), data);
-
-            completions.push_str(&preamble);
-            completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
-
-            if let Some(short_aliases) = option.get_visible_short_aliases() {
-                for data in short_aliases {
-                    completions.push_str(&preamble);
-                    completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
-                }
+        if let Some(shorts) = option.get_short_and_visible_aliases() {
+            let tooltip = get_tooltip(option.get_about(), shorts[0]);
+            for short in shorts {
+                completions.push_str(&preamble);
+                completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
             }
         }
 
-        if let Some(data) = option.get_long() {
-            let tooltip = get_tooltip(option.get_about(), data);
-
-            completions.push_str(&preamble);
-            completions.push_str(format!("--{} '{}'", data, tooltip).as_str());
+        if let Some(longs) = option.get_long_and_visible_aliases() {
+            let tooltip = get_tooltip(option.get_about(), longs[0]);
+            for long in longs {
+                completions.push_str(&preamble);
+                completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
+            }
         }
     }
 
     for flag in Elvish::flags(p) {
-        if let Some(data) = flag.get_short() {
-            let tooltip = get_tooltip(flag.get_about(), data);
-
-            completions.push_str(&preamble);
-            completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
-
-            if let Some(short_aliases) = flag.get_visible_short_aliases() {
-                for data in short_aliases {
-                    completions.push_str(&preamble);
-                    completions.push_str(format!("-{} '{}'", data, tooltip).as_str());
-                }
+        if let Some(shorts) = flag.get_short_and_visible_aliases() {
+            let tooltip = get_tooltip(flag.get_about(), shorts[0]);
+            for short in shorts {
+                completions.push_str(&preamble);
+                completions.push_str(format!("-{} '{}'", short, tooltip).as_str());
             }
         }
 
-        if let Some(data) = flag.get_long() {
-            let tooltip = get_tooltip(flag.get_about(), data);
-
-            completions.push_str(&preamble);
-            completions.push_str(format!("--{} '{}'", data, tooltip).as_str());
+        if let Some(longs) = flag.get_long_and_visible_aliases() {
+            let tooltip = get_tooltip(flag.get_about(), longs[0]);
+            for long in longs {
+                completions.push_str(&preamble);
+                completions.push_str(format!("--{} '{}'", long, tooltip).as_str());
+            }
         }
     }
 

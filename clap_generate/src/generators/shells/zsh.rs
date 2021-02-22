@@ -422,48 +422,35 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
             None => "".to_string(),
         };
 
-        if let Some(short) = o.get_short() {
-            let s = format!(
-                "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = short,
-                value_completion = vc,
-                help = help
-            );
+        if let Some(shorts) = o.get_short_and_visible_aliases() {
+            for short in shorts {
+                let s = format!(
+                    "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
+                    conflicts = conflicts,
+                    multiple = multiple,
+                    arg = short,
+                    value_completion = vc,
+                    help = help
+                );
 
-            debug!("write_opts_of:iter: Wrote...{}", &*s);
-            ret.push(s);
-
-            if let Some(short_aliases) = o.get_visible_short_aliases() {
-                for alias in short_aliases {
-                    let s = format!(
-                        "'{conflicts}{multiple}-{arg}+[{help}]{value_completion}' \\",
-                        conflicts = conflicts,
-                        multiple = multiple,
-                        arg = alias,
-                        value_completion = vc,
-                        help = help
-                    );
-
-                    debug!("write_opts_of:iter: Wrote...{}", &*s);
-                    ret.push(s);
-                }
+                debug!("write_opts_of:iter: Wrote...{}", &*s);
+                ret.push(s);
             }
         }
+        if let Some(longs) = o.get_long_and_visible_aliases() {
+            for long in longs {
+                let l = format!(
+                    "'{conflicts}{multiple}--{arg}=[{help}]{value_completion}' \\",
+                    conflicts = conflicts,
+                    multiple = multiple,
+                    arg = long,
+                    value_completion = vc,
+                    help = help
+                );
 
-        if let Some(long) = o.get_long() {
-            let l = format!(
-                "'{conflicts}{multiple}--{arg}=[{help}]{value_completion}' \\",
-                conflicts = conflicts,
-                multiple = multiple,
-                arg = long,
-                value_completion = vc,
-                help = help
-            );
-
-            debug!("write_opts_of:iter: Wrote...{}", &*l);
-            ret.push(l);
+                debug!("write_opts_of:iter: Wrote...{}", &*l);
+                ret.push(l);
+            }
         }
     }
 
@@ -567,6 +554,22 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
             debug!("write_flags_of:iter: Wrote...{}", &*l);
 
             ret.push(l);
+
+            if let Some(aliases) = f.get_visible_aliases() {
+                for alias in aliases {
+                    let l = format!(
+                        "'{conflicts}{multiple}--{arg}[{help}]' \\",
+                        conflicts = conflicts,
+                        multiple = multiple,
+                        arg = alias,
+                        help = help
+                    );
+
+                    debug!("write_flags_of:iter: Wrote...{}", &*l);
+
+                    ret.push(l);
+                }
+            }
         }
     }
 
