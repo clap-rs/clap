@@ -68,7 +68,7 @@ fn gen_for_struct(
 }
 
 fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let into_app = into_app::gen_for_enum(name);
+    let into_app = into_app::gen_for_enum(name, attrs);
     let from_arg_matches = from_arg_matches::gen_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
     let arg_enum = arg_enum::gen_for_enum(name, attrs, e);
