@@ -112,14 +112,14 @@ fn build_app_special_help() -> App<'static> {
         )
 }
 
-static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
-complete -c my_app -n "__fish_use_subcommand" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
-complete -c my_app -n "__fish_use_subcommand" -l double-quotes -d 'Can be "always", "auto", or "never"'
-complete -c my_app -n "__fish_use_subcommand" -l backticks -d 'For more information see `echo test`'
-complete -c my_app -n "__fish_use_subcommand" -l backslash -d 'Avoid \'\\n\''
-complete -c my_app -n "__fish_use_subcommand" -l brackets -d 'List packages [filter]'
-complete -c my_app -n "__fish_use_subcommand" -l expansions -d 'Execute the shell command with $SHELL'
+static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -s h -l help -d 'Prints help information'
+complete -c my_app -s V -l version -d 'Prints version information'
+complete -c my_app -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
+complete -c my_app -l double-quotes -d 'Can be "always", "auto", or "never"'
+complete -c my_app -l backticks -d 'For more information see `echo test`'
+complete -c my_app -l backslash -d 'Avoid \'\\n\''
+complete -c my_app -l brackets -d 'List packages [filter]'
+complete -c my_app -l expansions -d 'Execute the shell command with $SHELL'
 "#;
 
 #[test]
@@ -151,8 +151,8 @@ fn build_app_with_aliases() -> App<'static> {
         .arg(Arg::new("positional"))
 }
 
-static FISH_ALIASES: &str = r#"complete -c cmd -n "__fish_use_subcommand" -s o -s O -l option -l opt -d 'cmd option' -r
-complete -c cmd -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
-complete -c cmd -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
-complete -c cmd -n "__fish_use_subcommand" -s f -s F -l flag -l flg -d 'cmd flag'
+static FISH_ALIASES: &str = r#"complete -c cmd -s o -s O -l option -l opt -d 'cmd option' -r
+complete -c cmd -s h -l help -d 'Prints help information'
+complete -c cmd -s V -l version -d 'Prints version information'
+complete -c cmd -s f -s F -l flag -l flg -d 'cmd flag'
 "#;
