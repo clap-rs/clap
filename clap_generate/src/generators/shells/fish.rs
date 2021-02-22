@@ -44,14 +44,17 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
     //      -n "__fish_use_subcommand"               # complete for command "myprog"
     //      -n "__fish_seen_subcommand_from subcmd1" # complete for command "myprog subcmd1"
 
-    let mut basic_template = format!("complete -c {} -n ", root_command);
+    let mut basic_template = format!("complete -c {}", root_command);
     let mut bin_name = app.get_bin_name().unwrap();
 
     if root_command == bin_name {
-        basic_template.push_str("\"__fish_use_subcommand\"");
+        if app.has_subcommands() {
+            basic_template.push_str(" -n \"__fish_use_subcommand\"");
+        }
     } else {
         bin_name = &app.get_name();
-        basic_template.push_str(format!("\"__fish_seen_subcommand_from {}\"", bin_name).as_str());
+        basic_template
+            .push_str(format!(" -n \"__fish_seen_subcommand_from {}\"", bin_name).as_str());
     }
 
     debug!("gen_fish_inner: bin_name={}", bin_name);

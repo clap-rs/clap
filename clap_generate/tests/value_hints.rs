@@ -130,20 +130,20 @@ _my_app_commands() {
 
 _my_app "$@""#;
 
-static FISH_VALUE_HINTS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -l choice -r -f -a "bash fish zsh"
-complete -c my_app -n "__fish_use_subcommand" -l unknown -r
-complete -c my_app -n "__fish_use_subcommand" -l other -r -f
-complete -c my_app -n "__fish_use_subcommand" -s p -l path -r -F
-complete -c my_app -n "__fish_use_subcommand" -s f -l file -r -F
-complete -c my_app -n "__fish_use_subcommand" -s d -l dir -r -f -a "(__fish_complete_directories)"
-complete -c my_app -n "__fish_use_subcommand" -s e -l exe -r -F
-complete -c my_app -n "__fish_use_subcommand" -l cmd-name -r -f -a "(__fish_complete_command)"
-complete -c my_app -n "__fish_use_subcommand" -s c -l cmd -r -f -a "(__fish_complete_command)"
-complete -c my_app -n "__fish_use_subcommand" -s u -l user -r -f -a "(__fish_complete_users)"
-complete -c my_app -n "__fish_use_subcommand" -s h -l host -r -f -a "(__fish_print_hostnames)"
-complete -c my_app -n "__fish_use_subcommand" -l url -r -f
-complete -c my_app -n "__fish_use_subcommand" -l email -r -f
-complete -c my_app -n "__fish_use_subcommand" -l help -d 'Prints help information'
+static FISH_VALUE_HINTS: &str = r#"complete -c my_app -l choice -r -f -a "bash fish zsh"
+complete -c my_app -l unknown -r
+complete -c my_app -l other -r -f
+complete -c my_app -s p -l path -r -F
+complete -c my_app -s f -l file -r -F
+complete -c my_app -s d -l dir -r -f -a "(__fish_complete_directories)"
+complete -c my_app -s e -l exe -r -F
+complete -c my_app -l cmd-name -r -f -a "(__fish_complete_command)"
+complete -c my_app -s c -l cmd -r -f -a "(__fish_complete_command)"
+complete -c my_app -s u -l user -r -f -a "(__fish_complete_users)"
+complete -c my_app -s h -l host -r -f -a "(__fish_print_hostnames)"
+complete -c my_app -l url -r -f
+complete -c my_app -l email -r -f
+complete -c my_app -l help -d 'Prints help information'
 "#;
 
 #[test]
