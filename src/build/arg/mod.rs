@@ -1,3 +1,5 @@
+#[cfg(debug_assertions)]
+pub mod debug_asserts;
 mod settings;
 #[cfg(test)]
 mod tests;
@@ -4581,52 +4583,6 @@ impl<'help> Arg<'help> {
         } else {
             debug!("Arg::name_no_brackets: just name");
             Cow::Borrowed(self.name)
-        }
-    }
-}
-
-impl Arg<'_> {
-    pub(crate) fn _debug_asserts(&self) {
-        debug!("Arg::_debug_asserts:{}", self.name);
-
-        // Self conflict
-        // TODO: this check should be recursive
-        assert!(
-            !self.blacklist.iter().any(|x| *x == self.id),
-            "Argument '{}' cannot conflict with itself",
-            self.name,
-        );
-
-        if self.value_hint != ValueHint::Unknown {
-            assert!(
-                self.is_set(ArgSettings::TakesValue),
-                "Argument '{}' has value hint but takes no value",
-                self.name
-            );
-
-            if self.value_hint == ValueHint::CommandWithArguments {
-                assert!(
-                    self.is_set(ArgSettings::MultipleValues),
-                    "Argument '{}' uses hint CommandWithArguments and must accept multiple values",
-                    self.name
-                )
-            }
-        }
-
-        if self.index.is_some() {
-            assert!(
-                self.short.is_none() && self.long.is_none(),
-                "Argument '{}' is a positional argument and can't have short or long name versions",
-                self.name
-            );
-        }
-
-        if self.is_set(ArgSettings::Required) {
-            assert!(
-                self.default_vals.is_empty(),
-                "Argument '{}' is required and can't have a default value",
-                self.name
-            );
         }
     }
 }
