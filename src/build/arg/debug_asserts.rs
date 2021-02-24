@@ -48,38 +48,30 @@ pub(crate) fn assert_arg(arg: &Arg) {
 
 fn assert_app_flag(arg: &Arg) {
     use ArgSettings::*;
-    if arg.is_set(AllowEmptyValues) {
-        assert!(arg.is_set(TakesValue));
+    macro_rules! checker {
+        ($a:ident requires $($b:ident)|+) => {
+            if arg.is_set($a) {
+                let mut s = String::new();
+                $(
+                    if !arg.is_set($b) {
+                        s.push_str(&format!("\nArgSettings::{} is required when ArgSettings::{} is on.\n", std::stringify!($b), std::stringify!($a)));
+                    }
+                )+
+                if !s.is_empty() {
+                    panic!("{}", s)
+                }
+            }
+        }
     }
-    if arg.is_set(RequireDelimiter) {
-        assert!(arg.is_set(TakesValue));
-        assert!(arg.is_set(UseValueDelimiter));
-    }
-    if arg.is_set(HidePossibleValues) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(AllowHyphenValues) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(RequireEquals) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(Last) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(HideDefaultValue) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(MultipleValues) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(HideEnv) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(HideEnvValues) {
-        assert!(arg.is_set(TakesValue));
-    }
-    if arg.is_set(IgnoreCase) {
-        assert!(arg.is_set(TakesValue));
-    }
+    checker!(AllowEmptyValues requires TakesValue);
+    checker!(RequireDelimiter requires TakesValue | UseValueDelimiter);
+    checker!(HidePossibleValues requires TakesValue);
+    checker!(AllowHyphenValues requires TakesValue);
+    checker!(RequireEquals requires TakesValue);
+    checker!(Last requires TakesValue);
+    checker!(HideDefaultValue requires TakesValue);
+    checker!(MultipleValues requires TakesValue);
+    checker!(HideEnv requires TakesValue);
+    checker!(HideEnvValues requires TakesValue);
+    checker!(IgnoreCase requires TakesValue);
 }
