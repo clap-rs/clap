@@ -1799,6 +1799,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cmds")
+    ///         .takes_value(true)
     ///         .multiple(true)
     ///         .allow_hyphen_values(true)
     ///         .value_terminator(";"))
@@ -3137,7 +3138,7 @@ impl<'help> Arg<'help> {
     /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS /
     /// OPTIONS
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// **CAUTION:** Using this setting *and* having child subcommands is not
     /// recommended with the exception of *also* using [`AppSettings::ArgsNegateSubcommands`]
@@ -3149,6 +3150,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("args")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::Last)
     /// # ;
     /// ```
@@ -3162,6 +3164,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("first"))
     ///     .arg(Arg::new("second"))
     ///     .arg(Arg::new("third")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::Last))
     ///     .try_get_matches_from(vec![
     ///         "prog", "one", "--", "three"
@@ -3182,6 +3185,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("first"))
     ///     .arg(Arg::new("second"))
     ///     .arg(Arg::new("third")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::Last))
     ///     .try_get_matches_from(vec![
     ///         "prog", "one", "two", "three"
@@ -3320,7 +3324,7 @@ impl<'help> Arg<'help> {
 
     /// Allows values which start with a leading hyphen (`-`)
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// **WARNING**: Take caution when using this setting combined with
     /// [`ArgSettings::MultipleValues`], as this becomes ambiguous `$ prog --arg -- -- val`. All
@@ -3340,6 +3344,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("pattern")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::AllowHyphenValues)
     /// # ;
     /// ```
@@ -3348,6 +3353,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("pat")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::AllowHyphenValues)
     ///         .long("pattern"))
     ///     .get_matches_from(vec![
@@ -3389,7 +3395,7 @@ impl<'help> Arg<'help> {
     /// Requires that options use the `--option=val` syntax (i.e. an equals between the option and
     /// associated value) **Default:** `false`
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
@@ -3397,6 +3403,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("config")
     ///     .long("config")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::RequireEquals)
     /// # ;
     /// ```
@@ -3408,6 +3415,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::RequireEquals)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
@@ -3424,6 +3432,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::RequireEquals)
     ///         .long("config"))
     ///     .try_get_matches_from(vec![
@@ -3439,8 +3448,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_equals(self, r: bool) -> Self {
         if r {
-            self.unset_setting(ArgSettings::AllowEmptyValues)
-                .setting(ArgSettings::RequireEquals)
+            self.setting(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
         }
@@ -3502,7 +3510,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** The default is `false`.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::UseValueDelimiter`] and
+    /// **NOTE:** Setting this requires [`ArgSettings::UseValueDelimiter`] and
     /// [`ArgSettings::TakesValue`]
     ///
     /// **NOTE:** It's a good idea to inform the user that use of a delimiter is required, either
@@ -3518,6 +3526,8 @@ impl<'help> Arg<'help> {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::UseValueDelimiter)
     ///         .setting(ArgSettings::RequireDelimiter)
     ///         .setting(ArgSettings::MultipleValues))
     ///     .get_matches_from(vec![
@@ -3534,6 +3544,8 @@ impl<'help> Arg<'help> {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::UseValueDelimiter)
     ///         .setting(ArgSettings::RequireDelimiter))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -3555,6 +3567,7 @@ impl<'help> Arg<'help> {
     /// let delims = App::new("prog")
     ///     .arg(Arg::new("opt")
     ///         .short('o')
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::MultipleValues))
     ///     .get_matches_from(vec![
     ///         "prog", "-o", "val1", "val2", "val3",
@@ -3568,9 +3581,7 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn require_delimiter(self, d: bool) -> Self {
         if d {
-            self.takes_value(true)
-                .setting(ArgSettings::UseValueDelimiter)
-                .setting(ArgSettings::RequireDelimiter)
+            self.setting(ArgSettings::RequireDelimiter)
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
         }
@@ -3582,13 +3593,14 @@ impl<'help> Arg<'help> {
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("config")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::HidePossibleValues)
     /// # ;
     /// ```
@@ -3599,6 +3611,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .possible_values(&["fast", "slow"])
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::HidePossibleValues));
     /// ```
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
@@ -3616,13 +3629,14 @@ impl<'help> Arg<'help> {
     ///
     /// This is useful when default behavior of an arg is explained elsewhere in the help text.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("config")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::HideDefaultValue)
     /// # ;
     /// ```
@@ -3633,6 +3647,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("host")
     ///         .long("host")
     ///         .default_value("localhost")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::HideDefaultValue));
     ///
     /// ```
@@ -3698,7 +3713,7 @@ impl<'help> Arg<'help> {
     /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even
     /// if the case differs from that of the specified `possible_value`.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
@@ -3707,6 +3722,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("pv")
     ///     .arg(Arg::new("option")
     ///         .long("--option")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::IgnoreCase)
     ///         .possible_value("test123"))
     ///     .get_matches_from(vec![
@@ -3725,6 +3741,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .long("--option")
     ///         .setting(ArgSettings::IgnoreCase)
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::MultipleValues)
     ///         .possible_value("test123")
     ///         .possible_value("test321"))
@@ -3809,13 +3826,14 @@ impl<'help> Arg<'help> {
     ///
     /// This is useful when the variable option is explained elsewhere in the help text.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("config")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::HideEnv)
     /// # ;
     /// ```
@@ -3826,6 +3844,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .env("MODE")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::HideEnv));
     ///
     /// ```
@@ -3846,14 +3865,15 @@ impl<'help> Arg<'help> {
     ///
     /// This is useful when ENV vars contain sensitive values.
     ///
-    /// **NOTE:** Setting this implies [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("config")
-    ///     .setting(ArgSettings::HideDefaultValue)
+    ///     .setting(ArgSettings::TakesValue)
+    ///     .setting(ArgSettings::HideEnvValues)
     /// # ;
     /// ```
     ///
@@ -3863,6 +3883,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("host")
     ///         .long("host")
     ///         .env("CONNECT")
+    ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::HideEnvValues));
     ///
     /// ```
@@ -3987,6 +4008,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("debug")
     ///     .short('d')
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::MultipleValues)
     /// # ;
     /// ```
@@ -4012,7 +4034,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
     ///         .short('F'))
     ///     .get_matches_from(vec![
     ///         "prog", "-F", "file1", "file2", "file3"
@@ -4029,7 +4052,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
     ///         .short('F'))
     ///     .try_get_matches_from(vec![
     ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
@@ -4045,7 +4069,8 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleValues) // implies TakesValue
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
     ///         .short('F'))
     ///     .arg(Arg::new("word")
     ///         .index(1))
@@ -4123,7 +4148,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** By default empty values are *not* allowed
     ///
-    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`].
     ///
     /// # Examples
     ///
@@ -4131,6 +4156,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("file")
     ///     .long("file")
+    ///     .setting(ArgSettings::TakesValue)
     ///     .setting(ArgSettings::AllowEmptyValues)
     /// # ;
     /// ```
@@ -4158,7 +4184,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .short('v')
-    ///         .setting(ArgSettings::AllowEmptyValues)) // implies TakesValue
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::AllowEmptyValues))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--config="
     ///     ]);
@@ -4259,16 +4286,20 @@ impl<'help> Arg<'help> {
     /// may not be exactly what you are expecting and using [`AppSettings::TrailingVarArg`]
     /// may be more appropriate.
     ///
-    /// **NOTE:** Implicitly sets [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
+    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
     /// [`Arg::last(true)`] when set to `true`
     ///
+    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
     /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
     /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     #[inline]
     pub fn raw(self, raw: bool) -> Self {
-        self.multiple(raw).allow_hyphen_values(raw).last(raw)
+        self.takes_value(true)
+            .multiple(raw)
+            .allow_hyphen_values(raw)
+            .last(raw)
     }
 
     /// Hides an argument from short help message output.
@@ -4503,6 +4534,7 @@ impl<'help> Arg<'help> {
     ///     .setting(AppSettings::TrailingVarArg)
     ///     .arg(
     ///         Arg::new("command")
+    ///             .takes_value(true)
     ///             .multiple(true)
     ///             .value_hint(ValueHint::CommandWithArguments)
     ///     )
@@ -4954,6 +4986,7 @@ mod test {
     fn option_display3() {
         let o2 = Arg::new("opt")
             .short('o')
+            .takes_value(true)
             .multiple(true)
             .value_names(&["file", "name"]);
 
@@ -5008,6 +5041,7 @@ mod test {
     fn positiona_display_mult() {
         let p = Arg::new("pos")
             .index(1)
+            .setting(ArgSettings::TakesValue)
             .setting(ArgSettings::MultipleValues);
 
         assert_eq!(&*format!("{}", p), "<pos>...");

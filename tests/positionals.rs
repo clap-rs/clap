@@ -104,7 +104,10 @@ fn positional_multiple() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::new("positional").index(1).multiple(true),
+            Arg::new("positional")
+                .index(1)
+                .takes_value(true)
+                .multiple(true),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -122,7 +125,10 @@ fn positional_multiple_3() {
     let r = App::new("positional_multiple")
         .args(&[
             Arg::from("-f, --flag 'some flag'"),
-            Arg::new("positional").index(1).multiple(true),
+            Arg::new("positional")
+                .index(1)
+                .takes_value(true)
+                .multiple(true),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);

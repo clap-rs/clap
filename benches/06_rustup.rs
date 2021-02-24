@@ -265,6 +265,7 @@ fn build_cli() -> App<'static> {
                 .arg(
                     Arg::new("command")
                         .setting(ArgSettings::Required)
+                        .setting(ArgSettings::TakesValue)
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences),
                 ),

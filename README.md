@@ -229,6 +229,7 @@ fn main() {
         .arg(Arg::new("v")
             .short('v')
             .multiple(true)
+            .takes_value(true)
             .about("Sets the level of verbosity"))
         .subcommand(App::new("test")
             .about("controls testing features")

@@ -7,7 +7,7 @@ pub(crate) fn assert_arg(arg: &Arg) {
     // TODO: this check should be recursive
     assert!(
         !arg.blacklist.iter().any(|x| *x == arg.id),
-        "Argument '{}' cannot conflict with itarg",
+        "Argument '{}' cannot conflict with itself",
         arg.name,
     );
 
@@ -41,5 +41,45 @@ pub(crate) fn assert_arg(arg: &Arg) {
             "Argument '{}' is required and can't have a default value",
             arg.name
         );
+    }
+
+    assert_app_flag(arg);
+}
+
+fn assert_app_flag(arg: &Arg) {
+    use ArgSettings::*;
+    if arg.is_set(AllowEmptyValues) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(RequireDelimiter) {
+        assert!(arg.is_set(TakesValue));
+        assert!(arg.is_set(UseValueDelimiter));
+    }
+    if arg.is_set(HidePossibleValues) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(AllowHyphenValues) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(RequireEquals) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(Last) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(HideDefaultValue) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(MultipleValues) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(HideEnv) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(HideEnvValues) {
+        assert!(arg.is_set(TakesValue));
+    }
+    if arg.is_set(IgnoreCase) {
+        assert!(arg.is_set(TakesValue));
     }
 }

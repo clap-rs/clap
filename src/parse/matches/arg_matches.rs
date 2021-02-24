@@ -40,6 +40,7 @@ pub(crate) struct SubCommand {
 ///         .takes_value(true))
 ///     .arg(Arg::new("debug")
 ///         .short('d')
+///         .takes_value(true)
 ///         .multiple(true))
 ///     .arg(Arg::new("cfg")
 ///         .short('c')

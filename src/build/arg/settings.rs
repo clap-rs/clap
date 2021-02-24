@@ -8,26 +8,26 @@ bitflags! {
     struct Flags: u32 {
         const REQUIRED         = 1;
         const MULTIPLE_OCC     = 1 << 1;
-        const EMPTY_VALS       = 1 << 2 | Self::TAKES_VAL.bits;
+        const EMPTY_VALS       = 1 << 2;
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
         const USE_DELIM        = 1 << 6;
         const NEXT_LINE_HELP   = 1 << 7;
         const R_UNLESS_ALL     = 1 << 8;
-        const REQ_DELIM        = 1 << 9 | Self::TAKES_VAL.bits | Self::USE_DELIM.bits;
+        const REQ_DELIM        = 1 << 9;
         const DELIM_NOT_SET    = 1 << 10;
-        const HIDE_POS_VALS    = 1 << 11 | Self::TAKES_VAL.bits;
-        const ALLOW_TAC_VALS   = 1 << 12 | Self::TAKES_VAL.bits;
-        const REQUIRE_EQUALS   = 1 << 13 | Self::TAKES_VAL.bits;
-        const LAST             = 1 << 14 | Self::TAKES_VAL.bits;
-        const HIDE_DEFAULT_VAL = 1 << 15 | Self::TAKES_VAL.bits;
+        const HIDE_POS_VALS    = 1 << 11;
+        const ALLOW_TAC_VALS   = 1 << 12;
+        const REQUIRE_EQUALS   = 1 << 13;
+        const LAST             = 1 << 14;
+        const HIDE_DEFAULT_VAL = 1 << 15;
         const CASE_INSENSITIVE = 1 << 16;
         const HIDE_ENV_VALS    = 1 << 17;
         const HIDDEN_SHORT_H   = 1 << 18;
         const HIDDEN_LONG_H    = 1 << 19;
-        const MULTIPLE_VALS    = 1 << 20 | Self::TAKES_VAL.bits;
-        const HIDE_ENV         = 1 << 21 | Self::TAKES_VAL.bits;
+        const MULTIPLE_VALS    = 1 << 20;
+        const HIDE_ENV         = 1 << 21;
     }
 }
 

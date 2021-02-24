@@ -96,6 +96,7 @@ fn opt_s_no_space_mult_no_delim() {
         .arg(
             Arg::new("option")
                 .short('o')
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues),
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
@@ -114,9 +115,9 @@ fn opt_eq_mult_def_delim() {
         .arg(
             Arg::new("option")
                 .long("opt")
+                .takes_value(true)
                 .multiple(true)
-                .use_delimiter(true)
-                .setting(ArgSettings::TakesValue),
+                .use_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=val1,val2,val3"]);
 

@@ -47,6 +47,7 @@ fn require_equals_min_values_zero() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
                 .min_values(0)
                 .long("config"),
@@ -64,6 +65,7 @@ fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::AllowHyphenValues)
                 .long("config"),
         )
@@ -77,6 +79,7 @@ fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
@@ -91,6 +94,7 @@ fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
                 .setting(ArgSettings::AllowEmptyValues)
                 .long("config"),
@@ -104,6 +108,7 @@ fn require_equals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
                 .long("config"),
         )
@@ -284,7 +289,11 @@ fn multiple_vals_pos_arg_delim() {
 #[test]
 fn require_delims_no_delim() {
     let r = App::new("mvae")
-        .arg(Arg::from("-o [opt]... 'some opt'").setting(ArgSettings::RequireDelimiter))
+        .arg(
+            Arg::from("-o [opt]... 'some opt'")
+                .setting(ArgSettings::UseValueDelimiter)
+                .setting(ArgSettings::RequireDelimiter),
+        )
         .arg(Arg::from("[file] 'some file'"))
         .try_get_matches_from(vec!["mvae", "-o", "1", "2", "some"]);
     assert!(r.is_err());
@@ -295,7 +304,11 @@ fn require_delims_no_delim() {
 #[test]
 fn require_delims() {
     let r = App::new("mvae")
-        .arg(Arg::from("-o [opt]... 'some opt'").setting(ArgSettings::RequireDelimiter))
+        .arg(
+            Arg::from("-o [opt]... 'some opt'")
+                .setting(ArgSettings::UseValueDelimiter)
+                .setting(ArgSettings::RequireDelimiter),
+        )
         .arg(Arg::from("[file] 'some file'"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
     assert!(r.is_ok());
@@ -359,6 +372,7 @@ fn leading_hyphen_with_only_pos_follows() {
         .arg(
             Arg::from("-o [opt]... 'some opt'")
                 .number_of_values(1)
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::AllowHyphenValues),
         )
         .arg("[arg] 'some arg'")
@@ -400,6 +414,7 @@ fn issue_1047_min_zero_vals_default_val() {
             Arg::new("del")
                 .short('d')
                 .long("del")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
                 .min_values(0)
                 .default_missing_value("default"),
