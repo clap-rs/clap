@@ -160,7 +160,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     fn spaces(&mut self, n: usize) -> io::Result<()> {
-        self.none(" ".repeat(n))
+        // A string with 64 consecutive spaces.
+        const SHORT_SPACE: &str =
+            "                                                                ";
+        if let Some(short) = SHORT_SPACE.get(..n) {
+            self.none(short)
+        } else {
+            self.none(" ".repeat(n))
+        }
     }
 
     /// Writes help for each argument in the order they were declared to the wrapped stream.
