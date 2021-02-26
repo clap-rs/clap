@@ -1,0 +1,34 @@
+name: Documentation issue
+about: An issue with our docs, like typo, something's missing, incorrect docs, etc...
+labels: 'C: docs'
+body:
+  - type: checkboxes
+    attributes:
+      label: Please complete the following tasks
+      options:
+        - label: I have searched the [discussions](https://github.com/clap-rs/clap/discussions)
+          required: true
+        - label: I have searched the existing issues
+          required: true
+  - type: input
+    attributes:
+      label: Clap Version
+      description: Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Where?
+      description: A hyperlink, file path, some item, *something*.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What's wrong?
+      description: Explain what the issue is about, like - "The doc says that the sun is green!".
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: How to fix?
+      description: Any solution you think is right, like - "Everybody knows that the sun is blue!".
