@@ -534,6 +534,94 @@ fn required_if_val_present_fail() {
 }
 
 #[test]
+fn required_if_all_values_present_pass() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").takes_value(true).long("option"))
+        .try_get_matches_from(vec![
+            "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
+        ]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_if_some_values_present_pass() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").takes_value(true).long("option"))
+        .try_get_matches_from(vec!["ri", "--extra", "val"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_if_all_values_present_fail() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").takes_value(true).long("option"))
+        .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn required_if_any_all_values_present_pass() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val2"), ("option", "spec2")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").takes_value(true).long("option"))
+        .try_get_matches_from(vec![
+            "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
+        ]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_if_any_all_values_present_fail() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq_all(&[("extra", "val"), ("option", "spec")])
+                .required_if_eq_any(&[("extra", "val2"), ("option", "spec2")])
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("extra").takes_value(true).long("extra"))
+        .arg(Arg::new("option").takes_value(true).long("option"))
+        .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
 fn list_correct_required_args() {
     let app = App::new("Test app")
         .version("1.0")

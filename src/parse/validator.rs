@@ -568,6 +568,23 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     }
                 }
             }
+
+            let mut match_all = true;
+            for (other, val) in &a.r_ifs_all {
+                if let Some(ma) = matcher.get(other) {
+                    if !ma.contains_val(val) {
+                        match_all = false;
+                        break;
+                    }
+                } else {
+                    match_all = false;
+                    break;
+                }
+            }
+
+            if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
+                return self.missing_required_error(matcher, vec![a.id.clone()]);
+            }
         }
         Ok(())
     }
