@@ -1,7 +1,9 @@
 use clap::{app_from_crate, ErrorKind};
 
 static EVERYTHING: &str = "clap {{version}}
+
 Kevin K. <kbknapp@gmail.com>:Clap Maintainers
+
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:

@@ -3,7 +3,9 @@ mod utils;
 use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
+
 Kevin K.
+
 tests stuff
 
 USAGE:
@@ -17,7 +19,9 @@ OPTIONS:
     -f, --fake <some>:<val>    some help";
 
 static HELP: &str = "clap-test v1.4.8
+
 Kevin K. <kbknapp@gmail.com>
+
 tests clap library
 
 USAGE:
@@ -91,6 +95,7 @@ SUBCOMMANDS:
 static AFTER_HELP: &str = "some text that comes before the help
 
 clap-test v1.4.8
+
 tests clap library
 
 USAGE:
@@ -105,6 +110,7 @@ some text that comes after the help";
 static AFTER_LONG_HELP: &str = "some longer text that comes before the help
 
 clap-test v1.4.8
+
 tests clap library
 
 USAGE:
@@ -133,7 +139,9 @@ OPTIONS:
     -o, --opt <FILE>    tests options";
 
 static SC_HELP: &str = "clap-test-subcmd 0.1
+
 Kevin K. <kbknapp@gmail.com>
+
 tests subcommands
 
 USAGE:
@@ -194,7 +202,9 @@ FLAGS:
     -V, --version    Prints version information";
 
 static MULTI_SC_HELP: &str = "ctest-subcmd-multi 0.1
+
 Kevin K. <kbknapp@gmail.com>
+
 tests subcommands
 
 USAGE:
@@ -317,7 +327,9 @@ OPTIONS:
                              Gaussian, Lanczos3]";
 
 static ISSUE_702: &str = "myapp 1.0
+
 foo
+
 bar
 
 USAGE:
@@ -338,8 +350,10 @@ OPTIONS:
 
 static ISSUE_777: &str = "A app with a crazy very long long
 long name hahaha 1.0
+
 Some Very Long Name and crazy long
 email <email@server.com>
+
 Show how the about text is not
 wrapped
 
@@ -514,7 +528,9 @@ FLAGS:
     -V, --version    Prints version information";
 
 static LONG_ABOUT: &str = "myapp 1.0
+
 foo
+
 something really really long, with
 multiple lines of text
 that should be displayed
@@ -584,7 +600,9 @@ OPTIONS:
     -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
 static CUSTOM_HELP_SECTION: &str = "blorp 1.4
+
 Will M.
+
 does stuff
 
 USAGE:
@@ -1806,7 +1824,9 @@ fn custom_headers_headers() {
 }
 
 static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "blorp 1.4
+
 Will M.
+
 does stuff
 
 USAGE:
@@ -1884,6 +1904,7 @@ fn multiple_custom_help_headers() {
 }
 
 static ISSUE_897: &str = "ctest-foo 0.1
+
 Long about foo
 
 USAGE:
@@ -1913,6 +1934,7 @@ fn show_long_about_issue_897() {
 }
 
 static ISSUE_897_SHORT: &str = "ctest-foo 0.1
+
 About foo
 
 USAGE:

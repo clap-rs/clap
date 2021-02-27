@@ -408,6 +408,7 @@ fn flag_subcommand_long_infer_exact_match() {
 }
 
 static FLAG_SUBCOMMAND_HELP: &str = "pacman-query 
+
 Query the package database.
 
 USAGE:
@@ -462,6 +463,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
 }
 
 static FLAG_SUBCOMMAND_NO_SHORT_HELP: &str = "pacman-query 
+
 Query the package database.
 
 USAGE:
@@ -515,6 +517,7 @@ fn flag_subcommand_long_normal_usage_string() {
 }
 
 static FLAG_SUBCOMMAND_NO_LONG_HELP: &str = "pacman-query 
+
 Query the package database.
 
 USAGE:

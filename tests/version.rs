@@ -12,6 +12,7 @@ fn version_short() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
+        .long_version("1.3 (abcdef12)")
         .try_get_matches_from(vec!["myprog", "-V"]);
 
     assert!(m.is_err());
@@ -26,12 +27,13 @@ fn version_long() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
+        .long_version("1.3 (abcdef12)")
         .try_get_matches_from(vec!["myprog", "--version"]);
 
     assert!(m.is_err());
     let err = m.unwrap_err();
     assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
+    assert_eq!(err.to_string(), "test 1.3 (abcdef12)\n");
 }
 
 #[test]

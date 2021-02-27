@@ -3,6 +3,7 @@ mod utils;
 use clap::{App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+
 Some help
 
 USAGE:
@@ -17,6 +18,7 @@ OPTIONS:
     -o, --opt <opt>    [short aliases: v]";
 
 static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
+
 Some help
 
 USAGE:

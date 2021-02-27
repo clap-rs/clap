@@ -1,6 +1,7 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, ErrorKind};
 
 static DESCRIPTION_ONLY: &str = "prog 1
+
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -12,6 +13,7 @@ FLAGS:
 ";
 
 static AUTHORS_ONLY: &str = "prog 1
+
 Kevin K. <kbknapp@gmail.com>:Clap Maintainers
 
 USAGE:
