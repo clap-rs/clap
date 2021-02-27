@@ -847,9 +847,11 @@ impl<'help> App<'help> {
     ///   * `{version}`             - Version number.
     ///   * `{author}`              - Author information.
     ///   * `{author-with-newline}` - Author followed by `\n`.
+    ///   * `{author-section}`      - Author preceded and followed by `\n`.
     ///   * `{about}`               - General description (from [`App::about`] or
     ///                               [`App::long_about`]).
     ///   * `{about-with-newline}`  - About followed by `\n`.
+    ///   * `{about-section}`       - About preceded and followed by '\n'.
     ///   * `{usage-heading}`       - Automatically generated usage heading.
     ///   * `{usage}`               - Automatically generated or given usage string.
     ///   * `{all-args}`            - Help for all arguments (options, flags, positional

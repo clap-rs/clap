@@ -60,7 +60,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     struct LoremIpsum {}
 
     let help = get_long_help::<LoremIpsum>();
-    assert!(help.starts_with("lorem-ipsum \nFoo.\n\nBar\n\nUSAGE:"));
+    assert!(help.starts_with("lorem-ipsum \n\nFoo.\n\nBar\n\nUSAGE:"));
 }
 
 #[test]

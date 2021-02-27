@@ -38,7 +38,9 @@ OPTIONS:
     -o, --opt=<FILE>    some";
 
 static UNIFIED_HELP: &str = "test 1.3
+
 Kevin K.
+
 tests stuff
 
 USAGE:
@@ -54,7 +56,9 @@ OPTIONS:
     -V, --version         Prints version information";
 
 static SKIP_POS_VALS: &str = "test 1.3
+
 Kevin K.
+
 tests stuff
 
 USAGE:

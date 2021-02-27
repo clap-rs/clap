@@ -51,7 +51,8 @@ pub(crate) struct Help<'help, 'app, 'parser, 'writer> {
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
+        {author-section}\
+        {about-section}\n\
         {usage-heading}\n    {usage}\n\
         \n\
         {all-args}{after-help}\
@@ -59,7 +60,8 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
-        {author-with-newline}{about-with-newline}\n\
+        {author-section}\
+        {about-section}\n\
         {usage-heading}\n    {usage}{after-help}\
     ";
 
@@ -642,27 +644,45 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         prefix.to_string() + &spec_vals.join(" ")
     }
 
-    fn write_about(&mut self, new_line: bool) -> io::Result<()> {
+    fn write_about(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
         let about = if self.use_long {
             self.parser.app.long_about.or(self.parser.app.about)
         } else {
             self.parser.app.about
         };
         if let Some(output) = about {
+            if before_new_line {
+                self.none("\n")?;
+            }
             self.none(text_wrapper(output, self.term_w))?;
-            if new_line {
+            if after_new_line {
                 self.none("\n")?;
             }
         }
         Ok(())
     }
 
-    fn write_author(&mut self, new_line: bool) -> io::Result<()> {
+    fn write_author(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
         if let Some(author) = self.parser.app.author {
-            self.none(text_wrapper(author, self.term_w))?;
-            if new_line {
+            if before_new_line {
                 self.none("\n")?;
             }
+            self.none(text_wrapper(author, self.term_w))?;
+            if after_new_line {
+                self.none("\n")?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_version(&mut self) -> io::Result<()> {
+        let version = if self.use_long {
+            self.parser.app.long_version.or(self.parser.app.version)
+        } else {
+            self.parser.app.version
+        };
+        if let Some(output) = version {
+            self.none(text_wrapper(output, self.term_w))?;
         }
         Ok(())
     }
@@ -988,21 +1008,25 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.write_bin_name()?;
                     }
                     "version" => {
-                        if let Some(s) = self.parser.app.version {
-                            self.none(s)?;
-                        }
+                        self.write_version()?;
                     }
                     "author" => {
-                        self.write_author(false)?;
+                        self.write_author(false, false)?;
                     }
                     "author-with-newline" => {
-                        self.write_author(true)?;
+                        self.write_author(false, true)?;
+                    }
+                    "author-section" => {
+                        self.write_author(true, true)?;
                     }
                     "about" => {
-                        self.write_about(false)?;
+                        self.write_about(false, false)?;
                     }
                     "about-with-newline" => {
-                        self.write_about(true)?;
+                        self.write_about(false, true)?;
+                    }
+                    "about-section" => {
+                        self.write_about(true, true)?;
                     }
                     "usage-heading" => {
                         self.warning("USAGE:")?;
