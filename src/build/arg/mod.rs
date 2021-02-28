@@ -91,6 +91,7 @@ pub struct Arg<'help> {
     pub(crate) groups: Vec<Id>,
     pub(crate) requires: Vec<(Option<&'help str>, Id)>,
     pub(crate) r_ifs: Vec<(Id, &'help str)>,
+    pub(crate) r_ifs_all: Vec<(Id, &'help str)>,
     pub(crate) r_unless: Vec<Id>,
     pub(crate) short: Option<char>,
     pub(crate) long: Option<&'help str>,
@@ -1436,7 +1437,7 @@ impl<'help> Arg<'help> {
 
     /// Allows specifying that this argument is [required] based on multiple conditions. The
     /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
-    /// if one of the specified `arg`'s value equals it's corresponding `val`.
+    /// if one of the specified `arg`'s value equals its corresponding `val`.
     ///
     /// **NOTE:** If using YAML the values should be laid out as follows
     ///
@@ -1516,6 +1517,90 @@ impl<'help> Arg<'help> {
     /// [required]: ./struct.Arg.html#method.required
     pub fn required_if_eq_any<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs
+            .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
+        self
+    }
+
+    /// Allows specifying that this argument is [required] based on multiple conditions. The
+    /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
+    /// if every one of the specified `arg`'s value equals its corresponding `val`.
+    ///
+    /// **NOTE:** If using YAML the values should be laid out as follows
+    ///
+    /// ```yaml
+    /// required_if_eq_all:
+    ///     - [arg, val]
+    ///     - [arg2, val2]
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// Arg::new("config")
+    ///     .required_if_eq_all(&[
+    ///         ("extra", "val"),
+    ///         ("option", "spec")
+    ///     ])
+    /// # ;
+    /// ```
+    ///
+    /// Setting `Arg::required_if_eq_all(&[(arg, val)])` makes this arg required if all of the `arg`s
+    /// are used at runtime and every value is equal to its corresponding `val`. If the `arg`'s value is
+    /// anything other than `val`, this argument isn't required.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .required_if_eq_all(&[
+    ///             ("extra", "val"),
+    ///             ("option", "spec")
+    ///         ])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::new("extra")
+    ///         .takes_value(true)
+    ///         .long("extra"))
+    ///     .arg(Arg::new("option")
+    ///         .takes_value(true)
+    ///         .long("option"))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--option", "spec"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok()); // We didn't use --option=spec --extra=val so "cfg" isn't required
+    /// ```
+    ///
+    /// Setting `Arg::required_if_eq_all(&[(arg, val)])` and having all of the `arg`s used with its
+    /// value of `val` but *not* using this arg is an error.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .required_if_eq_all(&[
+    ///             ("extra", "val"),
+    ///             ("option", "spec")
+    ///         ])
+    ///         .takes_value(true)
+    ///         .long("config"))
+    ///     .arg(Arg::new("extra")
+    ///         .takes_value(true)
+    ///         .long("extra"))
+    ///     .arg(Arg::new("option")
+    ///         .takes_value(true)
+    ///         .long("option"))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--extra", "val", "--option", "spec"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    /// [required]: ./struct.Arg.html#method.required
+    pub fn required_if_eq_all<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
+        self.r_ifs_all
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
         self
     }
@@ -4536,7 +4621,8 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
-                "required_if_eq_any" => yaml_tuple2!(a, v, required_if_eq),
+                "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
+                "required_if_eq_all" => yaml_array_tuple2!(a, v, required_if_eq_all),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_usize!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),

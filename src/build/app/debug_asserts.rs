@@ -144,6 +144,15 @@ pub(crate) fn assert_app(app: &App) {
             );
         }
 
+        for req in &arg.r_ifs_all {
+            assert!(
+                app.id_exists(&req.0),
+                "Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
+                req.0,
+                arg.name
+            );
+        }
+
         for req in &arg.r_unless {
             assert!(
                 app.id_exists(req),
