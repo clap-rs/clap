@@ -5,13 +5,13 @@ use std::{
     str,
 };
 
-use os_str_bytes::{raw, OsStrBytes, OsStringBytes};
+use os_str_bytes::{raw, OsStrBytes};
 
 pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
 
 impl<'a> ArgStr<'a> {
     pub(crate) fn new(s: &'a OsStr) -> Self {
-        Self(s.to_bytes())
+        Self(s.to_raw_bytes())
     }
 
     pub(crate) fn starts_with(&self, s: &str) -> bool {
@@ -120,7 +120,11 @@ impl<'a> ArgStr<'a> {
     }
 
     pub(crate) fn to_os_string(&self) -> OsString {
-        OsString::from_bytes(&self.0).unwrap()
+        self.to_borrowed().into_os_string()
+    }
+
+    pub(crate) fn into_os_string(self) -> OsString {
+        OsStr::from_raw_bytes(self.0).unwrap().into_owned()
     }
 }
 

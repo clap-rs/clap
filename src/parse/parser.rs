@@ -429,7 +429,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // get the option so we can check the settings
                     needs_val_of = self.add_val_to_arg(
                         &self.app[&id],
-                        &arg_os,
+                        arg_os,
                         matcher,
                         ValueType::CommandLine,
                         true,
@@ -523,7 +523,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continiously.
                 let append = self.arg_have_val(matcher, p);
-                self.add_val_to_arg(p, &arg_os, matcher, ValueType::CommandLine, append);
+                self.add_val_to_arg(p, arg_os, matcher, ValueType::CommandLine, append);
 
                 // Increase occurence no matter if we are appending, Occurences
                 // of positional argument equals to number of values rather than
@@ -1174,7 +1174,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, &v, matcher, ValueType::CommandLine, false);
+            self.add_val_to_arg(opt, v, matcher, ValueType::CommandLine, false);
         } else if require_equals && !empty_vals && !min_vals_zero {
             debug!("None, but requires equals...Error");
             return Err(ClapError::empty_value(
@@ -1223,7 +1223,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn add_val_to_arg(
         &self,
         arg: &Arg<'help>,
-        val: &ArgStr,
+        val: ArgStr,
         matcher: &mut ArgMatcher,
         ty: ValueType,
         append: bool,
@@ -1249,7 +1249,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else {
                     arg_split.collect()
                 };
-                let vals = vals.into_iter().map(|x| x.to_os_string()).collect();
+                let vals = vals.into_iter().map(|x| x.into_os_string()).collect();
                 self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values or no more vals is needed, we're not
@@ -1426,7 +1426,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, &ArgStr::new(default), matcher, ty, false);
+                        self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
                         return;
                     }
                 }
@@ -1497,11 +1497,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             // Use env only if the arg was not present among command line args
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
                 if let Some((_, Some(ref val))) = a.env {
-                    let val = &ArgStr::new(val);
+                    let val = ArgStr::new(val);
                     if a.is_set(ArgSettings::TakesValue) {
                         self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable, false);
                     } else {
-                        self.check_for_help_and_version_str(val)?;
+                        self.check_for_help_and_version_str(&val)?;
                         matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
                     }
                 }
