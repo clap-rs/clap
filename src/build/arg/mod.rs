@@ -133,6 +133,21 @@ impl<'help> Arg<'help> {
         self.about
     }
 
+    /// Get the long help specified for this argument, if any
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// let arg = Arg::new("foo").long_about("long about");
+    /// assert_eq!(Some("long about"), arg.get_long_about());
+    /// ```
+    ///
+    #[inline]
+    pub fn get_long_about(&self) -> Option<&str> {
+        self.long_about
+    }
+
     /// Get the help heading specified for this argument, if any
     #[inline]
     pub fn get_help_heading(&self) -> Option<&str> {
@@ -233,6 +248,33 @@ impl<'help> Arg<'help> {
     /// Get information on if this argument is global or not
     pub fn get_global(&self) -> bool {
         self.global
+    }
+
+    /// Get the environment variable name specified for this argument, if any
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use std::ffi::OsStr;
+    /// # use clap::Arg;
+    /// let arg = Arg::new("foo").env("ENVIRONMENT");
+    /// assert_eq!(Some(OsStr::new("ENVIRONMENT")), arg.get_env());
+    /// ```
+    pub fn get_env(&self) -> Option<&OsStr> {
+        self.env.as_ref().map(|x| x.0)
+    }
+
+    /// Get the default values specified for this argument, if any
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::Arg;
+    /// let arg = Arg::new("foo").default_value("default value");
+    /// assert_eq!(&["default value"], arg.get_default_values());
+    /// ```
+    pub fn get_default_values(&self) -> &[&OsStr] {
+        &self.default_vals
     }
 }
 
