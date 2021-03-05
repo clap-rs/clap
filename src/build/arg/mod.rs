@@ -2411,7 +2411,8 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("config")
     ///         .long("config")
-    ///         .value_name("FILE"))
+    ///         .value_name("FILE")
+    ///         .about("Some help text"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
