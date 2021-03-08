@@ -446,6 +446,26 @@ impl Error {
         safe_exit(0)
     }
 
+    /// Prints formatted and colored error to `stdout` or `stderr` according to its error kind
+    ///
+    /// # Example
+    /// ```no_run
+    /// use clap::App;
+    ///
+    /// match App::new("App").try_get_matches() {
+    ///     Ok(matches) => {
+    ///         // do_something
+    ///     },
+    ///     Err(err) => {
+    ///         err.print().expect("Error writing Error");
+    ///         // do_something
+    ///     },
+    /// };
+    /// ```
+    pub fn print(&self) -> io::Result<()> {
+        self.message.print()
+    }
+
     pub(crate) fn argument_conflict(
         arg: &Arg,
         other: Option<String>,
