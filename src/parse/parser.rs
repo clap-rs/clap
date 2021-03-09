@@ -1176,24 +1176,32 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv.starts_with("=")
             );
             self.add_val_to_arg(opt, v, matcher, ValueType::CommandLine, false);
-        } else if require_equals && !empty_vals && !min_vals_zero {
-            debug!("None, but requires equals...Error");
-            return Err(ClapError::empty_value(
-                opt,
-                Usage::new(self).create_usage_with_title(&[]),
-                self.app.color(),
-            ));
-        } else if require_equals && min_vals_zero {
-            debug!("None and requires equals, but min_vals == 0");
-            if !opt.default_missing_vals.is_empty() {
-                debug!("Parser::parse_opt: has default_missing_vals");
-                let vals = opt
-                    .default_missing_vals
-                    .iter()
-                    .map(OsString::from)
-                    .collect();
-                self.add_multiple_vals_to_arg(opt, vals, matcher, ValueType::CommandLine, false);
-            };
+        } else if require_equals {
+            if min_vals_zero {
+                debug!("Requires equals, but min_vals == 0");
+                if !opt.default_missing_vals.is_empty() {
+                    debug!("Parser::parse_opt: has default_missing_vals");
+                    let vals = opt
+                        .default_missing_vals
+                        .iter()
+                        .map(OsString::from)
+                        .collect();
+                    self.add_multiple_vals_to_arg(
+                        opt,
+                        vals,
+                        matcher,
+                        ValueType::CommandLine,
+                        false,
+                    );
+                };
+            } else {
+                debug!("Requires equals but not provided. Error.");
+                return Err(ClapError::no_equals(
+                    opt,
+                    Usage::new(self).create_usage_with_title(&[]),
+                    self.app.color(),
+                ));
+            }
         } else {
             debug!("None");
         }

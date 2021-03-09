@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::{AppSettings, Clap};
+use clap::{AppSettings, Clap, ErrorKind};
 use std::num::ParseIntError;
 
 pub const DISPLAY_ORDER: usize = 2;
@@ -121,6 +121,7 @@ fn test_bool() {
     );
     let result = Opt::try_parse_from(&["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
+    assert_eq!(result.unwrap_err().kind, ErrorKind::NoEquals);
 }
 
 fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
