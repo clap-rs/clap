@@ -39,7 +39,30 @@ fn require_equals_fail() {
         )
         .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
+}
+
+#[test]
+fn require_equals_fail_message() {
+    static NO_EQUALS: &str =
+        "error: Equal sign is needed when assigning values to '--config=<cfg>'.
+
+USAGE:
+    prog [OPTIONS]
+
+For more information try --help";
+    let app = App::new("prog").arg(
+        Arg::new("cfg")
+            .setting(ArgSettings::RequireEquals)
+            .setting(ArgSettings::TakesValue)
+            .long("config"),
+    );
+    assert!(utils::compare_output(
+        app,
+        "prog --config file.conf",
+        NO_EQUALS,
+        true
+    ));
 }
 
 #[test]

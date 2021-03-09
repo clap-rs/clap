@@ -3425,8 +3425,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// ```
     ///
-    /// Setting [`RequireEquals`] and *not* supplying the equals will cause an error
-    /// unless [`ArgSettings::EmptyValues`] is set.
+    /// Setting [`RequireEquals`] and *not* supplying the equals will cause an
+    /// error.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
@@ -3440,11 +3440,9 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
     /// ```
     /// [`RequireEquals`]: ./enum.ArgSettings.html#variant.RequireEquals
-    /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.EmptyValues
-    /// [`ArgSettings::EmptyValues`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
     pub fn require_equals(self, r: bool) -> Self {
         if r {

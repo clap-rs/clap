@@ -123,6 +123,22 @@ pub enum ErrorKind {
     /// ```
     EmptyValue,
 
+    /// Occurs when the user doesn't use equals for an option that requres equal
+    /// sign to provide values.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("color")
+    ///          .setting(ArgSettings::TakesValue)
+    ///          .setting(ArgSettings::RequireEquals)
+    ///          .long("color"))
+    ///     .try_get_matches_from(vec!["prog", "--color", "red"]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
+    /// ```
+    NoEquals,
+
     /// Occurs when the user provides a value for an argument with a custom validation and the
     /// value fails that validation.
     ///
@@ -522,6 +538,25 @@ impl Error {
         Error {
             message: c,
             kind: ErrorKind::EmptyValue,
+            info: vec![arg],
+            source: None,
+        }
+    }
+
+    pub(crate) fn no_equals(arg: &Arg, usage: String, color: ColorChoice) -> Self {
+        let mut c = Colorizer::new(true, color);
+        let arg = arg.to_string();
+
+        start_error(&mut c, "Equal sign is needed when assigning values to '");
+        c.warning(&arg);
+        c.none("'.");
+
+        put_usage(&mut c, usage);
+        try_help(&mut c);
+
+        Error {
+            message: c,
+            kind: ErrorKind::NoEquals,
             info: vec![arg],
             source: None,
         }

@@ -1041,6 +1041,7 @@ pub enum AppSettings {
     NoAutoVersion,
 
     #[doc(hidden)]
+    /// If the user already passed '--'. Meaning only positional args follow.
     TrailingValues,
 
     #[doc(hidden)]
