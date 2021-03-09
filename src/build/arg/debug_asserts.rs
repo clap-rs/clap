@@ -43,26 +43,30 @@ pub(crate) fn assert_arg(arg: &Arg) {
         );
     }
 
-    assert_app_flag(arg);
+    assert_app_flags(arg);
 }
 
-fn assert_app_flag(arg: &Arg) {
+fn assert_app_flags(arg: &Arg) {
     use ArgSettings::*;
+
     macro_rules! checker {
         ($a:ident requires $($b:ident)|+) => {
             if arg.is_set($a) {
                 let mut s = String::new();
+
                 $(
                     if !arg.is_set($b) {
-                        s.push_str(&format!("\nArgSettings::{} is required when ArgSettings::{} is on.\n", std::stringify!($b), std::stringify!($a)));
+                        s.push_str(&format!("\nArgSettings::{} is required when ArgSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
+
                 if !s.is_empty() {
                     panic!("{}", s)
                 }
             }
         }
     }
+
     checker!(AllowEmptyValues requires TakesValue);
     checker!(RequireDelimiter requires TakesValue | UseValueDelimiter);
     checker!(HidePossibleValues requires TakesValue);

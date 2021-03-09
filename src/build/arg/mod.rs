@@ -4296,7 +4296,7 @@ impl<'help> Arg<'help> {
     /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
     #[inline]
     pub fn raw(self, raw: bool) -> Self {
-        self.takes_value(true)
+        self.takes_value(raw)
             .multiple(raw)
             .allow_hyphen_values(raw)
             .last(raw)
