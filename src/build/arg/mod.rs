@@ -2785,7 +2785,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("other"), None);
     /// ```
     ///
-    /// We can also remove a default if the flag was set by setting `default` to `None`.
+    /// If we want to unset the default value for an Arg based on the presence or
+    /// value of some other Arg.
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -2804,17 +2805,13 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    pub fn default_value_if<T: Key, S: Into<Option<&'help str>>>(
+    pub fn default_value_if<T: Key>(
         self,
         arg_id: T,
         val: Option<&'help str>,
-        default: S,
+        default: Option<&'help str>,
     ) -> Self {
-        self.default_value_if_os(
-            arg_id,
-            val.map(OsStr::new),
-            default.into().map(|s| OsStr::new(s)),
-        )
+        self.default_value_if_os(arg_id, val.map(OsStr::new), default.map(OsStr::new))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2822,15 +2819,15 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_if_os<T: Key, S: Into<Option<&'help OsStr>>>(
+    pub fn default_value_if_os<T: Key>(
         mut self,
         arg_id: T,
         val: Option<&'help OsStr>,
-        default: S,
+        default: Option<&'help OsStr>,
     ) -> Self {
         let l = self.default_vals_ifs.len();
         self.default_vals_ifs
-            .insert(l, (arg_id.into(), val, default.into()));
+            .insert(l, (arg_id.into(), val, default));
         self.takes_value(true)
     }
 
@@ -2863,8 +2860,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal"
@@ -2883,8 +2880,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -2907,8 +2904,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal", "--flag"
@@ -2918,14 +2915,12 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
-    pub fn default_value_ifs<T: Key, S: Into<Option<&'help str>> + Copy>(
+    pub fn default_value_ifs<T: Key>(
         mut self,
-        ifs: &[(T, Option<&'help str>, S)],
+        ifs: &[(T, Option<&'help str>, Option<&'help str>)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            let default: Option<&'help str> = (*default).into();
-            self =
-                self.default_value_if_os(arg, val.map(OsStr::new), default.map(|s| OsStr::new(s)));
+            self = self.default_value_if_os(arg, val.map(OsStr::new), default.map(OsStr::new));
         }
         self
     }
@@ -2935,13 +2930,12 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    pub fn default_value_ifs_os<T: Key, S: Into<Option<&'help OsStr>> + Copy>(
+    pub fn default_value_ifs_os<T: Key>(
         mut self,
-        ifs: &[(T, Option<&'help OsStr>, S)],
+        ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            let default: Option<&'help OsStr> = (*default).into();
-            self = self.default_value_if_os(arg.key(), *val, default);
+            self = self.default_value_if_os(arg.key(), *val, *default);
         }
         self
     }

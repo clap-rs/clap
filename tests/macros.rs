@@ -454,10 +454,10 @@ fn multiarg() {
     let app = clap_app!(claptests =>
         (@arg flag: --flag "value")
         (@arg multiarg: --multiarg
-            default_value("flag-unset") default_value_if("flag", None, "flag-set")
+            default_value("flag-unset") default_value_if("flag", None, Some("flag-set"))
             "multiarg")
         (@arg multiarg2: --multiarg2
-            default_value("flag-unset") default_value_if("flag", None, "flag-set",)
+            default_value("flag-unset") default_value_if("flag", None, Some("flag-set"))
             "multiarg2")
     );
 
