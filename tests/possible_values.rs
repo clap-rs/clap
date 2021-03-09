@@ -71,6 +71,7 @@ fn possible_values_of_positional_multiple() {
         .arg(
             Arg::new("positional")
                 .index(1)
+                .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
                 .multiple(true),
@@ -93,6 +94,7 @@ fn possible_values_of_positional_multiple_fail() {
         .arg(
             Arg::new("positional")
                 .index(1)
+                .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
                 .multiple(true),

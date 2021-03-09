@@ -1,4 +1,4 @@
-use crate::{App, AppSettings, ArgSettings, ValueHint};
+use crate::{build::arg::debug_asserts::assert_arg, App, AppSettings, ArgSettings, ValueHint};
 use std::cmp::Ordering;
 
 #[derive(Eq)]
@@ -63,7 +63,7 @@ pub(crate) fn assert_app(app: &App) {
     }
 
     for arg in app.args.args() {
-        arg._debug_asserts();
+        assert_arg(arg);
 
         if let Some(s) = arg.short.as_ref() {
             short_flags.push(Flag::Arg(format!("-{}", s), &*arg.name));

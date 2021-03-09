@@ -12,6 +12,7 @@ args:
     - option:
         short: o
         long: option
+        takes_value: true
         multiple: true
         about: tests options
     - positional:
@@ -26,6 +27,7 @@ args:
     - flag:
         short: f
         long: flag
+        takes_value: true
         multiple: true
         about: tests flags
         global: true
@@ -71,7 +73,9 @@ args:
     - multvalsdelim:
         long: multvalsdelim
         about: Tests multiple values with required delimiter
+        takes_value: true
         multiple: true
+        use_delimiter: true
         require_delimiter: true
     - singlealias:
         long: singlealias

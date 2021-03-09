@@ -29,6 +29,7 @@ args:
         help: demo flag argument
         short: F
         multiple: true
+        takes_value: true
         global: true
         # Conflicts, mutual overrides, and requirements can all be defined as a
         # list, where the key is the name of the other argument

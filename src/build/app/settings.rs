@@ -329,7 +329,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::AllowMissingPositional)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").multiple(true))
+    ///     .arg(Arg::new("baz").takes_value(true).multiple(true))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -348,7 +348,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::AllowMissingPositional)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").multiple(true))
+    ///     .arg(Arg::new("baz").takes_value(true).multiple(true))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);

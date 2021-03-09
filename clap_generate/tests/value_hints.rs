@@ -56,6 +56,7 @@ pub fn build_app_with_value_hints() -> App<'static> {
         )
         .arg(
             Arg::new("command_with_args")
+                .takes_value(true)
                 .multiple_values(true)
                 .value_hint(ValueHint::CommandWithArguments),
         )

@@ -326,6 +326,7 @@ where
         ]))
         .arg(
             arg("path")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .setting(ArgSettings::MultipleOccurrences),
         )
@@ -350,6 +351,7 @@ where
         .arg(
             flag("color")
                 .value_name("WHEN")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::HidePossibleValues)
                 .possible_values(&["never", "auto", "always", "ansi"]),
         )

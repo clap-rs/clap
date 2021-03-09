@@ -17,6 +17,7 @@ fn issue_1076() {
             Arg::new("GLOBAL_FLAG")
                 .long("global-flag")
                 .about("Specifies something needed by the subcommands")
+                .takes_value(true)
                 .multiple(true)
                 .global(true),
         )

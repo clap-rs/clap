@@ -41,6 +41,8 @@ fn mult_option_require_delim_overrides_itself() {
             Arg::from("--opt [val]... 'some option'")
                 .overrides_with("opt")
                 .number_of_values(1)
+                .takes_value(true)
+                .use_delimiter(true)
                 .require_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);

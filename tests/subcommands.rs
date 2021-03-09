@@ -362,7 +362,7 @@ fn issue_1161_multiple_hyphen_hyphen() {
     let res = App::new("myprog")
         .arg(Arg::new("eff").short('f'))
         .arg(Arg::new("pea").short('p').takes_value(true))
-        .arg(Arg::new("slop").multiple(true).last(true))
+        .arg(Arg::new("slop").takes_value(true).multiple(true).last(true))
         .try_get_matches_from(vec![
             "-f",
             "-p=bob",

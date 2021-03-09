@@ -5,7 +5,12 @@ use clap::{App, AppSettings, Arg};
 #[test]
 fn grouped_value_works() {
     let m = App::new("cli")
-        .arg(Arg::new("option").long("option").multiple(true))
+        .arg(
+            Arg::new("option")
+                .long("option")
+                .takes_value(true)
+                .multiple(true),
+        )
         .get_matches_from(&[
             "cli",
             "--option",
@@ -30,7 +35,12 @@ fn issue_1026() {
     let m = App::new("cli")
         .arg(Arg::new("server").short('s').takes_value(true))
         .arg(Arg::new("user").short('u').takes_value(true))
-        .arg(Arg::new("target").long("target").multiple(true))
+        .arg(
+            Arg::new("target")
+                .long("target")
+                .takes_value(true)
+                .multiple(true),
+        )
         .get_matches_from(&[
             "backup", "-s", "server", "-u", "user", "--target", "target1", "file1", "file2",
             "file3", "--target", "target2", "file4", "file5", "file6", "file7", "--target",
@@ -96,7 +106,12 @@ fn grouped_value_short_flag_delimiter() {
 #[test]
 fn grouped_value_positional_arg() {
     let m = App::new("multiple_values")
-        .arg(Arg::new("pos").about("multiple positionals").multiple(true))
+        .arg(
+            Arg::new("pos")
+                .about("multiple positionals")
+                .takes_value(true)
+                .multiple(true),
+        )
         .get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
         ]);
@@ -114,6 +129,7 @@ fn grouped_value_multiple_positional_arg() {
         .arg(
             Arg::new("pos2")
                 .about("multiple positionals")
+                .takes_value(true)
                 .multiple(true),
         )
         .get_matches_from(vec![
@@ -133,6 +149,7 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
         .arg(
             Arg::new("pos2")
                 .about("multiple positionals")
+                .takes_value(true)
                 .multiple(true)
                 .last(true),
         )

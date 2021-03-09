@@ -155,6 +155,7 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
     ///     .arg(Arg::new("arg")
+    ///         .takes_value(true)
     ///         .multiple(true)
     ///         .max_values(2))
     ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);

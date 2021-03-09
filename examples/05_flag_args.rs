@@ -18,6 +18,7 @@ fn main() {
                 .about("turns up the awesome") // Displayed when showing help info
                 .short('a') // Trigger this arg with "-a"
                 .long("awesome") // Trigger this arg with "--awesome"
+                .takes_value(true)
                 .multiple(true) // This flag should allow multiple
                 // occurrences such as "-aaa" or "-a -a"
                 .requires("config") // Says, "If the user uses -a, they MUST

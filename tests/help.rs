@@ -758,6 +758,7 @@ fn args_with_last_usage() {
         .arg(
             Arg::new("pass through args")
                 .about("Any arguments you wish to pass to the being profiled.")
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .setting(ArgSettings::MultipleOccurrences)
                 .setting(ArgSettings::Last)
@@ -1209,7 +1210,12 @@ fn issue_702_multiple_values() {
         .author("foo")
         .about("bar")
         .arg(Arg::new("arg1").about("some option"))
-        .arg(Arg::new("arg2").multiple(true).about("some option"))
+        .arg(
+            Arg::new("arg2")
+                .takes_value(true)
+                .multiple(true)
+                .about("some option"),
+        )
         .arg(
             Arg::new("some")
                 .about("some option")
@@ -1511,7 +1517,13 @@ fn last_arg_mult_usage() {
         .version("0.1")
         .arg(Arg::new("TARGET").required(true).about("some"))
         .arg(Arg::new("CORPUS").about("some"))
-        .arg(Arg::new("ARGS").multiple(true).last(true).about("some"));
+        .arg(
+            Arg::new("ARGS")
+                .takes_value(true)
+                .multiple(true)
+                .last(true)
+                .about("some"),
+        );
     assert!(utils::compare_output(app, "last --help", LAST_ARG, false));
 }
 
@@ -1523,6 +1535,7 @@ fn last_arg_mult_usage_req() {
         .arg(Arg::new("CORPUS").about("some"))
         .arg(
             Arg::new("ARGS")
+                .takes_value(true)
                 .multiple(true)
                 .last(true)
                 .required(true)
@@ -1545,6 +1558,7 @@ fn last_arg_mult_usage_req_with_sc() {
         .arg(Arg::new("CORPUS").about("some"))
         .arg(
             Arg::new("ARGS")
+                .takes_value(true)
                 .multiple(true)
                 .last(true)
                 .required(true)
@@ -1566,7 +1580,13 @@ fn last_arg_mult_usage_with_sc() {
         .setting(AppSettings::ArgsNegateSubcommands)
         .arg(Arg::new("TARGET").required(true).about("some"))
         .arg(Arg::new("CORPUS").about("some"))
-        .arg(Arg::new("ARGS").multiple(true).last(true).about("some"))
+        .arg(
+            Arg::new("ARGS")
+                .takes_value(true)
+                .multiple(true)
+                .last(true)
+                .about("some"),
+        )
         .subcommand(App::new("test").about("some"));
     assert!(utils::compare_output(
         app,
@@ -1680,6 +1700,8 @@ fn issue_1052_require_delim_help() {
         .version("1.3")
         .arg(
             Arg::from("-f, --fake <some> <val> 'some help'")
+                .takes_value(true)
+                .use_delimiter(true)
                 .require_delimiter(true)
                 .value_delimiter(":"),
         );
@@ -1804,6 +1826,8 @@ fn custom_headers_headers() {
         .version("1.4")
         .arg(
             Arg::from("-f, --fake <some> <val> 'some help'")
+                .takes_value(true)
+                .use_delimiter(true)
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
@@ -1856,6 +1880,8 @@ fn multiple_custom_help_headers() {
         .version("1.4")
         .arg(
             Arg::from("-f, --fake <some> <val> 'some help'")
+                .takes_value(true)
+                .use_delimiter(true)
                 .require_delimiter(true)
                 .value_delimiter(":"),
         )
@@ -1970,7 +1996,12 @@ fn issue_1364_no_short_options() {
                 .value_name("BAZ")
                 .hidden_short_help(true),
         )
-        .arg(Arg::new("files").value_name("FILES").multiple(true));
+        .arg(
+            Arg::new("files")
+                .value_name("FILES")
+                .takes_value(true)
+                .multiple(true),
+        );
 
     assert!(utils::compare_output(app, "demo -h", ISSUE_1364, false));
 }

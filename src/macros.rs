@@ -461,7 +461,7 @@ macro_rules! clap_app {
         $crate::clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg) $modes +multiple $($tail)* }
+        $crate::clap_app!{ @arg ($arg) $modes +multiple +takes_value $($tail)* }
     };
     // Shorthand magic
     (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {

@@ -951,6 +951,8 @@ fn aaos_opts_mult() {
         .arg(
             Arg::from("--opt [val]... 'some option'")
                 .number_of_values(1)
+                .takes_value(true)
+                .use_delimiter(true)
                 .require_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);

@@ -12,5 +12,6 @@ args:
   - opt:
     short: o
     long: option
+    takes_value: true
     multiple: true
     about: tests options

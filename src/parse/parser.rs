@@ -794,6 +794,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if help_help {
             let mut pb = Arg::new("subcommand")
                 .index(1)
+                .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .about("The subcommand whose help message to display");
 

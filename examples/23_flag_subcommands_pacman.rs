@@ -40,6 +40,7 @@ fn main() {
                         .long("search")
                         .about("search locally installed packages for matching strings")
                         .conflicts_with("info")
+                        .takes_value(true)
                         .multiple_values(true),
                 )
                 .arg(
@@ -48,6 +49,7 @@ fn main() {
                         .short('i')
                         .conflicts_with("search")
                         .about("view package information")
+                        .takes_value(true)
                         .multiple_values(true),
                 ),
         )
