@@ -436,7 +436,9 @@ impl Error {
         )
     }
 
-    /// Prints the error to `stderr` and exits with a status of `1`
+    /// Prints the error and exits. Depending on the error kind, this
+    /// either prints to `stderr` and exits with a status of `1`
+    /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
             self.message.print().expect("Error writing Error to stderr");
