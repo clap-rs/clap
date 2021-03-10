@@ -67,7 +67,7 @@ fn assert_app_flags(arg: &Arg) {
         }
     }
 
-    checker!(AllowEmptyValues requires TakesValue);
+    checker!(NoEmptyValues requires TakesValue);
     checker!(RequireDelimiter requires TakesValue | UseValueDelimiter);
     checker!(HidePossibleValues requires TakesValue);
     checker!(AllowHyphenValues requires TakesValue);

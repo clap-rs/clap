@@ -8,7 +8,7 @@ bitflags! {
     struct Flags: u32 {
         const REQUIRED         = 1;
         const MULTIPLE_OCC     = 1 << 1;
-        const EMPTY_VALS       = 1 << 2;
+        const NO_EMPTY_VALS    = 1 << 2;
         const GLOBAL           = 1 << 3;
         const HIDDEN           = 1 << 4;
         const TAKES_VAL        = 1 << 5;
@@ -39,7 +39,7 @@ impl_settings! { ArgSettings, ArgFlags,
     Required("required") => Flags::REQUIRED,
     MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
-    AllowEmptyValues("allowemptyvalues") => Flags::EMPTY_VALS,
+    NoEmptyValues("noemptyvalues") => Flags::NO_EMPTY_VALS,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -80,8 +80,8 @@ pub enum ArgSettings {
     MultipleValues,
     /// Allows an arg to appear multiple times
     MultipleOccurrences,
-    /// Allows an arg accept empty values such as `""`
-    AllowEmptyValues,
+    /// Disallows an arg from accepting empty values such as `""`
+    NoEmptyValues,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)
@@ -130,8 +130,8 @@ mod test {
             ArgSettings::AllowHyphenValues
         );
         assert_eq!(
-            "allowemptyvalues".parse::<ArgSettings>().unwrap(),
-            ArgSettings::AllowEmptyValues
+            "noemptyvalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::NoEmptyValues
         );
         assert_eq!(
             "hidepossiblevalues".parse::<ArgSettings>().unwrap(),

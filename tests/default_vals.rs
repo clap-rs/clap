@@ -14,7 +14,11 @@ fn opts() {
 #[test]
 fn opt_without_value_fail() {
     let r = App::new("df")
-        .arg(Arg::from("-o [opt] 'some opt'").default_value("default"))
+        .arg(
+            Arg::from("-o [opt] 'some opt'")
+                .default_value("default")
+                .forbid_empty_values(true),
+        )
         .try_get_matches_from(vec!["", "-o"]);
     assert!(r.is_err());
     let err = r.unwrap_err();

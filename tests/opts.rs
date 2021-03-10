@@ -34,6 +34,7 @@ fn require_equals_fail() {
         .arg(
             Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
+                .setting(ArgSettings::NoEmptyValues)
                 .setting(ArgSettings::TakesValue)
                 .long("config"),
         )
@@ -104,6 +105,7 @@ fn require_equals_no_empty_values_fail() {
             Arg::new("cfg")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
+                .setting(ArgSettings::NoEmptyValues)
                 .long("config"),
         )
         .arg(Arg::new("some"))
@@ -119,7 +121,6 @@ fn require_equals_empty_vals_pass() {
             Arg::new("cfg")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::AllowEmptyValues)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config="]);
@@ -422,8 +423,10 @@ fn did_you_mean() {
 fn issue_665() {
     let res = App::new("tester")
         .arg("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
-        .arg(Arg::from(
-"--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'") )
+        .arg(
+            Arg::from("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
+                .setting(ArgSettings::NoEmptyValues)
+        )
         .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
 
     assert!(res.is_err());
@@ -449,7 +452,7 @@ fn issue_1047_min_zero_vals_default_val() {
 
 fn issue_1105_setup(argv: Vec<&'static str>) -> Result<ArgMatches, clap::Error> {
     App::new("opts")
-        .arg(Arg::from("-o, --option [opt] 'some option'").setting(ArgSettings::AllowEmptyValues))
+        .arg(Arg::from("-o, --option [opt] 'some option'"))
         .arg(Arg::from("--flag 'some flag'"))
         .try_get_matches_from(argv)
 }
