@@ -30,7 +30,8 @@ fn doc_comments() {
 
     let help = get_long_help::<LoremIpsum>();
     assert!(help.contains("Lorem ipsum"));
-    assert!(help.contains("Fooify a bar and a baz"));
+    assert!(help.contains("Fooify a bar"));
+    assert!(help.contains("and a baz"));
 }
 
 #[test]
