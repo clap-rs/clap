@@ -1435,7 +1435,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                     };
 
                     if add {
-                        self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
+                        if let Some(default) = default {
+                            self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
+                        }
                         return;
                     }
                 }

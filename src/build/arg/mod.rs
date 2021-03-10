@@ -110,7 +110,7 @@ pub struct Arg<'help> {
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, &'help OsStr)>,
+    pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
@@ -2723,7 +2723,7 @@ impl<'help> Arg<'help> {
     ///         .long("flag"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", None, "default"))
+    ///         .default_value_if("flag", None, Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag"
     ///     ]);
@@ -2740,7 +2740,7 @@ impl<'help> Arg<'help> {
     ///         .long("flag"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", None, "default"))
+    ///         .default_value_if("flag", None, Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
@@ -2758,7 +2758,7 @@ impl<'help> Arg<'help> {
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("opt", Some("special"), "default"))
+    ///         .default_value_if("opt", Some("special"), Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "special"
     ///     ]);
@@ -2777,9 +2777,28 @@ impl<'help> Arg<'help> {
     ///         .long("opt"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("opt", Some("special"), "default"))
+    ///         .default_value_if("opt", Some("special"), Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "hahaha"
+    ///     ]);
+    ///
+    /// assert_eq!(m.value_of("other"), None);
+    /// ```
+    ///
+    /// If we want to unset the default value for an Arg based on the presence or
+    /// value of some other Arg.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::new("flag")
+    ///         .long("flag"))
+    ///     .arg(Arg::new("other")
+    ///         .long("other")
+    ///         .default_value("default")
+    ///         .default_value_if("flag", None, None))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--flag"
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), None);
@@ -2790,9 +2809,9 @@ impl<'help> Arg<'help> {
         self,
         arg_id: T,
         val: Option<&'help str>,
-        default: &'help str,
+        default: Option<&'help str>,
     ) -> Self {
-        self.default_value_if_os(arg_id, val.map(OsStr::new), OsStr::new(default))
+        self.default_value_if_os(arg_id, val.map(OsStr::new), default.map(OsStr::new))
     }
 
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
@@ -2804,7 +2823,7 @@ impl<'help> Arg<'help> {
         mut self,
         arg_id: T,
         val: Option<&'help OsStr>,
-        default: &'help OsStr,
+        default: Option<&'help OsStr>,
     ) -> Self {
         let l = self.default_vals_ifs.len();
         self.default_vals_ifs
@@ -2841,8 +2860,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal"
@@ -2861,8 +2880,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -2885,8 +2904,8 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("other")
     ///         .long("other")
     ///         .default_value_ifs(&[
-    ///             ("flag", None, "default"),
-    ///             ("opt", Some("channal"), "chan"),
+    ///             ("flag", None, Some("default")),
+    ///             ("opt", Some("channal"), Some("chan")),
     ///         ]))
     ///     .get_matches_from(vec![
     ///         "prog", "--opt", "channal", "--flag"
@@ -2898,10 +2917,10 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
     pub fn default_value_ifs<T: Key>(
         mut self,
-        ifs: &[(T, Option<&'help str>, &'help str)],
+        ifs: &[(T, Option<&'help str>, Option<&'help str>)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg, val.map(OsStr::new), OsStr::new(*default));
+            self = self.default_value_if_os(arg, val.map(OsStr::new), default.map(OsStr::new));
         }
         self
     }
@@ -2913,10 +2932,10 @@ impl<'help> Arg<'help> {
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
     pub fn default_value_ifs_os<T: Key>(
         mut self,
-        ifs: &[(T, Option<&'help OsStr>, &'help OsStr)],
+        ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
     ) -> Self {
         for (arg, val, default) in ifs {
-            self = self.default_value_if_os(arg.key(), *val, default);
+            self = self.default_value_if_os(arg.key(), *val, *default);
         }
         self
     }

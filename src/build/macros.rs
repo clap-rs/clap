@@ -43,7 +43,11 @@ macro_rules! yaml_tuple3 {
             for ys in vec {
                 if let Some(tup) = ys.as_vec() {
                     debug_assert_eq!(3, tup.len());
-                    $a = $a.$c(yaml_str!(tup[0]), yaml_opt_str!(tup[1]), yaml_str!(tup[2]));
+                    $a = $a.$c(
+                        yaml_str!(tup[0]),
+                        yaml_opt_str!(tup[1]),
+                        yaml_opt_str!(tup[2]),
+                    );
                 } else {
                     panic!("Failed to convert YAML value to vec");
                 }
