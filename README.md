@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT)
 [![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/master?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=master)
-[![Linux Build Status](https://img.shields.io/travis/clap-rs/clap/master?style=flat-square&logo=linux&logoColor=fff)](https://travis-ci.org/clap-rs/clap)
+[![Linux Build Status](https://img.shields.io/github/workflow/status/clap-rs/clap/CI/master?style=flat-square&logo=linux&logoColor=fff)](https://github.com/clap-rs/clap/actions/workflows/ci.yml)
 [![Windows Build Status](https://img.shields.io/azure-devops/build/clap-rs/3b9343e1-29b0-47be-acec-1edcdab69de9/1/master?style=flat-square&logo=windows)](https://dev.azure.com/clap-rs/clap/_build/latest?definitionId=1&branchName=master)
 
 Command Line Argument Parser for Rust
