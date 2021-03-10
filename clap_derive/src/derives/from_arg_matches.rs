@@ -315,7 +315,7 @@ pub fn gen_updater(
                 };
 
                 let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, subcmd);
+                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, #arg_matches.subcommand());
                 };
 
                 let updater = match **ty {
@@ -324,7 +324,7 @@ pub fn gen_updater(
                             #updater
                         } else {
                             *#field_name = <#subcmd_type as clap::Subcommand>::from_subcommand(
-                                subcmd
+                                #arg_matches.subcommand()
                             )
                         }
                     },
@@ -335,7 +335,6 @@ pub fn gen_updater(
 
                 quote_spanned! { kind.span()=>
                     {
-                        let subcmd = #arg_matches.subcommand();
                         #access
                         #updater
                     }
