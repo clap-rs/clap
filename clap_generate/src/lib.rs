@@ -37,6 +37,21 @@ use std::path::PathBuf;
 #[doc(inline)]
 pub use generators::Generator;
 
+/// Shell with auto-generated completion script available.
+#[non_exhaustive]
+pub enum Shell {
+    /// Bash shell
+    Bash,
+    /// Elvish shell
+    Elvish,
+    /// Fish shell
+    Fish,
+    /// PowerShell
+    PowerShell,
+    /// Zsh shell
+    Zsh,
+}
+
 /// Generate a file for a specified generator at compile time.
 ///
 /// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script"
