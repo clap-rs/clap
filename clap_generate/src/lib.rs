@@ -28,6 +28,8 @@ mod macros;
 
 /// Contains some popular generators
 pub mod generators;
+/// Contains supported shells for auto-completion scripts
+pub mod shell;
 
 use std::ffi::OsString;
 use std::fs::File;
@@ -36,21 +38,8 @@ use std::path::PathBuf;
 
 #[doc(inline)]
 pub use generators::Generator;
-
-/// Shell with auto-generated completion script available.
-#[non_exhaustive]
-pub enum Shell {
-    /// Bash shell
-    Bash,
-    /// Elvish shell
-    Elvish,
-    /// Fish shell
-    Fish,
-    /// PowerShell
-    PowerShell,
-    /// Zsh shell
-    Zsh,
-}
+#[doc(inline)]
+pub use shell::Shell;
 
 /// Generate a file for a specified generator at compile time.
 ///
