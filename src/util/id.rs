@@ -8,7 +8,8 @@ use std::{
 
 #[derive(Clone, Eq, Default)]
 #[cfg_attr(not(debug_assertions), derive(Copy), repr(transparent))]
-pub(crate) struct Id {
+#[doc(hidden)]
+pub struct Id {
     #[cfg(debug_assertions)]
     name: String,
     id: u64,

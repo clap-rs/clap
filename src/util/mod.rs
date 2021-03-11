@@ -6,8 +6,9 @@ mod graph;
 mod id;
 
 pub use self::fnv::Key;
+pub use self::id::Id;
 
-pub(crate) use self::{argstr::ArgStr, graph::ChildGraph, id::Id};
+pub(crate) use self::{argstr::ArgStr, graph::ChildGraph};
 pub(crate) use vec_map::VecMap;
 
 #[cfg(feature = "color")]

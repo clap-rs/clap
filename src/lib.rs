@@ -26,7 +26,9 @@ compile_error!("`std` feature is currently required to build `clap`");
 pub use crate::{
     build::{App, AppSettings, Arg, ArgGroup, ArgSettings, ValueHint},
     parse::errors::{Error, ErrorKind, Result},
+    parse::matches::{MatchedArg, ValueType},
     parse::{ArgMatches, Indices, OsValues, Values},
+    util::Id,
 };
 
 #[cfg(feature = "derive")]

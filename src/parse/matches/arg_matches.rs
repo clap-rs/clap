@@ -19,7 +19,8 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct SubCommand {
+#[doc(hidden)]
+pub struct SubCommand {
     pub(crate) id: Id,
     pub(crate) name: String,
     pub(crate) matches: ArgMatches,
@@ -75,8 +76,10 @@ pub(crate) struct SubCommand {
 /// [`App::get_matches`]: ./struct.App.html#method.get_matches
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArgMatches {
-    pub(crate) args: IndexMap<Id, MatchedArg>,
-    pub(crate) subcommand: Option<Box<SubCommand>>,
+    #[doc(hidden)]
+    pub args: IndexMap<Id, MatchedArg>,
+    #[doc(hidden)]
+    pub subcommand: Option<Box<SubCommand>>,
 }
 
 impl Default for ArgMatches {

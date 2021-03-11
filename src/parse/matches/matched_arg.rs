@@ -7,9 +7,9 @@ use std::{
 
 use crate::INTERNAL_ERROR_MSG;
 
-// TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ValueType {
+#[doc(hidden)]
+pub enum ValueType {
     Unknown,
     EnvVariable,
     CommandLine,
@@ -17,11 +17,12 @@ pub(crate) enum ValueType {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct MatchedArg {
-    pub(crate) occurs: u64,
-    pub(crate) ty: ValueType,
-    indices: Vec<usize>,
-    vals: Vec<Vec<OsString>>,
+#[doc(hidden)]
+pub struct MatchedArg {
+    pub occurs: u64,
+    pub ty: ValueType,
+    pub indices: Vec<usize>,
+    pub vals: Vec<Vec<OsString>>,
 }
 
 impl Default for MatchedArg {
