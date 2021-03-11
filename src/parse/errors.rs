@@ -116,6 +116,7 @@ pub enum ErrorKind {
     /// let res = App::new("prog")
     ///     .arg(Arg::new("color")
     ///          .setting(ArgSettings::TakesValue)
+    ///          .setting(ArgSettings::NoEmptyValues)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());

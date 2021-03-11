@@ -1153,7 +1153,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // has_eq: --flag=value
         let mut has_eq = false;
         let no_val = val.is_none();
-        let empty_vals = opt.is_set(ArgSettings::AllowEmptyValues);
+        let no_empty_vals = opt.is_set(ArgSettings::NoEmptyValues);
         let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
         let require_equals = opt.is_set(ArgSettings::RequireEquals);
 
@@ -1161,7 +1161,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if let Some(fv) = val {
             has_eq = fv.starts_with("=");
             let v = fv.trim_start_n_matches(1, b'=');
-            if !empty_vals && (v.is_empty() || (require_equals && !has_eq)) {
+            if no_empty_vals && (v.is_empty() || (require_equals && !has_eq)) {
                 debug!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
