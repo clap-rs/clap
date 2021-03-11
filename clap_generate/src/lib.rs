@@ -28,6 +28,8 @@ mod macros;
 
 /// Contains some popular generators
 pub mod generators;
+/// Contains supported shells for auto-completion scripts
+mod shell;
 
 use std::ffi::OsString;
 use std::fs::File;
@@ -36,6 +38,8 @@ use std::path::PathBuf;
 
 #[doc(inline)]
 pub use generators::Generator;
+#[doc(inline)]
+pub use shell::Shell;
 
 /// Generate a file for a specified generator at compile time.
 ///
