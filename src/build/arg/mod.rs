@@ -4174,6 +4174,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("file")
     ///     .long("file")
+    ///     .takes_value(true)
     ///     .forbid_empty_values(true)
     /// # ;
     /// ```
@@ -4214,8 +4215,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
-    pub fn forbid_empty_values(self, multi: bool) -> Self {
-        if multi {
+    pub fn forbid_empty_values(self, empty: bool) -> Self {
+        if empty {
             self.setting(ArgSettings::NoEmptyValues)
         } else {
             self.unset_setting(ArgSettings::NoEmptyValues)
