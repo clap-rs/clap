@@ -29,7 +29,7 @@ mod macros;
 /// Contains some popular generators
 pub mod generators;
 /// Contains supported shells for auto-completion scripts
-pub mod shell;
+mod shell;
 
 use std::ffi::OsString;
 use std::fs::File;
