@@ -2433,13 +2433,16 @@ impl<'help> Arg<'help> {
     /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
     /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
     /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    pub fn value_names(mut self, names: &[&'help str]) -> Self {
+    pub fn value_names<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = &'help T>,
+        T: AsRef<str> + 'help,
+    {
         let mut i = self.val_names.len();
         for s in names {
-            self.val_names.insert(i, s);
+            self.val_names.insert(i, s.as_ref());
             i += 1;
         }
-
         self.takes_value(true)
     }
 
