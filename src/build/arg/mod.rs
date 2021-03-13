@@ -1870,10 +1870,11 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: ./struct.Arg.html#method.takes_value
     /// [positional arguments]: ./struct.Arg.html#method.index
-    pub fn possible_values<T: 'help + AsRef<str>>(
-        mut self,
-        names: impl IntoIterator<Item = &'help T>,
-    ) -> Self {
+    pub fn possible_values<I, T>(mut self, names: I,) -> Self
+    where 
+    I: IntoIterator<Item = &'help T>,
+    T: AsRef<str> + 'help, 
+    {
         self.possible_vals
             .extend(names.into_iter().map(|name| name.as_ref()));
         self.takes_value(true)
