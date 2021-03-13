@@ -72,7 +72,7 @@ pub(crate) struct SubCommand {
 ///     }
 /// }
 /// ```
-/// [`App::get_matches`]: ./struct.App.html#method.get_matches
+/// [`App::get_matches`]: App::get_matches()
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArgMatches {
     pub(crate) args: IndexMap<Id, MatchedArg>,
@@ -115,12 +115,12 @@ impl ArgMatches {
     ///
     /// assert_eq!(m.value_of("output"), Some("something"));
     /// ```
-    /// [option]: ./struct.Arg.html#method.takes_value
-    /// [positional]: ./struct.Arg.html#method.index
-    /// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+    /// [option]: Arg::takes_value()
+    /// [positional]: Arg::index()
+    /// [`ArgMatches::values_of`]: ArgMatches::values_of()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    /// [`default_value`]: ./struct.Arg.html#method.default_value
-    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
+    /// [`default_value`]: Arg::default_value()
+    /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.get_val(0) {
@@ -155,9 +155,9 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
-    /// [`default_value`]: ./struct.Arg.html#method.default_value
-    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
-    /// [`Arg::values_of_lossy`]: ./struct.ArgMatches.html#method.values_of_lossy
+    /// [`default_value`]: Arg::default_value()
+    /// [`occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.get_val(0) {
@@ -195,10 +195,10 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
-    /// [`default_value`]: ./struct.Arg.html#method.default_value
-    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
-    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    /// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
+    /// [`default_value`]: Arg::default_value()
+    /// [`occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`String`]: std::string::String
+    /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
             .get(&Id::from(id))
@@ -228,8 +228,7 @@ impl ArgMatches {
     /// let vals: Vec<&str> = m.values_of("output").unwrap().collect();
     /// assert_eq!(vals, ["val1", "val2", "val3"]);
     /// ```
-    /// [`Values`]: ./struct.Values.html
-    /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
+    /// [`Iterator`]: std::iter::Iterator
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
         self.args.get(&Id::from(id)).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str {
@@ -319,10 +318,9 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), Some(OsStr::from_bytes(&[0xe9, b'!'])));
     /// assert_eq!(itr.next(), None);
     /// ```
-    /// [`OsValues`]: ./struct.OsValues.html
-    /// [`Iterator`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html
-    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
-    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
+    /// [`Iterator`]: std::iter::Iterator
+    /// [`OsString`]: std::ffi::OsString
+    /// [`String`]: std::string::String
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         fn to_str_slice(o: &OsString) -> &OsStr {
             o
@@ -366,9 +364,7 @@ impl ArgMatches {
     /// let _: u32 = also_len;
     /// ```
     ///
-    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-    /// [`ErrorKind`]: enum.ErrorKind.html
-    /// [`ArgMatches::values_of_t`]: ./struct.ArgMatches.html#method.values_of_t
+    /// [`ArgMatches::values_of_t`]: ArgMatches::values_of_t()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
     where
@@ -422,7 +418,6 @@ impl ArgMatches {
     /// let _: u32 = also_len;
     /// ```
     ///
-    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn value_of_t_or_exit<R>(&self, name: &str) -> R
     where
@@ -460,7 +455,6 @@ impl ArgMatches {
     /// let _: Vec<u32> = also_len;
     /// ```
     ///
-    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn values_of_t<R>(&self, name: &str) -> Result<Vec<R>, Error>
     where
@@ -514,7 +508,6 @@ impl ArgMatches {
     /// let _: Vec<u32> = also_len;
     /// ```
     ///
-    /// [`std::str::FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     pub fn values_of_t_or_exit<R>(&self, name: &str) -> Vec<R>
     where
@@ -543,8 +536,8 @@ impl ArgMatches {
     /// assert!(m.is_present("debug"));
     /// ```
     ///
-    /// [`default_value`]: ./struct.Arg.html#method.default_value
-    /// [`occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
+    /// [`default_value`]: Arg::default_value()
+    /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
 
@@ -729,8 +722,7 @@ impl ArgMatches {
     /// assert_eq!(m.index_of("option"), Some(2));
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
     /// ```
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
-    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    /// [delimiter]: Arg::value_delimiter()
     pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
         if let Some(arg) = self.args.get(&Id::from(name)) {
             if let Some(i) = arg.get_index(0) {
@@ -810,9 +802,8 @@ impl ArgMatches {
     ///             //                         ^0    ^1  ^2
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2]);
     /// ```
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
-    /// [`ArgMatches::index_of`]: ./struct.ArgMatches.html#method.index_of
-    /// [delimiter]: ./struct.Arg.html#method.value_delimiter
+    /// [`ArgMatches::index_of`]: ArgMatches::index_of()
+    /// [delimiter]: Arg::value_delimiter()
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
         self.args.get(&Id::from(id)).map(|arg| Indices {
             iter: arg.indices(),
@@ -848,8 +839,6 @@ impl ArgMatches {
     /// }
     /// ```
     /// [`Subcommand`]: ./struct..html
-    /// [`App`]: ./struct.App.html
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
             if s.id == id.into() {
@@ -915,8 +904,6 @@ impl ArgMatches {
     /// }
     /// ```
     /// [`Subcommand`]: ./struct..html
-    /// [`App`]: ./struct.App.html
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
     #[inline]
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)
@@ -967,8 +954,8 @@ impl ArgMatches {
     ///     _ => {},
     /// }
     /// ```
-    /// [`ArgMatches::subcommand_matches`]: ./struct.ArgMatches.html#method.subcommand_matches
-    /// [`ArgMatches::subcommand_name`]: ./struct.ArgMatches.html#method.subcommand_name
+    /// [`ArgMatches::subcommand_matches`]: ArgMatches::subcommand_matches()
+    /// [`ArgMatches::subcommand_name`]: ArgMatches::subcommand_name()
     #[inline]
     pub fn subcommand(&self) -> Option<(&str, &ArgMatches)> {
         self.subcommand.as_ref().map(|sc| (&*sc.name, &sc.matches))
@@ -1000,7 +987,7 @@ impl ArgMatches {
 /// assert_eq!(values.next(), Some("val2"));
 /// assert_eq!(values.next(), None);
 /// ```
-/// [`ArgMatches::values_of`]: ./struct.ArgMatches.html#method.values_of
+/// [`ArgMatches::values_of`]: ArgMatches::values_of()
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Values<'a> {
@@ -1092,8 +1079,7 @@ impl<'a> Default for GroupedValues<'a> {
 ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
 /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
 /// ```
-/// [`ArgMatches::values_of_os`]: ./struct.ArgMatches.html#method.values_of_os
-/// [`Values`]: ./struct.Values.html
+/// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct OsValues<'a> {
@@ -1150,7 +1136,7 @@ impl Default for OsValues<'_> {
 /// assert_eq!(indices.next(), Some(3));
 /// assert_eq!(indices.next(), None);
 /// ```
-/// [`ArgMatches::indices_of`]: ./struct.ArgMatches.html#method.indices_of
+/// [`ArgMatches::indices_of`]: ArgMatches::indices_of()
 #[derive(Clone)]
 #[allow(missing_debug_implementations)]
 pub struct Indices<'a> {

@@ -170,7 +170,7 @@ macro_rules! crate_name {
 ///
 /// Equivalent to using the `crate_*!` macros with their respective fields.
 ///
-/// Provided separator is for the [`crate_authors!`](macro.crate_authors.html) macro,
+/// Provided separator is for the [`crate_authors!`] macro,
 /// refer to the documentation therefor.
 ///
 /// **NOTE:** Changing the values in your `Cargo.toml` does not trigger a re-build automatically,
@@ -285,14 +285,14 @@ macro_rules! app_from_crate {
 /// * `(@arg "something-else": --"something-else")`
 /// * `(@subcommand "something-else" => ...)`
 ///
-/// [`Arg::short`]: ./struct.Arg.html#method.short
-/// [`Arg::long`]: ./struct.Arg.html#method.long
-/// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-/// [`Arg::value_name`]: ./struct.Arg.html#method.value_name
-/// [`Arg::min_values(min)`]: ./struct.Arg.html#method.min_values
-/// [`Arg::max_values(max)`]: ./struct.Arg.html#method.max_values
-/// [`Arg::validator`]: ./struct.Arg.html#method.validator
-/// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
+/// [`Arg::short`]: Arg::short()
+/// [`Arg::long`]: Arg::long()
+/// [`Arg::multiple(true)`]: Arg::multiple()
+/// [`Arg::value_name`]: Arg::value_name()
+/// [`Arg::min_values(min)`]: Arg::min_values()
+/// [`Arg::max_values(max)`]: Arg::max_values()
+/// [`Arg::validator`]: Arg::validator()
+/// [`Arg::conflicts_with`]: Arg::conflicts_with()
 #[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };

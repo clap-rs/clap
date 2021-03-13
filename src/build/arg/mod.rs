@@ -78,7 +78,6 @@ impl Default for ArgProvider {
 /// // Using a usage string (setting a similar argument to the one above)
 /// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
-/// [`Arg`]: ./struct.Arg.html
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
 pub struct Arg<'help> {
@@ -296,8 +295,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("config")
     /// # ;
     /// ```
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg`]: ./struct.Arg.html
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
         let name = n.into();
         Arg {
@@ -346,7 +344,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(m.is_present("config"));
     /// ```
-    /// [`short`]: ./struct.Arg.html#method.short
+    /// [`short`]: Arg::short()
     #[inline]
     pub fn short(mut self, s: char) -> Self {
         if s == '-' {
@@ -418,7 +416,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), false));
         self
@@ -444,7 +441,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     pub fn short_alias(mut self, name: char) -> Self {
         if name == '-' {
             panic!("short alias name cannot be `-`");
@@ -474,7 +470,6 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|&x| (x, false)));
         self
@@ -500,7 +495,6 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     pub fn short_aliases(mut self, names: &[char]) -> Self {
         for s in names {
             if s == &'-' {
@@ -529,8 +523,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::alias`]: ./struct.Arg.html#method.alias
+    /// [`App::alias`]: Arg::alias()
     pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), true));
         self
@@ -554,8 +547,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::alias`]: ./struct.Arg.html#method.short_alias
+    /// [`App::alias`]: Arg::short_alias()
     pub fn visible_short_alias(mut self, name: char) -> Self {
         if name == '-' {
             panic!("short alias name cannot be `-`");
@@ -581,8 +573,7 @@ impl<'help> Arg<'help> {
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::aliases`]: ./struct.Arg.html#method.aliases
+    /// [`App::aliases`]: Arg::aliases()
     pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
@@ -604,8 +595,7 @@ impl<'help> Arg<'help> {
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`App::aliases`]: ./struct.Arg.html#method.short_aliases
+    /// [`App::aliases`]: Arg::short_aliases()
     pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
         for n in names {
             if n == &'-' {
@@ -665,7 +655,7 @@ impl<'help> Arg<'help> {
     /// -h, --help       Prints help information
     /// -V, --version    Prints version information
     /// ```
-    /// [`Arg::long_about`]: ./struct.Arg.html#method.long_about
+    /// [`Arg::long_about`]: Arg::long_about()
     #[inline]
     pub fn about(mut self, h: &'help str) -> Self {
         self.about = Some(h);
@@ -737,7 +727,7 @@ impl<'help> Arg<'help> {
     ///     -V, --version
     ///             Prints version information
     /// ```
-    /// [`Arg::about`]: ./struct.Arg.html#method.about
+    /// [`Arg::about`]: Arg::about()
     #[inline]
     pub fn long_about(mut self, h: &'help str) -> Self {
         self.long_about = Some(h);
@@ -795,7 +785,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [required]: ./struct.Arg.html#method.required
+    /// [required]: Arg::required()
     pub fn required_unless_present<T: Key>(mut self, arg_id: T) -> Self {
         self.r_unless.push(arg_id.into());
         self
@@ -863,9 +853,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [required]: ./struct.Arg.html#method.required
-    /// [`Arg::required_unless_present_any`]: ./struct.Arg.html#method.required_unless_present_any
-    /// [`Arg::required_unless_present_all(names)`]: ./struct.Arg.html#method.required_unless_present_all
+    /// [required]: Arg::required()
+    /// [`Arg::required_unless_present_any`]: Arg::required_unless_present_any()
+    /// [`Arg::required_unless_present_all(names)`]: Arg::required_unless_present_all()
     pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -939,9 +929,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [required]: ./struct.Arg.html#method.required
-    /// [`Arg::required_unless_present_any(names)`]: ./struct.Arg.html#method.required_unless_present_any
-    /// [`Arg::required_unless_present_all`]: ./struct.Arg.html#method.required_unless_present_all
+    /// [required]: Arg::required()
+    /// [`Arg::required_unless_present_any(names)`]: Arg::required_unless_present_any()
+    /// [`Arg::required_unless_present_all`]: Arg::required_unless_present_all()
     pub fn required_unless_present_any<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -993,8 +983,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     ///
-    /// [`Arg::conflicts_with_all(names)`]: ./struct.Arg.html#method.conflicts_with_all
-    /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
+    /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
+    /// [`Arg::exclusive(true)`]: Arg::exclusive()
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
         self.blacklist.push(arg_id.into());
         self
@@ -1045,8 +1035,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
-    /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
-    /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
+    /// [`Arg::conflicts_with`]: Arg::conflicts_with()
+    /// [`Arg::exclusive(true)`]: Arg::exclusive()
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         self.blacklist.extend(names.iter().map(Id::from));
         self
@@ -1197,8 +1187,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
     /// ```
-    /// [`Multiple*`]: ./enum.ArgSettings.html#variant.MultipleValues
-    /// [`UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
+    /// [`Multiple*`]: ArgSettings::MultipleValues
+    /// [`UseValueDelimiter`]: ArgSettings::UseValueDelimiter
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
         self.overrides.push(arg_id.into());
         self
@@ -1288,9 +1278,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [override]: ./struct.Arg.html#method.overrides_with
+    /// [`Arg::requires(name)`]: Arg::requires()
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [override]: Arg::overrides_with()
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
         self.requires.push((None, arg_id.into()));
         self
@@ -1355,9 +1345,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [override]: ./struct.Arg.html#method.overrides_with
+    /// [`Arg::requires(name)`]: Arg::requires()
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [override]: Arg::overrides_with()
     pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
         self.requires.push((Some(val), arg_id.into()));
         self
@@ -1411,9 +1401,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [override]: ./struct.Arg.html#method.overrides_with
+    /// [`Arg::requires(name)`]: Arg::requires()
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [override]: Arg::overrides_with()
     pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
         self.requires
             .extend(ifs.iter().map(|(val, arg)| (Some(*val), Id::from(arg))));
@@ -1471,9 +1461,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [required]: ./struct.Arg.html#method.required
+    /// [`Arg::requires(name)`]: Arg::requires()
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [required]: Arg::required()
     pub fn required_if_eq<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
         self.r_ifs.push((arg_id.into(), val));
         self
@@ -1556,9 +1546,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [required]: ./struct.Arg.html#method.required
+    /// [`Arg::requires(name)`]: Arg::requires()
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [required]: Arg::required()
     pub fn required_if_eq_any<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
@@ -1642,7 +1632,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [required]: ./struct.Arg.html#method.required
+    /// [required]: Arg::required()
     pub fn required_if_eq_all<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs_all
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
@@ -1708,8 +1698,8 @@ impl<'help> Arg<'help> {
     /// // We didn't use output
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
-    /// [override]: ./struct.Arg.html#method.overrides_with
+    /// [Conflicting]: Arg::conflicts_with()
+    /// [override]: Arg::overrides_with()
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         self.requires.extend(names.iter().map(|s| (None, s.into())));
         self
@@ -1760,10 +1750,9 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("mode"), Some("fast")); // notice index(1) means "first positional"
     ///                                               // *not* first argument
     /// ```
-    /// [`Arg::short`]: ./struct.Arg.html#method.short
-    /// [`Arg::long`]: ./struct.Arg.html#method.long
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    /// [`App`]: ./struct.App.html
+    /// [`Arg::short`]: Arg::short()
+    /// [`Arg::long`]: Arg::long()
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[inline]
     pub fn index(mut self, idx: usize) -> Self {
@@ -1811,12 +1800,12 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
     /// assert_eq!(m.value_of("location"), Some("/home/clap"));
     /// ```
-    /// [options]: ./struct.Arg.html#method.takes_value
-    /// [positional arguments]: ./struct.Arg.html#method.index
-    /// [`multiple(true)`]: ./struct.Arg.html#method.multiple
-    /// [`min_values`]: ./struct.Arg.html#method.min_values
-    /// [`number_of_values`]: ./struct.Arg.html#method.number_of_values
-    /// [`max_values`]: ./struct.Arg.html#method.max_values
+    /// [options]: Arg::takes_value()
+    /// [positional arguments]: Arg::index()
+    /// [`multiple(true)`]: Arg::multiple()
+    /// [`min_values`]: Arg::min_values()
+    /// [`number_of_values`]: Arg::number_of_values()
+    /// [`max_values`]: Arg::max_values()
     #[inline]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
         self.terminator = Some(term);
@@ -1868,8 +1857,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
-    /// [options]: ./struct.Arg.html#method.takes_value
-    /// [positional arguments]: ./struct.Arg.html#method.index
+    /// [options]: Arg::takes_value()
+    /// [positional arguments]: Arg::index()
     pub fn possible_values(mut self, names: &[&'help str]) -> Self {
         self.possible_vals.extend(names);
         self.takes_value(true)
@@ -1926,8 +1915,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
-    /// [options]: ./struct.Arg.html#method.takes_value
-    /// [positional arguments]: ./struct.Arg.html#method.index
+    /// [options]: Arg::takes_value()
+    /// [positional arguments]: Arg::index()
     pub fn possible_value(mut self, name: &'help str) -> Self {
         self.possible_vals.push(name);
         self.takes_value(true)
@@ -1962,7 +1951,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     /// assert!(m.is_present("mode"));
     /// ```
-    /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn group<T: Key>(mut self, group_id: T) -> Self {
         self.groups.push(group_id.into());
         self
@@ -1998,7 +1986,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("mode"));
     /// assert!(m.is_present("verbosity"));
     /// ```
-    /// [`ArgGroup`]: ./struct.ArgGroup.html
     pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
         self.groups.extend(group_ids.iter().map(Id::from));
         self
@@ -2039,7 +2026,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     #[inline]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
@@ -2078,10 +2065,10 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("file"), Some("some@file"));
     /// ```
-    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
-    /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
-    /// [`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
+    /// [`String`]: std::string::String
+    /// [`Result`]: std::result::Result
+    /// [`Err(String)`]: std::result::Result::Err
+    /// [`Arc`]: std::sync::Arc
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
@@ -2117,12 +2104,12 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("file"), Some("Fish & chips"));
     /// ```
-    /// [`String`]: https://doc.rust-lang.org/std/string/struct.String.html
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    /// [`OsString`]: https://doc.rust-lang.org/std/ffi/struct.OsString.html
-    /// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
-    /// [`Err(String)`]: https://doc.rust-lang.org/std/result/enum.Result.html#variant.Err
-    /// [`Rc`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
+    /// [`String`]: std::string::String
+    /// [`OsStr`]: std::ffi::OsStr
+    /// [`OsString`]: std::ffi::OsString
+    /// [`Result`]: std::result::Result
+    /// [`Err(String)`]: std::result::Result::Err
+    /// [`Rc`]: std::rc::Rc
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
@@ -2188,8 +2175,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
     /// ```
-    /// [`Arg::validator()`]: ./struct.Arg.html#method.validator
-    /// [`RegexRef`]: ./struct.RegexRef.html
     #[cfg(feature = "regex")]
     pub fn validator_regex(
         self,
@@ -2261,7 +2246,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     #[inline]
     pub fn max_values(mut self, qty: usize) -> Self {
         self.max_vals = Some(qty);
@@ -2324,7 +2309,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     #[inline]
     pub fn min_values(mut self, qty: usize) -> Self {
         self.min_vals = Some(qty);
@@ -2352,8 +2337,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("config").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"])
     /// ```
-    /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
     pub fn value_delimiter(mut self, d: &str) -> Self {
         self.val_delim = Some(
@@ -2419,10 +2404,10 @@ impl<'help> Arg<'help> {
     /// OPTIONS:
     ///     --io-files <INFILE> <OUTFILE>    Some help text
     /// ```
-    /// [`Arg::next_line_help(true)`]: ./struct.Arg.html#method.next_line_help
-    /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
+    /// [`Arg::number_of_values`]: Arg::number_of_values()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
         let mut i = self.val_names.len();
         for s in names {
@@ -2477,9 +2462,9 @@ impl<'help> Arg<'help> {
     /// OPTIONS:
     ///     --config <FILE>     Some help text
     /// ```
-    /// [option]: ./struct.Arg.html#method.takes_value
-    /// [positional]: ./struct.Arg.html#method.index
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
+    /// [option]: Arg::takes_value()
+    /// [positional]: Arg::index()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
     pub fn value_name(mut self, name: &'help str) -> Self {
         let l = self.val_names.len();
         self.val_names.insert(l, name);
@@ -2544,11 +2529,11 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
-    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
-    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
+    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
+    /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
     pub fn default_value(self, val: &'help str) -> Self {
         self.default_values_os(&[OsStr::new(val)])
@@ -2557,8 +2542,8 @@ impl<'help> Arg<'help> {
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_value`]: Arg::default_value()
+    /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     pub fn default_value_os(self, val: &'help OsStr) -> Self {
         self.default_values_os(&[val])
@@ -2566,7 +2551,7 @@ impl<'help> Arg<'help> {
 
     /// Like [`Arg::default_value`] but for args taking multiple values
     ///
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
@@ -2576,8 +2561,8 @@ impl<'help> Arg<'help> {
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_values`]: ./struct.Arg.html#method.default_values
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_values`]: Arg::default_values()
+    /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.default_vals = vals.to_vec();
@@ -2651,11 +2636,11 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("color"));
     /// assert_eq!(m.occurrences_of("color"), 1);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
-    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
+    /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
     pub fn default_missing_value(self, val: &'help str) -> Self {
         self.default_missing_values_os(&[OsStr::new(val)])
@@ -2664,8 +2649,8 @@ impl<'help> Arg<'help> {
     /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_missing_value`]: Arg::default_missing_value()
+    /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
         self.default_missing_values_os(&[val])
@@ -2673,7 +2658,7 @@ impl<'help> Arg<'help> {
 
     /// Like [`Arg::default_missing_value`] but for args taking multiple values
     ///
-    /// [`Arg::default_missing_value`]: ./struct.Arg.html#method.default_missing_value
+    /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     #[inline]
     pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
@@ -2683,8 +2668,8 @@ impl<'help> Arg<'help> {
     /// Provides default values in the exact same manner as [`Arg::default_missing_values`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_missing_values`]: ./struct.Arg.html#method.default_missing_values
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_missing_values`]: Arg::default_missing_values()
+    /// [`OsStr`]: std::ffi::OsStr
     #[inline]
     pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.default_missing_vals = vals.to_vec();
@@ -2803,8 +2788,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("other"), None);
     /// ```
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::default_value`]: Arg::default_value()
     pub fn default_value_if<T: Key>(
         self,
         arg_id: T,
@@ -2817,8 +2802,8 @@ impl<'help> Arg<'help> {
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
     /// only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_value_if`]: Arg::default_value_if()
+    /// [`OsStr`]: std::ffi::OsStr
     pub fn default_value_if_os<T: Key>(
         mut self,
         arg_id: T,
@@ -2913,8 +2898,8 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::default_value_if`]: ./struct.Arg.html#method.default_value_if
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::default_value_if`]: Arg::default_value_if()
     pub fn default_value_ifs<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help str>, Option<&'help str>)],
@@ -2928,8 +2913,8 @@ impl<'help> Arg<'help> {
     /// Provides multiple conditional default values in the exact same manner as
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     ///
-    /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
-    /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
+    /// [`Arg::default_value_ifs`]: Arg::default_value_ifs()
+    /// [`OsStr`]: std::ffi::OsStr
     pub fn default_value_ifs_os<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
@@ -3060,12 +3045,12 @@ impl<'help> Arg<'help> {
     ///
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ./struct.ArgMatches.html#method.occurrences_of
-    /// [`ArgMatches::value_of`]: ./struct.ArgMatches.html#method.value_of
-    /// [`ArgMatches::is_present`]: ./struct.ArgMatches.html#method.is_present
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    /// [`Arg::use_delimiter(true)`]: ./struct.Arg.html#method.use_delimiter
+    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
+    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
@@ -3133,8 +3118,8 @@ impl<'help> Arg<'help> {
     ///     -O, --other-option <b>    I should be first!
     ///     -o, --long-option <a>     Some help and text
     /// ```
-    /// [positional arguments]: ./struct.Arg.html#method.index
-    /// [index]: ./struct.Arg.html#method.index
+    /// [positional arguments]: Arg::index()
+    /// [index]: Arg::index()
     #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = ord;
@@ -3213,13 +3198,8 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [index]: ./struct.Arg.html#method.index
-    /// [`AppSettings::DontCollapseArgsInUsage`]: ./enum.AppSettings.html#variant.DontCollapseArgsInUsage
-    /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
-    /// [`AppSettings::SubcommandsNegateReqs`]: ./enum.AppSettings.html#variant.SubcommandsNegateReqs
-    /// [`ArgSettings::Required`]: ./enum.ArgSettings.html#variant.Required
-    /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
-    /// [`ArgSettings::Last`]: ./enum.ArgSettings.html#variant.Last
+    /// [index]: Arg::index()
+    /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
@@ -3283,7 +3263,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [`Required`]: ./enum.ArgSettings.html#variant.Required
+    /// [`Required`]: ArgSettings::Required
     #[inline]
     pub fn required(self, r: bool) -> Self {
         if r {
@@ -3329,9 +3309,9 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("mode"));
     /// assert_eq!(m.value_of("mode"), Some("fast"));
     /// ```
-    /// [`Arg::value_delimiter(char)`]: ./struct.Arg.html#method.value_delimiter
-    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
-    /// [multiple values]: ./enum.ArgSettings.html#variant.MultipleValues
+    /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
+    /// [`Arg::unset_setting(ArgSettings::UseValueDelimiter)`]: ArgSettings::UseValueDelimiter
+    /// [multiple values]: ArgSettings::MultipleValues
     #[inline]
     pub fn takes_value(self, tv: bool) -> Self {
         if tv {
@@ -3398,10 +3378,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`ArgSettings::AllowHyphenValues`]: ./enum.ArgSettings.html#variant.AllowHyphenValues
-    /// [`ArgSettings::MultipleValues`]: ./enum.ArgSettings.html#variant.MultipleValues
-    /// [`ArgSettings::MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
-    /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
+    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
     #[inline]
     pub fn allow_hyphen_values(self, a: bool) -> Self {
         if a {
@@ -3461,7 +3438,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
     /// ```
-    /// [`RequireEquals`]: ./enum.ArgSettings.html#variant.RequireEquals
+    /// [`RequireEquals`]: ArgSettings::RequireEquals
     #[inline]
     pub fn require_equals(self, r: bool) -> Self {
         if r {
@@ -3509,11 +3486,9 @@ impl<'help> Arg<'help> {
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
     /// assert!(sub_m.is_present("verb"));
     /// ```
-    /// [``]: ./struct.App.html#method.subcommand
-    /// [required]: ./enum.ArgSettings.html#variant.Required
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
-    /// [`ArgMatches::is_present("flag")`]: ./struct.ArgMatches.html#method.is_present
-    /// [`Arg`]: ./struct.Arg.html
+    /// [``]: App::subcommand()
+    /// [required]: ArgSettings::Required
+    /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
     pub fn global(mut self, g: bool) -> Self {
         self.global = g;
@@ -3593,8 +3568,6 @@ impl<'help> Arg<'help> {
     /// assert!(delims.is_present("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
-    /// [`ArgSettings::UseValueDelimiter`]: ./enum.ArgSettings.html#variant.UseValueDelimiter
-    /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
     pub fn require_delimiter(self, d: bool) -> Self {
         if d {
@@ -3824,7 +3797,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(nodelims.occurrences_of("option"), 1);
     /// assert_eq!(nodelims.value_of("option").unwrap(), "val1,val2,val3");
     /// ```
-    /// [`Arg::value_delimiter`]: ./struct.Arg.html#method.value_delimiter
+    /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
     pub fn use_delimiter(mut self, d: bool) -> Self {
         if d {
@@ -3960,7 +3933,6 @@ impl<'help> Arg<'help> {
     ///         help that makes more sense to be
     ///         on a line after the option
     /// ```
-    /// [`AppSettings::NextLineHelp`]: ./enum.AppSettings.html#variant.NextLineHelp
     #[inline]
     pub fn next_line_help(self, nlh: bool) -> Self {
         if nlh {
@@ -4144,17 +4116,17 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [option]: ./enum.ArgSettings.html#variant.TakesValue
-    /// [options]: ./enum.ArgSettings.html#variant.TakesValue
-    /// [subcommands]: ./struct.App.html#method.subcommand
-    /// [positionals]: ./struct.Arg.html#method.index
-    /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
-    /// [`MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
-    /// [`MultipleValues`]: ./enum.ArgSettings.html#variant.MultipleValues
-    /// [maximum number of values]: ./struct.Arg.html#method.max_values
-    /// [specific number of values]: ./struct.Arg.html#method.number_of_values
-    /// [maximum]: ./struct.Arg.html#method.max_values
-    /// [specific]: ./struct.Arg.html#method.number_of_values
+    /// [option]: ArgSettings::TakesValue
+    /// [options]: ArgSettings::TakesValue
+    /// [subcommands]: App::subcommand()
+    /// [positionals]: Arg::index()
+    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
+    /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
+    /// [`MultipleValues`]: ArgSettings::MultipleValues
+    /// [maximum number of values]: Arg::max_values()
+    /// [specific number of values]: Arg::number_of_values()
+    /// [maximum]: Arg::max_values()
+    /// [specific]: Arg::number_of_values()
     #[inline]
     pub fn multiple(self, multi: bool) -> Self {
         self.multiple_occurrences(multi).multiple_values(multi)
@@ -4213,7 +4185,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
-    /// [`ArgSettings::TakesValue`]: ./enum.ArgSettings.html#variant.TakesValue
     #[inline]
     pub fn forbid_empty_values(self, empty: bool) -> Self {
         if empty {
@@ -4284,17 +4255,17 @@ impl<'help> Arg<'help> {
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
-    /// [option]: ./enum.ArgSettings.html#variant.TakesValue
-    /// [options]: ./enum.ArgSettings.html#variant.TakesValue
-    /// [subcommands]: ./struct.App.html#method.subcommand
-    /// [positionals]: ./struct.Arg.html#method.index
-    /// [`Arg::number_of_values(1)`]: ./struct.Arg.html#method.number_of_values
-    /// [`MultipleOccurrences`]: ./enum.ArgSettings.html#variant.MultipleOccurrences
-    /// [`MultipleValues`]: ./enum.ArgSettings.html#variant.MultipleValues
-    /// [maximum number of values]: ./struct.Arg.html#method.max_values
-    /// [specific number of values]: ./struct.Arg.html#method.number_of_values
-    /// [maximum]: ./struct.Arg.html#method.max_values
-    /// [specific]: ./struct.Arg.html#method.number_of_values
+    /// [option]: ArgSettings::TakesValue
+    /// [options]: ArgSettings::TakesValue
+    /// [subcommands]: App::subcommand()
+    /// [positionals]: Arg::index()
+    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
+    /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
+    /// [`MultipleValues`]: ArgSettings::MultipleValues
+    /// [maximum number of values]: Arg::max_values()
+    /// [specific number of values]: Arg::number_of_values()
+    /// [maximum]: Arg::max_values()
+    /// [specific]: Arg::number_of_values()
     #[inline]
     pub fn multiple_occurrences(self, multi: bool) -> Self {
         if multi {
@@ -4319,11 +4290,10 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
     /// [`Arg::last(true)`] when set to `true`
     ///
-    /// [`Arg::takes_value(true)`]: ./struct.Arg.html#method.takes_value
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
-    /// [`Arg::allow_hyphen_values(true)`]: ./struct.Arg.html#method.allow_hyphen_values
-    /// [`Arg::last(true)`]: ./struct.Arg.html#method.last
-    /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
+    /// [`Arg::takes_value(true)`]: Arg::takes_value()
+    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
+    /// [`Arg::last(true)`]: Arg::last()
     #[inline]
     pub fn raw(self, raw: bool) -> Self {
         self.takes_value(raw)
@@ -4491,7 +4461,6 @@ impl<'help> Arg<'help> {
     // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
     /// Checks if one of the [`ArgSettings`] is set for the argument
     ///
-    /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
@@ -4510,7 +4479,6 @@ impl<'help> Arg<'help> {
     ///     .setting(ArgSettings::TakesValue)
     /// # ;
     /// ```
-    /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn setting(mut self, setting: ArgSettings) -> Self {
         self.settings.set(setting);
@@ -4529,7 +4497,6 @@ impl<'help> Arg<'help> {
     ///     .unset_setting(ArgSettings::Required)
     /// # ;
     /// ```
-    /// [`ArgSettings`]: ./enum.ArgSettings.html
     #[inline]
     pub fn unset_setting(mut self, setting: ArgSettings) -> Self {
         self.settings.unset(setting);
@@ -4660,7 +4627,6 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
     /// let yaml = load_yaml!("arg.yaml");
     /// let arg = Arg::from(yaml);
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     #[allow(clippy::cognitive_complexity)]
     fn from(y: &'help Yaml) -> Self {
         let y = y.as_hash().unwrap();
