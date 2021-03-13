@@ -68,10 +68,9 @@ impl Default for ArgFlags {
 /// methods [`Arg::setting`], [`Arg::unset_setting`], and [`Arg::is_set`]. This is what the
 /// [`Arg`] methods which accept a `bool` use internally.
 ///
-/// [`Arg`]: ./struct.Arg.html
-/// [`Arg::setting`]: ./struct.Arg.html#method.setting
-/// [`Arg::unset_setting`]: ./struct.Arg.html#method.unset_setting
-/// [`Arg::is_set`]: ./struct.Arg.html#method.is_set
+/// [`Arg::setting`]: Arg::setting()
+/// [`Arg::unset_setting`]: Arg::unset_setting()
+/// [`Arg::is_set`]: Arg::is_set()
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ArgSettings {
     /// Specifies that an arg must be used

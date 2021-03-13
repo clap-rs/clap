@@ -155,7 +155,6 @@ impl_settings! { AppSettings, AppFlags,
 /// **NOTE:** When these settings are used, they apply only to current command, and are *not*
 /// propagated down or up through child or parent subcommands
 ///
-/// [`App`]: ./struct.App.html
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
     /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
@@ -193,10 +192,10 @@ pub enum AppSettings {
     /// let m = r.unwrap();
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
-    /// [`ArgMatches::os_value_of`]: ./struct.ArgMatches.html#method.os_value_of
-    /// [`ArgMatches::os_values_of`]: ./struct.ArgMatches.html#method.os_values_of
-    /// [`ArgMatches::lossy_value_of`]: ./struct.ArgMatches.html#method.lossy_value_of
-    /// [`ArgMatches::lossy_values_of`]: ./struct.ArgMatches.html#method.lossy_values_of
+    /// [`ArgMatches::os_value_of`]: ArgMatches::os_value_of()
+    /// [`ArgMatches::os_values_of`]: ArgMatches::os_values_of()
+    /// [`ArgMatches::lossy_value_of`]: ArgMatches::lossy_value_of()
+    /// [`ArgMatches::lossy_values_of`]: ArgMatches::lossy_values_of()
     /// [``]: ./struct..html
     AllowInvalidUtf8,
 
@@ -222,13 +221,13 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("neg"), Some("-20"));
     /// # ;
     /// ```
-    /// [`Arg::allow_hyphen_values`]: ./struct.Arg.html#method.allow_hyphen_values
+    /// [`Arg::allow_hyphen_values`]: Arg::allow_hyphen_values()
     AllowLeadingHyphen,
 
     /// Specifies that all arguments override themselves. This is the equivalent to saying the `foo`
     /// arg using [`Arg::overrides_with("foo")`] for all defined arguments.
     ///
-    /// [`Arg::overrides_with("foo")`]: ./struct.Arg.html#method.overrides_with
+    /// [`Arg::overrides_with("foo")`]: Arg::overrides_with()
     AllArgsOverrideSelf,
 
     /// Allows negative numbers to pass as values. This is similar to
@@ -250,7 +249,7 @@ pub enum AppSettings {
     /// let m = res.unwrap();
     /// assert_eq!(m.value_of("num").unwrap(), "-20");
     /// ```
-    /// [`AllowLeadingHyphen`]: ./enum.AppSettings.html#variant.AllowLeadingHyphen
+    /// [`AllowLeadingHyphen`]: AppSettings::AllowLeadingHyphen
     AllowNegativeNumbers,
 
     /// Allows one to implement two styles of CLIs where positionals can be used out of order.
@@ -357,7 +356,7 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("bar"), None);
     /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
-    /// [required]: ./struct.Arg.html#method.required
+    /// [required]: Arg::required()
     AllowMissingPositional,
 
     /// Specifies that an unexpected positional argument,
@@ -391,9 +390,7 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
-    /// [`ErrorKind::UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
     /// [``]: ./struct..html
-    /// [`ArgMatches`]: ./struct.ArgMatches.html
     AllowExternalSubcommands,
 
     /// Specifies that use of a valid [argument] negates [subcomands] being used after. By default
@@ -415,7 +412,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     /// [subcommands]: ./struct..html
-    /// [argument]: ./struct.Arg.html
+    /// [argument]: Arg
     ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
@@ -435,7 +432,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     /// [``]: ./struct..html
-    /// [`Arg::default_value`]: ./struct.Arg.html#method.default_value
+    /// [`Arg::default_value`]: Arg::default_value()
     ArgRequiredElseHelp,
 
     /// Instructs the parser to stop when encountering a subcommand instead of greedily consuming
@@ -596,8 +593,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DontDelimitTrailingValues)
     ///     .get_matches();
     /// ```
-    /// [`AppSettings::TrailingVarArg`]: ./enum.AppSettings.html#variant.TrailingVarArg
-    /// [`Arg::use_delimiter(false)`]: ./struct.Arg.html#method.use_delimiter
+    /// [`Arg::use_delimiter(false)`]: Arg::use_delimiter()
     DontDelimitTrailingValues,
 
     /// Disables `-h` and `--help` [`App`] without affecting any of the [`SubCommand`]s
@@ -627,8 +623,6 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
-    /// [`SubCommand`]: ./struct.SubCommand.html
-    /// [`App`]: ./struct.App.html
     DisableHelpFlag,
 
     /// Disables the `help` subcommand
@@ -682,7 +676,6 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayVersion);
     /// ```
     /// [``]: ./struct..html
-    /// [`App`]: ./struct.App.html
     DisableVersionFlag,
 
     /// Disables `-V` and `--version` for all [`subcommand`]s of this [`App`]
@@ -702,7 +695,6 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`App`]: ./struct.App.html
     /// [``]: ./struct..html
     DisableVersionForSubcommands,
 
@@ -812,9 +804,8 @@ pub enum AppSettings {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`subcommands`]: ./struct..html
-    /// [positional/free arguments]: ./struct.Arg.html#method.index
-    /// [aliases]: ./struct.App.html#method.alias
-    /// [`AppSettings::ArgsNegateSubcommands`]: ./enum.AppSettings.html#variant.ArgsNegateSubcommands
+    /// [positional/free arguments]: Arg::index()
+    /// [aliases]: App::alias()
     InferSubcommands,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
@@ -888,7 +879,7 @@ pub enum AppSettings {
     /// assert!(noerr.is_ok());
     /// # ;
     /// ```
-    /// [`Arg::required(true)`]: ./struct.Arg.html#method.required
+    /// [`Arg::required(true)`]: Arg::required()
     /// [``]: ./struct..html
     SubcommandsNegateReqs,
 
@@ -911,8 +902,6 @@ pub enum AppSettings {
     /// # ;
     /// ```
     /// [``]: ./struct..html
-    /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
-    /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
     SubcommandRequiredElseHelp,
 
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
@@ -945,7 +934,6 @@ pub enum AppSettings {
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     /// [``]: ./struct..html
-    /// [`ErrorKind::InvalidUtf8`]: ./enum.ErrorKind.html#variant.InvalidUtf8
     StrictUtf8,
 
     /// Allows specifying that if no [``] is present at runtime,
@@ -990,7 +978,7 @@ pub enum AppSettings {
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
-    /// [`Arg::multiple(true)`]: ./struct.Arg.html#method.multiple
+    /// [`Arg::multiple(true)`]: Arg::multiple()
     TrailingVarArg,
 
     /// Groups flags and options together, presenting a more unified help message

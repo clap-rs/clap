@@ -16,7 +16,7 @@
 #![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.2")]
 
 //! This crate is custom derive for clap. It should not be used
-//! directly. See [clap documentation](https://docs.rs/clap)
+//! directly. See [clap documentation](clap)
 //! for the usage of `#[derive(Clap)]`.
 
 #![forbid(unsafe_code)]

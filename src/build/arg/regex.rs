@@ -8,7 +8,7 @@ use std::borrow::Cow;
 ///
 /// Essentially a [`Cow`] wrapper with custom convenience traits.
 ///
-/// [`Cow`]: https://doc.rust-lang.org/std/borrow/enum.Cow.html
+/// [`Cow`]: std::borrow::Cow
 #[derive(Debug, Clone)]
 pub struct RegexRef<'a>(Cow<'a, Regex>);
 

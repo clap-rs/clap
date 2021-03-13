@@ -17,7 +17,7 @@ use crate::{
 
 /// Short hand for [`Result`] type
 ///
-/// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
+/// [`Result`]: std::result::Result
 pub type Result<T> = StdResult<T, Error>;
 
 /// Command line argument parser kind of error
@@ -38,7 +38,6 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidValue);
     /// ```
-    /// [`Arg`]: ./struct.Arg.html
     InvalidValue,
 
     /// Occurs when a user provides a flag, option, argument or subcommand which isn't defined.
@@ -76,7 +75,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
     /// [``]: ./struct..html
-    /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     InvalidSubcommand,
 
     /// Occurs when the user provides an unrecognized [``] which either
@@ -102,8 +101,8 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
     /// ```
     /// [``]: ./struct..html
-    /// [`InvalidSubcommand`]: ./enum.ErrorKind.html#variant.InvalidSubcommand
-    /// [`UnknownArgument`]: ./enum.ErrorKind.html#variant.UnknownArgument
+    /// [`InvalidSubcommand`]: ErrorKind::InvalidSubcommand
+    /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     UnrecognizedSubcommand,
 
     /// Occurs when the user provides an empty value for an option that does not allow empty
@@ -179,7 +178,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
     /// ```
-    /// [`Arg::max_values`]: ./struct.Arg.html#method.max_values
+    /// [`Arg::max_values`]: Arg::max_values()
     TooManyValues,
 
     /// Occurs when the user provides fewer values for an argument than were defined by setting
@@ -197,7 +196,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::min_values`]: ./struct.Arg.html#method.min_values
+    /// [`Arg::min_values`]: Arg::min_values()
     TooFewValues,
 
     /// Occurs when the user provides a different number of values for an argument than what's
@@ -218,8 +217,8 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
     ///
-    /// [`Arg::number_of_values`]: ./struct.Arg.html#method.number_of_values
-    /// [`Arg::value_names`]: ./struct.Arg.html#method.value_names
+    /// [`Arg::number_of_values`]: Arg::number_of_values()
+    /// [`Arg::value_names`]: Arg::value_names()
     WrongNumberOfValues,
 
     /// Occurs when the user provides two values which conflict with each other and can't be used
@@ -273,7 +272,6 @@ pub enum ErrorKind {
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
-    /// [`AppSettings::SubcommandRequired`]: ./enum.AppSettings.html#variant.SubcommandRequired
     MissingSubcommand,
 
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
@@ -317,7 +315,6 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
-    /// [`AppSettings::StrictUtf8`]: ./enum.AppSettings.html#variant.StrictUtf8
     InvalidUtf8,
 
     /// Not a true "error" as it means `--help` or similar was used.
@@ -356,9 +353,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
     /// ```
-    /// [`AppSettings::ArgRequiredElseHelp`]: ./enum.AppSettings.html#variant.ArgRequiredElseHelp
-    /// [`AppSettings::SubcommandRequiredElseHelp`]: ./enum.AppSettings.html#variant.SubcommandRequiredElseHelp
-    /// [`subcommand`]: ./struct.App.html#method.subcommand
+    /// [`subcommand`]: App::subcommand()
     DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
@@ -379,20 +374,20 @@ pub enum ErrorKind {
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
     /// with name `config` to be converted, but `config` wasn't used by the user.
     ///
-    /// [`ArgMatches::value_of_t`]: ./struct.ArgMatches.html#method.value_of_t
+    /// [`ArgMatches::value_of_t`]: ArgMatches::value_of_t()
     ArgumentNotFound,
 
     /// Represents an [I/O error].
     /// Can occur when writing to `stderr` or `stdout` or reading a configuration file.
     ///
-    /// [I/O error]: https://doc.rust-lang.org/std/io/struct.Error.html
+    /// [I/O error]: std::io::Error
     Io,
 
     /// Represents a [Format error] (which is a part of [`Display`]).
     /// Typically caused by writing to `stderr` or `stdout`.
     ///
-    /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
-    /// [Format error]: https://doc.rust-lang.org/std/fmt/struct.Error.html
+    /// [`Display`]: std::fmt::Display
+    /// [Format error]: std::fmt::Error
     Format,
 }
 

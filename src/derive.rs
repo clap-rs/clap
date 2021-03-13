@@ -66,10 +66,6 @@ use std::ffi::OsString;
 /// }
 /// ```
 ///
-/// [`App`]: ./struct.App.html
-/// [`ArgMatches`]: ./struct.ArgMatches.html
-/// [`FromArgMatches`]: ./trait.FromArgMatches.html
-/// [`IntoApp`]: ./trait.IntoApp.html
 pub trait Clap: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
@@ -146,7 +142,6 @@ pub trait IntoApp: Sized {
 
 /// Converts an instance of [`ArgMatches`] to a consumer defined struct.
 ///
-/// [`ArgMatches`]: ./struct.ArgMatches.html
 pub trait FromArgMatches: Sized {
     /// It's common to have an "application context" struct (sometimes called
     /// config) that represents all the normalized values after being processed by

@@ -125,7 +125,7 @@ pub use shell::Shell;
 /// Assuming we compiled with debug mode, it would be somewhere similar to
 /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash`.
 ///
-/// **NOTE:** Please look at the individual [generators](./generators/index.html)
+/// **NOTE:** Please look at the individual [generators]
 /// to see the name of the files generated.
 pub fn generate_to<G, S, T>(app: &mut clap::App, bin_name: S, out_dir: T)
 where
@@ -152,7 +152,7 @@ where
 ///
 /// # Examples
 ///
-/// Assuming a separate `cli.rs` like the [example above](./fn.generate_to.html),
+/// Assuming a separate `cli.rs` like the [example above](generate_to()),
 /// we can let users generate a completion script using a command:
 ///
 /// ```ignore
