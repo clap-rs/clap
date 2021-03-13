@@ -1052,8 +1052,12 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::conflicts_with`]: ./struct.Arg.html#method.conflicts_with
     /// [`Arg::exclusive(true)`]: ./struct.Arg.html#method.exclusive
-    pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
-        self.blacklist.extend(names.iter().map(Id::from));
+    pub fn conflicts_with_all<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = &'help T>,
+        T: AsRef<str> + 'help + Display + std::hash::Hash,
+    {
+        self.blacklist.extend(names.into_iter().map(Id::from));
         self
     }
 
