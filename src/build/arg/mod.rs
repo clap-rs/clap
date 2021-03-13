@@ -475,8 +475,13 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// ```
     /// [`Arg`]: ./struct.Arg.html
-    pub fn aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|&x| (x, false)));
+    pub fn aliases<I, T>(mut self, names: I,) -> Self 
+    where 
+        I: IntoIterator<Item = &'help T>,
+        T: AsRef<str> + 'help,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|x| (x.as_ref(), false)));
         self
     }
 
