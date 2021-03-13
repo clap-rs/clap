@@ -5,7 +5,7 @@ debug TESTG TEST="":
 	cargo test --test {{TESTG}} --features debug -- {{TEST}}
 
 run-tests:
-	cargo test --features "wrap_help yaml regex unstable"
+	cargo test --features "wrap_help yaml regex"
 
 @bench:
 	cargo bench
@@ -13,7 +13,7 @@ run-tests:
 @lint:
 	rustup component add clippy
 	rustup component add rustfmt
-	cargo clippy --features "wrap_help yaml regex unstable" -- -D warnings
+	cargo clippy --features "wrap_help yaml regex" -- -D warnings
 	cargo fmt -- --check
 
 clean:

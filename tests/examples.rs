@@ -10,7 +10,7 @@ fn run_example<S: AsRef<str>>(name: S, args: &[&str]) -> Output {
         "--example",
         name.as_ref(),
         "--features",
-        "yaml unstable",
+        "yaml",
         "--",
     ];
     all_args.extend_from_slice(args);

@@ -95,7 +95,6 @@ unicode_help= ["textwrap/unicode-width"]  # Enable if any unicode in help messag
 derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
-unstable    = ["clap_derive/unstable"] # for building with unstable clap features (doesn't require nightly Rust) (currently none)
 debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml", "regex"] # All the features which add to documentation
 
