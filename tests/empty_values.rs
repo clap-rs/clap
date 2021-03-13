@@ -55,7 +55,7 @@ fn no_empty_values_with_equals() {
             Arg::new("config")
                 .long("config")
                 .takes_value(true)
-                .setting(ArgSettings::NoEmptyValues),
+                .setting(ArgSettings::ForbidEmptyValues),
         )
         .try_get_matches_from(&["config", "--config="]);
     assert!(m.is_err());
@@ -66,7 +66,7 @@ fn no_empty_values_with_equals() {
             Arg::new("config")
                 .short('c')
                 .takes_value(true)
-                .setting(ArgSettings::NoEmptyValues),
+                .setting(ArgSettings::ForbidEmptyValues),
         )
         .try_get_matches_from(&["config", "-c="]);
     assert!(m.is_err());
@@ -80,7 +80,7 @@ fn no_empty_values_without_equals() {
             Arg::new("config")
                 .long("config")
                 .takes_value(true)
-                .setting(ArgSettings::NoEmptyValues),
+                .setting(ArgSettings::ForbidEmptyValues),
         )
         .try_get_matches_from(&["config", "--config"]);
     assert!(m.is_err());
@@ -91,7 +91,7 @@ fn no_empty_values_without_equals() {
             Arg::new("config")
                 .short('c')
                 .takes_value(true)
-                .setting(ArgSettings::NoEmptyValues),
+                .setting(ArgSettings::ForbidEmptyValues),
         )
         .try_get_matches_from(&["config", "-c"]);
     assert!(m.is_err());
@@ -104,7 +104,7 @@ fn no_empty_values_without_equals_but_requires_equals() {
         Arg::new("config")
             .long("config")
             .takes_value(true)
-            .setting(ArgSettings::NoEmptyValues)
+            .setting(ArgSettings::ForbidEmptyValues)
             .setting(ArgSettings::RequireEquals),
     );
     let m = app.clone().try_get_matches_from(&["config", "--config"]);

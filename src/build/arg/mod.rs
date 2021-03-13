@@ -4217,9 +4217,9 @@ impl<'help> Arg<'help> {
     #[inline]
     pub fn forbid_empty_values(self, empty: bool) -> Self {
         if empty {
-            self.setting(ArgSettings::NoEmptyValues)
+            self.setting(ArgSettings::ForbidEmptyValues)
         } else {
-            self.unset_setting(ArgSettings::NoEmptyValues)
+            self.unset_setting(ArgSettings::ForbidEmptyValues)
         }
     }
 

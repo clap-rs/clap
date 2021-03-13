@@ -34,7 +34,7 @@ fn require_equals_fail() {
         .arg(
             Arg::new("cfg")
                 .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::NoEmptyValues)
+                .setting(ArgSettings::ForbidEmptyValues)
                 .setting(ArgSettings::TakesValue)
                 .long("config"),
         )
@@ -105,7 +105,7 @@ fn require_equals_no_empty_values_fail() {
             Arg::new("cfg")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::NoEmptyValues)
+                .setting(ArgSettings::ForbidEmptyValues)
                 .long("config"),
         )
         .arg(Arg::new("some"))
@@ -425,7 +425,7 @@ fn issue_665() {
         .arg("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'")
         .arg(
             Arg::from("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
-                .setting(ArgSettings::NoEmptyValues)
+                .setting(ArgSettings::ForbidEmptyValues)
         )
         .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
 

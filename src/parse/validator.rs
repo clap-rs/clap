@@ -125,7 +125,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     ));
                 }
             }
-            if arg.is_set(ArgSettings::NoEmptyValues) && val.is_empty() && matcher.contains(&arg.id)
+            if arg.is_set(ArgSettings::ForbidEmptyValues)
+                && val.is_empty()
+                && matcher.contains(&arg.id)
             {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
