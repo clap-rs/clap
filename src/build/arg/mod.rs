@@ -588,8 +588,13 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg`]: ./struct.Arg.html
     /// [`App::aliases`]: ./struct.Arg.html#method.aliases
-    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|n| (*n, true)));
+    pub fn visible_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = &'help T>,
+        T: AsRef<str> + 'help,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|n| (n.as_ref(), true)));
         self
     }
 
