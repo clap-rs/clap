@@ -4712,10 +4712,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                         panic!("Failed to convert YAML value to vector")
                     }
                 }
-                s => panic!(
-                    "Unknown Arg setting '{}' in YAML file for arg '{}'",
-                    s, name_str
-                ),
+                _ => continue, // Ignore extra fields
             }
         }
 
