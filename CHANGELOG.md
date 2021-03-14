@@ -1,9 +1,11 @@
 ## Unreleased
 
 TODO: Structopt and traits
-TODO: `Shell`, `YamlLoader`
+TODO: `YamlLoader`
 TODO: `cargo`, `std` features
 
+<a name="v3.0.0-rc.0"></a>
+## v3.0.0-rc.0
 
 #### Minimum Required Rust
 * As of this release, `clap` requires `rustc 1.46.0` or greater.
@@ -21,20 +23,45 @@ TODO: `cargo`, `std` features
   * **ErrorKind**
     * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
 * **Changed**
-  * `Arg::env` & `Arg::env_os` does not set `ArgSettings::TakesValue` anymore
+  * Allowing empty values is the default again with `ArgSettings::AllowEmptyValues` changing to
+    `ArgSettings::ForbidEmptyValues`
+  * `Arg::env`, `Arg::env_os`, `Arg::last`, `Arg::require_equals`, `Arg::allow_hyphen_values`,
+    `Arg::hide_possible_values`, `Arg::hide_default_value`, `Arg::hide_env_values`,
+    `Arg::case_insensitive` and `Arg::multiple_values` does not set `ArgSettings::TakesValue` anymore
+  * `Arg::require_delimiter` does not set `ArgSettings::TakesValue` and `ArgSettings::UseValueDelimiter` anymore
+  * `Arg::require_equals` does not disallow empty values anymore
+  * `Arg::default_value_if`, `Arg::default_value_if_os`, `Arg::default_value_ifs`,
+    `Arg::default_value_ifs_os` now takes the default value parameter as an option
+  * `Arg::index`, `Arg::number_of_values`, `Arg::min_values`, `Arg::max_values` now takes `usize`
   * `@group` in `clap_app!` now needs `:` instead of `=>`
 
 #### Features
 
+* **Added**
+  * `clap_generate::Shell`
 * **Added Methods**
   * **App**
     * `App::license`
+    * `App::get_long_about`
+    * `App::get_env`
+    * `App::get_default_values`
   * **Arg**
     * `Arg::hide_env`
+    * `Arg::required_if_eq_all`
+    * `Arg::forbid_empty_values`
+  * **ArgMatches**
+    * `ArgMatches::grouped_values_of`
   * **Macros**
     * `crate_license!`
+  * **Error**
+    * `Error::print`
 * **Added Settings**
   * `ArgSettings::HideEnv`
+
+#### Enhancements
+
+* Better completion scripts
+* Multiple bug fixes, performance improvements and error message improvements
 
 
 <a name="v3.0.0-beta.2"></a>
@@ -120,6 +147,7 @@ TODO: `cargo`, `std` features
   * `SubCommand` in favor of `App`
     * `SubCommand::with_name` => `App::new`
     * `SubCommand::from_yaml` => `App::from`
+  * `Shell` (changed again in 3.0.0-rc.0)
   * **App**
     * `App::with_defaults`
     * `App::version_message` in favor of `App::mut_arg`
@@ -127,14 +155,14 @@ TODO: `cargo`, `std` features
     * `App::help_message` in favor of `App::mut_arg`
     * `App::help_short` in favor of `App::mut_arg`
     * `App::arg_from_usage` in favor of `App::arg`
-    * `App::args_from_usage` in favor of `App::args(usage.lines().map(|l| l.trim()).filter(|l| !l.is_empty()))`
-    * `App::gen_completions` in favor of TODO:
-    * `App::gen_completions_to` in favor of TODO:
+    * `App::args_from_usage` in favor of `App::args`
     * `App::settings` in favor of `App::setting(Setting1 | Setting2)`
     * `App::unset_settings` in favor of `App::unset_setting(Setting1 | Setting2)`
     * `App::global_settings` in favor of `App::global_setting(Setting1 | Setting2)`
+    * `App::gen_completions` in favor of TODO:
+    * `App::gen_completions_to` in favor of TODO:
   * **Arg**
-    * `Arg::empty_values` in favor of TODO:
+    * `Arg::empty_values`
   * **ArgMatches**
     * `ArgMatches::usage` in favor of `App::generate_usage`
   * **Macros**
@@ -178,9 +206,9 @@ TODO: `cargo`, `std` features
 * Removed support for `{n}` in help text
 * In usage parser, for options `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`
   but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
-  Before both resulted in the same thing
+  Before both resulted in the same thing.
 * `App` and `Arg` now need only one lifetime
-* Allowing empty values is no longer the default
+* Allowing empty values is no longer the default (changed again in 3.0.0-rc.0)
 * `UseValueDelimiter` is no longer the default
 * `App::override_usage` no longer implies `\t` which allows multi lined usages
 
@@ -199,7 +227,7 @@ TODO: `cargo`, `std` features
     * `Arg::multiple_values`
     * `Arg::multiple_occurrences`
     * `Arg::help_heading`
-    * `Arg::settings`
+    * `Arg::settings` (changed again in 3.0.0-rc.0)
 * **Added Settings**
   * `AppSettings::HelpRequired`
   * `AppSettings::NoAutoHelp`

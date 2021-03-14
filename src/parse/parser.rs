@@ -1153,7 +1153,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // has_eq: --flag=value
         let mut has_eq = false;
         let no_val = val.is_none();
-        let no_empty_vals = opt.is_set(ArgSettings::NoEmptyValues);
+        let no_empty_vals = opt.is_set(ArgSettings::ForbidEmptyValues);
         let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
         let require_equals = opt.is_set(ArgSettings::RequireEquals);
 

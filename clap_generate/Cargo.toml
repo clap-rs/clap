@@ -43,7 +43,6 @@ version-sync = "0.9"
 
 [features]
 default = []
-unstable = ["clap/unstable"]
 debug = ["clap/debug"]
 doc = []
 

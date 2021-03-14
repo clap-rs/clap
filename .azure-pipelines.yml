@@ -34,5 +34,5 @@ stages:
             displayName: Install rust
           - script: cargo test --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
             displayName: Test with almost no features
-          - script: cargo test --features "yaml unstable"
+          - script: cargo test --features "yaml"
             displayName: Test with most features

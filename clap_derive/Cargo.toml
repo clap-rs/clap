@@ -51,7 +51,6 @@ version-sync = "0.9"
 
 [features]
 default = []
-unstable = []
 debug = []
 doc = []
 

@@ -76,7 +76,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Install linker
         if: matrix.target == 'i686-unknown-linux-gnu'
-        run: sudo apt-get install gcc-multilib
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-multilib
       - name: Test almost no features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'none'
@@ -88,19 +90,19 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex"
       - name: Check debug statement
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable debug"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable" --release
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex" --release
   nightly:
     name: Nightly Tests
     needs: [prepare]
@@ -123,7 +125,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable"
+          args: --features "wrap_help yaml regex"
   wasm:
     name: Wasm Check
     needs: [prepare]
@@ -145,7 +147,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "yaml regex unstable"
+          args: --target ${{ matrix.target }} --features "yaml regex"
   lint:
     name: Linting (fmt + clippy)
     needs: [prepare]
@@ -169,7 +171,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --features "wrap_help yaml regex unstable" -- -D warnings
+          args: --features "wrap_help yaml regex" -- -D warnings
       - name: Format check
         uses: actions-rs/cargo@v1
         with:
@@ -199,7 +201,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: tarpaulin
-          args: --features "wrap_help yaml regex unstable" --timeout 300 --out Lcov --output-dir coverage
+          args: --features "wrap_help yaml regex" --timeout 300 --out Lcov --output-dir coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

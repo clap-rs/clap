@@ -39,7 +39,7 @@ impl_settings! { ArgSettings, ArgFlags,
     Required("required") => Flags::REQUIRED,
     MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
-    NoEmptyValues("noemptyvalues") => Flags::NO_EMPTY_VALS,
+    ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -79,8 +79,8 @@ pub enum ArgSettings {
     MultipleValues,
     /// Allows an arg to appear multiple times
     MultipleOccurrences,
-    /// Disallows an arg from accepting empty values such as `""`
-    NoEmptyValues,
+    /// Forbids an arg from accepting empty values such as `""`
+    ForbidEmptyValues,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)
@@ -129,8 +129,8 @@ mod test {
             ArgSettings::AllowHyphenValues
         );
         assert_eq!(
-            "noemptyvalues".parse::<ArgSettings>().unwrap(),
-            ArgSettings::NoEmptyValues
+            "forbidemptyvalues".parse::<ArgSettings>().unwrap(),
+            ArgSettings::ForbidEmptyValues
         );
         assert_eq!(
             "hidepossiblevalues".parse::<ArgSettings>().unwrap(),
