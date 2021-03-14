@@ -4,11 +4,13 @@ about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
 settings:
     - ArgRequiredElseHelp
+ignored_field: This field is ignored
 args:
     - help:
         short: h
         long: help
         about: prints help with a nonstandard description
+        ignored_field: This field is ignored
     - option:
         short: o
         long: option
