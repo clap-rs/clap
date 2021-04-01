@@ -1,7 +1,7 @@
 use clap::{App, Arg};
 
 fn main() {
-    // There are two ways in which to get a default value, one is to use claps Arg::default_value
+    // There are two ways in which to get a default value, one is to use clap's Arg::default_value
     // method, and the other is to use Rust's built in Option::unwrap_or method.
     //
     // I'll demo both here.
@@ -30,7 +30,7 @@ fn main() {
         )
         .get_matches();
 
-    // It's safe to call unwrap because the value with either be what the user input at runtime
+    // It's safe to call unwrap because the value will either be what the user input at runtime
     // or "input.txt"
     let input = matches.value_of("INPUT").unwrap();
 
