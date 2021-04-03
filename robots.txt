@@ -1,2 +1,3 @@
 User-agent: *
+Allow: /
 Sitemap: https://clap.rs/sitemap.xml
