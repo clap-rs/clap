@@ -10,8 +10,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Deploy
+      - name: Build
         uses: shalzz/zola-deploy-action@master
         env:
           BUILD_DIR: site
-          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          BUILD_ONLY: true
+      - name: Deploy
+        if: ${{ success() }}
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: site/public
