@@ -29,16 +29,19 @@ fn elvish() {
 }
 
 static ELVISH: &str = r#"
+use builtin;
+use str;
+
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
-        repeat $n ' ' | joins ''
+        builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
         edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
     }
     command = 'my_app'
-    for word $words[1:-1] {
-        if (has-prefix $word '-') {
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word
@@ -90,16 +93,19 @@ fn build_app_special_commands() -> App<'static> {
 }
 
 static ELVISH_SPECIAL_CMDS: &str = r#"
+use builtin;
+use str;
+
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
-        repeat $n ' ' | joins ''
+        builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
         edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
     }
     command = 'my_app'
-    for word $words[1:-1] {
-        if (has-prefix $word '-') {
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word
@@ -176,16 +182,19 @@ fn build_app_with_aliases() -> App<'static> {
 }
 
 static ELVISH_ALIASES: &str = r#"
+use builtin;
+use str;
+
 edit:completion:arg-completer[cmd] = [@words]{
     fn spaces [n]{
-        repeat $n ' ' | joins ''
+        builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
         edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
     }
     command = 'cmd'
-    for word $words[1:-1] {
-        if (has-prefix $word '-') {
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word
