@@ -29,6 +29,7 @@ fn elvish() {
 }
 
 static ELVISH: &str = r#"
+use str;
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
@@ -38,7 +39,7 @@ edit:completion:arg-completer[my_app] = [@words]{
     }
     command = 'my_app'
     for word $words[1:-1] {
-        if (has-prefix $word '-') {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word
@@ -90,6 +91,7 @@ fn build_app_special_commands() -> App<'static> {
 }
 
 static ELVISH_SPECIAL_CMDS: &str = r#"
+use str;
 edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
@@ -99,7 +101,7 @@ edit:completion:arg-completer[my_app] = [@words]{
     }
     command = 'my_app'
     for word $words[1:-1] {
-        if (has-prefix $word '-') {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word
@@ -176,6 +178,7 @@ fn build_app_with_aliases() -> App<'static> {
 }
 
 static ELVISH_ALIASES: &str = r#"
+use str;
 edit:completion:arg-completer[cmd] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
@@ -185,7 +188,7 @@ edit:completion:arg-completer[cmd] = [@words]{
     }
     command = 'cmd'
     for word $words[1:-1] {
-        if (has-prefix $word '-') {
+        if (str:has-prefix $word '-') {
             break
         }
         command = $command';'$word

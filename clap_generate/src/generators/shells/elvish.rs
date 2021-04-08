@@ -22,6 +22,7 @@ impl Generator for Elvish {
 
         let result = format!(
             r#"
+use str;
 edit:completion:arg-completer[{bin_name}] = [@words]{{
     fn spaces [n]{{
         repeat $n ' ' | joins ''
@@ -31,7 +32,7 @@ edit:completion:arg-completer[{bin_name}] = [@words]{{
     }}
     command = '{bin_name}'
     for word $words[1:-1] {{
-        if (has-prefix $word '-') {{
+        if (str:has-prefix $word '-') {{
             break
         }}
         command = $command';'$word
