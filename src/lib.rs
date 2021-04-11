@@ -14,7 +14,6 @@
     missing_debug_implementations,
     missing_copy_implementations,
     trivial_casts,
-    unused_import_braces,
     unused_allocation,
     trivial_numeric_casts
 )]

@@ -36,9 +36,9 @@ proc-macro = true
 bench = false
 
 [dependencies]
-syn = { version = "1", features = ["full"] }
-quote = "1"
-proc-macro2 = "1"
+syn = { version = "1.0.69", features = ["full"] }
+quote = "1.0.9"
+proc-macro2 = "1.0.26"
 heck = "0.3.0"
 proc-macro-error = "1"
 

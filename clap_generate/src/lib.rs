@@ -9,13 +9,7 @@
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.2")]
-#![deny(
-    missing_docs,
-    trivial_casts,
-    unused_import_braces,
-    unused_allocation,
-    trivial_numeric_casts
-)]
+#![deny(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
 #![forbid(unsafe_code)]
 #![allow(clippy::needless_doctest_main)]
 
