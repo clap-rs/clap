@@ -808,7 +808,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             parser.app.bin_name = Some(format!("{} {}", bin_name, parser.app.name));
         }
 
-        Err(parser.help_err(false))
+        Err(parser.help_err(self.app.is_set(AS::UseLongFormatForHelpSubcommand)))
     }
 
     fn is_new_arg(&self, arg_os: &ArgStr, last_result: &ParseResult) -> bool {

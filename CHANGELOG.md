@@ -56,6 +56,7 @@ TODO: `cargo`, `std` features
   * **Error**
     * `Error::print`
 * **Added Settings**
+  * `AppSettings::UseLongFormatForHelpSubcommand`
   * `ArgSettings::HideEnv`
 
 #### Enhancements

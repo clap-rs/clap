@@ -48,6 +48,7 @@ bitflags! {
         const HELP_REQUIRED                  = 1 << 40;
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
         const DISABLE_HELP_FLAG              = 1 << 42;
+        const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 43;
     }
 }
 
@@ -126,6 +127,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::SC_REQUIRED,
     SubcommandRequiredElseHelp("subcommandrequiredelsehelp")
         => Flags::SC_REQUIRED_ELSE_HELP,
+    UseLongFormatForHelpSubcommand("uselongformatforhelpsubcommand")
+        => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg("trailingvararg")
         => Flags::TRAILING_VARARG,
     UnifiedHelpMessage("unifiedhelpmessage")
@@ -904,6 +907,28 @@ pub enum AppSettings {
     /// [``]: ./struct..html
     SubcommandRequiredElseHelp,
 
+    /// Specifies that the help subcommand should print the [long format] help message.
+    ///
+    /// **NOTE:** This setting is useless if [`AppSettings::DisableHelpSubcommand`] or [`AppSettings::NoAutoHelp`] is set,
+    /// or if the app contains no subcommands at all.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::UseLongFormatForHelpSubcommand)
+    ///     .subcommand(App::new("test")
+    ///         .arg(Arg::new("foo")
+    ///             .about("short form about message")
+    ///             .long_about("long form about message")
+    ///         )
+    ///     )
+    ///     .get_matches();
+    /// ```
+    /// [long format]: App::long_about
+    UseLongFormatForHelpSubcommand,
+
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
     /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
@@ -1158,6 +1183,12 @@ mod test {
         assert_eq!(
             "subcommandrequiredelsehelp".parse::<AppSettings>().unwrap(),
             AppSettings::SubcommandRequiredElseHelp
+        );
+        assert_eq!(
+            "uselongformatforhelpsubcommand"
+                .parse::<AppSettings>()
+                .unwrap(),
+            AppSettings::UseLongFormatForHelpSubcommand
         );
         assert_eq!(
             "strictutf8".parse::<AppSettings>().unwrap(),
