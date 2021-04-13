@@ -1,9 +1,7 @@
 status = [
-	"clap-rs.clap",
 	"CI",
 ]
 pr_status = [
-	"clap-rs.clap",
 	"CI",
 ]
 timeout_sec = 7200
