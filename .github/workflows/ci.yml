@@ -31,6 +31,8 @@ jobs:
         target:
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
+          - i686-pc-windows-gnu
+          - x86_64-pc-windows-gnu
           - x86_64-unknown-linux-gnu
           - i686-unknown-linux-gnu
           - x86_64-apple-darwin
@@ -54,6 +56,10 @@ jobs:
           - os: macos-latest
             target: x86_64-pc-windows-msvc
           - os: macos-latest
+            target: i686-pc-windows-gnu
+          - os: macos-latest
+            target: x86_64-pc-windows-gnu
+          - os: macos-latest
             target: x86_64-unknown-linux-gnu
           - os: macos-latest
             target: i686-unknown-linux-gnu
@@ -61,6 +67,10 @@ jobs:
             target: i686-pc-windows-msvc
           - os: ubuntu-latest
             target: x86_64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: i686-pc-windows-gnu
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
           - os: ubuntu-latest
             target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
@@ -74,6 +84,14 @@ jobs:
           override: true
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install linker
+        if: matrix.target == 'i686-pc-windows-gnu'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x86
+      - name: Install linker
+        if: matrix.target == 'x86_64-pc-windows-gnu'
+        uses: egor-tensin/setup-mingw@v2
       - name: Install linker
         if: matrix.target == 'i686-unknown-linux-gnu'
         run: |
