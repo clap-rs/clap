@@ -167,7 +167,7 @@ jobs:
           command: check
           args: --target ${{ matrix.target }} --features "yaml regex"
   lint:
-    name: Linting (fmt + clippy)
+    name: Linting
     needs: [prepare]
     runs-on: ubuntu-latest
     steps:
