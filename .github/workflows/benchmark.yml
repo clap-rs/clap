@@ -8,9 +8,9 @@ jobs:
     name: Prepare
     runs-on: ubuntu-latest
     steps:
-      - uses: fkirc/skip-duplicate-actions@master
+      - uses: styfle/cancel-workflow-action@0.9.0
         with:
-          github_token: ${{ github.token }}
+          access_token: ${{ github.token }}
   benchmark:
     name: Benchmark
     needs: [prepare]

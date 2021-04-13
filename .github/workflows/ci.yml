@@ -17,9 +17,9 @@ jobs:
     name: Prepare
     runs-on: ubuntu-latest
     steps:
-      - uses: fkirc/skip-duplicate-actions@master
+      - uses: styfle/cancel-workflow-action@0.9.0
         with:
-          github_token: ${{ github.token }}
+          access_token: ${{ github.token }}
   test:
     name: Tests
     needs: [prepare]
@@ -31,6 +31,8 @@ jobs:
         target:
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
+          - i686-pc-windows-gnu
+          - x86_64-pc-windows-gnu
           - x86_64-unknown-linux-gnu
           - i686-unknown-linux-gnu
           - x86_64-apple-darwin
@@ -54,6 +56,10 @@ jobs:
           - os: macos-latest
             target: x86_64-pc-windows-msvc
           - os: macos-latest
+            target: i686-pc-windows-gnu
+          - os: macos-latest
+            target: x86_64-pc-windows-gnu
+          - os: macos-latest
             target: x86_64-unknown-linux-gnu
           - os: macos-latest
             target: i686-unknown-linux-gnu
@@ -61,6 +67,10 @@ jobs:
             target: i686-pc-windows-msvc
           - os: ubuntu-latest
             target: x86_64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: i686-pc-windows-gnu
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
           - os: ubuntu-latest
             target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
@@ -74,6 +84,14 @@ jobs:
           override: true
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install linker
+        if: matrix.target == 'i686-pc-windows-gnu'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x86
+      - name: Install linker
+        if: matrix.target == 'x86_64-pc-windows-gnu'
+        uses: egor-tensin/setup-mingw@v2
       - name: Install linker
         if: matrix.target == 'i686-unknown-linux-gnu'
         run: |
@@ -91,7 +109,7 @@ jobs:
         with:
           command: test
           args: --target ${{ matrix.target }} --features "wrap_help yaml regex"
-      - name: Check debug statement
+      - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
@@ -149,7 +167,7 @@ jobs:
           command: check
           args: --target ${{ matrix.target }} --features "yaml regex"
   lint:
-    name: Linting (fmt + clippy)
+    name: Linting
     needs: [prepare]
     runs-on: ubuntu-latest
     steps:
