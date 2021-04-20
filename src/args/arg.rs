@@ -1607,6 +1607,30 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    ///
+    /// If `arg` is set to be case-insensitive with a list of possible values,
+    /// then the comparison to `val` is case-insensitive.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("test")
+    ///         .arg(Arg::with_name("opt")
+    ///              .long("opt")
+    ///              .takes_value(true)
+    ///              .possible_values(&vec!["OptionA", "OptionB"])
+    ///              .case_insensitive(true)
+    ///         )
+    ///         .arg(Arg::with_name("dependent")
+    ///              .long("dependent")
+    ///              .required_if("opt", "OptionB")
+    ///         )
+    ///         .get_matches_from_safe(vec![
+    ///             "prog", "--opt", "optionb"
+    ///         ]);
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// ```
+    ///
     /// [`Arg::requires(name)`]: ./struct.Arg.html#method.requires
     /// [Conflicting]: ./struct.Arg.html#method.conflicts_with
     /// [required]: ./struct.Arg.html#method.required

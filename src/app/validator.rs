@@ -497,7 +497,19 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
         // Validate the conditionally required args
         for &(a, v, r) in &self.0.r_ifs {
             if let Some(ma) = matcher.get(a) {
-                if matcher.get(r).is_none() && ma.vals.iter().any(|val| val == v) {
+                let case_insensitive = find_by_name!(self.0, a, opts, iter)
+                    .map(|arg| arg.is_set(ArgSettings::CaseInsensitive))
+                    .unwrap_or(false);
+
+                let str_matches = |val: &std::ffi::OsString| {
+                    if case_insensitive {
+                        val.to_string_lossy().to_lowercase() == v.to_lowercase()
+                    } else {
+                        val == v
+                    }
+                };
+
+                if matcher.get(r).is_none() && ma.vals.iter().any(str_matches) {
                     return self.missing_required_error(matcher, Some(r));
                 }
             }
