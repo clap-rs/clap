@@ -1460,6 +1460,38 @@ impl<'help> Arg<'help> {
     /// // We did use --other=special so "cfg" had become required but was missing.
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    ///
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .takes_value(true)
+    ///         .required_if_eq("other", "special")
+    ///         .long("config"))
+    ///     .arg(Arg::new("other")
+    ///         .long("other")
+    ///         .takes_value(true))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--other", "SPECIAL"
+    ///     ]);
+    ///
+    /// // By default, the comparison is case-sensitive, so "cfg" wasn't required
+    /// assert!(res.is_ok());
+    ///
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .takes_value(true)
+    ///         .required_if_eq("other", "special")
+    ///         .long("config"))
+    ///     .arg(Arg::new("other")
+    ///         .long("other")
+    ///         .case_insensitive(true)
+    ///         .takes_value(true))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "--other", "SPECIAL"
+    ///     ]);
+    ///
+    /// // However, case-insensitive comparisons can be enabled.  This typically occurs when using Arg::possible_values().
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -3700,8 +3732,15 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// When used with [`Arg::possible_values`] it allows the argument value to pass validation even
-    /// if the case differs from that of the specified `possible_value`.
+    /// When used with [`Arg::possible_values`] it allows the argument
+    /// value to pass validation even if the case differs from that of
+    /// the specified `possible_value`.
+    ///
+    /// When other arguments are conditionally required based on the
+    /// value of a case-insensitive argument, the equality check done
+    /// by [`Arg::required_if_eq`], [`Arg::required_if_eq_any`], or
+    /// [`Arg::required_if_eq_all`] is case-insensitive.
+    ///
     ///
     /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///

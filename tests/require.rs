@@ -534,6 +534,47 @@ fn required_if_val_present_fail() {
 }
 
 #[test]
+fn required_if_val_present_case_insensitive_pass() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq("extra", "Val")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(
+            Arg::new("extra")
+                .takes_value(true)
+                .long("extra")
+                .case_insensitive(true),
+        )
+        .try_get_matches_from(vec!["ri", "--extra", "vaL", "--config", "my.cfg"]);
+
+    assert!(res.is_ok());
+}
+
+#[test]
+fn required_if_val_present_case_insensitive_fail() {
+    let res = App::new("ri")
+        .arg(
+            Arg::new("cfg")
+                .required_if_eq("extra", "Val")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(
+            Arg::new("extra")
+                .takes_value(true)
+                .long("extra")
+                .case_insensitive(true),
+        )
+        .try_get_matches_from(vec!["ri", "--extra", "vaL"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
 fn required_if_all_values_present_pass() {
     let res = App::new("ri")
         .arg(
