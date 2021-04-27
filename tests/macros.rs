@@ -1,6 +1,8 @@
 mod utils;
 
-use clap::{clap_app, ErrorKind};
+// We intentionally don't import `clap_app!` here; not having it in scope protects against the
+// class of errors where the macro refers to itself as `clap_app!` instead of `$crate::clap_app!`
+use clap::ErrorKind;
 
 static LITERALS: &str = "clap-tests 0.1
 
@@ -24,7 +26,7 @@ SUBCOMMANDS:
 
 #[test]
 fn basic() {
-    clap_app!(claptests =>
+    clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -59,7 +61,7 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
-    let mut app = clap_app!(("app name with spaces-and-hyphens") =>
+    let mut app = clap::clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -100,7 +102,7 @@ fn quoted_app_name() {
 
 #[test]
 fn quoted_arg_long_name() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -138,7 +140,7 @@ fn quoted_arg_long_name() {
 
 #[test]
 fn quoted_arg_name() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -176,7 +178,7 @@ fn quoted_arg_name() {
 
 #[test]
 fn quoted_subcommand_name() {
-    clap_app!(claptests =>
+    clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -211,7 +213,7 @@ fn quoted_subcommand_name() {
 
 #[test]
 fn group_macro() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -231,7 +233,7 @@ fn group_macro() {
 
 #[test]
 fn group_macro_set_multiple() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -253,7 +255,7 @@ fn group_macro_set_multiple() {
 
 #[test]
 fn group_macro_set_not_multiple() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -272,7 +274,7 @@ fn group_macro_set_not_multiple() {
 
 #[test]
 fn group_macro_set_required() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -291,7 +293,7 @@ fn group_macro_set_required() {
 
 #[test]
 fn group_macro_set_not_required() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -310,7 +312,7 @@ fn group_macro_set_not_required() {
 
 #[test]
 fn group_macro_attributes_alternative() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -340,7 +342,7 @@ fn group_macro_attributes_alternative() {
 
 #[test]
 fn group_macro_multiple_methods() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -369,7 +371,7 @@ fn group_macro_multiple_methods() {
 
 #[test]
 fn group_macro_multiple_methods_alternative() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -398,7 +400,7 @@ fn group_macro_multiple_methods_alternative() {
 
 #[test]
 fn group_macro_multiple_invokations() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
@@ -426,7 +428,7 @@ fn group_macro_multiple_invokations() {
 
 #[test]
 fn literals() {
-    let app = clap_app!("clap-tests" =>
+    let app = clap::clap_app!("clap-tests" =>
         (version: "0.1")
         (@arg "task-num": -"t-n" --"task-num" +takes_value possible_value["all" 0 1 2]
             "Task number")
@@ -451,7 +453,7 @@ fn literals() {
 
 #[test]
 fn multiarg() {
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (@arg flag: --flag "value")
         (@arg multiarg: --multiarg
             default_value("flag-unset") default_value_if("flag", None, Some("flag-set"))
@@ -485,7 +487,7 @@ fn validator() {
         val.parse::<u32>().map_err(|e| e.to_string())
     }
 
-    let app = clap_app!(claptests =>
+    let app = clap::clap_app!(claptests =>
         (@arg inline: { |val| val.parse::<u16>() })
         (@arg func1: { validate })
         (@arg func2: { u64::from_str })
