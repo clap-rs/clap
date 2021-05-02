@@ -1,5 +1,5 @@
 name: Documentation issue
-about: An issue with our docs, like typo, something's missing, incorrect docs, etc...
+description: An issue with our docs, like typo, something's missing, incorrect docs, etc...
 labels: 'C: docs'
 body:
   - type: checkboxes
