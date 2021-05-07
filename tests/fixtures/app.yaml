@@ -79,6 +79,10 @@ args:
         multiple: true
         use_delimiter: true
         require_delimiter: true
+    - settings:
+        short: s
+        takes_value: true
+        multiple_values: true
     - singlealias:
         long: singlealias
         about: Tests single alias
@@ -122,6 +126,11 @@ args:
         long: value-hint
         help: Test value_hint
         value_hint: FilePath
+    - verbose:
+        short: v
+        multiple_occurrences: true
+        takes_value: false
+        help: Sets the level of verbosity
     - visiblealiases:
         long: visiblealiases
         about: Tests visible aliases

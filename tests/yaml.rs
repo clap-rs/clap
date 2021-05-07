@@ -100,6 +100,24 @@ fn default_value_if_triggered_by_flag_and_argument() {
     assert_eq!(matches.value_of("positional2").unwrap(), "some");
 }
 
+#[test]
+fn yaml_multiple_occurrences() {
+    let yaml = load_yaml!("fixtures/app.yaml");
+    let matches = App::from(yaml)
+        .try_get_matches_from(vec!["prog", "-vvv"])
+        .unwrap();
+    assert_eq!(matches.occurrences_of("verbose"), 3);
+}
+
+#[test]
+fn yaml_multiple_values() {
+    let yaml = load_yaml!("fixtures/app.yaml");
+    let matches = App::from(yaml)
+        .try_get_matches_from(vec!["prog", "-s", "aaa", "bbb"])
+        .unwrap();
+    assert_eq!(matches.values_of("settings").unwrap().collect::<Vec<&str>>(), vec!["aaa", "bbb"]);
+}
+
 #[cfg(feature = "regex")]
 #[test]
 fn regex_with_invalid_string() {

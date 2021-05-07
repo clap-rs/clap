@@ -7,8 +7,8 @@ use std::ops::{Deref, DerefMut};
 /// An entity with a span attached.
 #[derive(Debug, Clone)]
 pub struct Sp<T> {
-    span: Span,
     val: T,
+    span: Span,
 }
 
 impl<T> Sp<T> {
