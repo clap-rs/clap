@@ -4654,6 +4654,8 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "index" => yaml_to_usize!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
                 "multiple" => yaml_to_bool!(a, v, multiple),
+                "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
+                "multiple_values" => yaml_to_bool!(a, v, multiple_values),
                 "hidden" => yaml_to_bool!(a, v, hidden),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
                 "group" => yaml_to_str!(a, v, group),
