@@ -115,7 +115,13 @@ fn yaml_multiple_values() {
     let matches = App::from(yaml)
         .try_get_matches_from(vec!["prog", "-s", "aaa", "bbb"])
         .unwrap();
-    assert_eq!(matches.values_of("settings").unwrap().collect::<Vec<&str>>(), vec!["aaa", "bbb"]);
+    assert_eq!(
+        matches
+            .values_of("settings")
+            .unwrap()
+            .collect::<Vec<&str>>(),
+        vec!["aaa", "bbb"]
+    );
 }
 
 #[cfg(feature = "regex")]
