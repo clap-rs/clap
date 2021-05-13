@@ -2227,7 +2227,7 @@ impl<'help> App<'help> {
         let mut parser = Parser::new(self);
         if let Err(error) = parser.get_matches_with(&mut matcher, it) {
             if self.is_set(AppSettings::IgnoreErrors) {
-                debug!("ignoring error: {}", error);
+                debug!("App::_do_parse: ignoring error: {}", error);
             } else {
                 return Err(error);
             }

@@ -931,7 +931,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 if let Err(error) = p.get_matches_with(&mut sc_matcher, it) {
                     if partial_parsing_enabled {
-                        debug!("ignored error in subcommand {}: {:?}", sc_name, error);
+                        debug!(
+                            "Parser::parse_subcommand: ignored error in subcommand {}: {:?}",
+                            sc_name, error
+                        );
                     } else {
                         return Err(error);
                     }
