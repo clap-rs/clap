@@ -67,13 +67,11 @@ impl Input {
     /// Insert some items to the Input items just after current parsing cursor.
     /// Usually used by replaced items recovering.
     pub(crate) fn insert(&mut self, insert_items: &[&str]) {
-        self.items = {
-            let mut new_items: Vec<OsString> = insert_items.iter().map(OsString::from).collect();
-            for unparsed_item in &self.items[self.cursor..] {
-                new_items.push(unparsed_item.clone());
-            }
-            new_items
-        };
+        self.items = insert_items
+            .iter()
+            .map(OsString::from)
+            .chain(self.items.drain(self.cursor..))
+            .collect();
         self.cursor = 0;
     }
 }
