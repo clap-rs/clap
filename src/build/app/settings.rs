@@ -51,6 +51,7 @@ bitflags! {
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 43;
         const DISABLE_ENV                    = 1 << 44;
         const INFER_LONG_ARGS                = 1 << 45;
+        const IGNORE_ERRORS                  = 1 << 46;
     }
 }
 
@@ -139,6 +140,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::UNIFIED_HELP,
     NextLineHelp("nextlinehelp")
         => Flags::NEXT_LINE_HELP,
+    IgnoreErrors("ignoreerrors")
+        => Flags::IGNORE_ERRORS,
     DisableVersionForSubcommands("disableversionforsubcommands")
         => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
@@ -814,6 +817,40 @@ pub enum AppSettings {
     /// #   .get_matches();
     ///```
     HelpRequired,
+
+    /// Try not to fail on parse errors like missing option values. This is a
+    /// global option that gets propagated sub commands.
+    ///
+    /// Issue: [#1880 Partial / Pre Parsing a
+    /// CLI](https://github.com/clap-rs/clap/issues/1880)
+    ///
+    /// This is the basis for:
+    ///
+    /// * [Changing app settings based on
+    ///   flags](https://github.com/clap-rs/clap/issues/1880#issuecomment-637779787)
+    /// * [#1232  Dynamic completion
+    ///   support](https://github.com/clap-rs/clap/issues/1232)
+    ///
+    /// Support is not complete: Errors are still possible but they can be
+    /// avoided in many cases.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let app = App::new("app")
+    ///   .setting(AppSettings::IgnoreErrors)
+    ///   .arg("-c, --config=[FILE] 'Sets a custom config file'")
+    ///   .arg("-x, --stuff=[FILE] 'Sets a custom stuff file'")
+    ///   .arg("-f 'Flag'");
+    ///
+    /// let r = app.try_get_matches_from(vec!["app", "-c", "file", "-f", "-x"]);
+    ///
+    /// assert!(r.is_ok(), "unexpected error: {:?}", r);
+    /// let m = r.unwrap();
+    /// assert_eq!(m.value_of("config"), Some("file"));
+    /// assert!(m.is_present("f"));
+    /// assert_eq!(m.value_of("stuff"), None);
+    /// ```
+    IgnoreErrors,
 
     /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example, to
     /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.

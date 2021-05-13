@@ -2225,7 +2225,13 @@ impl<'help> App<'help> {
 
         // do the real parsing
         let mut parser = Parser::new(self);
-        parser.get_matches_with(&mut matcher, it)?;
+        if let Err(error) = parser.get_matches_with(&mut matcher, it) {
+            if self.is_set(AppSettings::IgnoreErrors) {
+                debug!("ignoring error: {}", error);
+            } else {
+                return Err(error);
+            }
+        }
 
         let global_arg_vec: Vec<Id> = self.get_used_global_args(&matcher);
 
@@ -2375,6 +2381,9 @@ impl<'help> App<'help> {
                     if gv && $sc.version.is_none() && $_self.version.is_some() {
                         $sc.set(AppSettings::GlobalVersion);
                         $sc.version = Some($_self.version.unwrap());
+                    }
+                    if $_self.settings.is_set(AppSettings::IgnoreErrors) {
+                        // $sc.set(AppSettings::PartialParsing);
                     }
                     $sc.settings = $sc.settings | $_self.g_settings;
                     $sc.g_settings = $sc.g_settings | $_self.g_settings;
