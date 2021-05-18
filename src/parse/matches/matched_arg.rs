@@ -22,6 +22,7 @@ pub(crate) struct MatchedArg {
     pub(crate) ty: ValueType,
     indices: Vec<usize>,
     vals: Vec<Vec<OsString>>,
+    case_insensitive: bool,
 }
 
 impl Default for MatchedArg {
@@ -37,6 +38,7 @@ impl MatchedArg {
             ty: ValueType::Unknown,
             indices: Vec::new(),
             vals: Vec::new(),
+            case_insensitive: false,
         }
     }
 
@@ -122,12 +124,24 @@ impl MatchedArg {
     }
 
     pub(crate) fn contains_val(&self, val: &str) -> bool {
-        self.vals_flatten()
-            .any(|v| OsString::as_os_str(v) == OsStr::new(val))
+        self.vals_flatten().any(|v| {
+            if self.case_insensitive {
+                // For rust v1.53.0 and above, can use
+                // OsString.eq_ignore_ascii_case
+                // (https://github.com/rust-lang/rust/pull/80193)
+                v.to_string_lossy().to_lowercase() == val.to_lowercase()
+            } else {
+                OsString::as_os_str(v) == OsStr::new(val)
+            }
+        })
     }
 
     pub(crate) fn set_ty(&mut self, ty: ValueType) {
         self.ty = ty;
+    }
+
+    pub(crate) fn set_case_insensitive(&mut self, ci: bool) {
+        self.case_insensitive = ci;
     }
 }
 

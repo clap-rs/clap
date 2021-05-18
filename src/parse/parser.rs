@@ -1521,10 +1521,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
     fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
-        matcher.inc_occurrence_of(&arg.id);
+        matcher.inc_occurrence_of(&arg.id, arg.is_set(ArgSettings::IgnoreCase));
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {
-            matcher.inc_occurrence_of(&group);
+            matcher.inc_occurrence_of(&group, false);
         }
     }
 }
