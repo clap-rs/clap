@@ -82,3 +82,18 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
         m.subcommand_matches("test").unwrap().value_of("sub-str")
     );
 }
+
+#[test]
+fn global_arg_available_in_subcommand() {
+    let m = App::new("opt")
+        .args(&[
+            Arg::new("global").global(true).long("global"),
+            Arg::new("not").global(false).long("not"),
+        ])
+        .subcommand(App::new("ping"))
+        .get_matches_from(&["opt", "ping", "--global"]);
+
+    assert!(m.is_present("global"));
+    assert!(m.subcommand_matches("ping").unwrap().is_present("global"));
+    assert!(!m.subcommand_matches("ping").unwrap().is_present("not"));
+}
