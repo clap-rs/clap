@@ -6,5 +6,10 @@
 {% include "shared/header.html" %}
 
 <main id="content" class="maxview">
+  <article>
+    <h1 class="post-title">{{ section.title }}</h1>
+
+    {{ section.content | safe }}
+  </article>
 </main>
 {% endblock content %}

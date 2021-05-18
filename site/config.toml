@@ -5,7 +5,7 @@ description = "Fast & Modern CLI Framework for Rust"
 
 compile_sass = false
 highlight_code = true
-highlight_theme = "material-light"
+highlight_theme = "ayu-dark"
 build_search_index = true
 
 default_language = "en"

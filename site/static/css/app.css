@@ -116,6 +116,14 @@ footer a, #content a {
   box-sizing: border-box;
 }
 
+pre {
+  font-family: 'Raleway', monospace;
+  font-size: 0.9rem;
+  line-height: 1.2rem;
+  padding: 1.5rem;
+  margin-bottom: 30px;
+}
+
 @media (max-width: 767px) {
   #content {
     padding: 1.25rem 0.5rem 3rem;
@@ -136,6 +144,7 @@ p {
 h1, h2, h3, h4 {
   margin-bottom: 20px;
   font-family: 'Lato', sans-serif;
+  color: rgb(255, 168, 106);
 }
 
 h1 {
