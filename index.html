@@ -62,6 +62,60 @@
 
 
 <main id="content" class="maxview">
+  <article>
+    <h1 class="post-title">Fast &amp; Modern CLI Framework for Rust</h1>
+
+    <p><strong>Clap</strong> is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.</p>
+<p>Here is an example of a simple program:</p>
+<pre style="background-color:#0f1419;">
+<code class="language-rust" data-lang="rust"><span style="color:#ff7733;">use </span><span style="color:#bfbab0;">clap</span><span style="color:#f29668;">::</span><span style="color:#bfbab0;">Clap</span><span style="color:#bfbab0cc;">;
+
+</span><span style="font-style:italic;color:#5c6773;">/// Simple program to greet a person
+</span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">derive</span><span style="color:#bfbab0;">(Clap</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> Debug)]
+</span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(name </span><span style="color:#f29668;">= </span><span style="color:#c2d94c;">&quot;hello&quot;</span><span style="color:#bfbab0;">)]
+</span><span style="color:#ff7733;">struct </span><span style="color:#59c2ff;">Hello </span><span style="color:#bfbab0;">{
+    </span><span style="font-style:italic;color:#5c6773;">/// Name of the person to greet
+    </span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(short</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> long)]
+    name</span><span style="color:#bfbab0cc;">:</span><span style="color:#bfbab0;"> String,
+
+    </span><span style="font-style:italic;color:#5c6773;">/// Number of times to greet
+    </span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(short</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> long</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> default_value </span><span style="color:#f29668;">= </span><span style="color:#c2d94c;">&quot;1&quot;</span><span style="color:#bfbab0;">)]
+    count</span><span style="color:#bfbab0cc;">: </span><span style="color:#ff7733;">u8</span><span style="color:#bfbab0;">,
+}
+
+</span><span style="color:#ff7733;">fn </span><span style="color:#ffb454;">main</span><span style="color:#bfbab0;">() {
+    </span><span style="color:#ff7733;">let</span><span style="color:#bfbab0;"> hello </span><span style="color:#f29668;">= </span><span style="color:#bfbab0;">Hello</span><span style="color:#f29668;">::</span><span style="color:#bfbab0;">parse()</span><span style="color:#bfbab0cc;">;
+
+    </span><span style="color:#ff7733;">for </span><span style="color:#f29668;">_ in </span><span style="color:#f29718;">0</span><span style="color:#f29668;">..</span><span style="color:#bfbab0;">hello</span><span style="color:#f29668;">.</span><span style="color:#bfbab0;">count {
+        </span><span style="color:#f07178;">println!</span><span style="color:#bfbab0;">(</span><span style="color:#c2d94c;">&quot;Hello </span><span style="color:#f29718;">{}</span><span style="color:#c2d94c;">!&quot;</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> hello</span><span style="color:#f29668;">.</span><span style="color:#bfbab0;">name)
+    }
+}
+</span></code></pre>
+<p>The above example program can be run as shown below:</p>
+<pre style="background-color:#0f1419;">
+<code><span style="color:#bfbab0;">$ hello --name John --count 3
+Hello John!
+Hello John!
+Hello John!
+</span></code></pre>
+<p>The program also has automatically generated help message:</p>
+<pre style="background-color:#0f1419;">
+<code><span style="color:#bfbab0;">hello
+
+Simple program to greet a person
+
+USAGE:
+    hello [OPTIONS] --name &lt;name&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --count &lt;count&gt;    Number of times to greet [default: 1]
+    -n, --name &lt;name&gt;      Name of the person to greet
+</span></code></pre>
+  </article>
 </main>
 
 
