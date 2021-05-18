@@ -162,7 +162,7 @@ fn test_tuple_commands() {
 }
 
 #[test]
-fn external_subcommand() {
+fn global_passed_down() {
     #[derive(Debug, PartialEq, Clap)]
     struct Opt {
         #[clap(global = true, long)]
@@ -174,10 +174,7 @@ fn external_subcommand() {
     #[derive(Debug, PartialEq, Clap)]
     enum Subcommands {
         Add,
-        Remove,
         Global(GlobalCmd),
-        #[clap(external_subcommand)]
-        Other(Vec<String>),
     }
 
     #[derive(Debug, PartialEq, Clap)]
@@ -185,22 +182,6 @@ fn external_subcommand() {
         #[clap(from_global)]
         global: bool,
     }
-
-    assert_eq!(
-        Opt::parse_from(&["test", "add"]),
-        Opt {
-            global: false,
-            sub: Subcommands::Add
-        }
-    );
-
-    assert_eq!(
-        Opt::parse_from(&["test", "remove"]),
-        Opt {
-            global: false,
-            sub: Subcommands::Remove
-        }
-    );
 
     assert_eq!(
         Opt::parse_from(&["test", "global"]),
@@ -217,13 +198,43 @@ fn external_subcommand() {
             sub: Subcommands::Global(GlobalCmd { global: true })
         }
     );
+}
+
+#[test]
+fn external_subcommand() {
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(subcommand)]
+        sub: Subcommands,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        Add,
+        Remove,
+        #[clap(external_subcommand)]
+        Other(Vec<String>),
+    }
+
+    assert_eq!(
+        Opt::parse_from(&["test", "add"]),
+        Opt {
+            sub: Subcommands::Add
+        }
+    );
+
+    assert_eq!(
+        Opt::parse_from(&["test", "remove"]),
+        Opt {
+            sub: Subcommands::Remove
+        }
+    );
 
     assert!(Opt::try_parse_from(&["test"]).is_err());
 
     assert_eq!(
         Opt::try_parse_from(&["test", "git", "status"]).unwrap(),
         Opt {
-            global: false,
             sub: Subcommands::Other(vec!["git".into(), "status".into()])
         }
     );
