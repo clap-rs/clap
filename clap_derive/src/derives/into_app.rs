@@ -231,7 +231,10 @@ pub fn gen_app_augmentation(
         );
         let kind = attrs.kind();
         match &*kind {
-            Kind::Subcommand(_) | Kind::Skip(_) | Kind::FromGlobal(_) | Kind::ExternalSubcommand => None,
+            Kind::Subcommand(_)
+            | Kind::Skip(_)
+            | Kind::FromGlobal(_)
+            | Kind::ExternalSubcommand => None,
             Kind::Flatten => {
                 let ty = &field.ty;
                 Some(quote_spanned! { kind.span()=>
