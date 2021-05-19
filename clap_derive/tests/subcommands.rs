@@ -166,7 +166,7 @@ fn global_passed_down() {
     #[derive(Debug, PartialEq, Clap)]
     struct Opt {
         #[clap(global = true, long)]
-        global: bool,
+        other: bool,
         #[clap(subcommand)]
         sub: Subcommands,
     }
@@ -180,22 +180,22 @@ fn global_passed_down() {
     #[derive(Debug, PartialEq, Clap)]
     struct GlobalCmd {
         #[clap(from_global)]
-        global: bool,
+        other: bool,
     }
 
     assert_eq!(
         Opt::parse_from(&["test", "global"]),
         Opt {
-            global: false,
-            sub: Subcommands::Global(GlobalCmd { global: false })
+            other: false,
+            sub: Subcommands::Global(GlobalCmd { other: false })
         }
     );
 
     assert_eq!(
-        Opt::parse_from(&["test", "global", "--global"]),
+        Opt::parse_from(&["test", "global", "--other"]),
         Opt {
-            global: true,
-            sub: Subcommands::Global(GlobalCmd { global: true })
+            other: true,
+            sub: Subcommands::Global(GlobalCmd { other: true })
         }
     );
 }
