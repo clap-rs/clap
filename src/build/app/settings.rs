@@ -49,6 +49,7 @@ bitflags! {
         const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
         const DISABLE_HELP_FLAG              = 1 << 42;
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 43;
+        const DISABLE_ENV                    = 1 << 44;
     }
 }
 
@@ -93,6 +94,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::COLOR_AUTO,
     ColorNever("colornever")
         => Flags::COLOR_NEVER,
+    DisableEnv("disableenv")
+        => Flags::DISABLE_ENV,
     DontDelimitTrailingValues("dontdelimittrailingvalues")
         => Flags::DONT_DELIM_TRAIL,
     DontCollapseArgsInUsage("dontcollapseargsinusage")
@@ -568,6 +571,18 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ColorNever,
+
+    /// Disables the use of environment variables in the app
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, AppSettings};
+    /// App::new("myprog")
+    ///     .global_setting(AppSettings::DisableEnv)
+    ///     .get_matches();
+    /// ```
+    DisableEnv,
 
     /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
     ///

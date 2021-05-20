@@ -1502,6 +1502,10 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        if self.app.is_set(AS::DisableEnv) {
+            return Ok(())
+        }
+
         for a in self.app.args.args() {
             // Use env only if the arg was not present among command line args
             if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
