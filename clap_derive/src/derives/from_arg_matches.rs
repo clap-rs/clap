@@ -269,7 +269,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
             },
 
-            Kind::Arg(ty) => gen_parsers(&attrs, ty, field_name, field, None),
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, None),
         }
     });
 
@@ -349,7 +349,7 @@ pub fn gen_updater(
 
             Kind::Skip(_) => quote!(),
 
-            Kind::Arg(ty) => gen_parsers(&attrs, ty, field_name, field, Some(&access)),
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, Some(&access)),
         }
     });
 

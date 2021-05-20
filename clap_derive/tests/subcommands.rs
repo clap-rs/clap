@@ -162,6 +162,45 @@ fn test_tuple_commands() {
 }
 
 #[test]
+fn global_passed_down() {
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(global = true, long)]
+        other: bool,
+        #[clap(subcommand)]
+        sub: Subcommands,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        Add,
+        Global(GlobalCmd),
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    struct GlobalCmd {
+        #[clap(from_global)]
+        other: bool,
+    }
+
+    assert_eq!(
+        Opt::parse_from(&["test", "global"]),
+        Opt {
+            other: false,
+            sub: Subcommands::Global(GlobalCmd { other: false })
+        }
+    );
+
+    assert_eq!(
+        Opt::parse_from(&["test", "global", "--other"]),
+        Opt {
+            other: true,
+            sub: Subcommands::Global(GlobalCmd { other: true })
+        }
+    );
+}
+
+#[test]
 fn external_subcommand() {
     #[derive(Debug, PartialEq, Clap)]
     struct Opt {
