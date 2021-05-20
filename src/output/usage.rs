@@ -456,10 +456,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .map(|pos| (pos.index.unwrap(), pos))
             .collect::<BTreeMap<usize, &Arg>>(); // sort by index
 
-        // Only use the -- separator if we have both args and positional args.
-        if !ret_val.is_empty() && !pmap.is_empty() {
-            ret_val.push("--".to_string());
-        }
         for p in pmap.values() {
             debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
             if !args_in_groups.contains(&p.id) {

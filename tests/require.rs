@@ -29,11 +29,10 @@ For more information try --help";
 
 static MISSING_REQ: &str = "error: The following required arguments were not provided:
     --long-option-2 <option2>
-    --
     <positional2>
 
 USAGE:
-    clap-test --long-option-2 <option2> -F -- <positional2>
+    clap-test --long-option-2 <option2> -F <positional2>
 
 For more information try --help";
 
@@ -914,7 +913,7 @@ static ISSUE_1158: &str = "error: The following required arguments were not prov
     -z <Z>
 
 USAGE:
-    example -x <X> -y <Y> -z <Z> -- <ID>
+    example -x <X> -y <Y> -z <Z> <ID>
 
 For more information try --help";
 
