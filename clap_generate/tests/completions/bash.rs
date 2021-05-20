@@ -56,7 +56,7 @@ static BASH: &str = r#"_myapp() {
 
     case "${cmd}" in
         myapp)
-            opts=" -h -V  --help --version  <file> test help"
+            opts="-h -V --help --version test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -72,7 +72,7 @@ static BASH: &str = r#"_myapp() {
             ;;
         
         myapp__help)
-            opts=" -h -V  --help --version  "
+            opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -87,7 +87,7 @@ static BASH: &str = r#"_myapp() {
             return 0
             ;;
         myapp__test)
-            opts=" -h -V  --case --help --version  "
+            opts="-h -V --case --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -164,7 +164,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts=" -h -V  --help --version  <file> test some_cmd some-cmd-with-hypens help"
+            opts="-h -V --help --version test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -180,7 +180,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             ;;
         
         my_app__help)
-            opts=" -h -V  --help --version  "
+            opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -195,7 +195,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             return 0
             ;;
         my_app__some__cmd__with__hypens)
-            opts=" -h -V  --help --version  "
+            opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -210,7 +210,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             return 0
             ;;
         my_app__some_cmd)
-            opts=" -h -V  --config --help --version  "
+            opts="-h -V --config --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -229,7 +229,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             return 0
             ;;
         my_app__test)
-            opts=" -h -V  --case --help --version  "
+            opts="-h -V --case --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -304,7 +304,7 @@ static BASH_ALIASES: &str = r#"_cmd() {
 
     case "${cmd}" in
         cmd)
-            opts=" -h -V -F -f -O -o  --help --version --flg --flag --opt --option  <positional> "
+            opts="-h -V -F -f -O -o --help --version --flg --flag --opt --option"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
