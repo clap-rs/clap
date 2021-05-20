@@ -5,14 +5,14 @@ use clap::{App, Arg, ArgGroup, ErrorKind};
 static CONFLICT_ERR: &str = "error: The argument '-F' cannot be used with '--flag'
 
 USAGE:
-    clap-test <positional> <positional2> --flag --long-option-2 <option2>
+    clap-test --flag --long-option-2 <option2> <positional> <positional2>
 
 For more information try --help";
 
 static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
-    clap-test <positional> <positional2> -F --long-option-2 <option2>
+    clap-test -F --long-option-2 <option2> <positional> <positional2>
 
 For more information try --help";
 
