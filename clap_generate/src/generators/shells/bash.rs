@@ -1,4 +1,5 @@
 // Std
+use std::fmt::Write as _;
 use std::io::Write;
 
 // Internal
@@ -195,21 +196,23 @@ fn all_options_for_path(app: &App, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
     let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
-    let scs: Vec<_> = Bash::subcommands(p).iter().map(|x| x.0.clone()).collect();
 
-    let opts = format!(
-        "{shorts} {longs} {pos} {subcmds}",
-        shorts = Bash::shorts_and_visible_aliases(p)
-            .iter()
-            .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        longs = Bash::longs_and_visible_aliases(p)
-            .iter()
-            .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
-        pos = p
-            .get_positionals()
-            .fold(String::new(), |acc, p| format!("{} {}", acc, p)),
-        subcmds = scs.join(" "),
-    );
+    let mut opts = String::new();
+    for short in Bash::shorts_and_visible_aliases(p) {
+        write!(&mut opts, "-{} ", short).unwrap();
+    }
+    for long in Bash::longs_and_visible_aliases(p) {
+        write!(&mut opts, "--{} ", long).unwrap();
+    }
+    for pos in p.get_positionals() {
+        for value in pos.get_possible_values().unwrap_or_default() {
+            write!(&mut opts, "{} ", value).unwrap();
+        }
+    }
+    for (sc, _) in Bash::subcommands(p) {
+        write!(&mut opts, "{} ", sc).unwrap();
+    }
+    opts.pop(); // Remove the space at the end.
 
     opts
 }
