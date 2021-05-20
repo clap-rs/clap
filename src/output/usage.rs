@@ -408,23 +408,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .flat_map(|g| self.p.app.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
 
-        let pmap = unrolled_reqs
-            .iter()
-            .chain(incls.iter())
-            .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
-            .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
-            .filter_map(|pos| self.p.app.find(pos))
-            .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
-            .filter(|pos| !args_in_groups.contains(&pos.id))
-            .map(|pos| (pos.index.unwrap(), pos))
-            .collect::<BTreeMap<usize, &Arg>>(); // sort by index
-
-        for p in pmap.values() {
-            debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
-            if !args_in_groups.contains(&p.id) {
-                ret_val.push(p.to_string());
-            }
-        }
         for a in unrolled_reqs
             .iter()
             .chain(incls.iter())
@@ -434,12 +417,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
-            let arg = self
-                .p
-                .app
-                .find(&a)
-                .map(ToString::to_string)
-                .expect(INTERNAL_ERROR_MSG);
+            let arg = self.p.app.find(&a).expect(INTERNAL_ERROR_MSG).to_string();
             ret_val.push(arg);
         }
         let mut g_vec: Vec<String> = vec![];
@@ -465,8 +443,28 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 g_vec.push(elem);
             }
         }
-        for g in g_vec {
-            ret_val.push(g);
+        ret_val.extend_from_slice(&g_vec);
+
+        let pmap = unrolled_reqs
+            .iter()
+            .chain(incls.iter())
+            .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
+            .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
+            .filter_map(|pos| self.p.app.find(pos))
+            .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
+            .filter(|pos| !args_in_groups.contains(&pos.id))
+            .map(|pos| (pos.index.unwrap(), pos))
+            .collect::<BTreeMap<usize, &Arg>>(); // sort by index
+
+        // Only use the -- separator if we have both args and positional args.
+        if !ret_val.is_empty() && !pmap.is_empty() {
+            ret_val.push("--".to_string());
+        }
+        for p in pmap.values() {
+            debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
+            if !args_in_groups.contains(&p.id) {
+                ret_val.push(p.to_string());
+            }
         }
 
         debug!("Usage::get_required_usage_from: ret_val={:?}", ret_val);
