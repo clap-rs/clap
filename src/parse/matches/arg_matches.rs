@@ -136,7 +136,7 @@ impl ArgMatches {
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer [`Arg::values_of_lossy`] as `value_of_lossy()` will only return the *first* value.
-    ///    
+    ///
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
     /// [`occurrences_of`] can be used to check if a value is present at runtime.
     ///
@@ -540,12 +540,6 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
-
-        if let Some(ref sc) = self.subcommand {
-            if sc.id == id {
-                return true;
-            }
-        }
         self.args.contains_key(&id)
     }
 
