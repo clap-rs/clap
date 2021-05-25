@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [master]
     types: [opened, reopened, synchronize]
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 jobs:
   ci:
     name: CI
@@ -13,16 +16,8 @@ jobs:
     steps:
       - name: Done
         run: exit 0
-  prepare:
-    name: Prepare
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.9.0
-        with:
-          access_token: ${{ github.token }}
   test:
     name: Tests
-    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
@@ -123,7 +118,13 @@ jobs:
           args: --target ${{ matrix.target }} --features "wrap_help yaml regex" --release
   nightly:
     name: Nightly Tests
-    needs: [prepare]
+    strategy:
+      fail-fast: false
+      matrix:
+        features:
+          - none
+          - all
+          - release
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -141,12 +142,24 @@ jobs:
           args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
       - name: Test all features
         uses: actions-rs/cargo@v1
+        if: matrix.features == 'all'
         with:
           command: test
           args: --features "wrap_help yaml regex"
+      - name: Check debug
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'all'
+        with:
+          command: check
+          args: --features "wrap_help yaml regex debug"
+      - name: Test release
+        uses: actions-rs/cargo@v1
+        if: matrix.features == 'release'
+        with:
+          command: test
+          args: --features "wrap_help yaml regex" --release
   wasm:
     name: Wasm Check
-    needs: [prepare]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -168,7 +181,6 @@ jobs:
           args: --target ${{ matrix.target }} --features "yaml regex"
   lint:
     name: Linting
-    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -197,7 +209,6 @@ jobs:
           args: -- --check
   coverage:
     name: Coverage
-    needs: [prepare]
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
