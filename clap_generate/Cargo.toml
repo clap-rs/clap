@@ -29,11 +29,6 @@ readme = "README.md"
 [lib]
 bench = false
 
-[badges]
-is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
-is-it-maintained-open-issues = { repository = "clap-rs/clap" }
-maintenance = {status = "actively-developed"}
-
 [dependencies]
 clap = { path = "../", version = "3.0.0-beta.2" }
 

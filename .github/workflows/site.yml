@@ -3,6 +3,8 @@ on:
   push:
     branches: [master]
     paths: ["site/**"]
+concurrency:
+  group: site
 jobs:
   site:
     name: Deploy site

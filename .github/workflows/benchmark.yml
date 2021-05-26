@@ -3,35 +3,24 @@ on:
   pull_request:
     branches: [master]
     types: [opened, reopened, synchronize]
+concurrency:
+  group: benchmark-${{ github.head_ref }}
+  cancel-in-progress: true
 jobs:
-  prepare:
-    name: Prepare
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.9.0
-        with:
-          access_token: ${{ github.token }}
   benchmark:
     name: Benchmark
-    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
+          override: true
       - name: Checkout base
         uses: actions/checkout@v2
         with:
           ref: master
-      - name: Ready cache
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-      - name: Cache cargo
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Bench base
         run: cargo bench -- --output-format bencher | tee output.txt
       - name: Save base benchmark
@@ -55,12 +44,3 @@ jobs:
           external-data-json-path: ./benchmark-data.json
           github-token: ${{ github.token }}
           annotate-always: true
-      - name: Install cargo-cache
-        uses: actions-rs/install@v0.1
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          crate: cargo-cache
-          use-tool-cache: true
-      - name: Cleanup cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: cargo cache -a

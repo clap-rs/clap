@@ -453,3 +453,22 @@ fn subcommand_after_argument_looks_like_help() {
     assert_eq!(m.value_of("some_text"), Some("helt"));
     assert_eq!(m.subcommand().unwrap().0, "test");
 }
+
+#[test]
+fn issue_2494_subcommand_is_present() {
+    let app = App::new("opt")
+        .arg(Arg::new("global").long("global"))
+        .subcommand(App::new("global"));
+
+    let m = app.clone().get_matches_from(&["opt", "--global", "global"]);
+    assert_eq!(m.subcommand_name().unwrap(), "global");
+    assert!(m.is_present("global"));
+
+    let m = app.clone().get_matches_from(&["opt", "--global"]);
+    assert!(m.subcommand_name().is_none());
+    assert!(m.is_present("global"));
+
+    let m = app.get_matches_from(&["opt", "global"]);
+    assert_eq!(m.subcommand_name().unwrap(), "global");
+    assert!(!m.is_present("global"));
+}

@@ -19,11 +19,6 @@ categories = []
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
-[badges]
-is-it-maintained-issue-resolution = { repository = "clap-rs/clap" }
-is-it-maintained-open-issues = { repository = "clap-rs/clap" }
-maintenance = {status = "actively-developed"}
-
 [lib]
 bench = false
 
