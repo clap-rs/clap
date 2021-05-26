@@ -186,7 +186,7 @@ pub fn check_complex_output(args: &str, out: &str) {
     } else {
         writeln!(w, "positional NOT present").unwrap();
     }
-    if matches.is_present("subcmd") {
+    if let Some("subcmd") = matches.subcommand_name() {
         writeln!(w, "subcmd present").unwrap();
         if let Some(matches) = matches.subcommand_matches("subcmd") {
             if matches.is_present("flag") {
