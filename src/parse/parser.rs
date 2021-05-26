@@ -407,12 +407,19 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 continue;
                             }
                             ParseResult::FlagSubCommandShort(ref name, done) => {
-                                // There are more short args, revist the current short args skipping the subcommand
+                                // There are more short args, revisit the current short args skipping the subcommand
                                 keep_state = !done;
                                 if keep_state {
                                     it.cursor -= 1;
-                                    self.skip_idxs = self.cur_idx.get();
+                                    self.skip_idxs += 1;
                                 }
+
+                                debug!(
+                                    "Parser::get_matches_with:FlagSubCommandShort: subcmd_name={}, keep_state={}, skip_idxs={}",
+                                    name,
+                                    keep_state,
+                                    self.skip_idxs
+                                );
 
                                 subcmd_name = Some(name.to_owned());
                                 break;
@@ -1012,6 +1019,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         // Update the current index
         self.cur_idx.set(self.cur_idx.get() + 1);
+        debug!("Parser::parse_long_arg: cur_idx:={}", self.cur_idx.get());
 
         debug!("Parser::parse_long_arg: Does it contain '='...");
         let long_arg = full_arg.trim_start_n_matches(2, b'-');
@@ -1074,6 +1082,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         let mut ret = ParseResult::NotFound;
+        // ! FIX ME!!!!!!
+        // let skip = self.skip_idxs - something;
         let skip = self.skip_idxs;
         self.skip_idxs = 0;
         for c in arg.chars().skip(skip) {
@@ -1081,6 +1091,11 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // update each index because `-abcd` is four indices to clap
             self.cur_idx.set(self.cur_idx.get() + 1);
+            debug!(
+                "Parser::parse_short_arg:iter:{}: cur_idx:={}",
+                c,
+                self.cur_idx.get()
+            );
 
             // Check for matching short options, and return the name if there is no trailing
             // concatenated value: -oval
@@ -1316,6 +1331,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         // update the current index because each value is a distinct index to clap
         self.cur_idx.set(self.cur_idx.get() + 1);
+        debug!(
+            "Parser::add_single_val_to_arg: cur_idx:={}",
+            self.cur_idx.get()
+        );
 
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {

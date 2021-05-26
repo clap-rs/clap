@@ -195,6 +195,29 @@ fn flag_subcommand_short_with_aliases_hyphen() {
 }
 
 #[test]
+fn flag_subcommand_short_after_long_arg_with_val() {
+    let m = App::new("pacman")
+        .subcommand(
+            App::new("sync")
+                .short_flag('S')
+                .arg(Arg::new("info").short('i'))
+                .arg(Arg::new("package").multiple(true).takes_value(true)),
+        )
+        .arg(
+            Arg::new("arg")
+                .long("arg")
+                .takes_value(true)
+                .multiple(false)
+                .global(true),
+        )
+        .get_matches_from(vec!["pacman", "--arg", "foo", "-Si"]);
+    let subm = m.subcommand_matches("sync");
+    assert!(subm.is_some());
+    let subm = subm.unwrap();
+    assert!(subm.is_present("info"));
+}
+
+#[test]
 fn flag_subcommand_long() {
     let matches = App::new("test")
         .subcommand(
