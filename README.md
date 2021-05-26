@@ -56,7 +56,9 @@ Once `clap` parses the user provided string of arguments, it returns the matches
 
 ## FAQ
 
-For a full FAQ, see [this](FAQ.md)
+[How does `clap` compare to structopt?](https://github.com/clap-rs/clap/blob/master/FAQ.md#how-does-clap-compare-to-structopt)
+
+For a full FAQ, see [this](https://github.com/clap-rs/clap/blob/master/FAQ.md)
 
 ## Features
 
