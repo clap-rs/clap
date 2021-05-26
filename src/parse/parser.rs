@@ -82,7 +82,8 @@ pub(crate) struct Parser<'help, 'app> {
     pub(crate) overridden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
-    pub(crate) skip_idxs: usize,
+    pub(crate) flag_subcmd_at: Option<usize>,
+    pub(crate) flag_subcmd_skip: usize,
 }
 
 // Initializing Methods
@@ -103,7 +104,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             overridden: Vec::new(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
-            skip_idxs: 0,
+            flag_subcmd_at: None,
+            flag_subcmd_skip: 0,
         }
     }
 
@@ -411,14 +413,15 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 keep_state = !done;
                                 if keep_state {
                                     it.cursor -= 1;
-                                    self.skip_idxs += 1;
+                                    self.flag_subcmd_skip =
+                                        self.cur_idx.get() - self.flag_subcmd_at.unwrap() + 1
                                 }
 
                                 debug!(
-                                    "Parser::get_matches_with:FlagSubCommandShort: subcmd_name={}, keep_state={}, skip_idxs={}",
+                                    "Parser::get_matches_with:FlagSubCommandShort: subcmd_name={}, keep_state={}, flag_subcmd_skip={}",
                                     name,
                                     keep_state,
-                                    self.skip_idxs
+                                    self.flag_subcmd_skip
                                 );
 
                                 subcmd_name = Some(name.to_owned());
@@ -915,7 +918,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // FlagSubCommand short arg needs to revisit the current short args, but skip the subcommand itself
                 if keep_state {
                     p.cur_idx.set(self.cur_idx.get());
-                    p.skip_idxs = self.skip_idxs;
+                    p.flag_subcmd_at = self.flag_subcmd_at;
+                    p.flag_subcmd_skip = self.flag_subcmd_skip;
                 }
                 p.get_matches_with(&mut sc_matcher, it)?;
             }
@@ -1082,10 +1086,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         let mut ret = ParseResult::NotFound;
-        // ! FIX ME!!!!!!
-        // let skip = self.skip_idxs - something;
-        let skip = self.skip_idxs;
-        self.skip_idxs = 0;
+
+        let skip = self.flag_subcmd_skip;
+        self.flag_subcmd_skip = 0;
         for c in arg.chars().skip(skip) {
             debug!("Parser::parse_short_arg:iter:{}", c);
 
@@ -1139,7 +1142,18 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
-                let done_short_args = self.cur_idx.get() == arg.len();
+                let cur_idx = self.cur_idx.get();
+                let done_short_args = if let Some(at) = self.flag_subcmd_at {
+                    cur_idx - at == arg.len() - 1
+                } else {
+                    // This is a new flag subcommand and should be registered.
+                    self.flag_subcmd_at = Some(cur_idx);
+                    // If we have only a letter, eg. '-S', then we are done. Otherwise, we are not.
+                    arg.len() == 1
+                };
+                if done_short_args {
+                    self.flag_subcmd_at.take();
+                }
                 return Ok(ParseResult::FlagSubCommandShort(name, done_short_args));
             } else {
                 let arg = format!("-{}", c);
