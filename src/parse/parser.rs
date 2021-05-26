@@ -82,7 +82,10 @@ pub(crate) struct Parser<'help, 'app> {
     pub(crate) overridden: Vec<Id>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
+    /// Index of the previous flag subcommand in a group of flags.
     pub(crate) flag_subcmd_at: Option<usize>,
+    /// Counter indicating the number of items to skip
+    /// when revisiting the group of flags which includes the flag subcommand.
     pub(crate) flag_subcmd_skip: usize,
 }
 
@@ -1148,7 +1151,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else {
                     // This is a new flag subcommand and should be registered.
                     self.flag_subcmd_at = Some(cur_idx);
-                    // If we have only a letter, eg. '-S', then we are done. Otherwise, we are not.
+                    // If we have only a letter in `arg`, eg. '-S', then we are done.
+                    // Otherwise, we are not.
                     arg.len() == 1
                 };
                 if done_short_args {
