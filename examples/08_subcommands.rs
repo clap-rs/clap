@@ -15,7 +15,7 @@ fn main() {
     //
     // Just like arg() and args(), subcommands can be specified one at a time via subcommand() or
     // multiple ones at once with a Vec<> provided to subcommands().
-    let matches = App::new("MyApp")
+    let app = App::new("MyApp")
         // Normal App and Arg configuration goes here...
         // In the following example assume we wanted an application which
         // supported an "add" subcommand, this "add" subcommand also took
@@ -33,8 +33,19 @@ fn main() {
                         .index(1)
                         .required(true),
                 ),
-        )
-        .get_matches();
+        );
+
+    let app = if true {
+      let about_text = "i-am-an-about-text".to_string() + "-for-foobar";
+      app.subcommand(
+        App::new("foobar")
+          .about(about_text)
+      )
+    } else {
+      app
+    };
+
+    let matches = app.get_matches();
 
     // You can check if a subcommand was used like normal
     if matches.is_present("add") {
