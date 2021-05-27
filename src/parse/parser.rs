@@ -1146,15 +1146,14 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
-                let cur_idx = self.cur_idx.get();
-                let done_short_args = if let Some(at) = self.flag_subcmd_at {
+                let done_short_args = {
+                    let cur_idx = self.cur_idx.get();
+                    // Get the index of the previous flag subcommand in the group of flags.
+                    // If it is a new flag subcommand, then it should be registered.
+                    let at = *self.flag_subcmd_at.get_or_insert(cur_idx);
+                    // If we are done, then the difference of indices (cur_idx - at) should be (end - at),
+                    // where `end` is the index of the end of the group.
                     cur_idx - at == arg.len() - 1
-                } else {
-                    // This is a new flag subcommand and should be registered.
-                    self.flag_subcmd_at = Some(cur_idx);
-                    // If we have only a letter in `arg`, eg. '-S', then we are done.
-                    // Otherwise, we are not.
-                    arg.len() == 1
                 };
                 if done_short_args {
                     self.flag_subcmd_at.take();
