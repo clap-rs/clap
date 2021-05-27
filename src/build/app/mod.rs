@@ -8,6 +8,7 @@ pub use self::settings::AppSettings;
 
 // Std
 use std::{
+    borrow::Cow,
     collections::HashMap,
     env,
     ffi::OsString,
@@ -71,7 +72,7 @@ pub struct App<'help> {
     pub(crate) version: Option<&'help str>,
     pub(crate) long_version: Option<&'help str>,
     pub(crate) license: Option<&'help str>,
-    pub(crate) about: Option<&'help str>,
+    pub(crate) about: Option<Cow<'help, str>>,
     pub(crate) long_about: Option<&'help str>,
     pub(crate) before_help: Option<&'help str>,
     pub(crate) before_long_help: Option<&'help str>,
@@ -460,7 +461,7 @@ impl<'help> App<'help> {
     /// [long format]: App::long_about()
     /// [short format]: App::about()
     /// [`App::about`]: App::about()
-    pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
+    pub fn about<S: Into<Cow<'help, str>>>(mut self, about: S) -> Self {
         self.about = Some(about.into());
         self
     }

@@ -646,9 +646,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
     fn write_about(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
         let about = if self.use_long {
-            self.parser.app.long_about.or(self.parser.app.about)
+            self.parser
+                .app
+                .long_about
+                .or_else(|| self.parser.app.about.as_ref().map(|a| a.as_ref()))
         } else {
-            self.parser.app.about
+            self.parser.app.about.as_ref().map(|a| a.as_ref())
         };
         if let Some(output) = about {
             if before_new_line {
@@ -702,9 +705,13 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let spec_vals = &self.sc_spec_vals(app);
 
         let about = if self.use_long {
-            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
+            app.long_about
+                .unwrap_or_else(|| app.about.as_ref().map(|a| a.as_ref()).unwrap_or(""))
         } else {
-            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
+            app.about
+                .as_ref()
+                .map(|a| a.as_ref())
+                .unwrap_or_else(|| app.long_about.unwrap_or(""))
         };
 
         self.subcmd(sc_str, next_line_help, longest)?;
@@ -745,7 +752,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             true
         } else {
             // force_next_line
-            let h = app.about.unwrap_or("");
+            let h = app.about.as_ref().map(|a| a.as_ref()).unwrap_or("");
             let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
