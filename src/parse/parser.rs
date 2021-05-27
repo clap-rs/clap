@@ -416,8 +416,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 keep_state = !done;
                                 if keep_state {
                                     it.cursor -= 1;
-                                    self.flag_subcmd_skip =
-                                        self.cur_idx.get() - self.flag_subcmd_at.unwrap() + 1
+                                    self.flag_subcmd_skip = self.cur_idx.get()
+                                        - self.flag_subcmd_at.expect(INTERNAL_ERROR_MSG)
+                                        + 1;
                                 }
 
                                 debug!(
@@ -1121,7 +1122,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 // Check for trailing concatenated value
-                let i = arg_os.split(c).next().unwrap().len() + c.len_utf8();
+                let i = arg_os.split(c).next().expect(INTERNAL_ERROR_MSG).len() + c.len_utf8();
                 debug!(
                     "Parser::parse_short_arg:iter:{}: i={}, arg_os={:?}",
                     c, i, arg_os
