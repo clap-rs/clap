@@ -416,6 +416,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 keep_state = !done;
                                 if keep_state {
                                     it.cursor -= 1;
+                                    // Here `self.flag_subcmd_at` can be safely unwrapped, because the only place to get a true `keep_state`
+                                    // (ie. a false `done`) is in `Parser::parse_short_arg`, during which `self.flag_subcmd_at` should have
+                                    // been set anyway.
+                                    // If not, it's definitely an internal error!
+                                    // Since we are now saving the current state, the number of flags to skip during state recovery should
+                                    // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
                                     self.flag_subcmd_skip = self.cur_idx.get()
                                         - self.flag_subcmd_at.expect(INTERNAL_ERROR_MSG)
                                         + 1;
@@ -537,7 +543,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let append = self.arg_have_val(matcher, p);
                 self.add_val_to_arg(p, arg_os, matcher, ValueType::CommandLine, append);
 
-                // Increase occurence no matter if we are appending, Occurences
+                // Increase occurrence no matter if we are appending, occurrences
                 // of positional argument equals to number of values rather than
                 // the number of value groups.
                 self.inc_occurrence_of_arg(matcher, p);
@@ -1148,15 +1154,17 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let name = sc_name.to_string();
                 let done_short_args = {
                     let cur_idx = self.cur_idx.get();
-                    // Get the index of the previous flag subcommand in the group of flags.
-                    // If it is a new flag subcommand, then it should be registered.
+                    // Get the index of the previously saved flag subcommand in the group of flags (if exists).
+                    // If it is a new flag subcommand, then the formentioned index should be the current one
+                    // (ie. `cur_idx`), and should be registered.
                     let at = *self.flag_subcmd_at.get_or_insert(cur_idx);
-                    // If we are done, then the difference of indices (cur_idx - at) should be (end - at),
+                    // If we are done, then the difference of indices (cur_idx - at) should be (end - at) which
+                    // should equal to (arg.len() - 1),
                     // where `end` is the index of the end of the group.
                     cur_idx - at == arg.len() - 1
                 };
                 if done_short_args {
-                    self.flag_subcmd_at.take();
+                    self.flag_subcmd_at = None;
                 }
                 return Ok(ParseResult::FlagSubCommandShort(name, done_short_args));
             } else {
