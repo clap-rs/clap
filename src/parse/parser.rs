@@ -24,8 +24,7 @@ use crate::{
 pub(crate) enum ParseResult {
     Flag,
     FlagSubCommand(String),
-    // subcommand name, whether there are more shorts args remaining
-    FlagSubCommandShort(String, bool),
+    FlagSubCommandShort(String),
     Opt(Id),
     Pos(Id),
     MaybeHyphenValue,
@@ -388,7 +387,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 subcmd_name = Some(name.to_owned());
                                 break;
                             }
-                            ParseResult::FlagSubCommandShort(_, _) => unreachable!(),
+                            ParseResult::FlagSubCommandShort(_) => unreachable!(),
                             _ => (),
                         }
                     } else if arg_os.starts_with("-")
@@ -411,21 +410,18 @@ impl<'help, 'app> Parser<'help, 'app> {
                             ParseResult::Opt(..) | ParseResult::Flag | ParseResult::ValuesDone => {
                                 continue;
                             }
-                            ParseResult::FlagSubCommandShort(ref name, done) => {
-                                // There are more short args, revisit the current short args skipping the subcommand
-                                keep_state = !done;
-                                if keep_state {
-                                    it.cursor -= 1;
-                                    // Here `self.flag_subcmd_at` can be safely unwrapped, because the only place to get a true `keep_state`
-                                    // (ie. a false `done`) is in `Parser::parse_short_arg`, during which `self.flag_subcmd_at` should have
-                                    // been set anyway.
-                                    // If not, it's definitely an internal error!
-                                    // Since we are now saving the current state, the number of flags to skip during state recovery should
-                                    // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
-                                    self.flag_subcmd_skip = self.cur_idx.get()
-                                        - self.flag_subcmd_at.expect(INTERNAL_ERROR_MSG)
-                                        + 1;
-                                }
+                            ParseResult::FlagSubCommandShort(ref name) => {
+                                // If there are more short flags to be processed, we should keep the state, and later
+                                // revisit the current group of short flags skipping the subcommand.
+                                keep_state = self
+                                    .flag_subcmd_at
+                                    .map(|at| {
+                                        it.cursor -= 1;
+                                        // Since we are now saving the current state, the number of flags to skip during state recovery should
+                                        // be the current index (`cur_idx`) minus ONE UNIT TO THE LEFT of the starting position.
+                                        self.flag_subcmd_skip = self.cur_idx.get() - at + 1;
+                                    })
+                                    .is_some();
 
                                 debug!(
                                     "Parser::get_matches_with:FlagSubCommandShort: subcmd_name={}, keep_state={}, flag_subcmd_skip={}",
@@ -1166,7 +1162,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if done_short_args {
                     self.flag_subcmd_at = None;
                 }
-                return Ok(ParseResult::FlagSubCommandShort(name, done_short_args));
+                return Ok(ParseResult::FlagSubCommandShort(name));
             } else {
                 let arg = format!("-{}", c);
 
