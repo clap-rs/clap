@@ -294,87 +294,91 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn validate_exclusive(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
         let args_count = matcher.arg_names().count();
-        for name in matcher.arg_names() {
-            debug!("Validator::validate_exclusive:iter:{:?}", name);
-            if let Some(arg) = self.p.app.find(name) {
-                if arg.exclusive && args_count > 1 {
-                    let c_with: Option<String> = None;
-                    return Err(Error::argument_conflict(
-                        arg,
-                        c_with,
-                        Usage::new(self.p).create_usage_with_title(&[]),
-                        self.p.app.color(),
-                    ));
-                }
-            }
-        }
-        Ok(())
+        matcher
+            .arg_names()
+            .filter_map(|name| {
+                debug!("Validator::validate_exclusive:iter:{:?}", name);
+                self.p
+                    .app
+                    .find(name)
+                    // Find an `arg` which is exclusive but also appears with other args.
+                    .filter(|arg| arg.exclusive && args_count > 1)
+            })
+            .map(|arg| {
+                // Then this `arg` is the one in conflict. Throw an error for it.
+                Err(Error::argument_conflict(
+                    arg,
+                    None,
+                    Usage::new(self.p).create_usage_with_title(&[]),
+                    self.p.app.color(),
+                ))
+            })
+            .collect()
     }
 
     // Gathers potential conflicts based on used argument, but without considering requirements
     // and such
     fn gather_conflicts(&mut self, matcher: &mut ArgMatcher) {
         debug!("Validator::gather_conflicts");
-        for name in matcher.arg_names() {
-            debug!("Validator::gather_conflicts:iter: id={:?}", name);
-            // if arg is "present" only because it got default value
-            // it doesn't conflict with anything
-            //
-            // TODO: @refactor Do it in a more elegant way
-            if matcher
-                .get(name)
-                .map_or(false, |a| a.ty == ValueType::DefaultValue)
-            {
-                debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
-                continue;
-            }
-
-            if let Some(arg) = self.p.app.find(name) {
-                // Since an arg was used, every arg it conflicts with is added to the conflicts
-                for conf in &arg.blacklist {
-                    if self.p.app.find(conf).is_some() {
-                        if conf != name {
+        matcher
+            .arg_names()
+            .filter(|name| {
+                debug!("Validator::gather_conflicts:iter: id={:?}", name);
+                // if arg is "present" only because it got default value
+                // it doesn't conflict with anything and should be skipped
+                let skip = matcher
+                    .get(name)
+                    .map_or(false, |a| a.ty == ValueType::DefaultValue);
+                if skip {
+                    debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
+                }
+                !skip
+            })
+            .for_each(|name| {
+                if let Some(arg) = self.p.app.find(name) {
+                    // Since an arg was used, every arg it conflicts with is added to the conflicts
+                    for conf in &arg.blacklist {
+                        if self.p.app.find(conf).is_some() && conf != name {
                             self.c.insert(conf.clone());
+                        } else {
+                            // for g_arg in self.p.app.unroll_args_in_group(conf) {
+                            //     if &g_arg != name {
+                            self.c.insert(conf.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
+                                                         //     }
+                                                         // }
                         }
-                    } else {
-                        // for g_arg in self.p.app.unroll_args_in_group(conf) {
-                        //     if &g_arg != name {
-                        self.c.insert(conf.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
-                                                     //     }
-                                                     // }
                     }
-                }
 
-                // Now we need to know which groups this arg was a member of, to add all other
-                // args in that group to the conflicts, as well as any args those args conflict
-                // with
+                    // Now we need to know which groups this arg was a member of, to add all other
+                    // args in that group to the conflicts, as well as any args those args conflict
+                    // with
 
-                for grp in self.p.app.groups_for_arg(&name) {
-                    if let Some(g) = self
-                        .p
-                        .app
-                        .groups
-                        .iter()
-                        .find(|g| !g.multiple && g.id == grp)
-                    {
-                        // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
-                        //     if &g_arg != name {
-                        self.c.insert(g.id.clone());
-                        //     }
-                        // }
+                    for grp in self.p.app.groups_for_arg(&name) {
+                        if let Some(g) = self
+                            .p
+                            .app
+                            .groups
+                            .iter()
+                            .find(|g| !g.multiple && g.id == grp)
+                        {
+                            // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
+                            //     if &g_arg != name {
+                            self.c.insert(g.id.clone());
+                            //     }
+                            // }
+                        }
                     }
+                } else if let Some(g) = self
+                    .p
+                    .app
+                    .groups
+                    .iter()
+                    .find(|g| !g.multiple && g.id == *name)
+                {
+                    debug!("Validator::gather_conflicts:iter:{:?}:group", name);
+                    self.c.insert(g.id.clone());
                 }
-            } else if let Some(g) = self
-                .p
-                .app
-                .groups
-                .iter()
-                .find(|g| !g.multiple && g.id == *name)
-            {
-                debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                self.c.insert(g.id.clone());
-            }
-        }
+            });
     }
 
     fn gather_requirements(&mut self, matcher: &ArgMatcher) {
