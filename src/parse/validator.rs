@@ -186,7 +186,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         let required: Vec<Id> = used_filtered
             .iter()
             .filter_map(|key| self.p.app.find(key))
-            .flat_map(|key_arg| key_arg.requires.iter().map(|item| &item.1))
+            .flat_map(|arg| arg.requires.iter().map(|item| &item.1))
             .filter(|key| {
                 !used_filtered.contains(key)
                     && *key != conflicting_key
@@ -201,28 +201,32 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn build_conflict_err(&self, name: &Id, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::build_conflict_err: name={:?}", name);
         if let Some(checked_arg) = self.p.app.find(name) {
-            for k in matcher.arg_names() {
-                if let Some(a) = self.p.app.find(k) {
-                    if a.blacklist.contains(&name) {
-                        let (_former, former_arg, latter, latter_arg) = {
-                            let name_pos = matcher.arg_names().position(|key| key == name);
-                            let k_pos = matcher.arg_names().position(|key| key == k);
-                            if name_pos < k_pos {
-                                (name, checked_arg, k, a)
-                            } else {
-                                (k, a, name, checked_arg)
-                            }
-                        };
-                        let usg = self.build_conflict_err_usage(matcher, former_arg, latter);
-                        return Err(Error::argument_conflict(
-                            latter_arg,
-                            Some(former_arg.to_string()),
-                            usg,
-                            self.p.app.color(),
-                        ));
-                    }
-                }
-            }
+            matcher
+                .arg_names()
+                .filter_map(|k| {
+                    let arg = self.p.app.find(k);
+                    // Find the args that blacklists `name`.
+                    arg.filter(|a| a.blacklist.contains(&name)).map(|a| (k, a))
+                })
+                .try_for_each(|(k, a)| {
+                    let (_former, former_arg, latter, latter_arg) = {
+                        let names = || matcher.arg_names();
+                        let name_pos = names().position(|key| key == name);
+                        let k_pos = names().position(|key| key == k);
+                        if name_pos < k_pos {
+                            (name, checked_arg, k, a)
+                        } else {
+                            (k, a, name, checked_arg)
+                        }
+                    };
+                    let usg = self.build_conflict_err_usage(matcher, former_arg, latter);
+                    Err(Error::argument_conflict(
+                        latter_arg,
+                        Some(former_arg.to_string()),
+                        usg,
+                        self.p.app.color(),
+                    ))
+                })
         } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == *name) {
             let usg = Usage::new(self.p).create_usage_with_title(&[]);
             let args_in_group = self.p.app.unroll_args_in_group(&g.id);
@@ -235,13 +239,15 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 .find(|x| x != &first && args_in_group.contains(x))
                 .map(|x| self.p.app[x].to_string());
             debug!("Validator::build_conflict_err: c_with={:?}:group", c_with);
-            return Err(Error::argument_conflict(
+            Err(Error::argument_conflict(
                 &self.p.app[first],
                 c_with,
                 usg,
                 self.p.app.color(),
-            ));
-        }
+            ))
+        } else {
+            Ok(())
+        }?;
 
         panic!("{}", INTERNAL_ERROR_MSG);
     }
@@ -251,45 +257,40 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         self.validate_exclusive(matcher)?;
         self.gather_conflicts(matcher);
 
-        for name in self.c.iter() {
-            debug!("Validator::validate_conflicts:iter:{:?}", name);
-            let mut should_err = false;
-            if let Some(g) = self
-                .p
-                .app
-                .groups
-                .iter()
-                .find(|g| !g.multiple && &g.id == name)
-            {
-                let conf_with_self = self
-                    .p
-                    .app
-                    .unroll_args_in_group(&g.id)
-                    .iter()
-                    .filter(|&a| matcher.contains(a))
-                    .count()
-                    > 1;
-
-                let conf_with_arg = g.conflicts.iter().any(|x| matcher.contains(x));
-
-                let arg_conf_with_gr = matcher
-                    .arg_names()
-                    .filter_map(|x| self.p.app.find(x))
-                    .any(|x| x.blacklist.iter().any(|c| *c == g.id));
-
-                should_err = conf_with_self || conf_with_arg || arg_conf_with_gr;
-            } else if let Some(ma) = matcher.get(name) {
-                debug!(
-                    "Validator::validate_conflicts:iter:{:?}: matcher contains it...",
-                    name
-                );
-                should_err = ma.occurs > 0;
-            }
-            if should_err {
-                return self.build_conflict_err(name, matcher);
-            }
-        }
-        Ok(())
+        self.c
+            .iter()
+            .filter(|&name| {
+                debug!("Validator::validate_conflicts:iter:{:?}", name);
+                let app = &*self.p.app;
+                // Filter out the conflicting cases.
+                if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == *name) {
+                    let conf_with_self = || {
+                        app.unroll_args_in_group(&g.id)
+                            .iter()
+                            .filter(|&a| matcher.contains(a))
+                            .count()
+                            > 1
+                    };
+                    let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
+                    let arg_conf_with_gr = || {
+                        matcher
+                            .arg_names()
+                            .filter_map(|x| self.p.app.find(x))
+                            .any(|x| x.blacklist.iter().any(|c| *c == g.id))
+                    };
+                    conf_with_self() || conf_with_arg() || arg_conf_with_gr()
+                } else if let Some(ma) = matcher.get(name) {
+                    debug!(
+                        "Validator::validate_conflicts:iter:{:?}: matcher contains it...",
+                        name
+                    );
+                    ma.occurs > 0
+                } else {
+                    false
+                }
+            })
+            // Throw an error for the first conflict found.
+            .try_for_each(|odd| self.build_conflict_err(odd, matcher))
     }
 
     fn validate_exclusive(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
@@ -302,11 +303,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 self.p
                     .app
                     .find(name)
-                    // Find an `arg` which is exclusive but also appears with other args.
-                    .filter(|arg| arg.exclusive && args_count > 1)
+                    // Find `arg`s which are exclusive but also appear with other args.
+                    .filter(|&arg| arg.exclusive && args_count > 1)
             })
-            .map(|arg| {
-                // Then this `arg` is the one in conflict. Throw an error for it.
+            // Throw an error for the first conflict found.
+            .try_for_each(|arg| {
                 Err(Error::argument_conflict(
                     arg,
                     None,
@@ -314,7 +315,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     self.p.app.color(),
                 ))
             })
-            .collect()
     }
 
     // Gathers potential conflicts based on used argument, but without considering requirements
@@ -336,46 +336,21 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 !skip
             })
             .for_each(|name| {
-                if let Some(arg) = self.p.app.find(name) {
+                let app = &*self.p.app;
+                if let Some(arg) = app.find(name) {
                     // Since an arg was used, every arg it conflicts with is added to the conflicts
                     for conf in &arg.blacklist {
-                        if self.p.app.find(conf).is_some() && conf != name {
-                            self.c.insert(conf.clone());
-                        } else {
-                            // for g_arg in self.p.app.unroll_args_in_group(conf) {
-                            //     if &g_arg != name {
-                            self.c.insert(conf.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
-                                                         //     }
-                                                         // }
-                        }
+                        self.c.insert(conf.clone());
                     }
-
                     // Now we need to know which groups this arg was a member of, to add all other
                     // args in that group to the conflicts, as well as any args those args conflict
                     // with
-
-                    for grp in self.p.app.groups_for_arg(&name) {
-                        if let Some(g) = self
-                            .p
-                            .app
-                            .groups
-                            .iter()
-                            .find(|g| !g.multiple && g.id == grp)
-                        {
-                            // for g_arg in self.p.app.unroll_args_in_group(&g.name) {
-                            //     if &g_arg != name {
+                    for grp in app.groups_for_arg(&name) {
+                        if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == grp) {
                             self.c.insert(g.id.clone());
-                            //     }
-                            // }
                         }
                     }
-                } else if let Some(g) = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| !g.multiple && g.id == *name)
-                {
+                } else if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == *name) {
                     debug!("Validator::gather_conflicts:iter:{:?}:group", name);
                     self.c.insert(g.id.clone());
                 }
@@ -401,7 +376,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_matched_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_matched_args");
-        for (name, ma) in matcher.iter() {
+        matcher.iter().try_for_each(|(name, ma)| {
             debug!(
                 "Validator::validate_matched_args:iter:{:?}: vals={:#?}",
                 name,
@@ -413,10 +388,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 self.validate_arg_requires(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             } else {
-                let grp = self
-                    .p
-                    .app
-                    .groups
+                let grps = &self.p.app.groups;
+                let grp = grps
                     .iter()
                     .find(|g| g.id == *name)
                     .expect(INTERNAL_ERROR_MSG);
@@ -424,8 +397,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     return self.missing_required_error(matcher, vec![name.clone()]);
                 }
             }
-        }
-        Ok(())
+            Ok(())
+        })
     }
 
     fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
@@ -433,7 +406,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             "Validator::validate_arg_num_occurs: {:?}={}",
             a.name, ma.occurs
         );
-        // Occurence of positional argument equals to number of values rather
+        // Occurrence of positional argument equals to number of values rather
         // than number of grouped values.
         if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) && !a.is_positional() {
             // Not the first time, and we don't allow multiples
@@ -543,18 +516,17 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         );
         self.gather_requirements(matcher);
 
+        let app = &*self.p.app;
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
-            if let Some(arg) = self.p.app.find(&arg_or_group) {
+            if let Some(arg) = app.find(&arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, vec![]);
                 }
-            } else if let Some(group) = self.p.app.groups.iter().find(|g| g.id == *arg_or_group) {
+            } else if let Some(group) = app.groups.iter().find(|g| g.id == *arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
-                if !self
-                    .p
-                    .app
+                if !app
                     .unroll_args_in_group(&group.id)
                     .iter()
                     .any(|a| matcher.contains(a))
@@ -565,7 +537,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
 
         // Validate the conditionally required args
-        for a in self.p.app.args.args() {
+        for a in app.args.args() {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
                     if ma.contains_val(val) && !matcher.contains(&a.id) {
@@ -574,19 +546,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             }
 
-            let mut match_all = true;
-            for (other, val) in &a.r_ifs_all {
-                if let Some(ma) = matcher.get(other) {
-                    if !ma.contains_val(val) {
-                        match_all = false;
-                        break;
-                    }
-                } else {
-                    match_all = false;
-                    break;
-                }
-            }
-
+            let match_all = a
+                .r_ifs_all
+                .iter()
+                .all(|(other, val)| matcher.get(other).map_or(false, |ma| ma.contains_val(val)));
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
@@ -602,11 +565,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::validate_arg_conflicts: a={:?}", a.name);
         a.blacklist.iter().any(|conf| {
+            let groups = &self.p.app.groups;
             matcher.contains(conf)
-                || self
-                    .p
-                    .app
-                    .groups
+                || groups
                     .iter()
                     .find(|g| g.id == *conf)
                     .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
@@ -615,14 +576,13 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_required_unless");
-        let failed_args: Vec<_> = self
-            .p
-            .app
-            .args
-            .args()
-            .filter(|a| !a.r_unless.is_empty())
-            .filter(|a| !matcher.contains(&a.id))
-            .filter(|a| self.fails_arg_required_unless(a, matcher))
+        let args = self.p.app.args.args();
+        let failed_args: Vec<_> = args
+            .filter(|&a| {
+                !a.r_unless.is_empty()
+                    && !matcher.contains(&a.id)
+                    && self.fails_arg_required_unless(a, matcher)
+            })
             .map(|a| a.id.clone())
             .collect();
         if failed_args.is_empty() {
@@ -674,7 +634,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         Err(Error::missing_required_argument(
             req_args,
-            usg.create_usage_with_title(&*used),
+            usg.create_usage_with_title(&used),
             self.p.app.color(),
         ))
     }
