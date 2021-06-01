@@ -1,0 +1,7 @@
+name: claptests
+version: "1.0"
+about: tests clap extra fields
+args:
+    - option:
+        long: option
+        random: This field is extra

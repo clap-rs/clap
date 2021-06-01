@@ -2,13 +2,7 @@ name: clapregextest
 version: "1.0"
 about: tests clap regex functionality
 author: Benjamin Kästner <benjamin.kaestner@gmail.com>
-settings:
-    - ArgRequiredElseHelp
 args:
-    - help:
-        short: h
-        long: help
-        about: prints help with a nonstandard description
     - filter:
         index: 1
         validator_regex: ["^*\\.[a-z]+$", expected extension pattern]

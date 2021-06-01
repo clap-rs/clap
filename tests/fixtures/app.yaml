@@ -4,18 +4,16 @@ about: tests clap library
 author: Kevin K. <kbknapp@gmail.com>
 settings:
     - ArgRequiredElseHelp
-ignored_field: This field is ignored
 args:
     - help:
         short: h
         long: help
         about: prints help with a nonstandard description
-        ignored_field: This field is ignored
     - option:
         short: o
         long: option
         takes_value: true
-        multiple: true
+        multiple_values: true
         about: tests options
     - positional:
         about: tests positionals
@@ -30,7 +28,7 @@ args:
         short: f
         long: flag
         takes_value: true
-        multiple: true
+        multiple_values: true
         about: tests flags
         global: true
     - flag2:
@@ -69,14 +67,14 @@ args:
             - two
     - multvalsmo:
         long: multvalsmo
-        multiple: true
+        multiple_values: true
         about: Tests multiple values, not mult occs
         value_names: [one, two]
     - multvalsdelim:
         long: multvalsdelim
         about: Tests multiple values with required delimiter
         takes_value: true
-        multiple: true
+        multiple_occurrences: true
         use_delimiter: true
         require_delimiter: true
     - settings:
@@ -105,12 +103,12 @@ args:
         short_aliases: [b, c]
     - minvals2:
         long: minvals2
-        multiple: true
+        multiple_values: true
         about: Tests 2 min vals
         min_values: 2
     - maxvals3:
         long: maxvals3
-        multiple: true
+        multiple_values: true
         about: Tests 3 max vals
         max_values: 3
     - exclusive:
@@ -119,18 +117,18 @@ args:
         exclusive: true
     - case_insensitive:
         index: 4
-        help: Test case_insensitive
+        about: Test case_insensitive
         possible_values: [test123, test321]
         case_insensitive: true
     - value_hint:
         long: value-hint
-        help: Test value_hint
+        about: Test value_hint
         value_hint: FilePath
     - verbose:
         short: v
         multiple_occurrences: true
         takes_value: false
-        help: Sets the level of verbosity
+        about: Sets the level of verbosity
     - visiblealiases:
         long: visiblealiases
         about: Tests visible aliases
@@ -141,12 +139,11 @@ args:
         about: Tests visible short aliases
         visible_short_alias: e
         visible_short_aliases: [l, m]
-
-arg_groups:
+groups:
     - test:
         args:
             - maxvals3
-            - minmals2
+            - minvals2
         conflicts_with:
             - option3
         requires:
@@ -160,7 +157,7 @@ subcommands:
             - scoption:
                 short: o
                 long: option
-                multiple: true
+                multiple_values: true
                 about: tests options
                 takes_value: true
             - scpositional:

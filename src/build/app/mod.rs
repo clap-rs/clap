@@ -2810,138 +2810,91 @@ impl<'help> Index<&'_ Id> for App<'help> {
 #[cfg(feature = "yaml")]
 impl<'help> From<&'help Yaml> for App<'help> {
     #[allow(clippy::cognitive_complexity)]
-    fn from(mut yaml: &'help Yaml) -> Self {
+    fn from(y: &'help Yaml) -> Self {
         // We WANT this to panic on error...so expect() is good.
-        let mut is_sc = None;
-        let mut a = if let Some(name) = yaml["name"].as_str() {
-            App::new(name)
+        let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
+            (App::new(name), y, "app".into())
         } else {
-            let yaml_hash = yaml.as_hash().unwrap();
-            let sc_key = yaml_hash.keys().next().unwrap();
-            is_sc = Some(yaml_hash.get(sc_key).unwrap());
-            App::new(sc_key.as_str().unwrap())
+            let yaml_hash = y.as_hash().unwrap();
+            let name_yaml = yaml_hash.keys().next().unwrap();
+            let name_str = name_yaml.as_str().unwrap();
+
+            (
+                App::new(name_str),
+                yaml_hash.get(name_yaml).unwrap(),
+                format!("subcommand '{}'", name_str),
+            )
         };
-        yaml = if let Some(sc) = is_sc { sc } else { yaml };
 
-        macro_rules! yaml_str {
-            ($a:ident, $y:ident, $i:ident) => {
-                if let Some(v) = $y[stringify!($i)].as_str() {
-                    $a = $a.$i(v);
-                } else if $y[stringify!($i)] != Yaml::BadValue {
-                    panic!(
-                        "Failed to convert YAML value {:?} to a string",
-                        $y[stringify!($i)]
-                    );
+        let mut has_metadata = false;
+
+        for (k, v) in yaml.as_hash().unwrap().iter() {
+            a = match k.as_str().unwrap() {
+                "_has_metadata" => {
+                    has_metadata = true;
+                    a
                 }
-            };
-        }
-
-        yaml_str!(a, yaml, version);
-        yaml_str!(a, yaml, long_version);
-        yaml_str!(a, yaml, author);
-        yaml_str!(a, yaml, bin_name);
-        yaml_str!(a, yaml, about);
-        yaml_str!(a, yaml, before_help);
-        yaml_str!(a, yaml, before_long_help);
-        yaml_str!(a, yaml, after_help);
-        yaml_str!(a, yaml, after_long_help);
-        yaml_str!(a, yaml, alias);
-        yaml_str!(a, yaml, visible_alias);
-
-        if let Some(v) = yaml["display_order"].as_i64() {
-            a = a.display_order(v as usize);
-        } else if yaml["display_order"] != Yaml::BadValue {
-            panic!(
-                "Failed to convert YAML value {:?} to a u64",
-                yaml["display_order"]
-            );
-        }
-        if let Some(v) = yaml["setting"].as_str() {
-            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
-        } else if yaml["setting"] != Yaml::BadValue {
-            panic!(
-                "Failed to convert YAML value {:?} to an AppSetting",
-                yaml["setting"]
-            );
-        }
-        if let Some(v) = yaml["settings"].as_vec() {
-            for ys in v {
-                if let Some(s) = ys.as_str() {
-                    a = a.setting(s.parse().expect("unknown AppSetting found in YAML file"));
-                }
-            }
-        } else if let Some(v) = yaml["settings"].as_str() {
-            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
-        } else if yaml["settings"] != Yaml::BadValue {
-            panic!(
-                "Failed to convert YAML value {:?} to a string",
-                yaml["settings"]
-            );
-        }
-        if let Some(v) = yaml["global_setting"].as_str() {
-            a = a.setting(v.parse().expect("unknown AppSetting found in YAML file"));
-        } else if yaml["global_setting"] != Yaml::BadValue {
-            panic!(
-                "Failed to convert YAML value {:?} to an AppSetting",
-                yaml["setting"]
-            );
-        }
-        if let Some(v) = yaml["global_settings"].as_vec() {
-            for ys in v {
-                if let Some(s) = ys.as_str() {
-                    a = a.global_setting(s.parse().expect("unknown AppSetting found in YAML file"));
-                }
-            }
-        } else if let Some(v) = yaml["global_settings"].as_str() {
-            a = a.global_setting(v.parse().expect("unknown AppSetting found in YAML file"));
-        } else if yaml["global_settings"] != Yaml::BadValue {
-            panic!(
-                "Failed to convert YAML value {:?} to a string",
-                yaml["global_settings"]
-            );
-        }
-
-        macro_rules! vec_or_str {
-            ($a:ident, $y:ident, $as_vec:ident, $as_single:ident) => {{
-                let maybe_vec = $y[stringify!($as_vec)].as_vec();
-                if let Some(vec) = maybe_vec {
-                    for ys in vec {
-                        if let Some(s) = ys.as_str() {
-                            $a = $a.$as_single(s);
-                        } else {
-                            panic!("Failed to convert YAML value {:?} to a string", ys);
+                "bin_name" => yaml_to_str!(a, v, bin_name),
+                "version" => yaml_to_str!(a, v, version),
+                "long_version" => yaml_to_str!(a, v, long_version),
+                "author" => yaml_to_str!(a, v, author),
+                "about" => yaml_to_str!(a, v, about),
+                "before_help" => yaml_to_str!(a, v, before_help),
+                "before_long_help" => yaml_to_str!(a, v, before_long_help),
+                "after_help" => yaml_to_str!(a, v, after_help),
+                "after_long_help" => yaml_to_str!(a, v, after_long_help),
+                "help_heading" => yaml_to_str!(a, v, help_heading),
+                "help_template" => yaml_to_str!(a, v, help_template),
+                "override_help" => yaml_to_str!(a, v, override_help),
+                "override_usage" => yaml_to_str!(a, v, override_usage),
+                "alias" => yaml_to_str!(a, v, alias),
+                "aliases" => yaml_vec_or_str!(a, v, alias),
+                "visible_alias" => yaml_to_str!(a, v, visible_alias),
+                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
+                "display_order" => yaml_to_usize!(a, v, display_order),
+                "term_width" => yaml_to_usize!(a, v, term_width),
+                "max_term_width" => yaml_to_usize!(a, v, max_term_width),
+                "args" => {
+                    if let Some(vec) = v.as_vec() {
+                        for arg_yaml in vec {
+                            a = a.arg(Arg::from(arg_yaml));
                         }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
                     }
-                } else {
-                    if let Some(s) = $y[stringify!($as_vec)].as_str() {
-                        $a = $a.$as_single(s);
-                    } else if $y[stringify!($as_vec)] != Yaml::BadValue {
-                        panic!(
-                            "Failed to convert YAML value {:?} to either a vec or string",
-                            $y[stringify!($as_vec)]
-                        );
-                    }
+                    a
                 }
-                $a
-            }};
-        }
-
-        a = vec_or_str!(a, yaml, aliases, alias);
-        a = vec_or_str!(a, yaml, visible_aliases, visible_alias);
-
-        if let Some(v) = yaml["args"].as_vec() {
-            for arg_yaml in v {
-                a = a.arg(Arg::from(arg_yaml));
-            }
-        }
-        if let Some(v) = yaml["subcommands"].as_vec() {
-            for sc_yaml in v {
-                a = a.subcommand(App::from(sc_yaml));
-            }
-        }
-        if let Some(v) = yaml["groups"].as_vec() {
-            for ag_yaml in v {
-                a = a.group(ArgGroup::from(ag_yaml));
+                "subcommands" => {
+                    if let Some(vec) = v.as_vec() {
+                        for sc_yaml in vec {
+                            a = a.subcommand(App::from(sc_yaml));
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
+                    }
+                    a
+                }
+                "groups" => {
+                    if let Some(vec) = v.as_vec() {
+                        for ag_yaml in vec {
+                            a = a.group(ArgGroup::from(ag_yaml));
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
+                    }
+                    a
+                }
+                "setting" | "settings" => yaml_to_setting!(a, v, setting, "AppSetting", err),
+                "global_setting" | "global_settings" => {
+                    yaml_to_setting!(a, v, global_setting, "AppSetting", err)
+                }
+                "name" => continue,
+                s => {
+                    if !has_metadata {
+                        panic!("Unknown setting '{}' in YAML file for {}", s, err)
+                    }
+                    continue;
+                }
             }
         }
 

@@ -1,0 +1,6 @@
+name: claptests
+version: "1.0"
+about: tests clap extra fields
+subcommands:
+    - info:
+        random: This field is extra

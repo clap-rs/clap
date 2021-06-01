@@ -1,0 +1,10 @@
+_has_metadata: true
+name: claptests
+version: "1.0"
+about: tests clap extra fields
+random: This field is extra
+args:
+    - option:
+        _has_metadata: true
+        long: option
+        random: This field is extra

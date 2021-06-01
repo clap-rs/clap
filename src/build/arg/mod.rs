@@ -4233,7 +4233,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Placeholder documentation
+    /// @TODO@ @release @docs
     #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
@@ -4668,23 +4668,29 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
     /// ```
     #[allow(clippy::cognitive_complexity)]
     fn from(y: &'help Yaml) -> Self {
-        let y = y.as_hash().unwrap();
+        let yaml_hash = y.as_hash().unwrap();
         // We WANT this to panic on error...so expect() is good.
-        let name_yaml = y.keys().next().unwrap();
+        let name_yaml = yaml_hash.keys().next().unwrap();
         let name_str = name_yaml.as_str().unwrap();
         let mut a = Arg::new(name_str);
-        let arg_settings = y.get(name_yaml).unwrap().as_hash().unwrap();
+        let yaml = yaml_hash.get(name_yaml).unwrap();
 
-        for (k, v) in arg_settings.iter() {
+        let mut has_metadata = false;
+
+        for (k, v) in yaml.as_hash().unwrap().iter() {
             a = match k.as_str().unwrap() {
+                "_has_metadata" => {
+                    has_metadata = true;
+                    a
+                }
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
+                "alias" => yaml_to_str!(a, v, alias),
                 "aliases" => yaml_vec_or_str!(a, v, alias),
+                "short_alias" => yaml_to_str!(a, v, alias),
                 "short_aliases" => yaml_to_chars!(a, v, short_aliases),
                 "about" => yaml_to_str!(a, v, about),
                 "long_about" => yaml_to_str!(a, v, long_about),
-                "help" => yaml_to_str!(a, v, about),
-                "long_help" => yaml_to_str!(a, v, long_about),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
                 "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
@@ -4692,10 +4698,11 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_usize!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
-                "multiple" => yaml_to_bool!(a, v, multiple),
                 "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
                 "multiple_values" => yaml_to_bool!(a, v, multiple_values),
                 "hidden" => yaml_to_bool!(a, v, hidden),
+                "hidden_long_help" => yaml_to_bool!(a, v, hidden_long_help),
+                "hidden_short_help" => yaml_to_bool!(a, v, hidden_short_help),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
                 "group" => yaml_to_str!(a, v, group),
                 "number_of_values" => yaml_to_usize!(a, v, number_of_values),
@@ -4704,8 +4711,10 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "value_name" => yaml_to_str!(a, v, value_name),
                 "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
                 "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
+                "raw" => yaml_to_bool!(a, v, raw),
                 "require_equals" => yaml_to_bool!(a, v, require_equals),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
+                "value_terminator" => yaml_to_str!(a, v, value_terminator),
                 "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
                 "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
                 "display_order" => yaml_to_usize!(a, v, display_order),
@@ -4721,9 +4730,14 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "last" => yaml_to_bool!(a, v, last),
                 "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
-                "overrides_with" => yaml_vec_or_str!(a, v, overrides_with),
+                "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
+                "hide_possible_values" => yaml_to_bool!(a, v, hide_possible_values),
+                "overrides_with" => yaml_to_str!(a, v, overrides_with),
+                "overrides_with_all" => yaml_vec_or_str!(a, v, overrides_with),
+                "possible_value" => yaml_to_str!(a, v, possible_value),
                 "possible_values" => yaml_vec_or_str!(a, v, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
                 "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
@@ -4753,7 +4767,18 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                         panic!("Failed to convert YAML value to vector")
                     }
                 }
-                _ => continue, // Ignore extra fields
+                "setting" | "settings" => {
+                    yaml_to_setting!(a, v, setting, "ArgSetting", format!("arg '{}'", name_str))
+                }
+                s => {
+                    if !has_metadata {
+                        panic!(
+                            "Unknown setting '{}' in YAML file for arg '{}'",
+                            s, name_str
+                        )
+                    }
+                    continue;
+                }
             }
         }
 

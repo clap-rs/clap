@@ -92,6 +92,9 @@
             "$ref": "#/structures/tuple3StrOptStrStr"
           }
         },
+        "default_missing_value": {
+          "type": "string"
+        },
         "display_order": {
           "type": "integer"
         },
@@ -110,9 +113,6 @@
         "groups": {
           "$ref": "#/structures/arrayStrUnique"
         },
-        "help": {
-          "type": "string"
-        },
         "help_heading": {
           "$ref": "#/structures/optionalStr"
         },
@@ -128,10 +128,10 @@
         "hide_default_value": {
           "type": "boolean"
         },
-        "hide_env_value": {
+        "hide_env_values": {
           "type": "boolean"
         },
-        "hide_possible_value": {
+        "hide_possible_values": {
           "type": "boolean"
         },
         "index": {
@@ -146,17 +146,11 @@
         "long_about": {
           "type": "string"
         },
-        "long_help": {
-          "type": "string"
-        },
         "max_values": {
           "type": "integer"
         },
         "min_values": {
           "type": "integer"
-        },
-        "multiple": {
-          "type": "boolean"
         },
         "multiple_occurences": {
           "type": "boolean"
@@ -194,22 +188,22 @@
         "required": {
           "type": "boolean"
         },
-        "required_if": {
+        "required_if_eq": {
           "$ref": "#/structures/tuple2StrStr"
         },
-        "required_ifs": {
+        "required_if_eq_any": {
           "type": "array",
           "items": {
             "$ref": "#/structures/tuple2StrStr"
           }
         },
-        "required_unless": {
+        "required_unless_present": {
           "type": "string"
         },
-        "required_unless_all": {
+        "required_unless_present_all": {
           "$ref": "#/structures/arrayStrUnique"
         },
-        "required_unless_one": {
+        "required_unless_present_any": {
           "$ref": "#/structures/arrayStrUnique"
         },
         "requires": {
@@ -329,9 +323,6 @@
     "aliases": {
       "$ref": "#/structures/arrayStrUnique"
     },
-    "arg": {
-      "$ref": "#/definitions/arg"
-    },
     "args": {
       "type": "array",
       "items": {
@@ -355,9 +346,6 @@
     },
     "global_settings": {
       "$ref": "#/structures/arrayStrUnique"
-    },
-    "group": {
-      "$ref": "#/definitions/argGroup"
     },
     "groups": {
       "type": "array",
@@ -406,9 +394,6 @@
     "settings": {
       "$ref": "#/structures/arrayStrUnique"
     },
-    "subcommand": {
-      "$ref": "#"
-    },
     "subcommands": {
       "type": "array",
       "items": {
@@ -416,7 +401,7 @@
       }
     },
     "term_width": {
-      "type": "string"
+      "type": "integer"
     },
     "version": {
       "type": "string"
