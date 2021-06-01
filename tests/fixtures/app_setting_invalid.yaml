@@ -1,0 +1,5 @@
+name: claptests
+version: "1.0"
+about: tests clap extra fields
+settings:
+    - random

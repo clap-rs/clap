@@ -210,3 +210,30 @@ macro_rules! yaml_to_usize {
             as usize)
     }};
 }
+
+#[cfg(feature = "yaml")]
+macro_rules! yaml_to_setting {
+    ($a:ident, $v:ident, $c:ident, $t:literal, $n:expr) => {{
+        if let Some(v) = $v.as_vec() {
+            for ys in v {
+                if let Some(s) = ys.as_str() {
+                    $a = $a.$c(s.parse().unwrap_or_else(|_| {
+                        panic!("Unknown {} '{}' found in YAML file for {}", $t, s, $n)
+                    }));
+                } else {
+                    panic!(
+                        "Failed to convert YAML {:?} value to an array of strings",
+                        $v
+                    );
+                }
+            }
+        } else if let Some(v) = $v.as_str() {
+            $a = $a.$c(v
+                .parse()
+                .unwrap_or_else(|_| panic!("Unknown {} '{}' found in YAML file for {}", $t, v, $n)))
+        } else {
+            panic!("Failed to convert YAML {:?} value to a string", $v);
+        }
+        $a
+    }};
+}

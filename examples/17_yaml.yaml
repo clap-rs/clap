@@ -13,22 +13,22 @@ args:
     # The name of this argument, is 'opt' which will be used to access the value
     # later in your Rust code
     - opt:
-        help: example option argument from yaml
+        about: example option argument from yaml
         short: o
         long: option
-        multiple: true
+        multiple_values: true
         takes_value: true
     - pos:
-        help: example positional argument from yaml
+        about: example positional argument from yaml
         index: 1
         # A list of possible values can be defined as a list
         possible_values:
             - fast
             - slow
     - flag:
-        help: demo flag argument
+        about: demo flag argument
         short: F
-        multiple: true
+        multiple_values: true
         takes_value: true
         global: true
         # Conflicts, mutual overrides, and requirements can all be defined as a
@@ -39,13 +39,13 @@ args:
             - pos
     - mode:
         long: mode
-        help: shows an option with specific values
+        about: shows an option with specific values
         # possible_values can also be defined in this list format
         possible_values: [ vi, emacs ]
         takes_value: true
     - mvals:
         long: mult-vals
-        help: demos an option which has two named values
+        about: demos an option which has two named values
         # value names can be described in a list, where the help will be shown
         # --mult-vals <one> <two>
         value_names:
@@ -53,13 +53,13 @@ args:
             - two
     - minvals:
         long: min-vals
-        multiple: true
-        help: you must supply at least two values to satisfy me
+        multiple_values: true
+        about: you must supply at least two values to satisfy me
         min_values: 2
     - maxvals:
         long: max-vals
-        multiple: true
-        help: you can only supply a max of 3 values for me!
+        multiple_values: true
+        about: you can only supply a max of 3 values for me!
         max_values: 3
 
 # All subcommands must be listed in the 'subcommand:' object, where the key to
@@ -76,11 +76,11 @@ subcommands:
         args:
             - scopt:
                 short: B
-                multiple: true
-                help: example subcommand option
+                multiple_values: true
+                about: example subcommand option
                 takes_value: true
             - scpos1:
-                help: example subcommand positional
+                about: example subcommand positional
                 index: 1
 
 # ArgGroups are supported as well, and must be specified in the 'groups:'

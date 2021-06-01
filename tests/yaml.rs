@@ -1,6 +1,6 @@
 #![cfg(feature = "yaml")]
 
-use clap::{load_yaml, App, ValueHint};
+use clap::{load_yaml, App, ErrorKind, ValueHint};
 
 #[test]
 fn create_app_from_yaml() {
@@ -40,6 +40,34 @@ fn author() {
     app.write_help(&mut help_buffer).unwrap();
     let help_string = String::from_utf8(help_buffer).unwrap();
     assert!(help_string.contains("Kevin K. <kbknapp@gmail.com>"));
+}
+
+#[test]
+fn app_settings() {
+    let yaml = load_yaml!("fixtures/app.yaml");
+    let app = App::from(yaml);
+
+    let m = app.try_get_matches_from(vec!["prog"]);
+
+    assert!(m.is_err());
+    assert_eq!(
+        m.unwrap_err().kind,
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
+}
+
+#[test]
+#[should_panic = "Unknown AppSetting 'random' found in YAML file for app"]
+fn app_setting_invalid() {
+    let yaml = load_yaml!("fixtures/app_setting_invalid.yaml");
+    App::from(yaml);
+}
+
+#[test]
+#[should_panic = "Unknown ArgSetting 'random' found in YAML file for arg 'option'"]
+fn arg_setting_invalid() {
+    let yaml = load_yaml!("fixtures/arg_setting_invalid.yaml");
+    App::from(yaml);
 }
 
 // ValueHint must be parsed correctly from Yaml
@@ -150,5 +178,25 @@ fn regex_with_valid_string() {
 #[should_panic]
 fn regex_with_invalid_yaml() {
     let yml = load_yaml!("fixtures/app_regex_invalid.yaml");
-    let _app = App::from(yml);
+    App::from(yml);
+}
+
+#[test]
+fn extra_fields() {
+    let yml = load_yaml!("fixtures/extra_fields.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Unknown setting 'random' in YAML file for arg 'option'"]
+fn extra_fields_invalid_arg() {
+    let yml = load_yaml!("fixtures/extra_fields_invalid_arg.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Unknown setting 'random' in YAML file for subcommand 'info'"]
+fn extra_fields_invalid_app() {
+    let yml = load_yaml!("fixtures/extra_fields_invalid_app.yaml");
+    App::from(yml);
 }
