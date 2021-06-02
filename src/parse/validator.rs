@@ -261,11 +261,18 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .iter()
             .filter(|&name| {
                 debug!("Validator::validate_conflicts:iter:{:?}", name);
-                let app = &*self.p.app;
                 // Filter out the conflicting cases.
-                if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == *name) {
+                if let Some(g) = self
+                    .p
+                    .app
+                    .groups
+                    .iter()
+                    .find(|g| !g.multiple && g.id == *name)
+                {
                     let conf_with_self = || {
-                        app.unroll_args_in_group(&g.id)
+                        self.p
+                            .app
+                            .unroll_args_in_group(&g.id)
                             .iter()
                             .filter(|&a| matcher.contains(a))
                             .count()
@@ -336,8 +343,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 !skip
             })
             .for_each(|name| {
-                let app = &*self.p.app;
-                if let Some(arg) = app.find(name) {
+                if let Some(arg) = self.p.app.find(name) {
                     // Since an arg was used, every arg it conflicts with is added to the conflicts
                     for conf in &arg.blacklist {
                         self.c.insert(conf.clone());
@@ -345,12 +351,24 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     // Now we need to know which groups this arg was a member of, to add all other
                     // args in that group to the conflicts, as well as any args those args conflict
                     // with
-                    for grp in app.groups_for_arg(&name) {
-                        if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == grp) {
+                    for grp in self.p.app.groups_for_arg(&name) {
+                        if let Some(g) = self
+                            .p
+                            .app
+                            .groups
+                            .iter()
+                            .find(|g| !g.multiple && g.id == grp)
+                        {
                             self.c.insert(g.id.clone());
                         }
                     }
-                } else if let Some(g) = app.groups.iter().find(|g| !g.multiple && g.id == *name) {
+                } else if let Some(g) = self
+                    .p
+                    .app
+                    .groups
+                    .iter()
+                    .find(|g| !g.multiple && g.id == *name)
+                {
                     debug!("Validator::gather_conflicts:iter:{:?}:group", name);
                     self.c.insert(g.id.clone());
                 }
@@ -388,8 +406,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 self.validate_arg_requires(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma)?;
             } else {
-                let grps = &self.p.app.groups;
-                let grp = grps
+                let grp = self
+                    .p
+                    .app
+                    .groups
                     .iter()
                     .find(|g| g.id == *name)
                     .expect(INTERNAL_ERROR_MSG);
@@ -516,17 +536,18 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         );
         self.gather_requirements(matcher);
 
-        let app = &*self.p.app;
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
-            if let Some(arg) = app.find(&arg_or_group) {
+            if let Some(arg) = self.p.app.find(&arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, vec![]);
                 }
-            } else if let Some(group) = app.groups.iter().find(|g| g.id == *arg_or_group) {
+            } else if let Some(group) = self.p.app.groups.iter().find(|g| g.id == *arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
-                if !app
+                if !self
+                    .p
+                    .app
                     .unroll_args_in_group(&group.id)
                     .iter()
                     .any(|a| matcher.contains(a))
@@ -537,7 +558,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
 
         // Validate the conditionally required args
-        for a in app.args.args() {
+        for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
                     if ma.contains_val(val) && !matcher.contains(&a.id) {
@@ -565,9 +586,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::validate_arg_conflicts: a={:?}", a.name);
         a.blacklist.iter().any(|conf| {
-            let groups = &self.p.app.groups;
             matcher.contains(conf)
-                || groups
+                || self
+                    .p
+                    .app
+                    .groups
                     .iter()
                     .find(|g| g.id == *conf)
                     .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
@@ -576,8 +599,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_required_unless(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_required_unless");
-        let args = self.p.app.args.args();
-        let failed_args: Vec<_> = args
+        let failed_args: Vec<_> = self
+            .p
+            .app
+            .args
+            .args()
             .filter(|&a| {
                 !a.r_unless.is_empty()
                     && !matcher.contains(&a.id)
