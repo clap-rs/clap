@@ -205,14 +205,14 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 .arg_names()
                 .filter_map(|k| {
                     let arg = self.p.app.find(k);
-                    // Find the args that blacklists `name`.
+                    // For an arg that blacklists `name`, this will return `Some((k, a))` to indicate a conflict.
                     arg.filter(|a| a.blacklist.contains(&name)).map(|a| (k, a))
                 })
                 .try_for_each(|(k, a)| {
+                    // The error will be then constructed according to the first conflict.
                     let (_former, former_arg, latter, latter_arg) = {
-                        let names = || matcher.arg_names();
-                        let name_pos = names().position(|key| key == name);
-                        let k_pos = names().position(|key| key == k);
+                        let name_pos = matcher.arg_names().position(|key| key == name);
+                        let k_pos = matcher.arg_names().position(|key| key == k);
                         if name_pos < k_pos {
                             (name, checked_arg, k, a)
                         } else {
@@ -346,6 +346,13 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Some(arg) = self.p.app.find(name) {
                     // Since an arg was used, every arg it conflicts with is added to the conflicts
                     for conf in &arg.blacklist {
+                        /*
+                        for g_arg in self.p.app.unroll_args_in_group(&g.name) {
+                            if &g_arg != name {
+                                self.c.insert(g.id.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
+                            }
+                        }
+                        */
                         self.c.insert(conf.clone());
                     }
                     // Now we need to know which groups this arg was a member of, to add all other
@@ -359,6 +366,13 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .iter()
                             .find(|g| !g.multiple && g.id == grp)
                         {
+                            /*
+                            for g_arg in self.p.app.unroll_args_in_group(&g.name) {
+                                if &g_arg != name {
+                                    self.c.insert(g.id.clone());
+                                }
+                            }
+                            */
                             self.c.insert(g.id.clone());
                         }
                     }
