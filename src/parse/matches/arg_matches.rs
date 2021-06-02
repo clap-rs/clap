@@ -832,7 +832,8 @@ impl ArgMatches {
     ///     assert_eq!(sub_m.value_of("opt"), Some("val"));
     /// }
     /// ```
-    /// [`Subcommand`]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
             if s.id == id.into() {
@@ -897,7 +898,7 @@ impl ArgMatches {
     ///     _              => {}, // Either no subcommand or one not tested for...
     /// }
     /// ```
-    /// [`Subcommand`]: ./struct..html
+    /// [`Subcommand`]: crate::Subcommand
     #[inline]
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)

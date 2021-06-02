@@ -3480,7 +3480,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that an argument can be matched to all child [``]s.
+    /// Specifies that an argument can be matched to all child [`Subcommand`]s.
     ///
     /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands), however
     /// their values once a user uses them will be propagated back up to parents. In effect, this
@@ -3518,7 +3518,7 @@ impl<'help> Arg<'help> {
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
     /// assert!(sub_m.is_present("verb"));
     /// ```
-    /// [``]: App::subcommand()
+    /// [`Subcommand`]: crate::Subcommand
     /// [required]: ArgSettings::Required
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
