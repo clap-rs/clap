@@ -172,7 +172,7 @@ pub enum AppSettings {
     /// UTF-8 values
     ///
     /// **NOTE:** This rule only applies to  argument values, as flags, options, and
-    /// [`Subcommand`][crate::Subcommand]s themselves only allow valid UTF-8 code points.
+    /// [`Subcommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -198,6 +198,7 @@ pub enum AppSettings {
     /// let m = r.unwrap();
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
+    /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::os_value_of`]: ArgMatches::os_value_of()
     /// [`ArgMatches::os_values_of`]: ArgMatches::os_values_of()
     /// [`ArgMatches::lossy_value_of`]: ArgMatches::lossy_value_of()
@@ -366,7 +367,7 @@ pub enum AppSettings {
 
     /// Specifies that an unexpected positional argument,
     /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
-    /// should instead be treated as a [`Subcommand`][crate::Subcommand]
+    /// should instead be treated as a [`Subcommand`]
     /// within the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution,
@@ -396,6 +397,7 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
+    /// [`Subcommand`]: crate::Subcommand
     AllowExternalSubcommands,
 
     /// Specifies that use of a valid [argument] negates [subcommands] being used after. By default
@@ -424,7 +426,7 @@ pub enum AppSettings {
     /// Specifies that the help text should be displayed (and then exit gracefully),
     /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** [`Subcommand`][crate::Subcommand]s count as arguments
+    /// **NOTE:** [`Subcommand`]s count as arguments
     ///
     /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
     /// ensure that some argument is always present.
@@ -438,6 +440,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`Arg::default_value`]: Arg::default_value()
     ArgRequiredElseHelp,
 
@@ -646,7 +649,7 @@ pub enum AppSettings {
     /// [`Subcommand`]: [crate:Subcommand]
     DisableHelpFlag,
 
-    /// Disables the `help` [Subcommand][crate::Subcommand]
+    /// Disables the `help` [Subcommand]
     ///
     /// # Examples
     ///
@@ -664,6 +667,7 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
+    /// [Subcommand]: crate::Subcommand
     DisableHelpSubcommand,
 
     /// Disables `-V` and `--version` for this [`App`] without affecting any of the [`Subcommand`]s
@@ -751,7 +755,7 @@ pub enum AppSettings {
     /// [`Subcommand`]: crate::Subcommand
     GlobalVersion,
 
-    /// Specifies that this [`Subcommand`][crate::Subcommand] should be hidden from help messages
+    /// Specifies that this [`Subcommand`] should be hidden from help messages
     ///
     /// # Examples
     ///
@@ -762,6 +766,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
+    /// [`Subcommand`]: crate::Subcommand
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
