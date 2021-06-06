@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgMatches, ArgSettings, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgMatches, ArgSettings, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =
@@ -576,4 +576,34 @@ fn issue_2279() {
         .get_matches_from(&[""]);
 
     assert_eq!(after_help_heading.value_of("foo"), Some("bar"));
+}
+
+#[test]
+fn infer_long_arg() {
+    let app = App::new("test")
+        .setting(AppSettings::InferLongArgs)
+        .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
+        .arg(Arg::new("racecar").long("racecar").takes_value(true));
+
+    let matches = app.clone().get_matches_from(&["test", "--racec=hello"]);
+    assert!(!matches.is_present("racetrack"));
+    assert_eq!(matches.value_of("racecar"), Some("hello"));
+
+    let matches = app.clone().get_matches_from(&["test", "--racet"]);
+    assert!(matches.is_present("racetrack"));
+    assert_eq!(matches.value_of("racecar"), None);
+
+    let matches = app.clone().get_matches_from(&["test", "--auto"]);
+    assert!(matches.is_present("racetrack"));
+    assert_eq!(matches.value_of("racecar"), None);
+
+    let app = App::new("test")
+        .setting(AppSettings::InferLongArgs)
+        .arg(Arg::new("arg").long("arg"));
+
+    let matches = app.clone().get_matches_from(&["test", "--"]);
+    assert!(!matches.is_present("arg"));
+
+    let matches = app.clone().get_matches_from(&["test", "--a"]);
+    assert!(matches.is_present("arg"));
 }

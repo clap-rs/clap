@@ -50,6 +50,7 @@ bitflags! {
         const DISABLE_HELP_FLAG              = 1 << 42;
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 43;
         const DISABLE_ENV                    = 1 << 44;
+        const INFER_LONG_ARGS                = 1 << 45;
     }
 }
 
@@ -153,7 +154,9 @@ impl_settings! { AppSettings, AppFlags,
     InferSubcommands("infersubcommands")
         => Flags::INFER_SUBCOMMANDS,
     AllArgsOverrideSelf("allargsoverrideself")
-        => Flags::ARGS_OVERRIDE_SELF
+        => Flags::ARGS_OVERRIDE_SELF,
+    InferLongArgs("inferlongargs")
+        => Flags::INFER_LONG_ARGS
 }
 
 /// Application level settings, which affect how [`App`] operates
@@ -825,6 +828,14 @@ pub enum AppSettings {
     /// [positional/free arguments]: Arg::index()
     /// [aliases]: App::alias()
     InferSubcommands,
+
+    /// Tries to match unknown args to partial long arguments or their [aliases]. For example, to
+    /// match an argument named `--test`, one could use `--t`, `--te`, `--tes`, and `--test`.
+    ///
+    /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match
+    /// `--te` to `--test` there could not also be another argument or alias `--temp` because both
+    /// start with `--te`
+    InferLongArgs,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
