@@ -3518,6 +3518,7 @@ impl<'help> Arg<'help> {
     /// let sub_m = m.subcommand_matches("do-stuff").unwrap();
     /// assert!(sub_m.is_present("verb"));
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     /// [required]: ArgSettings::Required
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()

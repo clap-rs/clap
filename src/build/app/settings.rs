@@ -198,6 +198,7 @@ pub enum AppSettings {
     /// let m = r.unwrap();
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::os_value_of`]: ArgMatches::os_value_of()
     /// [`ArgMatches::os_values_of`]: ArgMatches::os_values_of()
@@ -397,6 +398,7 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     AllowExternalSubcommands,
 
@@ -646,7 +648,7 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
     ///
-    /// [`Subcommand`]: [crate:Subcommand]
+    /// [`Subcommand`]: crate:Subcommand
     DisableHelpFlag,
 
     /// Disables the `help` [Subcommand]
@@ -667,6 +669,7 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
+    ///
     /// [Subcommand]: crate::Subcommand
     DisableHelpSubcommand,
 
@@ -699,6 +702,7 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayVersion);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     DisableVersionFlag,
 
@@ -719,6 +723,7 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
+    ///
     /// [`subcommand`]: crate::Subcommand
     DisableVersionForSubcommands,
 
@@ -733,6 +738,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     DeriveDisplayOrder,
 
@@ -752,6 +758,7 @@ pub enum AppSettings {
     /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     GlobalVersion,
 
@@ -766,6 +773,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     Hidden,
 
@@ -828,6 +836,7 @@ pub enum AppSettings {
     ///     ]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    ///
     /// [`subcommands`]: crate::Subcommand
     /// [positional/free arguments]: Arg::index()
     /// [aliases]: App::alias()
@@ -904,6 +913,7 @@ pub enum AppSettings {
     /// assert!(noerr.is_ok());
     /// # ;
     /// ```
+    ///
     /// [`Arg::required(true)`]: Arg::required()
     /// [`Subcommand`]: crate::Subcommand
     SubcommandsNegateReqs,
@@ -926,6 +936,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     SubcommandRequiredElseHelp,
 
@@ -980,6 +991,7 @@ pub enum AppSettings {
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     StrictUtf8,
 
@@ -1002,6 +1014,7 @@ pub enum AppSettings {
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     SubcommandRequired,
 
@@ -1066,6 +1079,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     WaitOnError,
 

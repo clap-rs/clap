@@ -242,6 +242,7 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
     #[inline]

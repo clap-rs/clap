@@ -74,6 +74,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     InvalidSubcommand,
@@ -100,6 +101,7 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
     /// ```
+    ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`InvalidSubcommand`]: ErrorKind::InvalidSubcommand
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
