@@ -833,7 +833,7 @@ pub enum AppSettings {
     /// match an argument named `--test`, one could use `--t`, `--te`, `--tes`, and `--test`.
     ///
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match
-    /// `--te` to `--test` there could not also be a subcommand or alias `--temp` because both
+    /// `--te` to `--test` there could not also be another argument or alias `--temp` because both
     /// start with `--te`
     InferLongArgs,
 
