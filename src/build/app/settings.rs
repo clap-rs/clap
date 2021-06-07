@@ -175,7 +175,7 @@ pub enum AppSettings {
     /// UTF-8 values
     ///
     /// **NOTE:** This rule only applies to  argument values, as flags, options, and
-    /// [``]s themselves only allow valid UTF-8 code points.
+    /// [`Subcommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -201,11 +201,12 @@ pub enum AppSettings {
     /// let m = r.unwrap();
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::os_value_of`]: ArgMatches::os_value_of()
     /// [`ArgMatches::os_values_of`]: ArgMatches::os_values_of()
     /// [`ArgMatches::lossy_value_of`]: ArgMatches::lossy_value_of()
     /// [`ArgMatches::lossy_values_of`]: ArgMatches::lossy_values_of()
-    /// [``]: ./struct..html
     AllowInvalidUtf8,
 
     /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
@@ -370,7 +371,8 @@ pub enum AppSettings {
 
     /// Specifies that an unexpected positional argument,
     /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
-    /// should instead be treated as a [``] within the [`ArgMatches`] struct.
+    /// should instead be treated as a [`Subcommand`]
+    /// within the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution,
     /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
@@ -399,10 +401,11 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     AllowExternalSubcommands,
 
-    /// Specifies that use of a valid [argument] negates [subcomands] being used after. By default
+    /// Specifies that use of a valid [argument] negates [subcommands] being used after. By default
     /// `clap` allows arguments between subcommands such as
     /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that
     /// functionality and says that arguments can only follow the *final* subcommand. For instance
@@ -420,14 +423,15 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgsNegateSubcommands)
     /// # ;
     /// ```
-    /// [subcommands]: ./struct..html
-    /// [argument]: Arg
+    ///
+    /// [subcommands]: crate::Subcommand
+    /// [argument]: crate::Arg
     ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
     /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** [``]s count as arguments
+    /// **NOTE:** [`Subcommand`]s count as arguments
     ///
     /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
     /// ensure that some argument is always present.
@@ -440,7 +444,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgRequiredElseHelp)
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`Arg::default_value`]: Arg::default_value()
     ArgRequiredElseHelp,
 
@@ -617,8 +622,9 @@ pub enum AppSettings {
     /// [`Arg::use_delimiter(false)`]: Arg::use_delimiter()
     DontDelimitTrailingValues,
 
-    /// Disables `-h` and `--help` [`App`] without affecting any of the [`SubCommand`]s
-    /// (Defaults to `false`; application *does* have help flags)
+    /// Disables `-h` and `--help` [`App`] without affecting any of the [`Subcommand`]s
+    ///
+    /// Defaults to `false`; application *does* have help flags.
     ///
     /// # Examples
     ///
@@ -644,9 +650,11 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayHelp);
     /// ```
+    ///
+    /// [`Subcommand`]: crate:Subcommand
     DisableHelpFlag,
 
-    /// Disables the `help` subcommand
+    /// Disables the `help` [Subcommand]
     ///
     /// # Examples
     ///
@@ -664,10 +672,11 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [Subcommand]: crate::Subcommand
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` for this [`App`] without affecting any of the [``]s
+    /// Disables `-V` and `--version` for this [`App`] without affecting any of the [`Subcommand`]s
     /// (Defaults to `false`; application *does* have a version flag)
     ///
     /// # Examples
@@ -696,7 +705,8 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayVersion);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     DisableVersionFlag,
 
     /// Disables `-V` and `--version` for all [`subcommand`]s of this [`App`]
@@ -716,10 +726,11 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`subcommand`]: crate::Subcommand
     DisableVersionForSubcommands,
 
-    /// Displays the arguments and [``]s in the help message in the order that they were
+    /// Displays the arguments and [`Subcommand`]s in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
     /// # Examples
@@ -730,11 +741,13 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     DeriveDisplayOrder,
 
-    /// Specifies to use the version of the current command for all child [``]s.
-    /// (Defaults to `false`; subcommands have independent version strings from their parents.)
+    /// Specifies to use the version of the current command for all child [`Subcommand`]s.
+    ///
+    /// Defaults to `false`; subcommands have independent version strings from their parents.
     ///
     /// # Examples
     ///
@@ -748,10 +761,11 @@ pub enum AppSettings {
     /// // running `$ myprog test --version` will display
     /// // "myprog-test v1.1"
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     GlobalVersion,
 
-    /// Specifies that this [``] should be hidden from help messages
+    /// Specifies that this [`Subcommand`] should be hidden from help messages
     ///
     /// # Examples
     ///
@@ -762,7 +776,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::Hidden))
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
@@ -824,7 +839,8 @@ pub enum AppSettings {
     ///     ]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    /// [`subcommands`]: ./struct..html
+    ///
+    /// [`subcommands`]: crate::Subcommand
     /// [positional/free arguments]: Arg::index()
     /// [aliases]: App::alias()
     InferSubcommands,
@@ -867,7 +883,7 @@ pub enum AppSettings {
     /// ```
     NextLineHelp,
 
-    /// Allows [``]s to override all requirements of the parent command.
+    /// Allows [`Subcommand`]s to override all requirements of the parent command.
     /// For example, if you had a subcommand or top level application with a required argument
     /// that is only required as long as there is no subcommand present,
     /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
@@ -908,12 +924,13 @@ pub enum AppSettings {
     /// assert!(noerr.is_ok());
     /// # ;
     /// ```
+    ///
     /// [`Arg::required(true)`]: Arg::required()
-    /// [``]: ./struct..html
+    /// [`Subcommand`]: crate::Subcommand
     SubcommandsNegateReqs,
 
     /// Specifies that the help text should be displayed (before exiting gracefully) if no
-    /// [``]s are present at runtime (i.e. an empty run such as `$ myprog`).
+    /// [`Subcommand`]s are present at runtime (i.e. an empty run such as `$ myprog`).
     ///
     /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
     /// nearly same thing; this prints the help text, and the other prints an error.
@@ -930,7 +947,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::SubcommandRequiredElseHelp)
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     SubcommandRequiredElseHelp,
 
     /// Specifies that the help subcommand should print the [long format] help message.
@@ -959,7 +977,7 @@ pub enum AppSettings {
     /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
     /// **NOTE:** This rule only applies to argument values; Things such as flags, options, and
-    /// [``]s themselves only allow valid UTF-8 code points.
+    /// [`Subcommand`]s themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -984,10 +1002,11 @@ pub enum AppSettings {
     /// assert!(m.is_err());
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     StrictUtf8,
 
-    /// Allows specifying that if no [``] is present at runtime,
+    /// Allows specifying that if no [`Subcommand`] is present at runtime,
     /// error and exit gracefully.
     ///
     /// **NOTE:** This defaults to `false` (subcommands do *not* need to be present)
@@ -1006,7 +1025,8 @@ pub enum AppSettings {
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     SubcommandRequired,
 
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
@@ -1058,9 +1078,9 @@ pub enum AppSettings {
     /// Windows where a user tries to open the binary by double-clicking instead of using the
     /// command line.
     ///
-    /// **NOTE:** This setting is **not** recursive with [``]s, meaning if you wish this
+    /// **NOTE:** This setting is **not** recursive with [`Subcommand`]s, meaning if you wish this
     /// behavior for all subcommands, you must set this on each command (needing this is extremely
-    /// rare)
+    /// rare).
     ///
     /// # Examples
     ///
@@ -1070,7 +1090,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     WaitOnError,
 
     /// @TODO-v3: @docs write them...maybe rename

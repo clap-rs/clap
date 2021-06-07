@@ -216,7 +216,7 @@ impl<'help> ArgGroup<'help> {
     /// that one argument from this group *must* be present at runtime (unless
     /// conflicting with another argument).
     ///
-    /// **NOTE:** This setting only applies to the current [`App`] / [``], and not
+    /// **NOTE:** This setting only applies to the current [`App`] / [`Subcommand`]s, and not
     /// globally.
     ///
     /// **NOTE:** By default, [`ArgGroup::multiple`] is set to `false` which when combined with
@@ -242,7 +242,8 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
     #[inline]
     pub fn required(mut self, r: bool) -> Self {

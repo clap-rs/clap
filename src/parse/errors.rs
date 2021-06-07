@@ -54,7 +54,7 @@ pub enum ErrorKind {
     /// ```
     UnknownArgument,
 
-    /// Occurs when the user provides an unrecognized [``] which meets the threshold for
+    /// Occurs when the user provides an unrecognized [`Subcommand`] which meets the threshold for
     /// being similar enough to an existing subcommand.
     /// If it doesn't meet the threshold, or the 'suggestions' feature is disabled,
     /// the more general [`UnknownArgument`] error is returned.
@@ -74,11 +74,12 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     InvalidSubcommand,
 
-    /// Occurs when the user provides an unrecognized [``] which either
+    /// Occurs when the user provides an unrecognized [`Subcommand`] which either
     /// doesn't meet the threshold for being similar enough to an existing subcommand,
     /// or the 'suggestions' feature is disabled.
     /// Otherwise the more detailed [`InvalidSubcommand`] error is returned.
@@ -100,7 +101,8 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
     /// ```
-    /// [``]: ./struct..html
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     /// [`InvalidSubcommand`]: ErrorKind::InvalidSubcommand
     /// [`UnknownArgument`]: ErrorKind::UnknownArgument
     UnrecognizedSubcommand,
@@ -334,7 +336,7 @@ pub enum ErrorKind {
     /// ```
     DisplayHelp,
 
-    /// Occurs when either an argument or a [`subcommand`] is required, as defined by
+    /// Occurs when either an argument or a [`Subcommand`] is required, as defined by
     /// [`AppSettings::ArgRequiredElseHelp`] and
     /// [`AppSettings::SubcommandRequiredElseHelp`], but the user did not provide
     /// one.
@@ -353,7 +355,8 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
     /// ```
-    /// [`subcommand`]: App::subcommand()
+    ///
+    /// [`Subcommand`]: crate::Subcommand
     DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
