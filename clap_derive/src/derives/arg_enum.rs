@@ -118,7 +118,7 @@ fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
 
             match input {
                 #(val if func(val, #lit) => Ok(Self::#variant),)*
-                e => unreachable!("The impossible variant have been spotted: {}", e),
+                e => Err(format!("Invalid variant: {}", e)),
             }
         }
     }
