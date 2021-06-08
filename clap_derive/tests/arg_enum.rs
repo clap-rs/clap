@@ -7,7 +7,7 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::Clap;
+use clap::{ArgEnum, Clap};
 
 #[test]
 fn basic() {
@@ -308,4 +308,14 @@ fn vector() {
         Opt::parse_from(&["", "-a", "foo", "bar"])
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
+}
+
+#[test]
+fn from_str_invalid() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum ArgChoice {
+        Foo,
+    }
+
+    assert!(ArgChoice::from_str("bar", true).is_err());
 }
