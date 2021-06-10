@@ -85,5 +85,5 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
   - Parsing of arguments shouldn't slow down usage of the main program
   - This is also true of generating help and usage information (although *slightly* less stringent, as the program is about to exit)
 * Try to be cognizant of memory usage
-  - Once parsing is complete, the memory footprint of `clap` should be low since the  main program is the star of the show
+  - Once parsing is complete, the memory footprint of `clap` should be low since the main program is the star of the show
 * `panic!` on *developer* error, exit gracefully on *end-user* error
