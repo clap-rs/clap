@@ -1,8 +1,8 @@
 use clap::{App, Arg};
 
 fn main() {
-    // s function exactly like sub-Apps, because that's exactly what they are. Each
-    // instance of a can have its own version, author(s), Args, and even its own
+    // Subcommands function exactly like sub-Apps, because that's exactly what they are. Each
+    // instance of a Subcommand can have its own version, author(s), Args, and even its own
     // subcommands.
     //
     // # Help and Version
@@ -14,7 +14,7 @@ fn main() {
     // subcommand along with "-h" and "--help" (applies to sub-subcommands as well).
     //
     // Just like arg() and args(), subcommands can be specified one at a time via subcommand() or
-    // multiple ones at once with a Vec<> provided to subcommands().
+    // multiple ones at once with a Vec<Subcommand> provided to subcommands().
     let matches = App::new("MyApp")
         // Normal App and Arg configuration goes here...
         // In the following example assume we wanted an application which

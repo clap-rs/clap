@@ -3,7 +3,7 @@ use clap::{App, Arg};
 fn main() {
     // Args describe a possible valid argument which may be supplied by the user at runtime. There
     // are three different types of arguments (flags, options, and positional) as well as a fourth
-    // special type of argument, called s (which will be discussed separately).
+    // special type of argument, called Subcommands (which will be discussed separately).
     //
     // Args are described in the same manner as Apps using the "builder pattern" with multiple
     // methods describing various settings for the individual arguments. Or by supplying a "usage"
