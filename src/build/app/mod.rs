@@ -2383,7 +2383,7 @@ impl<'help> App<'help> {
                         $sc.version = Some($_self.version.unwrap());
                     }
                     if $_self.settings.is_set(AppSettings::IgnoreErrors) {
-                        // $sc.set(AppSettings::PartialParsing);
+                        $sc.set(AppSettings::IgnoreErrors);
                     }
                     $sc.settings = $sc.settings | $_self.g_settings;
                     $sc.g_settings = $sc.g_settings | $_self.g_settings;
