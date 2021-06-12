@@ -14,7 +14,7 @@ fn main() {
     // subcommand along with "-h" and "--help" (applies to sub-subcommands as well).
     //
     // Just like arg() and args(), subcommands can be specified one at a time via subcommand() or
-    // multiple ones at once with a Vec<Subcommand> provided to subcommands().
+    // multiple ones at once with a Vec<App> provided to subcommands().
     let matches = App::new("MyApp")
         // Normal App and Arg configuration goes here...
         // In the following example assume we wanted an application which
