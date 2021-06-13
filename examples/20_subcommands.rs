@@ -1,5 +1,5 @@
 // Working with subcommands is simple. There are a few key points to remember when working with
-// subcommands in clap. First, s are really just Apps. This means they can have their own
+// subcommands in clap. First, Subcommands are really just Apps. This means they can have their own
 // settings, version, authors, args, and even their own subcommands. The next thing to remember is
 // that subcommands are set up in a tree like hierarchy.
 //
