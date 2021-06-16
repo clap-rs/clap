@@ -202,13 +202,7 @@ fn flag_subcommand_short_after_long_arg() {
                 .short_flag('S')
                 .arg(Arg::new("clean").short('c')),
         )
-        .arg(
-            Arg::new("arg")
-                .long("arg")
-                .takes_value(true)
-                .multiple(false)
-                .global(true),
-        )
+        .arg(Arg::new("arg").long("arg").takes_value(true))
         .get_matches_from(vec!["pacman", "--arg", "foo", "-Sc"]);
     let subm = m.subcommand_matches("sync");
     assert!(subm.is_some());

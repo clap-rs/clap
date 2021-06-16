@@ -173,8 +173,6 @@ pub enum ErrorKind {
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
     ///     .arg(Arg::new("arg")
-    ///         .takes_value(true)
-    ///         .multiple(true)
     ///         .max_values(2))
     ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
     /// assert!(result.is_err());
@@ -285,7 +283,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .arg(Arg::new("debug")
     ///         .long("debug")
-    ///         .multiple(false))
+    ///         .multiple_occurrences(false))
     ///     .try_get_matches_from(vec!["prog", "--debug", "--debug"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);

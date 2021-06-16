@@ -338,7 +338,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::AllowMissingPositional)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple(true))
+    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "foo", "bar", "baz1", "baz2", "baz3"
     ///     ]);
@@ -357,7 +357,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::AllowMissingPositional)
     ///     .arg(Arg::new("foo"))
     ///     .arg(Arg::new("bar"))
-    ///     .arg(Arg::new("baz").takes_value(true).multiple(true))
+    ///     .arg(Arg::new("baz").takes_value(true).multiple_values(true))
     ///     .get_matches_from(vec![
     ///         "prog", "--", "baz1", "baz2", "baz3"
     ///     ]);
@@ -476,7 +476,7 @@ pub enum AppSettings {
     /// let app = App::new("app").subcommand(App::new("sub")).arg(
     ///     Arg::new("arg")
     ///         .long("arg")
-    ///         .multiple(true)
+    ///         .multiple_values(true)
     ///         .takes_value(true),
     /// );
     ///
@@ -994,7 +994,7 @@ pub enum AppSettings {
     ///
     /// The values of the trailing positional argument will contain all args from itself on.
     ///
-    /// **NOTE:** The final positional argument **must** have [`Arg::multiple(true)`] or the usage
+    /// **NOTE:** The final positional argument **must** have [`Arg::multiple_values(true)`] or the usage
     /// string equivalent.
     ///
     /// # Examples
@@ -1009,7 +1009,7 @@ pub enum AppSettings {
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     TrailingVarArg,
 
     /// Groups flags and options together, presenting a more unified help message

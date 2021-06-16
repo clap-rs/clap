@@ -17,9 +17,8 @@ fn issue_1076() {
             Arg::new("GLOBAL_FLAG")
                 .long("global-flag")
                 .about("Specifies something needed by the subcommands")
-                .takes_value(true)
-                .multiple(true)
-                .global(true),
+                .global(true)
+                .takes_value(true),
         )
         .subcommand(App::new("outer").subcommand(App::new("inner")));
     let _ = app.try_get_matches_from_mut(vec!["myprog"]);

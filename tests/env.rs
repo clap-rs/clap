@@ -189,7 +189,7 @@ fn multiple_one() {
                 .env("CLP_TEST_ENV_MO")
                 .takes_value(true)
                 .use_delimiter(true)
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);
 
@@ -210,7 +210,7 @@ fn multiple_three() {
                 .env("CLP_TEST_ENV_MULTI1")
                 .takes_value(true)
                 .use_delimiter(true)
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);
 
@@ -233,7 +233,7 @@ fn multiple_no_delimiter() {
             Arg::from("[arg] 'some opt'")
                 .env("CLP_TEST_ENV_MULTI2")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec![""]);
 

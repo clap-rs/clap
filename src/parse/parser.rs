@@ -147,7 +147,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             num_p
         );
 
-        // Next we verify that only the highest index has a .multiple(true) (if any)
+        // Next we verify that only the highest index has a .multiple_values(true) (if any)
         let only_highest = |a: &Arg| {
             a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx)
         };
@@ -171,7 +171,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 || last.is_set(ArgSettings::Last);
             assert!(
                 ok,
-                "When using a positional argument with .multiple(true) that is *not the \
+                "When using a positional argument with .multiple_values(true) that is *not the \
                  last* positional argument, the last positional argument (i.e. the one \
                  with the highest index) *must* have .required(true) or .last(true) set."
             );
@@ -182,7 +182,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             assert!(
                 ok,
                 "Only the last positional argument, or second to last positional \
-                 argument may be set to .multiple(true)"
+                 argument may be set to .multiple_values(true)"
             );
 
             // Next we check how many have both Multiple and not a specific number of values set
@@ -198,7 +198,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     && count == 2);
             assert!(
                 ok,
-                "Only one positional argument with .multiple(true) set is allowed per \
+                "Only one positional argument with .multiple_values(true) set is allowed per \
                  command, unless the second one also has .last(true) set"
             );
         }
@@ -456,7 +456,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             let is_second_to_last = pos_counter + 1 == positional_count;
 
             // The last positional argument, or second to last positional
-            // argument may be set to .multiple(true)
+            // argument may be set to .multiple_values(true)
             let low_index_mults = is_second_to_last
                 && self.app.get_positionals().any(|a| {
                     a.is_set(ArgSettings::MultipleValues)

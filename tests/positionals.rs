@@ -107,7 +107,7 @@ fn positional_multiple() {
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true),
         ])
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -128,7 +128,7 @@ fn positional_multiple_3() {
             Arg::new("positional")
                 .index(1)
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true),
         ])
         .try_get_matches_from(vec!["", "test1", "test2", "test3", "--flag"]);
     assert!(r.is_ok(), "{:#?}", r);
@@ -294,5 +294,16 @@ fn positional_arg_with_short() {
 
     let _ = App::new("test")
         .arg(Arg::new("arg").index(1).short('a'))
+        .try_get_matches();
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument 'arg' is a positional argument and can't be set as multiple occurrences"]
+fn positional_arg_with_multiple_occurrences() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(Arg::new("arg").multiple_occurrences(true))
         .try_get_matches();
 }

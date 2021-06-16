@@ -231,7 +231,7 @@ fn main() {
             .index(1))
         .arg(Arg::new("v")
             .short('v')
-            .multiple(true)
+            .multiple_occurrences(true)
             .takes_value(true)
             .about("Sets the level of verbosity"))
         .subcommand(App::new("test")

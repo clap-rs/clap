@@ -40,8 +40,7 @@ pub(crate) struct SubCommand {
 ///         .takes_value(true))
 ///     .arg(Arg::new("debug")
 ///         .short('d')
-///         .takes_value(true)
-///         .multiple(true))
+///         .multiple_occurrences(true))
 ///     .arg(Arg::new("cfg")
 ///         .short('c')
 ///         .takes_value(true))
@@ -64,7 +63,7 @@ pub(crate) struct SubCommand {
 ///     // Another way to check if an argument was present, or if it occurred multiple times is to
 ///     // use occurrences_of() which returns 0 if an argument isn't found at runtime, or the
 ///     // number of times that it occurred, if it was. To allow an argument to appear more than
-///     // once, you must use the .multiple(true) method, otherwise it will only return 1 or 0.
+///     // once, you must use the .multiple_occurrences(true) method, otherwise it will only return 1 or 0.
 ///     if matches.occurrences_of("debug") > 2 {
 ///         println!("Debug mode is REALLY on, don't be crazy");
 ///     } else {
@@ -219,7 +218,7 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .arg(Arg::new("output")
-    ///         .multiple(true)
+    ///         .multiple_values(true)
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
@@ -683,8 +682,7 @@ impl ArgMatches {
     ///         .short('z'))
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true)
-    ///         .multiple(true))
+    ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
     ///             // ARGV idices: ^0       ^1
     ///             // clap idices:          ^1,2,3^5
@@ -704,9 +702,8 @@ impl ArgMatches {
     /// let m = App::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true)
     ///         .use_delimiter(true)
-    ///         .multiple(true))
+    ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///             // ARGV idices: ^0       ^1
     ///             // clap idices:             ^2   ^3   ^4
@@ -744,9 +741,8 @@ impl ArgMatches {
     /// let m = App::new("myapp")
     ///     .arg(Arg::new("option")
     ///         .short('o')
-    ///         .takes_value(true)
     ///         .use_delimiter(true)
-    ///         .multiple(true))
+    ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///             // ARGV idices: ^0       ^1
     ///             // clap idices:             ^2   ^3   ^4
@@ -764,7 +760,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .multiple(true))
+    ///         .multiple_occurrences(true))
     ///     .arg(Arg::new("flag")
     ///         .short('f')
     ///         .multiple_occurrences(true))
@@ -787,7 +783,7 @@ impl ArgMatches {
     ///     .arg(Arg::new("option")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .multiple(true))
+    ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
     ///             // ARGV idices: ^0       ^1
     ///             // clap idices:             ^2
@@ -972,7 +968,7 @@ impl ArgMatches {
 /// let m = App::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .multiple(true)
+///         .multiple_values(true)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///
@@ -1121,7 +1117,7 @@ impl Default for OsValues<'_> {
 /// let m = App::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .multiple(true)
+///         .multiple_values(true)
 ///         .takes_value(true))
 ///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
 ///

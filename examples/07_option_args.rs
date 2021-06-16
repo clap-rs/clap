@@ -19,7 +19,7 @@ fn main() {
                 .takes_value(true) // MUST be set to true in order to be an "option" argument
                 .short('i') // This argument is triggered with "-i"
                 .long("input") // This argument is triggered with "--input"
-                .multiple(true) // Set to true if you wish to allow multiple occurrences
+                .multiple_occurrences(true) // Set to true if you wish to allow multiple occurrences
                 // such as "-i file -i other_file -i third_file"
                 .required(true) // By default this argument MUST be present
                 // NOTE: mutual exclusions take precedence over
@@ -44,13 +44,13 @@ fn main() {
 
     // We can also get the value for "input"
     //
-    // NOTE: If we specified multiple(), this will only return the _FIRST_
+    // NOTE: If we specified multiple_occurrences(), this will only return the _FIRST_
     // occurrence
     if let Some(ref in_file) = matches.value_of("input") {
         println!("An input file: {}", in_file);
     }
 
-    // If we specified the multiple() setting we can get all the values
+    // If we specified the multiple_occurrences() setting we can get all the values
     if let Some(in_v) = matches.values_of("input") {
         for in_file in in_v {
             println!("An input file: {}", in_file);
@@ -59,7 +59,7 @@ fn main() {
 
     // We can see how many times the option was used with the occurrences_of() method
     //
-    // NOTE: Just like with flags, if we did not specify the multiple() setting this will only
+    // NOTE: Just like with flags, if we did not specify the multiple_occurrences() setting this will only
     // return 1 no matter how many times the argument was used (unless it wasn't used at all, in
     // in which case 0 is returned)
     println!(

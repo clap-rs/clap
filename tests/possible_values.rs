@@ -74,7 +74,7 @@ fn possible_values_of_positional_multiple() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec!["myprog", "test123", "test321"]);
 
@@ -97,7 +97,7 @@ fn possible_values_of_positional_multiple_fail() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec!["myprog", "test123", "notest"]);
 
@@ -150,7 +150,7 @@ fn possible_values_of_option_multiple() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true),
+                .multiple_occurrences(true),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "test321"]);
 
@@ -174,7 +174,7 @@ fn possible_values_of_option_multiple_fail() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true),
+                .multiple_occurrences(true),
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "notest"]);
 
@@ -259,7 +259,7 @@ fn case_insensitive_multiple() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true)
+                .multiple_values(true)
                 .case_insensitive(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123", "teST123", "tESt321"]);
@@ -281,7 +281,7 @@ fn case_insensitive_multiple_fail() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .multiple(true),
+                .multiple_values(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "test123", "teST123", "test321"]);
 

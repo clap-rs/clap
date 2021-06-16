@@ -18,8 +18,7 @@ fn main() {
                 .about("turns up the awesome") // Displayed when showing help info
                 .short('a') // Trigger this arg with "-a"
                 .long("awesome") // Trigger this arg with "--awesome"
-                .takes_value(true)
-                .multiple(true) // This flag should allow multiple
+                .multiple_occurrences(true) // This flag should allow multiple
                 // occurrences such as "-aaa" or "-a -a"
                 .requires("config") // Says, "If the user uses -a, they MUST
                 // also use this other 'config' arg too"
@@ -39,9 +38,9 @@ fn main() {
         println!("Awesomeness is turned on");
     }
 
-    // If we set the multiple() option of a flag we can check how many times the user specified
+    // If we set the multiple option of a flag we can check how many times the user specified
     //
-    // Note: if we did not specify the multiple() option, and the user used "awesome" we would get
+    // Note: if we did not specify the multiple option, and the user used "awesome" we would get
     // a 1 (no matter how many times they actually used it), or a 0 if they didn't use it at all
     match matches.occurrences_of("awesome") {
         0 => println!("Nothing is awesome"),

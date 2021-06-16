@@ -25,7 +25,7 @@ fn basic() {
     assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&["test"]));
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::parse_from(&["test", "-a24", "--arg", "42"])
+        Opt::parse_from(&["test", "--arg", "24", "42"])
     );
 }
 

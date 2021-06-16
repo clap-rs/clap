@@ -175,7 +175,7 @@ FLAGS:
 OPTIONS:
     -o, --opt <FILE>    tests options";
 
-// Using number_of_values(1) with multiple(true) misaligns help message
+// Using number_of_values(1) with multiple_values(true) misaligns help message
 static ISSUE_760: &str = "ctest 0.1
 
 USAGE:
@@ -760,7 +760,6 @@ fn args_with_last_usage() {
                 .about("Any arguments you wish to pass to the being profiled.")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::MultipleOccurrences)
                 .setting(ArgSettings::Last)
                 .value_name("ARGS"),
         );
@@ -1213,7 +1212,7 @@ fn issue_702_multiple_values() {
         .arg(
             Arg::new("arg2")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .about("some option"),
         )
         .arg(
@@ -1235,7 +1234,7 @@ fn issue_702_multiple_values() {
                 .about("a label")
                 .short('l')
                 .long("label")
-                .multiple(true)
+                .multiple_values(true)
                 .takes_value(true),
         );
     assert!(utils::compare_output(app, "myapp --help", ISSUE_702, false));
@@ -1269,7 +1268,7 @@ fn issue_760() {
                 .short('o')
                 .long("option")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .number_of_values(1),
         )
         .arg(
@@ -1520,7 +1519,7 @@ fn last_arg_mult_usage() {
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .last(true)
                 .about("some"),
         );
@@ -1536,7 +1535,7 @@ fn last_arg_mult_usage_req() {
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .last(true)
                 .required(true)
                 .about("some"),
@@ -1559,7 +1558,7 @@ fn last_arg_mult_usage_req_with_sc() {
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .last(true)
                 .required(true)
                 .about("some"),
@@ -1583,7 +1582,7 @@ fn last_arg_mult_usage_with_sc() {
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
                 .last(true)
                 .about("some"),
         )
@@ -2000,7 +1999,7 @@ fn issue_1364_no_short_options() {
             Arg::new("files")
                 .value_name("FILES")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true),
         );
 
     assert!(utils::compare_output(app, "demo -h", ISSUE_1364, false));

@@ -4,7 +4,7 @@ use clap::Clap;
 fn raw_idents() {
     #[derive(Clap, Debug, PartialEq)]
     struct Opt {
-        #[clap(short, long)]
+        #[clap(short, long, multiple_occurrences(true))]
         r#type: Vec<String>,
     }
 
