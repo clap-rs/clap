@@ -114,8 +114,7 @@ fn grouped_value_positional_arg() {
             Arg::new("pos")
                 .about("multiple positionals")
                 .takes_value(true)
-                .multiple_values(true)
-                .multiple_occurrences(true),
+                .multiple_values(true),
         )
         .get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -135,8 +134,7 @@ fn grouped_value_multiple_positional_arg() {
             Arg::new("pos2")
                 .about("multiple positionals")
                 .takes_value(true)
-                .multiple_values(true)
-                .multiple_occurrences(true),
+                .multiple_values(true),
         )
         .get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -157,7 +155,6 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
                 .about("multiple positionals")
                 .takes_value(true)
                 .multiple_values(true)
-                .multiple_occurrences(true)
                 .last(true),
         )
         .get_matches_from(vec![

@@ -296,3 +296,14 @@ fn positional_arg_with_short() {
         .arg(Arg::new("arg").index(1).short('a'))
         .try_get_matches();
 }
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument 'arg' is a positional argument and can't be set as multiple occurrences"]
+fn positional_arg_with_multiple_occurrences() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(Arg::new("arg").multiple_occurrences(true))
+        .try_get_matches();
+}

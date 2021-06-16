@@ -73,6 +73,7 @@ impl<'help> UsageParser<'help> {
             // We had a positional and need to set mult vals too
             arg.settings.set(ArgSettings::TakesValue);
             arg.settings.set(ArgSettings::MultipleValues);
+            arg.settings.unset(ArgSettings::MultipleOccurrences);
         }
         debug!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
@@ -1181,9 +1182,7 @@ mod test {
         let a = Arg::from("[pos]... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1194,9 +1193,7 @@ mod test {
         let a = Arg::from("[pos]... 'some help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help' info");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1207,9 +1204,7 @@ mod test {
         let a = Arg::from("[pos]... 'some \'help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some 'help' info");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1223,9 +1218,7 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help\ninfo");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1239,9 +1232,7 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help' stuff\ninfo");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1252,9 +1243,7 @@ mod test {
         let a = Arg::from("<pos>... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1276,9 +1265,7 @@ mod test {
     fn pos_mult() {
         let a = Arg::from("[pos]...");
         assert_eq!(a.name, "pos");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());
@@ -1289,9 +1276,7 @@ mod test {
         let a = Arg::from("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(
-            a.is_set(ArgSettings::MultipleValues) && a.is_set(ArgSettings::MultipleOccurrences)
-        );
+        assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert!(a.num_vals.is_none());

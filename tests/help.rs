@@ -760,7 +760,6 @@ fn args_with_last_usage() {
                 .about("Any arguments you wish to pass to the being profiled.")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::MultipleOccurrences)
                 .setting(ArgSettings::Last)
                 .value_name("ARGS"),
         );

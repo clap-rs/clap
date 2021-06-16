@@ -29,8 +29,17 @@ pub(crate) fn assert_arg(arg: &Arg) {
 
     if arg.index.is_some() {
         assert!(
-            arg.short.is_none() && arg.long.is_none(),
+            !arg.has_switch(),
             "Argument '{}' is a positional argument and can't have short or long name versions",
+            arg.name
+        );
+    }
+
+    // Positionals should not have multiple_occurrences
+    if arg.is_positional() {
+        assert!(
+            !arg.is_set(ArgSettings::MultipleOccurrences),
+            "Argument '{}' is a positional argument and can't be set as multiple occurrences",
             arg.name
         );
     }
