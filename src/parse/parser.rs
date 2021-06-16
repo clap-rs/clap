@@ -878,6 +878,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
 
+        let partial_parsing_enabled = self.is_set(AS::IgnoreErrors);
+
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             let mut sc_matcher = ArgMatcher::default();
             // Display subcommand name, short and long in usage
@@ -927,7 +929,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                     p.flag_subcmd_at = self.flag_subcmd_at;
                     p.flag_subcmd_skip = self.flag_subcmd_skip;
                 }
-                p.get_matches_with(&mut sc_matcher, it)?;
+                if let Err(error) = p.get_matches_with(&mut sc_matcher, it) {
+                    if partial_parsing_enabled {
+                        debug!(
+                            "Parser::parse_subcommand: ignored error in subcommand {}: {:?}",
+                            sc_name, error
+                        );
+                    } else {
+                        return Err(error);
+                    }
+                }
             }
             let name = sc.name.clone();
             matcher.subcommand(SubCommand {
