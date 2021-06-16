@@ -8,7 +8,7 @@ bitflags! {
     struct Flags: u64 {
         const SC_NEGATE_REQS                 = 1;
         const SC_REQUIRED                    = 1 << 1;
-        const A_REQUIRED_ELSE_HELP           = 1 << 2;
+        const ARG_REQUIRED_ELSE_HELP         = 1 << 2;
         const GLOBAL_VERSION                 = 1 << 3;
         const DISABLE_VERSION_FOR_SC         = 1 << 4;
         const UNIFIED_HELP                   = 1 << 5;
@@ -72,7 +72,7 @@ impl Default for AppFlags {
 
 impl_settings! { AppSettings, AppFlags,
     ArgRequiredElseHelp("argrequiredelsehelp")
-        => Flags::A_REQUIRED_ELSE_HELP,
+        => Flags::ARG_REQUIRED_ELSE_HELP,
     SubcommandPrecedenceOverArg("subcommandprecedenceoverarg")
         => Flags::SUBCOMMAND_PRECEDENCE_OVER_ARG,
     ArgsNegateSubcommands("argsnegatesubcommands")
@@ -170,12 +170,12 @@ pub enum AppSettings {
     /// This is the default behavior of `clap`.
     ///
     /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
-    /// [`ArgMatches::os_value_of`], [`ArgMatches::os_values_of`], [`ArgMatches::lossy_value_of`],
-    /// or [`ArgMatches::lossy_values_of`] for those particular arguments which may contain invalid
+    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
+    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
     /// UTF-8 values
     ///
-    /// **NOTE:** This rule only applies to  argument values, as flags, options, and
-    /// [`Subcommand`]s themselves only allow valid UTF-8 code points.
+    /// **NOTE:** This rule only applies to argument values. Flags, options, and
+    /// [`subcommands`] themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -202,14 +202,15 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
-    /// [`ArgMatches::os_value_of`]: ArgMatches::os_value_of()
-    /// [`ArgMatches::os_values_of`]: ArgMatches::os_values_of()
-    /// [`ArgMatches::lossy_value_of`]: ArgMatches::lossy_value_of()
-    /// [`ArgMatches::lossy_values_of`]: ArgMatches::lossy_values_of()
+    /// [`ArgMatches::value_of_os`]: ArgMatches::value_of_os()
+    /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
+    /// [`ArgMatches::value_of_lossy`]: ArgMatches::value_of_lossy()
+    /// [`ArgMatches::values_of_lossy`]: ArgMatches::values_of_lossy()
+    /// [`subcommands`]: App::subcommand()
+    // TODO: Either this or StrictUtf8
     AllowInvalidUtf8,
 
-    /// Specifies that leading hyphens are allowed in argument *values*, such as negative numbers
+    /// Specifies that leading hyphens are allowed in all argument *values*, such as negative numbers
     /// like `-10`. (which would otherwise be parsed as another flag or option)
     ///
     /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
@@ -223,7 +224,7 @@ pub enum AppSettings {
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
     ///     .setting(AppSettings::AllowLeadingHyphen)
-    ///     .arg(Arg::new("neg").index(1))
+    ///     .arg(Arg::new("neg"))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
     ///     ]);
@@ -241,7 +242,7 @@ pub enum AppSettings {
     AllArgsOverrideSelf,
 
     /// Allows negative numbers to pass as values. This is similar to
-    /// `AllowLeadingHyphen` except that it only allows numbers, all
+    /// [`AppSettings::AllowLeadingHyphen`] except that it only allows numbers, all
     /// other undefined leading hyphens will fail to parse.
     ///
     /// # Examples
@@ -249,7 +250,6 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let res = App::new("myprog")
-    ///     .version("v1.1")
     ///     .setting(AppSettings::AllowNegativeNumbers)
     ///     .arg(Arg::new("num"))
     ///     .try_get_matches_from(vec![
@@ -259,7 +259,6 @@ pub enum AppSettings {
     /// let m = res.unwrap();
     /// assert_eq!(m.value_of("num").unwrap(), "-20");
     /// ```
-    /// [`AllowLeadingHyphen`]: AppSettings::AllowLeadingHyphen
     AllowNegativeNumbers,
 
     /// Allows one to implement two styles of CLIs where positionals can be used out of order.
@@ -329,6 +328,7 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("arg1"), Some("something"));
     /// assert_eq!(m.value_of("arg2"), Some("other"));
     /// ```
+    ///
     /// Style number two from above:
     ///
     /// ```rust
@@ -366,13 +366,13 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("bar"), None);
     /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
+    ///
     /// [required]: Arg::required()
     AllowMissingPositional,
 
     /// Specifies that an unexpected positional argument,
     /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
-    /// should instead be treated as a [`Subcommand`]
-    /// within the [`ArgMatches`] struct.
+    /// should instead be treated as a [`subcommand`] within the [`ArgMatches`] struct.
     ///
     /// **NOTE:** Use this setting with caution,
     /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
@@ -401,11 +401,10 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
-    ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommand`]: App::subcommand()
     AllowExternalSubcommands,
 
-    /// Specifies that use of a valid [argument] negates [subcommands] being used after. By default
+    /// Specifies that use of a valid argument negates [`subcommands`] being used after. By default
     /// `clap` allows arguments between subcommands such as
     /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that
     /// functionality and says that arguments can only follow the *final* subcommand. For instance
@@ -420,18 +419,16 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ArgsNegateSubcommands)
-    /// # ;
+    ///     .setting(AppSettings::ArgsNegateSubcommands);
     /// ```
     ///
-    /// [subcommands]: crate::Subcommand
-    /// [argument]: crate::Arg
+    /// [`subcommands`]: App::subcommand()
     ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
     /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
     ///
-    /// **NOTE:** [`Subcommand`]s count as arguments
+    /// **NOTE:** [`subcommands`] count as arguments
     ///
     /// **NOTE:** Setting [`Arg::default_value`] effectively disables this option as it will
     /// ensure that some argument is always present.
@@ -441,11 +438,10 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::ArgRequiredElseHelp)
-    /// # ;
+    ///     .setting(AppSettings::ArgRequiredElseHelp);
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     /// [`Arg::default_value`]: Arg::default_value()
     ArgRequiredElseHelp,
 
@@ -488,16 +484,18 @@ pub enum AppSettings {
     ///     .clone()
     ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
+    ///
     /// assert_eq!(
     ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
     ///     &["1", "2", "3", "sub"]
     /// );
     /// assert!(matches.subcommand_matches("sub").is_none());
     ///
-    /// let app = app.setting(AppSettings::SubcommandPrecedenceOverArg);
     /// let matches = app
+    ///     .setting(AppSettings::SubcommandPrecedenceOverArg)
     ///     .try_get_matches_from(&["app", "--arg", "1", "2", "3", "sub"])
     ///     .unwrap();
+    ///
     /// assert_eq!(
     ///     matches.values_of("arg").unwrap().collect::<Vec<_>>(),
     ///     &["1", "2", "3"]
@@ -622,9 +620,7 @@ pub enum AppSettings {
     /// [`Arg::use_delimiter(false)`]: Arg::use_delimiter()
     DontDelimitTrailingValues,
 
-    /// Disables `-h` and `--help` [`App`] without affecting any of the [`Subcommand`]s
-    ///
-    /// Defaults to `false`; application *does* have help flags.
+    /// Disables `-h` and `--help` flag.
     ///
     /// # Examples
     ///
@@ -638,30 +634,15 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .setting(AppSettings::DisableHelpFlag)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test", "-h"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayHelp);
-    /// ```
-    ///
-    /// [`Subcommand`]: crate:Subcommand
     DisableHelpFlag,
 
-    /// Disables the `help` [Subcommand]
+    /// Disables the `help` [`subcommand`].
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind, };
     /// let res = App::new("myprog")
-    ///     .version("v1.1")
     ///     .setting(AppSettings::DisableHelpSubcommand)
     ///     // Normally, creating a subcommand causes a `help` subcommand to automatically
     ///     // be generated as well
@@ -673,18 +654,16 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// [Subcommand]: crate::Subcommand
+    /// [`subcommand`]: App::subcommand()
     DisableHelpSubcommand,
 
-    /// Disables `-V` and `--version` for this [`App`] without affecting any of the [`Subcommand`]s
-    /// (Defaults to `false`; application *does* have a version flag)
+    /// Disables `-V` and `--version` flag.
     ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
     /// let res = App::new("myprog")
-    ///     .version("v1.1")
     ///     .setting(AppSettings::DisableVersionFlag)
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-V"
@@ -692,25 +671,9 @@ pub enum AppSettings {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersionFlag)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::DisplayVersion);
-    /// ```
-    ///
-    /// [`Subcommand`]: crate::Subcommand
     DisableVersionFlag,
 
-    /// Disables `-V` and `--version` for all [`subcommand`]s of this [`App`]
-    /// (Defaults to `false`; subcommands *do* have version flags.)
+    /// Disables `-V` and `--version` for all [`subcommands`] of this [`App`].
     ///
     /// # Examples
     ///
@@ -727,10 +690,10 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// [`subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     DisableVersionForSubcommands,
 
-    /// Displays the arguments and [`Subcommand`]s in the help message in the order that they were
+    /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
     /// # Examples
@@ -742,10 +705,10 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     DeriveDisplayOrder,
 
-    /// Specifies to use the version of the current command for all child [`Subcommand`]s.
+    /// Specifies to use the version of the current command for all child [`subcommands`].
     ///
     /// Defaults to `false`; subcommands have independent version strings from their parents.
     ///
@@ -762,10 +725,10 @@ pub enum AppSettings {
     /// // "myprog-test v1.1"
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     GlobalVersion,
 
-    /// Specifies that this [`Subcommand`] should be hidden from help messages
+    /// Specifies that this [`subcommand`] should be hidden from help messages
     ///
     /// # Examples
     ///
@@ -777,7 +740,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommand`]: App::subcommand()
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
@@ -840,7 +803,7 @@ pub enum AppSettings {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     ///
-    /// [`subcommands`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     /// [positional/free arguments]: Arg::index()
     /// [aliases]: App::alias()
     InferSubcommands,
@@ -883,7 +846,7 @@ pub enum AppSettings {
     /// ```
     NextLineHelp,
 
-    /// Allows [`Subcommand`]s to override all requirements of the parent command.
+    /// Allows [`subcommands`] to override all requirements of the parent command.
     /// For example, if you had a subcommand or top level application with a required argument
     /// that is only required as long as there is no subcommand present,
     /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
@@ -926,11 +889,11 @@ pub enum AppSettings {
     /// ```
     ///
     /// [`Arg::required(true)`]: Arg::required()
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     SubcommandsNegateReqs,
 
     /// Specifies that the help text should be displayed (before exiting gracefully) if no
-    /// [`Subcommand`]s are present at runtime (i.e. an empty run such as `$ myprog`).
+    /// [`subcommands`] are present at runtime (i.e. an empty run such as `$ myprog`).
     ///
     /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
     /// nearly same thing; this prints the help text, and the other prints an error.
@@ -944,11 +907,10 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequiredElseHelp)
-    /// # ;
+    ///     .setting(AppSettings::SubcommandRequiredElseHelp);
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     SubcommandRequiredElseHelp,
 
     /// Specifies that the help subcommand should print the [long format] help message.
@@ -977,7 +939,7 @@ pub enum AppSettings {
     /// with a [`ErrorKind::InvalidUtf8`] error.
     ///
     /// **NOTE:** This rule only applies to argument values; Things such as flags, options, and
-    /// [`Subcommand`]s themselves only allow valid UTF-8 code points.
+    /// [`subcommands`] themselves only allow valid UTF-8 code points.
     ///
     /// # Platform Specific
     ///
@@ -1003,13 +965,11 @@ pub enum AppSettings {
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommands`]: App::subcommand()
     StrictUtf8,
 
-    /// Allows specifying that if no [`Subcommand`] is present at runtime,
+    /// Allows specifying that if no [`subcommand`] is present at runtime,
     /// error and exit gracefully.
-    ///
-    /// **NOTE:** This defaults to `false` (subcommands do *not* need to be present)
     ///
     /// # Examples
     ///
@@ -1026,7 +986,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
-    /// [`Subcommand`]: crate::Subcommand
+    /// [`subcommand`]: App::subcommand()
     SubcommandRequired,
 
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
@@ -1062,7 +1022,7 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::UnifiedHelpMessage)
@@ -1078,20 +1038,13 @@ pub enum AppSettings {
     /// Windows where a user tries to open the binary by double-clicking instead of using the
     /// command line.
     ///
-    /// **NOTE:** This setting is **not** recursive with [`Subcommand`]s, meaning if you wish this
-    /// behavior for all subcommands, you must set this on each command (needing this is extremely
-    /// rare).
-    ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::WaitOnError)
-    /// # ;
+    ///     .setting(AppSettings::WaitOnError);
     /// ```
-    ///
-    /// [`Subcommand`]: crate::Subcommand
     WaitOnError,
 
     /// @TODO-v3: @docs write them...maybe rename
