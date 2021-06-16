@@ -82,7 +82,7 @@ criterion = "0.3.2"
 
 [features]
 default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo"]
-std         = [] # support for no_std in a backwards-compatible way
+std         = ["indexmap/std"] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
 wrap_help   = ["terminal_size", "textwrap/terminal_size"]

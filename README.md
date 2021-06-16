@@ -466,9 +466,11 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 #### Features enabled by default
 
-* **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above
+* **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
+* **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **color**: Turns on colored error messages. You still have to turn on colored help by setting `AppSettings::ColoredHelp`. (builds dependency `termcolor`)
+* **unicode_help**: Turns on support for unicode characters in help messages. (builds dependency `textwrap`)
 
 To disable these, add this to your `Cargo.toml`:
 
@@ -476,6 +478,7 @@ To disable these, add this to your `Cargo.toml`:
 [dependencies.clap]
 version = "3.0.0-beta.2"
 default-features = false
+features = ["std"]
 ```
 
 You can also selectively enable only the features you'd like to include, by adding:
@@ -486,7 +489,7 @@ version = "3.0.0-beta.2"
 default-features = false
 
 # Cherry-pick the features you'd like to use
-features = [ "suggestions", "color" ]
+features = ["std", "suggestions", "color"]
 ```
 
 #### Opt-in features
