@@ -15,6 +15,7 @@ TODO: `cargo`, `std` features
 * **Removed Methods**
   * **Arg**
     * `Arg::settings` in favor of `Arg::setting(Setting1 | Setting2)`
+    * `Arg::multiple` in favour of `Arg::multiple_values` and `Arg::multiple_occurrences`
 * **Renamed Settings**
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`

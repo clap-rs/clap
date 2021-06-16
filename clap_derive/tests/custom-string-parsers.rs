@@ -26,7 +26,7 @@ struct PathOpt {
     #[clap(short, default_value = "../", parse(from_os_str))]
     default_path: PathBuf,
 
-    #[clap(short, parse(from_os_str))]
+    #[clap(short, parse(from_os_str), multiple_occurrences(true))]
     vector_path: Vec<PathBuf>,
 
     #[clap(short, parse(from_os_str))]
@@ -254,7 +254,7 @@ fn test_custom_bool() {
         verbose: bool,
         #[clap(short, parse(try_from_str = parse_bool))]
         tribool: Option<bool>,
-        #[clap(short, parse(try_from_str = parse_bool))]
+        #[clap(short, parse(try_from_str = parse_bool), multiple_occurrences(true))]
         bitset: Vec<bool>,
     }
 

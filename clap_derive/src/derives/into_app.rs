@@ -291,7 +291,7 @@ pub fn gen_app_augmentation(
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .takes_value(true)
-                        .multiple(false)
+                        .multiple_values(false)
                         .min_values(0)
                         .max_values(1)
                         #validator
@@ -299,7 +299,7 @@ pub fn gen_app_augmentation(
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
                         .takes_value(true)
-                        .multiple(true)
+                        .multiple_values(true)
                         .min_values(0)
                         #validator
                     },
@@ -315,7 +315,7 @@ pub fn gen_app_augmentation(
 
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
-                            .multiple(true)
+                            .multiple_values(true)
                             #possible_values
                             #validator
                         }
@@ -327,7 +327,7 @@ pub fn gen_app_augmentation(
 
                     Ty::Other if flag => quote_spanned! { ty.span()=>
                         .takes_value(false)
-                        .multiple(false)
+                        .multiple_values(false)
                     },
 
                     Ty::Other => {

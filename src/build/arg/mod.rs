@@ -1749,7 +1749,7 @@ impl<'help> Arg<'help> {
     /// assigned in order of evaluation. Utilizing the `index` method allows for setting
     /// indexes out of order
     ///
-    /// **NOTE:** When utilized with [`Arg::multiple(true)`], only the **last** positional argument
+    /// **NOTE:** When utilized with [`Arg::multiple_values(true)`], only the **last** positional argument
     /// may be defined as multiple (i.e. with the highest index)
     ///
     /// # Panics
@@ -1784,7 +1784,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::short`]: Arg::short()
     /// [`Arg::long`]: Arg::long()
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     #[inline]
     pub fn index(mut self, idx: usize) -> Self {
@@ -1793,7 +1793,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
-    /// one sets [`multiple(true)`] on an argument, clap will continue parsing values for that
+    /// one sets [`multiple_values(true)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
     /// for multiple values is used (such as [`min_values`], [`max_values`] or
     /// [`number_of_values`]).
@@ -1809,10 +1809,11 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("vals")
     ///     .takes_value(true)
-    ///     .multiple(true)
+    ///     .multiple_values(true)
     ///     .value_terminator(";")
     /// # ;
     /// ```
+    ///
     /// The following example uses two arguments, a sequence of commands, and the location in which
     /// to perform them
     ///
@@ -1821,7 +1822,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cmds")
     ///         .takes_value(true)
-    ///         .multiple(true)
+    ///         .multiple_values(true)
     ///         .allow_hyphen_values(true)
     ///         .value_terminator(";"))
     ///     .arg(Arg::new("location"))
@@ -1834,7 +1835,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
-    /// [`multiple(true)`]: Arg::multiple()
+    /// [`multiple_values(true)`]: Arg::multiple_values()
     /// [`min_values`]: Arg::min_values()
     /// [`number_of_values`]: Arg::number_of_values()
     /// [`max_values`]: Arg::max_values()
@@ -2028,9 +2029,9 @@ impl<'help> Arg<'help> {
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
     ///
-    /// **NOTE:** Does *not* require [`Arg::multiple(true)`] to be set. Setting
-    /// [`Arg::multiple(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
-    /// as *not* setting [`Arg::multiple(true)`] would only allow one occurrence of this argument.
+    /// **NOTE:** Does *not* require [`Arg::multiple_occurrences(true)`] to be set. Setting
+    /// [`Arg::multiple_occurrences(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
+    /// as *not* setting it would only allow one occurrence of this argument.
     ///
     /// # Examples
     ///
@@ -2038,8 +2039,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("file")
     ///     .short('f')
-    ///     .number_of_values(3)
-    /// # ;
+    ///     .number_of_values(3);
     /// ```
     ///
     /// Not supplying the correct number of values is an error
@@ -2058,7 +2058,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
     /// ```
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
@@ -2227,10 +2227,10 @@ impl<'help> Arg<'help> {
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
     ///
-    /// **NOTE:** This does *not* implicitly set [`Arg::multiple(true)`]. This is because
+    /// **NOTE:** This does *not* implicitly set [`Arg::multiple_occurrences(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
     /// occurrence with multiple values. For positional arguments this **does** set
-    /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
+    /// [`Arg::multiple_occurrences(true)`] because there is no way to determine the difference between multiple
     /// occurrences and multiple values.
     ///
     /// # Examples
@@ -2239,8 +2239,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("file")
     ///     .short('f')
-    ///     .max_values(3)
-    /// # ;
+    ///     .max_values(3);
     /// ```
     ///
     /// Supplying less than the maximum number of values is allowed
@@ -2278,7 +2277,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
     pub fn max_values(mut self, qty: usize) -> Self {
         self.max_vals = Some(qty);
@@ -2290,10 +2289,10 @@ impl<'help> Arg<'help> {
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
     ///
-    /// **NOTE:** This does not implicitly set [`Arg::multiple(true)`]. This is because
+    /// **NOTE:** This does not implicitly set [`Arg::multiple_occurrences(true)`]. This is because
     /// `-o val -o val` is multiple occurrences but a single value and `-o val1 val2` is a single
     /// occurrence with multiple values. For positional arguments this **does** set
-    /// [`Arg::multiple(true)`] because there is no way to determine the difference between multiple
+    /// [`Arg::multiple_occurrences(true)`] because there is no way to determine the difference between multiple
     /// occurrences and multiple values.
     ///
     /// # Examples
@@ -2302,8 +2301,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("file")
     ///     .short('f')
-    ///     .min_values(3)
-    /// # ;
+    ///     .min_values(3);
     /// ```
     ///
     /// Supplying more than the minimum number of values is allowed
@@ -2341,7 +2339,7 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
     /// ```
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
     pub fn min_values(mut self, qty: usize) -> Self {
         self.min_vals = Some(qty);
@@ -2393,13 +2391,9 @@ impl<'help> Arg<'help> {
     /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
-    /// **NOTE:** This implicitly sets [`Arg::number_of_values`] if the number of value names is
-    /// greater than one. I.e. be aware that the number of "names" you set for the values, will be
-    /// the *exact* number of values required to satisfy this argument
-    ///
     /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
     ///
-    /// **NOTE:** Does *not* require or imply [`Arg::multiple(true)`].
+    /// **NOTE:** Does *not* require or imply [`Arg::multiple_values(true)`].
     ///
     /// # Examples
     ///
@@ -2407,8 +2401,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("speed")
     ///     .short('s')
-    ///     .value_names(&["fast", "slow"])
-    /// # ;
+    ///     .value_names(&["fast", "slow"]);
     /// ```
     ///
     /// ```rust
@@ -2421,6 +2414,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--help"
     ///     ]);
     /// ```
+    ///
     /// Running the above program produces the following output
     ///
     /// ```text
@@ -2439,7 +2433,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
     /// [`Arg::number_of_values`]: Arg::number_of_values()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
         let mut i = self.val_names.len();
         for s in names {
@@ -3069,7 +3063,7 @@ impl<'help> Arg<'help> {
     ///         .long("flag")
     ///         .env("MY_FLAG_MULTI")
     ///         .takes_value(true)
-    ///         .multiple(true)
+    ///         .multiple_values(true)
     ///         .use_delimiter(true))
     ///     .get_matches_from(vec![
     ///         "prog"
@@ -3081,7 +3075,6 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::value_of`]: ArgMatches::value_of()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`Arg::multiple(true)`]: Arg::multiple()
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     #[inline]
     pub fn env(self, name: &'help str) -> Self {
@@ -3562,6 +3555,7 @@ impl<'help> Arg<'help> {
     /// assert!(delims.is_present("opt"));
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
+    ///
     /// In this next example, we will *not* use a delimiter. Notice it's now an error.
     ///
     /// ```rust
@@ -3580,6 +3574,7 @@ impl<'help> Arg<'help> {
     /// let err = res.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::UnknownArgument);
     /// ```
+    ///
     /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
     /// were present, it stops parsing `-o`. At this point it reaches `val2` and because no
     /// positional arguments have been defined, it's an error of an unexpected argument.
@@ -3982,196 +3977,6 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument may have an unknown number of multiple values. Without any other
-    /// settings, this argument may appear only *once*.
-    ///
-    /// For example, `--opt val1 val2` is allowed, but `--opt val1 val2 --opt val3` is not.
-    ///
-    /// **NOTE:** Implicitly sets [`ArgSettings::TakesValue`]
-    ///
-    /// **WARNING:**
-    ///
-    /// Setting `MultipleValues` for an argument that takes a value, but with no other details can
-    /// be dangerous in some circumstances. Because multiple values are allowed,
-    /// `--option val1 val2 val3` is perfectly valid. Be careful when designing a CLI where
-    /// positional arguments are *also* expected as `clap` will continue parsing *values* until one
-    /// of the following happens:
-    ///
-    /// * It reaches the [maximum number of values]
-    /// * It reaches a [specific number of values]
-    /// * It finds another flag or option (i.e. something that starts with a `-`)
-    ///
-    /// **WARNING:**
-    ///
-    /// When using args with `MultipleValues` and [subcommands], one needs to consider the
-    /// possibility of an argument value being the same as a valid subcommand. By default `clap` will
-    /// parse the argument in question as a value *only if* a value is possible at that moment.
-    /// Otherwise it will be parsed as a subcommand. In effect, this means using `MultipleValues` with no
-    /// additional parameters and a value that coincides with a subcommand name, the subcommand
-    /// cannot be called unless another argument is passed between them.
-    ///
-    /// As an example, consider a CLI with an option `--ui-paths=<paths>...` and subcommand `signer`
-    ///
-    /// The following would be parsed as values to `--ui-paths`.
-    ///
-    /// ```text
-    /// $ program --ui-paths path1 path2 signer
-    /// ```
-    ///
-    /// This is because `--ui-paths` accepts multiple values. `clap` will continue parsing values
-    /// until another argument is reached and it knows `--ui-paths` is done parsing.
-    ///
-    /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
-    /// [`Arg::number_of_values(1)`] or using *only* [`MultipleOccurrences`]. The following are all
-    /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
-    /// case.
-    ///
-    /// ```text
-    /// $ program --ui-paths path1 signer
-    /// $ program --ui-paths path1 --ui-paths signer signer
-    /// ```
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// Arg::new("debug")
-    ///     .short('d')
-    ///     .setting(ArgSettings::TakesValue)
-    ///     .setting(ArgSettings::MultipleValues)
-    /// # ;
-    /// ```
-    /// An example with flags
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::new("verbose")
-    ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .short('v'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-v", "-v", "-v"    // note, -vvv would have same result
-    ///     ]);
-    ///
-    /// assert!(m.is_present("verbose"));
-    /// assert_eq!(m.occurrences_of("verbose"), 3);
-    /// ```
-    ///
-    /// An example with options
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::TakesValue)
-    ///         .setting(ArgSettings::MultipleValues)
-    ///         .short('F'))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2", "file3"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("file"));
-    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// ```
-    /// Although `MultipleVlaues` has been specified, we cannot use the argument more than once.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::TakesValue)
-    ///         .setting(ArgSettings::MultipleValues)
-    ///         .short('F'))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage)
-    /// ```
-    ///
-    /// A common mistake is to define an option which allows multiple values, and a positional
-    /// argument.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::TakesValue)
-    ///         .setting(ArgSettings::MultipleValues)
-    ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2", "file3", "word"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
-    /// assert!(!m.is_present("word")); // but we clearly used word!
-    /// ```
-    /// The problem is `clap` doesn't know when to stop parsing values for "files". This is further
-    /// compounded by if we'd said `word -F file1 file2` it would have worked fine, so it would
-    /// appear to only fail sometimes...not good!
-    ///
-    /// A solution for the example above is to limit how many values with a [maxium], or [specific]
-    /// number, or to say [`MultipleOccurrences`] is ok, but multiple values is not.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
-    /// let m = App::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .setting(ArgSettings::TakesValue)
-    ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
-    ///     .get_matches_from(vec![
-    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
-    ///     ]);
-    ///
-    /// assert!(m.is_present("file"));
-    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
-    /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert!(m.is_present("word"));
-    /// assert_eq!(m.value_of("word"), Some("word"));
-    /// ```
-    /// As a final example, let's fix the above error and get a pretty message to the user :)
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
-    /// let res = App::new("prog")
-    ///     .arg(Arg::new("file")
-    ///         .setting(ArgSettings::MultipleOccurrences)
-    ///         .setting(ArgSettings::TakesValue)
-    ///         .short('F'))
-    ///     .arg(Arg::new("word")
-    ///         .index(1))
-    ///     .try_get_matches_from(vec![
-    ///         "prog", "-F", "file1", "file2", "file3", "word"
-    ///     ]);
-    ///
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// ```
-    /// [option]: ArgSettings::TakesValue
-    /// [options]: ArgSettings::TakesValue
-    /// [subcommands]: App::subcommand()
-    /// [positionals]: Arg::index()
-    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
-    /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
-    /// [`MultipleValues`]: ArgSettings::MultipleValues
-    /// [maximum number of values]: Arg::max_values()
-    /// [specific number of values]: Arg::number_of_values()
-    /// [maximum]: Arg::max_values()
-    /// [specific]: Arg::number_of_values()
-    #[inline]
-    pub fn multiple(self, multi: bool) -> Self {
-        self.multiple_occurrences(multi).multiple_values(multi)
-    }
-
     /// Don't allow an argument to accept explicitly empty values. An empty value
     /// must be specified at the command line with an explicit `""`, `''`, or
     /// `--option=`
@@ -4234,7 +4039,177 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// @TODO@ @release @docs
+    /// Specifies that the argument may have an unknown number of multiple values. Without any other
+    /// settings, this argument may appear only *once*.
+    ///
+    /// For example, `--opt val1 val2` is allowed, but `--opt val1 val2 --opt val3` is not.
+    ///
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`].
+    ///
+    /// **WARNING:**
+    ///
+    /// Setting `MultipleValues` for an argument that takes a value, but with no other details can
+    /// be dangerous in some circumstances. Because multiple values are allowed,
+    /// `--option val1 val2 val3` is perfectly valid. Be careful when designing a CLI where
+    /// positional arguments are *also* expected as `clap` will continue parsing *values* until one
+    /// of the following happens:
+    ///
+    /// * It reaches the [maximum number of values]
+    /// * It reaches a [specific number of values]
+    /// * It finds another flag or option (i.e. something that starts with a `-`)
+    ///
+    /// **WARNING:**
+    ///
+    /// When using args with `MultipleValues` and [`subcommands`], one needs to consider the
+    /// possibility of an argument value being the same as a valid subcommand. By default `clap` will
+    /// parse the argument in question as a value *only if* a value is possible at that moment.
+    /// Otherwise it will be parsed as a subcommand. In effect, this means using `MultipleValues` with no
+    /// additional parameters and a value that coincides with a subcommand name, the subcommand
+    /// cannot be called unless another argument is passed between them.
+    ///
+    /// As an example, consider a CLI with an option `--ui-paths=<paths>...` and subcommand `signer`
+    ///
+    /// The following would be parsed as values to `--ui-paths`.
+    ///
+    /// ```text
+    /// $ program --ui-paths path1 path2 signer
+    /// ```
+    ///
+    /// This is because `--ui-paths` accepts multiple values. `clap` will continue parsing values
+    /// until another argument is reached and it knows `--ui-paths` is done parsing.
+    ///
+    /// By adding additional parameters to `--ui-paths` we can solve this issue. Consider adding
+    /// [`Arg::number_of_values(1)`] or using *only* [`MultipleOccurrences`]. The following are all
+    /// valid, and `signer` is parsed as a subcommand in the first case, but a value in the second
+    /// case.
+    ///
+    /// ```text
+    /// $ program --ui-paths path1 signer
+    /// $ program --ui-paths path1 --ui-paths signer signer
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// Arg::new("debug")
+    ///     .short('d')
+    ///     .setting(ArgSettings::TakesValue)
+    ///     .setting(ArgSettings::MultipleValues);
+    /// ```
+    ///
+    /// An example with options
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
+    ///         .short('F'))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "file2", "file3"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// assert_eq!(m.occurrences_of("file"), 1); // notice only one occurrence
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// ```
+    ///
+    /// Although `MultipleVlaues` has been specified, we cannot use the argument more than once.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
+    ///         .short('F'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage)
+    /// ```
+    ///
+    /// A common mistake is to define an option which allows multiple values, and a positional
+    /// argument.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .setting(ArgSettings::MultipleValues)
+    ///         .short('F'))
+    ///     .arg(Arg::new("word")
+    ///         .index(1))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "file2", "file3", "word"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3", "word"]); // wait...what?!
+    /// assert!(!m.is_present("word")); // but we clearly used word!
+    /// ```
+    ///
+    /// The problem is `clap` doesn't know when to stop parsing values for "files". This is further
+    /// compounded by if we'd said `word -F file1 file2` it would have worked fine, so it would
+    /// appear to only fail sometimes...not good!
+    ///
+    /// A solution for the example above is to limit how many values with a [maximum], or [specific]
+    /// number, or to say [`MultipleOccurrences`] is ok, but multiple values is not.
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgSettings};
+    /// let m = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .setting(ArgSettings::MultipleOccurrences)
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .short('F'))
+    ///     .arg(Arg::new("word")
+    ///         .index(1))
+    ///     .get_matches_from(vec![
+    ///         "prog", "-F", "file1", "-F", "file2", "-F", "file3", "word"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("file"));
+    /// let files: Vec<_> = m.values_of("file").unwrap().collect();
+    /// assert_eq!(files, ["file1", "file2", "file3"]);
+    /// assert!(m.is_present("word"));
+    /// assert_eq!(m.value_of("word"), Some("word"));
+    /// ```
+    ///
+    /// As a final example, let's fix the above error and get a pretty message to the user :)
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("file")
+    ///         .setting(ArgSettings::MultipleOccurrences)
+    ///         .setting(ArgSettings::TakesValue)
+    ///         .short('F'))
+    ///     .arg(Arg::new("word")
+    ///         .index(1))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-F", "file1", "file2", "file3", "word"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// ```
+    ///
+    /// [`subcommands`]: App::subcommand()
+    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
+    /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
+    /// [`MultipleValues`]: ArgSettings::MultipleValues
+    /// [maximum number of values]: Arg::max_values()
+    /// [specific number of values]: Arg::number_of_values()
+    /// [maximum]: Arg::max_values()
+    /// [specific]: Arg::number_of_values()
     #[inline]
     pub fn multiple_values(self, multi: bool) -> Self {
         if multi {
@@ -4244,8 +4219,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument may appear more than once.
-    /// For flags, this results
+    /// Specifies that the argument may appear more than once. For flags, this results
     /// in the number of occurrences of the flag being recorded. For example `-ddd` or `-d -d -d`
     /// would count as three occurrences. For options or arguments that take a value, this
     /// *does not* affect how many values they can accept. (i.e. only one at a time is allowed)
@@ -4258,9 +4232,9 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg, ArgSettings};
     /// Arg::new("debug")
     ///     .short('d')
-    ///     .setting(ArgSettings::MultipleOccurrences)
-    /// # ;
+    ///     .setting(ArgSettings::MultipleOccurrences);
     /// ```
+    ///
     /// An example with flags
     ///
     /// ```rust
@@ -4295,17 +4269,6 @@ impl<'help> Arg<'help> {
     /// let files: Vec<_> = m.values_of("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
-    /// [option]: ArgSettings::TakesValue
-    /// [options]: ArgSettings::TakesValue
-    /// [subcommands]: App::subcommand()
-    /// [positionals]: Arg::index()
-    /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
-    /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
-    /// [`MultipleValues`]: ArgSettings::MultipleValues
-    /// [maximum number of values]: Arg::max_values()
-    /// [specific number of values]: Arg::number_of_values()
-    /// [maximum]: Arg::max_values()
-    /// [specific]: Arg::number_of_values()
     #[inline]
     pub fn multiple_occurrences(self, multi: bool) -> Self {
         if multi {
@@ -4323,21 +4286,22 @@ impl<'help> Arg<'help> {
     /// ```text
     /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
     /// ```
+    ///
     /// Will result in everything after `--` to be considered one raw argument. This behavior
     /// may not be exactly what you are expecting and using [`AppSettings::TrailingVarArg`]
     /// may be more appropriate.
     ///
-    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple(true)`], [`Arg::allow_hyphen_values(true)`], and
-    /// [`Arg::last(true)`] when set to `true`
+    /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple_values(true)`],
+    /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`
     ///
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`Arg::multiple(true)`]: Arg::multiple()
+    /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
     pub fn raw(self, raw: bool) -> Self {
         self.takes_value(raw)
-            .multiple(raw)
+            .multiple_values(raw)
             .allow_hyphen_values(raw)
             .last(raw)
     }
@@ -4354,9 +4318,9 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("debug")
-    ///     .hidden_short_help(true)
-    /// # ;
+    ///     .hidden_short_help(true);
     /// ```
+    ///
     /// Setting `hidden_short_help(true)` will hide the argument when displaying short help text
     ///
     /// ```rust
@@ -4555,16 +4519,17 @@ impl<'help> Arg<'help> {
     /// Currently this is only supported by the zsh completions generator.
     ///
     /// For example, to take a username as argument:
+    ///
     /// ```
     /// # use clap::{Arg, ValueHint};
     /// Arg::new("user")
     ///     .short('u')
     ///     .long("user")
-    ///     .value_hint(ValueHint::Username)
-    /// # ;
+    ///     .value_hint(ValueHint::Username);
     /// ```
     ///
     /// To take a full command line and its arguments (for example, when writing a command wrapper):
+    ///
     /// ```
     /// # use clap::{App, AppSettings, Arg, ValueHint};
     /// App::new("prog")
@@ -4572,10 +4537,9 @@ impl<'help> Arg<'help> {
     ///     .arg(
     ///         Arg::new("command")
     ///             .takes_value(true)
-    ///             .multiple(true)
+    ///             .multiple_values(true)
     ///             .value_hint(ValueHint::CommandWithArguments)
-    ///     )
-    /// # ;
+    ///     );
     /// ```
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
         self.settings.set(ArgSettings::TakesValue);
@@ -4614,11 +4578,10 @@ impl<'help> Arg<'help> {
 
     // Used for positionals when printing
     pub(crate) fn multiple_str(&self) -> &str {
-        // FIXME: This should probably be > 1
-        let mult_vals = self.val_names.len() < 2;
+        let mult_vals = self.val_names.len() > 1;
         if (self.is_set(ArgSettings::MultipleValues)
             || self.is_set(ArgSettings::MultipleOccurrences))
-            && mult_vals
+            && !mult_vals
         {
             "..."
         } else {
@@ -4810,11 +4773,13 @@ impl<'help> Display for Arg<'help> {
         if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
             // Positional
             let mut delim = String::new();
+
             delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
                 self.val_delim.expect(INTERNAL_ERROR_MSG)
             } else {
                 ' '
             });
+
             if !self.val_names.is_empty() {
                 write!(
                     f,
@@ -4828,9 +4793,9 @@ impl<'help> Display for Arg<'help> {
             } else {
                 write!(f, "<{}>", self.name)?;
             }
-            if self.settings.is_set(ArgSettings::MultipleValues) && self.val_names.len() < 2 {
-                write!(f, "...")?;
-            }
+
+            write!(f, "{}", self.multiple_str())?;
+
             return Ok(());
         } else if !self.is_set(ArgSettings::TakesValue) {
             // Flag
@@ -4842,17 +4807,20 @@ impl<'help> Display for Arg<'help> {
 
             return Ok(());
         }
+
         let sep = if self.is_set(ArgSettings::RequireEquals) {
             "="
         } else {
             " "
         };
+
         // Write the name such --long or -l
         if let Some(l) = self.long {
             write!(f, "--{}{}", l, sep)?;
         } else {
             write!(f, "-{}{}", self.short.unwrap(), sep)?;
         }
+
         let delim = if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
         } else {
@@ -4861,25 +4829,29 @@ impl<'help> Display for Arg<'help> {
 
         // Write the values such as <name1> <name2>
         if !self.val_names.is_empty() {
+            let num = self.val_names.len();
             let mut it = self.val_names.iter().peekable();
+
             while let Some((_, val)) = it.next() {
                 write!(f, "<{}>", val)?;
                 if it.peek().is_some() {
                     write!(f, "{}", delim)?;
                 }
             }
-            let num = self.val_names.len();
+
             if self.is_set(ArgSettings::MultipleValues) && num == 1 {
                 write!(f, "...")?;
             }
         } else if let Some(num) = self.num_vals {
             let mut it = (0..num).peekable();
+
             while let Some(_) = it.next() {
                 write!(f, "<{}>", self.name)?;
                 if it.peek().is_some() {
                     write!(f, "{}", delim)?;
                 }
             }
+
             if self.is_set(ArgSettings::MultipleValues) && num == 1 {
                 write!(f, "...")?;
             }
@@ -4888,7 +4860,7 @@ impl<'help> Display for Arg<'help> {
                 f,
                 "<{}>{}",
                 self.name,
-                if self.is_set(ArgSettings::MultipleOccurrences) {
+                if self.is_set(ArgSettings::MultipleValues) {
                     "..."
                 } else {
                     ""
@@ -5026,11 +4998,21 @@ mod test {
     // Options
 
     #[test]
-    fn option_display1() {
+    fn option_display_multiple_occurrences() {
         let o = Arg::new("opt")
             .long("option")
             .takes_value(true)
-            .multiple(true);
+            .multiple_occurrences(true);
+
+        assert_eq!(&*format!("{}", o), "--option <opt>");
+    }
+
+    #[test]
+    fn option_display_multiple_values() {
+        let o = Arg::new("opt")
+            .long("option")
+            .takes_value(true)
+            .multiple_values(true);
 
         assert_eq!(&*format!("{}", o), "--option <opt>...");
     }
@@ -5047,7 +5029,7 @@ mod test {
         let o2 = Arg::new("opt")
             .short('o')
             .takes_value(true)
-            .multiple(true)
+            .multiple_values(true)
             .value_names(&["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
@@ -5098,11 +5080,21 @@ mod test {
     // Positionals
 
     #[test]
-    fn positiona_display_mult() {
+    fn positional_display_multiple_values() {
         let p = Arg::new("pos")
             .index(1)
             .setting(ArgSettings::TakesValue)
             .setting(ArgSettings::MultipleValues);
+
+        assert_eq!(&*format!("{}", p), "<pos>...");
+    }
+
+    #[test]
+    fn positional_display_multiple_occurrences() {
+        let p = Arg::new("pos")
+            .index(1)
+            .setting(ArgSettings::TakesValue)
+            .setting(ArgSettings::MultipleOccurrences);
 
         assert_eq!(&*format!("{}", p), "<pos>...");
     }

@@ -9,7 +9,8 @@ fn grouped_value_works() {
             Arg::new("option")
                 .long("option")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(&[
             "cli",
@@ -39,7 +40,8 @@ fn issue_1026() {
             Arg::new("target")
                 .long("target")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(&[
             "backup", "-s", "server", "-u", "user", "--target", "target1", "file1", "file2",
@@ -65,7 +67,8 @@ fn grouped_value_long_flag_delimiter() {
                 .long("option")
                 .takes_value(true)
                 .use_delimiter(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(vec![
             "myapp",
@@ -93,7 +96,8 @@ fn grouped_value_short_flag_delimiter() {
                 .short('o')
                 .takes_value(true)
                 .use_delimiter(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(vec!["myapp", "-o=foo", "-o=val1,val2,val3", "-o=bar"]);
     let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
@@ -110,7 +114,8 @@ fn grouped_value_positional_arg() {
             Arg::new("pos")
                 .about("multiple positionals")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -130,7 +135,8 @@ fn grouped_value_multiple_positional_arg() {
             Arg::new("pos2")
                 .about("multiple positionals")
                 .takes_value(true)
-                .multiple(true),
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
@@ -150,7 +156,8 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
             Arg::new("pos2")
                 .about("multiple positionals")
                 .takes_value(true)
-                .multiple(true)
+                .multiple_values(true)
+                .multiple_occurrences(true)
                 .last(true),
         )
         .get_matches_from(vec![

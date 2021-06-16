@@ -70,7 +70,7 @@ fn option_with_raw_default() {
 fn options() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, long)]
+        #[clap(short, long, multiple_occurrences(true))]
         arg: Vec<i32>,
     }
     assert_eq!(Opt { arg: vec![24] }, Opt::parse_from(&["test", "-a24"]));
@@ -120,7 +120,7 @@ fn option_from_str() {
 fn optional_argument_for_optional_option() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[clap(short, multiple_occurrences(true))]
         #[allow(clippy::option_option)]
         arg: Option<Option<i32>>,
     }
@@ -193,7 +193,7 @@ fn two_option_options() {
 fn optional_vec() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[clap(short, multiple_occurrences(true))]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(
@@ -250,10 +250,10 @@ fn optional_vec() {
 fn two_optional_vecs() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(short)]
+        #[clap(short, multiple_occurrences(true))]
         arg: Option<Vec<i32>>,
 
-        #[clap(short)]
+        #[clap(short, multiple_occurrences(true))]
         b: Option<Vec<i32>>,
     }
 
