@@ -450,6 +450,23 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 self.p.app.color(),
             ));
         }
+        if let Some(max_occurs) = a.max_occurs {
+            debug!(
+                "Validator::validate_arg_num_occurs: max_occurs set...{}",
+                max_occurs
+            );
+            let occurs = ma.occurs as usize;
+            if occurs > max_occurs {
+                return Err(Error::too_many_occurrences(
+                    a,
+                    max_occurs,
+                    occurs,
+                    Usage::new(self.p).create_usage_with_title(&[]),
+                    self.p.app.color(),
+                ));
+            }
+        }
+
         Ok(())
     }
 
