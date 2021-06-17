@@ -146,6 +146,9 @@
         "long_about": {
           "type": "string"
         },
+        "max_occurrences" : {
+            "type": "integer"
+        },
         "max_values": {
           "type": "integer"
         },

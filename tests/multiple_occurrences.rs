@@ -128,3 +128,52 @@ fn multiple_occurrences_of_after_env() {
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }
+
+#[test]
+fn max_occurrences_implies_multiple_occurrences() {
+    let app = App::new("prog").arg(
+        Arg::new("verbose")
+            .short('v')
+            .long("verbose")
+            .max_occurrences(3),
+    );
+    let m = app.try_get_matches_from(vec!["prog", "-vvv"]);
+
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+}
+
+#[test]
+fn max_occurrences_try_inputs() {
+    let app = App::new("prog").arg(
+        Arg::new("verbose")
+            .short('v')
+            .long("verbose")
+            .max_occurrences(3),
+    );
+    let m = app.clone().try_get_matches_from(vec!["prog", "-v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
+
+    let m = app.clone().try_get_matches_from(vec!["prog", "-vv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
+
+    let m = app.clone().try_get_matches_from(vec!["prog", "-vvv"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+
+    let m = app.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
+    assert!(m.is_err(), "too many v's");
+
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["prog", "-v", "-v", "-v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
+    assert!(m.is_err(), "{}", "too many v's");
+}

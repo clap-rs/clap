@@ -199,6 +199,24 @@ pub enum ErrorKind {
     /// [`Arg::min_values`]: Arg::min_values()
     TooFewValues,
 
+    /// Occurs when a user provides more occurrences for an argument than were defined by setting
+    /// [`Arg::max_occurrences`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let result = App::new("prog")
+    ///     .arg(Arg::new("verbosity")
+    ///         .short('v')
+    ///         .max_occurrences(2))
+    ///     .try_get_matches_from(vec!["prog", "-vvv"]);
+    /// assert!(result.is_err());
+    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyOccurrences);
+    /// ```
+    /// [`Arg::max_occurrences`]: Arg::max_occurrences()
+    TooManyOccurrences,
+
     /// Occurs when the user provides a different number of values for an argument than what's
     /// been defined by setting [`Arg::number_of_values`] or than was implicitly set by
     /// [`Arg::value_names`].
@@ -736,6 +754,38 @@ impl Error {
             message: c,
             kind: ErrorKind::InvalidUtf8,
             info: vec![],
+            source: None,
+        }
+    }
+
+    pub(crate) fn too_many_occurrences(
+        arg: &Arg,
+        max_occurs: usize,
+        curr_occurs: usize,
+        usage: String,
+        color: ColorChoice,
+    ) -> Self {
+        let mut c = Colorizer::new(true, color);
+        let verb = Error::singular_or_plural(curr_occurs);
+
+        start_error(&mut c, "The argument '");
+        c.warning(arg.to_string());
+        c.none("' allows at most ");
+        c.warning(max_occurs.to_string());
+        c.none(" occurrences, but ");
+        c.warning(curr_occurs.to_string());
+        c.none(format!(" {} provided", verb));
+        put_usage(&mut c, usage);
+        try_help(&mut c);
+
+        Error {
+            message: c,
+            kind: ErrorKind::TooManyOccurrences,
+            info: vec![
+                arg.to_string(),
+                curr_occurs.to_string(),
+                max_occurs.to_string(),
+            ],
             source: None,
         }
     }

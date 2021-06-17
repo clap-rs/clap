@@ -103,6 +103,7 @@ pub struct Arg<'help> {
     pub(crate) possible_vals: Vec<&'help str>,
     pub(crate) val_names: VecMap<&'help str>,
     pub(crate) num_vals: Option<usize>,
+    pub(crate) max_occurs: Option<usize>,
     pub(crate) max_vals: Option<usize>,
     pub(crate) min_vals: Option<usize>,
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
@@ -2221,6 +2222,63 @@ impl<'help> Arg<'help> {
                 Err(err_message)
             }
         })
+    }
+
+    /// Specifies the *maximum* number of occurrences for this argument. For example, if you had a
+    /// `-v` flag and you wanted up to 3 levels of verbosity you would set `.max_occurrences(3)`, and
+    /// this argument would be satisfied if the user provided, 1, 2, or 3 arguments.
+    ///
+    /// **NOTE:** This implicitly sets [`Arg::multiple_occurrences(true)`] if the value is greater than 1.
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// Arg::new("verbosity")
+    ///     .short('v')
+    ///     .max_occurrences(3);
+    /// ```
+    ///
+    /// Supplying less than the maximum number of arguments is allowed
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("verbosity")
+    ///         .max_occurrences(3)
+    ///         .short('v'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-vvv"
+    ///     ]);
+    ///
+    /// assert!(res.is_ok());
+    /// let m = res.unwrap();
+    /// assert_eq!(m.occurrences_of("verbosity"), 3);
+    /// ```
+    ///
+    /// Supplying more than the maximum number of arguments is an error
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ErrorKind};
+    /// let res = App::new("prog")
+    ///     .arg(Arg::new("verbosity")
+    ///         .max_occurrences(2)
+    ///         .short('v'))
+    ///     .try_get_matches_from(vec![
+    ///         "prog", "-vvv"
+    ///     ]);
+    ///
+    /// assert!(res.is_err());
+    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyOccurrences);
+    /// ```
+    /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
+    #[inline]
+    pub fn max_occurrences(mut self, qty: usize) -> Self {
+        self.max_occurs = Some(qty);
+        if qty > 1 {
+            self.multiple_occurrences(true)
+        } else {
+            self
+        }
     }
 
     /// Specifies the *maximum* number of values are for this argument. For example, if you had a
