@@ -149,21 +149,15 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             let placeholder = self.p.app.subcommand_placeholder.unwrap_or("SUBCOMMAND");
             if self.p.is_set(AS::SubcommandsNegateReqs) || self.p.is_set(AS::ArgsNegateSubcommands)
             {
+                usage.push_str("\n    ");
                 if !self.p.is_set(AS::ArgsNegateSubcommands) {
-                    usage.push_str("\n    ");
                     usage.push_str(&*self.create_help_usage(false));
-
-                    usage.push_str(" <");
-                    usage.push_str(placeholder);
-                    usage.push('>');
                 } else {
-                    usage.push_str("\n    ");
                     usage.push_str(&*name);
-
-                    usage.push_str(" <");
-                    usage.push_str(placeholder);
-                    usage.push('>');
                 }
+                usage.push_str(" <");
+                usage.push_str(placeholder);
+                usage.push('>');
             } else if self.p.is_set(AS::SubcommandRequired)
                 || self.p.is_set(AS::SubcommandRequiredElseHelp)
             {
@@ -384,7 +378,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         let mut unrolled_reqs = vec![];
 
         for a in self.p.required.iter() {
-            if let Some(ref m) = matcher {
+            if let Some(m) = matcher {
                 for aa in self.p.app.unroll_requirements_for_arg(a, m) {
                     unrolled_reqs.push(aa);
                 }
@@ -417,7 +411,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
-            let arg = self.p.app.find(&a).expect(INTERNAL_ERROR_MSG).to_string();
+            let arg = self.p.app.find(a).expect(INTERNAL_ERROR_MSG).to_string();
             ret_val.push(arg);
         }
         let mut g_vec: Vec<String> = vec![];
@@ -430,9 +424,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 let have_group_entry = self
                     .p
                     .app
-                    .unroll_args_in_group(&g)
+                    .unroll_args_in_group(g)
                     .iter()
-                    .any(|arg| m.contains(&arg));
+                    .any(|arg| m.contains(arg));
                 if have_group_entry {
                     continue;
                 }

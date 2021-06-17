@@ -70,7 +70,7 @@ pub(crate) fn assert_app(app: &App) {
         }
 
         for (short_alias, _) in &arg.short_aliases {
-            short_flags.push(Flag::Arg(format!("-{}", short_alias), &arg.name));
+            short_flags.push(Flag::Arg(format!("-{}", short_alias), arg.name));
         }
 
         if let Some(l) = arg.long.as_ref() {
@@ -78,7 +78,7 @@ pub(crate) fn assert_app(app: &App) {
         }
 
         for (long_alias, _) in &arg.aliases {
-            long_flags.push(Flag::Arg(format!("--{}", long_alias), &arg.name));
+            long_flags.push(Flag::Arg(format!("--{}", long_alias), arg.name));
         }
 
         // Name conflicts

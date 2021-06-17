@@ -52,7 +52,7 @@ fn gen_fish_inner(root_command: &str, app: &App, buffer: &mut String) {
             basic_template.push_str(" -n \"__fish_use_subcommand\"");
         }
     } else {
-        bin_name = &app.get_name();
+        bin_name = app.get_name();
         basic_template
             .push_str(format!(" -n \"__fish_seen_subcommand_from {}\"", bin_name).as_str());
     }
@@ -132,7 +132,7 @@ fn value_completion(option: &Arg) -> String {
         return "".to_string();
     }
 
-    if let Some(ref data) = option.get_possible_values() {
+    if let Some(data) = option.get_possible_values() {
         format!(" -r -f -a \"{}\"", data.join(" "))
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.

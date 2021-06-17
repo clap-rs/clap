@@ -236,7 +236,7 @@ fn gen_from_subcommand(
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
-            Named(ref fields) => from_arg_matches::gen_constructor(&fields.named, &attrs),
+            Named(ref fields) => from_arg_matches::gen_constructor(&fields.named, attrs),
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];

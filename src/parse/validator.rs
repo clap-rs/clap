@@ -206,7 +206,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 .filter_map(|k| {
                     let arg = self.p.app.find(k);
                     // For an arg that blacklists `name`, this will return `Some((k, a))` to indicate a conflict.
-                    arg.filter(|a| a.blacklist.contains(&name)).map(|a| (k, a))
+                    arg.filter(|a| a.blacklist.contains(name)).map(|a| (k, a))
                 })
                 .try_for_each(|(k, a)| {
                     // The error will be then constructed according to the first conflict.
@@ -358,7 +358,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     // Now we need to know which groups this arg was a member of, to add all other
                     // args in that group to the conflicts, as well as any args those args conflict
                     // with
-                    for grp in self.p.app.groups_for_arg(&name) {
+                    for grp in self.p.app.groups_for_arg(name) {
                         if let Some(g) = self
                             .p
                             .app
@@ -532,11 +532,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         debug!("Validator::validate_arg_requires:{:?}", a.name);
         for (val, name) in &a.requires {
             if let Some(val) = val {
-                let missing_req = |v| v == val && !matcher.contains(&name);
+                let missing_req = |v| v == val && !matcher.contains(name);
                 if ma.vals_flatten().any(missing_req) {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
-            } else if !matcher.contains(&name) {
+            } else if !matcher.contains(name) {
                 return self.missing_required_error(matcher, vec![name.clone()]);
             }
         }
@@ -552,7 +552,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
-            if let Some(arg) = self.p.app.find(&arg_or_group) {
+            if let Some(arg) = self.p.app.find(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is an arg");
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, vec![]);

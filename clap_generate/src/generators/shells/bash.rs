@@ -184,7 +184,7 @@ fn option_details_for_path(app: &App, path: &str) -> String {
 fn vals_for(o: &Arg) -> String {
     debug!("vals_for: o={}", o.get_name());
 
-    if let Some(ref vals) = o.get_possible_values() {
+    if let Some(vals) = o.get_possible_values() {
         format!("$(compgen -W \"{}\" -- \"${{cur}}\")", vals.join(" "))
     } else {
         String::from("$(compgen -f \"${cur}\")")

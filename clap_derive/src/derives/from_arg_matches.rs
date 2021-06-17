@@ -152,7 +152,7 @@ fn gen_parsers(
         Ty::Option => {
             if attrs.is_enum() {
                 if let Some(subty) = subty_if_name(&field.ty, "Option") {
-                    parse = gen_arg_enum_parse(subty, &attrs);
+                    parse = gen_arg_enum_parse(subty, attrs);
                 }
             }
 
@@ -183,7 +183,7 @@ fn gen_parsers(
         Ty::Vec => {
             if attrs.is_enum() {
                 if let Some(subty) = subty_if_name(&field.ty, "Vec") {
-                    parse = gen_arg_enum_parse(subty, &attrs);
+                    parse = gen_arg_enum_parse(subty, attrs);
                 }
             }
 
@@ -204,7 +204,7 @@ fn gen_parsers(
 
         Ty::Other => {
             if attrs.is_enum() {
-                parse = gen_arg_enum_parse(&field.ty, &attrs);
+                parse = gen_arg_enum_parse(&field.ty, attrs);
             }
 
             quote_spanned! { ty.span()=>

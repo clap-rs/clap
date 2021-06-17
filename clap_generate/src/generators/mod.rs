@@ -61,7 +61,7 @@ pub trait Generator {
     fn all_subcommands(app: &App) -> Vec<(String, String)> {
         let mut subcmds: Vec<_> = Self::subcommands(app);
 
-        for sc_v in app.get_subcommands().map(|s| Self::all_subcommands(&s)) {
+        for sc_v in app.get_subcommands().map(|s| Self::all_subcommands(s)) {
             subcmds.extend(sc_v);
         }
 

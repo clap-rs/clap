@@ -160,7 +160,7 @@ fn subcommands_of(p: &App) -> String {
     for command in p.get_subcommands() {
         debug!("subcommands_of:iter: subcommand={}", command.get_name());
 
-        add_subcommands(command, &command.get_name(), &mut segments);
+        add_subcommands(command, command.get_name(), &mut segments);
 
         for alias in command.get_visible_aliases() {
             add_subcommands(command, alias, &mut segments);

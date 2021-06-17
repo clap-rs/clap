@@ -179,7 +179,7 @@ pub fn gen_app_augmentation(
 ) -> TokenStream {
     let mut subcmds = fields.iter().filter_map(|field| {
         let attrs = Attrs::from_field(
-            &field,
+            field,
             parent_attribute.casing(),
             parent_attribute.env_casing(),
         );

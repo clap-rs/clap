@@ -63,7 +63,7 @@ fn escape_string(string: &str) -> String {
 
 fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {
     match help {
-        Some(help) => escape_string(&help),
+        Some(help) => escape_string(help),
         _ => data.to_string(),
     }
 }
@@ -167,7 +167,7 @@ fn generate_inner<'help>(
     );
 
     for subcommand in p.get_subcommands() {
-        let subcommand_subcommands_cases = generate_inner(&subcommand, &command_name, names);
+        let subcommand_subcommands_cases = generate_inner(subcommand, &command_name, names);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }
 
