@@ -152,6 +152,7 @@ fn max_occurrences_implies_multiple_occurrences() {
 
     let m = app.try_get_matches_from(vec!["prog", "-vvv"]);
 
+    assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
 }
 
@@ -176,6 +177,7 @@ fn max_occurrences_try_inputs() {
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
     let m = app.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
+    assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
 
     let m = app
@@ -187,5 +189,6 @@ fn max_occurrences_try_inputs() {
     let m = app
         .clone()
         .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
+    assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
 }
