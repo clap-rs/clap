@@ -18,6 +18,8 @@
     trivial_numeric_casts
 )]
 #![forbid(unsafe_code)]
+// TODO: https://github.com/rust-lang/rust-clippy/issues/7290
+#![allow(clippy::single_component_path_imports)]
 
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
