@@ -2226,7 +2226,7 @@ impl<'help> Arg<'help> {
 
     /// Specifies the *maximum* number of occurrences for this argument. For example, if you had a
     /// `-v` flag and you wanted up to 3 levels of verbosity you would set `.max_occurrences(3)`, and
-    /// this argument would be satisfied if the user provided, 1, 2, or 3 arguments.
+    /// this argument would be satisfied if the user provided it once or twice or thrice.
     ///
     /// **NOTE:** This implicitly sets [`Arg::multiple_occurrences(true)`] if the value is greater than 1.
     /// # Examples
