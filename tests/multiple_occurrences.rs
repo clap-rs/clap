@@ -1,4 +1,4 @@
-use clap::{App, Arg, ArgSettings};
+use clap::{App, Arg, ArgSettings, ErrorKind};
 
 #[test]
 fn multiple_occurrences_of_flags_long() {
@@ -141,6 +141,18 @@ fn max_occurrences_implies_multiple_occurrences() {
 
     assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+
+    // One max should not imply multiple occurrences
+    let app = App::new("prog").arg(
+        Arg::new("verbose")
+            .short('v')
+            .long("verbose")
+            .max_occurrences(1),
+    );
+
+    let m = app.try_get_matches_from(vec!["prog", "-vvv"]);
+
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
 }
 
 #[test]
@@ -164,7 +176,7 @@ fn max_occurrences_try_inputs() {
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 
     let m = app.clone().try_get_matches_from(vec!["prog", "-vvvv"]);
-    assert!(m.is_err(), "too many v's");
+    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
 
     let m = app
         .clone()
@@ -175,5 +187,5 @@ fn max_occurrences_try_inputs() {
     let m = app
         .clone()
         .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
-    assert!(m.is_err(), "{}", "too many v's");
+    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
 }
