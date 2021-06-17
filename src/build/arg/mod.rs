@@ -125,7 +125,7 @@ impl<'help> Arg<'help> {
     /// Get the name of the argument
     #[inline]
     pub fn get_name(&self) -> &str {
-        &self.name
+        self.name
     }
 
     /// Get the help specified for this argument, if any
@@ -4880,7 +4880,7 @@ impl<'help> PartialOrd for Arg<'help> {
 
 impl<'help> Ord for Arg<'help> {
     fn cmp(&self, other: &Arg) -> Ordering {
-        self.name.cmp(&other.name)
+        self.name.cmp(other.name)
     }
 }
 

@@ -203,10 +203,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             );
         }
 
+        let mut found = false;
+
         if self.is_set(AS::AllowMissingPositional) {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required.
-            let mut found = false;
             let mut foundx2 = false;
 
             for p in self.app.get_positionals() {
@@ -239,7 +240,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
-            let mut found = false;
             for p in (1..=num_p).rev().filter_map(|n| self.app.args.get(&n)) {
                 if found {
                     assert!(
@@ -632,7 +632,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // If argument follows a `--`
         if self.is_set(AS::TrailingValues) {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
-            if self.possible_subcommand(&arg_os).is_some() {
+            if self.possible_subcommand(arg_os).is_some() {
                 return ClapError::unnecessary_double_dash(
                     arg_os.to_string_lossy().to_string(),
                     Usage::new(self).create_usage_with_title(&[]),
@@ -1466,7 +1466,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // remove future overrides in reverse seen order
         for arg in self.seen.iter().rev() {
             for (a, overr) in arg_overrides.iter().filter(|(a, _)| a == arg) {
-                if !to_rem.contains(&a) {
+                if !to_rem.contains(a) {
                     to_rem.push((*overr).clone());
                 }
             }
@@ -1508,7 +1508,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("Parser::add_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
                 for (id, val, default) in arg.default_vals_ifs.values() {
-                    let add = if let Some(a) = matcher.get(&id) {
+                    let add = if let Some(a) = matcher.get(id) {
                         if let Some(v) = val {
                             a.vals_flatten().any(|value| v == value)
                         } else {
@@ -1644,7 +1644,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let did_you_mean = suggestions::did_you_mean_flag(
             arg,
             remaining_args,
-            longs.iter().map(|ref x| &x[..]),
+            longs.iter().map(|x| &x[..]),
             self.app.subcommands.as_mut_slice(),
         );
 

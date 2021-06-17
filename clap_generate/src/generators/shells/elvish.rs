@@ -132,7 +132,7 @@ fn generate_inner<'help>(
     );
 
     for subcommand in p.get_subcommands() {
-        let subcommand_subcommands_cases = generate_inner(&subcommand, &command_name, names);
+        let subcommand_subcommands_cases = generate_inner(subcommand, &command_name, names);
         subcommands_cases.push_str(&subcommand_subcommands_cases);
     }
 
