@@ -8,7 +8,7 @@ echo -n "Testing"
 for TEST in $(find tests/ -type f -name "*.rs" -exec basename {} .rs \;); do
 	echo -n "."
 	echo -n -e "$TEST:\t" >> .tmp.out
-	cargo test --test $TEST 2>&1 | grep -o -e '[0-9]* failed;' >> .tmp.out
+	cargo test --test "$TEST" 2>&1 | grep -o -e '[0-9]* failed;' >> .tmp.out
 done
 
 echo "Done"
