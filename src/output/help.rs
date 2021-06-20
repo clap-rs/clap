@@ -701,11 +701,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         let spec_vals = &self.sc_spec_vals(app);
 
-        let about = if self.use_long {
-            app.long_about.unwrap_or_else(|| app.about.unwrap_or(""))
-        } else {
-            app.about.unwrap_or_else(|| app.long_about.unwrap_or(""))
-        };
+        let about = app.about.unwrap_or_else(|| app.long_about.unwrap_or(""));
 
         self.subcmd(sc_str, next_line_help, longest)?;
         self.help(false, about, spec_vals, next_line_help, longest)

@@ -660,6 +660,22 @@ FLAGS:
     -V, --version          Prints version information
     -x";
 
+static ABOUT_IN_SUBCOMMANDS_LIST: &str = "about-in-subcommands-list 
+
+USAGE:
+    about-in-subcommands-list [SUBCOMMAND]
+
+FLAGS:
+    -h, --help
+            Prints help information
+
+SUBCOMMANDS:
+    help
+            Prints this message or the help of the given subcommand(s)
+    sub
+            short about sub
+";
+
 fn setup() -> App<'static> {
     App::new("test")
         .author("Kevin K.")
@@ -2232,6 +2248,25 @@ fn option_usage_order() {
         app,
         "order --help",
         OPTION_USAGE_ORDER,
+        false
+    ));
+}
+
+#[test]
+fn about_in_subcommands_list() {
+    let app = App::new("about-in-subcommands-list")
+        .setting(AppSettings::ColorNever)
+        .global_setting(AppSettings::DisableVersionFlag)
+        .subcommand(
+            App::new("sub")
+                .long_about("long about sub")
+                .about("short about sub"),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "about-in-subcommands-list --help",
+        ABOUT_IN_SUBCOMMANDS_LIST,
         false
     ));
 }
