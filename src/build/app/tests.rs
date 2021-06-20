@@ -61,3 +61,68 @@ fn issue_2090() {
 
     assert!(app.subcommands[0].is_set(AppSettings::DisableVersionFlag));
 }
+
+#[test]
+fn long_help_message() {
+    let mut app = App::new("app")
+        .setting(AppSettings::ColorNever)
+        .global_setting(AppSettings::DisableVersionFlag)
+        .subcommand(App::new("sub")
+            .long_about("long about sub")
+            .about("short about sub"));
+    app._build();
+
+    let mut bytes = Vec::<u8>::new();
+
+    app.write_long_help(&mut bytes).unwrap();
+
+    assert_eq!(
+        "app 
+
+USAGE:
+    app [SUBCOMMAND]
+
+FLAGS:
+    -h, --help
+            Prints help information
+
+SUBCOMMANDS:
+    help
+            Prints this message or the help of the given subcommand(s)
+    sub
+            short about sub
+",
+        std::str::from_utf8(bytes.as_slice()).unwrap()
+    );
+}
+
+#[test]
+fn short_help_message() {
+    let mut app = App::new("app")
+        .setting(AppSettings::ColorNever)
+        .global_setting(AppSettings::DisableVersionFlag)
+        .subcommand(App::new("sub")
+            .long_about("long about sub")
+            .about("short about sub"));
+    app._build();
+
+    let mut bytes = Vec::<u8>::new();
+
+    app.write_help(&mut bytes).unwrap();
+
+    assert_eq!(
+        "app 
+
+USAGE:
+    app [SUBCOMMAND]
+
+FLAGS:
+    -h, --help    Prints help information
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    sub     short about sub
+",
+        std::str::from_utf8(bytes.as_slice()).unwrap()
+    );
+}
