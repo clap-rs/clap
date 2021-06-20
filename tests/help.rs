@@ -2257,9 +2257,11 @@ fn about_in_subcommands_list() {
     let app = App::new("about-in-subcommands-list")
         .setting(AppSettings::ColorNever)
         .global_setting(AppSettings::DisableVersionFlag)
-        .subcommand(App::new("sub")
-            .long_about("long about sub")
-            .about("short about sub"));
+        .subcommand(
+            App::new("sub")
+                .long_about("long about sub")
+                .about("short about sub"),
+        );
 
     assert!(utils::compare_output(
         app,
