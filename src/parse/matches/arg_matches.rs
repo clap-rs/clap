@@ -71,7 +71,7 @@ pub(crate) struct SubCommand {
 ///     }
 /// }
 /// ```
-/// [`App::get_matches`]: App::get_matches()
+/// [`App::get_matches`]: crate::App::get_matches()
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArgMatches {
     pub(crate) args: IndexMap<Id, MatchedArg>,
@@ -114,12 +114,11 @@ impl ArgMatches {
     ///
     /// assert_eq!(m.value_of("output"), Some("something"));
     /// ```
-    /// [option]: Arg::takes_value()
-    /// [positional]: Arg::index()
+    /// [option]: crate::Arg::takes_value()
+    /// [positional]: crate::Arg::index()
     /// [`ArgMatches::values_of`]: ArgMatches::values_of()
-    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
-    /// [`default_value`]: Arg::default_value()
-    /// [`occurrences_of`]: ArgMatches::occurrences_of()
+    /// [`default_value`]: crate::Arg::default_value()
+    /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
             if let Some(v) = arg.get_val(0) {
@@ -154,7 +153,7 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_lossy("arg").unwrap(), "Hi \u{FFFD}!");
     /// ```
-    /// [`default_value`]: Arg::default_value()
+    /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
@@ -194,9 +193,8 @@ impl ArgMatches {
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
     /// assert_eq!(&*m.value_of_os("arg").unwrap().as_bytes(), [b'H', b'i', b' ', 0xe9, b'!']);
     /// ```
-    /// [`default_value`]: Arg::default_value()
+    /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
-    /// [`String`]: std::string::String
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
@@ -365,6 +363,7 @@ impl ArgMatches {
     ///
     /// [`ArgMatches::values_of_t`]: ArgMatches::values_of_t()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    /// [`ErrorKind`]: crate::ErrorKind
     pub fn value_of_t<R>(&self, name: &str) -> Result<R, Error>
     where
         R: FromStr,
@@ -535,7 +534,7 @@ impl ArgMatches {
     /// assert!(m.is_present("debug"));
     /// ```
     ///
-    /// [`default_value`]: Arg::default_value()
+    /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
@@ -713,7 +712,7 @@ impl ArgMatches {
     /// assert_eq!(m.index_of("option"), Some(2));
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 3, 4]);
     /// ```
-    /// [delimiter]: Arg::value_delimiter()
+    /// [delimiter]: crate::Arg::value_delimiter()
     pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
         if let Some(arg) = self.args.get(&Id::from(name)) {
             if let Some(i) = arg.get_index(0) {
@@ -830,6 +829,7 @@ impl ArgMatches {
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
+    /// [`App`]: crate::App
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
         if let Some(ref s) = self.subcommand {
             if s.id == id.into() {
@@ -895,6 +895,7 @@ impl ArgMatches {
     /// }
     /// ```
     /// [`Subcommand`]: crate::Subcommand
+    /// [`App`]: crate::App
     #[inline]
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)

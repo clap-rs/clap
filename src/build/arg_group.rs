@@ -72,9 +72,9 @@ use yaml_rust::Yaml;
 /// ```
 /// [`ArgGroup::multiple(true)`]: ArgGroup::multiple()
 /// [`ArgGroup::multiple(false)`]: ArgGroup::multiple()
-/// [arguments]: Arg
-/// [conflict]: Arg::conflicts_with()
-/// [requirement]: Arg::requires()
+/// [arguments]: crate::Arg
+/// [conflict]: crate::Arg::conflicts_with()
+/// [requirement]: crate::Arg::requires()
 #[derive(Default, Debug, PartialEq, Eq)]
 pub struct ArgGroup<'help> {
     pub(crate) id: Id,
@@ -133,7 +133,7 @@ impl<'help> ArgGroup<'help> {
     /// // but we can also check individually if needed
     /// assert!(m.is_present("flag"));
     /// ```
-    /// [argument]: Arg
+    /// [argument]: crate::Arg
     pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
         self.args.push(arg_id.into());
         self
@@ -158,7 +158,7 @@ impl<'help> ArgGroup<'help> {
     /// // but we can also check individually if needed
     /// assert!(m.is_present("flag"));
     /// ```
-    /// [arguments]: Arg
+    /// [arguments]: crate::Arg
     pub fn args<T: Key>(mut self, ns: &[T]) -> Self {
         for n in ns {
             self = self.arg(n);
@@ -205,6 +205,8 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
+    ///
+    /// [`Arg`]: crate::Arg
     #[inline]
     pub fn multiple(mut self, m: bool) -> Self {
         self.multiple = m;
@@ -245,6 +247,7 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
+    /// [`App`]: crate::App
     #[inline]
     pub fn required(mut self, r: bool) -> Self {
         self.required = r;
@@ -280,7 +283,7 @@ impl<'help> ArgGroup<'help> {
     /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required group]: ArgGroup::required()
-    /// [argument requirement rules]: Arg::requires()
+    /// [argument requirement rules]: crate::Arg::requires()
     pub fn requires<T: Key>(mut self, id: T) -> Self {
         self.requires.push(id.into());
         self
@@ -317,7 +320,7 @@ impl<'help> ArgGroup<'help> {
     /// assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required group]: ArgGroup::required()
-    /// [argument requirement rules]: Arg::requires_all()
+    /// [argument requirement rules]: crate::Arg::requires_all()
     pub fn requires_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.requires(n);
@@ -351,7 +354,7 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
-    /// [argument exclusion rules]: Arg::conflicts_with()
+    /// [argument exclusion rules]: crate::Arg::conflicts_with()
     pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
         self.conflicts.push(id.into());
         self
@@ -386,7 +389,8 @@ impl<'help> ArgGroup<'help> {
     /// let err = result.unwrap_err();
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
-    /// [argument exclusion rules]: Arg::conflicts_with_all()
+    ///
+    /// [argument exclusion rules]: crate::Arg::conflicts_with_all()
     pub fn conflicts_with_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);

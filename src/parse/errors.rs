@@ -290,6 +290,8 @@ pub enum ErrorKind {
     /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
+    ///
+    /// [`AppSettings::SubcommandRequired`]: crate::AppSettings::SubcommandRequired
     MissingSubcommand,
 
     /// Occurs when the user provides multiple values to an argument which doesn't allow that.
@@ -333,6 +335,8 @@ pub enum ErrorKind {
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
+    ///
+    /// [`AppSettings::StrictUtf8`]: crate::AppSettings::StrictUtf8
     InvalidUtf8,
 
     /// Not a true "error" as it means `--help` or similar was used.
@@ -373,6 +377,8 @@ pub enum ErrorKind {
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
+    /// [`AppSettings::ArgRequiredElseHelp`]: crate::AppSettings::ArgRequiredElseHelp
+    /// [`AppSettings::SubcommandRequiredElseHelp`]: crate::AppSettings::SubcommandRequiredElseHelp
     DisplayHelpOnMissingArgumentOrSubcommand,
 
     /// Not a true "error" as it means `--version` or similar was used.
@@ -393,7 +399,7 @@ pub enum ErrorKind {
     /// into type `T`, but the argument you requested wasn't used. I.e. you asked for an argument
     /// with name `config` to be converted, but `config` wasn't used by the user.
     ///
-    /// [`ArgMatches::value_of_t`]: ArgMatches::value_of_t()
+    /// [`ArgMatches::value_of_t`]: crate::ArgMatches::value_of_t()
     ArgumentNotFound,
 
     /// Represents an [I/O error].

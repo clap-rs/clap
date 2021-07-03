@@ -286,15 +286,15 @@ macro_rules! app_from_crate {
 /// * `(@arg "something-else": --"something-else")`
 /// * `(@subcommand "something-else" => ...)`
 ///
-/// [`Arg::short`]: Arg::short()
-/// [`Arg::long`]: Arg::long()
-/// [`Arg::multiple_values(true)`]: Arg::multiple_values()
-/// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
-/// [`Arg::value_name`]: Arg::value_name()
-/// [`Arg::min_values(min)`]: Arg::min_values()
-/// [`Arg::max_values(max)`]: Arg::max_values()
-/// [`Arg::validator`]: Arg::validator()
-/// [`Arg::conflicts_with`]: Arg::conflicts_with()
+/// [`Arg::short`]: crate::Arg::short()
+/// [`Arg::long`]: crate::Arg::long()
+/// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
+/// [`Arg::multiple_occurrences(true)`]: crate::Arg::multiple_occurrences()
+/// [`Arg::value_name`]: crate::Arg::value_name()
+/// [`Arg::min_values(min)`]: crate::Arg::min_values()
+/// [`Arg::max_values(max)`]: crate::Arg::max_values()
+/// [`Arg::validator`]: crate::Arg::validator()
+/// [`Arg::conflicts_with`]: crate::Arg::conflicts_with()
 #[macro_export]
 macro_rules! clap_app {
     (@app ($builder:expr)) => { $builder };
