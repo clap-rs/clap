@@ -167,6 +167,7 @@ impl_settings! { AppSettings, AppFlags,
 /// **NOTE:** When these settings are used, they apply only to current command, and are *not*
 /// propagated down or up through child or parent subcommands
 ///
+/// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
     /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
