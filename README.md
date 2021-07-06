@@ -184,7 +184,7 @@ fn main() {
         0 => println!("No verbose info"),
         1 => println!("Some verbose info"),
         2 => println!("Tons of verbose info"),
-        3 | _ => println!("Don't be crazy"),
+        _ => println!("Don't be crazy"),
     }
 
     // You can handle information about subcommands by requesting their matches by name
@@ -258,7 +258,7 @@ fn main() {
         0 => println!("Verbose mode is off"),
         1 => println!("Verbose mode is kind of on"),
         2 => println!("Verbose mode is on"),
-        3 | _ => println!("Don't be crazy"),
+        _ => println!("Don't be crazy"),
     }
 
     // You can check for the existence of subcommands, and if found use their
