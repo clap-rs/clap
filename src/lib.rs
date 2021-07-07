@@ -24,6 +24,9 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
+#[cfg(doctest)]
+doc_comment::doctest!("../README.md");
+
 pub use crate::{
     build::{App, AppSettings, Arg, ArgGroup, ArgSettings, ValueHint},
     parse::errors::{Error, ErrorKind, Result},

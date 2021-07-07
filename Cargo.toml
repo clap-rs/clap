@@ -79,6 +79,7 @@ regex = "1.0"
 lazy_static = "1"
 version-sync = "0.9"
 criterion = "0.3.2"
+doc-comment = "0.3"
 
 [features]
 default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo"]
