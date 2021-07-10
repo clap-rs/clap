@@ -29,12 +29,12 @@ pub trait Generator {
     /// ```
     fn file_name(name: &str) -> String;
 
-    /// Generates output out of [`clap::App`](super::clap::App).
+    /// Generates output out of [`clap::App`](App).
     ///
     /// # Examples
     ///
-    /// The following example generator displays the [`clap::App`](super::clap::App)
-    /// as if it is printed using [`std::println`](std::println!).
+    /// The following example generator displays the [`clap::App`](App)
+    /// as if it is printed using [`std::println`].
     ///
     /// ```
     /// use std::{io::Write, fmt::write};
@@ -68,11 +68,9 @@ pub trait Generator {
         subcmds
     }
 
-    /// Finds the subcommand [`clap::App`][clap] from the given [`clap::App`][clap] with the given path.
+    /// Finds the subcommand [`clap::App`] from the given [`clap::App`] with the given path.
     ///
     /// **NOTE:** `path` should not contain the root `bin_name`.
-    ///
-    /// [clap]: super::clap::App
     fn find_subcommand_with_path<'help, 'app>(
         p: &'app App<'help>,
         path: Vec<&str>,
@@ -86,7 +84,7 @@ pub trait Generator {
         app
     }
 
-    /// Gets subcommands of [`clap::App`](super::clap::App) in the form of `("name", "bin_name")`.
+    /// Gets subcommands of [`clap::App`] in the form of `("name", "bin_name")`.
     ///
     /// Subcommand `rustup toolchain install` would be converted to
     /// `("install", "rustup toolchain install")`.
@@ -115,8 +113,8 @@ pub trait Generator {
         subcmds
     }
 
-    /// Gets all the short options, their visible aliases and flags of a [`clap::App`](super::clap::App).
-    /// Includes `h` and `V` depending on the [`clap::AppSettings`](super::clap::AppSettings).
+    /// Gets all the short options, their visible aliases and flags of a [`clap::App`].
+    /// Includes `h` and `V` depending on the [`clap::AppSettings`].
     fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
         debug!("shorts: name={}", p.get_name());
 
@@ -140,8 +138,8 @@ pub trait Generator {
             .collect()
     }
 
-    /// Gets all the long options, their visible aliases and flags of a [`clap::App`](super::clap::App).
-    /// Includes `help` and `version` depending on the [`clap::AppSettings`](super::clap::AppSettings).
+    /// Gets all the long options, their visible aliases and flags of a [`clap::App`].
+    /// Includes `help` and `version` depending on the [`clap::AppSettings`].
     fn longs_and_visible_aliases(p: &App) -> Vec<String> {
         debug!("longs: name={}", p.get_name());
 
@@ -170,8 +168,8 @@ pub trait Generator {
             .collect()
     }
 
-    /// Gets all the flags of a [`clap::App`](super::clap::App).
-    /// Includes `help` and `version` depending on the [`clap::AppSettings`](super::clap::AppSettings).
+    /// Gets all the flags of a [`clap::App`](App).
+    /// Includes `help` and `version` depending on the [`clap::AppSettings`].
     fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
         debug!("flags: name={}", p.get_name());
         p.get_flags().cloned().collect()

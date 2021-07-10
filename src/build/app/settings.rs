@@ -206,11 +206,11 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
     /// ```
     ///
-    /// [`ArgMatches::value_of_os`]: ArgMatches::value_of_os()
-    /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
-    /// [`ArgMatches::value_of_lossy`]: ArgMatches::value_of_lossy()
-    /// [`ArgMatches::values_of_lossy`]: ArgMatches::values_of_lossy()
-    /// [`subcommands`]: App::subcommand()
+    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
+    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
+    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
+    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
+    /// [`subcommands`]: crate::App::subcommand()
     // TODO: Either this or StrictUtf8
     AllowInvalidUtf8,
 
@@ -236,13 +236,13 @@ pub enum AppSettings {
     /// assert_eq!(m.value_of("neg"), Some("-20"));
     /// # ;
     /// ```
-    /// [`Arg::allow_hyphen_values`]: Arg::allow_hyphen_values()
+    /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
     AllowLeadingHyphen,
 
     /// Specifies that all arguments override themselves. This is the equivalent to saying the `foo`
     /// arg using [`Arg::overrides_with("foo")`] for all defined arguments.
     ///
-    /// [`Arg::overrides_with("foo")`]: Arg::overrides_with()
+    /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
     AllArgsOverrideSelf,
 
     /// Allows negative numbers to pass as values. This is similar to
@@ -371,7 +371,7 @@ pub enum AppSettings {
     /// assert_eq!(m.values_of("baz").unwrap().collect::<Vec<_>>(), &["baz1", "baz2", "baz3"]);
     /// ```
     ///
-    /// [required]: Arg::required()
+    /// [required]: crate::Arg::required()
     AllowMissingPositional,
 
     /// Specifies that an unexpected positional argument,
@@ -405,7 +405,10 @@ pub enum AppSettings {
     ///     _ => {},
     /// }
     /// ```
-    /// [`subcommand`]: App::subcommand()
+    ///
+    /// [`subcommand`]: crate::App::subcommand()
+    /// [`ArgMatches`]: crate::ArgMatches
+    /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
     AllowExternalSubcommands,
 
     /// Specifies that use of a valid argument negates [`subcommands`] being used after. By default
@@ -426,7 +429,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgsNegateSubcommands);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
     ArgsNegateSubcommands,
 
     /// Specifies that the help text should be displayed (and then exit gracefully),
@@ -445,8 +448,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::ArgRequiredElseHelp);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
-    /// [`Arg::default_value`]: Arg::default_value()
+    /// [`subcommands`]: crate::App::subcommand()
+    /// [`Arg::default_value`]: crate::Arg::default_value()
     ArgRequiredElseHelp,
 
     /// Instructs the parser to stop when encountering a subcommand instead of greedily consuming
@@ -621,7 +624,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::DontDelimitTrailingValues)
     ///     .get_matches();
     /// ```
-    /// [`Arg::use_delimiter(false)`]: Arg::use_delimiter()
+    ///
+    /// [`Arg::use_delimiter(false)`]: crate::Arg::use_delimiter()
     DontDelimitTrailingValues,
 
     /// Disables `-h` and `--help` flag.
@@ -658,7 +662,7 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// [`subcommand`]: App::subcommand()
+    /// [`subcommand`]: crate::App::subcommand()
     DisableHelpSubcommand,
 
     /// Disables `-V` and `--version` flag.
@@ -694,7 +698,8 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
+    /// [`App`]: crate::App
     DisableVersionForSubcommands,
 
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
@@ -709,7 +714,7 @@ pub enum AppSettings {
     ///     .get_matches();
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
     DeriveDisplayOrder,
 
     /// Specifies to use the version of the current command for all child [`subcommands`].
@@ -729,7 +734,7 @@ pub enum AppSettings {
     /// // "myprog-test v1.1"
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
     GlobalVersion,
 
     /// Specifies that this [`subcommand`] should be hidden from help messages
@@ -744,7 +749,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
-    /// [`subcommand`]: App::subcommand()
+    /// [`subcommand`]: crate::App::subcommand()
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
@@ -841,9 +846,9 @@ pub enum AppSettings {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
-    /// [positional/free arguments]: Arg::index()
-    /// [aliases]: App::alias()
+    /// [`subcommands`]: crate::App::subcommand()
+    /// [positional/free arguments]: crate::Arg::index()
+    /// [aliases]: crate::App::alias()
     InferSubcommands,
 
     /// Tries to match unknown args to partial long arguments or their [aliases]. For example, to
@@ -852,6 +857,8 @@ pub enum AppSettings {
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match
     /// `--te` to `--test` there could not also be another argument or alias `--temp` because both
     /// start with `--te`
+    ///
+    /// [aliases]: crate::App::alias()
     InferLongArgs,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
@@ -926,8 +933,8 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
-    /// [`Arg::required(true)`]: Arg::required()
-    /// [`subcommands`]: App::subcommand()
+    /// [`Arg::required(true)`]: crate::Arg::required()
+    /// [`subcommands`]: crate::App::subcommand()
     SubcommandsNegateReqs,
 
     /// Specifies that the help text should be displayed (before exiting gracefully) if no
@@ -948,7 +955,7 @@ pub enum AppSettings {
     ///     .setting(AppSettings::SubcommandRequiredElseHelp);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
     SubcommandRequiredElseHelp,
 
     /// Specifies that the help subcommand should print the [long format] help message.
@@ -970,7 +977,7 @@ pub enum AppSettings {
     ///     )
     ///     .get_matches();
     /// ```
-    /// [long format]: App::long_about
+    /// [long format]: crate::App::long_about
     UseLongFormatForHelpSubcommand,
 
     /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
@@ -1003,7 +1010,8 @@ pub enum AppSettings {
     /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
+    /// [`ErrorKind::InvalidUtf8`]: crate::ErrorKind::InvalidUtf8
     StrictUtf8,
 
     /// Allows specifying that if no [`subcommand`] is present at runtime,
@@ -1024,7 +1032,7 @@ pub enum AppSettings {
     /// # ;
     /// ```
     ///
-    /// [`subcommand`]: App::subcommand()
+    /// [`subcommand`]: crate::App::subcommand()
     SubcommandRequired,
 
     /// Specifies that the final positional argument is a "VarArg" and that `clap` should not
@@ -1047,7 +1055,7 @@ pub enum AppSettings {
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();
     /// assert_eq!(trail, ["arg1", "-r", "val1"]);
     /// ```
-    /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
+    /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
     TrailingVarArg,
 
     /// Groups flags and options together, presenting a more unified help message

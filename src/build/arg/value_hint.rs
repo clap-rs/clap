@@ -49,7 +49,8 @@ pub enum ValueHint {
     /// command line `my_app ls -la /` will be parsed as `["ls", "-la", "/"]` and clap won't try to
     /// parse the `-la` argument itself.
     ///
-    /// [`.multiple_values(true)`]: Arg::multiple_values()
+    /// [`AppSettings::TrailingVarArg`]: crate::AppSettings::TrailingVarArg
+    /// [`.multiple_values(true)`]: crate::Arg::multiple_values()
     CommandWithArguments,
     /// Name of a local operating system user.
     Username,
