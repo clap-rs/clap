@@ -3580,9 +3580,9 @@ impl<'help> Arg<'help> {
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter. This means if an
-    /// if an option is encountered, and no delimiter is found, it automatically assumed that no
-    /// additional values for that option follow. This is unlike the default, where it is generally
-    /// assumed that more values will follow regardless of whether or not a delimiter is used.
+    /// option is encountered, and no delimiter is found, it is assumed that no additional values
+    /// for that option follow. This is unlike the default, where it is generally assumed that
+    /// more values will follow regardless of whether or not a delimiter is used.
     ///
     /// **NOTE:** The default is `false`.
     ///
