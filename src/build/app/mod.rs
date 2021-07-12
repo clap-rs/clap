@@ -801,7 +801,7 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** This **only** replaces the help message for the current
     /// command, meaning if you are using subcommands, those help messages will
-    /// still be auto-generated unless you specify a [`Arg::override_help`] for
+    /// still be auto-generated unless you specify a [`App::override_help`] for
     /// them as well.
     ///
     /// # Examples
@@ -826,7 +826,6 @@ impl<'help> App<'help> {
     ///            work             Do some work")
     /// # ;
     /// ```
-    /// [`Arg::override_help`]: Arg::override_help()
     pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
@@ -1982,11 +1981,13 @@ impl<'help> App<'help> {
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`env::args_os`]: std::env::args_os()
-    /// [`Error::exit`]: Error::exit()
+    /// [`Error::exit`]: crate::Error::exit()
     /// [`std::process::exit`]: std::process::exit()
     /// [`clap::Result`]: Result
-    /// [`clap::Error`]: Error
-    /// [`kind`]: Error
+    /// [`clap::Error`]: crate::Error
+    /// [`kind`]: crate::Error
+    /// [`ErrorKind::DisplayHelp`]: crate::ErrorKind::DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: crate::ErrorKind::DisplayVersion
     #[inline]
     pub fn try_get_matches(self) -> ClapResult<ArgMatches> {
         // Start the parsing
@@ -2064,11 +2065,13 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::get_matches_from`]: App::get_matches_from()
     /// [`App::try_get_matches`]: App::try_get_matches()
-    /// [`Error::exit`]: Error::exit()
+    /// [`Error::exit`]: crate::Error::exit()
     /// [`std::process::exit`]: std::process::exit()
-    /// [`clap::Error`]: Error
-    /// [`Error::exit`]: Error::exit()
-    /// [`kind`]: Error
+    /// [`clap::Error`]: crate::Error
+    /// [`Error::exit`]: crate::Error::exit()
+    /// [`kind`]: crate::Error
+    /// [`ErrorKind::DisplayHelp`]: crate::ErrorKind::DisplayHelp
+    /// [`ErrorKind::DisplayVersion`]: crate::ErrorKind::DisplayVersion
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,

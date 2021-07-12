@@ -43,8 +43,8 @@ pub fn arg_enum(input: TokenStream) -> TokenStream {
 
 /// Generates the `Clap` implementation.
 ///
-/// This is far less verbose than defining the [`App`] struct manually,
-/// receiving an instance of [`ArgMatches`] from conducting parsing, and then
+/// This is far less verbose than defining the `clap::App` struct manually,
+/// receiving an instance of `clap::ArgMatches` from conducting parsing, and then
 /// implementing a conversion code to instantiate an instance of the user
 /// context struct.
 #[proc_macro_derive(Clap, attributes(clap))]

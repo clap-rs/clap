@@ -1136,7 +1136,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    /// Making an arg [`Multiple*``] and override itself is essentially meaningless. Therefore
+    /// Making an arg [`Multiple*`] and override itself is essentially meaningless. Therefore
     /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
@@ -1160,7 +1160,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
-    /// Just like flags, options with one of the [`Multiple*``] set, will ignore the "override self"
+    /// Just like flags, options with one of the [`Multiple*`] set, will ignore the "override self"
     /// setting.
     ///
     /// ```
@@ -1188,7 +1188,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.occurrences_of("opt"), 1);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
     /// ```
-    /// [`Multiple*`]: ArgSettings::MultipleValues
+    /// [`Multiple*`]: crate::ArgSettings::MultipleValues
     /// [`UseValueDelimiter`]: ArgSettings::UseValueDelimiter
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
         self.overrides.push(arg_id.into());
@@ -1787,6 +1787,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::long`]: Arg::long()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    /// [`App`]: crate::App
     #[inline]
     pub fn index(mut self, idx: usize) -> Self {
         self.index = Some(idx);
@@ -1985,6 +1986,8 @@ impl<'help> Arg<'help> {
     ///     ]);
     /// assert!(m.is_present("mode"));
     /// ```
+    ///
+    /// [`ArgGroup`]: crate::ArgGroup
     pub fn group<T: Key>(mut self, group_id: T) -> Self {
         self.groups.push(group_id.into());
         self
@@ -2020,6 +2023,8 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("mode"));
     /// assert!(m.is_present("verbosity"));
     /// ```
+    ///
+    /// [`ArgGroup`]: crate::ArgGroup
     pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
         self.groups.extend(group_ids.iter().map(Id::from));
         self
@@ -2613,10 +2618,10 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
     /// ```
-    /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
-    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
+    /// [`ArgMatches::occurrences_of`]: crate::ArgMatches::occurrences_of()
+    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    /// [`ArgMatches::is_present`]: ArgMatches::is_present()
+    /// [`ArgMatches::is_present`]: crate::ArgMatches::is_present()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
     pub fn default_value(self, val: &'help str) -> Self {
@@ -3130,7 +3135,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.values_of("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
     /// ```
     /// [`ArgMatches::occurrences_of`]: ArgMatches::occurrences_of()
-    /// [`ArgMatches::value_of`]: ArgMatches::value_of()
+    /// [`ArgMatches::value_of`]: crate::ArgMatches::value_of()
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
@@ -3219,17 +3224,17 @@ impl<'help> Arg<'help> {
     /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
     ///
-    /// **NOTE:** This setting will imply [`AppSettings::DontCollapseArgsInUsage`] because failing
+    /// **NOTE:** This setting will imply [`crate::AppSettings::DontCollapseArgsInUsage`] because failing
     /// to set this can make the usage string very confusing.
     ///
     /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS /
     /// OPTIONS
     ///
-    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
+    /// **NOTE:** Setting this requires [`crate::ArgSettings::TakesValue`]
     ///
     /// **CAUTION:** Using this setting *and* having child subcommands is not
-    /// recommended with the exception of *also* using [`AppSettings::ArgsNegateSubcommands`]
-    /// (or [`AppSettings::SubcommandsNegateReqs`] if the argument marked `Last` is also
+    /// recommended with the exception of *also* using [`crate::AppSettings::ArgsNegateSubcommands`]
+    /// (or [`crate::AppSettings::SubcommandsNegateReqs`] if the argument marked `Last` is also
     /// marked [`ArgSettings::Required`])
     ///
     /// # Examples
@@ -3282,7 +3287,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     /// [index]: Arg::index()
-    /// [`UnknownArgument`]: ErrorKind::UnknownArgument
+    /// [`UnknownArgument`]: crate::ErrorKind::UnknownArgument
     #[inline]
     pub fn last(self, l: bool) -> Self {
         if l {
@@ -3987,7 +3992,7 @@ impl<'help> Arg<'help> {
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
     ///
     /// **NOTE:** To apply this setting to all arguments consider using
-    /// [`AppSettings::NextLineHelp`]
+    /// [`crate::AppSettings::NextLineHelp`]
     ///
     /// # Examples
     ///
@@ -4260,7 +4265,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     ///
-    /// [`subcommands`]: App::subcommand()
+    /// [`subcommands`]: crate::App::subcommand()
     /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
     /// [`MultipleOccurrences`]: ArgSettings::MultipleOccurrences
     /// [`MultipleValues`]: ArgSettings::MultipleValues
@@ -4346,7 +4351,7 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// Will result in everything after `--` to be considered one raw argument. This behavior
-    /// may not be exactly what you are expecting and using [`AppSettings::TrailingVarArg`]
+    /// may not be exactly what you are expecting and using [`crate::AppSettings::TrailingVarArg`]
     /// may be more appropriate.
     ///
     /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple_values(true)`],

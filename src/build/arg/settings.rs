@@ -68,9 +68,10 @@ impl Default for ArgFlags {
 /// methods [`Arg::setting`], [`Arg::unset_setting`], and [`Arg::is_set`]. This is what the
 /// [`Arg`] methods which accept a `bool` use internally.
 ///
-/// [`Arg::setting`]: Arg::setting()
-/// [`Arg::unset_setting`]: Arg::unset_setting()
-/// [`Arg::is_set`]: Arg::is_set()
+/// [`Arg`]: crate::Arg
+/// [`Arg::setting`]: crate::Arg::setting()
+/// [`Arg::unset_setting`]: crate::Arg::unset_setting()
+/// [`Arg::is_set`]: crate::Arg::is_set()
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ArgSettings {
     /// Specifies that an arg must be used
