@@ -130,11 +130,11 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
 pub trait IntoApp: Sized {
     /// Build an [`App`] that can instantiate `Self`.
     ///
-    /// See [`FromArgMatches::from_arg_matches` for instantiating `Self`.
+    /// See [`FromArgMatches::from_arg_matches`] for instantiating `Self`.
     fn into_app<'help>() -> App<'help>;
     /// Build an [`App`] that can update `self`.
     ///
-    /// See [`FromArgMatches::update_from_arg_matches` for updating `self`.
+    /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
     fn into_app_for_update<'help>() -> App<'help>;
     /// Append to [`App`] so it can instantiate `Self`.
     ///
