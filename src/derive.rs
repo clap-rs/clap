@@ -126,30 +126,32 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
     }
 }
 
-/// Build an App according to the struct
-///
-/// Also serves for flattening
+/// Build an [`App`] according to the struct
 pub trait IntoApp: Sized {
-    /// @TODO @release @docs
+    /// Build an [`App`] that can instantiate `Self`.
+    ///
+    /// See [`FromArgMatches::from_arg_matches` for instantiating `Self`.
     fn into_app<'help>() -> App<'help>;
-    /// @TODO @release @docs
-    fn augment_clap(app: App<'_>) -> App<'_>;
-    /// @TODO @release @docs
+    /// Build an [`App`] that can update `self`.
+    ///
+    /// See [`FromArgMatches::update_from_arg_matches` for updating `self`.
     fn into_app_for_update<'help>() -> App<'help>;
-    /// @TODO @release @docs
+    /// Append to [`App`] so it can instantiate `Self`.
+    ///
+    /// This is used to implement `#[clap(flatten)]`
+    fn augment_clap(app: App<'_>) -> App<'_>;
+    /// Append to [`App`] so it can update `self`.
+    ///
+    /// This is used to implement `#[clap(flatten)]`
     fn augment_clap_for_update(app: App<'_>) -> App<'_>;
 }
 
-/// Converts an instance of [`ArgMatches`] to a consumer defined struct.
-///
+/// Converts an instance of [`ArgMatches`] to a user-defined container.
 pub trait FromArgMatches: Sized {
-    /// It's common to have an "application context" struct (sometimes called
-    /// config) that represents all the normalized values after being processed by
-    /// the CLI.
+    /// Instantiate `Self` from [`ArgMatches`], parsing the arguments as needed.
     ///
-    /// For instance, if an application we made had two CLI options, `--name
-    /// <STRING>` and a flag `--debug` to distinguish "debugging mode" for our made
-    /// up CLI, we may create a context struct as follows:
+    /// Motivation: If our application had two CLI options, `--name
+    /// <STRING>` and the flag `--debug`, we may create a struct as follows:
     ///
     /// ```no_run
     /// struct Context {
@@ -158,8 +160,8 @@ pub trait FromArgMatches: Sized {
     /// }
     /// ```
     ///
-    /// And after letting `clap` parse the CLI, we get back and instance of
-    /// `ArgMatches`, we may create a `From` implementation like so:
+    /// We then need to convert the `ArgMatches` that `clap` generated into our struct.
+    /// `from_arg_matches` serves as the equivalent of:
     ///
     /// ```no_run
     /// # use clap::ArgMatches;
@@ -178,19 +180,29 @@ pub trait FromArgMatches: Sized {
     /// ```
     fn from_arg_matches(matches: &ArgMatches) -> Self;
 
-    /// @TODO@ @release @docs
+    /// Assign values from `ArgMatches` to `self`.
     fn update_from_arg_matches(&mut self, matches: &ArgMatches);
 }
 
 /// @TODO @release @docs
 pub trait Subcommand: Sized {
-    /// @TODO @release @docs
+    /// Instantiate `Self` from subcommand name and [`ArgMatches`].
+    ///
+    /// Returns `None` if subcommand does not exist
     fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
-    /// @TODO @release @docs
+    /// Assign values from `ArgMatches` to `self`.
     fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>);
-    /// @TODO @release @docs
+    /// Append to [`App`] so it can instantiate `Self`.
+    ///
+    /// This is used to implement `#[clap(flatten)]`
+    ///
+    /// See also [`IntoApp`].
     fn augment_subcommands(app: App<'_>) -> App<'_>;
-    /// @TODO @release @docs
+    /// Append to [`App`] so it can update `self`.
+    ///
+    /// This is used to implement `#[clap(flatten)]`
+    ///
+    /// See also [`IntoApp`].
     fn augment_subcommands_for_update(app: App<'_>) -> App<'_>;
 }
 
