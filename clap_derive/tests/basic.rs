@@ -12,11 +12,11 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn basic() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short = 'a', long = "arg")]
         arg: Vec<i32>,
@@ -31,7 +31,7 @@ fn basic() {
 
 #[test]
 fn update_basic() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short = 'a', long = "arg")]
         single_value: i32,
@@ -46,7 +46,7 @@ fn update_basic() {
 
 #[test]
 fn unit_struct() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt;
 
     assert_eq!(Opt {}, Opt::parse_from(&["test"]));

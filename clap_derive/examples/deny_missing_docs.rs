@@ -16,10 +16,10 @@
 
 #![deny(missing_docs)]
 
-use clap::Clap;
+use clap::Parser;
 
 /// The options
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 pub struct Opt {
     #[clap(short)]
     verbose: bool,
@@ -28,7 +28,7 @@ pub struct Opt {
 }
 
 /// Some subcommands
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 pub enum Cmd {
     /// command A
     A,
@@ -43,7 +43,7 @@ pub enum Cmd {
 }
 
 /// The options for C
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 pub struct COpt {
     #[clap(short)]
     bob: bool,

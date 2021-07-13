@@ -1,8 +1,8 @@
 //! How to use `clap::Arg::group`
 
-use clap::{ArgGroup, Clap};
+use clap::{ArgGroup, Parser};
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(group = ArgGroup::new("verb").required(true))]
 struct Opt {
     /// Set a custom HTTP verb

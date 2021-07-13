@@ -12,11 +12,11 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn unique_flag() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
         alice: bool,
@@ -33,7 +33,7 @@ fn unique_flag() {
 
 #[test]
 fn multiple_flag() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long, parse(from_occurrences))]
         alice: u64,
@@ -65,7 +65,7 @@ fn parse_from_flag(b: bool) -> std::sync::atomic::AtomicBool {
 
 #[test]
 fn non_bool_flags() {
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     struct Opt {
         #[clap(short, long, parse(from_flag = parse_from_flag))]
         alice: std::sync::atomic::AtomicBool,
@@ -92,7 +92,7 @@ fn non_bool_flags() {
 
 #[test]
 fn combined_flags() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
         alice: bool,

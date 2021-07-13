@@ -6,9 +6,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "make-cookie")]
 struct MakeCookie {
     #[clap(short)]
@@ -18,7 +18,7 @@ struct MakeCookie {
     cmd: Command,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Command {
     #[clap(name = "pound")]
     /// Pound acorns into flour for cookie dough.

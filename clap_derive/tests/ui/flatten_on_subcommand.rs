@@ -1,10 +1,10 @@
-#[derive(clap::Clap)]
+#[derive(clap::Parser)]
 struct Opt {
     #[clap(flatten)]
     sub: SubCmd,
 }
 
-#[derive(clap::Clap)]
+#[derive(clap::Parser)]
 enum SubCmd {}
 
 fn main() {}

@@ -7,7 +7,7 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::{ArgEnum, ArgValue, Clap};
+use clap::{ArgEnum, ArgValue, Parser};
 
 #[test]
 fn basic() {
@@ -17,7 +17,7 @@ fn basic() {
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -58,7 +58,7 @@ fn default_value() {
         }
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, default_value_t)]
         arg: ArgChoice,
@@ -93,7 +93,7 @@ fn multi_word_is_renamed_kebab() {
         BAR_BAZ,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -122,7 +122,7 @@ fn variant_with_defined_casing() {
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -145,7 +145,7 @@ fn casing_is_propogated_from_parent() {
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -169,7 +169,7 @@ fn casing_propogation_is_overridden() {
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -192,7 +192,7 @@ fn case_insensitive() {
         Foo,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(true))]
         arg: ArgChoice,
@@ -219,7 +219,7 @@ fn case_insensitive_set_to_false() {
         Foo,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -242,7 +242,7 @@ fn alias() {
         TOTP,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -270,7 +270,7 @@ fn multiple_alias() {
         TOTP,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -304,7 +304,7 @@ fn option() {
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: Option<ArgChoice>,
@@ -334,7 +334,7 @@ fn vector() {
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, short, long)]
         arg: Vec<ArgChoice>,

@@ -6,7 +6,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
 #[derive(Debug)]
 enum Kind {
@@ -14,7 +14,7 @@ enum Kind {
     B,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "test")]
 pub struct Opt {
     #[clap(short)]

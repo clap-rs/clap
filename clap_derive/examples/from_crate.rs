@@ -1,8 +1,8 @@
 //! How to derive the author, description, and version from Cargo.toml
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(author, about, version)]
 //     ^^^^^^                   <- derive author from Cargo.toml
 //             ^^^^^            <- derive description from Cargo.toml

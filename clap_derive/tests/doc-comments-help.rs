@@ -14,13 +14,13 @@
 
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::*;
 
 #[test]
 fn doc_comments() {
     /// Lorem ipsum
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct LoremIpsum {
         /// Fooify a bar
         /// and a baz
@@ -36,7 +36,7 @@ fn doc_comments() {
 #[test]
 fn help_is_better_than_comments() {
     /// Lorem ipsum
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Fooify a bar
@@ -55,7 +55,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     /// Foo.
     ///
     /// Bar
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(name = "lorem-ipsum")]
     struct LoremIpsum {}
 
@@ -66,7 +66,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
 #[test]
 fn field_long_doc_comment_both_help_long_help() {
     /// Lorem ipsumclap
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         /// Dot is removed from multiline comments.
@@ -94,14 +94,14 @@ fn field_long_doc_comment_both_help_long_help() {
 #[test]
 fn top_long_doc_comment_both_help_long_help() {
     /// Lorem ipsumclap
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     #[clap(name = "lorem-ipsum", about = "Dolor sit amet")]
     struct LoremIpsum {
         #[clap(subcommand)]
         foo: SubCommand,
     }
 
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     pub enum SubCommand {
         /// DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES
         ///
@@ -139,7 +139,7 @@ fn verbatim_doc_comment() {
     ///        \\    ||
     ///      ( ()    ||
     ///       (      () ) )
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     #[clap(verbatim_doc_comment)]
     struct SeeFigure1 {
         #[clap(long)]
@@ -169,7 +169,7 @@ fn verbatim_doc_comment() {
 
 #[test]
 fn verbatim_doc_comment_field() {
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     struct App {
         /// This help ends in a period.
         #[clap(long, verbatim_doc_comment)]

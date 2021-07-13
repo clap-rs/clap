@@ -1,9 +1,9 @@
 //! How to add `no-thing` flag which is `true` by default and
 //! `false` if passed.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 struct Opt {
     #[clap(long = "no-verbose", parse(from_flag = std::ops::Not::not))]
     verbose: bool,

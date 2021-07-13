@@ -1,10 +1,10 @@
 //! A somewhat comprehensive example of a typical `clap_derive` usage.
 
-use clap::{Clap, ValueHint};
+use clap::{Parser, ValueHint};
 use std::path::PathBuf;
 
 /// A basic example
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "basic")]
 struct Opt {
     // A flag, true if used in the command line. Note doc comment will

@@ -14,17 +14,17 @@
 
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::get_help;
 
 #[test]
 fn flatten() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(flatten)]
         common: Common,
@@ -43,12 +43,12 @@ fn flatten() {
 #[test]
 #[should_panic]
 fn flatten_twice() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(flatten)]
         c1: Common,
@@ -61,12 +61,12 @@ fn flatten_twice() {
 
 #[test]
 fn flatten_in_subcommand() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Add {
         #[clap(short)]
         interactive: bool,
@@ -74,7 +74,7 @@ fn flatten_in_subcommand() {
         common: Common,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum Opt {
         Fetch {
             #[clap(short)]
@@ -102,23 +102,23 @@ fn flatten_in_subcommand() {
     );
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum BaseCli {
     Command1(Command1),
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Command1 {
     arg1: i32,
     arg2: i32,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Command2 {
     arg2: i32,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt {
     #[clap(flatten)]
     BaseCli(BaseCli),
@@ -155,13 +155,13 @@ fn update_subcommands_with_flatten() {
 
 #[test]
 fn flatten_with_doc_comment() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         /// This is an arg. Arg means "argument". Command line argument.
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         /// The very important comment that clippy had me put here.
         /// It knows better.
@@ -183,14 +183,14 @@ fn flatten_with_doc_comment() {
 #[test]
 fn docstrings_ordering_with_multiple_clap() {
     /// This is the docstring for Flattened
-    #[derive(Clap)]
+    #[derive(Parser)]
     struct Flattened {
         #[clap(long)]
         foo: bool,
     }
 
     /// This is the docstring for Command
-    #[derive(Clap)]
+    #[derive(Parser)]
     struct Command {
         #[clap(flatten)]
         flattened: Flattened,
@@ -204,13 +204,13 @@ fn docstrings_ordering_with_multiple_clap() {
 #[test]
 fn docstrings_ordering_with_multiple_clap_partial() {
     /// This is the docstring for Flattened
-    #[derive(Clap)]
+    #[derive(Parser)]
     struct Flattened {
         #[clap(long)]
         foo: bool,
     }
 
-    #[derive(Clap)]
+    #[derive(Parser)]
     struct Command {
         #[clap(flatten)]
         flattened: Flattened,

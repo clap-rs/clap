@@ -1,12 +1,12 @@
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Opt {
     #[clap(subcommand)]
     sub: Box<Sub>,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Sub {
     Flame {
         #[clap(flatten)]
@@ -14,7 +14,7 @@ enum Sub {
     },
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Ext {
     arg: u32,
 }

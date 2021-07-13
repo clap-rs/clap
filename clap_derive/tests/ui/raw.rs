@@ -6,15 +6,15 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt {
     #[clap(raw(case_insensitive = "true"))]
     s: String,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt2 {
     #[clap(raw(requires_if = r#""one", "two""#))]
     s: String,
