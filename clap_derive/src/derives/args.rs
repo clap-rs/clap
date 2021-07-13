@@ -11,23 +11,98 @@
 // This work was derived from Structopt (https://github.com/TeXitoi/structopt)
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
-use proc_macro2::TokenStream;
-use proc_macro_error::abort;
-use quote::{quote, quote_spanned};
-use syn::{punctuated::Punctuated, spanned::Spanned, token::Comma, Field, Ident, Type};
 
 use crate::{
-    attrs::{Attrs, Kind, ParserKind},
+    attrs::{Attrs, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
+    dummies,
     utils::{sub_type, subty_if_name, Sp, Ty},
 };
+
+use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro_error::{abort, abort_call_site};
+use quote::{quote, quote_spanned};
+use syn::{
+    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataStruct,
+    DeriveInput, Field, Fields, Type,
+};
+
+pub fn derive_args(input: &DeriveInput) -> TokenStream {
+    let ident = &input.ident;
+
+    dummies::args(ident);
+
+    match input.data {
+        Data::Struct(DataStruct {
+            fields: Fields::Named(ref fields),
+            ..
+        }) => gen_for_struct(ident, &fields.named, &input.attrs),
+        Data::Struct(DataStruct {
+            fields: Fields::Unit,
+            ..
+        }) => gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs),
+        _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
+    }
+}
+
+pub fn gen_for_struct(
+    struct_name: &Ident,
+    fields: &Punctuated<Field, Comma>,
+    attrs: &[Attribute],
+) -> TokenStream {
+    let from_arg_matches = gen_from_arg_matches_for_struct(struct_name, fields, attrs);
+
+    let attrs = Attrs::from_struct(
+        Span::call_site(),
+        attrs,
+        Name::Derived(struct_name.clone()),
+        Sp::call_site(DEFAULT_CASING),
+        Sp::call_site(DEFAULT_ENV_CASING),
+    );
+    let app_var = Ident::new("app", Span::call_site());
+    let augmentation = gen_augment(fields, &app_var, &attrs, false);
+    let augmentation_update = gen_augment(fields, &app_var, &attrs, true);
+
+    quote! {
+        #from_arg_matches
+
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
+        impl clap::Args for #struct_name {
+            fn augment_args<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+                #augmentation
+            }
+            fn augment_args_for_update<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+                #augmentation_update
+            }
+        }
+    }
+}
 
 pub fn gen_from_arg_matches_for_struct(
     struct_name: &Ident,
     fields: &Punctuated<Field, Comma>,
-    parent_attribute: &Attrs,
+    attrs: &[Attribute],
 ) -> TokenStream {
-    let constructor = gen_constructor(fields, parent_attribute);
-    let updater = gen_updater(fields, parent_attribute, true);
+    let attrs = Attrs::from_struct(
+        Span::call_site(),
+        attrs,
+        Name::Derived(struct_name.clone()),
+        Sp::call_site(DEFAULT_CASING),
+        Sp::call_site(DEFAULT_ENV_CASING),
+    );
+
+    let constructor = gen_constructor(fields, &attrs);
+    let updater = gen_updater(fields, &attrs, true);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -43,8 +118,9 @@ pub fn gen_from_arg_matches_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl clap::FromArgMatches for #struct_name {
-            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Self {
-                #struct_name #constructor
+            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Option<Self> {
+                let v = #struct_name #constructor;
+                Some(v)
             }
 
             fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
@@ -123,7 +199,7 @@ pub fn gen_augment(
             Kind::Flatten => {
                 let ty = &field.ty;
                 Some(quote_spanned! { kind.span()=>
-                    let #app_var = <#ty as clap::IntoApp>::augment_clap(#app_var);
+                    let #app_var = <#ty as clap::Args>::augment_args(#app_var);
                 })
             }
             Kind::Arg(ty) => {
@@ -289,14 +365,14 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
-                        <#subcmd_type as clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
+                        <#subcmd_type as clap::FromArgMatches>::from_arg_matches(#arg_matches)
                         #unwrapper
                     }
                 }
             }
 
             Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches)
+                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches).unwrap()
             },
 
             Kind::Skip(val) => match val {
@@ -304,7 +380,9 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
             },
 
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, None),
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => {
+                gen_parsers(&attrs, ty, field_name, field, None)
+            }
         }
     });
 
@@ -350,7 +428,7 @@ pub fn gen_updater(
                 };
 
                 let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, #arg_matches.subcommand());
+                    <#subcmd_type as clap::FromArgMatches>::update_from_arg_matches(#field_name, #arg_matches);
                 };
 
                 let updater = match **ty {
@@ -358,8 +436,8 @@ pub fn gen_updater(
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = <#subcmd_type as clap::Subcommand>::from_subcommand(
-                                #arg_matches.subcommand()
+                            *#field_name = <#subcmd_type as clap::FromArgMatches>::from_arg_matches(
+                                #arg_matches
                             )
                         }
                     },

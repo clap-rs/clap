@@ -5,6 +5,8 @@ use crate::{App, ArgMatches, Error};
 
 use std::ffi::OsString;
 
+/// Parse command-line arguments into `Self`.
+///
 /// The primary one-stop-shop trait used to create an instance of a `clap`
 /// [`App`], conduct the parsing, and turn the resulting [`ArgMatches`] back
 /// into concrete instance of the user struct.
@@ -14,6 +16,8 @@ use std::ffi::OsString;
 /// fundamental functions `parse` which uses the `std::env::args_os` iterator,
 /// and `parse_from` which allows the consumer to supply the iterator (along
 /// with fallible options for each).
+///
+/// See also [`Subcommand`] and [`Args`].
 ///
 /// # Examples
 ///
@@ -70,13 +74,14 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
         let matches = <Self as IntoApp>::into_app().get_matches();
-        <Self as FromArgMatches>::from_arg_matches(&matches)
+        <Self as FromArgMatches>::from_arg_matches(&matches).expect("IntoApp validated everything")
     }
 
     /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
         let matches = <Self as IntoApp>::into_app().try_get_matches()?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
+        Ok(<Self as FromArgMatches>::from_arg_matches(&matches)
+            .expect("IntoApp validated everything"))
     }
 
     /// Parse from iterator, exit on error
@@ -87,7 +92,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
-        <Self as FromArgMatches>::from_arg_matches(&matches)
+        <Self as FromArgMatches>::from_arg_matches(&matches).expect("IntoApp validated everything")
     }
 
     /// Parse from iterator, return Err on error.
@@ -98,7 +103,8 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches))
+        Ok(<Self as FromArgMatches>::from_arg_matches(&matches)
+            .expect("IntoApp validated everything"))
     }
 
     /// Update from iterator, exit on error
@@ -126,7 +132,7 @@ pub trait Clap: FromArgMatches + IntoApp + Sized {
     }
 }
 
-/// Build an [`App`] according to the struct
+/// Build an [`App`] relevant for a user-defined container.
 pub trait IntoApp: Sized {
     /// Build an [`App`] that can instantiate `Self`.
     ///
@@ -136,14 +142,6 @@ pub trait IntoApp: Sized {
     ///
     /// See [`FromArgMatches::update_from_arg_matches`] for updating `self`.
     fn into_app_for_update<'help>() -> App<'help>;
-    /// Append to [`App`] so it can instantiate `Self`.
-    ///
-    /// This is used to implement `#[clap(flatten)]`
-    fn augment_clap(app: App<'_>) -> App<'_>;
-    /// Append to [`App`] so it can update `self`.
-    ///
-    /// This is used to implement `#[clap(flatten)]`
-    fn augment_clap_for_update(app: App<'_>) -> App<'_>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -178,23 +176,75 @@ pub trait FromArgMatches: Sized {
     ///    }
     /// }
     /// ```
-    fn from_arg_matches(matches: &ArgMatches) -> Self;
+    fn from_arg_matches(matches: &ArgMatches) -> Option<Self>;
 
     /// Assign values from `ArgMatches` to `self`.
     fn update_from_arg_matches(&mut self, matches: &ArgMatches);
 }
 
-/// @TODO @release @docs
-pub trait Subcommand: Sized {
-    /// Instantiate `Self` from subcommand name and [`ArgMatches`].
-    ///
-    /// Returns `None` if subcommand does not exist
-    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self>;
-    /// Assign values from `ArgMatches` to `self`.
-    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>);
+/// Parse arguments into a user-defined container.
+///
+/// Implementing this trait lets a parent container delegate argument parsing behavior to `Self`.
+/// with:
+/// - `#[clap(flatten)] args: ChildArgs`: Attribute can only be used with struct fields that impl
+///   `Args`.
+/// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
+///
+///
+/// # Example
+///
+/// ```rust
+/// #[derive(clap::Clap)]
+/// struct Args {
+///     #[clap(flatten)]
+///     logging: LogArgs,
+/// }
+///
+/// #[derive(clap::Args)]
+/// struct LogArgs {
+///     #[clap(long, short = 'v', parse(from_occurrences))]
+///     verbose: i8,
+/// }
+/// ```
+pub trait Args: FromArgMatches + Sized {
     /// Append to [`App`] so it can instantiate `Self`.
     ///
+    /// See also [`IntoApp`].
+    fn augment_args(app: App<'_>) -> App<'_>;
+    /// Append to [`App`] so it can update `self`.
+    ///
     /// This is used to implement `#[clap(flatten)]`
+    ///
+    /// See also [`IntoApp`].
+    fn augment_args_for_update(app: App<'_>) -> App<'_>;
+}
+
+/// Parse a sub-command into a user-defined enum.
+///
+/// Implementing this trait let's a parent container delegate subcommand behavior to `Self`.
+/// with:
+/// - `#[clap(subcommand)] field: SubCmd`: Attribute can be used with either struct fields or enum
+///   variants that impl `Subcommand`.
+/// - `#[clap(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
+///   `Subcommand`.
+///
+/// # Example
+///
+/// ```rust
+/// #[derive(clap::Clap)]
+/// struct Args {
+///     #[clap(subcommand)]
+///     action: Action,
+/// }
+///
+/// #[derive(clap::Subcommand)]
+/// enum Action {
+///     Add,
+///     Remove,
+/// }
+/// ```
+pub trait Subcommand: FromArgMatches + Sized {
+    /// Append to [`App`] so it can instantiate `Self`.
     ///
     /// See also [`IntoApp`].
     fn augment_subcommands(app: App<'_>) -> App<'_>;
@@ -269,33 +319,30 @@ impl<T: IntoApp> IntoApp for Box<T> {
     fn into_app<'help>() -> App<'help> {
         <T as IntoApp>::into_app()
     }
-    fn augment_clap(app: App<'_>) -> App<'_> {
-        <T as IntoApp>::augment_clap(app)
-    }
     fn into_app_for_update<'help>() -> App<'help> {
         <T as IntoApp>::into_app_for_update()
-    }
-    fn augment_clap_for_update(app: App<'_>) -> App<'_> {
-        <T as IntoApp>::augment_clap_for_update(app)
     }
 }
 
 impl<T: FromArgMatches> FromArgMatches for Box<T> {
-    fn from_arg_matches(matches: &ArgMatches) -> Self {
-        Box::new(<T as FromArgMatches>::from_arg_matches(matches))
+    fn from_arg_matches(matches: &ArgMatches) -> Option<Self> {
+        <T as FromArgMatches>::from_arg_matches(matches).map(Box::new)
     }
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
-        <T as FromArgMatches>::update_from_arg_matches(self, matches);
+        <T as FromArgMatches>::update_from_arg_matches(self, matches)
+    }
+}
+
+impl<T: Args> Args for Box<T> {
+    fn augment_args(app: App<'_>) -> App<'_> {
+        <T as Args>::augment_args(app)
+    }
+    fn augment_args_for_update(app: App<'_>) -> App<'_> {
+        <T as Args>::augment_args_for_update(app)
     }
 }
 
 impl<T: Subcommand> Subcommand for Box<T> {
-    fn from_subcommand(subcommand: Option<(&str, &ArgMatches)>) -> Option<Self> {
-        <T as Subcommand>::from_subcommand(subcommand).map(Box::new)
-    }
-    fn update_from_subcommand(&mut self, subcommand: Option<(&str, &ArgMatches)>) {
-        <T as Subcommand>::update_from_subcommand(self, subcommand);
-    }
     fn augment_subcommands(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands(app)
     }

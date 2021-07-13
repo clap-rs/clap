@@ -107,13 +107,6 @@ pub struct Attrs {
     kind: Sp<Kind>,
 }
 
-/// Output for the gen_xxx() methods were we need more than a simple stream of tokens.
-///
-/// The output of a generation method is not only the stream of new tokens but also the attribute
-/// information of the current element. These attribute information may contain valuable information
-/// for any kind of child arguments.
-pub type GenOutput = (TokenStream, Attrs);
-
 impl Method {
     pub fn new(name: Ident, args: TokenStream) -> Self {
         Method { name, args }

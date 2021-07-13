@@ -34,7 +34,10 @@ fn issue_289() {
     #[derive(Clap)]
     #[clap(setting = AppSettings::InferSubcommands)]
     enum Args {
-        SomeCommand(SubSubCommand),
+        SomeCommand {
+            #[clap(subcommand)]
+            sub: SubSubCommand,
+        },
         AnotherCommand,
     }
 
