@@ -5,6 +5,8 @@ use crate::{App, ArgMatches, Error};
 
 use std::ffi::OsString;
 
+/// Parse command-line arguments into `Self`.
+///
 /// The primary one-stop-shop trait used to create an instance of a `clap`
 /// [`App`], conduct the parsing, and turn the resulting [`ArgMatches`] back
 /// into concrete instance of the user struct.
@@ -22,9 +24,8 @@ use std::ffi::OsString;
 /// the CLI.
 ///
 /// ```rust
-/// # use clap::{Clap};
 /// /// My super CLI
-/// #[derive(Clap)]
+/// #[derive(clap::Parser)]
 /// #[clap(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
@@ -66,7 +67,7 @@ use std::ffi::OsString;
 /// }
 /// ```
 ///
-pub trait Clap: FromArgMatches + IntoApp + Sized {
+pub trait Parser: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
         let matches = <Self as IntoApp>::into_app().get_matches();
@@ -139,11 +140,11 @@ pub trait IntoApp: Sized {
     /// Append to [`App`] so it can instantiate `Self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
-    fn augment_clap(app: App<'_>) -> App<'_>;
+    fn augment_parser(app: App<'_>) -> App<'_>;
     /// Append to [`App`] so it can update `self`.
     ///
     /// This is used to implement `#[clap(flatten)]`
-    fn augment_clap_for_update(app: App<'_>) -> App<'_>;
+    fn augment_parser_for_update(app: App<'_>) -> App<'_>;
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
@@ -215,13 +216,13 @@ pub trait ArgEnum: Sized {
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
 }
 
-impl<T: Clap> Clap for Box<T> {
+impl<T: Parser> Parser for Box<T> {
     fn parse() -> Self {
-        Box::new(<T as Clap>::parse())
+        Box::new(<T as Parser>::parse())
     }
 
     fn try_parse() -> Result<Self, Error> {
-        <T as Clap>::try_parse().map(Box::new)
+        <T as Parser>::try_parse().map(Box::new)
     }
 
     fn parse_from<I, It>(itr: I) -> Self
@@ -230,7 +231,7 @@ impl<T: Clap> Clap for Box<T> {
         // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
-        Box::new(<T as Clap>::parse_from(itr))
+        Box::new(<T as Parser>::parse_from(itr))
     }
 
     fn try_parse_from<I, It>(itr: I) -> Result<Self, Error>
@@ -239,7 +240,7 @@ impl<T: Clap> Clap for Box<T> {
         // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
-        <T as Clap>::try_parse_from(itr).map(Box::new)
+        <T as Parser>::try_parse_from(itr).map(Box::new)
     }
 }
 
@@ -247,14 +248,14 @@ impl<T: IntoApp> IntoApp for Box<T> {
     fn into_app<'help>() -> App<'help> {
         <T as IntoApp>::into_app()
     }
-    fn augment_clap(app: App<'_>) -> App<'_> {
-        <T as IntoApp>::augment_clap(app)
+    fn augment_parser(app: App<'_>) -> App<'_> {
+        <T as IntoApp>::augment_parser(app)
     }
     fn into_app_for_update<'help>() -> App<'help> {
         <T as IntoApp>::into_app_for_update()
     }
-    fn augment_clap_for_update(app: App<'_>) -> App<'_> {
-        <T as IntoApp>::augment_clap_for_update(app)
+    fn augment_parser_for_update(app: App<'_>) -> App<'_> {
+        <T as IntoApp>::augment_parser_for_update(app)
     }
 }
 

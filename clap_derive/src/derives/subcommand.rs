@@ -115,7 +115,7 @@ fn gen_augment(
                             let ty = &unnamed[0];
                             quote_spanned! { ty.span()=>
                                 {
-                                    <#ty as clap::IntoApp>::augment_clap(#app_var)
+                                    <#ty as clap::IntoApp>::augment_parser(#app_var)
                                 }
                             }
                         }

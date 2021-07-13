@@ -4,18 +4,18 @@ use proc_macro2::Ident;
 use proc_macro_error::append_dummy;
 use quote::quote;
 
-pub fn clap_struct(name: &Ident) {
+pub fn parser_struct(name: &Ident) {
     into_app(name);
     from_arg_matches(name);
-    append_dummy(quote!( impl clap::Clap for #name {} ));
+    append_dummy(quote!( impl clap::Parser for #name {} ));
 }
 
-pub fn clap_enum(name: &Ident) {
+pub fn parser_enum(name: &Ident) {
     into_app(name);
     from_arg_matches(name);
     subcommand(name);
     arg_enum(name);
-    append_dummy(quote!( impl clap::Clap for #name {} ));
+    append_dummy(quote!( impl clap::Parser for #name {} ));
 }
 
 pub fn into_app(name: &Ident) {
@@ -24,13 +24,13 @@ pub fn into_app(name: &Ident) {
             fn into_app<'b>() -> clap::App<'b> {
                 unimplemented!()
             }
-            fn augment_clap<'b>(_app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_parser<'b>(_app: clap::App<'b>) -> clap::App<'b> {
                 unimplemented!()
             }
             fn into_app_for_update<'b>() -> clap::App<'b> {
                 unimplemented!()
             }
-            fn augment_clap_for_update<'b>(_app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_parser_for_update<'b>(_app: clap::App<'b>) -> clap::App<'b> {
                 unimplemented!()
             }
         }

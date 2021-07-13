@@ -14,10 +14,10 @@
 
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::*;
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt {
     /// Fetch stuff from GitHub
     Fetch {
@@ -87,7 +87,7 @@ fn test_no_parse() {
     assert!(result.is_err());
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt2 {
     DoSomething { arg: String },
 }
@@ -104,7 +104,7 @@ fn test_hyphenated_subcommands() {
     );
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt3 {
     Add,
     Init,
@@ -118,17 +118,17 @@ fn test_null_commands() {
     assert_eq!(Opt3::Fetch, Opt3::parse_from(&["test", "fetch"]));
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 #[clap(about = "Not shown")]
 struct Add {
     file: String,
 }
 /// Not shown
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Fetch {
     remote: String,
 }
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt4 {
     // Not shown
     /// Add a file
@@ -163,7 +163,7 @@ fn test_tuple_commands() {
 
 #[test]
 fn global_passed_down() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct Opt {
         #[clap(global = true, long)]
         other: bool,
@@ -171,13 +171,13 @@ fn global_passed_down() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     enum Subcommands {
         Add,
         Global(GlobalCmd),
     }
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct GlobalCmd {
         #[clap(from_global)]
         other: bool,
@@ -202,13 +202,13 @@ fn global_passed_down() {
 
 #[test]
 fn external_subcommand() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     enum Subcommands {
         Add,
         Remove,
@@ -244,13 +244,13 @@ fn external_subcommand() {
 fn external_subcommand_os_string() {
     use std::ffi::OsString;
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<OsString>),
@@ -268,13 +268,13 @@ fn external_subcommand_os_string() {
 
 #[test]
 fn external_subcommand_optional() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct Opt {
         #[clap(subcommand)]
         sub: Option<Subcommands>,
     }
 
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<String>),
@@ -293,12 +293,12 @@ fn external_subcommand_optional() {
 // #[test]
 // #[ignore] // FIXME (@CreepySkeleton)
 // fn enum_in_enum_subsubcommand() {
-//     #[derive(Clap, Debug, PartialEq)]
+//     #[derive(Parser, Debug, PartialEq)]
 //     pub enum Opt {
 //         Daemon(DaemonCommand),
 //     }
 
-//     #[derive(Clap, Debug, PartialEq)]
+//     #[derive(Parser, Debug, PartialEq)]
 //     pub enum DaemonCommand {
 //         Start,
 //         Stop,
@@ -320,12 +320,12 @@ fn external_subcommand_optional() {
 // #[test]
 // #[ignore]
 // fn flatten_enum() {
-//     #[derive(Clap, Debug, PartialEq)]
+//     #[derive(Parser, Debug, PartialEq)]
 //     struct Opt {
 //         #[clap(flatten)]
 //         sub_cmd: SubCmd,
 //     }
-//     #[derive(Clap, Debug, PartialEq)]
+//     #[derive(Parser, Debug, PartialEq)]
 //     enum SubCmd {
 //         Foo,
 //         Bar,

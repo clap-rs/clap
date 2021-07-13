@@ -137,11 +137,11 @@ The first example shows the simplest way to use `clap`, by defining a struct. If
 //
 // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
 // simplest method of use, but sacrifices some flexibility.
-use clap::{AppSettings, Clap};
+use clap::{AppSettings, Parser};
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = "1.0", author = "Kevin K. <kbknapp@gmail.com>")]
 #[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
@@ -157,14 +157,14 @@ struct Opts {
     subcmd: SubCommand,
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 enum SubCommand {
     #[clap(version = "1.3", author = "Someone E. <someone_else@other.com>")]
     Test(Test),
 }
 
 /// A subcommand for controlling testing
-#[derive(Clap)]
+#[derive(Parser)]
 struct Test {
     /// Print debug info
     #[clap(short)]
@@ -466,7 +466,7 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 #### Features enabled by default
 
-* **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
+* **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
 * **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **color**: Turns on colored error messages. You still have to turn on colored help by setting `AppSettings::ColoredHelp`. (builds dependency `termcolor`)

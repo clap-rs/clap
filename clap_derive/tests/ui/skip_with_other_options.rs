@@ -1,6 +1,6 @@
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "test")]
 pub struct Opt {
     #[clap(long)]

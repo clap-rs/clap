@@ -1,6 +1,6 @@
 //! Checks that types like `::std::option::Option` are not special
 
-use clap::Clap;
+use clap::Parser;
 
 #[rustversion::all(since(1.37), stable)]
 #[test]
@@ -19,7 +19,7 @@ fn special_types_bool() {
         }
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         arg: inner::bool,
     }
@@ -38,7 +38,7 @@ fn special_types_option() {
         Some(s.to_string())
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(parse(from_str = parser))]
         arg: ::std::option::Option<String>,
@@ -58,7 +58,7 @@ fn special_types_vec() {
         vec![s.to_string()]
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(parse(from_str = parser))]
         arg: ::std::vec::Vec<String>,

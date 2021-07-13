@@ -1,4 +1,4 @@
-use clap::Clap;
+use clap::Parser;
 
 mod utils;
 
@@ -6,7 +6,7 @@ use utils::*;
 
 #[test]
 fn auto_default_value() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(default_value)]
         arg: i32,

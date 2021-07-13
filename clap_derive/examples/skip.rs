@@ -1,8 +1,8 @@
 //! How to use `#[clap(skip)]`
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 pub struct Opt {
     #[clap(long, short)]
     number: u32,

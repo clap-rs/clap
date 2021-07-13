@@ -1,19 +1,19 @@
-use clap::Clap;
+use clap::Parser;
 use std::ffi::CString;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Opt {
     #[clap(external_subcommand)]
     Other(Vec<CString>),
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Opt2 {
     #[clap(external_subcommand)]
     Other(String),
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Opt3 {
     #[clap(external_subcommand)]
     Other { a: String },

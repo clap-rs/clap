@@ -1,12 +1,12 @@
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt {
     #[clap(subcommand)]
     cmd: Command,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Command {
     #[clap(external_subcommand)]
     Run(Vec<String>),

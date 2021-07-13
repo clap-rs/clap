@@ -25,7 +25,7 @@ use syn::{
     Field, Fields, Ident,
 };
 
-pub fn derive_clap(input: &DeriveInput) -> TokenStream {
+pub fn derive_parser(input: &DeriveInput) -> TokenStream {
     let ident = &input.ident;
 
     match input.data {
@@ -33,21 +33,21 @@ pub fn derive_clap(input: &DeriveInput) -> TokenStream {
             fields: Fields::Named(ref fields),
             ..
         }) => {
-            dummies::clap_struct(ident);
+            dummies::parser_struct(ident);
             gen_for_struct(ident, &fields.named, &input.attrs)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
             ..
         }) => {
-            dummies::clap_struct(ident);
+            dummies::parser_struct(ident);
             gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs)
         }
         Data::Enum(ref e) => {
-            dummies::clap_enum(ident);
+            dummies::parser_enum(ident);
             gen_for_enum(ident, &input.attrs, e)
         }
-        _ => abort_call_site!("`#[derive(Clap)]` only supports non-tuple structs and enums"),
+        _ => abort_call_site!("`#[derive(Parser)]` only supports non-tuple structs and enums"),
     }
 }
 
@@ -60,7 +60,7 @@ fn gen_for_struct(
     let from_arg_matches = from_arg_matches::gen_for_struct(name, fields, &attrs);
 
     quote! {
-        impl clap::Clap for #name {}
+        impl clap::Parser for #name {}
 
         #into_app
         #from_arg_matches
@@ -74,7 +74,7 @@ fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream 
     let arg_enum = arg_enum::gen_for_enum(name, attrs, e);
 
     quote! {
-        impl clap::Clap for #name {}
+        impl clap::Parser for #name {}
 
         #into_app
         #from_arg_matches

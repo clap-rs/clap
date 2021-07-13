@@ -31,7 +31,7 @@ pub use crate::{
 };
 
 #[cfg(feature = "derive")]
-pub use crate::derive::{ArgEnum, Clap, FromArgMatches, IntoApp, Subcommand};
+pub use crate::derive::{ArgEnum, FromArgMatches, IntoApp, Parser, Subcommand};
 
 #[cfg(feature = "yaml")]
 #[doc(hidden)]

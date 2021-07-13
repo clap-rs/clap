@@ -6,7 +6,7 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>",
 	"Clap Maintainers",
 ]
-description = "Automatic code upgrader for Clap"
+description = "Automatic code upgrader for Parser"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_up"
 homepage = "https://clap.rs/"
 keywords = [

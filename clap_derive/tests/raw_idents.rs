@@ -1,8 +1,8 @@
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn raw_idents() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short, long, multiple_occurrences(true))]
         r#type: Vec<String>,

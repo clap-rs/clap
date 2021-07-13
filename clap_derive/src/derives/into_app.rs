@@ -53,7 +53,7 @@ pub fn gen_for_struct(
     attrs: &[Attribute],
 ) -> GenOutput {
     let (into_app, attrs) = gen_into_app_fn(attrs);
-    let augment_clap = gen_augment_clap_fn(fields, &attrs);
+    let augment_parser = gen_augment_parser_fn(fields, &attrs);
 
     let tokens = quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -70,7 +70,7 @@ pub fn gen_for_struct(
         #[deny(clippy::correctness)]
         impl clap::IntoApp for #struct_name {
             #into_app
-            #augment_clap
+            #augment_parser
         }
     };
 
@@ -106,19 +106,19 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
             fn into_app<'b>() -> clap::App<'b> {
                 let app = clap::App::new(#name)
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp);
-                <#enum_name as clap::IntoApp>::augment_clap(app)
+                <#enum_name as clap::IntoApp>::augment_parser(app)
             }
 
-            fn augment_clap<'b>(app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_parser<'b>(app: clap::App<'b>) -> clap::App<'b> {
                 <#enum_name as clap::Subcommand>::augment_subcommands(app)
             }
 
             fn into_app_for_update<'b>() -> clap::App<'b> {
                 let app = clap::App::new(#name);
-                <#enum_name as clap::IntoApp>::augment_clap_for_update(app)
+                <#enum_name as clap::IntoApp>::augment_parser_for_update(app)
             }
 
-            fn augment_clap_for_update<'b>(app: clap::App<'b>) -> clap::App<'b> {
+            fn augment_parser_for_update<'b>(app: clap::App<'b>) -> clap::App<'b> {
                 <#enum_name as clap::Subcommand>::augment_subcommands_for_update(app)
             }
         }
@@ -139,25 +139,28 @@ fn gen_into_app_fn(attrs: &[Attribute]) -> GenOutput {
 
     let tokens = quote! {
         fn into_app<'b>() -> clap::App<'b> {
-            Self::augment_clap(clap::App::new(#name))
+            Self::augment_parser(clap::App::new(#name))
         }
         fn into_app_for_update<'b>() -> clap::App<'b> {
-            Self::augment_clap_for_update(clap::App::new(#name))
+            Self::augment_parser_for_update(clap::App::new(#name))
         }
     };
 
     (tokens, attrs)
 }
 
-fn gen_augment_clap_fn(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
+fn gen_augment_parser_fn(
+    fields: &Punctuated<Field, Comma>,
+    parent_attribute: &Attrs,
+) -> TokenStream {
     let app_var = Ident::new("app", Span::call_site());
     let augmentation = gen_app_augmentation(fields, &app_var, parent_attribute, false);
     let augmentation_update = gen_app_augmentation(fields, &app_var, parent_attribute, true);
     quote! {
-        fn augment_clap<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+        fn augment_parser<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
             #augmentation
         }
-        fn augment_clap_for_update<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
+        fn augment_parser_for_update<'b>(#app_var: clap::App<'b>) -> clap::App<'b> {
             #augmentation_update
         }
     }
@@ -238,7 +241,7 @@ pub fn gen_app_augmentation(
             Kind::Flatten => {
                 let ty = &field.ty;
                 Some(quote_spanned! { kind.span()=>
-                    let #app_var = <#ty as clap::IntoApp>::augment_clap(#app_var);
+                    let #app_var = <#ty as clap::IntoApp>::augment_parser(#app_var);
                 })
             }
             Kind::Arg(ty) => {

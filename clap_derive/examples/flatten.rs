@@ -1,8 +1,8 @@
 //! How to use flattening.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Cmdline {
     /// switch verbosity on
     #[clap(short)]
@@ -12,7 +12,7 @@ struct Cmdline {
     daemon_opts: DaemonOpts,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct DaemonOpts {
     /// daemon user
     #[clap(short)]

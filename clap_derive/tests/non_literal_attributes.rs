@@ -12,13 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::{AppSettings, Clap, ErrorKind};
+use clap::{AppSettings, ErrorKind, Parser};
 use std::num::ParseIntError;
 
 pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
-#[derive(Clap, Debug, PartialEq, Eq)]
+#[derive(Parser, Debug, PartialEq, Eq)]
 #[clap(global_setting = AppSettings::ColoredHelp)]
 struct Opt {
     #[clap(
@@ -128,7 +128,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
     u64::from_str_radix(input, 16)
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
     #[clap(short, parse(try_from_str = parse_hex))]
     number: u64,

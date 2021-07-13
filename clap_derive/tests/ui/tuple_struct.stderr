@@ -1,7 +1,7 @@
-error: `#[derive(Clap)]` only supports non-tuple structs and enums
+error: `#[derive(Parser)]` only supports non-tuple structs and enums
   --> $DIR/tuple_struct.rs:11:10
    |
-11 | #[derive(Clap, Debug)]
+11 | #[derive(Parser, Debug)]
    |          ^^^^
    |
    = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)
@@ -17,4 +17,4 @@ error[E0599]: no function or associated item named `parse` found for struct `Opt
    |
    = help: items from traits can only be used if the trait is implemented and in scope
    = note: the following trait defines an item `parse`, perhaps you need to implement it:
-           candidate #1: `clap::Clap`
+           candidate #1: `clap::Parser`

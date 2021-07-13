@@ -7,17 +7,17 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::{ArgEnum, Clap};
+use clap::{ArgEnum, Parser};
 
 #[test]
 fn basic() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -40,14 +40,14 @@ fn basic() {
 
 #[test]
 fn multi_word_is_renamed_kebab() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[allow(non_camel_case_types)]
     enum ArgChoice {
         FooBar,
         BAR_BAZ,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -70,13 +70,13 @@ fn multi_word_is_renamed_kebab() {
 
 #[test]
 fn variant_with_defined_casing() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         #[clap(rename_all = "screaming_snake")]
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -93,13 +93,13 @@ fn variant_with_defined_casing() {
 
 #[test]
 fn casing_is_propogated_from_parent() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -116,14 +116,14 @@ fn casing_is_propogated_from_parent() {
 
 #[test]
 fn casing_propogation_is_overridden() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         #[clap(rename_all = "camel")]
         FooBar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: ArgChoice,
@@ -141,12 +141,12 @@ fn casing_propogation_is_overridden() {
 
 #[test]
 fn case_insensitive() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(true))]
         arg: ArgChoice,
@@ -168,12 +168,12 @@ fn case_insensitive() {
 
 #[test]
 fn case_insensitive_set_to_false() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -190,13 +190,13 @@ fn case_insensitive_set_to_false() {
 
 #[test]
 fn alias() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         #[clap(alias = "TOTP")]
         TOTP,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -218,13 +218,13 @@ fn alias() {
 
 #[test]
 fn multiple_alias() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         #[clap(alias = "TOTP", alias = "t")]
         TOTP,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, case_insensitive(false))]
         arg: ArgChoice,
@@ -252,13 +252,13 @@ fn multiple_alias() {
 
 #[test]
 fn option() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum)]
         arg: Option<ArgChoice>,
@@ -282,13 +282,13 @@ fn option() {
 
 #[test]
 fn vector() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
         Bar,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, short, long)]
         arg: Vec<ArgChoice>,
@@ -312,7 +312,7 @@ fn vector() {
 
 #[test]
 fn from_str_invalid() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum ArgChoice {
         Foo,
     }

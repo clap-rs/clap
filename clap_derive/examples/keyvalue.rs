@@ -1,6 +1,6 @@
-//! How to parse "key=value" pairs with #[derive(Clap)].
+//! How to parse "key=value" pairs with #[derive(Parser)].
 
-use clap::Clap;
+use clap::Parser;
 use std::error::Error;
 
 /// Parse a single key-value pair
@@ -17,7 +17,7 @@ where
     Ok((s[..pos].parse()?, s[pos + 1..].parse()?))
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt {
     // number_of_values = 1 forces the user to repeat the -D option for each key-value pair:
     // my_program -D a=1 -D b=2

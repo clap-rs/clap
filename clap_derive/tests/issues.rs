@@ -3,11 +3,11 @@
 mod utils;
 use utils::*;
 
-use clap::{AppSettings, ArgGroup, Clap};
+use clap::{AppSettings, ArgGroup, Parser};
 
 #[test]
 fn issue_151() {
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     #[clap(group = ArgGroup::new("verb").required(true).multiple(true))]
     struct Opt {
         #[clap(long, group = "verb")]
@@ -16,7 +16,7 @@ fn issue_151() {
         bar: bool,
     }
 
-    #[derive(Debug, Clap)]
+    #[derive(Debug, Parser)]
     struct Cli {
         #[clap(flatten)]
         a: Opt,
@@ -31,7 +31,7 @@ fn issue_151() {
 
 #[test]
 fn issue_289() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(setting = AppSettings::InferSubcommands)]
     enum Args {
         SomeCommand(SubSubCommand),
@@ -40,7 +40,7 @@ fn issue_289() {
 
     // FIXME (@CreepySkeleton): current implementation requires us to
     // derive IntoApp here while we don't really need it
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(setting = AppSettings::InferSubcommands)]
     enum SubSubCommand {
         TestCommand,
@@ -58,14 +58,14 @@ fn issue_324() {
         "MY_VERSION"
     }
 
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(version = my_version())]
     struct Opt {
         #[clap(subcommand)]
         _cmd: Option<SubCommand>,
     }
 
-    #[derive(Clap)]
+    #[derive(Parser)]
     enum SubCommand {
         Start,
     }

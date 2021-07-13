@@ -1,6 +1,6 @@
 //! How to parse `--foo=true --bar=false` and turn them into bool.
 
-use clap::Clap;
+use clap::Parser;
 
 fn true_or_false(s: &str) -> Result<bool, &'static str> {
     match s {
@@ -10,7 +10,7 @@ fn true_or_false(s: &str) -> Result<bool, &'static str> {
     }
 }
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 struct Opt {
     // Default parser for `try_from_str` is FromStr::from_str.
     // `impl FromStr for bool` parses `true` or `false` so this

@@ -12,16 +12,16 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn flatten() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(flatten)]
         common: Common,
@@ -40,12 +40,12 @@ fn flatten() {
 #[test]
 #[should_panic]
 fn flatten_twice() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(flatten)]
         c1: Common,
@@ -58,12 +58,12 @@ fn flatten_twice() {
 
 #[test]
 fn flatten_in_subcommand() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Add {
         #[clap(short)]
         interactive: bool,
@@ -71,7 +71,7 @@ fn flatten_in_subcommand() {
         common: Common,
     }
 
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     enum Opt {
         Fetch {
             #[clap(short)]
@@ -99,22 +99,22 @@ fn flatten_in_subcommand() {
     );
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum BaseCli {
     Command1(Command1),
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Command1 {
     arg1: i32,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Command2 {
     arg2: i32,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Opt {
     #[clap(flatten)]
     BaseCli(BaseCli),
@@ -135,7 +135,7 @@ fn merge_subcommands_with_flatten() {
 
 #[test]
 fn flatten_with_doc_comment() {
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     struct DaemonOpts {
         #[clap(short)]
         user: String,
@@ -143,7 +143,7 @@ fn flatten_with_doc_comment() {
         group: String,
     }
 
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     #[clap(name = "basic")]
     struct Opt {
         /// A very important doc comment I just can't leave out!

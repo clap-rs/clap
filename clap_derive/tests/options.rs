@@ -14,11 +14,11 @@
 
 #![allow(clippy::option_option)]
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn required_option() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
         arg: i32,
@@ -32,7 +32,7 @@ fn required_option() {
 
 #[test]
 fn optional_option() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short)]
         arg: Option<i32>,
@@ -44,7 +44,7 @@ fn optional_option() {
 
 #[test]
 fn option_with_default() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, default_value = "42")]
         arg: i32,
@@ -56,7 +56,7 @@ fn option_with_default() {
 
 #[test]
 fn option_with_raw_default() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, default_value = "42")]
         arg: i32,
@@ -68,7 +68,7 @@ fn option_with_raw_default() {
 
 #[test]
 fn options() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long, multiple_occurrences(true))]
         arg: Vec<i32>,
@@ -83,7 +83,7 @@ fn options() {
 
 #[test]
 fn default_value() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, default_value = "test")]
         arg: String,
@@ -106,7 +106,7 @@ fn option_from_str() {
         }
     }
 
-    #[derive(Debug, Clap, PartialEq)]
+    #[derive(Debug, Parser, PartialEq)]
     struct Opt {
         #[clap(parse(from_str))]
         a: Option<A>,
@@ -118,7 +118,7 @@ fn option_from_str() {
 
 #[test]
 fn optional_argument_for_optional_option() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, multiple_occurrences(true))]
         #[allow(clippy::option_option)]
@@ -137,7 +137,7 @@ fn optional_argument_for_optional_option() {
 
 #[test]
 fn two_option_options() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short)]
         arg: Option<Option<i32>>,
@@ -191,7 +191,7 @@ fn two_option_options() {
 
 #[test]
 fn optional_vec() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, multiple_occurrences(true))]
         arg: Option<Vec<i32>>,
@@ -248,7 +248,7 @@ fn optional_vec() {
 
 #[test]
 fn two_optional_vecs() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, multiple_occurrences(true))]
         arg: Option<Vec<i32>>,

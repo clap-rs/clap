@@ -12,14 +12,14 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{App, AppSettings, Clap, IntoApp, ValueHint};
+use clap::{App, AppSettings, IntoApp, Parser, ValueHint};
 use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 enum GeneratorChoice {
     Bash,
     Elvish,
@@ -29,7 +29,7 @@ enum GeneratorChoice {
     Zsh,
 }
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(Parser, Debug, PartialEq)]
 #[clap(
     name = "value_hints_derive",
     // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments

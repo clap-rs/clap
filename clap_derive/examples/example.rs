@@ -1,8 +1,8 @@
-//! Somewhat complex example of usage of #[derive(Clap)].
+//! Somewhat complex example of usage of #[derive(Parser)].
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "example")]
 /// An example of clap_derive usage.
 struct Opt {

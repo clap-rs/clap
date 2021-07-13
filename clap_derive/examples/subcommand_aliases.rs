@@ -1,8 +1,8 @@
 //! How to assign some aliases to subcommands
 
-use clap::{AppSettings, Clap};
+use clap::{AppSettings, Parser};
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 // https://docs.rs/clap/2/clap/enum.AppSettings.html#variant.InferSubcommands
 #[clap(setting = AppSettings::InferSubcommands)]
 enum Opt {

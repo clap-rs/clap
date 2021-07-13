@@ -1,10 +1,10 @@
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap]
 struct Opt {}
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt1 {
     #[clap = "short"]
     foo: u32,

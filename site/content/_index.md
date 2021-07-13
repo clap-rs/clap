@@ -2,15 +2,15 @@
 title = "Fast & Modern CLI Framework for Rust"
 +++
 
-**Clap** is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
+**Parser** is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.
 
 Here is an example of a simple program:
 
 ```rust
-use clap::Clap;
+use clap::Parser;
 
 /// Simple program to greet a person
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "hello")]
 struct Hello {
     /// Name of the person to greet
