@@ -17,7 +17,7 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 * [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
 * [Website](https://clap.rs/)
 
-We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.2` prerelease out but we do not give any guarantees that it's API is stable. We do not have a changelog yet which will be written down after we are sure about the API stability. We recommend users to not update to the prerelease version yet and to wait for the official `3.0`.
+We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.2` prerelease out but we do not give any guarantees that its API is stable. We do not have a changelog yet which will be written down after we are sure about the API stability. We recommend users to not update to the prerelease version yet and to wait for the official `3.0`.
 
 > If you're looking for the readme & examples for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
 
