@@ -12,14 +12,14 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{App, AppSettings, Clap, IntoApp, ValueHint};
+use clap::{App, AppSettings, ArgEnum, Clap, IntoApp, ValueHint};
 use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(ArgEnum, Debug, PartialEq)]
 enum GeneratorChoice {
     Bash,
     Elvish,

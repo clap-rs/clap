@@ -14,7 +14,6 @@ pub fn clap_enum(name: &Ident) {
     into_app(name);
     from_arg_matches(name);
     subcommand(name);
-    arg_enum(name);
     append_dummy(quote!( impl clap::Clap for #name {} ));
 }
 
