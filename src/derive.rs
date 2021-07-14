@@ -206,12 +206,34 @@ pub trait Subcommand: Sized {
     fn augment_subcommands_for_update(app: App<'_>) -> App<'_>;
 }
 
-/// @TODO @release @docs
+/// Parse arguments into enums.
+///
+/// When deriving [`Clap`], a field whose type implements `ArgEnum` can have the attribute
+/// `#[clap(arg_enum)]`.  In addition to parsing, help and error messages may report possible
+/// variants.
+///
+/// # Example
+///
+/// ```rust
+/// #[derive(clap::Clap)]
+/// struct Args {
+///     #[clap(arg_enum)]
+///     level: Level,
+/// }
+///
+/// #[derive(clap::ArgEnum)]
+/// enum Level {
+///     Debug,
+///     Info,
+///     Warning,
+///     Error,
+/// }
+/// ```
 pub trait ArgEnum: Sized {
-    /// @TODO @release @docs
+    /// All possible argument choices, in display order.
     const VARIANTS: &'static [&'static str];
 
-    /// @TODO @release @docs
+    /// Parse an argument into `Self`.
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
 }
 

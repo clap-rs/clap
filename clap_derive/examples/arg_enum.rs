@@ -2,9 +2,9 @@
 //!
 //! All the variants of the enum and the enum itself support `rename_all`
 
-use clap::Clap;
+use clap::{ArgEnum, Clap};
 
-#[derive(Clap, Debug, PartialEq)]
+#[derive(ArgEnum, Debug, PartialEq)]
 enum ArgChoice {
     Foo,
     Bar,
