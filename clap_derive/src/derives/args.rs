@@ -53,12 +53,134 @@ pub fn gen_from_arg_matches_for_struct(
         }
     }
 }
+pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
+    let fields = fields.iter().map(|field| {
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
+        let field_name = field.ident.as_ref().unwrap();
+        let kind = attrs.kind();
+        let arg_matches = quote! { arg_matches };
+        match &*kind {
+            Kind::ExternalSubcommand => {
+                abort! { kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
+            Kind::Subcommand(ty) => {
+                let subcmd_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+                let unwrapper = match **ty {
+                    Ty::Option => quote!(),
+                    _ => quote_spanned!( ty.span()=> .unwrap() ),
+                };
+                quote_spanned! { kind.span()=>
+                    #field_name: {
+                        <#subcmd_type as clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
+                        #unwrapper
+                    }
+                }
+            }
 
-fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
-    let ci = attrs.case_insensitive();
+            Kind::Flatten => quote_spanned! { kind.span()=>
+                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches)
+            },
 
-    quote_spanned! { ty.span()=>
-        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).unwrap()
+            Kind::Skip(val) => match val {
+                None => quote_spanned!(kind.span()=> #field_name: Default::default()),
+                Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
+            },
+
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, None),
+        }
+    });
+
+    quote! {{
+        #( #fields ),*
+    }}
+}
+
+pub fn gen_updater(
+    fields: &Punctuated<Field, Comma>,
+    parent_attribute: &Attrs,
+    use_self: bool,
+) -> TokenStream {
+    let fields = fields.iter().map(|field| {
+        let attrs = Attrs::from_field(
+            field,
+            parent_attribute.casing(),
+            parent_attribute.env_casing(),
+        );
+        let field_name = field.ident.as_ref().unwrap();
+        let kind = attrs.kind();
+
+        let access = if use_self {
+            quote! {
+                #[allow(non_snake_case)]
+                let #field_name = &mut self.#field_name;
+            }
+        } else {
+            quote!()
+        };
+        let arg_matches = quote! { arg_matches };
+
+        match &*kind {
+            Kind::ExternalSubcommand => {
+                abort! { kind.span(),
+                    "`external_subcommand` can be used only on enum variants"
+                }
+            }
+            Kind::Subcommand(ty) => {
+                let subcmd_type = match (**ty, sub_type(&field.ty)) {
+                    (Ty::Option, Some(sub_type)) => sub_type,
+                    _ => &field.ty,
+                };
+
+                let updater = quote_spanned! { ty.span()=>
+                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, #arg_matches.subcommand());
+                };
+
+                let updater = match **ty {
+                    Ty::Option => quote_spanned! { kind.span()=>
+                        if let Some(#field_name) = #field_name.as_mut() {
+                            #updater
+                        } else {
+                            *#field_name = <#subcmd_type as clap::Subcommand>::from_subcommand(
+                                #arg_matches.subcommand()
+                            )
+                        }
+                    },
+                    _ => quote_spanned! { kind.span()=>
+                        #updater
+                    },
+                };
+
+                quote_spanned! { kind.span()=>
+                    {
+                        #access
+                        #updater
+                    }
+                }
+            }
+
+            Kind::Flatten => quote_spanned! { kind.span()=> {
+                    #access
+                    clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches);
+                }
+            },
+
+            Kind::Skip(_) => quote!(),
+
+            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, Some(&access)),
+        }
+    });
+
+    quote! {
+        #( #fields )*
     }
 }
 
@@ -202,133 +324,10 @@ fn gen_parsers(
     }
 }
 
-pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Attrs) -> TokenStream {
-    let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(
-            field,
-            parent_attribute.casing(),
-            parent_attribute.env_casing(),
-        );
-        let field_name = field.ident.as_ref().unwrap();
-        let kind = attrs.kind();
-        let arg_matches = quote! { arg_matches };
-        match &*kind {
-            Kind::ExternalSubcommand => {
-                abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
-                }
-            }
-            Kind::Subcommand(ty) => {
-                let subcmd_type = match (**ty, sub_type(&field.ty)) {
-                    (Ty::Option, Some(sub_type)) => sub_type,
-                    _ => &field.ty,
-                };
-                let unwrapper = match **ty {
-                    Ty::Option => quote!(),
-                    _ => quote_spanned!( ty.span()=> .unwrap() ),
-                };
-                quote_spanned! { kind.span()=>
-                    #field_name: {
-                        <#subcmd_type as clap::Subcommand>::from_subcommand(#arg_matches.subcommand())
-                        #unwrapper
-                    }
-                }
-            }
+fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
+    let ci = attrs.case_insensitive();
 
-            Kind::Flatten => quote_spanned! { kind.span()=>
-                #field_name: clap::FromArgMatches::from_arg_matches(#arg_matches)
-            },
-
-            Kind::Skip(val) => match val {
-                None => quote_spanned!(kind.span()=> #field_name: Default::default()),
-                Some(val) => quote_spanned!(kind.span()=> #field_name: (#val).into()),
-            },
-
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, None),
-        }
-    });
-
-    quote! {{
-        #( #fields ),*
-    }}
-}
-
-pub fn gen_updater(
-    fields: &Punctuated<Field, Comma>,
-    parent_attribute: &Attrs,
-    use_self: bool,
-) -> TokenStream {
-    let fields = fields.iter().map(|field| {
-        let attrs = Attrs::from_field(
-            field,
-            parent_attribute.casing(),
-            parent_attribute.env_casing(),
-        );
-        let field_name = field.ident.as_ref().unwrap();
-        let kind = attrs.kind();
-
-        let access = if use_self {
-            quote! {
-                #[allow(non_snake_case)]
-                let #field_name = &mut self.#field_name;
-            }
-        } else {
-            quote!()
-        };
-        let arg_matches = quote! { arg_matches };
-
-        match &*kind {
-            Kind::ExternalSubcommand => {
-                abort! { kind.span(),
-                    "`external_subcommand` can be used only on enum variants"
-                }
-            }
-            Kind::Subcommand(ty) => {
-                let subcmd_type = match (**ty, sub_type(&field.ty)) {
-                    (Ty::Option, Some(sub_type)) => sub_type,
-                    _ => &field.ty,
-                };
-
-                let updater = quote_spanned! { ty.span()=>
-                    <#subcmd_type as clap::Subcommand>::update_from_subcommand(#field_name, #arg_matches.subcommand());
-                };
-
-                let updater = match **ty {
-                    Ty::Option => quote_spanned! { kind.span()=>
-                        if let Some(#field_name) = #field_name.as_mut() {
-                            #updater
-                        } else {
-                            *#field_name = <#subcmd_type as clap::Subcommand>::from_subcommand(
-                                #arg_matches.subcommand()
-                            )
-                        }
-                    },
-                    _ => quote_spanned! { kind.span()=>
-                        #updater
-                    },
-                };
-
-                quote_spanned! { kind.span()=>
-                    {
-                        #access
-                        #updater
-                    }
-                }
-            }
-
-            Kind::Flatten => quote_spanned! { kind.span()=> {
-                    #access
-                    clap::FromArgMatches::update_from_arg_matches(#field_name, #arg_matches);
-                }
-            },
-
-            Kind::Skip(_) => quote!(),
-
-            Kind::Arg(ty) | Kind::FromGlobal(ty) => gen_parsers(&attrs, ty, field_name, field, Some(&access)),
-        }
-    });
-
-    quote! {
-        #( #fields )*
+    quote_spanned! { ty.span()=>
+        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).unwrap()
     }
 }
