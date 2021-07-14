@@ -311,6 +311,23 @@ fn vector() {
 }
 
 #[test]
+fn skip_variant() {
+    #[derive(ArgEnum, PartialEq, Debug)]
+    #[allow(dead_code)] // silence warning about `Baz` being unused
+    enum ArgChoice {
+        Foo,
+        Bar,
+        #[clap(skip)]
+        Baz,
+    }
+
+    assert_eq!(ArgChoice::VARIANTS, ["foo", "bar"]);
+    assert!(ArgChoice::from_str("foo", true).is_ok());
+    assert!(ArgChoice::from_str("bar", true).is_ok());
+    assert!(ArgChoice::from_str("baz", true).is_err());
+}
+
+#[test]
 fn from_str_invalid() {
     #[derive(ArgEnum, PartialEq, Debug)]
     enum ArgChoice {
