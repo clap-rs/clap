@@ -1,6 +1,6 @@
 use crate::{
     attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    derives::{args, into_app},
+    derives::args,
     dummies,
     utils::{is_simple_ty, subty_if_name, Sp},
 };
@@ -129,12 +129,9 @@ fn gen_augment(
                 _ => {
                     let app_var = Ident::new("subcommand", Span::call_site());
                     let arg_block = match variant.fields {
-                        Named(ref fields) => into_app::gen_app_augmentation(
-                            &fields.named,
-                            &app_var,
-                            &attrs,
-                            override_required,
-                        ),
+                        Named(ref fields) => {
+                            args::gen_augment(&fields.named, &app_var, &attrs, override_required)
+                        }
                         Unit => quote!( #app_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
