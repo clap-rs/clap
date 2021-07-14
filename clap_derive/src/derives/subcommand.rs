@@ -1,6 +1,6 @@
 use crate::{
     attrs::{Attrs, Kind, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    derives::{from_arg_matches, into_app},
+    derives::{args, into_app},
     dummies,
     utils::{is_simple_ty, subty_if_name, Sp},
 };
@@ -57,6 +57,31 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
             #from_subcommand
             #augment_subcommands_for_update
             #update_from_subcommand
+        }
+    }
+}
+
+pub fn gen_from_arg_matches_for_enum(name: &Ident) -> TokenStream {
+    quote! {
+        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo
+        )]
+        #[deny(clippy::correctness)]
+        impl clap::FromArgMatches for #name {
+            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Self {
+                <#name as clap::Subcommand>::from_subcommand(arg_matches.subcommand()).unwrap()
+            }
+            fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
+                <#name as clap::Subcommand>::update_from_subcommand(self, arg_matches.subcommand());
+            }
         }
     }
 }
@@ -236,7 +261,7 @@ fn gen_from_subcommand(
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
-            Named(ref fields) => from_arg_matches::gen_constructor(&fields.named, attrs),
+            Named(ref fields) => args::gen_constructor(&fields.named, attrs),
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
@@ -349,7 +374,7 @@ fn gen_update_from_subcommand(
                         let field_name = field.ident.as_ref().unwrap();
                         (
                             quote!( ref mut #field_name ),
-                            from_arg_matches::gen_updater(&fields.named, &attrs, false),
+                            args::gen_updater(&fields.named, &attrs, false),
                         )
                     })
                     .unzip();

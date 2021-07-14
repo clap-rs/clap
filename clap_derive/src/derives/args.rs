@@ -21,7 +21,7 @@ use crate::{
     utils::{sub_type, subty_if_name, Sp, Ty},
 };
 
-pub fn gen_for_struct(
+pub fn gen_from_arg_matches_for_struct(
     struct_name: &Ident,
     fields: &Punctuated<Field, Comma>,
     parent_attribute: &Attrs,
@@ -49,31 +49,6 @@ pub fn gen_for_struct(
 
             fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
                 #updater
-            }
-        }
-    }
-}
-
-pub fn gen_for_enum(name: &Ident) -> TokenStream {
-    quote! {
-        #[allow(dead_code, unreachable_code, unused_variables)]
-        #[allow(
-            clippy::style,
-            clippy::complexity,
-            clippy::pedantic,
-            clippy::restriction,
-            clippy::perf,
-            clippy::deprecated,
-            clippy::nursery,
-            clippy::cargo
-        )]
-        #[deny(clippy::correctness)]
-        impl clap::FromArgMatches for #name {
-            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Self {
-                <#name as clap::Subcommand>::from_subcommand(arg_matches.subcommand()).unwrap()
-            }
-            fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
-                <#name as clap::Subcommand>::update_from_subcommand(self, arg_matches.subcommand());
             }
         }
     }
