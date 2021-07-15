@@ -313,3 +313,39 @@ fn enum_in_enum_subsubcommand() {
     let result = Opt::parse_from(&["test", "daemon", "start"]);
     assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
 }
+
+#[test]
+fn update_subcommands() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum Opt {
+        Command1(Command1),
+        Command2(Command2),
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command1 {
+        arg1: i32,
+        arg2: i32,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command2 {
+        arg2: i32,
+    }
+
+    // Full subcommand update
+    let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
+    opt.try_update_from(&["test", "command1", "42", "44"])
+        .unwrap();
+    assert_eq!(Opt::parse_from(&["test", "command1", "42", "44"]), opt);
+
+    // Partial subcommand update
+    let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
+    opt.try_update_from(&["test", "command1", "42"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "command1", "42", "14"]), opt);
+
+    // Change subcommand
+    let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
+    opt.try_update_from(&["test", "command2", "43"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
+}

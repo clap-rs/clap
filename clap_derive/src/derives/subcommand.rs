@@ -187,9 +187,17 @@ fn gen_augment(
                         Unit => quote!( #app_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
-                            quote_spanned! { ty.span()=>
-                                {
-                                    <#ty as clap::Args>::augment_args(#app_var)
+                            if override_required {
+                                quote_spanned! { ty.span()=>
+                                    {
+                                        <#ty as clap::Args>::augment_args_for_update(#app_var)
+                                    }
+                                }
+                            } else {
+                                quote_spanned! { ty.span()=>
+                                    {
+                                        <#ty as clap::Args>::augment_args(#app_var)
+                                    }
                                 }
                             }
                         }
