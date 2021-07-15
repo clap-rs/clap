@@ -184,7 +184,7 @@ fn main() {
         0 => println!("No verbose info"),
         1 => println!("Some verbose info"),
         2 => println!("Tons of verbose info"),
-        _ => println!("Don't be crazy"),
+        _ => println!("Don't be ridiculous"),
     }
 
     // You can handle information about subcommands by requesting their matches by name
