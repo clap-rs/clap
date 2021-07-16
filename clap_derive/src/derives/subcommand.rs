@@ -374,7 +374,7 @@ fn gen_update_from_arg_matches(
 ) -> TokenStream {
     use syn::Fields::*;
 
-    let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
+    let variants: Vec<_> = variants
         .iter()
         .filter_map(|variant| {
             let attrs = Attrs::from_variant(
@@ -383,16 +383,13 @@ fn gen_update_from_arg_matches(
                 parent_attribute.env_casing(),
             );
 
-            if let Kind::ExternalSubcommand = &*attrs.kind() {
-                None
-            } else {
-                Some((variant, attrs))
+            match &*attrs.kind() {
+                // Fallback to `from_arg_matches`
+                Kind::ExternalSubcommand | Kind::Flatten => None,
+                _ => Some((variant, attrs)),
             }
         })
-        .partition(|(_, attrs)| {
-            let kind = attrs.kind();
-            matches!(&*kind, Kind::Flatten)
-        });
+        .collect();
 
     let subcommands = variants.iter().map(|(variant, attrs)| {
         let sub_name = attrs.cased_name();
@@ -441,29 +438,6 @@ fn gen_update_from_arg_matches(
         }
     });
 
-    let child_subcommands = flatten_variants.iter().map(|(variant, attrs)| {
-        let sub_name = attrs.cased_name();
-        let variant_name = &variant.ident;
-        let (pattern, updater) = match variant.fields {
-            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
-                let ty = &fields.unnamed[0];
-                (
-                    quote!((ref mut arg)),
-                    quote! {
-                        <#ty as clap::FromArgMatches>::update_from_arg_matches(arg, sub_arg_matches);
-                    },
-                )
-            }
-            _ => abort!(
-                variant,
-                "`flatten` is usable only with single-typed tuple variants"
-            ),
-        };
-        quote! {
-            (#sub_name, #name :: #variant_name #pattern) => { #updater }
-        }
-    });
-
     quote! {
         fn update_from_arg_matches<'b>(
             &mut self,
@@ -472,7 +446,6 @@ fn gen_update_from_arg_matches(
             if let Some((name, sub_arg_matches)) = arg_matches.subcommand() {
                 match (name, self) {
                     #( #subcommands ),*
-                    #( #child_subcommands ),*
                     (other_name, s) => {
                         if let Some(sub) = <Self as clap::FromArgMatches>::from_arg_matches(arg_matches) {
                             *s = sub;
