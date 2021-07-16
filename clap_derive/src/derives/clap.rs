@@ -56,27 +56,25 @@ fn gen_for_struct(
     fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> TokenStream {
-    let (into_app, attrs) = into_app::gen_for_struct(name, fields, attrs);
-    let from_arg_matches = args::gen_from_arg_matches_for_struct(name, fields, &attrs);
+    let into_app = into_app::gen_for_struct(name, attrs);
+    let args = args::gen_for_struct(name, fields, attrs);
 
     quote! {
         impl clap::Clap for #name {}
 
         #into_app
-        #from_arg_matches
+        #args
     }
 }
 
 fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
     let into_app = into_app::gen_for_enum(name, attrs);
-    let from_arg_matches = subcommand::gen_from_arg_matches_for_enum(name);
     let subcommand = subcommand::gen_for_enum(name, attrs, e);
 
     quote! {
         impl clap::Clap for #name {}
 
         #into_app
-        #from_arg_matches
         #subcommand
     }
 }

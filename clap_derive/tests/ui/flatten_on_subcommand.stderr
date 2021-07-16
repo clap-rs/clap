@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
+ --> $DIR/flatten_on_subcommand.rs:3:12
+  |
+3 |     #[clap(flatten)]
+  |            ^^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+  |
+  = note: required by `augment_args`
