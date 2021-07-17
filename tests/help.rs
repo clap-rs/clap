@@ -1944,6 +1944,86 @@ fn multiple_custom_help_headers() {
     ));
 }
 
+static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "blorp 1.4
+
+Will M.
+
+does stuff
+
+USAGE:
+    test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --fake <some>:<val>    some help
+    -s, --speed <SPEED>        How fast? [possible values: fast, slow]
+
+SPECIAL:
+    -b, --birthday-song <song>             Change which song is played for birthdays
+    -v, --birthday-song-volume <volume>    Change the volume of the birthday song";
+
+#[test]
+fn custom_help_headers_hidden_args() {
+    let app = App::new("blorp")
+        .author("Will M.")
+        .about("does stuff")
+        .version("1.4")
+        .arg(
+            Arg::from("-f, --fake <some> <val> 'some help'")
+                .takes_value(true)
+                .use_delimiter(true)
+                .require_delimiter(true)
+                .value_delimiter(":"),
+        )
+        .help_heading("NETWORKING")
+        .arg(
+            Arg::new("no-proxy")
+                .short('n')
+                .long("no-proxy")
+                .about("Do not use system proxy settings")
+                .hidden_short_help(true),
+        )
+        .help_heading("SPECIAL")
+        .arg(
+            Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'")
+                .help_heading(Some("IGNORE THIS")),
+        )
+        .stop_custom_headings()
+        .arg(
+            Arg::from(
+                "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
+            )
+            .help_heading(Some("SPECIAL")),
+        )
+        .arg(
+            Arg::new("server-addr")
+                .short('a')
+                .long("server-addr")
+                .about("Set server address")
+                .help_heading(Some("NETWORKING"))
+                .hidden_short_help(true),
+        )
+        .arg(
+            Arg::new("speed")
+                .long("speed")
+                .short('s')
+                .value_name("SPEED")
+                .possible_values(&["fast", "slow"])
+                .about("How fast?")
+                .takes_value(true),
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "test -h",
+        CUSTOM_HELP_SECTION_HIDDEN_ARGS,
+        false
+    ));
+}
+
 static ISSUE_897: &str = "ctest-foo 0.1
 
 Long about foo

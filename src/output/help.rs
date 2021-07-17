@@ -199,7 +199,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     /// Sorts arguments by length and display order and write their help to the wrapped stream.
-    fn write_args(&mut self, args: &[&Arg<'help>]) -> io::Result<()> {
+    /// Optionally take a function and call it immediately before the first time writing an
+    /// argument. This is useful for headings that should only be written if arguments are
+    /// displayed.
+    fn write_args(
+        &mut self,
+        args: &[&Arg<'help>],
+        mut before_first_write_fn: Option<&mut dyn FnMut(&mut Self) -> io::Result<()>>,
+    ) -> io::Result<()> {
         debug!("Help::write_args");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
@@ -248,6 +255,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             let last_btm = i + 1 == num_ord_m;
             let num_args = btm.len();
             for (i, arg) in btm.values().enumerate() {
+                if let Some(ref mut f) = before_first_write_fn.take() {
+                    f(self)?;
+                }
                 let last_arg = last_btm && i + 1 == num_args;
                 self.write_arg(arg, last_arg, next_line_help, longest)?;
             }
@@ -815,35 +825,48 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .args()
                 .filter(|a| a.has_switch())
                 .collect::<Vec<_>>();
-            if !first {
-                self.none("\n\n")?;
-            }
-            self.warning("OPTIONS:\n")?;
-            self.write_args(&*opts_flags)?;
-            first = false;
+            // print the heading only if any args are written
+            let mut before_first_write_fn = |self_: &mut Self| {
+                if !first {
+                    self_.none("\n\n")?;
+                }
+                first = false;
+                self_.warning("OPTIONS:\n")
+            };
+            self.write_args(&*opts_flags, Some(&mut before_first_write_fn))?;
         } else {
             if !flags.is_empty() {
-                if !first {
-                    self.none("\n\n")?;
-                }
-                self.warning("FLAGS:\n")?;
-                self.write_args(&flags)?;
-                first = false;
+                // print the heading only if any args are written
+                let mut before_first_write_fn = |self_: &mut Self| {
+                    if !first {
+                        self_.none("\n\n")?;
+                    }
+                    first = false;
+                    self_.warning("FLAGS:\n")
+                };
+                self.write_args(&flags, Some(&mut before_first_write_fn))?;
             }
             if !opts.is_empty() {
-                if !first {
-                    self.none("\n\n")?;
-                }
-                self.warning("OPTIONS:\n")?;
-                self.write_args(&opts)?;
-                first = false;
+                // print the heading only if any args are written
+                let mut before_first_write_fn = |self_: &mut Self| {
+                    if !first {
+                        self_.none("\n\n")?;
+                    }
+                    first = false;
+                    self_.warning("OPTIONS:\n")
+                };
+                self.write_args(&opts, Some(&mut before_first_write_fn))?;
             }
             if !custom_headings.is_empty() {
                 for heading in custom_headings {
-                    if !first {
-                        self.none("\n\n")?;
-                    }
-                    self.warning(&*format!("{}:\n", heading))?;
+                    // print the heading only if any args are written
+                    let mut before_first_write_fn = |self_: &mut Self| {
+                        if !first {
+                            self_.none("\n\n")?;
+                        }
+                        first = false;
+                        self_.warning(&*format!("{}:\n", heading))
+                    };
                     let args = self
                         .parser
                         .app
@@ -856,8 +879,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             false
                         })
                         .collect::<Vec<_>>();
-                    self.write_args(&*args)?;
-                    first = false
+                    self.write_args(&*args, Some(&mut before_first_write_fn))?;
                 }
             }
         }
@@ -1041,16 +1063,16 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             .args()
                             .filter(|a| a.has_switch())
                             .collect::<Vec<_>>();
-                        self.write_args(&opts_flags)?;
+                        self.write_args(&opts_flags, None)?;
                     }
                     "flags" => {
-                        self.write_args(&self.parser.app.get_flags_with_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_flags_with_no_heading().collect::<Vec<_>>(), None)?;
                     }
                     "options" => {
-                        self.write_args(&self.parser.app.get_opts_with_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_opts_with_no_heading().collect::<Vec<_>>(), None)?;
                     }
                     "positionals" => {
-                        self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>(), None)?;
                     }
                     "subcommands" => {
                         self.write_subcommands(self.parser.app)?;
