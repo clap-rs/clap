@@ -561,6 +561,40 @@ impl Attrs {
         res
     }
 
+    pub fn from_arg_enum_variant(
+        variant: &Variant,
+        argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Self {
+        let mut res = Self::new(
+            variant.span(),
+            Name::Derived(variant.ident.clone()),
+            None,
+            argument_casing,
+            env_casing,
+        );
+        res.push_attrs(&variant.attrs);
+        res.push_doc_comment(&variant.attrs, "about");
+
+        if res.has_custom_parser {
+            abort!(
+                res.parser.span(),
+                "`parse` attribute is only allowed on fields"
+            );
+        }
+        match &*res.kind {
+            Kind::Subcommand(_) => abort!(res.kind.span(), "subcommand is only allowed on fields"),
+            Kind::Skip(_) => res,
+            Kind::Arg(_) => res,
+            Kind::FromGlobal(_) => abort!(res.kind.span(), "from_global is only allowed on fields"),
+            Kind::Flatten => abort!(res.kind.span(), "flatten is only allowed on fields"),
+            Kind::ExternalSubcommand => abort!(
+                res.kind.span(),
+                "external_subcommand is only allowed on fields"
+            ),
+        }
+    }
+
     pub fn from_field(
         field: &Field,
         struct_casing: Sp<CasingStyle>,
