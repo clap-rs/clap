@@ -862,7 +862,7 @@ pub enum AppSettings {
     InferLongArgs,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
-    /// This is normally the case when using a "daemon" style mode, or an interactive CLI where one
+    /// This is normally the case when using a "daemon" style mode, or an interactive CLI where
     /// one would not normally type the binary or program name for each command.
     ///
     /// # Examples
