@@ -332,21 +332,39 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 ' '
             };
             if !arg.val_names.is_empty() {
-                let mut it = arg.val_names.iter().peekable();
-                while let Some((_, val)) = it.next() {
-                    self.good(&format!("<{}>", val))?;
-                    if it.peek().is_some() {
-                        self.none(&delim.to_string())?;
+                match (arg.val_names.len(), arg.num_vals) {
+                    (1, Some(num)) if num > 1 => {
+                        let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
+                        let mut it = (0..num).peekable();
+                        while it.next().is_some() {
+                            self.good(&arg_name)?;
+                            if it.peek().is_some() {
+                                self.none(&delim.to_string())?;
+                            }
+                        }
+                        if mult && num == 1 {
+                            self.good("...")?;
+                        }
+                    }
+                    _ => {
+                        let mut it = arg.val_names.iter().peekable();
+                        while let Some((_, val)) = it.next() {
+                            self.good(&format!("<{}>", val))?;
+                            if it.peek().is_some() {
+                                self.none(&delim.to_string())?;
+                            }
+                        }
+                        let num = arg.val_names.len();
+                        if mult && num == 1 {
+                            self.good("...")?;
+                        }
                     }
                 }
-                let num = arg.val_names.len();
-                if mult && num == 1 {
-                    self.good("...")?;
-                }
             } else if let Some(num) = arg.num_vals {
+                let arg_name = format!("<{}>", arg.name);
                 let mut it = (0..num).peekable();
-                while let Some(_) = it.next() {
-                    self.good(&format!("<{}>", arg.name))?;
+                while it.next().is_some() {
+                    self.good(&arg_name)?;
                     if it.peek().is_some() {
                         self.none(&delim.to_string())?;
                     }

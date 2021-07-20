@@ -2499,3 +2499,32 @@ fn only_custom_heading_pos_no_args() {
         false
     ));
 }
+
+#[test]
+fn issue_2508_number_of_values_with_single_value_name() {
+    let app = App::new("my_app")
+        .arg(Arg::new("some_arg").long("some_arg").number_of_values(2))
+        .arg(
+            Arg::new("some_arg_issue")
+                .long("some_arg_issue")
+                .number_of_values(2)
+                .value_name("ARG"),
+        );
+    assert!(utils::compare_output(
+        app,
+        "my_app --help",
+        "my_app 
+
+USAGE:
+    my_app [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --some_arg <some_arg> <some_arg>    
+        --some_arg_issue <ARG> <ARG>           ",
+        false
+    ));
+}
