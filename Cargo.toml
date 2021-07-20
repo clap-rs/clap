@@ -92,6 +92,7 @@ yaml        = ["yaml-rust"]
 cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml", "regex"] # All the features which add to documentation
+full        = [] # Give me everything
 
 [profile.test]
 opt-level = 1
