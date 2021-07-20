@@ -21,13 +21,13 @@ use std::{
 };
 
 // Third Party
-#[cfg(feature = "regex")]
-use ::regex::Regex;
+#[cfg(any(feature = "regex", feature = "full"))]
+use regex::Regex;
 
-#[cfg(feature = "regex")]
+#[cfg(any(feature = "regex", feature = "full"))]
 mod regex;
 
-#[cfg(feature = "regex")]
+#[cfg(any(feature = "regex", feature = "full"))]
 pub use self::regex::RegexRef;
 
 // Internal
@@ -2170,6 +2170,7 @@ impl<'help> Arg<'help> {
         self
     }
 
+    #[cfg(any(feature = "regex", feature = "full"))]
     /// Validates the argument via the given regular expression.
     ///
     /// As regular expressions are not very user friendly, the additional `err_message` should
@@ -2224,7 +2225,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
     /// ```
-    #[cfg(feature = "regex")]
     pub fn validator_regex(
         self,
         regex: impl Into<RegexRef<'help>>,
