@@ -1,3 +1,4 @@
+mod utils;
 use clap::{App, Arg, ErrorKind};
 
 #[test]
@@ -586,6 +587,30 @@ fn multiple_defaults_override() {
     let m = r.unwrap();
     assert!(m.is_present("files"));
     assert_eq!(m.values_of_lossy("files").unwrap(), vec!["other", "mine"]);
+}
+
+#[test]
+fn default_vals_donnot_show_in_smart_usage() {
+    let app = App::new("bug")
+        .arg(
+            Arg::new("foo")
+                .long("config")
+                .takes_value(true)
+                .default_value("bar"),
+        )
+        .arg(Arg::new("input").required(true));
+    assert!(utils::compare_output(
+        app,
+        "bug",
+        "error: The following required arguments were not provided:
+    <input>
+
+USAGE:
+    bug [OPTIONS] <input>
+
+For more information try --help",
+        true,
+    ));
 }
 
 #[test]
