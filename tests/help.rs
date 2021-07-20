@@ -1611,7 +1611,14 @@ fn last_arg_mult_usage_with_sc() {
     ));
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn hidden_default_val() {
     let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
@@ -1641,7 +1648,14 @@ fn hidden_default_val() {
     ));
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn escaped_whitespace_values() {
     let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")

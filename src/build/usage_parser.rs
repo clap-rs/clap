@@ -13,6 +13,11 @@ enum UsageToken {
     Help,
     Multiple,
     Unknown,
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     Default,
 }
 
@@ -56,6 +61,11 @@ impl<'help> UsageParser<'help> {
                 match c {
                     b'-' => self.short_or_long(&mut arg),
                     b'.' => self.multiple(&mut arg),
+                    #[cfg(any(
+                        feature = "default_value",
+                        feature = "default_value_conditional",
+                        feature = "full"
+                    ))]
                     b'@' => self.default(&mut arg),
                     b'\'' => self.help(&mut arg),
                     _ => self.name(&mut arg),
@@ -209,6 +219,11 @@ impl<'help> UsageParser<'help> {
         self.prev = UsageToken::Help;
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     fn default(&mut self, arg: &mut Arg<'help>) {
         debug!(
             "UsageParser::default: from=\"{}\"",
@@ -221,6 +236,7 @@ impl<'help> UsageParser<'help> {
             &self.usage[self.start..self.pos]
         );
         arg.settings.set(ArgSettings::TakesValue);
+
         arg.default_vals = vec![std::ffi::OsStr::new(&self.usage[self.start..self.pos])];
         self.prev = UsageToken::Default;
     }
@@ -246,6 +262,11 @@ fn help_start(b: u8) -> bool {
     b != b'\''
 }
 
+#[cfg(any(
+    feature = "default_value",
+    feature = "default_value_conditional",
+    feature = "full"
+))]
 #[inline]
 fn default_value_end(b: u8) -> bool {
     b != b' '
@@ -1271,7 +1292,14 @@ mod test {
         assert!(a.num_vals.is_none());
     }
 
-    #[test]
+    #[cfg_attr(
+        any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ),
+        test
+    )]
     fn pos_req_mult_def_help() {
         let a = Arg::from("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
@@ -1283,7 +1311,14 @@ mod test {
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
     }
 
-    #[test]
+    #[cfg_attr(
+        any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ),
+        test
+    )]
     fn create_option_with_vals1_def() {
         let a = Arg::from("-o <file> <mode> @a 'some help info'");
         assert_eq!(a.name, "o");
@@ -1300,7 +1335,14 @@ mod test {
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
     }
 
-    #[test]
+    #[cfg_attr(
+        any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ),
+        test
+    )]
     fn create_option_with_vals4_def() {
         let a = Arg::from("[myopt] --opt <file> <mode> @a 'some help info'");
         assert_eq!(a.name, "myopt");

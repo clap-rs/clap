@@ -1,6 +1,13 @@
 use clap::{App, Arg, ErrorKind};
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn opts() {
     let r = App::new("df")
         .arg(Arg::from("-o [opt] 'some opt'").default_value("default"))
@@ -11,7 +18,14 @@ fn opts() {
     assert_eq!(m.value_of("o").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn opt_without_value_fail() {
     let r = App::new("df")
         .arg(
@@ -28,7 +42,14 @@ fn opt_without_value_fail() {
         .contains("The argument '-o <opt>' requires a value but none was supplied"));
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn opt_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'").default_value("default"))
@@ -39,7 +60,14 @@ fn opt_user_override() {
     assert_eq!(m.value_of("opt").unwrap(), "value");
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn positionals() {
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some opt'").default_value("default"))
@@ -50,7 +78,14 @@ fn positionals() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn positional_user_override() {
     let r = App::new("df")
         .arg(Arg::from("[arg] 'some arg'").default_value("default"))
@@ -63,7 +98,14 @@ fn positional_user_override() {
 
 // OsStr Default Values
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn osstr_opts() {
     use std::ffi::OsStr;
     let expected = OsStr::new("default");
@@ -77,7 +119,14 @@ fn osstr_opts() {
     assert_eq!(m.value_of("o").unwrap(), expected);
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn osstr_opt_user_override() {
     use std::ffi::OsStr;
     let default = OsStr::new("default");
@@ -91,7 +140,14 @@ fn osstr_opt_user_override() {
     assert_eq!(m.value_of("opt").unwrap(), "value");
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn osstr_positionals() {
     use std::ffi::OsStr;
     let expected = OsStr::new("default");
@@ -105,7 +161,14 @@ fn osstr_positionals() {
     assert_eq!(m.value_of("arg").unwrap(), expected);
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn osstr_positional_user_override() {
     use std::ffi::OsStr;
     let default = OsStr::new("default");
@@ -121,7 +184,7 @@ fn osstr_positional_user_override() {
 
 // --- Default if arg is present
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -133,7 +196,7 @@ fn default_if_arg_present_no_default() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -145,7 +208,7 @@ fn default_if_arg_present_no_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_arg_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -161,7 +224,7 @@ fn default_if_arg_present_no_arg_with_default() {
     assert_eq!(m.value_of("arg").unwrap(), "first");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -177,7 +240,7 @@ fn default_if_arg_present_with_default() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -193,7 +256,7 @@ fn default_if_arg_present_with_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_arg_with_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -211,7 +274,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
 
 // Conditional Default Values
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_no_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -223,7 +286,7 @@ fn default_if_arg_present_with_value_no_default() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_no_default_fail() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -234,7 +297,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
     assert!(!m.is_present("arg"));
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_no_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -246,7 +309,7 @@ fn default_if_arg_present_with_value_no_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_no_arg_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -262,7 +325,7 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
     assert_eq!(m.value_of("arg").unwrap(), "first");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_no_arg_with_default_fail() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -278,7 +341,7 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
     assert_eq!(m.value_of("arg").unwrap(), "first");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -294,7 +357,7 @@ fn default_if_arg_present_with_value_with_default() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_with_value_with_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -310,7 +373,7 @@ fn default_if_arg_present_with_value_with_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -326,7 +389,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -344,7 +407,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
 
 // Unsetting the default
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn option_default_if_arg_present_with_value_no_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -356,7 +419,7 @@ fn option_default_if_arg_present_with_value_no_default() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn no_default_if_arg_present_with_value_no_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -367,7 +430,7 @@ fn no_default_if_arg_present_with_value_no_default() {
     assert!(!m.is_present("arg"));
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn no_default_if_arg_present_with_value_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -382,7 +445,7 @@ fn no_default_if_arg_present_with_value_with_default() {
     assert!(!m.is_present("arg"));
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn no_default_if_arg_present_with_value_with_default_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -398,7 +461,7 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "other");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn no_default_if_arg_present_no_arg_with_value_with_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -416,7 +479,7 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
 
 // Multiple conditions
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_ifs_arg_present() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -436,7 +499,7 @@ fn default_ifs_arg_present() {
     assert_eq!(m.value_of("arg").unwrap(), "flg");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn no_default_ifs_arg_present() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -452,7 +515,7 @@ fn no_default_ifs_arg_present() {
     assert!(!m.is_present("arg"));
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_ifs_arg_present_user_override() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -472,7 +535,7 @@ fn default_ifs_arg_present_user_override() {
     assert_eq!(m.value_of("arg").unwrap(), "value");
 }
 
-#[test]
+#[cfg_attr(any(feature = "default_value_conditional", feature = "full"), test)]
 fn default_ifs_arg_present_order() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -492,7 +555,14 @@ fn default_ifs_arg_present_order() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn conditional_reqs_fail() {
     let m = App::new("Test app")
         .version("1.0")
@@ -523,7 +593,14 @@ fn conditional_reqs_fail() {
     assert_eq!(m.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn conditional_reqs_pass() {
     let m = App::new("Test app")
         .version("1.0")
@@ -556,7 +633,14 @@ fn conditional_reqs_pass() {
     assert_eq!(m.value_of("input"), Some("some"));
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn multiple_defaults() {
     let r = App::new("diff")
         .arg(
@@ -572,7 +656,14 @@ fn multiple_defaults() {
     assert_eq!(m.values_of_lossy("files").unwrap(), vec!["old", "new"]);
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn multiple_defaults_override() {
     let r = App::new("diff")
         .arg(
@@ -588,7 +679,14 @@ fn multiple_defaults_override() {
     assert_eq!(m.values_of_lossy("files").unwrap(), vec!["other", "mine"]);
 }
 
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 fn issue_1050_num_vals_and_defaults() {
     let res = App::new("hello")
         .arg(
@@ -605,7 +703,14 @@ fn issue_1050_num_vals_and_defaults() {
 }
 
 #[cfg(debug_assertions)]
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 #[should_panic = "Argument group 'group' is required but contains argument 'arg' which has a default value."]
 fn required_groups_with_default_values() {
     use clap::{App, Arg, ArgGroup};
@@ -617,7 +722,14 @@ fn required_groups_with_default_values() {
 }
 
 #[cfg(debug_assertions)]
-#[test]
+#[cfg_attr(
+    any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ),
+    test
+)]
 #[should_panic = "Argument 'arg' is required and can't have a default value"]
 fn required_args_with_default_values() {
     use clap::{App, Arg};

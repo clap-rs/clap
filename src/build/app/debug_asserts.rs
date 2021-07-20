@@ -1,4 +1,4 @@
-use crate::{build::arg::debug_asserts::assert_arg, App, AppSettings, ArgSettings, ValueHint};
+use crate::{build::arg::debug_asserts::assert_arg, App, AppSettings, Arg, ArgSettings, ValueHint};
 use std::cmp::Ordering;
 
 #[derive(Eq)]
@@ -237,12 +237,26 @@ pub(crate) fn assert_app(app: &App) {
                 arg
             );
 
+            #[cfg(any(
+                feature = "default_value",
+                feature = "default_value_conditional",
+                feature = "full"
+            ))]
+            let def_vals_empty = |x: &Arg| x.default_vals.is_empty();
+
+            #[cfg(not(any(
+                feature = "default_value",
+                feature = "default_value_conditional",
+                feature = "full"
+            )))]
+            let def_vals_empty = |_x| true;
+
             // Required groups shouldn't have args with default values
             if group.required {
                 assert!(
                     app.args
                         .args ()
-                        .any(|x| x.id == *arg && x.default_vals.is_empty()),
+                        .any(|x| x.id == *arg && def_vals_empty(x)),
                     "Argument group '{}' is required but contains argument '{:?}' which has a default value.",
                     group.name,
                     arg

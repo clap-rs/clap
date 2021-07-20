@@ -44,6 +44,11 @@ pub(crate) fn assert_arg(arg: &Arg) {
         );
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     if arg.is_set(ArgSettings::Required) {
         assert!(
             arg.default_vals.is_empty(),

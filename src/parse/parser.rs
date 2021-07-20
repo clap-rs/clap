@@ -1533,24 +1533,31 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
 
-        if !arg.default_vals.is_empty() {
-            debug!("Parser::add_value:iter:{}: has default vals", arg.name);
-            if matcher.get(&arg.id).is_some() {
-                debug!("Parser::add_value:iter:{}: was used", arg.name);
-            // do nothing
+        #[cfg(any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ))]
+        {
+            if !arg.default_vals.is_empty() {
+                debug!("Parser::add_value:iter:{}: has default vals", arg.name);
+                if matcher.get(&arg.id).is_some() {
+                    debug!("Parser::add_value:iter:{}: was used", arg.name);
+                // do nothing
+                } else {
+                    debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
+
+                    let vals = arg.default_vals.iter().map(OsString::from).collect();
+                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+                }
             } else {
-                debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
+                debug!(
+                    "Parser::add_value:iter:{}: doesn't have default vals",
+                    arg.name
+                );
 
-                let vals = arg.default_vals.iter().map(OsString::from).collect();
-                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+                // do nothing
             }
-        } else {
-            debug!(
-                "Parser::add_value:iter:{}: doesn't have default vals",
-                arg.name
-            );
-
-            // do nothing
         }
 
         if !arg.default_missing_vals.is_empty() {

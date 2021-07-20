@@ -109,6 +109,11 @@ pub struct Arg<'help> {
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     pub(crate) default_vals: Vec<&'help OsStr>,
     #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
@@ -267,6 +272,11 @@ impl<'help> Arg<'help> {
         self.env.as_ref().map(|x| x.0)
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     /// Get the default values specified for this argument, if any
     ///
     /// # Examples
@@ -2561,6 +2571,11 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     /// Specifies the value of the argument when *not* specified at runtime.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
@@ -2629,6 +2644,11 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[OsStr::new(val)])
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
     /// only using [`OsStr`]s instead.
     ///
@@ -2639,6 +2659,11 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[val])
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     /// Like [`Arg::default_value`] but for args taking multiple values
     ///
     /// [`Arg::default_value`]: Arg::default_value()
@@ -2648,6 +2673,11 @@ impl<'help> Arg<'help> {
         self.default_values_os(&vals_vec[..])
     }
 
+    #[cfg(any(
+        feature = "default_value",
+        feature = "default_value_conditional",
+        feature = "full"
+    ))]
     /// Provides default values in the exact same manner as [`Arg::default_values`]
     /// only using [`OsStr`]s instead.
     ///
@@ -4990,7 +5020,6 @@ impl<'help> fmt::Debug for Arg<'help> {
                 &self.validator_os.as_ref().map_or("None", |_| "Some(FnMut)"),
             )
             .field("val_delim", &self.val_delim)
-            .field("default_vals", &self.default_vals)
             .field("env", &self.env)
             .field("terminator", &self.terminator)
             .field("index", &self.index)
@@ -4999,6 +5028,15 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
             .field("default_missing_vals", &self.default_missing_vals);
+
+        #[cfg(any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ))]
+        {
+            ds = ds.field("default_vals", &self.default_vals);
+        }
 
         #[cfg(any(feature = "default_value_conditional", feature = "full"))]
         {

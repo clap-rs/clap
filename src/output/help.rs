@@ -555,27 +555,35 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 spec_vals.push(env_info);
             }
         }
-        if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
-            debug!(
-                "Help::spec_vals: Found default value...[{:?}]",
-                a.default_vals
-            );
 
-            let pvs = a
-                .default_vals
-                .iter()
-                .map(|&pvs| pvs.to_string_lossy())
-                .map(|pvs| {
-                    if pvs.contains(char::is_whitespace) {
-                        Cow::from(format!("{:?}", pvs))
-                    } else {
-                        pvs
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join(" ");
+        #[cfg(any(
+            feature = "default_value",
+            feature = "default_value_conditional",
+            feature = "full"
+        ))]
+        {
+            if !a.is_set(ArgSettings::HideDefaultValue) && !a.default_vals.is_empty() {
+                debug!(
+                    "Help::spec_vals: Found default value...[{:?}]",
+                    a.default_vals
+                );
 
-            spec_vals.push(format!("[default: {}]", pvs));
+                let pvs = a
+                    .default_vals
+                    .iter()
+                    .map(|&pvs| pvs.to_string_lossy())
+                    .map(|pvs| {
+                        if pvs.contains(char::is_whitespace) {
+                            Cow::from(format!("{:?}", pvs))
+                        } else {
+                            pvs
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ");
+
+                spec_vals.push(format!("[default: {}]", pvs));
+            }
         }
         if !a.aliases.is_empty() {
             debug!("Help::spec_vals: Found aliases...{:?}", a.aliases);
