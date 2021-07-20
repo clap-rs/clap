@@ -1504,30 +1504,33 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     fn add_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher, ty: ValueType) {
-        if !arg.default_vals_ifs.is_empty() {
-            debug!("Parser::add_value: has conditional defaults");
-            if matcher.get(&arg.id).is_none() {
-                for (id, val, default) in arg.default_vals_ifs.values() {
-                    let add = if let Some(a) = matcher.get(id) {
-                        if let Some(v) = val {
-                            a.vals_flatten().any(|value| v == value)
+        #[cfg(any(feature = "default_value_conditional", feature = "full"))]
+        {
+            if !arg.default_vals_ifs.is_empty() {
+                debug!("Parser::add_value: has conditional defaults");
+                if matcher.get(&arg.id).is_none() {
+                    for (id, val, default) in arg.default_vals_ifs.values() {
+                        let add = if let Some(a) = matcher.get(id) {
+                            if let Some(v) = val {
+                                a.vals_flatten().any(|value| v == value)
+                            } else {
+                                true
+                            }
                         } else {
-                            true
-                        }
-                    } else {
-                        false
-                    };
+                            false
+                        };
 
-                    if add {
-                        if let Some(default) = default {
-                            self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
+                        if add {
+                            if let Some(default) = default {
+                                self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
+                            }
+                            return;
                         }
-                        return;
                     }
                 }
+            } else {
+                debug!("Parser::add_value: doesn't have conditional defaults");
             }
-        } else {
-            debug!("Parser::add_value: doesn't have conditional defaults");
         }
 
         if !arg.default_vals.is_empty() {

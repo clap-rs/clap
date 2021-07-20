@@ -464,6 +464,8 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 
 ### Optional Dependencies / Features
 
+Disabling optional features can decrease the binary size of `clap` and decrease the compile time. If binary size or compile times are extremely important to you, it is a good idea to disable the feautres that you are not using.
+
 #### Features enabled by default
 
 * **derive**: Enables the custom derive (i.e. `#[derive(Clap)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
@@ -471,6 +473,9 @@ Then run `cargo build` or `cargo update && cargo build` for your project.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **color**: Turns on colored error messages. You still have to turn on colored help by setting `AppSettings::ColoredHelp`. (builds dependency `termcolor`)
 * **unicode_help**: Turns on support for unicode characters in help messages. (builds dependency `textwrap`)
+* `std`: **Not Currently Used** Placeholder for supporting `no_std` environments in a backwards compatible manner.
+* `default_value`: Enables argument default values (`Arg::default_value{_os}`, etc.)
+* `default_value_conditional`: Enables conditionally based default values (`Arg::default_value_if{s}{_os}`, etc.)
 
 To disable these, add this to your `Cargo.toml`:
 

@@ -81,7 +81,7 @@ version-sync = "0.9"
 criterion = "0.3.2"
 
 [features]
-default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo"]
+default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo", "default_value_conditional"]
 std         = ["indexmap/std"] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
@@ -92,6 +92,7 @@ yaml        = ["yaml-rust"]
 cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml", "regex"] # All the features which add to documentation
+default_value_conditional = []
 full        = [] # Give me everything
 
 [profile.test]

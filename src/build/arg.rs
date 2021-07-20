@@ -110,6 +110,7 @@ pub struct Arg<'help> {
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
+    #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
@@ -2765,6 +2766,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
+    #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
     /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
     /// present at runtime **and** have the value `val`.
@@ -2888,6 +2890,7 @@ impl<'help> Arg<'help> {
         self.default_value_if_os(arg_id, val.map(OsStr::new), default.map(OsStr::new))
     }
 
+    #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     /// Provides a conditional default value in the exact same manner as [`Arg::default_value_if`]
     /// only using [`OsStr`]s instead.
     ///
@@ -2905,6 +2908,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
+    #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
     /// The method takes a slice of tuples in the `(arg, Option<val>, default)` format.
     ///
@@ -2999,6 +3003,7 @@ impl<'help> Arg<'help> {
         self
     }
 
+    #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     /// Provides multiple conditional default values in the exact same manner as
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     ///
@@ -4951,7 +4956,8 @@ impl<'help> Eq for Arg<'help> {}
 
 impl<'help> fmt::Debug for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        f.debug_struct("Arg")
+        let mut ds = f.debug_struct("Arg");
+        let mut ds = ds
             .field("id", &self.id)
             .field("provider", &self.provider)
             .field("name", &self.name)
@@ -4985,7 +4991,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             )
             .field("val_delim", &self.val_delim)
             .field("default_vals", &self.default_vals)
-            .field("default_vals_ifs", &self.default_vals_ifs)
             .field("env", &self.env)
             .field("terminator", &self.terminator)
             .field("index", &self.index)
@@ -4993,8 +4998,14 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("global", &self.global)
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
-            .field("default_missing_vals", &self.default_missing_vals)
-            .finish()
+            .field("default_missing_vals", &self.default_missing_vals);
+
+        #[cfg(any(feature = "default_value_conditional", feature = "full"))]
+        {
+            ds = ds.field("default_vals_ifs", &self.default_vals_ifs);
+        }
+
+        ds.finish()
     }
 }
 
