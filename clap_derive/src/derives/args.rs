@@ -361,7 +361,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
                 };
                 let unwrapper = match **ty {
                     Ty::Option => quote!(),
-                    _ => quote_spanned!( ty.span()=> .unwrap() ),
+                    _ => quote_spanned!( ty.span()=> .expect("app should verify subcommand is required") ),
                 };
                 quote_spanned! { kind.span()=>
                     #field_name: {
@@ -594,7 +594,7 @@ fn gen_parsers(
             quote_spanned! { ty.span()=>
                 #arg_matches.#value_of(#name)
                     .map(#parse)
-                    .unwrap()
+                    .expect("app should verify arg is required")
             }
         }
     };
@@ -615,6 +615,6 @@ fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
     let ci = attrs.case_insensitive();
 
     quote_spanned! { ty.span()=>
-        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).unwrap()
+        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).expect("app should verify the choice was valid")
     }
 }
