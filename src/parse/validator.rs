@@ -137,34 +137,37 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 ));
             }
 
-            if let Some(ref vtor) = arg.validator {
-                debug!("Validator::validate_arg_values: checking validator...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(&*val.to_string_lossy()) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().to_string(),
-                        e,
-                        self.p.app.color(),
-                    ));
-                } else {
-                    debug!("good");
+            #[cfg(any(feature = "validator", feature = "full"))]
+            {
+                if let Some(ref vtor) = arg.validator {
+                    debug!("Validator::validate_arg_values: checking validator...");
+                    let mut vtor = vtor.lock().unwrap();
+                    if let Err(e) = vtor(&*val.to_string_lossy()) {
+                        debug!("error");
+                        return Err(Error::value_validation(
+                            arg.to_string(),
+                            val.to_string_lossy().to_string(),
+                            e,
+                            self.p.app.color(),
+                        ));
+                    } else {
+                        debug!("good");
+                    }
                 }
-            }
-            if let Some(ref vtor) = arg.validator_os {
-                debug!("Validator::validate_arg_values: checking validator_os...");
-                let mut vtor = vtor.lock().unwrap();
-                if let Err(e) = vtor(val) {
-                    debug!("error");
-                    return Err(Error::value_validation(
-                        arg.to_string(),
-                        val.to_string_lossy().into(),
-                        e,
-                        self.p.app.color(),
-                    ));
-                } else {
-                    debug!("good");
+                if let Some(ref vtor) = arg.validator_os {
+                    debug!("Validator::validate_arg_values: checking validator_os...");
+                    let mut vtor = vtor.lock().unwrap();
+                    if let Err(e) = vtor(val) {
+                        debug!("error");
+                        return Err(Error::value_validation(
+                            arg.to_string(),
+                            val.to_string_lossy().into(),
+                            e,
+                            self.p.app.color(),
+                        ));
+                    } else {
+                        debug!("good");
+                    }
                 }
             }
         }

@@ -41,7 +41,9 @@ use crate::{
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
+#[cfg(any(feature = "validator", feature = "full"))]
 type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
+#[cfg(any(feature = "validator", feature = "full"))]
 type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -106,7 +108,9 @@ pub struct Arg<'help> {
     pub(crate) max_occurs: Option<usize>,
     pub(crate) max_vals: Option<usize>,
     pub(crate) min_vals: Option<usize>,
+    #[cfg(any(feature = "validator", feature = "full"))]
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
+    #[cfg(any(feature = "validator", feature = "full"))]
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     #[cfg(any(
@@ -2085,6 +2089,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
+    #[cfg(any(feature = "validator", feature = "full"))]
     /// Allows one to perform a custom validation on the argument value. You provide a closure
     /// which accepts a [`String`] value, and return a [`Result`] where the [`Err(String)`] is a
     /// message displayed to the user.
@@ -2132,6 +2137,7 @@ impl<'help> Arg<'help> {
         self
     }
 
+    #[cfg(any(feature = "validator", feature = "full"))]
     /// Works identically to Validator but is intended to be used with values that could
     /// contain non UTF-8 formatted strings.
     ///
@@ -2173,7 +2179,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    #[cfg(any(feature = "regex", feature = "full"))]
+    #[cfg(any(all(feature = "regex", feature = "validator"), feature = "full"))]
     /// Validates the argument via the given regular expression.
     ///
     /// As regular expressions are not very user friendly, the additional `err_message` should
@@ -4829,7 +4835,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
                 "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
                 "visible_short_aliases" => yaml_to_chars!(a, v, visible_short_aliases),
-                #[cfg(feature = "regex")]
+                #[cfg(any(all(feature = "validator", feature = "regex"), feature = "full"))]
                 "validator_regex" => {
                     if let Some(vec) = v.as_vec() {
                         debug_assert_eq!(2, vec.len());
@@ -5028,14 +5034,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("num_vals", &self.num_vals)
             .field("max_vals", &self.max_vals)
             .field("min_vals", &self.min_vals)
-            .field(
-                "validator",
-                &self.validator.as_ref().map_or("None", |_| "Some(FnMut)"),
-            )
-            .field(
-                "validator_os",
-                &self.validator_os.as_ref().map_or("None", |_| "Some(FnMut)"),
-            )
             .field("val_delim", &self.val_delim)
             .field("env", &self.env)
             .field("terminator", &self.terminator)
@@ -5044,6 +5042,19 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("global", &self.global)
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint);
+
+        #[cfg(any(feature = "validator", feature = "full"))]
+        {
+            ds = ds
+                .field(
+                    "validator",
+                    &self.validator.as_ref().map_or("None", |_| "Some(FnMut)"),
+                )
+                .field(
+                    "validator_os",
+                    &self.validator_os.as_ref().map_or("None", |_| "Some(FnMut)"),
+                );
+        }
 
         #[cfg(any(feature = "default_value_missing", feature = "full"))]
         {

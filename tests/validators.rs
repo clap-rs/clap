@@ -1,7 +1,7 @@
 use clap::{App, Arg};
 
 #[cfg(debug_assertions)]
-#[test]
+#[cfg_attr(any(feature = "validator", feature = "full"), test)]
 #[should_panic = "Argument 'test' has both `validator` and `validator_os` set which is not allowed"]
 fn both_validator_and_validator_os() {
     let _ = App::new("test")
@@ -18,7 +18,7 @@ fn both_validator_and_validator_os() {
         .try_get_matches_from(&["app", "1"]);
 }
 
-#[test]
+#[cfg_attr(any(feature = "validator", feature = "full"), test)]
 fn test_validator_fromstr_trait() {
     use std::str::FromStr;
 
@@ -30,7 +30,7 @@ fn test_validator_fromstr_trait() {
     assert_eq!(matches.value_of_t::<u32>("from_str").ok(), Some(1234));
 }
 
-#[test]
+#[cfg_attr(any(feature = "validator", feature = "full"), test)]
 fn test_validator_msg_newline() {
     let res = App::new("test")
         .arg(Arg::new("test").validator(|val| val.parse::<u32>().map_err(|e| e.to_string())))
@@ -51,7 +51,7 @@ fn test_validator_msg_newline() {
     assert!(msg.ends_with('\n'));
 }
 
-#[test]
+#[cfg_attr(any(feature = "validator", feature = "full"), test)]
 fn stateful_validator() {
     let mut state = false;
     App::new("test")

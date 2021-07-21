@@ -192,6 +192,7 @@ pub(crate) fn assert_app(app: &App) {
         );
 
         // validators
+        #[cfg(any(feature = "validator", feature = "full"))]
         assert!(
             arg.validator.is_none() || arg.validator_os.is_none(),
             "Argument '{}' has both `validator` and `validator_os` set which is not allowed",

@@ -106,6 +106,7 @@ doc         = ["yaml", "regex"] # All the features which add to documentation
 default_value = []
 default_value_conditional = []
 default_value_missing = []
+validator   = []
 full        = [] # Give me everything
 
 [profile.test]
