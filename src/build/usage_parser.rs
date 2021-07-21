@@ -16,6 +16,7 @@ enum UsageToken {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     Default,
@@ -64,6 +65,7 @@ impl<'help> UsageParser<'help> {
                     #[cfg(any(
                         feature = "default_value",
                         feature = "default_value_conditional",
+                        feature = "default_value_missing",
                         feature = "full"
                     ))]
                     b'@' => self.default(&mut arg),
@@ -222,6 +224,7 @@ impl<'help> UsageParser<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     fn default(&mut self, arg: &mut Arg<'help>) {
@@ -265,6 +268,7 @@ fn help_start(b: u8) -> bool {
 #[cfg(any(
     feature = "default_value",
     feature = "default_value_conditional",
+    feature = "default_value_missing",
     feature = "full"
 ))]
 #[inline]
@@ -1296,6 +1300,7 @@ mod test {
         any(
             feature = "default_value",
             feature = "default_value_conditional",
+            feature = "default_value_missing",
             feature = "full"
         ),
         test
@@ -1315,6 +1320,7 @@ mod test {
         any(
             feature = "default_value",
             feature = "default_value_conditional",
+            feature = "default_value_missing",
             feature = "full"
         ),
         test
@@ -1339,6 +1345,7 @@ mod test {
         any(
             feature = "default_value",
             feature = "default_value_conditional",
+            feature = "default_value_missing",
             feature = "full"
         ),
         test

@@ -1259,21 +1259,24 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if require_equals {
             if min_vals_zero {
                 debug!("Requires equals, but min_vals == 0");
-                if !opt.default_missing_vals.is_empty() {
-                    debug!("Parser::parse_opt: has default_missing_vals");
-                    let vals = opt
-                        .default_missing_vals
-                        .iter()
-                        .map(OsString::from)
-                        .collect();
-                    self.add_multiple_vals_to_arg(
-                        opt,
-                        vals,
-                        matcher,
-                        ValueType::CommandLine,
-                        false,
-                    );
-                };
+                #[cfg(any(feature = "default_value_missing", feature = "full"))]
+                {
+                    if !opt.default_missing_vals.is_empty() {
+                        debug!("Parser::parse_opt: has default_missing_vals");
+                        let vals = opt
+                            .default_missing_vals
+                            .iter()
+                            .map(OsString::from)
+                            .collect();
+                        self.add_multiple_vals_to_arg(
+                            opt,
+                            vals,
+                            matcher,
+                            ValueType::CommandLine,
+                            false,
+                        );
+                    };
+                }
             } else {
                 debug!("Requires equals but not provided. Error.");
                 return Err(ClapError::no_equals(
@@ -1536,6 +1539,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         #[cfg(any(
             feature = "default_value",
             feature = "default_value_conditional",
+            feature = "default_value_missing",
             feature = "full"
         ))]
         {
@@ -1560,40 +1564,43 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         }
 
-        if !arg.default_missing_vals.is_empty() {
-            debug!(
-                "Parser::add_value:iter:{}: has default missing vals",
-                arg.name
-            );
-            match matcher.get(&arg.id) {
-                Some(ma) if ma.is_vals_empty() => {
-                    debug!(
-                        "Parser::add_value:iter:{}: has no user defined vals",
-                        arg.name
-                    );
-                    let vals = arg
-                        .default_missing_vals
-                        .iter()
-                        .map(OsString::from)
-                        .collect();
-                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+        #[cfg(any(feature = "default_value_missing", feature = "full"))]
+        {
+            if !arg.default_missing_vals.is_empty() {
+                debug!(
+                    "Parser::add_value:iter:{}: has default missing vals",
+                    arg.name
+                );
+                match matcher.get(&arg.id) {
+                    Some(ma) if ma.is_vals_empty() => {
+                        debug!(
+                            "Parser::add_value:iter:{}: has no user defined vals",
+                            arg.name
+                        );
+                        let vals = arg
+                            .default_missing_vals
+                            .iter()
+                            .map(OsString::from)
+                            .collect();
+                        self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+                    }
+                    None => {
+                        debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
+                        // do nothing
+                    }
+                    _ => {
+                        debug!("Parser::add_value:iter:{}: has user defined vals", arg.name);
+                        // do nothing
+                    }
                 }
-                None => {
-                    debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
-                    // do nothing
-                }
-                _ => {
-                    debug!("Parser::add_value:iter:{}: has user defined vals", arg.name);
-                    // do nothing
-                }
-            }
-        } else {
-            debug!(
-                "Parser::add_value:iter:{}: doesn't have default missing vals",
-                arg.name
-            );
+            } else {
+                debug!(
+                    "Parser::add_value:iter:{}: doesn't have default missing vals",
+                    arg.name
+                );
 
-            // do nothing
+                // do nothing
+            }
         }
     }
 

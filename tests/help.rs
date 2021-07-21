@@ -1615,6 +1615,7 @@ fn last_arg_mult_usage_with_sc() {
     any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ),
     test
@@ -1652,6 +1653,7 @@ fn hidden_default_val() {
     any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ),
     test

@@ -112,11 +112,13 @@ pub struct Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     pub(crate) default_vals: Vec<&'help OsStr>,
     #[cfg(any(feature = "default_value_conditional", feature = "full"))]
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
+    #[cfg(any(feature = "default_value_missing", feature = "full"))]
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
@@ -275,6 +277,7 @@ impl<'help> Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     /// Get the default values specified for this argument, if any
@@ -2574,6 +2577,7 @@ impl<'help> Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -2647,6 +2651,7 @@ impl<'help> Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     /// Provides a default value in the exact same manner as [`Arg::default_value`]
@@ -2662,6 +2667,7 @@ impl<'help> Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     /// Like [`Arg::default_value`] but for args taking multiple values
@@ -2676,6 +2682,7 @@ impl<'help> Arg<'help> {
     #[cfg(any(
         feature = "default_value",
         feature = "default_value_conditional",
+        feature = "default_value_missing",
         feature = "full"
     ))]
     /// Provides default values in the exact same manner as [`Arg::default_values`]
@@ -2689,6 +2696,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
+    #[cfg(any(feature = "default_value_missing", feature = "full"))]
     /// Specifies a value for the argument when the argument is supplied and a value is required
     /// but the value is *not* specified at runtime.
     ///
@@ -2766,6 +2774,10 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&[OsStr::new(val)])
     }
 
+    #[cfg(any(
+        feature = "default_value_missing",
+        feature = "full"
+    ))]
     /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
     /// only using [`OsStr`]s instead.
     ///
@@ -2776,6 +2788,10 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&[val])
     }
 
+    #[cfg(any(
+        feature = "default_value_missing",
+        feature = "full"
+    ))]
     /// Like [`Arg::default_missing_value`] but for args taking multiple values
     ///
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
@@ -2785,6 +2801,7 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&vals_vec[..])
     }
 
+    #[cfg(any(feature = "default_value_missing", feature = "full"))]
     /// Provides default values in the exact same manner as [`Arg::default_missing_values`]
     /// only using [`OsStr`]s instead.
     ///
@@ -5026,12 +5043,17 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("help_heading", &self.help_heading)
             .field("global", &self.global)
             .field("exclusive", &self.exclusive)
-            .field("value_hint", &self.value_hint)
-            .field("default_missing_vals", &self.default_missing_vals);
+            .field("value_hint", &self.value_hint);
+
+        #[cfg(any(feature = "default_value_missing", feature = "full"))]
+        {
+            ds = ds.field("default_missing_vals", &self.default_missing_vals);
+        }
 
         #[cfg(any(
             feature = "default_value",
             feature = "default_value_conditional",
+            feature = "default_value_missing",
             feature = "full"
         ))]
         {

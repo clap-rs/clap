@@ -476,6 +476,7 @@ Disabling optional features can decrease the binary size of `clap` and decrease 
 * `std`: **Not Currently Used** Placeholder for supporting `no_std` environments in a backwards compatible manner.
 * `default_value`: Enables argument default values (`Arg::default_value{_os}`, etc.)
 * `default_value_conditional`: Enables conditionally based default values (`Arg::default_value_if{s}{_os}`, etc.)
+* `default_value_missing`: Enables default values when args are used but values are missing (`Arg::default_value_if{s}{_os}`, etc.)
 
 To disable these, add this to your `Cargo.toml`:
 

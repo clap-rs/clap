@@ -240,6 +240,7 @@ pub(crate) fn assert_app(app: &App) {
             #[cfg(any(
                 feature = "default_value",
                 feature = "default_value_conditional",
+                feature = "default_value_missing",
                 feature = "full"
             ))]
             let def_vals_empty = |x: &Arg| x.default_vals.is_empty();
@@ -247,6 +248,7 @@ pub(crate) fn assert_app(app: &App) {
             #[cfg(not(any(
                 feature = "default_value",
                 feature = "default_value_conditional",
+                feature = "default_value_missing",
                 feature = "full"
             )))]
             let def_vals_empty = |_x| true;

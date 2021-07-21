@@ -81,7 +81,18 @@ version-sync = "0.9"
 criterion = "0.3.2"
 
 [features]
-default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo", "default_value_conditional", "default_value", "default_value_missing"]
+default     = [
+  "std",
+  "suggestions",
+  "color",
+  "unicode_help",
+  "derive",
+  "cargo",
+  "default_value_conditional",
+  "default_value",
+  "default_value_missing",
+  "validator"
+]
 std         = ["indexmap/std"] # support for no_std in a backwards-compatible way
 suggestions = ["strsim"]
 color       = ["atty", "termcolor"]
@@ -94,6 +105,7 @@ debug       = ["clap_derive/debug"] # Enables debug messages
 doc         = ["yaml", "regex"] # All the features which add to documentation
 default_value = []
 default_value_conditional = []
+default_value_missing = []
 full        = [] # Give me everything
 
 [profile.test]
