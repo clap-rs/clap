@@ -285,6 +285,11 @@ pub trait ArgEnum: Sized {
 
     /// Parse an argument into `Self`.
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
+
+    /// The canonical argument value.
+    ///
+    /// The value is `None` for skipped variants.
+    fn as_arg(&self) -> Option<&'static str>;
 }
 
 impl<T: Clap> Clap for Box<T> {
