@@ -88,6 +88,32 @@ fn flag_using_long() {
 }
 
 #[test]
+fn flag_using_long_with_literals() {
+    let m = App::new("flag")
+        .args(&[
+            Arg::from("--flag 'some flag'"),
+            Arg::from("--color 'some other flag'"),
+            Arg::from("--sky 'a third flag'"),
+            Arg::from("--rainbow 'yet another flag'").multiple_occurrences(true),
+        ])
+        .get_matches_from(vec![
+            "",
+            "--flag=true",
+            "--color=false",
+            "--sky",
+            "--rainbow",
+            "--rainbow=false", // Clears the previous occurrence.
+            "--rainbow",
+            "--rainbow=true",
+        ]);
+    assert!(m.is_present("flag"));
+    assert!(!m.is_present("color"));
+    assert!(m.is_present("sky"));
+    assert!(m.is_present("rainbow"));
+    assert_eq!(m.occurrences_of("rainbow"), 2);
+}
+
+#[test]
 fn flag_using_mixed() {
     let m = App::new("flag")
         .args(&[

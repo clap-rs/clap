@@ -1075,10 +1075,47 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app.settings.set(AS::ValidArgFound);
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
+                debug!(
+                    "Parser::parse_long_arg: Found an opt with value '{:?}'",
+                    &val
+                );
                 return self.parse_opt(&val, opt, matcher);
             } else {
+                debug!("Parser::parse_long_arg: Found a flag");
                 self.check_for_help_and_version_str(&arg)?;
-                return Ok(self.parse_flag(opt, matcher));
+                debug!("Parser::parse_long_arg: Handle boolean literals for flags");
+                let val = val.as_ref().and_then(|s| s.to_str());
+                return match val.as_deref() {
+                    Some("=true") | None => {
+                        debug!("Parser::parse_long_arg: Got a `=true`");
+                        Ok(self.parse_flag(opt, matcher))
+                    }
+                    Some("=false") => {
+                        debug!("Parser::parse_long_arg: Got a `=false`");
+                        Ok(self.parse_flag_false(opt, matcher))
+                    }
+                    Some(rest) => {
+                        debug!("Parser::parse_long_arg: Got invalid literal `{}`", rest);
+                        let used: Vec<Id> = matcher
+                            .arg_names()
+                            .filter(|&n| {
+                                self.app.find(n).map_or(true, |a| {
+                                    !(a.is_set(ArgSettings::Hidden)
+                                        || self.required.contains(&a.id))
+                                })
+                            })
+                            .cloned()
+                            .collect();
+
+                        Err(ClapError::invalid_value(
+                            rest.into(),
+                            &["=true", "=false"],
+                            opt,
+                            Usage::new(self).create_usage_no_title(&used),
+                            self.app.color(),
+                        ))
+                    }
+                };
             }
         }
 
@@ -1408,6 +1445,13 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         self.inc_occurrence_of_arg(matcher, flag);
 
+        ParseResult::Flag
+    }
+
+    fn parse_flag_false(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
+        debug!("Parser::parse_flag_false");
+        // This should reset the number of occurrences.
+        matcher.remove(&flag.id);
         ParseResult::Flag
     }
 
