@@ -585,4 +585,4 @@ There are several excellent crates which can be used with `clap`, I recommend ch
 * [`assert_cmd`](https://github.com/assert-rs/assert_cmd) - This crate allows you test your CLIs in a very intuitive and functional way!
 
 [docs]: https://docs.rs/clap
-[examples]: examples
+[examples]: https://github.com/clap-rs/clap/tree/master/examples
