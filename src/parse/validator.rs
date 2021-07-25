@@ -681,8 +681,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         let used: Vec<Id> = matcher
             .arg_names()
             .filter(|n| {
+                // Filter out the args we don't want to specify.
                 self.p.app.find(n).map_or(true, |a| {
-                    !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
+                    !a.is_set(ArgSettings::Hidden)
+                        && a.default_vals.is_empty()
+                        && !self.p.required.contains(&a.id)
                 })
             })
             .cloned()
