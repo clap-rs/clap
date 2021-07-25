@@ -12,7 +12,7 @@ use crate::{
     build::Arg,
     output::fmt::Colorizer,
     parse::features::suggestions,
-    util::{safe_exit, termcolor::ColorChoice},
+    util::{safe_exit, termcolor::ColorChoice, SUCCESS_CODE, USAGE_CODE},
 };
 
 /// Short hand for [`Result`] type
@@ -479,11 +479,11 @@ impl Error {
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
             self.message.print().expect("Error writing Error to stderr");
-            safe_exit(1);
+            safe_exit(USAGE_CODE);
         }
 
         self.message.print().expect("Error writing Error to stdout");
-        safe_exit(0)
+        safe_exit(SUCCESS_CODE)
     }
 
     /// Prints formatted and colored error to `stdout` or `stderr` according to its error kind

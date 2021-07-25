@@ -16,6 +16,14 @@ pub(crate) use termcolor;
 #[cfg(not(feature = "color"))]
 pub(crate) mod termcolor;
 
+pub(crate) const SUCCESS_CODE: i32 = 0;
+// While sysexists.h defines EX_USAGE as 64, this doesn't seem to be used much in practice but
+// instead 2 seems to be frequently used.
+// Examples
+// - GNU `ls` returns 2
+// - Python's `argparse` returns 2
+pub(crate) const USAGE_CODE: i32 = 2;
+
 pub(crate) fn safe_exit(code: i32) -> ! {
     use std::io::Write;
 

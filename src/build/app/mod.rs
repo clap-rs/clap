@@ -27,7 +27,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key},
+    util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key, USAGE_CODE},
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -1956,7 +1956,7 @@ impl<'help> App<'help> {
                     }
 
                     drop(e);
-                    safe_exit(2);
+                    safe_exit(USAGE_CODE);
                 }
 
                 e.exit()
