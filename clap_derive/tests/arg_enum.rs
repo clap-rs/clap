@@ -39,6 +39,52 @@ fn basic() {
 }
 
 #[test]
+fn default_value() {
+    #[derive(ArgEnum, PartialEq, Debug)]
+    enum ArgChoice {
+        Foo,
+        Bar,
+    }
+
+    impl Default for ArgChoice {
+        fn default() -> Self {
+            Self::Bar
+        }
+    }
+
+    impl std::fmt::Display for ArgChoice {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+            std::fmt::Display::fmt(self.as_arg().unwrap(), f)
+        }
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(arg_enum, default_value)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::parse_from(&["", "foo"])
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Bar
+        },
+        Opt::parse_from(&["", "bar"])
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Bar
+        },
+        Opt::parse_from(&[""])
+    );
+}
+
+#[test]
 fn multi_word_is_renamed_kebab() {
     #[derive(ArgEnum, PartialEq, Debug)]
     #[allow(non_camel_case_types)]

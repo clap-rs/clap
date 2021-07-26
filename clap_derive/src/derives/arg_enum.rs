@@ -49,6 +49,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     let lits = lits(&e.variants, &attrs);
     let variants = gen_variants(&lits);
     let from_str = gen_from_str(&lits);
+    let as_arg = gen_as_arg(&lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -66,6 +67,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         impl clap::ArgEnum for #name {
             #variants
             #from_str
+            #as_arg
         }
     }
 }
@@ -123,6 +125,19 @@ fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
             match input {
                 #(val if func(val, #lit) => Ok(Self::#variant),)*
                 e => Err(format!("Invalid variant: {}", e)),
+            }
+        }
+    }
+}
+
+fn gen_as_arg(lits: &[(TokenStream, Ident)]) -> TokenStream {
+    let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
+
+    quote! {
+        fn as_arg(&self) -> Option<&'static str> {
+            match self {
+                #(Self::#variant => Some(#lit),)*
+                _ => None
             }
         }
     }
