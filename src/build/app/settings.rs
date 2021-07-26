@@ -80,8 +80,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
         => Flags::ALLOW_UNK_SC,
-    AllowInvalidUtf8("allowinvalidutf8")
-        => Flags::UTF8_NONE,
     AllowLeadingHyphen("allowleadinghyphen")
         => Flags::LEADING_HYPHEN,
     AllowNegativeNumbers("allownegativenumbers")
@@ -170,50 +168,6 @@ impl_settings! { AppSettings, AppFlags,
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
-    /// This is the default behavior of `clap`.
-    ///
-    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
-    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
-    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
-    /// UTF-8 values
-    ///
-    /// **NOTE:** This rule only applies to argument values. Flags, options, and
-    /// [`subcommands`] themselves only allow valid UTF-8 code points.
-    ///
-    /// # Platform Specific
-    ///
-    /// Non Windows systems only
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, AppSettings};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
-    ///
-    /// let r = App::new("myprog")
-    ///   //.setting(AppSettings::AllowInvalidUtf8)
-    ///     .arg("<arg> 'some positional arg'")
-    ///     .try_get_matches_from(
-    ///         vec![
-    ///             OsString::from("myprog"),
-    ///             OsString::from_vec(vec![0xe9])]);
-    ///
-    /// assert!(r.is_ok());
-    /// let m = r.unwrap();
-    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
-    /// ```
-    ///
-    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
-    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
-    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
-    /// [`subcommands`]: crate::App::subcommand()
-    // TODO: Either this or StrictUtf8
-    AllowInvalidUtf8,
-
     /// Specifies that leading hyphens are allowed in all argument *values*, such as negative numbers
     /// like `-10`. (which would otherwise be parsed as another flag or option)
     ///
@@ -1145,10 +1099,6 @@ mod test {
         assert_eq!(
             "allowexternalsubcommands".parse::<AppSettings>().unwrap(),
             AppSettings::AllowExternalSubcommands
-        );
-        assert_eq!(
-            "allowinvalidutf8".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowInvalidUtf8
         );
         assert_eq!(
             "allowleadinghyphen".parse::<AppSettings>().unwrap(),
