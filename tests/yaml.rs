@@ -1,6 +1,6 @@
 #![cfg(feature = "yaml")]
 
-use clap::{load_yaml, App, ErrorKind, ValueHint};
+use clap::{load_yaml, App, Arg, ErrorKind, ValueHint};
 
 #[test]
 fn create_app_from_yaml() {
@@ -199,4 +199,60 @@ fn extra_fields_invalid_arg() {
 fn extra_fields_invalid_app() {
     let yml = load_yaml!("fixtures/extra_fields_invalid_app.yaml");
     App::from(yml);
+}
+
+#[test]
+#[should_panic = "YAML file must be a hash"]
+fn app_not_hash() {
+    let yml = load_yaml!("fixtures/not_hash.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "YAML file must be a hash"]
+fn arg_file_not_hash() {
+    let yml = load_yaml!("fixtures/not_hash.yaml");
+    Arg::from(yml);
+}
+
+#[test]
+#[should_panic = "Subcommand must be a hash"]
+fn subcommand_not_hash() {
+    let yml = load_yaml!("fixtures/field_not_hash.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Arg must be a hash"]
+fn arg_not_hash() {
+    let yml = load_yaml!("fixtures/arg_not_hash.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Subcommand name must be a string"]
+fn subcommand_name_not_string() {
+    let yml = load_yaml!("fixtures/name_not_string.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Arg name must be a string"]
+fn arg_name_not_string() {
+    let yml = load_yaml!("fixtures/name_not_string.yaml");
+    Arg::from(yml);
+}
+
+#[test]
+#[should_panic = "App fields must be strings"]
+fn app_field_not_string() {
+    let yml = load_yaml!("fixtures/app_field_not_string.yaml");
+    App::from(yml);
+}
+
+#[test]
+#[should_panic = "Arg fields must be strings"]
+fn arg_field_not_string() {
+    let yml = load_yaml!("fixtures/arg_field_not_string.yaml");
+    Arg::from(yml);
 }
