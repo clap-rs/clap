@@ -13,6 +13,7 @@
 // MIT/Apache 2.0 license.
 
 use clap::Clap;
+use clap::IntoApp;
 
 #[test]
 fn required_argument() {
@@ -82,4 +83,18 @@ fn arguments_safe() {
         clap::ErrorKind::ValueValidation,
         Opt::try_parse_from(&["test", "NOPE"]).err().unwrap().kind
     );
+}
+
+#[test]
+fn value_name() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        my_special_arg: i32,
+    }
+
+    let mut help = Vec::new();
+    Opt::into_app().write_help(&mut help).unwrap();
+    let help = String::from_utf8(help).unwrap();
+
+    assert!(help.contains("MY_SPECIAL_ARG"));
 }
