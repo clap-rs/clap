@@ -60,7 +60,7 @@ fn default_value() {
 
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, default_value)]
+        #[clap(arg_enum, default_value_t)]
         arg: ArgChoice,
     }
 
