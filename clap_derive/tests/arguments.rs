@@ -86,7 +86,7 @@ fn arguments_safe() {
 }
 
 #[test]
-fn value_name() {
+fn auto_value_name() {
     #[derive(Clap, PartialEq, Debug)]
     struct Opt {
         my_special_arg: i32,
@@ -97,4 +97,24 @@ fn value_name() {
     let help = String::from_utf8(help).unwrap();
 
     assert!(help.contains("MY_SPECIAL_ARG"));
+    // Ensure the implicit `num_vals` is just 1
+    assert_eq!(Opt { my_special_arg: 10 }, Opt::parse_from(&["test", "10"]));
+}
+
+#[test]
+fn explicit_value_name() {
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(value_name = "BROWNIE_POINTS")]
+        my_special_arg: i32,
+    }
+
+    let mut help = Vec::new();
+    Opt::into_app().write_help(&mut help).unwrap();
+    let help = String::from_utf8(help).unwrap();
+
+    assert!(help.contains("BROWNIE_POINTS"));
+    assert!(!help.contains("MY_SPECIAL_ARG"));
+    // Ensure the implicit `num_vals` is just 1
+    assert_eq!(Opt { my_special_arg: 10 }, Opt::parse_from(&["test", "10"]));
 }
