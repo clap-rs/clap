@@ -97,7 +97,7 @@ jobs:
         if: matrix.features == 'none'
         with:
           command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
+          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" --manifest-path Cargo.toml
       - name: Test all features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -109,13 +109,13 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} -p clap_derive
+          args: --target ${{ matrix.target }} --manifest-path clap_derive/Cargo.toml
       - name: Test Generate
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} -p clap_generate
+          args: --target ${{ matrix.target }} --manifest-path clap_generate/Cargo.toml
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -151,7 +151,7 @@ jobs:
         if: matrix.features == 'none'
         with:
           command: test
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
+          args: --no-default-features --features "std cargo" --manifest-path Cargo.toml
       - name: Test all features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -163,13 +163,13 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: -p clap_derive
+          args: --manifest-path clap_derive/Cargo.toml
       - name: Test Generate
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: test
-          args: -p clap_generate
+          args: --manifest-path clap_generate/Cargo.toml
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -220,7 +220,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.2
+          args: --no-default-features --features "std cargo" --manifest-path Cargo.toml
       - name: Clippy for all features
         uses: actions-rs/cargo@v1
         with:
