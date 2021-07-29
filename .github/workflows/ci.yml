@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: [1.46.0, stable, beta]
+        rust: [1.54.0, stable, beta]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:
           - i686-pc-windows-msvc
@@ -169,7 +169,7 @@ jobs:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.46.0
+          toolchain: 1.54.0
           target: ${{ matrix.target }}
           override: true
       - name: Checkout

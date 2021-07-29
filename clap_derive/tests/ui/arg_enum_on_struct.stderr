@@ -4,4 +4,13 @@ error: `#[derive(ArgEnum)]` only supports enums
 3 | #[derive(ArgEnum, Debug)]
   |          ^^^^^^^
   |
-  = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the derive macro `ArgEnum` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0046]: not all trait items implemented, missing: `as_arg`
+ --> $DIR/arg_enum_on_struct.rs:3:10
+  |
+3 | #[derive(ArgEnum, Debug)]
+  |          ^^^^^^^ missing `as_arg` in implementation
+  |
+  = note: this error originates in the derive macro `ArgEnum` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = help: implement the missing item: `fn as_arg(&self) -> Option<&'static str> { todo!() }`

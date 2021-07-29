@@ -4,3 +4,12 @@ error: `flatten` is usable only with single-typed tuple variants
 14 | /     #[clap(flatten)]
 15 | |     Variant1,
    | |____________^
+
+error[E0046]: not all trait items implemented, missing: `has_subcommand`
+  --> $DIR/enum_flatten.rs:11:10
+   |
+11 | #[derive(Clap, Debug)]
+   |          ^^^^ missing `has_subcommand` in implementation
+   |
+   = note: this error originates in the derive macro `Clap` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`
