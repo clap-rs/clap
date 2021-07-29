@@ -1057,25 +1057,15 @@ impl<'help, 'app> Parser<'help, 'app> {
             (long_arg, None)
         };
 
-        if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
+        let opt = if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
-            self.app.settings.set(AS::ValidArgFound);
-            self.seen.push(opt.id.clone());
-            if opt.is_set(ArgSettings::TakesValue) {
-                return self.parse_opt(&val, opt, matcher);
-            } else {
-                self.check_for_help_and_version_str(&arg)?;
-                return Ok(self.parse_flag(opt, matcher));
-            }
-        }
-
-        if self.is_set(AS::InferLongArgs) {
+            Some(opt)
+        } else if self.is_set(AS::InferLongArgs) {
             let arg_str = arg.to_string_lossy();
-            let matches: Vec<_> = self
-                .app
+            self.app
                 .args
                 .args()
                 .filter(|a| {
@@ -1085,21 +1075,19 @@ impl<'help, 'app> Parser<'help, 'app> {
                             .iter()
                             .any(|(alias, _)| alias.starts_with(arg_str.as_ref()))
                 })
-                .collect();
+                .next()
+        } else {
+            None
+        };
 
-            if let [opt] = matches.as_slice() {
-                debug!(
-                    "Parser::parse_long_arg: Found valid opt or flag '{}'",
-                    opt.to_string()
-                );
-                self.app.settings.set(AS::ValidArgFound);
-                self.seen.push(opt.id.clone());
-                if opt.is_set(ArgSettings::TakesValue) {
-                    return self.parse_opt(&val, opt, matcher);
-                } else {
-                    self.check_for_help_and_version_str(&arg)?;
-                    return Ok(self.parse_flag(opt, matcher));
-                }
+        if let Some(opt) = opt {
+            self.app.settings.set(AS::ValidArgFound);
+            self.seen.push(opt.id.clone());
+            if opt.is_set(ArgSettings::TakesValue) {
+                return self.parse_opt(&val, opt, matcher);
+            } else {
+                self.check_for_help_and_version_str(&arg)?;
+                return Ok(self.parse_flag(opt, matcher));
             }
         }
 
