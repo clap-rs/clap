@@ -103,7 +103,8 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex"
+          # Test `doc` to run doctests on the README
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex doc"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
