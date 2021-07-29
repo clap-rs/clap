@@ -5,12 +5,3 @@ error: `#[derive(Subcommand)]` only supports enums
   |          ^^^^^^^^^^
   |
   = note: this error originates in the derive macro `Subcommand` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0046]: not all trait items implemented, missing: `has_subcommand`
- --> $DIR/subcommand_on_struct.rs:3:10
-  |
-3 | #[derive(Subcommand, Debug)]
-  |          ^^^^^^^^^^ missing `has_subcommand` in implementation
-  |
-  = note: this error originates in the derive macro `Subcommand` (in Nightly builds, run with -Z macro-backtrace for more info)
-  = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`
