@@ -49,6 +49,7 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
     );
     let augmentation = gen_augment(&e.variants, &attrs, false);
     let augmentation_update = gen_augment(&e.variants, &attrs, true);
+    let has_subcommand = gen_has_subcommand(&e.variants, &attrs);
 
     quote! {
         #from_arg_matches
@@ -71,6 +72,9 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
             }
             fn augment_subcommands_for_update <'b>(app: clap::App<'b>) -> clap::App<'b> {
                 #augmentation_update
+            }
+            fn has_subcommand(name: &str) -> bool {
+                #has_subcommand
             }
         }
     }
@@ -135,8 +139,14 @@ fn gen_augment(
                 Kind::Flatten => match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
-                        quote! {
-                            let app = <#ty as clap::Subcommand>::augment_subcommands(app);
+                        if override_required {
+                            quote! {
+                                let app = <#ty as clap::Subcommand>::augment_subcommands_for_update(app);
+                            }
+                        } else {
+                            quote! {
+                                let app = <#ty as clap::Subcommand>::augment_subcommands(app);
+                            }
                         }
                     }
                     _ => abort!(
@@ -154,9 +164,17 @@ fn gen_augment(
                         Unit => quote!( #app_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
-                            quote_spanned! { ty.span()=>
-                                {
-                                    <#ty as clap::Subcommand>::augment_subcommands(#app_var)
+                            if override_required {
+                                quote_spanned! { ty.span()=>
+                                    {
+                                        <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var)
+                                    }
+                                }
+                            } else {
+                                quote_spanned! { ty.span()=>
+                                    {
+                                        <#ty as clap::Subcommand>::augment_subcommands(#app_var)
+                                    }
                                 }
                             }
                         }
@@ -227,6 +245,74 @@ fn gen_augment(
             let app = app #app_methods;
             #( #subcommands )*;
             app #version
+    }
+}
+
+fn gen_has_subcommand(
+    variants: &Punctuated<Variant, Token![,]>,
+    parent_attribute: &Attrs,
+) -> TokenStream {
+    use syn::Fields::*;
+
+    let mut ext_subcmd = false;
+
+    let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
+        .iter()
+        .filter_map(|variant| {
+            let attrs = Attrs::from_variant(
+                variant,
+                parent_attribute.casing(),
+                parent_attribute.env_casing(),
+            );
+
+            if let Kind::ExternalSubcommand = &*attrs.kind() {
+                ext_subcmd = true;
+                None
+            } else {
+                Some((variant, attrs))
+            }
+        })
+        .partition(|(_, attrs)| {
+            let kind = attrs.kind();
+            matches!(&*kind, Kind::Flatten)
+        });
+
+    let match_arms = variants.iter().map(|(_variant, attrs)| {
+        let sub_name = attrs.cased_name();
+        quote! {
+            #sub_name => true,
+        }
+    });
+    let child_subcommands = flatten_variants
+        .iter()
+        .map(|(variant, _attrs)| match variant.fields {
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
+                quote! {
+                    if <#ty as clap::Subcommand>::has_subcommand(name) {
+                        return true;
+                    }
+                }
+            }
+            _ => abort!(
+                variant,
+                "`flatten` is usable only with single-typed tuple variants"
+            ),
+        });
+
+    if ext_subcmd {
+        quote! { true }
+    } else {
+        quote! {
+            match name {
+                #( #match_arms )*
+                _ => {
+                    #( #child_subcommands )else*
+
+                    false
+                }
+            }
+        }
     }
 }
 
@@ -382,7 +468,7 @@ fn gen_update_from_arg_matches(
 ) -> TokenStream {
     use syn::Fields::*;
 
-    let variants: Vec<_> = variants
+    let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
             let attrs = Attrs::from_variant(
@@ -393,11 +479,14 @@ fn gen_update_from_arg_matches(
 
             match &*attrs.kind() {
                 // Fallback to `from_arg_matches`
-                Kind::ExternalSubcommand | Kind::Flatten => None,
+                Kind::ExternalSubcommand => None,
                 _ => Some((variant, attrs)),
             }
         })
-        .collect();
+        .partition(|(_, attrs)| {
+            let kind = attrs.kind();
+            matches!(&*kind, Kind::Flatten)
+        });
 
     let subcommands = variants.iter().map(|(variant, attrs)| {
         let sub_name = attrs.cased_name();
@@ -446,6 +535,27 @@ fn gen_update_from_arg_matches(
         }
     });
 
+    let child_subcommands = flatten.iter().map(|(variant, _attrs)| {
+        let variant_name = &variant.ident;
+        match variant.fields {
+            Unnamed(ref fields) if fields.unnamed.len() == 1 => {
+                let ty = &fields.unnamed[0];
+                quote! {
+                    if <#ty as clap::Subcommand>::has_subcommand(name) {
+                        if let #name :: #variant_name (child) = s {
+                            <#ty as clap::FromArgMatches>::update_from_arg_matches(child, arg_matches);
+                            return;
+                        }
+                    }
+                }
+            }
+            _ => abort!(
+                variant,
+                "`flatten` is usable only with single-typed tuple variants"
+            ),
+        }
+    });
+
     quote! {
         fn update_from_arg_matches<'b>(
             &mut self,
@@ -455,6 +565,7 @@ fn gen_update_from_arg_matches(
                 match (name, self) {
                     #( #subcommands ),*
                     (other_name, s) => {
+                        #( #child_subcommands )*
                         if let Some(sub) = <Self as clap::FromArgMatches>::from_arg_matches(arg_matches) {
                             *s = sub;
                         }

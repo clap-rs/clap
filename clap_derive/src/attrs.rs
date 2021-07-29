@@ -791,6 +791,10 @@ impl Attrs {
         self.name.clone().translate(*self.casing)
     }
 
+    pub fn value_name(&self) -> TokenStream {
+        self.name.clone().translate(CasingStyle::ScreamingSnake)
+    }
+
     pub fn parser(&self) -> &Sp<Parser> {
         &self.parser
     }

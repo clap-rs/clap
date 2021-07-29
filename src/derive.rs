@@ -254,6 +254,8 @@ pub trait Subcommand: FromArgMatches + Sized {
     ///
     /// See also [`IntoApp`].
     fn augment_subcommands_for_update(app: App<'_>) -> App<'_>;
+    /// Test whether `Self` can parse a specific subcommand
+    fn has_subcommand(name: &str) -> bool;
 }
 
 /// Parse arguments into enums.
@@ -285,6 +287,11 @@ pub trait ArgEnum: Sized {
 
     /// Parse an argument into `Self`.
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
+
+    /// The canonical argument value.
+    ///
+    /// The value is `None` for skipped variants.
+    fn as_arg(&self) -> Option<&'static str>;
 }
 
 impl<T: Clap> Clap for Box<T> {
@@ -348,5 +355,8 @@ impl<T: Subcommand> Subcommand for Box<T> {
     }
     fn augment_subcommands_for_update(app: App<'_>) -> App<'_> {
         <T as Subcommand>::augment_subcommands_for_update(app)
+    }
+    fn has_subcommand(name: &str) -> bool {
+        <T as Subcommand>::has_subcommand(name)
     }
 }

@@ -4695,17 +4695,19 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
     /// ```
     #[allow(clippy::cognitive_complexity)]
     fn from(y: &'help Yaml) -> Self {
-        let yaml_hash = y.as_hash().unwrap();
+        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.
-        let name_yaml = yaml_hash.keys().next().unwrap();
-        let name_str = name_yaml.as_str().unwrap();
+        let (name_yaml, yaml) = yaml_file_hash
+            .iter()
+            .next()
+            .expect("There must be one arg in the YAML file");
+        let name_str = name_yaml.as_str().expect("Arg name must be a string");
         let mut a = Arg::new(name_str);
-        let yaml = yaml_hash.get(name_yaml).unwrap();
 
         let mut has_metadata = false;
 
-        for (k, v) in yaml.as_hash().unwrap().iter() {
-            a = match k.as_str().unwrap() {
+        for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
+            a = match k.as_str().expect("Arg fields must be strings") {
                 "_has_metadata" => {
                     has_metadata = true;
                     a

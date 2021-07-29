@@ -2823,25 +2823,30 @@ impl<'help> Index<&'_ Id> for App<'help> {
 impl<'help> From<&'help Yaml> for App<'help> {
     #[allow(clippy::cognitive_complexity)]
     fn from(y: &'help Yaml) -> Self {
+        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.
         let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
-            (App::new(name), y, "app".into())
+            (App::new(name), yaml_file_hash, "app".into())
         } else {
-            let yaml_hash = y.as_hash().unwrap();
-            let name_yaml = yaml_hash.keys().next().unwrap();
-            let name_str = name_yaml.as_str().unwrap();
+            let (name_yaml, value_yaml) = yaml_file_hash
+                .iter()
+                .next()
+                .expect("There must be one subcommand in the YAML file");
+            let name_str = name_yaml
+                .as_str()
+                .expect("Subcommand name must be a string");
 
             (
                 App::new(name_str),
-                yaml_hash.get(name_yaml).unwrap(),
+                value_yaml.as_hash().expect("Subcommand must be a hash"),
                 format!("subcommand '{}'", name_str),
             )
         };
 
         let mut has_metadata = false;
 
-        for (k, v) in yaml.as_hash().unwrap().iter() {
-            a = match k.as_str().unwrap() {
+        for (k, v) in yaml {
+            a = match k.as_str().expect("App fields must be strings") {
                 "_has_metadata" => {
                     has_metadata = true;
                     a
