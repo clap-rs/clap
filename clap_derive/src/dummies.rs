@@ -52,6 +52,9 @@ pub fn subcommand(name: &Ident) {
             fn augment_subcommands_for_update(_app: clap::App<'_>) -> clap::App<'_> {
                 unimplemented!()
             }
+            fn has_subcommand(name: &str) -> bool {
+                unimplemented!()
+            }
         }
     });
 }
@@ -75,6 +78,9 @@ pub fn arg_enum(name: &Ident) {
         impl clap::ArgEnum for #name {
             const VARIANTS: &'static [&'static str] = &[];
             fn from_str(_input: &str, _case_insensitive: bool) -> Result<Self, String> {
+                unimplemented!()
+            }
+            fn as_arg(&self) -> Option<&'static str> {
                 unimplemented!()
             }
         }
