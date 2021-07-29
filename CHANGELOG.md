@@ -16,6 +16,7 @@ TODO: `cargo`, `std` features
   * **Arg**
     * `Arg::settings` in favor of `Arg::setting(Setting1 | Setting2)`
     * `Arg::multiple` in favour of `Arg::multiple_values` and `Arg::multiple_occurrences`
+    * `AppSettings::AllowInvalidUtf8` in favour of `AppSettings::StrictUtf8`
 * **Renamed Settings**
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
