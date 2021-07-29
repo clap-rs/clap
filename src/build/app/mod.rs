@@ -2703,6 +2703,7 @@ impl<'help> App<'help> {
     where
         'help: 'a,
     {
+        #![allow(clippy::needless_collect)]
         let a: Vec<_> = self
             .get_subcommands()
             .flat_map(|sc| {

@@ -3,3 +3,12 @@ error: Only one variant can be marked with `external_subcommand`, this is the se
    |
 14 |     #[clap(external_subcommand)]
    |            ^^^^^^^^^^^^^^^^^^^
+
+error[E0046]: not all trait items implemented, missing: `has_subcommand`
+ --> $DIR/multiple_external_subcommand.rs:9:10
+  |
+9 | #[derive(Clap, Debug)]
+  |          ^^^^ missing `has_subcommand` in implementation
+  |
+  = note: this error originates in the derive macro `Clap` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`

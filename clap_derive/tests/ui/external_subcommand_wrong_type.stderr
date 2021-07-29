@@ -16,3 +16,30 @@ error: The enum variant marked with `external_attribute` must be a single-typed 
 18 | /     #[clap(external_subcommand)]
 19 | |     Other { a: String },
    | |_______________________^
+
+error[E0046]: not all trait items implemented, missing: `has_subcommand`
+ --> $DIR/external_subcommand_wrong_type.rs:4:10
+  |
+4 | #[derive(Clap, Debug)]
+  |          ^^^^ missing `has_subcommand` in implementation
+  |
+  = note: this error originates in the derive macro `Clap` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`
+
+error[E0046]: not all trait items implemented, missing: `has_subcommand`
+  --> $DIR/external_subcommand_wrong_type.rs:10:10
+   |
+10 | #[derive(Clap, Debug)]
+   |          ^^^^ missing `has_subcommand` in implementation
+   |
+   = note: this error originates in the derive macro `Clap` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`
+
+error[E0046]: not all trait items implemented, missing: `has_subcommand`
+  --> $DIR/external_subcommand_wrong_type.rs:16:10
+   |
+16 | #[derive(Clap, Debug)]
+   |          ^^^^ missing `has_subcommand` in implementation
+   |
+   = note: this error originates in the derive macro `Clap` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = help: implement the missing item: `fn has_subcommand(_: &str) -> bool { todo!() }`
