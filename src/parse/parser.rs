@@ -2,6 +2,7 @@
 use std::{
     cell::Cell,
     ffi::{OsStr, OsString},
+    slice,
 };
 
 // Internal
@@ -1076,6 +1077,13 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
                 return self.parse_opt(&val, opt, matcher);
+            } else if let Some(val) = val {
+                return Err(ClapError::unknown_argument(
+                    val.to_string_lossy().to_string(),
+                    None,
+                    Usage::new(self).create_usage_with_title(slice::from_ref(&opt.id)),
+                    self.app.color(),
+                ));
             } else {
                 self.check_for_help_and_version_str(&arg)?;
                 return Ok(self.parse_flag(opt, matcher));

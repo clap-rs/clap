@@ -167,3 +167,24 @@ For more information try --help";
         true
     ));
 }
+
+#[test]
+fn issue_1543_compact_unexpected_value() {
+    static UNEXPECTED_ARGUMENT_FALSE: &str =
+        "error: Found argument '=false' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    test --flag
+
+For more information try --help
+";
+
+    let app = App::new("test").arg(Arg::new("flag").long("flag").takes_value(false));
+
+    assert!(utils::compare_output(
+        app,
+        "test --flag=false",
+        UNEXPECTED_ARGUMENT_FALSE,
+        true
+    ));
+}
