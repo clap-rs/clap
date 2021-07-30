@@ -2597,6 +2597,11 @@ impl<'help> App<'help> {
     }
 }
 
+/// A workaround:
+/// https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999
+pub(crate) trait Captures<'a> {}
+impl<'a, T> Captures<'a> for T {}
+
 // Internal Query Methods
 impl<'help> App<'help> {
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
@@ -2699,28 +2704,12 @@ impl<'help> App<'help> {
 
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
-    pub(crate) fn all_subcommand_names<'a>(&'a self) -> impl Iterator<Item = &'a str>
-    where
-        'help: 'a,
-    {
-        let a: Vec<_> = self
-            .get_subcommands()
-            .flat_map(|sc| {
-                let name = sc.get_name();
-                let aliases = sc.get_all_aliases();
-                std::iter::once(name).chain(aliases)
-            })
-            .collect();
-
-        // Strictly speaking, we don't need this trip through the Vec.
-        // We should have been able to return FlatMap iter above directly.
-        //
-        // Unfortunately, that would trigger
-        // https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999
-        //
-        // I think this "collect to vec" solution is better than the linked one
-        // because it's simpler and it doesn't really matter performance-wise.
-        a.into_iter()
+    pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures<'help> {
+        self.get_subcommands().flat_map(|sc| {
+            let name = sc.get_name();
+            let aliases = sc.get_all_aliases();
+            std::iter::once(name).chain(aliases)
+        })
     }
 
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
