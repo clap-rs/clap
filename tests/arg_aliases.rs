@@ -11,8 +11,8 @@ USAGE:
 
 FLAGS:
     -f, --flag       [aliases: v_flg, flag2, flg3]
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <opt>    [aliases: visible]";
@@ -26,8 +26,8 @@ USAGE:
 
 FLAGS:
     -f, --flag       
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <opt>    ";

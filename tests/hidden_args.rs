@@ -13,8 +13,8 @@ USAGE:
 
 FLAGS:
     -F, --flag2      some other flag
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --option <opt>    some option";
@@ -49,9 +49,9 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -v, --visible    This text should be visible
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
 
@@ -67,13 +67,13 @@ FLAGS:
             Some help text describing the --config arg
 
     -h, --help
-            Prints help information
+            Print help information
 
     -v, --visible
             This text should be visible
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 /// Ensure hidden with short option
 #[test]
@@ -140,13 +140,13 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -v, --visible
             This text should be visible
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 #[test]
 fn hidden_long_args() {
@@ -185,9 +185,9 @@ USAGE:
 
 FLAGS:
     -c, --config     Some help text describing the --config arg
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -v, --visible    This text should be visible
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 #[test]
 fn hidden_long_args_short_help() {
@@ -246,7 +246,7 @@ USAGE:
 
 FLAGS:
         --flag    some flag
-    -h, --help    Prints help information";
+    -h, --help    Print help information";
 
 #[test]
 fn hidden_opt_args() {
@@ -275,7 +275,7 @@ ARGS:
     <another>    another pos
 
 FLAGS:
-    -h, --help    Prints help information";
+    -h, --help    Print help information";
 
 #[test]
 fn hidden_pos_args() {
@@ -301,7 +301,7 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help    Prints help information";
+    -h, --help    Print help information";
 
 #[test]
 fn hidden_subcmds() {

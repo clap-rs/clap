@@ -263,8 +263,8 @@ ARGS:
     <A>    
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
     let app = App::new("prog")
         .arg(Arg::new("a").value_name("A"))
         .group(ArgGroup::new("group").arg("a").required(true));

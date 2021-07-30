@@ -51,8 +51,8 @@ USAGE:
     hello [OPTIONS] --name <name>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --count <count>    Number of times to greet [default: 1]

@@ -8,8 +8,8 @@ USAGE:
     prog
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 static AUTHORS_ONLY: &str = "prog 1
@@ -20,8 +20,8 @@ USAGE:
     prog
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[test]

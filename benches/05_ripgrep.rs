@@ -513,7 +513,7 @@ lazy_static! {
             "Show verbose help output.",
             "When given, more details about flags are provided."
         );
-        doc!(h, "version", "Prints version information.");
+        doc!(h, "version", "Print version information.");
 
         doc!(
             h,

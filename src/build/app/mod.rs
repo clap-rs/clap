@@ -369,14 +369,14 @@ impl<'help> App<'help> {
         .arg(
             Arg::new("help")
                 .long("help")
-                .about("Prints help information")
+                .about("Print help information")
                 .global(true)
                 .generated(),
         )
         .arg(
             Arg::new("version")
                 .long("version")
-                .about("Prints version information")
+                .about("Print version information")
                 .global(true)
                 .generated(),
         )
@@ -822,7 +822,7 @@ impl<'help> App<'help> {
     ///            -v               Be verbose\n\n\
     ///
     ///            Commmands:\n\
-    ///            help             Prints this message\n\
+    ///            help             Print this message\n\
     ///            work             Do some work")
     /// # ;
     /// ```
@@ -1687,8 +1687,8 @@ impl<'help> App<'help> {
     ///     cust-ord [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// SUBCOMMANDS:
     ///     beta    I should be first!
@@ -2151,11 +2151,11 @@ impl<'help> App<'help> {
     ///     myprog [SUBCOMMAND]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// SUBCOMMANDS:
-    ///     help    Prints this message or the help of the given subcommand(s)
+    ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
     ///
@@ -2179,11 +2179,11 @@ impl<'help> App<'help> {
     ///     myprog [THING]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// THINGS:
-    ///     help    Prints this message or the help of the given subcommand(s)
+    ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
     pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, header: T) -> Self
@@ -2486,7 +2486,7 @@ impl<'help> App<'help> {
             debug!("App::_check_help_and_version: Building help subcommand");
             self.subcommands.push(
                 App::new("help")
-                    .about("Prints this message or the help of the given subcommand(s)"),
+                    .about("Print this message or the help of the given subcommand(s)"),
             );
         }
     }

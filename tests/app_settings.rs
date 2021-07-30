@@ -8,8 +8,8 @@ USAGE:
     clap-test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static DONT_COLLAPSE_ARGS: &str = "clap-test v1.4.8
 
@@ -22,8 +22,8 @@ ARGS:
     <arg3>    some
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static REQUIRE_EQUALS: &str = "clap-test v1.4.8
 
@@ -31,8 +31,8 @@ USAGE:
     clap-test --opt=<FILE>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt=<FILE>    some";
@@ -51,9 +51,9 @@ ARGS:
 
 OPTIONS:
     -f, --flag            some flag
-    -h, --help            Prints help information
+    -h, --help            Print help information
         --option <opt>    some option
-    -V, --version         Prints version information";
+    -V, --version         Print version information";
 
 static SKIP_POS_VALS: &str = "test 1.3
 
@@ -68,8 +68,8 @@ ARGS:
     <arg1>    some pos arg
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <opt>    some option";
@@ -80,9 +80,9 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -i, --info       Provides more info
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 1.0
 
@@ -90,11 +90,11 @@ USAGE:
     test <SUBCOMMAND>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     info";
 
 static LONG_FORMAT_FOR_HELP_SUBCOMMAND: &str = "myprog-test 
@@ -108,10 +108,10 @@ ARGS:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 static LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND: &str = "myprog-test-nested 
 
@@ -122,10 +122,10 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 static LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND: &str = "myprog 
 
@@ -138,14 +138,14 @@ ARGS:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information
+            Print version information
 
 SUBCOMMANDS:
     help
-            Prints this message or the help of the given subcommand(s)
+            Print this message or the help of the given subcommand(s)
     test";
 
 #[test]

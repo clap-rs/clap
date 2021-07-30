@@ -12,8 +12,8 @@ USAGE:
 FLAGS:
         --flag_a     second flag
         --flag_b     first flag
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --option_a <option_a>    second option
@@ -25,8 +25,8 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
         --flag_b     first flag
         --flag_a     second flag
 
@@ -42,10 +42,10 @@ USAGE:
 OPTIONS:
         --flag_a                 second flag
         --flag_b                 first flag
-    -h, --help                   Prints help information
+    -h, --help                   Print help information
         --option_a <option_a>    second option
         --option_b <option_b>    first option
-    -V, --version                Prints version information";
+    -V, --version                Print version information";
 
 static UNIFIED_HELP_AND_DERIVE: &str = "test 1.2
 
@@ -53,8 +53,8 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-    -h, --help                   Prints help information
-    -V, --version                Prints version information
+    -h, --help                   Print help information
+    -V, --version                Print version information
         --flag_b                 first flag
         --option_b <option_b>    first option
         --flag_a                 second flag
@@ -68,8 +68,8 @@ USAGE:
 FLAGS:
         --flag_b     first flag
         --flag_a     second flag
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --option_b <option_b>    first option
@@ -83,10 +83,10 @@ USAGE:
 OPTIONS:
         --flag_a                 second flag
         --flag_b                 first flag
-    -h, --help                   Prints help information
+    -h, --help                   Print help information
         --option_a <option_a>    second option
         --option_b <option_b>    first option
-    -V, --version                Prints version information";
+    -V, --version                Print version information";
 
 static UNIFIED_DERIVE_SC_PROP: &str = "test-sub 1.2
 
@@ -98,8 +98,8 @@ OPTIONS:
         --option_b <option_b>    first option
         --flag_a                 second flag
         --option_a <option_a>    second option
-    -h, --help                   Prints help information
-    -V, --version                Prints version information";
+    -h, --help                   Print help information
+    -V, --version                Print version information";
 
 static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &str = "test-sub 1.2
 
@@ -111,8 +111,8 @@ OPTIONS:
         --flag_b                 first flag
         --option_b <option_b>    first option
         --option_a <option_a>    second option
-    -h, --help                   Prints help information
-    -V, --version                Prints version information";
+    -h, --help                   Print help information
+    -V, --version                Print version information";
 
 static PREFER_USER_HELP_DERIVE_ORDER: &str = "test 1.2
 
@@ -120,8 +120,8 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -V, --version    Prints version information
-    -h, --help       Prints help message
+    -V, --version    Print version information
+    -h, --help       Print help message
         --flag_b     first flag
         --flag_a     second flag";
 
@@ -131,10 +131,10 @@ USAGE:
     test sub [FLAGS]
 
 FLAGS:
-    -h, --help       Prints help message
+    -h, --help       Print help message
         --flag_b     first flag
         --flag_a     second flag
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 #[test]
 fn no_derive_order() {
@@ -361,7 +361,7 @@ fn prefer_user_help_with_derive_order() {
             Arg::new("help")
                 .long("help")
                 .short('h')
-                .about("Prints help message"),
+                .about("Print help message"),
             Arg::new("flag_b").long("flag_b").about("first flag"),
             Arg::new("flag_a").long("flag_a").about("second flag"),
         ]);
@@ -383,7 +383,7 @@ fn prefer_user_help_in_subcommand_with_derive_order() {
                 Arg::new("help")
                     .long("help")
                     .short('h')
-                    .about("Prints help message"),
+                    .about("Print help message"),
                 Arg::new("flag_b").long("flag_b").about("first flag"),
                 Arg::new("flag_a").long("flag_a").about("second flag"),
             ]),

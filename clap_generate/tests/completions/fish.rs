@@ -28,15 +28,15 @@ fn fish() {
     common::<Fish>(&mut app, "myapp", FISH);
 }
 
-static FISH: &str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
-complete -c myapp -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
+static FISH: &str = r#"complete -c myapp -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
+complete -c myapp -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
 complete -c myapp -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
-complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
+complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c myapp -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
-complete -c myapp -n "__fish_seen_subcommand_from test" -s h -l help -d 'Prints help information'
-complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prints version information'
-complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints help information'
-complete -c myapp -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
+complete -c myapp -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
+complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Print version information'
+complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
+complete -c myapp -n "__fish_seen_subcommand_from help" -s V -l version -d 'Print version information'
 "#;
 
 #[test]
@@ -58,22 +58,22 @@ fn build_app_special_commands() -> App<'static> {
         .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
 }
 
-static FISH_SPECIAL_CMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Prints version information'
+static FISH_SPECIAL_CMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'tests other things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some-cmd-with-hypens"
-complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Prints this message or the help of the given subcommand(s)'
+complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
-complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -l config -d 'the other case to test' -r
-complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Prints version information'
-complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s V -l version -d 'Prints version information'
-complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Prints help information'
-complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Prints version information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Print version information'
 "#;
 
 #[test]
@@ -112,8 +112,8 @@ fn build_app_special_help() -> App<'static> {
         )
 }
 
-static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -s h -l help -d 'Prints help information'
-complete -c my_app -s V -l version -d 'Prints version information'
+static FISH_SPECIAL_HELP: &str = r#"complete -c my_app -s h -l help -d 'Print help information'
+complete -c my_app -s V -l version -d 'Print version information'
 complete -c my_app -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c my_app -l double-quotes -d 'Can be "always", "auto", or "never"'
 complete -c my_app -l backticks -d 'For more information see `echo test`'
@@ -152,7 +152,7 @@ fn build_app_with_aliases() -> App<'static> {
 }
 
 static FISH_ALIASES: &str = r#"complete -c cmd -s o -s O -l option -l opt -d 'cmd option' -r
-complete -c cmd -s h -l help -d 'Prints help information'
-complete -c cmd -s V -l version -d 'Prints version information'
+complete -c cmd -s h -l help -d 'Print help information'
+complete -c cmd -s V -l version -d 'Print version information'
 complete -c cmd -s f -s F -l flag -l flg -d 'cmd flag'
 "#;

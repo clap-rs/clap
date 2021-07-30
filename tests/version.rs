@@ -110,8 +110,8 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help       Prints help information
-    -v, --version    Prints version information";
+    -h, --help       Print help information
+    -v, --version    Print version information";
 
 #[test]
 fn override_version_short() {
@@ -147,8 +147,8 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -h, --help    Prints help information
-    -V, --vers    Prints version information";
+    -h, --help    Print help information
+    -V, --vers    Print version information";
 
 #[test]
 fn override_version_long() {
@@ -184,7 +184,7 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -V, --version    version info";
 
 #[test]
@@ -213,7 +213,7 @@ USAGE:
     myapp subcmd multi
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -V, --version    Print custom version about text";
 
 #[test]
@@ -248,7 +248,7 @@ USAGE:
     myapp subcmd multi
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -V, --version    Print custom version about text from multi";
 
 #[test]

@@ -89,8 +89,8 @@ ARGS:
 
 FLAGS:
     -d, --debug      Activate debug mode
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
     -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
 
 OPTIONS:

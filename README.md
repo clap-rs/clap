@@ -415,15 +415,15 @@ USAGE:
     MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -v               Sets the level of verbosity
-    -V, --version    Prints version information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    Controls testing features
 ```
 
