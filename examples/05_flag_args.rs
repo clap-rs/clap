@@ -48,7 +48,7 @@ fn main() {
     }
 
     // Same thing with `pseudo-flag`
-    if app.value_of("pseudo-flag") != Some("false") {
+    if matches.value_of("pseudo-flag") != Some("false") {
         println!("Pseudo-flag is turned on");
     }
 
