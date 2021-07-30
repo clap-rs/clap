@@ -10,8 +10,8 @@ USAGE:
     clap
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[test]

@@ -12,8 +12,8 @@ USAGE:
     test --fake <some>:<val>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -f, --fake <some>:<val>    some help";
@@ -35,8 +35,8 @@ ARGS:
 FLAGS:
     -f, --flag       tests flags
     -F               tests flags with exclusions
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --long-option-2 <option2>    tests long options with exclusions
@@ -48,7 +48,7 @@ OPTIONS:
     -O, --Option <option3>           specific vals [possible values: fast, slow]
 
 SUBCOMMANDS:
-    help      Prints this message or the help of the given subcommand(s)
+    help      Print this message or the help of the given subcommand(s)
     subcmd    tests subcommands";
 
 static SC_NEGATES_REQS: &str = "prog 1.0
@@ -61,14 +61,14 @@ ARGS:
     <PATH>    help
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <FILE>    tests options
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test";
 
 static ARGS_NEGATE_SC: &str = "prog 1.0
@@ -82,14 +82,14 @@ ARGS:
 
 FLAGS:
     -f, --flag       testing flags
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <FILE>    tests options
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test";
 
 static AFTER_HELP: &str = "some text that comes before the help
@@ -102,8 +102,8 @@ USAGE:
     clap-test
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 some text that comes after the help";
 
@@ -118,10 +118,10 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information
+            Print version information
 
 some longer text that comes after the help";
 
@@ -132,8 +132,8 @@ USAGE:
 
 FLAGS:
     -f, --flag       testing flags
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <FILE>    tests options";
@@ -152,8 +152,8 @@ ARGS:
 
 FLAGS:
     -f, --flag       tests flags
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --option <scoption>...     tests options
@@ -169,8 +169,8 @@ ARGS:
 
 FLAGS:
     -f, --flag       testing flags
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --opt <FILE>    tests options";
@@ -182,8 +182,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --option <option>...    tests options
@@ -198,8 +198,8 @@ USAGE:
     rg [OPTIONS] --type-list
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static MULTI_SC_HELP: &str = "ctest-subcmd-multi 0.1
 
@@ -212,8 +212,8 @@ USAGE:
 
 FLAGS:
     -f, --flag       tests flags
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -o, --option <scoption>...    tests options";
@@ -224,8 +224,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café is an
@@ -243,8 +243,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>
@@ -262,8 +262,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
@@ -276,11 +276,11 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help
+            Print help
             information
 
     -V, --version
-            Prints
+            Print
             version
             information";
 
@@ -290,10 +290,10 @@ USAGE:
     ctest [FLAGS]
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -m               Some help with some wrapping
                      (Defaults to something)
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 static WRAPPING_NEWLINE_CHARS: &str = "ctest 0.1
 
@@ -309,8 +309,8 @@ ARGS:
               characters, contains symbols.
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static ISSUE_688: &str = "ctest 0.1
 
@@ -318,8 +318,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --filter <filter>    Sets the filter, or sampling method, to use for interpolation when resizing the particle
@@ -340,8 +340,8 @@ ARGS:
     <arg2>...    some option
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -l, --label <label>...    a label
@@ -362,10 +362,10 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version
+            Print version
             information";
 
 static ISSUE_1642: &str = "prog 
@@ -381,10 +381,10 @@ FLAGS:
             and on, so I'll stop now.
 
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 static HELP_CONFLICT: &str = "conflict 
 
@@ -393,8 +393,8 @@ USAGE:
 
 FLAGS:
     -h               
-        --help       Prints help information
-    -V, --version    Prints version information";
+        --help       Print help information
+    -V, --version    Print version information";
 
 static LAST_ARG: &str = "last 0.1
 
@@ -407,8 +407,8 @@ ARGS:
     <ARGS>...    some
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static LAST_ARG_SC: &str = "last 0.1
 
@@ -422,11 +422,11 @@ ARGS:
     <ARGS>...    some
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    some";
 
 static LAST_ARG_REQ: &str = "last 0.1
@@ -440,8 +440,8 @@ ARGS:
     <ARGS>...    some
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static LAST_ARG_REQ_SC: &str = "last 0.1
 
@@ -455,11 +455,11 @@ ARGS:
     <ARGS>...    some
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    some";
 
 static HIDE_DEFAULT_VAL: &str = "default 0.1
@@ -468,8 +468,8 @@ USAGE:
     default [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --arg <argument>    Pass an argument to the program. [default: default-argument]";
@@ -480,8 +480,8 @@ USAGE:
     default [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --arg <argument>    Pass an argument to the program. [default: \"\\n\"] [possible values: normal, \" \", \"\\n\", \"\\t\",
@@ -497,9 +497,9 @@ ARGS:
     <ARGS>...    Any arguments you wish to pass to the being profiled.
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
     -v, --verbose    Prints out more stuff.
-    -V, --version    Prints version information
+    -V, --version    Print version information
 
 OPTIONS:
     -f, --frequency <HERTZ>    The sampling frequency.
@@ -515,8 +515,8 @@ ARGS:
     <SECOND>...    Second
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static DEFAULT_HELP: &str = "ctest 1.0
 
@@ -524,8 +524,8 @@ USAGE:
     ctest
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static LONG_ABOUT: &str = "myapp 1.0
 
@@ -544,10 +544,10 @@ ARGS:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 static HIDE_ENV: &str = "ctest 0.1
 
@@ -555,8 +555,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.";
@@ -567,8 +567,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]";
@@ -579,8 +579,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
@@ -592,8 +592,8 @@ USAGE:
     ctest [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
@@ -609,8 +609,8 @@ USAGE:
     test --fake <some>:<val>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -f, --fake <some>:<val>    some help
@@ -628,8 +628,8 @@ ARGS:
     <arg2>    
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static ISSUE_1364: &str = "demo 
 
@@ -641,8 +641,8 @@ ARGS:
 
 FLAGS:
     -f               
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 static OPTION_USAGE_ORDER: &str = "order 
 
@@ -653,11 +653,11 @@ FLAGS:
     -a                     
     -b                     
     -B                     
-    -h, --help             Prints help information
+    -h, --help             Print help information
     -s                     
         --select_file      
         --select_folder    
-    -V, --version          Prints version information
+    -V, --version          Print version information
     -x";
 
 static ABOUT_IN_SUBCOMMANDS_LIST: &str = "about-in-subcommands-list 
@@ -667,11 +667,11 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
 SUBCOMMANDS:
     help
-            Prints this message or the help of the given subcommand(s)
+            Print this message or the help of the given subcommand(s)
     sub
             short about sub
 ";
@@ -925,7 +925,7 @@ FLAGS:
             `=`
 
     -h, --help
-            Prints help information
+            Print help information
 
         --no-git-commit
             Do not commit version changes
@@ -934,7 +934,7 @@ FLAGS:
             Do not push generated commit and tags to git remote
 
     -V, --version
-            Prints version information";
+            Print version information";
     let app = App::new("test")
         .term_width(67)
         .arg(
@@ -979,11 +979,11 @@ FLAGS:
                            (will not be published)
         --exact            Specify inter dependency version numbers
                            exactly with `=`
-    -h, --help             Prints help information
+    -h, --help             Print help information
         --no-git-commit    Do not commit version changes
         --no-git-push      Do not push generated commit and tags to
                            git remote
-    -V, --version          Prints version information";
+    -V, --version          Print version information";
     let app = App::new("test")
         .term_width(68)
         .arg(
@@ -1423,8 +1423,8 @@ USAGE:
     test
 
 FLAGS:
-    -H, --help       Prints help information
-    -V, --version    Prints version information";
+    -H, --help       Print help information
+    -V, --version    Print version information";
 
 #[test]
 fn override_help_short() {
@@ -1452,8 +1452,8 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -h, --hell       Prints help information
-    -V, --version    Prints version information";
+    -h, --hell       Print help information
+    -V, --version    Print version information";
 
 #[test]
 fn override_help_long() {
@@ -1482,7 +1482,7 @@ USAGE:
 
 FLAGS:
     -h, --help       Print help information
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 #[test]
 fn override_help_about() {
@@ -1872,8 +1872,8 @@ USAGE:
     test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -f, --fake <some>:<val>    some help
@@ -1953,10 +1953,10 @@ USAGE:
 
 FLAGS:
     -h, --help
-            Prints help information
+            Print help information
 
     -V, --version
-            Prints version information";
+            Print version information";
 
 #[test]
 fn show_long_about_issue_897() {
@@ -1982,8 +1982,8 @@ USAGE:
     ctest foo
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information";
+    -h, --help       Print help information
+    -V, --version    Print version information";
 
 #[test]
 fn show_short_about_issue_897() {
@@ -2165,7 +2165,7 @@ USAGE:
 
 FLAGS:
     -h, --help       Print custom help about text
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 static HELP_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
 
@@ -2174,7 +2174,7 @@ USAGE:
 
 FLAGS:
     -h, --help       Print custom help about text from multi
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
 #[test]
 fn help_about_multi_subcmd() {
@@ -2283,9 +2283,9 @@ ARGS:
     <pos2>    
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help       Print help information
         --option1    
-    -V, --version    Prints version information";
+    -V, --version    Print version information";
 
     let app = clap::App::new("hello")
         .bin_name("deno")
@@ -2346,7 +2346,7 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help    Prints help information
+    -h, --help    Print help information
 
 NETWORKING:
     -s, --speed <SPEED>    How fast";
@@ -2376,7 +2376,7 @@ ARGS:
     <gear>    Which gear
 
 FLAGS:
-    -h, --help    Prints help information
+    -h, --help    Print help information
 
 NETWORKING:
     <speed>    How fast";
@@ -2404,7 +2404,7 @@ USAGE:
     test [speed]
 
 FLAGS:
-    -h, --help    Prints help information
+    -h, --help    Print help information
 
 NETWORKING:
     <speed>    How fast";
@@ -2519,8 +2519,8 @@ USAGE:
     my_app [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --some_arg <some_arg> <some_arg>    

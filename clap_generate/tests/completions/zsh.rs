@@ -45,10 +45,10 @@ _myapp() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '::file -- some input file:_files' \
 ":: :_myapp_commands" \
 "*::: :->myapp" \
@@ -62,18 +62,18 @@ _myapp() {
             (test)
 _arguments "${_arguments_options[@]}" \
 '--case=[the case to test]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -85,7 +85,7 @@ esac
 _myapp_commands() {
     local commands; commands=(
 'test:tests things' \
-'help:Prints this message or the help of the given subcommand(s)' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'myapp commands' commands "$@"
 }
@@ -142,10 +142,10 @@ _my_app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '::file -- some input file:_files' \
 ":: :_my_app_commands" \
 "*::: :->my_app" \
@@ -159,43 +159,43 @@ _my_app() {
             (test)
 _arguments "${_arguments_options[@]}" \
 '--case=[the case to test]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" \
 '--config=[the other case to test]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (some-cmd-with-hypens)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (some_cmd_with_special_characters)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -210,7 +210,7 @@ _my_app_commands() {
 'some_cmd:tests other things' \
 'some-cmd-with-hypens:' \
 'some_cmd_with_special_characters:This '\''is'\'' a "special" \[character\] string \\' \
-'help:Prints this message or the help of the given subcommand(s)' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
@@ -295,10 +295,10 @@ _my_app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \
 '--double-quotes[Can be "always", "auto", or "never"]' \
 '--backticks[For more information see `echo test`]' \
@@ -344,10 +344,10 @@ _my_app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 ":: :_my_app_commands" \
 "*::: :->first" \
 && ret=0
@@ -359,10 +359,10 @@ _my_app() {
         case $line[1] in
             (second)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 ":: :_my_app__second_commands" \
 "*::: :->second" \
 && ret=0
@@ -374,8 +374,8 @@ case $state in
         case $line[1] in
             (third)
 _arguments "${_arguments_options[@]}" \
-'--help[Prints help information]' \
-'--version[Prints version information]' \
+'--help[Print help information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -384,10 +384,10 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -399,7 +399,7 @@ esac
 _my_app_commands() {
     local commands; commands=(
 'second:' \
-'help:Prints this message or the help of the given subcommand(s)' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app commands' commands "$@"
 }
@@ -473,10 +473,10 @@ _cmd() {
 '-O+[cmd option]' \
 '--option=[cmd option]' \
 '--opt=[cmd option]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '-f[cmd flag]' \
 '-F[cmd flag]' \
 '--flag[cmd flag]' \

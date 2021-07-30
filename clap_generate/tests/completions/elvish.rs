@@ -48,25 +48,25 @@ edit:completion:arg-completer[my_app] = [@words]{
     }
     completions = [
         &'my_app'= {
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
             cand test 'tests things'
-            cand help 'Prints this message or the help of the given subcommand(s)'
+            cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my_app;test'= {
             cand --case 'the case to test'
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
         &'my_app;help'= {
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
     ]
     $completions[$command]
@@ -112,40 +112,40 @@ edit:completion:arg-completer[my_app] = [@words]{
     }
     completions = [
         &'my_app'= {
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
             cand test 'tests things'
             cand some_cmd 'tests other things'
             cand some-cmd-with-hypens 'some-cmd-with-hypens'
-            cand help 'Prints this message or the help of the given subcommand(s)'
+            cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my_app;test'= {
             cand --case 'the case to test'
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
         &'my_app;some_cmd'= {
             cand --config 'the other case to test'
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
         &'my_app;some-cmd-with-hypens'= {
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
         &'my_app;help'= {
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
         }
     ]
     $completions[$command]
@@ -205,10 +205,10 @@ edit:completion:arg-completer[cmd] = [@words]{
             cand -O 'cmd option'
             cand --option 'cmd option'
             cand --opt 'cmd option'
-            cand -h 'Prints help information'
-            cand --help 'Prints help information'
-            cand -V 'Prints version information'
-            cand --version 'Prints version information'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
             cand -f 'cmd flag'
             cand -F 'cmd flag'
             cand --flag 'cmd flag'

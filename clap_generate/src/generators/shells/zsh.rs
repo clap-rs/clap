@@ -75,7 +75,7 @@ _{name} \"$@\"",
 //      'show:Show the active and installed toolchains'
 //      'update:Update Rust toolchains'
 //      # ... snip for brevity
-//      'help:Prints this message or the help of the given subcommand(s)'
+//      'help:Print this message or the help of the given subcommand(s)'
 //     )
 //     _describe -t commands 'rustup commands' commands "$@"
 //
@@ -296,7 +296,7 @@ fn parser_of<'help, 'app>(parent: &'app App<'help>, bin_name: &str) -> Option<&'
 //
 // _arguments -C -s -S \
 //         '(-h --help --verbose)-v[Enable verbose output]' \
-//         '(-V -v --version --verbose --help)-h[Prints help information]' \
+//         '(-V -v --version --verbose --help)-h[Print help information]' \
 //      # ... snip for brevity
 //         ':: :_rustup_commands' \    # <-- displays subcommands
 //         '*::: :->rustup' \          # <-- displays subcommand args and child subcommands

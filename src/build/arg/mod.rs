@@ -653,8 +653,8 @@ impl<'help> Arg<'help> {
     ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     /// [`Arg::long_about`]: Arg::long_about()
     #[inline]
@@ -723,10 +723,10 @@ impl<'help> Arg<'help> {
     ///             and on, so I'll stop now.
     ///
     ///     -h, --help
-    ///             Prints help information
+    ///             Print help information
     ///
     ///     -V, --version
-    ///             Prints version information
+    ///             Print version information
     /// ```
     /// [`Arg::about`]: Arg::about()
     #[inline]
@@ -2487,8 +2487,8 @@ impl<'help> Arg<'help> {
     ///    valnames [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// OPTIONS:
     ///     --io-files <INFILE> <OUTFILE>    Some help text
@@ -2545,8 +2545,8 @@ impl<'help> Arg<'help> {
     ///    valnames [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// OPTIONS:
     ///     --config <FILE>     Some help text
@@ -3199,8 +3199,8 @@ impl<'help> Arg<'help> {
     ///     cust-ord [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// OPTIONS:
     ///     -O, --other-option <b>    I should be first!
@@ -3779,8 +3779,8 @@ impl<'help> Arg<'help> {
     ///    helptest [FLAGS]
     ///
     /// FLAGS:
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     #[inline]
     pub fn hidden(self, h: bool) -> Self {
@@ -4022,8 +4022,8 @@ impl<'help> Arg<'help> {
     ///     nlh [FLAGS] [OPTIONS]
     ///
     /// FLAGS:
-    ///     -h, --help       Prints help information
-    ///     -V, --version    Prints version information
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///
     /// OPTIONS:
     ///     -o, --long-option-flag <value1> <value2>
@@ -4407,8 +4407,8 @@ impl<'help> Arg<'help> {
     ///    helptest [FLAGS]
     ///
     /// FLAGS:
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     ///
     /// However, when --help is called
@@ -4435,8 +4435,8 @@ impl<'help> Arg<'help> {
     ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     #[inline]
     pub fn hidden_short_help(self, hide: bool) -> Self {
@@ -4485,8 +4485,8 @@ impl<'help> Arg<'help> {
     ///    helptest [FLAGS]
     ///
     /// FLAGS:
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     ///
     /// However, when -h is called
@@ -4513,8 +4513,8 @@ impl<'help> Arg<'help> {
     ///
     /// FLAGS:
     ///     --config     Some help text describing the --config arg
-    /// -h, --help       Prints help information
-    /// -V, --version    Prints version information
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
     /// ```
     #[inline]
     pub fn hidden_long_help(self, hide: bool) -> Self {

@@ -8,11 +8,11 @@ USAGE:
     clap-test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    Some help [aliases: dongle, done]";
 
 static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
@@ -21,11 +21,11 @@ USAGE:
     clap-test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    Some help";
 
 static SUBCMD_ALPHA_ORDER: &str = "test 1
@@ -34,13 +34,13 @@ USAGE:
     test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
     a1      blah a1
     b1      blah b1
-    help    Prints this message or the help of the given subcommand(s)";
+    help    Print this message or the help of the given subcommand(s)";
 
 static SUBCMD_DECL_ORDER: &str = "test 1
 
@@ -48,13 +48,13 @@ USAGE:
     test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 SUBCOMMANDS:
     b1      blah b1
     a1      blah a1
-    help    Prints this message or the help of the given subcommand(s)";
+    help    Print this message or the help of the given subcommand(s)";
 
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized

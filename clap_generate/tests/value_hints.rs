@@ -117,7 +117,7 @@ _my_app() {
 '--host=[]: :_hosts' \
 '--url=[]: :_urls' \
 '--email=[]: :_email_addresses' \
-'--help[Prints help information]' \
+'--help[Print help information]' \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
     
@@ -144,7 +144,7 @@ complete -c my_app -s u -l user -r -f -a "(__fish_complete_users)"
 complete -c my_app -s h -l host -r -f -a "(__fish_print_hostnames)"
 complete -c my_app -l url -r -f
 complete -c my_app -l email -r -f
-complete -c my_app -l help -d 'Prints help information'
+complete -c my_app -l help -d 'Print help information'
 "#;
 
 #[test]

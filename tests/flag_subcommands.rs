@@ -431,8 +431,8 @@ USAGE:
     pacman {query, --query, -Q} [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -i, --info <info>...        view package information
@@ -488,8 +488,8 @@ USAGE:
     pacman {query, --query} [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -i, --info <info>...        view package information
@@ -544,8 +544,8 @@ USAGE:
     pacman {query, -Q} [OPTIONS]
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -i, --info <info>...        view package information

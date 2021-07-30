@@ -13,15 +13,15 @@ FLAGS:
     -4, --4          Sets priority to 4
     -5, --5          Sets priority to 5
     -6, --6          Sets priority to 6
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -t, --task-num <task-num>    Task number [possible values: all, 0, 1, 2]
 
 SUBCOMMANDS:
     0             Set everything to zero priority
-    help          Prints this message or the help of the given subcommand(s)
+    help          Print this message or the help of the given subcommand(s)
     view-tasks    View all tasks";
 
 #[test]

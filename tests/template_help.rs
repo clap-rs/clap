@@ -36,14 +36,14 @@ USAGE:
 
 FLAGS:
     -d               Turn debugging information on
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 ARGS:
     <output>    Sets an optional output file
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    does testing things";
 
 static SIMPLE_TEMPLATE: &str = "MyApp 1.0
@@ -58,14 +58,14 @@ ARGS:
 
 FLAGS:
     -d               Turn debugging information on
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand(s)
+    help    Print this message or the help of the given subcommand(s)
     test    does testing things";
 
 #[test]
