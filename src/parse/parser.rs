@@ -1232,7 +1232,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
-        debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, attached_value);
+        debug!(
+            "Parser::parse_opt; opt={}, val={:?}",
+            opt.name, attached_value
+        );
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
         // has_eq: --flag=value
         let has_eq = matches!(attached_value, Some(fv) if fv.starts_with("="));
