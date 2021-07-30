@@ -68,54 +68,52 @@
 
     <p><strong>Clap</strong> is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.</p>
 <p>Here is an example of a simple program:</p>
-<pre style="background-color:#0f1419;">
-<code class="language-rust" data-lang="rust"><span style="color:#ff7733;">use </span><span style="color:#bfbab0;">clap</span><span style="color:#f29668;">::</span><span style="color:#bfbab0;">Clap</span><span style="color:#bfbab0cc;">;
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">use clap::Clap;
 
-</span><span style="font-style:italic;color:#5c6773;">/// Simple program to greet a person
-</span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">derive</span><span style="color:#bfbab0;">(Clap</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> Debug)]
-</span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(name </span><span style="color:#f29668;">= </span><span style="color:#c2d94c;">&quot;hello&quot;</span><span style="color:#bfbab0;">)]
-</span><span style="color:#ff7733;">struct </span><span style="color:#59c2ff;">Hello </span><span style="color:#bfbab0;">{
-    </span><span style="font-style:italic;color:#5c6773;">/// Name of the person to greet
-    </span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(short</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> long)]
-    name</span><span style="color:#bfbab0cc;">:</span><span style="color:#bfbab0;"> String,
+/// Simple program to greet a person
+#[derive(Clap, Debug)]
+#[clap(name = "hello")]
+struct Hello {
+    /// Name of the person to greet
+    #[clap(short, long)]
+    name: String,
 
-    </span><span style="font-style:italic;color:#5c6773;">/// Number of times to greet
-    </span><span style="color:#bfbab0cc;">#</span><span style="color:#bfbab0;">[</span><span style="color:#ffb454;">clap</span><span style="color:#bfbab0;">(short</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> long</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> default_value </span><span style="color:#f29668;">= </span><span style="color:#c2d94c;">&quot;1&quot;</span><span style="color:#bfbab0;">)]
-    count</span><span style="color:#bfbab0cc;">: </span><span style="color:#ff7733;">u8</span><span style="color:#bfbab0;">,
+    /// Number of times to greet
+    #[clap(short, long, default_value = "1")]
+    count: u8,
 }
 
-</span><span style="color:#ff7733;">fn </span><span style="color:#ffb454;">main</span><span style="color:#bfbab0;">() {
-    </span><span style="color:#ff7733;">let</span><span style="color:#bfbab0;"> hello </span><span style="color:#f29668;">= </span><span style="color:#bfbab0;">Hello</span><span style="color:#f29668;">::</span><span style="color:#bfbab0;">parse()</span><span style="color:#bfbab0cc;">;
+fn main() {
+    let hello = Hello::parse();
 
-    </span><span style="color:#ff7733;">for </span><span style="color:#f29668;">_ in </span><span style="color:#f29718;">0</span><span style="color:#f29668;">..</span><span style="color:#bfbab0;">hello</span><span style="color:#f29668;">.</span><span style="color:#bfbab0;">count {
-        </span><span style="color:#f07178;">println!</span><span style="color:#bfbab0;">(</span><span style="color:#c2d94c;">&quot;Hello </span><span style="color:#f29718;">{}</span><span style="color:#c2d94c;">!&quot;</span><span style="color:#bfbab0cc;">,</span><span style="color:#bfbab0;"> hello</span><span style="color:#f29668;">.</span><span style="color:#bfbab0;">name)
+    for _ in 0..hello.count {
+        println!("Hello {}!", hello.name)
     }
 }
-</span></code></pre>
+</code></pre>
 <p>The above example program can be run as shown below:</p>
-<pre style="background-color:#0f1419;">
-<code><span style="color:#bfbab0;">$ hello --name John --count 3
+<pre><code>$ hello --name John --count 3
 Hello John!
 Hello John!
 Hello John!
-</span></code></pre>
+</code></pre>
 <p>The program also has automatically generated help message:</p>
-<pre style="background-color:#0f1419;">
-<code><span style="color:#bfbab0;">hello
+<pre><code>hello
 
 Simple program to greet a person
 
 USAGE:
-    hello [OPTIONS] --name &lt;name&gt;
+    hello [OPTIONS] --name <name>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
-    -c, --count &lt;count&gt;    Number of times to greet [default: 1]
-    -n, --name &lt;name&gt;      Name of the person to greet
-</span></code></pre>
+    -c, --count <count>    Number of times to greet [default: 1]
+    -n, --name <name>      Name of the person to greet
+</code></pre>
+
   </article>
 </main>
 
