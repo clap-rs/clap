@@ -1065,17 +1065,13 @@ impl<'help, 'app> Parser<'help, 'app> {
             Some(opt)
         } else if self.is_set(AS::InferLongArgs) {
             let arg_str = arg.to_string_lossy();
-            self.app
-                .args
-                .args()
-                .filter(|a| {
-                    a.long
-                        .map_or(false, |long| long.starts_with(arg_str.as_ref()))
-                        || a.aliases
-                            .iter()
-                            .any(|(alias, _)| alias.starts_with(arg_str.as_ref()))
-                })
-                .next()
+            self.app.args.args().find(|a| {
+                a.long
+                    .map_or(false, |long| long.starts_with(arg_str.as_ref()))
+                    || a.aliases
+                        .iter()
+                        .any(|(alias, _)| alias.starts_with(arg_str.as_ref()))
+            })
         } else {
             None
         };
