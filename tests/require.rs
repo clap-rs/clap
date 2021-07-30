@@ -1022,6 +1022,38 @@ fn issue_1643_args_mutually_require_each_other() {
     app.get_matches_from(&["test", "-u", "hello", "-r", "farewell"]);
 }
 
+#[test]
+fn short_flag_require_equals_with_minvals_zero() {
+    let m = App::new("foo")
+        .arg(
+            Arg::new("check")
+                .short('c')
+                .min_values(0)
+                .require_equals(true),
+        )
+        .arg(Arg::new("unique").short('u'))
+        .get_matches_from(&["foo", "-cu"]);
+    assert!(m.is_present("check"));
+    assert!(m.is_present("unique"));
+}
+
+#[test]
+fn issue_2624() {
+    let matches = App::new("foo")
+        .arg(
+            Arg::new("check")
+                .short('c')
+                .long("check")
+                .require_equals(true)
+                .min_values(0)
+                .possible_values(&["silent", "quiet", "diagnose-first"]),
+        )
+        .arg(Arg::new("unique").short('u').long("unique"))
+        .get_matches_from(&["foo", "-cu"]);
+    assert!(matches.is_present("check"));
+    assert!(matches.is_present("unique"));
+}
+
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'requires*' for 'config' does not exist"]

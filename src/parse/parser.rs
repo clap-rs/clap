@@ -29,6 +29,7 @@ pub(crate) enum ParseResult {
     Pos(Id),
     MaybeHyphenValue,
     NotFound,
+    AttachedValueNotConsumed,
     ValuesDone,
 }
 
@@ -387,7 +388,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 subcmd_name = Some(name.to_owned());
                                 break;
                             }
-                            ParseResult::FlagSubCommandShort(_) => unreachable!(),
                             _ => (),
                         }
                     } else if arg_os.starts_with("-")
@@ -433,7 +433,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 subcmd_name = Some(name.to_owned());
                                 break;
                             }
-                            ParseResult::FlagSubCommand(_) => unreachable!(),
                             _ => (),
                         }
                     }
@@ -1053,11 +1052,26 @@ impl<'help, 'app> Parser<'help, 'app> {
             (long_arg, None)
         };
 
-        if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
+        let opt = if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(
                 "Parser::parse_long_arg: Found valid opt or flag '{}'",
                 opt.to_string()
             );
+            Some(opt)
+        } else if self.is_set(AS::InferLongArgs) {
+            let arg_str = arg.to_string_lossy();
+            self.app.args.args().find(|a| {
+                a.long
+                    .map_or(false, |long| long.starts_with(arg_str.as_ref()))
+                    || a.aliases
+                        .iter()
+                        .any(|(alias, _)| alias.starts_with(arg_str.as_ref()))
+            })
+        } else {
+            None
+        };
+
+        if let Some(opt) = opt {
             self.app.settings.set(AS::ValidArgFound);
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
@@ -1065,37 +1079,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else {
                 self.check_for_help_and_version_str(&arg)?;
                 return Ok(self.parse_flag(opt, matcher));
-            }
-        }
-
-        if self.is_set(AS::InferLongArgs) {
-            let arg_str = arg.to_string_lossy();
-            let matches: Vec<_> = self
-                .app
-                .args
-                .args()
-                .filter(|a| {
-                    a.long
-                        .map_or(false, |long| long.starts_with(arg_str.as_ref()))
-                        || a.aliases
-                            .iter()
-                            .any(|(alias, _)| alias.starts_with(arg_str.as_ref()))
-                })
-                .collect();
-
-            if let [opt] = matches.as_slice() {
-                debug!(
-                    "Parser::parse_long_arg: Found valid opt or flag '{}'",
-                    opt.to_string()
-                );
-                self.app.settings.set(AS::ValidArgFound);
-                self.seen.push(opt.id.clone());
-                if opt.is_set(ArgSettings::TakesValue) {
-                    return self.parse_opt(&val, opt, matcher);
-                } else {
-                    self.check_for_help_and_version_str(&arg)?;
-                    return Ok(self.parse_flag(opt, matcher));
-                }
             }
         }
 
@@ -1188,8 +1171,17 @@ impl<'help, 'app> Parser<'help, 'app> {
                     None
                 };
 
-                // Default to "we're expecting a value later"
-                return self.parse_opt(&val, opt, matcher);
+                // Default to "we're expecting a value later".
+                //
+                // If attached value is not consumed, we may have more short
+                // flags to parse, continue.
+                //
+                // e.g. `-xvf`, when RequireEquals && x.min_vals == 0, we don't
+                // consume the `vf`, even if it's provided as value.
+                match self.parse_opt(&val, opt, matcher)? {
+                    ParseResult::AttachedValueNotConsumed => continue,
+                    x => return Ok(x),
+                }
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
@@ -1224,24 +1216,53 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     fn parse_opt(
         &self,
-        val: &Option<ArgStr>,
+        attached_value: &Option<ArgStr>,
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<ParseResult> {
-        debug!("Parser::parse_opt; opt={}, val={:?}", opt.name, val);
+        debug!(
+            "Parser::parse_opt; opt={}, val={:?}",
+            opt.name, attached_value
+        );
         debug!("Parser::parse_opt; opt.settings={:?}", opt.settings);
         // has_eq: --flag=value
-        let mut has_eq = false;
-        let no_val = val.is_none();
-        let no_empty_vals = opt.is_set(ArgSettings::ForbidEmptyValues);
-        let min_vals_zero = opt.min_vals.unwrap_or(1) == 0;
-        let require_equals = opt.is_set(ArgSettings::RequireEquals);
+        let has_eq = matches!(attached_value, Some(fv) if fv.starts_with("="));
 
         debug!("Parser::parse_opt; Checking for val...");
-        if let Some(fv) = val {
-            has_eq = fv.starts_with("=");
+        // RequireEquals is set, but no '=' is provided, try throwing error.
+        if opt.is_set(ArgSettings::RequireEquals) && !has_eq {
+            if opt.min_vals == Some(0) {
+                debug!("Requires equals, but min_vals == 0");
+                // We assume this case is valid: require equals, but min_vals == 0.
+                if !opt.default_missing_vals.is_empty() {
+                    debug!("Parser::parse_opt: has default_missing_vals");
+                    self.add_multiple_vals_to_arg(
+                        opt,
+                        opt.default_missing_vals.iter().map(OsString::from),
+                        matcher,
+                        ValueType::CommandLine,
+                        false,
+                    );
+                };
+                self.inc_occurrence_of_arg(matcher, opt);
+                if attached_value.is_some() {
+                    return Ok(ParseResult::AttachedValueNotConsumed);
+                } else {
+                    return Ok(ParseResult::ValuesDone);
+                }
+            } else {
+                debug!("Requires equals but not provided. Error.");
+                return Err(ClapError::no_equals(
+                    opt,
+                    Usage::new(self).create_usage_with_title(&[]),
+                    self.app.color(),
+                ));
+            }
+        }
+
+        if let Some(fv) = attached_value {
             let v = fv.trim_start_n_matches(1, b'=');
-            if no_empty_vals && (v.is_empty() || (require_equals && !has_eq)) {
+            if opt.is_set(ArgSettings::ForbidEmptyValues) && v.is_empty() {
                 debug!("Found Empty - Error");
                 return Err(ClapError::empty_value(
                     opt,
@@ -1256,56 +1277,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv.starts_with("=")
             );
             self.add_val_to_arg(opt, v, matcher, ValueType::CommandLine, false);
-        } else if require_equals {
-            if min_vals_zero {
-                debug!("Requires equals, but min_vals == 0");
-                if !opt.default_missing_vals.is_empty() {
-                    debug!("Parser::parse_opt: has default_missing_vals");
-                    let vals = opt
-                        .default_missing_vals
-                        .iter()
-                        .map(OsString::from)
-                        .collect();
-                    self.add_multiple_vals_to_arg(
-                        opt,
-                        vals,
-                        matcher,
-                        ValueType::CommandLine,
-                        false,
-                    );
-                };
-            } else {
-                debug!("Requires equals but not provided. Error.");
-                return Err(ClapError::no_equals(
-                    opt,
-                    Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            }
-        } else {
-            debug!("None");
-        }
-
-        self.inc_occurrence_of_arg(matcher, opt);
-
-        let needs_delimiter = opt.is_set(ArgSettings::RequireDelimiter);
-        let multiple = opt.is_set(ArgSettings::MultipleValues);
-        // @TODO @soundness: if doesn't have an equal, but requires equal is ValuesDone?!
-        if no_val && min_vals_zero && require_equals {
-            debug!("Parser::parse_opt: More arg vals not required...");
+            self.inc_occurrence_of_arg(matcher, opt);
             Ok(ParseResult::ValuesDone)
-        } else if no_val
-            || (multiple && !needs_delimiter) && !has_eq && matcher.needs_more_vals(opt)
-        {
+        } else {
             debug!("Parser::parse_opt: More arg vals required...");
+            self.inc_occurrence_of_arg(matcher, opt);
             matcher.new_val_group(&opt.id);
             for group in self.app.groups_for_arg(&opt.id) {
                 matcher.new_val_group(&group);
             }
             Ok(ParseResult::Opt(opt.id.clone()))
-        } else {
-            debug!("Parser::parse_opt: More arg vals not required...");
-            Ok(ParseResult::ValuesDone)
         }
     }
 
@@ -1338,8 +1319,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else {
                     arg_split.collect()
                 };
-                let vals = vals.into_iter().map(|x| x.into_os_string()).collect();
-                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
+                self.add_multiple_vals_to_arg(
+                    arg,
+                    vals.into_iter().map(|x| x.into_os_string()),
+                    matcher,
+                    ty,
+                    append,
+                );
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values or no more vals is needed, we're not
                 // looking for more values.
@@ -1369,7 +1355,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn add_multiple_vals_to_arg(
         &self,
         arg: &Arg<'help>,
-        vals: Vec<OsString>,
+        vals: impl Iterator<Item = OsString>,
         matcher: &mut ArgMatcher,
         ty: ValueType,
         append: bool,
@@ -1538,8 +1524,13 @@ impl<'help, 'app> Parser<'help, 'app> {
             } else {
                 debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
 
-                let vals = arg.default_vals.iter().map(OsString::from).collect();
-                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+                self.add_multiple_vals_to_arg(
+                    arg,
+                    arg.default_vals.iter().map(OsString::from),
+                    matcher,
+                    ty,
+                    false,
+                );
             }
         } else {
             debug!(
@@ -1561,12 +1552,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                         "Parser::add_value:iter:{}: has no user defined vals",
                         arg.name
                     );
-                    let vals = arg
-                        .default_missing_vals
-                        .iter()
-                        .map(OsString::from)
-                        .collect();
-                    self.add_multiple_vals_to_arg(arg, vals, matcher, ty, false);
+                    self.add_multiple_vals_to_arg(
+                        arg,
+                        arg.default_missing_vals.iter().map(OsString::from),
+                        matcher,
+                        ty,
+                        false,
+                    );
                 }
                 None => {
                     debug!("Parser::add_value:iter:{}: wasn't used", arg.name);
