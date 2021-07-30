@@ -231,7 +231,15 @@ pub fn gen_augment(
                     _ => quote!(),
                 };
 
-                let value_name = attrs.value_name();
+                let value_name = if attrs.has_method("value_name") {
+                    // `value_name` appends, so don't touch it if the user does.
+                    quote!()
+                } else {
+                    let value_name = attrs.value_name();
+                    quote_spanned! { func.span()=>
+                        .value_name(#value_name)
+                    }
+                };
 
                 let modifier = match **ty {
                     Ty::Bool => quote!(),
@@ -247,7 +255,7 @@ pub fn gen_augment(
 
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
-                            .value_name(#value_name)
+                            #value_name
                             #possible_values
                             #validator
                         }
@@ -255,7 +263,7 @@ pub fn gen_augment(
 
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .takes_value(true)
-                        .value_name(#value_name)
+                        #value_name
                         .multiple_values(false)
                         .min_values(0)
                         .max_values(1)
@@ -264,7 +272,7 @@ pub fn gen_augment(
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
                         .takes_value(true)
-                        .value_name(#value_name)
+                        #value_name
                         .multiple_values(true)
                         .min_values(0)
                         #validator
@@ -281,7 +289,7 @@ pub fn gen_augment(
 
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
-                            .value_name(#value_name)
+                            #value_name
                             .multiple_values(true)
                             #possible_values
                             #validator
@@ -307,7 +315,7 @@ pub fn gen_augment(
 
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
-                            .value_name(#value_name)
+                            #value_name
                             .required(#required)
                             #possible_values
                             #validator
