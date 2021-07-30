@@ -1082,8 +1082,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return self.parse_opt(&val, opt, matcher);
             }
             debug!("Parser::parse_long_arg: Found a flag");
-            self.check_for_help_and_version_str(&arg)?;
-            return if let Some(rest) = val {
+            if let Some(rest) = val {
                 debug!(
                     "Parser::parse_long_arg: Got invalid literal `{:?}`",
                     rest.to_os_string()
@@ -1098,16 +1097,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                     .cloned()
                     .collect();
 
-                Err(ClapError::too_many_values(
+                return Err(ClapError::too_many_values(
                     rest.to_string_lossy().into(),
                     opt,
                     Usage::new(self).create_usage_no_title(&used),
                     self.app.color(),
-                ))
-            } else {
-                debug!("Parser::parse_long_arg: Presence validated");
-                Ok(self.parse_flag(opt, matcher))
-            };
+                ));
+            }
+            self.check_for_help_and_version_str(&arg)?;
+            debug!("Parser::parse_long_arg: Presence validated");
+            return Ok(self.parse_flag(opt, matcher));
         }
 
         if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
