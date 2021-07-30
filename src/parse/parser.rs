@@ -29,6 +29,7 @@ pub(crate) enum ParseResult {
     Pos(Id),
     MaybeHyphenValue,
     NotFound,
+    AttachedValueNotConsumed,
     ValuesDone,
 }
 
@@ -387,10 +388,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 subcmd_name = Some(name.to_owned());
                                 break;
                             }
-                            ParseResult::FlagSubCommandShort(_) => unreachable!(),
-                            ParseResult::NotFound
-                            | ParseResult::Pos(_)
-                            | ParseResult::MaybeHyphenValue => (),
+                            _ => (),
                         }
                     } else if arg_os.starts_with("-")
                         && arg_os.len() != 1
@@ -435,10 +433,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 subcmd_name = Some(name.to_owned());
                                 break;
                             }
-                            ParseResult::FlagSubCommand(_) => unreachable!(),
-                            ParseResult::NotFound
-                            | ParseResult::Pos(_)
-                            | ParseResult::MaybeHyphenValue => (),
+                            _ => (),
                         }
                     }
                 } else if let ParseResult::Opt(id) = needs_val_of {
@@ -1176,8 +1171,17 @@ impl<'help, 'app> Parser<'help, 'app> {
                     None
                 };
 
-                // Default to "we're expecting a value later"
-                return self.parse_opt(&val, opt, matcher);
+                // Default to "we're expecting a value later".
+                //
+                // If attached value is not consumed, we may have more short
+                // flags to parse, continue.
+                //
+                // e.g. `-xvf`, when RequireEquals && x.min_vals == 0, we don't
+                // consume the `vf`, even if it's provided as value.
+                match self.parse_opt(&val, opt, matcher)? {
+                    ParseResult::AttachedValueNotConsumed => continue,
+                    x => return Ok(x),
+                }
             } else if let Some(sc_name) = self.app.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
                 let name = sc_name.to_string();
@@ -1241,7 +1245,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                     );
                 };
                 self.inc_occurrence_of_arg(matcher, opt);
-                return Ok(ParseResult::ValuesDone);
+                if attached_value.is_some() {
+                    return Ok(ParseResult::AttachedValueNotConsumed);
+                } else {
+                    return Ok(ParseResult::ValuesDone);
+                }
             } else {
                 debug!("Requires equals but not provided. Error.");
                 return Err(ClapError::no_equals(
