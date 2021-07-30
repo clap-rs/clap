@@ -47,8 +47,6 @@ version-sync = "0.9"
 [features]
 default = []
 debug = []
-doc = []
 
 [package.metadata.docs.rs]
-features = ["doc"]
 targets = ["x86_64-unknown-linux-gnu"]
