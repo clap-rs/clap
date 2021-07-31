@@ -1772,40 +1772,91 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
+        use crate::util::{str_to_bool, FALSE_LITERALS, TRUE_LITERALS};
+
         if self.app.is_set(AS::DisableEnv) {
+            debug!("Parser::add_env: Env vars disabled, quitting");
             return Ok(());
         }
 
-        for a in self.app.args.args() {
-            // Use env only if the arg was not present among command line args
-            if matcher.get(&a.id).map_or(true, |a| a.occurs == 0) {
-                if let Some((_, Some(ref val))) = a.env {
-                    let val = ArgStr::new(val);
-                    if a.is_set(ArgSettings::TakesValue) {
-                        self.add_val_to_arg(
-                            a,
-                            val,
-                            matcher,
-                            ValueType::EnvVariable,
-                            false,
-                            trailing_values,
-                        );
-                    } else {
-                        match self.check_for_help_and_version_str(&val) {
-                            Some(ParseResult::HelpFlag) => {
-                                return Err(self.help_err(true));
-                            }
-                            Some(ParseResult::VersionFlag) => {
-                                return Err(self.version_err(true));
-                            }
-                            _ => (),
+        self.app.args.args().try_for_each(|a| {
+            // Use env only if the arg was absent among command line args,
+            // early return if this is not the case.
+            if matcher.get(&a.id).map_or(false, |a| a.occurs != 0) {
+                debug!("Parser::add_env: Skipping existing arg `{}`", a);
+                return Ok(());
+            }
+
+            debug!("Parser::add_env: Checking arg `{}`", a);
+            if let Some((_, Some(ref val))) = a.env {
+                let val = ArgStr::new(val);
+
+                if a.is_set(ArgSettings::TakesValue) {
+                    debug!(
+                        "Parser::add_env: Found an opt with value={:?}, trailing={:?}",
+                        val, trailing_values
+                    );
+                    self.add_val_to_arg(
+                        a,
+                        val,
+                        matcher,
+                        ValueType::EnvVariable,
+                        false,
+                        trailing_values,
+                    );
+                    return Ok(());
+                }
+
+                debug!("Parser::add_env: Checking for help and version");
+                // Early return on `HelpFlag` or `VersionFlag`.
+                match self.check_for_help_and_version_str(&val) {
+                    Some(ParseResult::HelpFlag) => {
+                        return Err(self.help_err(true));
+                    }
+                    Some(ParseResult::VersionFlag) => {
+                        return Err(self.version_err(true));
+                    }
+                    _ => (),
+                }
+
+                debug!("Parser::add_env: Found a flag with value `{:?}`", val);
+                match str_to_bool(val.to_string_lossy()) {
+                    Ok(predicate) => {
+                        debug!("Parser::add_env: Found boolean literal `{}`", predicate);
+                        if predicate {
+                            matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
                         }
-                        matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
+                    }
+                    Err(rest) => {
+                        debug!("Parser::parse_long_arg: Got invalid literal `{}`", rest);
+                        let used: Vec<Id> = matcher
+                            .arg_names()
+                            .filter(|&n| {
+                                self.app.find(n).map_or(true, |a| {
+                                    !(a.is_set(ArgSettings::Hidden)
+                                        || self.required.contains(&a.id))
+                                })
+                            })
+                            .cloned()
+                            .collect();
+                        let good_vals: Vec<&str> = TRUE_LITERALS
+                            .iter()
+                            .chain(FALSE_LITERALS.iter())
+                            .copied()
+                            .collect();
+                        return Err(ClapError::invalid_value(
+                            rest.into(),
+                            &good_vals,
+                            a,
+                            Usage::new(self).create_usage_no_title(&used),
+                            self.app.color(),
+                        ));
                     }
                 }
             }
-        }
-        Ok(())
+
+            Ok(())
+        })
     }
 
     /// Increase occurrence of specific argument and the grouped arg it's in.

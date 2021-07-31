@@ -1,7 +1,7 @@
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{App, AppSettings, Arg};
+use clap::{App, AppSettings, Arg, Error as ClapError};
 
 #[test]
 fn env() {
@@ -30,11 +30,33 @@ fn env_no_takes_value() {
         .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
         .try_get_matches_from(vec![""]);
 
+    assert!(matches!(
+        dbg!(r),
+        Err(ClapError {
+            kind: clap::ErrorKind::InvalidValue,
+            ..
+        })
+    ));
+}
+
+#[test]
+fn env_bool_literal() {
+    env::set_var("CLP_TEST_FLAG_TRUE", "On");
+    env::set_var("CLP_TEST_FLAG_FALSE", "nO");
+
+    let r = App::new("df")
+        .arg(Arg::from("[present] 'some opt'").env("CLP_TEST_FLAG_TRUE"))
+        .arg(Arg::from("[negated] 'some another opt'").env("CLP_TEST_FLAG_FALSE"))
+        .arg(Arg::from("[absent] 'some third opt'").env("CLP_TEST_FLAG_ABSENT"))
+        .try_get_matches_from(vec![""]);
+
     assert!(r.is_ok());
     let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg"), None);
+    assert!(m.is_present("present"));
+    assert_eq!(m.occurrences_of("present"), 0);
+    assert_eq!(m.value_of("present"), None);
+    assert!(!m.is_present("negated"));
+    assert!(!m.is_present("absent"));
 }
 
 #[test]
