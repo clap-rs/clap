@@ -5,3 +5,11 @@ error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
   |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
   |
   = note: required by `augment_args`
+
+error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
+ --> $DIR/enum_variant_not_args.rs:3:9
+  |
+3 |     Sub(SubCmd),
+  |         ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+  |
+  = note: required by `augment_args_for_update`

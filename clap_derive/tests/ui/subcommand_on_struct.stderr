@@ -4,4 +4,4 @@ error: `#[derive(Subcommand)]` only supports enums
 3 | #[derive(Subcommand, Debug)]
   |          ^^^^^^^^^^
   |
-  = note: this error originates in a derive macro (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the derive macro `Subcommand` (in Nightly builds, run with -Z macro-backtrace for more info)

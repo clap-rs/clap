@@ -8,7 +8,7 @@ TODO: `cargo`, `std` features
 ## v3.0.0-rc.0
 
 #### Minimum Required Rust
-* As of this release, `clap` requires `rustc 1.46.0` or greater.
+* As of this release, `clap` requires `rustc 1.54.0` or greater.
 
 #### BREAKING CHANGES
 

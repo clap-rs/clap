@@ -91,7 +91,6 @@ derive      = ["clap_derive", "lazy_static"]
 yaml        = ["yaml-rust"]
 cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 debug       = ["clap_derive/debug"] # Enables debug messages
-doc         = ["yaml", "regex"] # All the features which add to documentation
 
 [profile.test]
 opt-level = 1
@@ -101,7 +100,7 @@ lto = true
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["doc"]
+features = ["yaml", "regex"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [workspace]
