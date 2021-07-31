@@ -65,10 +65,10 @@ impl Colorizer {
     pub(crate) fn print(&self) -> io::Result<()> {
         use termcolor::{BufferWriter, ColorSpec, WriteColor};
 
-        let color_when = if is_a_tty(self.use_stderr) {
-            self.color_when
-        } else {
-            ColorChoice::Never
+        let color_when = match self.color_when {
+            always @ ColorChoice::Always => always,
+            choice if is_a_tty(self.use_stderr) => choice,
+            _ => ColorChoice::Never,
         };
 
         let writer = if self.use_stderr {
