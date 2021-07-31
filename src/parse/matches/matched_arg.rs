@@ -62,8 +62,8 @@ impl MatchedArg {
         self.vals.iter().flatten()
     }
 
-    pub(crate) fn get_val(&self, index: usize) -> Option<&OsString> {
-        self.vals.get(0)?.get(index)
+    pub(crate) fn first(&self) -> Option<&OsString> {
+        self.vals_flatten().next()
     }
 
     pub(crate) fn push_val(&mut self, val: OsString) {
@@ -188,6 +188,16 @@ mod tests {
                 OsString::from("iii"),
             ]]
         );
+    }
+
+    #[test]
+    fn test_grouped_vals_first() {
+        let mut m = MatchedArg::new();
+        m.new_val_group();
+        m.new_val_group();
+        m.append_val("bbb".into());
+        m.append_val("ccc".into());
+        assert_eq!(m.first(), Some(&OsString::from("bbb")));
     }
 
     #[test]
