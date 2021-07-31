@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, Arg, ArgMatches};
 
 #[test]
 fn opt_missing() {
@@ -107,4 +107,35 @@ fn opt_default_user_override() {
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "value");
+}
+
+#[test]
+fn default_missing_value_flag_value() {
+    let app = App::new("test").arg(
+        Arg::new("flag")
+            .long("flag")
+            .takes_value(true)
+            .default_missing_value("true"),
+    );
+
+    fn flag_value(m: ArgMatches) -> bool {
+        match m.value_of("flag") {
+            None => false,
+            Some(x) => x.parse().expect("non boolean value"),
+        }
+    }
+
+    assert_eq!(flag_value(app.clone().get_matches_from(&["test"])), false);
+    assert_eq!(
+        flag_value(app.clone().get_matches_from(&["test", "--flag"])),
+        true
+    );
+    assert_eq!(
+        flag_value(app.clone().get_matches_from(&["test", "--flag=true"])),
+        true
+    );
+    assert_eq!(
+        flag_value(app.clone().get_matches_from(&["test", "--flag=false"])),
+        false
+    );
 }

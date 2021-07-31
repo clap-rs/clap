@@ -121,7 +121,7 @@ impl ArgMatches {
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
-            if let Some(v) = arg.get_val(0) {
+            if let Some(v) = arg.first() {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
         }
@@ -158,7 +158,7 @@ impl ArgMatches {
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         if let Some(arg) = self.args.get(&Id::from(id)) {
-            if let Some(v) = arg.get_val(0) {
+            if let Some(v) = arg.first() {
                 return Some(v.to_string_lossy());
             }
         }
@@ -199,7 +199,7 @@ impl ArgMatches {
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         self.args
             .get(&Id::from(id))
-            .and_then(|arg| arg.get_val(0).map(OsString::as_os_str))
+            .and_then(|arg| arg.first().map(OsString::as_os_str))
     }
 
     /// Gets a [`Values`] struct which implements [`Iterator`] for values of a specific argument
