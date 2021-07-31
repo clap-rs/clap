@@ -2528,3 +2528,57 @@ OPTIONS:
         false
     ));
 }
+
+#[test]
+fn missing_positional_final_required() {
+    let app = App::new("test")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::new("arg1"))
+        .arg(Arg::new("arg2").required(true));
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test [arg1] <arg2>
+
+ARGS:
+    <arg1>    
+    <arg2>    
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+",
+        false
+    ));
+}
+
+#[test]
+fn missing_positional_final_multiple() {
+    let app = App::new("test")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::new("foo"))
+        .arg(Arg::new("bar"))
+        .arg(Arg::new("baz").takes_value(true).multiple_values(true));
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test [ARGS]
+
+ARGS:
+    <foo>       
+    <bar>       
+    <baz>...    
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+",
+        false
+    ));
+}

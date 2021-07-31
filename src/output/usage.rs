@@ -76,7 +76,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             usage.push_str(" [OPTIONS]");
         }
 
-        usage.push_str(&req_string[..]);
+        let allow_mising_positional = self.p.app.is_set(AS::AllowMissingPositional);
+        if !allow_mising_positional {
+            usage.push_str(&req_string);
+        }
 
         let has_last = self
             .p
@@ -140,6 +143,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     usage.push(']');
                 }
             }
+        }
+
+        if allow_mising_positional {
+            usage.push_str(&req_string);
         }
 
         // incl_reqs is only false when this function is called recursively
