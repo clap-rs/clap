@@ -92,7 +92,7 @@ fn flag_using_long_with_literals() {
     use clap::ErrorKind;
 
     let m = App::new("flag")
-        .arg(Arg::new("rainbow"))
+        .arg(Arg::new("rainbow").long("rainbow"))
         .try_get_matches_from(vec!["", "--rainbow=false"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
