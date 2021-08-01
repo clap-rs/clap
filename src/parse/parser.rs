@@ -1289,14 +1289,6 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(fv) = attached_value {
             let v = fv.trim_start_n_matches(1, b'=');
-            if opt.is_set(ArgSettings::ForbidEmptyValues) && v.is_empty() {
-                debug!("Found Empty - Error");
-                return Err(ClapError::empty_value(
-                    opt,
-                    Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
-                ));
-            }
             debug!("Found - {:?}, len: {}", v, v.len());
             debug!(
                 "Parser::parse_opt: {:?} contains '='...{:?}",
