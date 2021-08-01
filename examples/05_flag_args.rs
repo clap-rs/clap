@@ -29,12 +29,6 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        .arg(
-            // Sometimes we might want to accept one of the following: `--pseudo-flag`, `--pseudo-flag=true`, `--pseudo-flag=false.`
-            // The following is the `pseudo-flag` pattern stated in https://github.com/clap-rs/clap/issues/1649#issuecomment-661274943
-            Arg::new("pseudo-flag") // Create a "pesudo-flag" with optional value
-                .possible_values(&["true", "false"]), // Limit that value to `true` of `false`
-        )
         .arg("-c, --config=[FILE] 'sets a custom config file'")
         .arg("<output> 'sets an output file'")
         .get_matches();
@@ -42,11 +36,6 @@ fn main() {
     // We can find out whether or not awesome was used
     if matches.is_present("awesome") {
         println!("Awesomeness is turned on");
-    }
-
-    // Same thing with `pseudo-flag`
-    if matches.value_of("pseudo-flag") != Some("false") {
-        println!("Pseudo-flag is turned on");
     }
 
     // If we set the multiple option of a flag we can check how many times the user specified
