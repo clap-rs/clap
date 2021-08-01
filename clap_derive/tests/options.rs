@@ -14,7 +14,10 @@
 
 #![allow(clippy::option_option)]
 
+mod utils;
+
 use clap::Clap;
+use utils::*;
 
 #[test]
 fn required_option() {
@@ -133,6 +136,18 @@ fn optional_argument_for_optional_option() {
     assert_eq!(Opt { arg: Some(None) }, Opt::parse_from(&["test", "-a"]));
     assert_eq!(Opt { arg: None }, Opt::parse_from(&["test"]));
     assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
+}
+
+#[test]
+fn option_option_help() {
+    #[derive(Clap, Debug)]
+    struct Opt {
+        #[clap(long, value_name = "val")]
+        arg: Option<Option<i32>>,
+    }
+    let help = get_help::<Opt>();
+    assert!(help.contains("--arg <val>"));
+    assert!(!help.contains("--arg <val>..."));
 }
 
 #[test]

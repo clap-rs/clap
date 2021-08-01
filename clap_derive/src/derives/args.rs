@@ -264,9 +264,9 @@ pub fn gen_augment(
                     Ty::OptionOption => quote_spanned! { ty.span()=>
                         .takes_value(true)
                         #value_name
-                        .multiple_values(false)
                         .min_values(0)
                         .max_values(1)
+                        .multiple_values(false)
                         #validator
                     },
 
