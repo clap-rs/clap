@@ -394,6 +394,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                         && arg_os.len() != 1
                         && !(self.is_set(AS::AllowNegativeNumbers)
                             && arg_os.to_string_lossy().parse::<f64>().is_ok())
+                        && !(self.is_set(AS::AllowLeadingHyphen)
+                            && arg_os
+                                .trim_start_matches(b'-')
+                                .to_string_lossy()
+                                .chars()
+                                .any(|c| !self.app.contains_short(c)))
                     {
                         // Arg looks like a short flag, and not a possible number
 
@@ -1134,16 +1140,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
         let arg = arg_os.to_string_lossy();
-
-        // If AllowLeadingHyphen is set, we want to ensure `-val` gets parsed as `-val` and not
-        // `-v` `-a` `-l` assuming `v` `a` and `l` are all, or mostly, valid shorts.
-        if self.is_set(AS::AllowLeadingHyphen) && arg.chars().any(|c| !self.app.contains_short(c)) {
-            debug!(
-                "Parser::parse_short_arg: LeadingHyphenAllowed yet -{} isn't valid",
-                arg
-            );
-            return Ok(ParseResult::MaybeHyphenValue);
-        }
 
         let mut ret = ParseResult::NotFound;
 
