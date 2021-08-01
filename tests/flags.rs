@@ -87,20 +87,13 @@ fn flag_using_long() {
     assert!(m.is_present("color"));
 }
 
-#[cfg(feature = "suggestions")]
 #[test]
 fn flag_using_long_with_literals() {
     use clap::ErrorKind;
 
     let m = App::new("flag")
-        .args(&[Arg::from("--rainbow 'yet another flag'").multiple_occurrences(true)])
-        .try_get_matches_from(vec![
-            "",
-            "--rainbow",
-            "--rainbow",
-            "--rainbow=false",
-            "--rainbow=true",
-        ]);
+        .arg(Arg::new("rainbow"))
+        .try_get_matches_from(vec!["", "--rainbow=false"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
 }
