@@ -33,10 +33,7 @@ fn main() {
             // Sometimes we might want to accept one of the following: `--pseudo-flag`, `--pseudo-flag=true`, `--pseudo-flag=false.`
             // The following is the `pseudo-flag` pattern stated in https://github.com/clap-rs/clap/issues/1649#issuecomment-661274943
             Arg::new("pseudo-flag") // Create a "pesudo-flag" with optional value
-                .possible_values(&["true", "false"]) // Limit that value to `true` of `false`
-                .long("pseudo-flag")
-                .min_values(0)
-                .max_values(1),
+                .possible_values(&["true", "false"]), // Limit that value to `true` of `false`
         )
         .arg("-c, --config=[FILE] 'sets a custom config file'")
         .arg("<output> 'sets an output file'")
