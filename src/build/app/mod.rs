@@ -2485,7 +2485,8 @@ impl<'help> App<'help> {
         {
             debug!("App::_check_help_and_version: Building help subcommand");
             self.subcommands.push(
-                App::new("help").about("Print this message or the help of the given subcommand(s)"),
+                App::new("help")
+                    .about("Print this message or the help of the given subcommand(s)"),
             );
         }
     }
