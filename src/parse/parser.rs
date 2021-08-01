@@ -1075,11 +1075,38 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app.settings.set(AS::ValidArgFound);
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
+                debug!(
+                    "Parser::parse_long_arg: Found an opt with value '{:?}'",
+                    &val
+                );
                 return self.parse_opt(&val, opt, matcher);
-            } else {
-                self.check_for_help_and_version_str(&arg)?;
-                return Ok(self.parse_flag(opt, matcher));
             }
+            debug!("Parser::parse_long_arg: Found a flag");
+            if let Some(rest) = val {
+                debug!(
+                    "Parser::parse_long_arg: Got invalid literal `{:?}`",
+                    rest.to_os_string()
+                );
+                let used: Vec<Id> = matcher
+                    .arg_names()
+                    .filter(|&n| {
+                        self.app.find(n).map_or(true, |a| {
+                            !(a.is_set(ArgSettings::Hidden) || self.required.contains(&a.id))
+                        })
+                    })
+                    .cloned()
+                    .collect();
+
+                return Err(ClapError::too_many_values(
+                    rest.to_string_lossy().into(),
+                    opt,
+                    Usage::new(self).create_usage_no_title(&used),
+                    self.app.color(),
+                ));
+            }
+            self.check_for_help_and_version_str(&arg)?;
+            debug!("Parser::parse_long_arg: Presence validated");
+            return Ok(self.parse_flag(opt, matcher));
         }
 
         if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
