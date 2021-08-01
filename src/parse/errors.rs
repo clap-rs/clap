@@ -564,9 +564,8 @@ impl Error {
         }
     }
 
-    pub(crate) fn no_equals(arg: &Arg, usage: String, color: ColorChoice) -> Self {
+    pub(crate) fn no_equals(arg: String, usage: String, color: ColorChoice) -> Self {
         let mut c = Colorizer::new(true, color);
-        let arg = arg.to_string();
 
         start_error(&mut c, "Equal sign is needed when assigning values to '");
         c.warning(&arg);
@@ -798,7 +797,7 @@ impl Error {
 
     pub(crate) fn too_many_values(
         val: String,
-        arg: &Arg,
+        arg: String,
         usage: String,
         color: ColorChoice,
     ) -> Self {
@@ -807,7 +806,7 @@ impl Error {
         start_error(&mut c, "The value '");
         c.warning(val.clone());
         c.none("' was provided to '");
-        c.warning(arg.to_string());
+        c.warning(&arg);
         c.none("' but it wasn't expecting any more values");
         put_usage(&mut c, usage);
         try_help(&mut c);
@@ -815,7 +814,7 @@ impl Error {
         Error {
             message: c,
             kind: ErrorKind::TooManyValues,
-            info: vec![arg.to_string(), val],
+            info: vec![arg, val],
             source: None,
         }
     }

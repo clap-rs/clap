@@ -4,7 +4,7 @@ use crate::{
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
-        ArgMatcher, MatchedArg, ParseResult, Parser, ValueType,
+        ArgMatcher, MatchedArg, ParseState, Parser, ValueType,
     },
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
@@ -25,7 +25,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     pub(crate) fn validate(
         &mut self,
-        needs_val_of: ParseResult,
+        parse_state: ParseState,
         is_subcmd: bool,
         matcher: &mut ArgMatcher,
     ) -> ClapResult<()> {
@@ -33,7 +33,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         let mut reqs_validated = false;
         self.p.add_env(matcher)?;
         self.p.add_defaults(matcher);
-        if let ParseResult::Opt(a) = needs_val_of {
+        if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
 
@@ -506,7 +506,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .to_str()
                         .expect(INVALID_UTF8)
                         .to_string(),
-                    a,
+                    a.to_string(),
                     Usage::new(self.p).create_usage_with_title(&[]),
                     self.p.app.color(),
                 ));
