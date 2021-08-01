@@ -215,23 +215,24 @@ jobs:
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: llvm-tools-preview
           override: true
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install linker
-        run: sudo apt-get install libssl-dev cmake pkg-config zlib1g-dev
-      - name: Install tarpaulin
+      - name: Install llvm-cov
         uses: actions-rs/install@v0.1
         with:
-          crate: cargo-tarpaulin
+          crate: cargo-llvm-cov
+          version: 0.1.0-alpha.4
           use-tool-cache: true
       - name: Coverage
         uses: actions-rs/cargo@v1
         with:
-          command: tarpaulin
-          args: --features "wrap_help yaml regex" --timeout 300 --out Lcov --output-dir coverage
+          command: llvm-cov
+          args: --features "wrap_help yaml regex" --lcov --output-path lcov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
+          path-to-lcov: lcov.info
           github-token: ${{ secrets.github_token }}
