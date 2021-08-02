@@ -376,10 +376,9 @@ mod tests {
         }
 
         {
-            let mut m = m.clone();
+            let mut m = m;
             m.remove_vals(9);
-            let vals1: Vec<&Vec<OsString>> = m.vals().collect();
-            assert!(vals1.is_empty());
+            assert_eq!(m.vals().next(), None);
         }
     }
 }

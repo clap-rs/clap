@@ -570,10 +570,12 @@ macro_rules! wlnerr {
 
 #[cfg(feature = "debug")]
 macro_rules! debug {
-    ($($arg:tt)*) => {
+    ($($arg:tt)*) => ({
+        // The `print!` line will make clippy complain about duplicates.
+        #[allow(clippy::branches_sharing_code)]
         print!("[{:>w$}] \t", module_path!(), w = 28);
-        println!($($arg)*)
-    }
+        println!($($arg)*);
+    })
 }
 
 #[cfg(not(feature = "debug"))]
