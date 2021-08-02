@@ -937,7 +937,7 @@ fn issue_1158_app() -> App<'static> {
 
 #[test]
 fn multiple_required_unless_usage_printing() {
-    static MULTIPLE_REQUIRED_UNLESS_USAGE: &'static str =
+    static MULTIPLE_REQUIRED_UNLESS_USAGE: &str =
         "error: The following required arguments were not provided:
     --a <a>
     --b <b>
