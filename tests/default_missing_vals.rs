@@ -110,6 +110,7 @@ fn opt_default_user_override() {
 }
 
 #[test]
+#[allow(clippy::bool_assert_comparison)]
 fn default_missing_value_flag_value() {
     let app = App::new("test").arg(
         Arg::new("flag")

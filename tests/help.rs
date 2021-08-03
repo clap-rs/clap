@@ -2273,7 +2273,7 @@ fn about_in_subcommands_list() {
 
 #[test]
 fn issue_1794_usage() {
-    static USAGE_WITH_GROUP: &'static str = "hello 
+    static USAGE_WITH_GROUP: &str = "hello 
 
 USAGE:
     deno <pos1|--option1> [pos2]
@@ -2306,7 +2306,7 @@ FLAGS:
     ));
 }
 
-static ONLY_CUSTOM_HEADING_FLAGS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_FLAGS: &str = "test 1.4
 
 USAGE:
     test [OPTIONS]
@@ -2340,7 +2340,7 @@ fn only_custom_heading_flags() {
     ));
 }
 
-static ONLY_CUSTOM_HEADING_OPTS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_OPTS: &str = "test 1.4
 
 USAGE:
     test
@@ -2367,7 +2367,7 @@ fn only_custom_heading_opts() {
     ));
 }
 
-static CUSTOM_HEADING_POS: &'static str = "test 1.4
+static CUSTOM_HEADING_POS: &str = "test 1.4
 
 USAGE:
     test [ARGS]
@@ -2398,7 +2398,7 @@ fn custom_heading_pos() {
     ));
 }
 
-static ONLY_CUSTOM_HEADING_POS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_POS: &str = "test 1.4
 
 USAGE:
     test [speed]
@@ -2425,7 +2425,7 @@ fn only_custom_heading_pos() {
     ));
 }
 
-static ONLY_CUSTOM_HEADING_FLAGS_NO_ARGS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_FLAGS_NO_ARGS: &str = "test 1.4
 
 USAGE:
     test
@@ -2450,7 +2450,7 @@ fn only_custom_heading_flags_no_args() {
     ));
 }
 
-static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "test 1.4
 
 USAGE:
     test
@@ -2475,7 +2475,7 @@ fn only_custom_heading_opts_no_args() {
     ));
 }
 
-static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &'static str = "test 1.4
+static ONLY_CUSTOM_HEADING_POS_NO_ARGS: &str = "test 1.4
 
 USAGE:
     test [speed]
