@@ -3050,14 +3050,18 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("flag"), Some("env"));
     /// ```
     ///
-    /// In this example, we show the flag being raised but with no value because
-    /// of not setting [`Arg::takes_value(true)`]:
+    /// In this example, because [`Arg::takes_value(false)`] (by default),
+    /// `prog` is a flag that only accepts optional, case-insensitive boolean literals.
+    /// A `true` literal is `y`, `yes`, `t`, `true`, `on` or `1`;
+    /// a `false` literal is `n`, `no`, `f`, `false`, `off` or `0`.
+    /// An absent environment variable will be considered as `false`.
+    /// Anything else will cause a parsing error.
     ///
     /// ```rust
     /// # use std::env;
     /// # use clap::{App, Arg};
     ///
-    /// env::set_var("MY_FLAG", "env");
+    /// env::set_var("MY_FLAG", "true");
     ///
     /// let m = App::new("prog")
     ///     .arg(Arg::new("flag")
