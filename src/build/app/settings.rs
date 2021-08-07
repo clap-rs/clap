@@ -152,8 +152,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::BUILT,
     BinNameBuilt("binnamebuilt")
         => Flags::BIN_NAME_BUILT,
-    ValidArgFound("validargfound")
-        => Flags::VALID_ARG_FOUND,
     InferSubcommands("infersubcommands")
         => Flags::INFER_SUBCOMMANDS,
     AllArgsOverrideSelf("allargsoverrideself")
@@ -1110,11 +1108,6 @@ pub enum AppSettings {
     #[doc(hidden)]
     /// If the app's bin name is already built, used for caching.
     BinNameBuilt,
-
-    #[doc(hidden)]
-    /// This is paired with `ArgsNegateSubcommands`. Used to determine if we
-    /// already met any valid arg(then we shouldn't expect subcommands after it).
-    ValidArgFound,
 }
 
 #[cfg(test)]
@@ -1257,10 +1250,6 @@ mod test {
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),
             AppSettings::WaitOnError
-        );
-        assert_eq!(
-            "validargfound".parse::<AppSettings>().unwrap(),
-            AppSettings::ValidArgFound
         );
         assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
         assert_eq!(

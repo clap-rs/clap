@@ -347,6 +347,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut keep_state = false;
         let mut parse_state = ParseState::ValuesDone;
         let mut pos_counter = 1;
+        let mut valid_arg_found = false;
         // Count of positional args
         let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
         // If any arg sets .last(true)
@@ -418,7 +419,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                             // positional argument with a value next to it), assume
                             // current value matches the next arg.
                             let n = ArgStr::new(n);
-                            self.is_new_arg(&n, p) || self.possible_subcommand(&n).is_some()
+                            self.is_new_arg(&n, p)
+                                || self.possible_subcommand(&n, valid_arg_found).is_some()
                         } else {
                             true
                         }
@@ -450,7 +452,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     || !matches!(parse_state, ParseState::Opt(_) | ParseState::Pos(_))
                 {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
-                    let sc_name = self.possible_subcommand(&arg_os);
+                    let sc_name = self.possible_subcommand(&arg_os, valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
                         if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
@@ -462,7 +464,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if arg_os.starts_with("--") {
-                    let parse_result = self.parse_long_arg(matcher, &arg_os, &parse_state);
+                    let parse_result =
+                        self.parse_long_arg(matcher, &arg_os, &parse_state, &mut valid_arg_found);
                     debug!(
                         "Parser::get_matches_with: After parse_long_arg {:?}",
                         parse_result
@@ -530,8 +533,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // Try to parse short args like normal, if AllowLeadingHyphen or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
-                    let parse_result =
-                        self.parse_short_arg(matcher, &arg_os, &parse_state, pos_counter);
+                    let parse_result = self.parse_short_arg(
+                        matcher,
+                        &arg_os,
+                        &parse_state,
+                        pos_counter,
+                        &mut valid_arg_found,
+                    );
                     // If it's None, we then check if one of those two AppSettings was set
                     debug!(
                         "Parser::get_matches_with: After parse_short_arg {:?}",
@@ -655,7 +663,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else {
                     parse_state = ParseState::Pos(p.id.clone());
                 }
-                self.app.settings.set(AS::ValidArgFound);
+                valid_arg_found = true;
             } else if self.is_set(AS::AllowExternalSubcommands) {
                 // Get external subcommand name
                 let sc_name = match arg_os.to_str() {
@@ -700,7 +708,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher);
             } else {
                 // Start error processing
-                return Err(self.match_arg_error(&arg_os));
+                return Err(self.match_arg_error(&arg_os, valid_arg_found));
             }
         }
 
@@ -735,11 +743,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher)
     }
 
-    fn match_arg_error(&self, arg_os: &ArgStr) -> ClapError {
+    fn match_arg_error(&self, arg_os: &ArgStr, valid_arg_found: bool) -> ClapError {
         // If argument follows a `--`
         if self.is_set(AS::TrailingValues) {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
-            if self.possible_subcommand(arg_os).is_some() {
+            if self.possible_subcommand(arg_os, valid_arg_found).is_some() {
                 return ClapError::unnecessary_double_dash(
                     arg_os.to_string_lossy().to_string(),
                     Usage::new(self).create_usage_with_title(&[]),
@@ -799,10 +807,10 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &ArgStr) -> Option<&str> {
+    fn possible_subcommand(&self, arg_os: &ArgStr, valid_arg_found: bool) -> Option<&str> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
-        if !(self.is_set(AS::ArgsNegateSubcommands) && self.is_set(AS::ValidArgFound)) {
+        if !(self.is_set(AS::ArgsNegateSubcommands) && valid_arg_found) {
             if self.is_set(AS::InferSubcommands) {
                 // For subcommand `test`, we accepts it's prefix: `t`, `te`,
                 // `tes` and `test`.
@@ -1138,6 +1146,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         full_arg: &ArgStr,
         parse_state: &ParseState,
+        valid_arg_found: &mut bool,
     ) -> ParseResult {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -1186,7 +1195,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         };
 
         if let Some(opt) = opt {
-            self.app.settings.set(AS::ValidArgFound);
+            *valid_arg_found = true;
             self.seen.push(opt.id.clone());
             if opt.is_set(ArgSettings::TakesValue) {
                 debug!(
@@ -1238,6 +1247,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         parse_state: &ParseState,
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
+        valid_arg_found: &mut bool,
     ) -> ParseResult {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
@@ -1281,7 +1291,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     "Parser::parse_short_arg:iter:{}: Found valid opt or flag",
                     c
                 );
-                self.app.settings.set(AS::ValidArgFound);
+                *valid_arg_found = true;
                 self.seen.push(opt.id.clone());
                 if !opt.is_set(ArgSettings::TakesValue) {
                     if let Some(parse_result) = self.check_for_help_and_version_char(c) {
