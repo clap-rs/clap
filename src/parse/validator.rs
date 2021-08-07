@@ -28,11 +28,12 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         parse_state: ParseState,
         is_subcmd: bool,
         matcher: &mut ArgMatcher,
+        trailing_values: bool,
     ) -> ClapResult<()> {
         debug!("Validator::validate");
         let mut reqs_validated = false;
-        self.p.add_env(matcher)?;
-        self.p.add_defaults(matcher);
+        self.p.add_env(matcher, trailing_values)?;
+        self.p.add_defaults(matcher, trailing_values);
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;

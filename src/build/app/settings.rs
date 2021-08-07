@@ -146,8 +146,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
         => Flags::WAIT_ON_ERROR,
-    TrailingValues("trailingvalues")
-        => Flags::TRAILING_VALUES,
     Built("built")
         => Flags::BUILT,
     BinNameBuilt("binnamebuilt")
@@ -1098,10 +1096,6 @@ pub enum AppSettings {
     NoAutoVersion,
 
     #[doc(hidden)]
-    /// If the user already passed '--'. Meaning only positional args follow.
-    TrailingValues,
-
-    #[doc(hidden)]
     /// If the app is already built, used for caching.
     Built,
 
@@ -1255,10 +1249,6 @@ mod test {
         assert_eq!(
             "binnamebuilt".parse::<AppSettings>().unwrap(),
             AppSettings::BinNameBuilt
-        );
-        assert_eq!(
-            "trailingvalues".parse::<AppSettings>().unwrap(),
-            AppSettings::TrailingValues
         );
         assert_eq!(
             "infersubcommands".parse::<AppSettings>().unwrap(),

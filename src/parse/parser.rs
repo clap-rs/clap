@@ -347,7 +347,12 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut keep_state = false;
         let mut parse_state = ParseState::ValuesDone;
         let mut pos_counter = 1;
+
+        // Already met any valid arg(then we shouldn't expect subcommands after it).
         let mut valid_arg_found = false;
+        // If the user already passed '--'. Meaning only positional args follow.
+        let mut trailing_values = false;
+
         // Count of positional args
         let positional_count = self.app.args.keys().filter(|x| x.is_position()).count();
         // If any arg sets .last(true)
@@ -395,7 +400,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                 let missing_pos = self.is_set(AS::AllowMissingPositional)
                     && is_second_to_last
-                    && !self.is_set(AS::TrailingValues);
+                    && !trailing_values;
 
                 debug!(
                     "Parser::get_matches_with: Positional counter...{}",
@@ -434,7 +439,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     } else {
                         pos_counter
                     }
-                } else if self.is_set(AS::TrailingValues)
+                } else if trailing_values
                     && (self.is_set(AS::AllowMissingPositional) || contains_last)
                 {
                     // Came to -- and one positional has .last(true) set, so we go immediately
@@ -447,7 +452,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             };
 
             // Has the user already passed '--'? Meaning only positional args follow
-            if !self.is_set(AS::TrailingValues) {
+            if !trailing_values {
                 if self.is_set(AS::SubcommandPrecedenceOverArg)
                     || !matches!(parse_state, ParseState::Opt(_) | ParseState::Pos(_))
                 {
@@ -464,8 +469,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if arg_os.starts_with("--") {
-                    let parse_result =
-                        self.parse_long_arg(matcher, &arg_os, &parse_state, &mut valid_arg_found);
+                    let parse_result = self.parse_long_arg(
+                        matcher,
+                        &arg_os,
+                        &parse_state,
+                        &mut valid_arg_found,
+                        trailing_values,
+                    );
                     debug!(
                         "Parser::get_matches_with: After parse_long_arg {:?}",
                         parse_result
@@ -473,7 +483,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     match parse_result {
                         ParseResult::NoArg => {
                             debug!("Parser::get_matches_with: setting TrailingVals=true");
-                            self.app.set(AS::TrailingValues);
+                            trailing_values = true;
                             continue;
                         }
                         ParseResult::ValuesDone => {
@@ -539,6 +549,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         &parse_state,
                         pos_counter,
                         &mut valid_arg_found,
+                        trailing_values,
                     );
                     // If it's None, we then check if one of those two AppSettings was set
                     debug!(
@@ -619,6 +630,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         matcher,
                         ValueType::CommandLine,
                         true,
+                        trailing_values,
                     );
                     parse_state = match parse_result {
                         ParseResult::Opt(id) => ParseState::Opt(id),
@@ -631,7 +643,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
 
             if let Some(p) = self.app.args.get(&pos_counter) {
-                if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
+                if p.is_set(ArgSettings::Last) && !trailing_values {
                     return Err(ClapError::unknown_argument(
                         arg_os.to_string_lossy().to_string(),
                         None,
@@ -641,7 +653,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 if self.is_set(AS::TrailingVarArg) && pos_counter == positional_count {
-                    self.app.settings.set(AS::TrailingValues);
+                    trailing_values = true;
                 }
 
                 self.seen.push(p.id.clone());
@@ -649,7 +661,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continiously.
                 let append = self.arg_have_val(matcher, p);
-                self.add_val_to_arg(p, arg_os, matcher, ValueType::CommandLine, append);
+                self.add_val_to_arg(
+                    p,
+                    arg_os,
+                    matcher,
+                    ValueType::CommandLine,
+                    append,
+                    trailing_values,
+                );
 
                 // Increase occurrence no matter if we are appending, occurrences
                 // of positional argument equals to number of values rather than
@@ -705,10 +724,15 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                 self.remove_overrides(matcher);
 
-                return Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher);
+                return Validator::new(self).validate(
+                    parse_state,
+                    subcmd_name.is_some(),
+                    matcher,
+                    trailing_values,
+                );
             } else {
                 // Start error processing
-                return Err(self.match_arg_error(&arg_os, valid_arg_found));
+                return Err(self.match_arg_error(&arg_os, valid_arg_found, trailing_values));
             }
         }
 
@@ -740,12 +764,17 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         self.remove_overrides(matcher);
 
-        Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher)
+        Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)
     }
 
-    fn match_arg_error(&self, arg_os: &ArgStr, valid_arg_found: bool) -> ClapError {
+    fn match_arg_error(
+        &self,
+        arg_os: &ArgStr,
+        valid_arg_found: bool,
+        trailing_values: bool,
+    ) -> ClapError {
         // If argument follows a `--`
-        if self.is_set(AS::TrailingValues) {
+        if trailing_values {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
             if self.possible_subcommand(arg_os, valid_arg_found).is_some() {
                 return ClapError::unnecessary_double_dash(
@@ -1147,6 +1176,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         full_arg: &ArgStr,
         parse_state: &ParseState,
         valid_arg_found: &mut bool,
+        trailing_values: bool,
     ) -> ParseResult {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -1202,7 +1232,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     "Parser::parse_long_arg: Found an opt with value '{:?}'",
                     &val
                 );
-                self.parse_opt(&val, opt, matcher)
+                self.parse_opt(&val, opt, matcher, trailing_values)
             } else if let Some(rest) = val {
                 debug!(
                     "Parser::parse_long_arg: Got invalid literal `{:?}`",
@@ -1248,6 +1278,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
         valid_arg_found: &mut bool,
+        trailing_values: bool,
     ) -> ParseResult {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
@@ -1328,7 +1359,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 //
                 // e.g. `-xvf`, when RequireEquals && x.min_vals == 0, we don't
                 // consume the `vf`, even if it's provided as value.
-                match self.parse_opt(&val, opt, matcher) {
+                match self.parse_opt(&val, opt, matcher, trailing_values) {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return x,
                 }
@@ -1366,6 +1397,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         attached_value: &Option<ArgStr>,
         opt: &Arg<'help>,
         matcher: &mut ArgMatcher,
+        trailing_values: bool,
     ) -> ParseResult {
         debug!(
             "Parser::parse_opt; opt={}, val={:?}",
@@ -1411,7 +1443,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
-            self.add_val_to_arg(opt, v, matcher, ValueType::CommandLine, false);
+            self.add_val_to_arg(
+                opt,
+                v,
+                matcher,
+                ValueType::CommandLine,
+                false,
+                trailing_values,
+            );
             self.inc_occurrence_of_arg(matcher, opt);
             ParseResult::ValuesDone
         } else {
@@ -1432,14 +1471,15 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         ty: ValueType,
         append: bool,
+        trailing_values: bool,
     ) -> ParseResult {
         debug!("Parser::add_val_to_arg; arg={}, val={:?}", arg.name, val);
         debug!(
-            "Parser::add_val_to_arg; trailing_vals={:?}, DontDelimTrailingVals={:?}",
-            self.is_set(AS::TrailingValues),
+            "Parser::add_val_to_arg; trailing_values={:?}, DontDelimTrailingVals={:?}",
+            trailing_values,
             self.is_set(AS::DontDelimitTrailingValues)
         );
-        if !(self.is_set(AS::TrailingValues) && self.is_set(AS::DontDelimitTrailingValues)) {
+        if !(trailing_values && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
                 let arg_split = val.split(delim);
                 let vals = if let Some(t) = arg.terminator {
@@ -1610,21 +1650,27 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
-    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher) {
+    pub(crate) fn add_defaults(&mut self, matcher: &mut ArgMatcher, trailing_values: bool) {
         debug!("Parser::add_defaults");
 
         for o in self.app.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_value(o, matcher, ValueType::DefaultValue);
+            self.add_value(o, matcher, ValueType::DefaultValue, trailing_values);
         }
 
         for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_value(p, matcher, ValueType::DefaultValue);
+            self.add_value(p, matcher, ValueType::DefaultValue, trailing_values);
         }
     }
 
-    fn add_value(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher, ty: ValueType) {
+    fn add_value(
+        &self,
+        arg: &Arg<'help>,
+        matcher: &mut ArgMatcher,
+        ty: ValueType,
+        trailing_values: bool,
+    ) {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
@@ -1641,7 +1687,14 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                     if add {
                         if let Some(default) = default {
-                            self.add_val_to_arg(arg, ArgStr::new(default), matcher, ty, false);
+                            self.add_val_to_arg(
+                                arg,
+                                ArgStr::new(default),
+                                matcher,
+                                ty,
+                                false,
+                                trailing_values,
+                            );
                         }
                         return;
                     }
@@ -1714,7 +1767,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
-    pub(crate) fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    pub(crate) fn add_env(
+        &mut self,
+        matcher: &mut ArgMatcher,
+        trailing_values: bool,
+    ) -> ClapResult<()> {
         if self.app.is_set(AS::DisableEnv) {
             return Ok(());
         }
@@ -1725,7 +1782,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if let Some((_, Some(ref val))) = a.env {
                     let val = ArgStr::new(val);
                     if a.is_set(ArgSettings::TakesValue) {
-                        self.add_val_to_arg(a, val, matcher, ValueType::EnvVariable, false);
+                        self.add_val_to_arg(
+                            a,
+                            val,
+                            matcher,
+                            ValueType::EnvVariable,
+                            false,
+                            trailing_values,
+                        );
                     } else {
                         match self.check_for_help_and_version_str(&val) {
                             Some(ParseResult::HelpFlag) => {
