@@ -863,8 +863,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         it: &mut Input,
         keep_state: bool,
     ) -> ClapResult<()> {
-        use std::fmt::Write;
-
         debug!("Parser::parse_subcommand");
 
         let mut mid_string = String::from(" ");
@@ -873,7 +871,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             let reqs = Usage::new(self).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
-                write!(&mut mid_string, "{} ", s).expect(INTERNAL_ERROR_MSG);
+                mid_string.push_str(s);
+                mid_string.push(' ');
             }
         }
 
