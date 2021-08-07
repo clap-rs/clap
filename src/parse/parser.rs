@@ -375,6 +375,75 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg_os.as_raw_bytes()
             );
 
+            // Correct pos_counter.
+            pos_counter = {
+                let is_second_to_last = pos_counter + 1 == positional_count;
+
+                // The last positional argument, or second to last positional
+                // argument may be set to .multiple_values(true)
+                let low_index_mults = is_second_to_last
+                    && self.app.get_positionals().any(|a| {
+                        a.is_set(ArgSettings::MultipleValues)
+                            && (positional_count != a.index.unwrap_or(0))
+                    })
+                    && self
+                        .app
+                        .get_positionals()
+                        .last()
+                        .map_or(false, |p_name| !p_name.is_set(ArgSettings::Last));
+
+                let missing_pos = self.is_set(AS::AllowMissingPositional)
+                    && is_second_to_last
+                    && !self.is_set(AS::TrailingValues);
+
+                debug!(
+                    "Parser::get_matches_with: Positional counter...{}",
+                    pos_counter
+                );
+                debug!(
+                    "Parser::get_matches_with: Low index multiples...{:?}",
+                    low_index_mults
+                );
+
+                if low_index_mults || missing_pos {
+                    let skip_current = if let Some(n) = remaining_args.get(0) {
+                        if let Some(p) = self
+                            .app
+                            .get_positionals()
+                            .find(|p| p.index == Some(pos_counter))
+                        {
+                            // If next value looks like a new_arg or it's a
+                            // subcommand, skip positional argument under current
+                            // pos_counter(which means current value cannot be a
+                            // positional argument with a value next to it), assume
+                            // current value matches the next arg.
+                            let n = ArgStr::new(n);
+                            self.is_new_arg(&n, p) || self.possible_subcommand(&n).is_some()
+                        } else {
+                            true
+                        }
+                    } else {
+                        true
+                    };
+
+                    if skip_current {
+                        debug!("Parser::get_matches_with: Bumping the positional counter...");
+                        pos_counter + 1
+                    } else {
+                        pos_counter
+                    }
+                } else if self.is_set(AS::TrailingValues)
+                    && (self.is_set(AS::AllowMissingPositional) || contains_last)
+                {
+                    // Came to -- and one positional has .last(true) set, so we go immediately
+                    // to the last (highest index) positional
+                    debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
+                    positional_count
+                } else {
+                    pos_counter
+                }
+            };
+
             // Has the user already passed '--'? Meaning only positional args follow
             if !self.is_set(AS::TrailingValues) {
                 if self.is_set(AS::SubcommandPrecedenceOverArg)
@@ -461,7 +530,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // Try to parse short args like normal, if AllowLeadingHyphen or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
-                    let parse_result = self.parse_short_arg(matcher, &arg_os, &parse_state);
+                    let parse_result =
+                        self.parse_short_arg(matcher, &arg_os, &parse_state, pos_counter);
                     // If it's None, we then check if one of those two AppSettings was set
                     debug!(
                         "Parser::get_matches_with: After parse_short_arg {:?}",
@@ -552,72 +622,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
             }
 
-            let is_second_to_last = pos_counter + 1 == positional_count;
-
-            // The last positional argument, or second to last positional
-            // argument may be set to .multiple_values(true)
-            let low_index_mults = is_second_to_last
-                && self.app.get_positionals().any(|a| {
-                    a.is_set(ArgSettings::MultipleValues)
-                        && (positional_count != a.index.unwrap_or(0))
-                })
-                && self
-                    .app
-                    .get_positionals()
-                    .last()
-                    .map_or(false, |p_name| !p_name.is_set(ArgSettings::Last));
-
-            let missing_pos = self.is_set(AS::AllowMissingPositional)
-                && is_second_to_last
-                && !self.is_set(AS::TrailingValues);
-
-            debug!(
-                "Parser::get_matches_with: Positional counter...{}",
-                pos_counter
-            );
-            debug!(
-                "Parser::get_matches_with: Low index multiples...{:?}",
-                low_index_mults
-            );
-
-            pos_counter = if low_index_mults || missing_pos {
-                let skip_current = if let Some(n) = remaining_args.get(0) {
-                    if let Some(p) = self
-                        .app
-                        .get_positionals()
-                        .find(|p| p.index == Some(pos_counter))
-                    {
-                        // If next value looks like a new_arg or it's a
-                        // subcommand, skip positional argument under current
-                        // pos_counter(which means current value cannot be a
-                        // positional argument with a value next to it), assume
-                        // current value matches the next arg.
-                        let n = ArgStr::new(n);
-                        self.is_new_arg(&n, p) || self.possible_subcommand(&n).is_some()
-                    } else {
-                        true
-                    }
-                } else {
-                    true
-                };
-
-                if skip_current {
-                    debug!("Parser::get_matches_with: Bumping the positional counter...");
-                    pos_counter + 1
-                } else {
-                    pos_counter
-                }
-            } else if self.is_set(AS::TrailingValues)
-                && (self.is_set(AS::AllowMissingPositional) || contains_last)
-            {
-                // Came to -- and one positional has .last(true) set, so we go immediately
-                // to the last (highest index) positional
-                debug!("Parser::get_matches_with: .last(true) and --, setting last pos");
-                positional_count
-            } else {
-                pos_counter
-            };
-
             if let Some(p) = self.app.args.get(&pos_counter) {
                 if p.is_set(ArgSettings::Last) && !self.is_set(AS::TrailingValues) {
                     return Err(ClapError::unknown_argument(
@@ -647,6 +651,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.settings.is_set(ArgSettings::MultipleValues) {
                     pos_counter += 1;
+                    parse_state = ParseState::ValuesDone;
                 } else {
                     parse_state = ParseState::Pos(p.id.clone());
                 }
@@ -1231,6 +1236,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         full_arg: &ArgStr,
         parse_state: &ParseState,
+        // change this to possible pos_arg when removing the usage of &mut Parser.
+        pos_counter: usize,
     ) -> ParseResult {
         debug!("Parser::parse_short_arg: full_arg={:?}", full_arg);
         let arg_os = full_arg.trim_start_matches(b'-');
@@ -1241,6 +1248,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                 && arg.chars().any(|c| !self.app.contains_short(c)))
             || matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
                 if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
+            || self
+                .app
+                .args
+                .get(&pos_counter)
+                .map_or(false, |arg| arg.is_set(ArgSettings::AllowHyphenValues))
         {
             return ParseResult::MaybeHyphenValue;
         }

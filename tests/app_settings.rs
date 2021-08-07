@@ -843,6 +843,19 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
 }
 
 #[test]
+fn issue_1437_allow_hyphen_values_for_positional_arg() {
+    let m = App::new("tmp")
+        .arg(
+            Arg::new("pat")
+                .allow_hyphen_values(true)
+                .required(true)
+                .takes_value(true),
+        )
+        .get_matches_from(["tmp", "-file"]);
+    assert_eq!(m.value_of("pat"), Some("-file"));
+}
+
+#[test]
 fn issue_1093_allow_ext_sc() {
     let app = App::new("clap-test")
         .version("v1.4.8")
