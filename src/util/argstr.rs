@@ -28,17 +28,24 @@ impl<'a> ArgStr<'a> {
     }
 
     pub(crate) fn contains_byte(&self, byte: u8) -> bool {
-        debug_assert!(byte.is_ascii());
+        assert!(byte.is_ascii());
 
         self.0.contains(&byte)
     }
 
     pub(crate) fn contains_char(&self, ch: char) -> bool {
-        self.to_string_lossy().contains(|x| x == ch)
+        let mut bytes = [0; 4];
+        let bytes = ch.encode_utf8(&mut bytes).as_bytes();
+        for i in 0..self.0.len().saturating_sub(bytes.len() - 1) {
+            if self.0[i..].starts_with(bytes) {
+                return true;
+            }
+        }
+        false
     }
 
     pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr, ArgStr) {
-        debug_assert!(byte.is_ascii());
+        assert!(byte.is_ascii());
 
         if let Some(i) = self.0.iter().position(|&x| x == byte) {
             self.split_at_unchecked(i)
@@ -48,7 +55,7 @@ impl<'a> ArgStr<'a> {
     }
 
     pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr {
-        debug_assert!(byte.is_ascii());
+        assert!(byte.is_ascii());
 
         if let Some(i) = self.0.iter().position(|x| x != &byte) {
             Self(Cow::Borrowed(&self.0[i..]))
@@ -58,17 +65,12 @@ impl<'a> ArgStr<'a> {
     }
 
     // Like `trim_start_matches`, but trims no more than `n` matches
-    pub(crate) fn trim_start_n_matches(&'a self, n: usize, byte: u8) -> ArgStr {
-        debug_assert!(byte.is_ascii());
+    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr {
+        assert!(ch.is_ascii());
 
-        if let Some(i) = self.0.iter().take(n).position(|x| x != &byte) {
-            Self(Cow::Borrowed(&self.0[i..]))
-        } else {
-            match self.0.get(n..) {
-                Some(x) => Self(Cow::Borrowed(x)),
-                None => Self(Cow::Borrowed(&[])),
-            }
-        }
+        let i = self.0.iter().take(n).take_while(|c| **c == ch).count();
+
+        self.split_at_unchecked(i).1
     }
 
     pub(crate) fn split_at_unchecked(&'a self, i: usize) -> (ArgStr, ArgStr) {
