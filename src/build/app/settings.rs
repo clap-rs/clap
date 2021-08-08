@@ -146,14 +146,10 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
         => Flags::WAIT_ON_ERROR,
-    TrailingValues("trailingvalues")
-        => Flags::TRAILING_VALUES,
     Built("built")
         => Flags::BUILT,
     BinNameBuilt("binnamebuilt")
         => Flags::BIN_NAME_BUILT,
-    ValidArgFound("validargfound")
-        => Flags::VALID_ARG_FOUND,
     InferSubcommands("infersubcommands")
         => Flags::INFER_SUBCOMMANDS,
     AllArgsOverrideSelf("allargsoverrideself")
@@ -1100,21 +1096,12 @@ pub enum AppSettings {
     NoAutoVersion,
 
     #[doc(hidden)]
-    /// If the user already passed '--'. Meaning only positional args follow.
-    TrailingValues,
-
-    #[doc(hidden)]
     /// If the app is already built, used for caching.
     Built,
 
     #[doc(hidden)]
     /// If the app's bin name is already built, used for caching.
     BinNameBuilt,
-
-    #[doc(hidden)]
-    /// This is paired with `ArgsNegateSubcommands`. Used to determine if we
-    /// already met any valid arg(then we shouldn't expect subcommands after it).
-    ValidArgFound,
 }
 
 #[cfg(test)]
@@ -1258,18 +1245,10 @@ mod test {
             "waitonerror".parse::<AppSettings>().unwrap(),
             AppSettings::WaitOnError
         );
-        assert_eq!(
-            "validargfound".parse::<AppSettings>().unwrap(),
-            AppSettings::ValidArgFound
-        );
         assert_eq!("built".parse::<AppSettings>().unwrap(), AppSettings::Built);
         assert_eq!(
             "binnamebuilt".parse::<AppSettings>().unwrap(),
             AppSettings::BinNameBuilt
-        );
-        assert_eq!(
-            "trailingvalues".parse::<AppSettings>().unwrap(),
-            AppSettings::TrailingValues
         );
         assert_eq!(
             "infersubcommands".parse::<AppSettings>().unwrap(),

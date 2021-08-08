@@ -9,7 +9,7 @@ mod validator;
 pub(crate) use self::{
     arg_matcher::ArgMatcher,
     matches::{MatchedArg, SubCommand, ValueType},
-    parser::{Input, ParseResult, Parser},
+    parser::{Input, ParseState, Parser},
     validator::Validator,
 };
 
