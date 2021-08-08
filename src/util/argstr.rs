@@ -7,6 +7,7 @@ use std::{
 
 use os_str_bytes::{raw, OsStrBytes};
 
+#[derive(PartialEq, Eq)]
 pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
 
 impl<'a> ArgStr<'a> {
@@ -27,58 +28,47 @@ impl<'a> ArgStr<'a> {
     }
 
     pub(crate) fn contains_byte(&self, byte: u8) -> bool {
-        assert!(byte.is_ascii());
+        debug_assert!(byte.is_ascii());
 
         self.0.contains(&byte)
     }
 
     pub(crate) fn contains_char(&self, ch: char) -> bool {
-        let mut bytes = [0; 4];
-        let bytes = ch.encode_utf8(&mut bytes).as_bytes();
-        for i in 0..self.0.len().saturating_sub(bytes.len() - 1) {
-            if self.0[i..].starts_with(bytes) {
-                return true;
-            }
-        }
-        false
+        self.to_string_lossy().contains(|x| x == ch)
     }
 
     pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr, ArgStr) {
-        assert!(byte.is_ascii());
+        debug_assert!(byte.is_ascii());
 
-        for (i, b) in self.0.iter().enumerate() {
-            if b == &byte {
-                return self.split_at_unchecked(i);
-            }
+        if let Some(i) = self.0.iter().position(|&x| x == byte) {
+            self.split_at_unchecked(i)
+        } else {
+            (self.to_borrowed(), Self(Cow::Borrowed(&[])))
         }
-        (self.to_borrowed(), Self(Cow::Borrowed(&[])))
     }
 
     pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr {
-        assert!(byte.is_ascii());
+        debug_assert!(byte.is_ascii());
 
-        let mut found = false;
-        for (i, b) in self.0.iter().enumerate() {
-            if b != &byte {
-                return Self(Cow::Borrowed(&self.0[i..]));
-            } else {
-                found = true;
-            }
+        if let Some(i) = self.0.iter().position(|x| x != &byte) {
+            Self(Cow::Borrowed(&self.0[i..]))
+        } else {
+            Self(Cow::Borrowed(&[]))
         }
-        if found {
-            return Self(Cow::Borrowed(&[]));
-        }
-        self.to_borrowed()
     }
 
     // Like `trim_start_matches`, but trims no more than `n` matches
-    #[inline]
-    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr {
-        assert!(ch.is_ascii());
+    pub(crate) fn trim_start_n_matches(&'a self, n: usize, byte: u8) -> ArgStr {
+        debug_assert!(byte.is_ascii());
 
-        let i = self.0.iter().take(n).take_while(|c| **c == ch).count();
-
-        self.split_at_unchecked(i).1
+        if let Some(i) = self.0.iter().take(n).position(|x| x != &byte) {
+            Self(Cow::Borrowed(&self.0[i..]))
+        } else {
+            match self.0.get(n..) {
+                Some(x) => Self(Cow::Borrowed(x)),
+                None => Self(Cow::Borrowed(&[])),
+            }
+        }
     }
 
     pub(crate) fn split_at_unchecked(&'a self, i: usize) -> (ArgStr, ArgStr) {
@@ -186,5 +176,83 @@ impl<'a> Iterator for ArgSplit<'a> {
             self.pos += 1;
         }
         Some(ArgStr(Cow::Borrowed(&self.val[start..])))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    #[rustfmt::skip]
+    fn test_trim_start_matches() {
+        let raw = OsString::from("hello? world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_matches(b'-');
+        assert_eq!(trimmed, a);
+
+        let raw = OsString::from("------------hello? world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_matches(b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hello? world")));
+
+        let raw = OsString::from("------------hel-lo? -world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_matches(b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hel-lo? -world")));
+
+        let raw = OsString::from("hel-lo? -world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_matches(b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hel-lo? -world")));
+
+        let raw = OsString::from("");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_matches(b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("")));
+    }
+
+    #[test]
+    #[rustfmt::skip]
+    fn test_trim_start_n_matches() {
+        let raw = OsString::from("hello? world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(2, b'-');
+        assert_eq!(trimmed, a);
+
+        let raw = OsString::from("------------hello? world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(2, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("----------hello? world")));
+
+        let raw = OsString::from("------------hello? world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(1000, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hello? world")));
+
+        let raw = OsString::from("------------hel-lo? -world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(2, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("----------hel-lo? -world")));
+
+        let raw = OsString::from("-hel-lo? -world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(5, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hel-lo? -world")));
+
+        let raw = OsString::from("hel-lo? -world");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(10, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("hel-lo? -world")));
+
+        let raw = OsString::from("");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(10, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("")));
+
+        let raw = OsString::from("");
+        let a = ArgStr::new(&raw);
+        let trimmed = a.trim_start_n_matches(0, b'-');
+        assert_eq!(trimmed, ArgStr::new(&OsString::from("")));
     }
 }
