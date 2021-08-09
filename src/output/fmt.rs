@@ -30,6 +30,15 @@ pub(crate) struct Colorizer {
 
 impl Colorizer {
     #[inline]
+    pub(crate) fn from_string(use_stderr: bool, color_when: ColorChoice, s: String) -> Self {
+        Colorizer {
+            use_stderr,
+            color_when,
+            pieces: vec![(s, None)],
+        }
+    }
+
+    #[inline]
     pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
         Colorizer {
             use_stderr,

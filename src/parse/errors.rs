@@ -873,6 +873,47 @@ impl Error {
         }
     }
 
+    #[cfg(not(any(feature = "color", feature = "full")))]
+    pub(crate) fn wrong_number_of_values(
+        arg: &Arg,
+        num_vals: usize,
+        curr_vals: usize,
+        usage: String,
+        color: ColorChoice,
+    ) -> Self {
+        // let verb = Error::singular_or_plural(curr_vals);
+
+        // Error {
+        //     message: Colorizer::from_string(
+        //          true,
+        //          color,
+        //          format!("error: The argument '{}' requires {} values, but {} {} provided\n\n{}\n\nFor more information try --help\n", arg,num_vals, curr_vals, verb, usage)),
+        //     kind: ErrorKind::WrongNumberOfValues,
+        //     info: vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()],
+        //     source: None,
+        // }
+        let mut c = Colorizer::new(true, color);
+        let verb = Error::singular_or_plural(curr_vals);
+
+        start_error(&mut c, "The argument '");
+        c.warning(arg.to_string());
+        c.none("' requires ");
+        c.warning(num_vals.to_string());
+        c.none(" values, but ");
+        c.warning(curr_vals.to_string());
+        c.none(format!(" {} provided", verb));
+        put_usage(&mut c, usage);
+        try_help(&mut c);
+
+        Error {
+            message: c,
+            kind: ErrorKind::WrongNumberOfValues,
+            info: vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()],
+            source: None,
+        }
+    }
+
+    #[cfg(any(feature = "color", feature = "full"))]
     pub(crate) fn wrong_number_of_values(
         arg: &Arg,
         num_vals: usize,
