@@ -1196,14 +1196,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if long_arg.is_empty() {
             return ParseResult::NoArg;
         }
-        let (arg, val) = if full_arg.contains_byte(b'=') {
-            let (p0, p1) = long_arg.split_at_byte(b'=');
-            debug!("Yes '{:?}'", p1);
-            (p0, Some(p1))
-        } else {
-            debug!("No");
-            (long_arg, None)
-        };
+        let (arg, val) = long_arg.split_at_byte(b'=');
 
         let opt = if let Some(opt) = self.app.args.get(&arg.to_os_string()) {
             debug!(

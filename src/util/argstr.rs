@@ -2,74 +2,73 @@ use std::{
     borrow::Cow,
     ffi::{OsStr, OsString},
     fmt::{self, Debug},
+    slice::Windows,
     str,
 };
 
-use os_str_bytes::{raw, OsStrBytes};
+use bstr::{BStr, BString, ByteSlice};
+use os_str_bytes::OsStrBytes;
 
 #[derive(PartialEq, Eq)]
-pub(crate) struct ArgStr<'a>(Cow<'a, [u8]>);
+pub(crate) struct ArgStr<'a>(Cow<'a, BStr>);
+
+impl<'a> std::ops::Deref for ArgStr<'a> {
+    type Target = BStr;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 impl<'a> ArgStr<'a> {
     pub(crate) fn new(s: &'a OsStr) -> Self {
-        Self(s.to_raw_bytes())
+        Self(match s.to_raw_bytes() {
+            Cow::Owned(x) => Cow::Owned(BString::from(x)),
+            Cow::Borrowed(x) => Cow::Borrowed(x.into()),
+        })
     }
 
     pub(crate) fn starts_with(&self, s: &str) -> bool {
-        self.0.starts_with(s.as_bytes())
+        self.0.as_ref().starts_with(s.as_bytes())
     }
 
     pub(crate) fn is_prefix_of(&self, s: &str) -> bool {
-        raw::starts_with(s, &self.0)
+        s.as_bytes().starts_with(self.0.as_ref())
     }
 
     fn to_borrowed(&'a self) -> Self {
         Self(Cow::Borrowed(&self.0))
     }
 
-    pub(crate) fn contains_byte(&self, byte: u8) -> bool {
-        assert!(byte.is_ascii());
-
-        self.0.contains(&byte)
-    }
-
     pub(crate) fn contains_char(&self, ch: char) -> bool {
-        let mut bytes = [0; 4];
-        let bytes = ch.encode_utf8(&mut bytes).as_bytes();
-        for i in 0..self.0.len().saturating_sub(bytes.len() - 1) {
-            if self.0[i..].starts_with(bytes) {
-                return true;
-            }
-        }
-        false
+        self.0.chars().any(|x| x == ch)
     }
 
-    pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr, ArgStr) {
-        assert!(byte.is_ascii());
+    pub(crate) fn split_at_byte(&self, byte: u8) -> (ArgStr, Option<ArgStr>) {
+        debug_assert!(byte.is_ascii());
 
         if let Some(i) = self.0.iter().position(|&x| x == byte) {
-            self.split_at_unchecked(i)
+            let (a, b) = self.split_at_unchecked(i);
+            (a, Some(b))
         } else {
-            (self.to_borrowed(), Self(Cow::Borrowed(&[])))
+            (self.to_borrowed(), None)
         }
     }
 
     pub(crate) fn trim_start_matches(&'a self, byte: u8) -> ArgStr {
-        assert!(byte.is_ascii());
-
-        if let Some(i) = self.0.iter().position(|x| x != &byte) {
-            Self(Cow::Borrowed(&self.0[i..]))
-        } else {
-            Self(Cow::Borrowed(&[]))
-        }
+        debug_assert!(byte.is_ascii());
+        let trimmed = self
+            .0
+            .iter()
+            .position(|x| x != &byte)
+            .map(|i| &self.0[i..])
+            .unwrap_or_default();
+        Self(Cow::Borrowed(trimmed))
     }
 
     // Like `trim_start_matches`, but trims no more than `n` matches
-    pub(crate) fn trim_start_n_matches(&self, n: usize, ch: u8) -> ArgStr {
-        assert!(ch.is_ascii());
-
-        let i = self.0.iter().take(n).take_while(|c| **c == ch).count();
-
+    pub(crate) fn trim_start_n_matches(&'a self, n: usize, byte: u8) -> ArgStr {
+        debug_assert!(byte.is_ascii());
+        let i = self.0.iter().take(n).take_while(|&&c| c == byte).count();
         self.split_at_unchecked(i).1
     }
 
@@ -82,11 +81,13 @@ impl<'a> ArgStr<'a> {
 
     pub(crate) fn split(&self, ch: char) -> ArgSplit<'_> {
         let mut sep = [0; 4];
+        let sep_len = ch.encode_utf8(&mut sep).len();
         ArgSplit {
-            sep_len: ch.encode_utf8(&mut sep).as_bytes().len(),
             sep,
+            sep_len,
             val: &self.0,
             pos: 0,
+            windows: self.0.windows(sep_len),
         }
     }
 
@@ -117,7 +118,12 @@ impl<'a> ArgStr<'a> {
     }
 
     pub(crate) fn into_os_string(self) -> OsString {
-        OsStr::from_raw_bytes(self.0).unwrap().into_owned()
+        OsStr::from_raw_bytes(match self.0 {
+            Cow::Owned(x) => Cow::<'_, [u8]>::Owned(x.into()),
+            Cow::Borrowed(x) => Cow::<'_, [u8]>::Borrowed(x.as_ref()),
+        })
+        .unwrap()
+        .into_owned()
     }
 }
 
@@ -129,7 +135,7 @@ impl<'a> Debug for ArgStr<'a> {
 
 impl<'a> PartialEq<str> for ArgStr<'a> {
     fn eq(&self, other: &str) -> bool {
-        self.0 == other.as_bytes()
+        self.0.as_ref() == other
     }
 }
 
@@ -155,8 +161,9 @@ impl<'a> PartialEq<ArgStr<'a>> for &str {
 pub(crate) struct ArgSplit<'a> {
     sep: [u8; 4],
     sep_len: usize,
-    val: &'a [u8],
+    val: &'a BStr,
     pos: usize,
+    windows: Windows<'a, u8>,
 }
 
 impl<'a> Iterator for ArgSplit<'a> {
@@ -165,19 +172,19 @@ impl<'a> Iterator for ArgSplit<'a> {
     fn next(&mut self) -> Option<ArgStr<'a>> {
         debug!("ArgSplit::next: self={:?}", self);
 
-        if self.pos == self.val.len() {
+        let end = self.val.len();
+        if self.pos >= end {
             return None;
         }
-        let start = self.pos;
-        while self.pos < self.val.len() {
-            if self.val[self.pos..].starts_with(&self.sep[..self.sep_len]) {
-                let arg = ArgStr(Cow::Borrowed(&self.val[start..self.pos]));
-                self.pos += self.sep_len;
-                return Some(arg);
-            }
-            self.pos += 1;
-        }
-        Some(ArgStr(Cow::Borrowed(&self.val[start..])))
+        let sep = self.sep;
+        let new_pos = self
+            .windows
+            .position(|window| sep.starts_with(window))
+            .map(|x| self.pos + x)
+            .unwrap_or(end);
+        let slice = &self.val[self.pos..new_pos];
+        self.pos = new_pos + self.sep_len;
+        Some(ArgStr(Cow::Borrowed(slice)))
     }
 }
 
