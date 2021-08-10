@@ -16,7 +16,7 @@ use crate::{
     parse::features::suggestions,
     parse::{ArgMatcher, SubCommand},
     parse::{Validator, ValueType},
-    util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id},
+    util::{str_to_bool, termcolor::ColorChoice, ArgStr, ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
@@ -1772,8 +1772,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
-        use crate::util::str_to_bool;
-
         if self.app.is_set(AS::DisableEnv) {
             debug!("Parser::add_env: Env vars disabled, quitting");
             return Ok(());

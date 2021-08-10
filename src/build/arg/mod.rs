@@ -3061,7 +3061,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     ///
     /// env::set_var("TRUE_FLAG", "true");
-    /// env::set_var("FALSE_FLAG", "OFF");
+    /// env::set_var("FALSE_FLAG", "0");
     ///
     /// let m = App::new("prog")
     ///     .arg(Arg::new("true_flag")
