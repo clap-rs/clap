@@ -1,7 +1,7 @@
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{App, AppSettings, Arg, Error as ClapError};
+use clap::{App, AppSettings, Arg};
 
 #[test]
 fn env() {
@@ -20,23 +20,6 @@ fn env() {
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
     assert_eq!(m.value_of("arg").unwrap(), "env");
-}
-
-#[test]
-fn env_no_takes_value() {
-    env::set_var("CLP_TEST_ENV", "env");
-
-    let r = App::new("df")
-        .arg(Arg::from("[arg] 'some opt'").env("CLP_TEST_ENV"))
-        .try_get_matches_from(vec![""]);
-
-    assert!(matches!(
-        dbg!(r),
-        Err(ClapError {
-            kind: clap::ErrorKind::InvalidValue,
-            ..
-        })
-    ));
 }
 
 #[test]

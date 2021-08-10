@@ -3051,28 +3051,36 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// In this example, because [`Arg::takes_value(false)`] (by default),
-    /// `prog` is a flag that only accepts optional, case-insensitive boolean literals.
-    /// A `true` literal is `y`, `yes`, `t`, `true`, `on` or `1`;
-    /// a `false` literal is `n`, `no`, `f`, `false`, `off` or `0`.
-    /// An absent environment variable will be considered as `false`.
-    /// Anything else will cause a parsing error.
+    /// `prog` is a flag that accepts an optional, case-insensitive boolean literal.
+    /// A `false` literal is `n`, `no`, `f`, `false`, `off` or `0`.
+    /// An absent environment variable will also be considered as `false`.
+    /// Anything else will considered as `true`.
     ///
     /// ```rust
     /// # use std::env;
     /// # use clap::{App, Arg};
     ///
-    /// env::set_var("MY_FLAG", "true");
+    /// env::set_var("TRUE_FLAG", "true");
+    /// env::set_var("FALSE_FLAG", "OFF");
     ///
     /// let m = App::new("prog")
-    ///     .arg(Arg::new("flag")
-    ///         .long("flag")
-    ///         .env("MY_FLAG"))
+    ///     .arg(Arg::new("true_flag")
+    ///         .long("true_flag")
+    ///         .env("TRUE_FLAG"))
+    ///     .arg(Arg::new("false_flag")
+    ///         .long("false_flag")
+    ///         .env("FALSE_FLAG"))
+    ///     .arg(Arg::new("absent_flag")
+    ///         .long("absent_flag")
+    ///         .env("ABSENT_FLAG"))
     ///     .get_matches_from(vec![
     ///         "prog"
     ///     ]);
     ///
-    /// assert!(m.is_present("flag"));
-    /// assert_eq!(m.value_of("flag"), None);
+    /// assert!(m.is_present("true_flag"));
+    /// assert_eq!(m.value_of("true_flag"), None);
+    /// assert!(!m.is_present("false_flag"));
+    /// assert!(!m.is_present("absent_flag"));
     /// ```
     ///
     /// In this example, we show the variable coming from an option on the CLI:

@@ -1772,7 +1772,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
-        use crate::util::{str_to_bool, FALSE_LITERALS, TRUE_LITERALS};
+        use crate::util::str_to_bool;
 
         if self.app.is_set(AS::DisableEnv) {
             debug!("Parser::add_env: Env vars disabled, quitting");
@@ -1820,38 +1820,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 debug!("Parser::add_env: Found a flag with value `{:?}`", val);
-                match str_to_bool(val.to_string_lossy()) {
-                    Ok(predicate) => {
-                        debug!("Parser::add_env: Found boolean literal `{}`", predicate);
-                        if predicate {
-                            matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
-                        }
-                    }
-                    Err(rest) => {
-                        debug!("Parser::parse_long_arg: Got invalid literal `{}`", rest);
-                        let used: Vec<Id> = matcher
-                            .arg_names()
-                            .filter(|&n| {
-                                self.app.find(n).map_or(true, |a| {
-                                    !(a.is_set(ArgSettings::Hidden)
-                                        || self.required.contains(&a.id))
-                                })
-                            })
-                            .cloned()
-                            .collect();
-                        let good_vals: Vec<&str> = TRUE_LITERALS
-                            .iter()
-                            .chain(FALSE_LITERALS.iter())
-                            .copied()
-                            .collect();
-                        return Err(ClapError::invalid_value(
-                            rest.into(),
-                            &good_vals,
-                            a,
-                            Usage::new(self).create_usage_no_title(&used),
-                            self.app.color(),
-                        ));
-                    }
+                let predicate = str_to_bool(val.to_string_lossy());
+                debug!("Parser::add_env: Found boolean literal `{}`", predicate);
+                if predicate {
+                    matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
                 }
             }
 
