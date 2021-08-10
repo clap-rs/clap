@@ -4,10 +4,11 @@ mod argstr;
 mod fnv;
 mod graph;
 mod id;
+mod str_to_bool;
 
 pub use self::fnv::Key;
 
-pub(crate) use self::{argstr::ArgStr, graph::ChildGraph, id::Id};
+pub(crate) use self::{argstr::ArgStr, graph::ChildGraph, id::Id, str_to_bool::str_to_bool};
 pub(crate) use vec_map::VecMap;
 
 #[cfg(feature = "color")]
