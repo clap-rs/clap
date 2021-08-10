@@ -2082,6 +2082,46 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
+    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
+    ///
+    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
+    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
+    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
+    /// UTF-8 values.
+    ///
+    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
+    ///
+    /// # Examples
+    ///
+    #[cfg_attr(not(unix), doc = " ```ignore")]
+    #[cfg_attr(unix, doc = " ```rust")]
+    /// # use clap::{App, Arg};
+    /// use std::ffi::OsString;
+    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    /// let r = App::new("myprog")
+    ///     .arg(Arg::new("arg").allow_invalid_utf8(true))
+    ///     .try_get_matches_from(vec![
+    ///         OsString::from("myprog"),
+    ///         OsString::from_vec(vec![0xe9])
+    ///     ]);
+    ///
+    /// assert!(r.is_ok());
+    /// let m = r.unwrap();
+    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
+    /// ```
+    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
+    /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
+    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
+    /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
+    #[inline]
+    pub fn allow_invalid_utf8(self, tv: bool) -> Self {
+        if tv {
+            self.setting(ArgSettings::AllowInvalidUtf8)
+        } else {
+            self.unset_setting(ArgSettings::AllowInvalidUtf8)
+        }
+    }
+
     /// Allows one to perform a custom validation on the argument value. You provide a closure
     /// which accepts a [`String`] value, and return a [`Result`] where the [`Err(String)`] is a
     /// message displayed to the user.

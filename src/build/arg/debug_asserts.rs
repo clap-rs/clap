@@ -52,10 +52,10 @@ pub(crate) fn assert_arg(arg: &Arg) {
         );
     }
 
-    assert_app_flags(arg);
+    assert_arg_flags(arg);
 }
 
-fn assert_app_flags(arg: &Arg) {
+fn assert_arg_flags(arg: &Arg) {
     use ArgSettings::*;
 
     macro_rules! checker {
@@ -85,4 +85,5 @@ fn assert_app_flags(arg: &Arg) {
     checker!(HideDefaultValue requires TakesValue);
     checker!(MultipleValues requires TakesValue);
     checker!(IgnoreCase requires TakesValue);
+    checker!(AllowInvalidUtf8 requires TakesValue);
 }

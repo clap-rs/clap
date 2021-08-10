@@ -88,7 +88,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     ) -> ClapResult<()> {
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.vals_flatten() {
-            if self.p.is_set(AS::StrictUtf8) && val.to_str().is_none() {
+            if !arg.is_set(ArgSettings::AllowInvalidUtf8) && val.to_str().is_none() {
                 debug!(
                     "Validator::validate_arg_values: invalid UTF-8 found in val {:?}",
                     val

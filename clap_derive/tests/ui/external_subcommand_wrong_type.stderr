@@ -10,7 +10,7 @@ error: The type must be either `Vec<String>` or `Vec<OsString>` to be used with 
 13 |     Other(String),
    |           ^^^^^^
 
-error: The enum variant marked with `external_attribute` must be a single-typed tuple, and the type must be either `Vec<String>` or `Vec<OsString>`.
+error: The enum variant marked with `external_subcommand` must be a single-typed tuple, and the type must be either `Vec<String>` or `Vec<OsString>`.
   --> $DIR/external_subcommand_wrong_type.rs:18:5
    |
 18 | /     #[clap(external_subcommand)]

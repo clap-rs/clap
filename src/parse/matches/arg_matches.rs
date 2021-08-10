@@ -101,7 +101,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -129,8 +130,10 @@ impl ArgMatches {
     }
 
     /// Gets the lossy value of a specific argument. If the argument wasn't present at runtime
-    /// it returns `None`. A lossy value is one which contains invalid UTF-8 code points, those
+    /// it returns `None`. A lossy value is one which contains invalid UTF-8, those
     /// invalid points will be replaced with `\u{FFFD}`
+    ///
+    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer [`Arg::values_of_lossy`] as `value_of_lossy()` will only return the *first* value.
@@ -147,7 +150,8 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg> 'some arg'"))
+    ///     .arg(Arg::from("<arg> 'some arg'")
+    ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
@@ -171,6 +175,8 @@ impl ArgMatches {
     /// Rust are guaranteed to be valid UTF-8, a valid filename on a Unix system as an argument
     /// value may contain invalid UTF-8 code points.
     ///
+    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    ///
     /// *NOTE:* If getting a value for an option or positional argument that allows multiples,
     /// prefer [`ArgMatches::values_of_os`] as `Arg::value_of_os` will only return the *first*
     /// value.
@@ -187,7 +193,8 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg> 'some arg'"))
+    ///     .arg(Arg::from("<arg> 'some arg'")
+    ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
     ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);
@@ -208,7 +215,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will panic if any of the values contain invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -260,6 +268,8 @@ impl ArgMatches {
     /// it returns `None`. A lossy value is one where if it contains invalid UTF-8 code points,
     /// those invalid points will be replaced with `\u{FFFD}`
     ///
+    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    ///
     /// # Examples
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
@@ -269,7 +279,8 @@ impl ArgMatches {
     /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg>... 'some arg'"))
+    ///     .arg(Arg::from("<arg>... 'some arg'")
+    ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi"
     ///                             OsString::from_vec(vec![b'H', b'i']),
@@ -294,6 +305,8 @@ impl ArgMatches {
     /// valid UTF-8 code points. Since [`String`]s in Rust are guaranteed to be valid UTF-8, a valid
     /// filename as an argument value on Linux (for example) may contain invalid UTF-8 code points.
     ///
+    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    ///
     /// # Examples
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
@@ -303,7 +316,8 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg>... 'some arg'"))
+    ///     .arg(Arg::from("<arg>... 'some arg'")
+    ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                                 // "Hi"
     ///                                 OsString::from_vec(vec![b'H', b'i']),
@@ -340,7 +354,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -395,7 +410,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will [`panic!`] if the value contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -432,7 +448,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -485,7 +502,8 @@ impl ArgMatches {
     ///
     /// # Panics
     ///
-    /// This method will [`panic!`] if any of the values contains invalid UTF-8 code points.
+    /// This method will [`panic!`] if the value is invalid UTF-8.  See
+    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
     ///
     /// # Examples
     ///
@@ -1065,7 +1083,8 @@ impl<'a> Default for GroupedValues<'a> {
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
 ///
 /// let m = App::new("utf8")
-///     .arg(Arg::from("<arg> 'some arg'"))
+///     .arg(Arg::from("<arg> 'some arg'")
+///         .allow_invalid_utf8(true))
 ///     .get_matches_from(vec![OsString::from("myprog"),
 ///                             // "Hi {0xe9}!"
 ///                             OsString::from_vec(vec![b'H', b'i', b' ', 0xe9, b'!'])]);

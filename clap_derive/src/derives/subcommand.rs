@@ -131,8 +131,34 @@ fn gen_augment(
 
             match &*kind {
                 Kind::ExternalSubcommand => {
-                    quote_spanned! { kind.span()=>
-                        let app = app.setting(clap::AppSettings::AllowExternalSubcommands);
+                    let ty = match variant.fields {
+                        Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
+
+                        _ => abort!(
+                            variant,
+                            "The enum variant marked with `external_subcommand` must be \
+                             a single-typed tuple, and the type must be either `Vec<String>` \
+                             or `Vec<OsString>`."
+                        ),
+                    };
+                    match subty_if_name(ty, "Vec") {
+                        Some(subty) => {
+                            if is_simple_ty(subty, "OsString") {
+                                quote_spanned! { kind.span()=>
+                                    let app = app.setting(clap::AppSettings::AllowExternalSubcommands).setting(clap::AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+                                }
+                            } else {
+                                quote_spanned! { kind.span()=>
+                                    let app = app.setting(clap::AppSettings::AllowExternalSubcommands);
+                                }
+                            }
+                        }
+
+                        None => abort!(
+                            ty.span(),
+                            "The type must be `Vec<_>` \
+                             to be used with `external_subcommand`."
+                        ),
                     }
                 }
 
@@ -348,7 +374,7 @@ fn gen_from_arg_matches(
 
                     _ => abort!(
                         variant,
-                        "The enum variant marked with `external_attribute` must be \
+                        "The enum variant marked with `external_subcommand` must be \
                          a single-typed tuple, and the type must be either `Vec<String>` \
                          or `Vec<OsString>`."
                     ),

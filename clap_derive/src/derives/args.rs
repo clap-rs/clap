@@ -228,7 +228,22 @@ pub fn gen_augment(
                     ParserKind::TryFromOsStr => quote_spanned! { func.span()=>
                         .validator_os(|s| #func(s).map(|_: #convert_type| ()))
                     },
-                    _ => quote!(),
+                    ParserKind::FromStr
+                    | ParserKind::FromOsStr
+                    | ParserKind::FromFlag
+                    | ParserKind::FromOccurrences => quote!(),
+                };
+                let allow_invalid_utf8 = match *parser.kind {
+                    _ if attrs.is_enum() => quote!(),
+                    ParserKind::FromOsStr | ParserKind::TryFromOsStr => {
+                        quote_spanned! { func.span()=>
+                            .allow_invalid_utf8(true)
+                        }
+                    }
+                    ParserKind::FromStr
+                    | ParserKind::TryFromStr
+                    | ParserKind::FromFlag
+                    | ParserKind::FromOccurrences => quote!(),
                 };
 
                 let value_name = attrs.value_name();
@@ -250,6 +265,7 @@ pub fn gen_augment(
                             .value_name(#value_name)
                             #possible_values
                             #validator
+                            #allow_invalid_utf8
                         }
                     }
 
@@ -260,6 +276,7 @@ pub fn gen_augment(
                         .max_values(1)
                         .multiple_values(false)
                         #validator
+                            #allow_invalid_utf8
                     },
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
@@ -268,6 +285,7 @@ pub fn gen_augment(
                         .multiple_values(true)
                         .min_values(0)
                         #validator
+                            #allow_invalid_utf8
                     },
 
                     Ty::Vec => {
@@ -285,6 +303,7 @@ pub fn gen_augment(
                             .multiple_values(true)
                             #possible_values
                             #validator
+                            #allow_invalid_utf8
                         }
                     }
 
@@ -311,6 +330,7 @@ pub fn gen_augment(
                             .required(#required)
                             #possible_values
                             #validator
+                            #allow_invalid_utf8
                         }
                     }
                 };
