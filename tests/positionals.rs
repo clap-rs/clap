@@ -1,4 +1,4 @@
-use clap::{App, Arg, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgGroup, ErrorKind};
 
 #[test]
 fn only_pos_follow() {
@@ -306,4 +306,27 @@ fn positional_arg_with_multiple_occurrences() {
     let _ = App::new("test")
         .arg(Arg::new("arg").multiple_occurrences(true))
         .try_get_matches();
+}
+
+/// Test for https://github.com/clap-rs/clap/issues/1794.
+#[test]
+fn positional_args_with_options() {
+    let app = clap::App::new("hello")
+        .bin_name("deno")
+        .setting(AppSettings::AllowMissingPositional)
+        .arg(Arg::new("option1").long("option1").takes_value(false))
+        .arg(Arg::new("pos1").takes_value(true))
+        .arg(Arg::new("pos2").takes_value(true))
+        .arg(Arg::new("pos3").takes_value(true))
+        .group(
+            ArgGroup::new("arg1")
+                .args(&["pos1", "pos2", "option1"])
+                .required(true),
+        );
+
+    let m = app.get_matches_from(&["deno", "--option1", "abcd"]);
+    assert!(m.is_present("option1"));
+    assert!(!m.is_present("pos1"));
+    assert!(m.is_present("pos2"));
+    assert_eq!(m.value_of("pos2"), Some("abcd"));
 }
