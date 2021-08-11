@@ -2373,21 +2373,20 @@ impl<'help> App<'help> {
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
                 // done and to recursively call this method
                 {
-                    let vsc = $_self
+                    if $_self
                         .settings
-                        .is_set(AppSettings::DisableVersionForSubcommands);
-                    let gv = $_self.settings.is_set(AppSettings::GlobalVersion);
-
-                    if vsc {
+                        .is_set(AppSettings::DisableVersionForSubcommands)
+                    {
                         $sc.set(AppSettings::DisableVersionFlag);
                     }
-                    if gv && $sc.version.is_none() && $_self.version.is_some() {
-                        $sc.set(AppSettings::GlobalVersion);
+
+                    if $_self.settings.is_set(AppSettings::PropagateVersion)
+                        && $sc.version.is_none()
+                        && $_self.version.is_some()
+                    {
                         $sc.version = Some($_self.version.unwrap());
                     }
-                    if $_self.settings.is_set(AppSettings::IgnoreErrors) {
-                        $sc.set(AppSettings::IgnoreErrors);
-                    }
+
                     $sc.settings = $sc.settings | $_self.g_settings;
                     $sc.g_settings = $sc.g_settings | $_self.g_settings;
                     $sc.term_w = $_self.term_w;
