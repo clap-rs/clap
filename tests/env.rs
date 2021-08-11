@@ -28,9 +28,9 @@ fn env_bool_literal() {
     env::set_var("CLP_TEST_FLAG_FALSE", "nO");
 
     let r = App::new("df")
-        .arg(Arg::from("[present] 'some opt'").env("CLP_TEST_FLAG_TRUE"))
-        .arg(Arg::from("[negated] 'some another opt'").env("CLP_TEST_FLAG_FALSE"))
-        .arg(Arg::from("[absent] 'some third opt'").env("CLP_TEST_FLAG_ABSENT"))
+        .arg(Arg::new("present").short('p').env("CLP_TEST_FLAG_TRUE"))
+        .arg(Arg::new("negated").short('n').env("CLP_TEST_FLAG_FALSE"))
+        .arg(Arg::new("absent").short('a').env("CLP_TEST_FLAG_ABSENT"))
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_ok());
