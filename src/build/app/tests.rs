@@ -1,9 +1,9 @@
 use crate::{App, AppSettings};
 
 #[test]
-fn global_version() {
-    let mut app = App::new("global_version")
-        .setting(AppSettings::GlobalVersion)
+fn propagate_version() {
+    let mut app = App::new("test")
+        .setting(AppSettings::PropagateVersion)
         .version("1.1")
         .subcommand(App::new("sub1"));
     app._propagate();

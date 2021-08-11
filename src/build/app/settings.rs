@@ -9,7 +9,7 @@ bitflags! {
         const SC_NEGATE_REQS                 = 1;
         const SC_REQUIRED                    = 1 << 1;
         const ARG_REQUIRED_ELSE_HELP         = 1 << 2;
-        const GLOBAL_VERSION                 = 1 << 3;
+        const PROPAGATE_VERSION              = 1 << 3;
         const DISABLE_VERSION_FOR_SC         = 1 << 4;
         const UNIFIED_HELP                   = 1 << 5;
         const WAIT_ON_ERROR                  = 1 << 6;
@@ -110,8 +110,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag("disableversionflag")
         => Flags::DISABLE_VERSION_FLAG,
-    GlobalVersion("globalversion")
-        => Flags::GLOBAL_VERSION,
+    PropagateVersion("propagateversion")
+        => Flags::PROPAGATE_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
     HelpRequired("helprequired")
@@ -469,8 +469,8 @@ pub enum AppSettings {
     ///             values   subcommand
     /// ```
     ///
-    /// **Note:** Make sure you apply it as `global_setting` if you want it to be propagated to
-    /// sub-sub commands!
+    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
+    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// # Examples
     ///
@@ -588,7 +588,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .global_setting(AppSettings::DisableEnv)
+    ///     .setting(AppSettings::DisableEnv)
     ///     .get_matches();
     /// ```
     DisableEnv,
@@ -713,9 +713,12 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     DeriveDisplayOrder,
 
-    /// Specifies to use the version of the current command for all child [`subcommands`].
+    /// Specifies to use the version of the current command for all [`subcommands`].
     ///
     /// Defaults to `false`; subcommands have independent version strings from their parents.
+    ///
+    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
+    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// # Examples
     ///
@@ -723,7 +726,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::GlobalVersion)
+    ///     .setting(AppSettings::PropagateVersion)
     ///     .subcommand(App::new("test"))
     ///     .get_matches();
     /// // running `$ myprog test --version` will display
@@ -731,7 +734,7 @@ pub enum AppSettings {
     /// ```
     ///
     /// [`subcommands`]: crate::App::subcommand()
-    GlobalVersion,
+    PropagateVersion,
 
     /// Specifies that this [`subcommand`] should be hidden from help messages
     ///
@@ -783,8 +786,10 @@ pub enum AppSettings {
     ///```
     HelpRequired,
 
-    /// Try not to fail on parse errors like missing option values. This is a
-    /// global option that gets propagated sub commands.
+    /// Try not to fail on parse errors like missing option values.
+    ///
+    /// **Note:** Make sure you apply it as `global_setting` if you want this setting
+    /// to be propagated to subcommands and sub-subcommands!
     ///
     /// Issue: [#1880 Partial / Pre Parsing a
     /// CLI](https://github.com/clap-rs/clap/issues/1880)
@@ -793,7 +798,7 @@ pub enum AppSettings {
     ///
     /// * [Changing app settings based on
     ///   flags](https://github.com/clap-rs/clap/issues/1880#issuecomment-637779787)
-    /// * [#1232  Dynamic completion
+    /// * [#1232 Dynamic completion
     ///   support](https://github.com/clap-rs/clap/issues/1232)
     ///
     /// Support is not complete: Errors are still possible but they can be
@@ -1182,8 +1187,8 @@ mod test {
             AppSettings::DeriveDisplayOrder
         );
         assert_eq!(
-            "globalversion".parse::<AppSettings>().unwrap(),
-            AppSettings::GlobalVersion
+            "propagateversion".parse::<AppSettings>().unwrap(),
+            AppSettings::PropagateVersion
         );
         assert_eq!(
             "hidden".parse::<AppSettings>().unwrap(),
