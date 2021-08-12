@@ -2276,7 +2276,7 @@ impl<'help> App<'help> {
                     self.settings.set(AppSettings::DontCollapseArgsInUsage);
                 }
                 a._build();
-                if a.short.is_none() && a.long.is_none() && a.index.is_none() {
+                if a.is_positional() && a.index.is_none() {
                     a.index = Some(pos_counter);
                     pos_counter += 1;
                 }
@@ -2496,7 +2496,7 @@ impl<'help> App<'help> {
             for (i, a) in self
                 .args
                 .args_mut()
-                .filter(|a| a.has_switch())
+                .filter(|a| !a.is_positional())
                 .filter(|a| a.disp_ord == 999)
                 .enumerate()
             {

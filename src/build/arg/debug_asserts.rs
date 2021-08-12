@@ -29,7 +29,7 @@ pub(crate) fn assert_arg(arg: &Arg) {
 
     if arg.index.is_some() {
         assert!(
-            !arg.has_switch(),
+            arg.is_positional(),
             "Argument '{}' is a positional argument and can't have short or long name versions",
             arg.name
         );

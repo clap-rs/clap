@@ -4623,24 +4623,24 @@ impl<'help> Arg<'help> {
     }
 
     // FIXME: (@CreepySkeleton)
-    #[doc(hidden)]
-    pub fn _build(&mut self) {
+    pub(crate) fn _build(&mut self) {
         if (self.is_set(ArgSettings::UseValueDelimiter)
             || self.is_set(ArgSettings::RequireDelimiter))
             && self.val_delim.is_none()
         {
             self.val_delim = Some(',');
         }
-        if !(self.index.is_some() || (self.short.is_none() && self.long.is_none()))
+
+        if !(self.index.is_some() || self.is_positional())
             && self.is_set(ArgSettings::TakesValue)
             && self.val_names.len() > 1
         {
             self.num_vals = Some(self.val_names.len());
         }
-    }
 
-    pub(crate) fn has_switch(&self) -> bool {
-        self.short.is_some() || self.long.is_some()
+        if self.is_positional() {
+            self.settings.set(ArgSettings::TakesValue);
+        }
     }
 
     pub(crate) fn longest_filter(&self) -> bool {
@@ -4847,7 +4847,7 @@ impl<'help> PartialEq for Arg<'help> {
 
 impl<'help> Display for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self.index.is_some() || (self.long.is_none() && self.short.is_none()) {
+        if self.index.is_some() || self.is_positional() {
             // Positional
             let mut delim = String::new();
 

@@ -200,7 +200,7 @@ pub(crate) fn assert_app(app: &App) {
 
         if arg.value_hint == ValueHint::CommandWithArguments {
             assert!(
-                arg.short.is_none() && arg.long.is_none(),
+                arg.is_positional(),
                 "Argument '{}' has hint CommandWithArguments and must be positional.",
                 arg.name
             );

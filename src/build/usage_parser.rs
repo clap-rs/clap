@@ -69,9 +69,8 @@ impl<'help> UsageParser<'help> {
         } else {
             None
         };
-        if !arg.has_switch() && arg.is_set(ArgSettings::MultipleOccurrences) {
+        if arg.is_positional() && arg.is_set(ArgSettings::MultipleOccurrences) {
             // We had a positional and need to set mult vals too
-            arg.settings.set(ArgSettings::TakesValue);
             arg.settings.set(ArgSettings::MultipleValues);
             arg.settings.unset(ArgSettings::MultipleOccurrences);
         }

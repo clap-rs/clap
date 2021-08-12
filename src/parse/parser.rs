@@ -1613,7 +1613,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
                     && !overrider.is_set(ArgSettings::MultipleValues)
                     && !overrider.is_set(ArgSettings::MultipleOccurrences)
-                    && overrider.has_switch()
+                    && !overrider.is_positional()
                 {
                     debug!(
                         "Parser::remove_overrides:iter:{:?}:iter:{:?}: self override",

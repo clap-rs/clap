@@ -284,7 +284,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         if let Some(s) = arg.short {
             self.good(&format!("-{}", s))
-        } else if arg.has_switch() {
+        } else if !arg.is_positional() {
             self.none(TAB)
         } else {
             Ok(())
@@ -294,7 +294,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes argument's long command to the wrapped stream.
     fn long(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::long");
-        if !arg.has_switch() {
+        if arg.is_positional() {
             return Ok(());
         }
         if arg.is_set(ArgSettings::TakesValue) {
@@ -372,7 +372,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 if mult && num == 1 {
                     self.good("...")?;
                 }
-            } else if arg.has_switch() {
+            } else if !arg.is_positional() {
                 self.good(&format!("<{}>", arg.name))?;
                 if mult {
                     self.good("...")?;
@@ -386,7 +386,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         if self.use_long {
             // long help prints messages on the next line so it don't need to align text
             debug!("Help::val: printing long help so skip alignment");
-        } else if arg.has_switch() {
+        } else if !arg.is_positional() {
             debug!("Yes");
             debug!("Help::val: nlh...{:?}", next_line_help);
             if !next_line_help {
@@ -451,7 +451,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes argument's help to the wrapped stream.
     fn help(
         &mut self,
-        has_switch: bool,
+        is_not_positional: bool,
         about: &str,
         spec_vals: &str,
         next_line_help: bool,
@@ -493,7 +493,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             self.none("\n")?;
             if next_line_help {
                 self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
-            } else if has_switch {
+            } else if is_not_positional {
                 self.spaces(longest + 12)?;
             } else {
                 self.spaces(longest + 8)?;
@@ -521,7 +521,13 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             arg.about.unwrap_or_else(|| arg.long_about.unwrap_or(""))
         };
 
-        self.help(arg.has_switch(), about, spec_vals, next_line_help, longest)?;
+        self.help(
+            !arg.is_positional(),
+            about,
+            spec_vals,
+            next_line_help,
+            longest,
+        )?;
         Ok(())
     }
 
@@ -831,7 +837,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .app
                 .args
                 .args()
-                .filter(|a| a.has_switch())
+                .filter(|a| !a.is_positional())
                 .collect::<Vec<_>>();
             if !first {
                 self.none("\n\n")?;
@@ -1061,7 +1067,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             .app
                             .args
                             .args()
-                            .filter(|a| a.has_switch())
+                            .filter(|a| !a.is_positional())
                             .collect::<Vec<_>>();
                         self.write_args(&opts_flags)?;
                     }
