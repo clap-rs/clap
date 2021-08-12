@@ -12,7 +12,10 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+mod utils;
+
 use clap::Clap;
+use utils::get_help;
 
 #[test]
 fn flatten() {
@@ -167,4 +170,45 @@ fn flatten_with_doc_comment() {
         #[clap(flatten)]
         opts: DaemonOpts,
     }
+}
+
+#[test]
+fn docstrings_ordering_with_multiple_clap() {
+    /// This is the docstring for Flattened
+    #[derive(Clap)]
+    struct Flattened {
+        #[clap(long)]
+        foo: bool,
+    }
+
+    /// This is the docstring for Command
+    #[derive(Clap)]
+    struct Command {
+        #[clap(flatten)]
+        flattened: Flattened,
+    }
+
+    let short_help = get_help::<Command>();
+
+    assert!(short_help.contains("This is the docstring for Command"));
+}
+
+#[test]
+fn docstrings_ordering_with_multiple_clap_partial() {
+    /// This is the docstring for Flattened
+    #[derive(Clap)]
+    struct Flattened {
+        #[clap(long)]
+        foo: bool,
+    }
+
+    #[derive(Clap)]
+    struct Command {
+        #[clap(flatten)]
+        flattened: Flattened,
+    }
+
+    let short_help = get_help::<Command>();
+
+    assert!(short_help.contains("This is the docstring for Flattened"));
 }
