@@ -858,10 +858,6 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             }
             if !custom_headings.is_empty() {
                 for heading in custom_headings {
-                    if !first {
-                        self.none("\n\n")?;
-                    }
-                    self.warning(&*format!("{}:\n", heading))?;
                     let args = self
                         .parser
                         .app
@@ -873,9 +869,17 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                             }
                             false
                         })
+                        .filter(|arg| should_show_arg(self.use_long, arg))
                         .collect::<Vec<_>>();
-                    self.write_args(&*args)?;
-                    first = false
+
+                    if !args.is_empty() {
+                        if !first {
+                            self.none("\n\n")?;
+                        }
+                        self.warning(&*format!("{}:\n", heading))?;
+                        self.write_args(&*args)?;
+                        first = false
+                    }
                 }
             }
         }
