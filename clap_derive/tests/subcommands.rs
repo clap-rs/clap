@@ -413,3 +413,44 @@ fn update_sub_subcommands() {
         .unwrap();
     assert_eq!(Opt::parse_from(&["test", "child2", "command2", "43"]), opt);
 }
+
+#[test]
+fn update_ext_subcommand() {
+    #[derive(Clap, PartialEq, Debug)]
+    enum Opt {
+        Command1(Command1),
+        Command2(Command2),
+        #[clap(external_subcommand)]
+        Ext(Vec<String>),
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command1 {
+        arg1: i32,
+        arg2: i32,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Command2 {
+        arg2: i32,
+    }
+
+    // Full subcommand update
+    let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
+    opt.try_update_from(&["test", "ext", "42", "44"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "ext", "42", "44"]), opt);
+
+    // No partial subcommand update
+    let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
+    opt.try_update_from(&["test", "ext", "42"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "ext", "42"]), opt);
+
+    // Change subcommand
+    let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
+    opt.try_update_from(&["test", "command2", "43"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
+
+    let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
+    opt.try_update_from(&["test", "ext", "42", "44"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "ext", "42", "44"]), opt);
+}
