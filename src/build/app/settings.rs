@@ -407,14 +407,16 @@ pub enum AppSettings {
     /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
     AllowExternalSubcommands,
 
-    /// Specifies that use of a valid argument negates [`subcommands`] being used after. By default
-    /// `clap` allows arguments between subcommands such as
-    /// `<cmd> [cmd_args] <cmd2> [cmd2_args] <cmd3> [cmd3_args]`. This setting disables that
-    /// functionality and says that arguments can only follow the *final* subcommand. For instance
-    /// using this setting makes only the following invocations possible:
+    /// Specifies that use of a valid argument negates [`subcommands`] being
+    /// used after. By default `clap` allows arguments between subcommands such
+    /// as `<cmd> [cmd_args] <subcmd> [subcmd_args] <subsubcmd> [subsubcmd_args]`.
     ///
-    /// * `<cmd> <cmd2> <cmd3> [cmd3_args]`
-    /// * `<cmd> <cmd2> [cmd2_args]`
+    /// This setting disables that functionality and says that arguments can
+    /// only follow the *final* subcommand. For instance using this setting
+    /// makes only the following invocations possible:
+    ///
+    /// * `<cmd> <subcmd> <subsubcmd> [subsubcmd_args]`
+    /// * `<cmd> <subcmd> [subcmd_args]`
     /// * `<cmd> [cmd_args]`
     ///
     /// # Examples
