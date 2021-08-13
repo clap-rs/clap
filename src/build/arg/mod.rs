@@ -2423,7 +2423,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("config")
     ///         .short('c')
     ///         .long("config")
-    ///         .value_delimiter(";"))
+    ///         .value_delimiter(';'))
     ///     .get_matches_from(vec![
     ///         "prog", "--config=val1;val2;val3"
     ///     ]);
@@ -2433,12 +2433,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
-    pub fn value_delimiter(mut self, d: &str) -> Self {
-        self.val_delim = Some(
-            d.chars()
-                .next()
-                .expect("Failed to get value_delimiter from arg"),
-        );
+    pub fn value_delimiter(mut self, d: char) -> Self {
+        self.val_delim = Some(d);
         self.takes_value(true).use_delimiter(true)
     }
 
