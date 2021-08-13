@@ -634,7 +634,7 @@ fn different_sep() {
             Arg::new("option")
                 .long("option")
                 .about("multiple options")
-                .value_delimiter(";"),
+                .value_delimiter(';'),
         )
         .try_get_matches_from(vec!["", "--option=val1;val2;val3"]);
 
@@ -655,7 +655,7 @@ fn different_sep_positional() {
         .arg(
             Arg::new("option")
                 .about("multiple options")
-                .value_delimiter(";"),
+                .value_delimiter(';'),
         )
         .try_get_matches_from(vec!["", "val1;val2;val3"]);
 

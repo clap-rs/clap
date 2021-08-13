@@ -1718,7 +1718,7 @@ fn issue_1052_require_delim_help() {
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
-                .value_delimiter(":"),
+                .value_delimiter(':'),
         );
 
     assert!(utils::compare_output(
@@ -1844,7 +1844,7 @@ fn custom_headers_headers() {
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
-                .value_delimiter(":"),
+                .value_delimiter(':'),
         )
         .help_heading("NETWORKING")
         .arg(
@@ -1898,7 +1898,7 @@ fn multiple_custom_help_headers() {
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
-                .value_delimiter(":"),
+                .value_delimiter(':'),
         )
         .help_heading("NETWORKING")
         .arg(

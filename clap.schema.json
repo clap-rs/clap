@@ -259,7 +259,7 @@
           "type": "string"
         },
         "value_delimiter": {
-          "type": "string"
+          "$ref": "#/definitions/shortArg"
         },
         "visible_alias": {
           "type": "string"
