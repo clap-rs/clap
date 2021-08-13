@@ -2039,6 +2039,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::multiple_occurrences(true)`] would allow `-f <file> <file> <file> -f <file> <file> <file>` where
     /// as *not* setting it would only allow one occurrence of this argument.
     ///
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`] and [`Arg::multiple_values(true)`].
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -2450,9 +2452,7 @@ impl<'help> Arg<'help> {
     /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
-    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`]
-    ///
-    /// **NOTE:** Does *not* require or imply [`Arg::multiple_values(true)`].
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`] and [`Arg::multiple_values(true)`].
     ///
     /// # Examples
     ///
@@ -4583,6 +4583,8 @@ impl<'help> Arg<'help> {
     ///
     /// Currently this is only supported by the zsh completions generator.
     ///
+    /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
+    ///
     /// For example, to take a username as argument:
     ///
     /// ```
@@ -4607,13 +4609,15 @@ impl<'help> Arg<'help> {
     ///     );
     /// ```
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
-        self.settings.set(ArgSettings::TakesValue);
         self.value_hint = value_hint;
-        self
+        self.takes_value(true)
     }
 
-    // FIXME: (@CreepySkeleton)
     pub(crate) fn _build(&mut self) {
+        if self.is_positional() {
+            self.settings.set(ArgSettings::TakesValue);
+        }
+
         if (self.is_set(ArgSettings::UseValueDelimiter)
             || self.is_set(ArgSettings::RequireDelimiter))
             && self.val_delim.is_none()
@@ -4621,15 +4625,14 @@ impl<'help> Arg<'help> {
             self.val_delim = Some(',');
         }
 
-        if !(self.index.is_some() || self.is_positional())
-            && self.is_set(ArgSettings::TakesValue)
-            && self.val_names.len() > 1
-        {
-            self.num_vals = Some(self.val_names.len());
-        }
+        let val_names_len = self.val_names.len();
 
-        if self.is_positional() {
-            self.settings.set(ArgSettings::TakesValue);
+        if val_names_len > 1 {
+            self.settings.set(ArgSettings::MultipleValues);
+
+            if self.num_vals.is_none() {
+                self.num_vals = Some(val_names_len);
+            }
         }
     }
 
@@ -4772,11 +4775,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "possible_values" => yaml_vec_or_str!(a, v, possible_value),
                 "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
                 "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
-                "required_unless_present_all" => {
-                    a = yaml_vec!(a, v, required_unless_present_all);
-                    a.settings.set(ArgSettings::RequiredUnlessAll);
-                    a
-                }
+                "required_unless_present_all" => yaml_vec!(a, v, required_unless_present_all),
                 "visible_alias" => yaml_to_str!(a, v, visible_alias),
                 "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
                 "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
@@ -5010,8 +5009,7 @@ mod test {
 
     #[test]
     fn flag_display() {
-        let mut f = Arg::new("flg");
-        f.settings.set(ArgSettings::MultipleOccurrences);
+        let mut f = Arg::new("flg").setting(ArgSettings::MultipleOccurrences);
         f.long = Some("flag");
 
         assert_eq!(&*format!("{}", f), "--flag");
@@ -5174,18 +5172,17 @@ mod test {
 
     #[test]
     fn positional_display_val_names() {
-        let mut p2 = Arg::new("pos").index(1);
-        let vm = vec!["file1", "file2"];
-        p2.val_names = vm;
+        let p2 = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
 
     #[test]
     fn positional_display_val_names_req() {
-        let mut p2 = Arg::new("pos").index(1).setting(ArgSettings::Required);
-        let vm = vec!["file1", "file2"];
-        p2.val_names = vm;
+        let p2 = Arg::new("pos")
+            .index(1)
+            .setting(ArgSettings::Required)
+            .value_names(&["file1", "file2"]);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
