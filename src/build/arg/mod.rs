@@ -4752,7 +4752,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "require_equals" => yaml_to_bool!(a, v, require_equals),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
                 "value_terminator" => yaml_to_str!(a, v, value_terminator),
-                "value_delimiter" => yaml_to_str!(a, v, value_delimiter),
+                "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
                 "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
                 "display_order" => yaml_to_usize!(a, v, display_order),
                 "default_value" => yaml_to_str!(a, v, default_value),
