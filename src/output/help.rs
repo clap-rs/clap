@@ -348,7 +348,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     }
                     _ => {
                         let mut it = arg.val_names.iter().peekable();
-                        while let Some((_, val)) = it.next() {
+                        while let Some(val) = it.next() {
                             self.good(&format!("<{}>", val))?;
                             if it.peek().is_some() {
                                 self.none(&delim.to_string())?;
