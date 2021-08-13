@@ -101,7 +101,7 @@ pub struct Arg<'help> {
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
     pub(crate) possible_vals: Vec<&'help str>,
-    pub(crate) val_names: VecMap<&'help str>,
+    pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
     pub(crate) max_occurs: Option<usize>,
     pub(crate) max_vals: Option<usize>,
@@ -2494,12 +2494,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        let mut i = self.val_names.len();
-        for s in names {
-            self.val_names.insert(i, s);
-            i += 1;
-        }
-
+        self.val_names = names.to_vec();
         self.takes_value(true)
     }
 
@@ -2550,10 +2545,9 @@ impl<'help> Arg<'help> {
     /// [option]: Arg::takes_value()
     /// [positional]: Arg::index()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
-    pub fn value_name(mut self, name: &'help str) -> Self {
-        let l = self.val_names.len();
-        self.val_names.insert(l, name);
-        self.takes_value(true)
+    #[inline]
+    pub fn value_name(self, name: &'help str) -> Self {
+        self.value_names(&[name])
     }
 
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -4675,13 +4669,13 @@ impl<'help> Arg<'help> {
             if self.val_names.len() > 1 {
                 Cow::Owned(
                     self.val_names
-                        .values()
+                        .iter()
                         .map(|n| format!("<{}>", n))
                         .collect::<Vec<_>>()
                         .join(&*delim),
                 )
             } else {
-                Cow::Borrowed(self.val_names.values().next().expect(INTERNAL_ERROR_MSG))
+                Cow::Borrowed(self.val_names.get(0).expect(INTERNAL_ERROR_MSG))
             }
         } else {
             debug!("Arg::name_no_brackets: just name");
@@ -4858,7 +4852,7 @@ impl<'help> Display for Arg<'help> {
                     f,
                     "{}",
                     self.val_names
-                        .values()
+                        .iter()
                         .map(|n| format!("<{}>", n))
                         .collect::<Vec<_>>()
                         .join(&*delim)
@@ -4905,7 +4899,7 @@ impl<'help> Display for Arg<'help> {
             let num = self.val_names.len();
             let mut it = self.val_names.iter().peekable();
 
-            while let Some((_, val)) = it.next() {
+            while let Some(val) = it.next() {
                 write!(f, "<{}>", val)?;
                 if it.peek().is_some() {
                     write!(f, "{}", delim)?;
@@ -5013,7 +5007,6 @@ impl<'help> fmt::Debug for Arg<'help> {
 mod test {
     use super::Arg;
     use crate::build::ArgSettings;
-    use crate::util::VecMap;
 
     #[test]
     fn flag_display() {
@@ -5182,9 +5175,7 @@ mod test {
     #[test]
     fn positional_display_val_names() {
         let mut p2 = Arg::new("pos").index(1);
-        let mut vm = VecMap::new();
-        vm.insert(0, "file1");
-        vm.insert(1, "file2");
+        let vm = vec!["file1", "file2"];
         p2.val_names = vm;
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
@@ -5193,9 +5184,7 @@ mod test {
     #[test]
     fn positional_display_val_names_req() {
         let mut p2 = Arg::new("pos").index(1).setting(ArgSettings::Required);
-        let mut vm = VecMap::new();
-        vm.insert(0, "file1");
-        vm.insert(1, "file2");
+        let vm = vec!["file1", "file2"];
         p2.val_names = vm;
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
