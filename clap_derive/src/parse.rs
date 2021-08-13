@@ -26,7 +26,6 @@ pub enum ClapAttr {
     About(Ident, Option<LitStr>),
     Author(Ident, Option<LitStr>),
     Version(Ident, Option<LitStr>),
-    DefaultValue(Ident, Option<LitStr>),
 
     // ident = "string literal"
     RenameAllEnv(Ident, LitStr),
@@ -41,6 +40,7 @@ pub enum ClapAttr {
 
     // ident = arbitrary_expr
     NameExpr(Ident, Expr),
+    DefaultValueT(Ident, Option<Expr>),
 
     // ident(arbitrary_expr,*)
     MethodCall(Ident, Vec<Expr>),
@@ -75,7 +75,6 @@ impl Parse for ClapAttr {
                 match &*name_str {
                     "rename_all" => Ok(RenameAll(name, lit)),
                     "rename_all_env" => Ok(RenameAllEnv(name, lit)),
-                    "default_value" => Ok(DefaultValue(name, Some(lit))),
 
                     "version" => {
                         check_empty_lit("version");
@@ -105,13 +104,11 @@ impl Parse for ClapAttr {
                 }
             } else {
                 match input.parse::<Expr>() {
-                    Ok(expr) => {
-                        if name_str == "skip" {
-                            Ok(Skip(name, Some(expr)))
-                        } else {
-                            Ok(NameExpr(name, expr))
-                        }
-                    }
+                    Ok(expr) => match &*name_str {
+                        "skip" => Ok(Skip(name, Some(expr))),
+                        "default_value_t" => Ok(DefaultValueT(name, Some(expr))),
+                        _ => Ok(NameExpr(name, expr)),
+                    },
 
                     Err(_) => abort! {
                         assign_token,
@@ -176,7 +173,13 @@ impl Parse for ClapAttr {
                 "external_subcommand" => Ok(ExternalSubcommand(name)),
                 "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
 
-                "default_value" => Ok(DefaultValue(name, None)),
+                "default_value" => {
+                    abort!(name,
+                        "`#[clap(default_value)` attribute (without a value) has been replaced by `#[clap(default_value_t)]`.";
+                        help = "Change the attribute to `#[clap(default_value_t)]`";
+                    )
+                }
+                "default_value_t" => Ok(DefaultValueT(name, None)),
                 "about" => (Ok(About(name, None))),
                 "author" => (Ok(Author(name, None))),
                 "version" => Ok(Version(name, None)),

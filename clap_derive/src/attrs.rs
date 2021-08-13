@@ -339,35 +339,37 @@ impl Attrs {
 
                 VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
 
-                DefaultValue(ident, lit) => {
-                    let val = if let Some(lit) = lit {
-                        quote!(#lit)
+                DefaultValueT(ident, expr) => {
+                    let val = if let Some(expr) = expr {
+                        quote!(#expr)
                     } else {
                         let ty = if let Some(ty) = self.ty.as_ref() {
                             ty
                         } else {
                             abort!(
                                 ident,
-                                "#[clap(default_value)] (without an argument) can be used \
+                                "#[clap(default_value_t)] (without an argument) can be used \
                                 only on field level";
 
                                 note = "see \
                                     https://docs.rs/structopt/0.3.5/structopt/#magical-methods")
                         };
-
-                        quote_spanned!(ident.span()=> {
-                            clap::lazy_static::lazy_static! {
-                                static ref DEFAULT_VALUE: &'static str = {
-                                    let val = <#ty as ::std::default::Default>::default();
-                                    let s = ::std::string::ToString::to_string(&val);
-                                    ::std::boxed::Box::leak(s.into_boxed_str())
-                                };
-                            }
-                            *DEFAULT_VALUE
-                        })
+                        quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    self.methods.push(Method::new(ident, val));
+                    let val = quote_spanned!(ident.span()=> {
+                        clap::lazy_static::lazy_static! {
+                            static ref DEFAULT_VALUE: &'static str = {
+                                let val = #val;
+                                let s = ::std::string::ToString::to_string(&val);
+                                ::std::boxed::Box::leak(s.into_boxed_str())
+                            };
+                        }
+                        *DEFAULT_VALUE
+                    });
+
+                    let raw_ident = Ident::new("default_value", ident.span());
+                    self.methods.push(Method::new(raw_ident, val));
                 }
 
                 About(ident, about) => {
