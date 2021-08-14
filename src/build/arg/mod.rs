@@ -3927,8 +3927,6 @@ impl<'help> Arg<'help> {
     ///
     /// This is useful when the variable option is explained elsewhere in the help text.
     ///
-    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -3966,8 +3964,6 @@ impl<'help> Arg<'help> {
     /// displayed in the help text.
     ///
     /// This is useful when ENV vars contain sensitive values.
-    ///
-    /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
     /// # Examples
     ///
