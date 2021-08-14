@@ -13,7 +13,7 @@
 // MIT/Apache 2.0 license.
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.2")]
+#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.3")]
 
 //! This crate is custom derive for clap. It should not be used
 //! directly. See [clap documentation](clap)

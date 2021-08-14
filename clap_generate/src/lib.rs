@@ -8,7 +8,7 @@
 //! Generates stuff for [`clap`](https://github.com/clap-rs/clap) based CLIs
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.2")]
+#![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.3")]
 #![deny(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
 #![forbid(unsafe_code)]
 #![allow(clippy::needless_doctest_main)]

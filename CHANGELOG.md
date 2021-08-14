@@ -6,6 +6,13 @@ TODO: `YamlLoader`
 <a name="v3.0.0-rc.0"></a>
 ## v3.0.0-rc.0
 
+#### BREAKING CHANGES
+
+
+
+<a name="v3.0.0-beta.3"></a>
+## v3.0.0-beta.3 (2021-08-14)
+
 #### Minimum Required Rust
 * As of this release, `clap` requires `rustc 1.54.0` or greater.
 
