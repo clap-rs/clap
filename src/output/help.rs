@@ -323,8 +323,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes argument's possible values to the wrapped stream.
     fn val(&mut self, arg: &Arg<'help>, next_line_help: bool, longest: usize) -> io::Result<()> {
         debug!("Help::val: arg={}", arg.name);
-        let mult =
-            arg.is_set(ArgSettings::MultipleValues) || arg.is_set(ArgSettings::MultipleOccurrences);
+        let mult = arg.is_set(ArgSettings::MultipleValues);
         if arg.is_set(ArgSettings::TakesValue) || arg.index.is_some() {
             let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
                 arg.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -333,7 +332,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             };
             if !arg.val_names.is_empty() {
                 match (arg.val_names.len(), arg.num_vals) {
-                    (1, Some(num)) if num > 1 => {
+                    (1, Some(num)) => {
                         let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
                         let mut it = (0..num).peekable();
                         while it.next().is_some() {
@@ -372,13 +371,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 if mult && num == 1 {
                     self.good("...")?;
                 }
-            } else if !arg.is_positional() {
+            } else {
                 self.good(&format!("<{}>", arg.name))?;
                 if mult {
                     self.good("...")?;
                 }
-            } else {
-                self.good(&arg.to_string())?;
             }
         }
 
