@@ -127,10 +127,7 @@ impl MatchedArg {
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals_flatten().any(|v| {
             if self.case_insensitive {
-                // For rust v1.53.0 and above, can use
-                // OsString.eq_ignore_ascii_case
-                // (https://github.com/rust-lang/rust/pull/80193)
-                v.to_string_lossy().to_lowercase() == val.to_lowercase()
+                v.eq_ignore_ascii_case(val)
             } else {
                 OsString::as_os_str(v) == OsStr::new(val)
             }

@@ -25,11 +25,8 @@ use std::{env, ffi::OsString};
 #[cfg(feature = "regex")]
 use ::regex::Regex;
 
-#[cfg(feature = "regex")]
-mod regex;
-
-#[cfg(feature = "regex")]
-pub use self::regex::RegexRef;
+#[cfg(feature = "yaml")]
+use yaml_rust::Yaml;
 
 // Internal
 use crate::{
@@ -39,8 +36,11 @@ use crate::{
     INTERNAL_ERROR_MSG,
 };
 
-#[cfg(feature = "yaml")]
-use yaml_rust::Yaml;
+#[cfg(feature = "regex")]
+mod regex;
+
+#[cfg(feature = "regex")]
+pub use self::regex::RegexRef;
 
 type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
@@ -1753,7 +1753,7 @@ impl<'help> Arg<'help> {
     /// not define position in the argument list as a whole.
     ///
     /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
-    /// with [`Arg::short`] or [`Arg::long`]. If they are defined, they will be ignored.
+    /// with [`Arg::short`] or [`Arg::long`].
     ///
     /// **NOTE:** You can optionally leave off the `index` method, and the index will be
     /// assigned in order of evaluation. Utilizing the `index` method allows for setting
