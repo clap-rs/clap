@@ -1250,3 +1250,72 @@ fn issue_2229() {
     assert!(m.is_err()); // This panics, because `m.is_err() == false`.
     assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
 }
+
+#[test]
+fn value_names_building_num_vals() {
+    let m = App::new("test")
+        .arg(
+            Arg::new("pos")
+                .long("pos")
+                .value_names(&["who", "what", "why"]),
+        )
+        .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3"]
+    );
+}
+
+#[test]
+fn value_names_building_num_vals_from_usage() {
+    let m = App::new("test")
+        .arg(Arg::from("--pos <who> <what> <why>"))
+        .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3"]
+    );
+}
+
+#[test]
+fn value_names_building_num_vals_for_positional() {
+    let m = App::new("test")
+        .arg(Arg::new("pos").value_names(&["who", "what", "why"]))
+        .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3"]
+    );
+}
+
+#[test]
+fn number_of_values_preferred_over_value_names() {
+    let m = App::new("test")
+        .arg(
+            Arg::new("pos")
+                .long("pos")
+                .number_of_values(4)
+                .value_names(&["who", "what", "why"]),
+        )
+        .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3", "val4"]);
+
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    let m = m.unwrap();
+
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3", "val4"]
+    );
+}
