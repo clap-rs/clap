@@ -640,7 +640,7 @@ impl Error {
         Error {
             message: c,
             kind: ErrorKind::InvalidValue,
-            info: vec![],
+            info,
             source: None,
         }
     }
