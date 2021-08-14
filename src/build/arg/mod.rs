@@ -1096,10 +1096,11 @@ impl<'help> Arg<'help> {
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
-    /// **WARNING:** Positional arguments and options which accept [`Multiple*`] cannot override
-    /// themselves (or we would never be able to advance to the next positional). If a positional
-    /// argument or option with one of the [`Multiple*`] settings lists itself as an override, it is
-    /// simply ignored.
+    /// **WARNING:** Positional arguments and options which accept
+    /// [`ArgSettings::MultipleOccurrences`] cannot override themselves (or we
+    /// would never be able to advance to the next positional). If a positional
+    /// argument or option with one of the [`ArgSettings::MultipleOccurrences`]
+    /// settings lists itself as an override, it is simply ignored.
     ///
     /// # Examples
     ///
@@ -1136,8 +1137,10 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
-    /// Making an arg [`Multiple*`] and override itself is essentially meaningless. Therefore
-    /// clap ignores an override of self if it's a flag and it already accepts multiple occurrences.
+    ///
+    /// Making an arg [`ArgSettings::MultipleOccurrences`] and override itself
+    /// is essentially meaningless. Therefore clap ignores an override of self
+    /// if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1147,8 +1150,10 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 4);
     /// ```
-    /// Now notice with options (which *do not* set one of the [`Multiple*`]), it's as if only the
-    /// last occurrence happened.
+    ///
+    /// Now notice with options (which *do not* set
+    /// [`ArgSettings::MultipleOccurrences`]), it's as if only the last
+    /// occurrence happened.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1160,8 +1165,26 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("opt"), Some("other"));
     /// ```
     ///
-    /// Just like flags, options with one of the [`Multiple*`] set, will ignore the "override self"
-    /// setting.
+    /// This will also work when [`ArgSettings::MultipleValues`] is enabled:
+    ///
+    /// ```
+    /// # use clap::{App, Arg};
+    /// let m = App::new("posix")
+    ///             .arg(
+    ///                 Arg::new("opt")
+    ///                     .long("opt")
+    ///                     .takes_value(true)
+    ///                     .multiple_values(true)
+    ///                     .overrides_with("opt")
+    ///             )
+    ///             .get_matches_from(vec!["", "--opt", "1", "2", "--opt", "3", "4", "5"]);
+    /// assert!(m.is_present("opt"));
+    /// assert_eq!(m.occurrences_of("opt"), 1);
+    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["3", "4", "5"]);
+    /// ```
+    ///
+    /// Just like flags, options with [`ArgSettings::MultipleOccurrences`] set
+    /// will ignore the "override self" setting.
     ///
     /// ```
     /// # use clap::{App, Arg};
@@ -1173,23 +1196,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.occurrences_of("opt"), 2);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
-    ///
-    /// A safe thing to do if you'd like to support an option which supports multiple values, but
-    /// also is "overridable" by itself, is to not use [`UseValueDelimiter`] and *not* use
-    /// `MultipleValues` while telling users to separate values with a comma (i.e. `val1,val2`)
-    ///
-    /// ```
-    /// # use clap::{App, Arg};
-    /// let m = App::new("posix")
-    ///             .arg(Arg::from("--opt [val] 'some option'")
-    ///                 .overrides_with("opt"))
-    ///             .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
-    /// assert!(m.is_present("opt"));
-    /// assert_eq!(m.occurrences_of("opt"), 1);
-    /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["one,two"]);
-    /// ```
-    /// [`Multiple*`]: crate::ArgSettings::MultipleValues
-    /// [`UseValueDelimiter`]: ArgSettings::UseValueDelimiter
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
         self.overrides.push(arg_id.into());
         self

@@ -1608,10 +1608,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 }
                 // Only do self override for argument that is not positional
-                // argument or flag with one of the Multiple* setting
-                // enabled(which is a feature).
+                // argument or flag with MultipleOccurrences setting enabled.
                 if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
-                    && !overrider.is_set(ArgSettings::MultipleValues)
                     && !overrider.is_set(ArgSettings::MultipleOccurrences)
                     && !overrider.is_positional()
                 {
