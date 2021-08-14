@@ -306,3 +306,25 @@ fn require_overridden_4() {
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
 }
+
+#[test]
+fn issue_1374_overrides_self_with_multiple_values() {
+    let app = App::new("test").arg(
+        Arg::new("input")
+            .long("input")
+            .takes_value(true)
+            .overrides_with("input")
+            .min_values(0),
+    );
+    let m = app
+        .clone()
+        .get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"]);
+    assert_eq!(m.values_of("input").unwrap().collect::<Vec<_>>(), &["d"]);
+    let m = app
+        .clone()
+        .get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"]);
+    assert_eq!(
+        m.values_of("input").unwrap().collect::<Vec<_>>(),
+        &["c", "d"]
+    );
+}
