@@ -559,6 +559,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     fn spec_vals(&self, a: &Arg) -> String {
         debug!("Help::spec_vals: a={}", a);
         let mut spec_vals = vec![];
+        #[cfg(feature = "env")]
         if let Some(ref env) = a.env {
             if !a.is_set(ArgSettings::HideEnv) {
                 debug!(

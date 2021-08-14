@@ -12,13 +12,14 @@ pub use self::value_hint::ValueHint;
 use std::{
     borrow::Cow,
     cmp::{Ord, Ordering},
-    env,
     error::Error,
-    ffi::{OsStr, OsString},
+    ffi::OsStr,
     fmt::{self, Display, Formatter},
     str,
     sync::{Arc, Mutex},
 };
+#[cfg(feature = "env")]
+use std::{env, ffi::OsString};
 
 // Third Party
 #[cfg(feature = "regex")]
@@ -112,6 +113,7 @@ pub struct Arg<'help> {
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
+    #[cfg(feature = "env")]
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
@@ -262,6 +264,7 @@ impl<'help> Arg<'help> {
     /// let arg = Arg::new("foo").env("ENVIRONMENT");
     /// assert_eq!(Some(OsStr::new("ENVIRONMENT")), arg.get_env());
     /// ```
+    #[cfg(feature = "env")]
     pub fn get_env(&self) -> Option<&OsStr> {
         self.env.as_ref().map(|x| x.0)
     }
@@ -3141,6 +3144,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
+    #[cfg(feature = "env")]
     #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
@@ -3149,6 +3153,7 @@ impl<'help> Arg<'help> {
     /// Specifies that if the value is not passed in as an argument, that it should be retrieved
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
+    #[cfg(feature = "env")]
     #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         self.env = Some((name, env::var_os(name)));
@@ -3941,6 +3946,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `--help` the `[env: MODE]` portion of the help
     /// text would be omitted.
+    #[cfg(feature = "env")]
     #[inline]
     pub fn hide_env(self, hide: bool) -> Self {
         if hide {
@@ -3980,6 +3986,7 @@ impl<'help> Arg<'help> {
     ///
     /// If we were to run the above program with `$ CONNECT=super_secret connect --help` the
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
+    #[cfg(feature = "env")]
     #[inline]
     pub fn hide_env_values(self, hide: bool) -> Self {
         if hide {
@@ -4756,6 +4763,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
                 "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
+                #[cfg(feature = "env")]
                 "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(a, v, value_name),
                 "groups" => yaml_vec_or_str!(a, v, group),
@@ -4767,6 +4775,9 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "last" => yaml_to_bool!(a, v, last),
                 "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
+                #[cfg(feature = "env")]
+                "hide_env" => yaml_to_bool!(a, v, hide_env),
+                #[cfg(feature = "env")]
                 "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
                 "hide_possible_values" => yaml_to_bool!(a, v, hide_possible_values),
                 "overrides_with" => yaml_to_str!(a, v, overrides_with),
@@ -4954,7 +4965,10 @@ impl<'help> Eq for Arg<'help> {}
 
 impl<'help> fmt::Debug for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        f.debug_struct("Arg")
+        let mut ds = f.debug_struct("Arg");
+
+        #[allow(unused_mut)]
+        let mut ds = ds
             .field("id", &self.id)
             .field("provider", &self.provider)
             .field("name", &self.name)
@@ -4989,15 +5003,20 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("val_delim", &self.val_delim)
             .field("default_vals", &self.default_vals)
             .field("default_vals_ifs", &self.default_vals_ifs)
-            .field("env", &self.env)
             .field("terminator", &self.terminator)
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
             .field("global", &self.global)
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
-            .field("default_missing_vals", &self.default_missing_vals)
-            .finish()
+            .field("default_missing_vals", &self.default_missing_vals);
+
+        #[cfg(feature = "env")]
+        {
+            ds = ds.field("env", &self.env);
+        }
+
+        ds.finish()
     }
 }
 

@@ -23,10 +23,12 @@ bitflags! {
         const LAST             = 1 << 14;
         const HIDE_DEFAULT_VAL = 1 << 15;
         const CASE_INSENSITIVE = 1 << 16;
+        #[cfg(feature = "env")]
         const HIDE_ENV_VALS    = 1 << 17;
         const HIDDEN_SHORT_H   = 1 << 18;
         const HIDDEN_LONG_H    = 1 << 19;
         const MULTIPLE_VALS    = 1 << 20;
+        #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
     }
 }
@@ -51,7 +53,9 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
     Last("last") => Flags::LAST,
     IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    #[cfg(feature = "env")]
     HideEnv("hideenv") => Flags::HIDE_ENV,
+    #[cfg(feature = "env")]
     HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
     HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
@@ -107,9 +111,11 @@ pub enum ArgSettings {
     /// Possible values become case insensitive
     IgnoreCase,
     /// Hides environment variable arguments from the help message
+    #[cfg(feature = "env")]
     HideEnv,
     /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
     /// information)
+    #[cfg(feature = "env")]
     HideEnvValues,
     /// The argument should **not** be shown in short help text
     HiddenShortHelp,
@@ -178,10 +184,12 @@ mod test {
             "ignorecase".parse::<ArgSettings>().unwrap(),
             ArgSettings::IgnoreCase
         );
+        #[cfg(feature = "env")]
         assert_eq!(
             "hideenv".parse::<ArgSettings>().unwrap(),
             ArgSettings::HideEnv
         );
+        #[cfg(feature = "env")]
         assert_eq!(
             "hideenvvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::HideEnvValues

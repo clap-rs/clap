@@ -1,7 +1,9 @@
+#![cfg(feature = "env")]
+
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 
 #[test]
 fn env() {
@@ -350,24 +352,4 @@ fn validator_invalid() {
         .try_get_matches_from(vec![""]);
 
     assert!(r.is_err());
-}
-
-#[test]
-fn env_disabled() {
-    env::set_var("CLP_TEST_DISABLE_ENV", "env");
-
-    let r = App::new("df")
-        .arg(
-            Arg::from("[arg] 'some opt'")
-                .env("CLP_TEST_DISABLE_ENV")
-                .takes_value(true),
-        )
-        .setting(AppSettings::DisableEnv)
-        .try_get_matches_from(vec![""]);
-
-    assert!(r.is_ok());
-    let m = r.unwrap();
-    assert!(!m.is_present("arg"));
-    assert_eq!(m.occurrences_of("arg"), 0);
-    assert_eq!(m.value_of("arg"), None);
 }

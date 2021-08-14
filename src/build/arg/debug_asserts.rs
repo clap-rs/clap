@@ -84,7 +84,9 @@ fn assert_app_flags(arg: &Arg) {
     checker!(Last requires TakesValue);
     checker!(HideDefaultValue requires TakesValue);
     checker!(MultipleValues requires TakesValue);
+    #[cfg(feature = "env")]
     checker!(HideEnv requires TakesValue);
+    #[cfg(feature = "env")]
     checker!(HideEnvValues requires TakesValue);
     checker!(IgnoreCase requires TakesValue);
 }

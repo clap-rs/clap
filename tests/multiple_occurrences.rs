@@ -75,6 +75,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
     assert_eq!(m.occurrences_of("multflag"), 1024);
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_before_env() {
     let app = App::new("mo_before_env").arg(
@@ -102,6 +103,7 @@ fn multiple_occurrences_of_before_env() {
     assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn multiple_occurrences_of_after_env() {
     let app = App::new("mo_after_env").arg(

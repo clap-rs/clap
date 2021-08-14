@@ -81,16 +81,29 @@ version-sync = "0.9"
 criterion = "0.3.2"
 
 [features]
-default     = ["std", "suggestions", "color", "unicode_help", "derive", "cargo"]
-std         = ["indexmap/std"] # support for no_std in a backwards-compatible way
+default = [
+	"std",
+	"derive",
+	"cargo",
+	"color",
+	"env",
+	"suggestions",
+	"unicode_help",
+]
+debug = ["clap_derive/debug"] # Enables debug messages
+
+# Used in default
+std = ["indexmap/std"] # support for no_std in a backwards-compatible way
+derive = ["clap_derive", "lazy_static"]
+cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+color = ["atty", "termcolor"]
+env = [] # Use environment variables during arg parsing
 suggestions = ["strsim"]
-color       = ["atty", "termcolor"]
-wrap_help   = ["terminal_size", "textwrap/terminal_size"]
-unicode_help= ["textwrap/unicode-width"]  # Enable if any unicode in help message
-derive      = ["clap_derive", "lazy_static"]
-yaml        = ["yaml-rust"]
-cargo       = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
-debug       = ["clap_derive/debug"] # Enables debug messages
+unicode_help = ["textwrap/unicode-width"]  # Enable if any unicode in help message
+
+# Optional
+wrap_help = ["terminal_size", "textwrap/terminal_size"]
+yaml = ["yaml-rust"]
 
 [profile.test]
 opt-level = 1

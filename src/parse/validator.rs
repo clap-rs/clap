@@ -32,8 +32,12 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     ) -> ClapResult<()> {
         debug!("Validator::validate");
         let mut reqs_validated = false;
+
+        #[cfg(feature = "env")]
         self.p.add_env(matcher, trailing_values)?;
+
         self.p.add_defaults(matcher, trailing_values);
+
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
