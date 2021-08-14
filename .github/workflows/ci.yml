@@ -97,7 +97,7 @@ jobs:
         if: matrix.features == 'none'
         with:
           command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.3
+          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
       - name: Test all features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -139,7 +139,7 @@ jobs:
         if: matrix.features == 'none'
         with:
           command: test
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.3
+          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
       - name: Test all features
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
@@ -196,7 +196,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.3
+          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
       - name: Clippy for all features
         uses: actions-rs/cargo@v1
         with:

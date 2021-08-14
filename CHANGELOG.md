@@ -10,8 +10,8 @@ TODO: `YamlLoader`
 
 
 
-<a name="v3.0.0-beta.3"></a>
-## v3.0.0-beta.3 (2021-08-14)
+<a name="v3.0.0-beta.4"></a>
+## v3.0.0-beta.4 (2021-08-14)
 
 #### Minimum Required Rust
 * As of this release, `clap` requires `rustc 1.54.0` or greater.
@@ -187,7 +187,7 @@ Added `std`, `cargo`, `derive` features.
   * `SubCommand` in favor of `App`
     * `SubCommand::with_name` => `App::new`
     * `SubCommand::from_yaml` => `App::from`
-  * `Shell` (changed again in 3.0.0-beta.3)
+  * `Shell` (changed again in 3.0.0-beta.4)
   * **App**
     * `App::with_defaults`
     * `App::version_message` in favor of `App::mut_arg`
@@ -248,7 +248,7 @@ Added `std`, `cargo`, `derive` features.
   but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
   Before both resulted in the same thing.
 * `App` and `Arg` now need only one lifetime
-* Allowing empty values is no longer the default (changed again in 3.0.0-beta.3)
+* Allowing empty values is no longer the default (changed again in 3.0.0-beta.4)
 * `UseValueDelimiter` is no longer the default
 * `App::override_usage` no longer implies `\t` which allows multi lined usages
 
@@ -267,7 +267,7 @@ Added `std`, `cargo`, `derive` features.
     * `Arg::multiple_values`
     * `Arg::multiple_occurrences`
     * `Arg::help_heading`
-    * `Arg::settings` (changed again in 3.0.0-beta.3)
+    * `Arg::settings` (changed again in 3.0.0-beta.4)
 * **Added Settings**
   * `AppSettings::HelpRequired`
   * `AppSettings::NoAutoHelp`
