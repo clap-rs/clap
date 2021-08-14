@@ -549,6 +549,7 @@ FLAGS:
     -V, --version
             Print version information";
 
+#[cfg(feature = "env")]
 static HIDE_ENV: &str = "ctest 0.1
 
 USAGE:
@@ -561,6 +562,7 @@ FLAGS:
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.";
 
+#[cfg(feature = "env")]
 static SHOW_ENV: &str = "ctest 0.1
 
 USAGE:
@@ -573,6 +575,7 @@ FLAGS:
 OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]";
 
+#[cfg(feature = "env")]
 static HIDE_ENV_VALS: &str = "ctest 0.1
 
 USAGE:
@@ -586,6 +589,7 @@ OPTIONS:
     -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
     -p, --pos <VAL>      Some vals [possible values: fast, slow]";
 
+#[cfg(feature = "env")]
 static SHOW_ENV_VALS: &str = "ctest 0.1
 
 USAGE:
@@ -1729,6 +1733,7 @@ fn issue_1052_require_delim_help() {
     ));
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn hide_env() {
     use std::env;
@@ -1747,6 +1752,7 @@ fn hide_env() {
     assert!(utils::compare_output(app, "ctest --help", HIDE_ENV, false));
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn show_env() {
     use std::env;
@@ -1765,6 +1771,7 @@ fn show_env() {
     assert!(utils::compare_output(app, "ctest --help", SHOW_ENV, false));
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn hide_env_vals() {
     use std::env;
@@ -1799,6 +1806,7 @@ fn hide_env_vals() {
     ));
 }
 
+#[cfg(feature = "env")]
 #[test]
 fn show_env_vals() {
     use std::env;

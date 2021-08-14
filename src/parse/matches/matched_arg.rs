@@ -11,6 +11,7 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ValueType {
     Unknown,
+    #[cfg(feature = "env")]
     EnvVariable,
     CommandLine,
     DefaultValue,

@@ -526,24 +526,36 @@ macro_rules! clap_app {
 
 macro_rules! impl_settings {
     ($settings:ident, $flags:ident,
-        $( $setting:ident($str:expr) => $flag:path ),+
+        $(
+            $(#[$inner:ident $($args:tt)*])*
+            $setting:ident($str:expr) => $flag:path
+        ),+
     ) => {
         impl $flags {
             pub(crate) fn set(&mut self, s: $settings) {
                 match s {
-                    $($settings::$setting => self.0.insert($flag)),*
+                    $(
+                        $(#[$inner $($args)*])*
+                        $settings::$setting => self.0.insert($flag),
+                    )*
                 }
             }
 
             pub(crate) fn unset(&mut self, s: $settings) {
                 match s {
-                    $($settings::$setting => self.0.remove($flag)),*
+                    $(
+                        $(#[$inner $($args)*])*
+                        $settings::$setting => self.0.remove($flag),
+                    )*
                 }
             }
 
             pub(crate) fn is_set(&self, s: $settings) -> bool {
                 match s {
-                    $($settings::$setting => self.0.contains($flag)),*
+                    $(
+                        $(#[$inner $($args)*])*
+                        $settings::$setting => self.0.contains($flag),
+                    )*
                 }
             }
         }
@@ -552,7 +564,10 @@ macro_rules! impl_settings {
             type Err = String;
             fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
                 match &*s.to_ascii_lowercase() {
-                    $( $str => Ok($settings::$setting), )*
+                    $(
+                        $(#[$inner $($args)*])*
+                        $str => Ok($settings::$setting),
+                    )*
                     _ => Err(format!("unknown AppSetting: `{}`", s)),
                 }
             }

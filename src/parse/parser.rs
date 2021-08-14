@@ -16,7 +16,7 @@ use crate::{
     parse::features::suggestions,
     parse::{ArgMatcher, SubCommand},
     parse::{Validator, ValueType},
-    util::{str_to_bool, termcolor::ColorChoice, ArgStr, ChildGraph, Id},
+    util::{termcolor::ColorChoice, ArgStr, ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
@@ -1767,15 +1767,13 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
     }
 
+    #[cfg(feature = "env")]
     pub(crate) fn add_env(
         &mut self,
         matcher: &mut ArgMatcher,
         trailing_values: bool,
     ) -> ClapResult<()> {
-        if self.app.is_set(AS::DisableEnv) {
-            debug!("Parser::add_env: Env vars disabled, quitting");
-            return Ok(());
-        }
+        use crate::util::str_to_bool;
 
         self.app.args.args().try_for_each(|a| {
             // Use env only if the arg was absent among command line args,
