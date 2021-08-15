@@ -9,11 +9,10 @@ use std::{
 
 // Internal
 use crate::{
-    build::{App, AppSettings, Arg, ArgSettings},
+    build::{arg::display_arg_val, App, AppSettings, Arg, ArgSettings},
     output::{fmt::Colorizer, Usage},
     parse::Parser,
     util::VecMap,
-    INTERNAL_ERROR_MSG,
 };
 
 // Third party
@@ -323,60 +322,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes argument's possible values to the wrapped stream.
     fn val(&mut self, arg: &Arg<'help>, next_line_help: bool, longest: usize) -> io::Result<()> {
         debug!("Help::val: arg={}", arg.name);
-        let mult = arg.is_set(ArgSettings::MultipleValues);
-        if arg.is_set(ArgSettings::TakesValue) || arg.index.is_some() {
-            let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
-                arg.val_delim.expect(INTERNAL_ERROR_MSG)
-            } else {
-                ' '
-            };
-            if !arg.val_names.is_empty() {
-                match (arg.val_names.len(), arg.num_vals) {
-                    (1, Some(num)) => {
-                        let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                        let mut it = (0..num).peekable();
-                        while it.next().is_some() {
-                            self.good(&arg_name)?;
-                            if it.peek().is_some() {
-                                self.none(&delim.to_string())?;
-                            }
-                        }
-                        if mult && num == 1 {
-                            self.good("...")?;
-                        }
-                    }
-                    _ => {
-                        let mut it = arg.val_names.iter().peekable();
-                        while let Some(val) = it.next() {
-                            self.good(&format!("<{}>", val))?;
-                            if it.peek().is_some() {
-                                self.none(&delim.to_string())?;
-                            }
-                        }
-                        let num = arg.val_names.len();
-                        if mult && num == 1 {
-                            self.good("...")?;
-                        }
-                    }
-                }
-            } else if let Some(num) = arg.num_vals {
-                let arg_name = format!("<{}>", arg.name);
-                let mut it = (0..num).peekable();
-                while it.next().is_some() {
-                    self.good(&arg_name)?;
-                    if it.peek().is_some() {
-                        self.none(&delim.to_string())?;
-                    }
-                }
-                if mult && num == 1 {
-                    self.good("...")?;
-                }
-            } else {
-                self.good(&format!("<{}>", arg.name))?;
-                if mult {
-                    self.good("...")?;
-                }
-            }
+        if arg.is_set(ArgSettings::TakesValue) || arg.is_positional() {
+            display_arg_val(
+                arg,
+                |s, good| if good { self.good(s) } else { self.none(s) },
+            )?;
         }
 
         debug!("Help::val: Has switch...");
