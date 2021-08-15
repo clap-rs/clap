@@ -15,7 +15,7 @@ use std::{
     error::Error,
     ffi::OsStr,
     fmt::{self, Display, Formatter},
-    str,
+    iter, str,
     sync::{Arc, Mutex},
 };
 #[cfg(feature = "env")]
@@ -4848,11 +4848,11 @@ impl<'help> PartialEq for Arg<'help> {
 }
 
 /// Write the values such as <name1> <name2>
-pub fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
+pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
 where
     F: FnMut(&str, bool) -> Result<T, E>,
 {
-    let mult = arg.is_set(ArgSettings::MultipleValues);
+    let mult_val = arg.is_set(ArgSettings::MultipleValues);
     let mult_occ = arg.is_set(ArgSettings::MultipleOccurrences);
     let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
         arg.val_delim.expect(INTERNAL_ERROR_MSG)
@@ -4860,21 +4860,22 @@ where
         ' '
     };
     if !arg.val_names.is_empty() {
+        // If have val_name.
         match (arg.val_names.len(), arg.num_vals) {
-            (1, Some(num)) => {
+            (1, Some(num_vals)) => {
+                // If single value name with multiple num_of_vals, display all
+                // the values with the single value name.
                 let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                let mut it = (0..num).peekable();
-                while it.next().is_some() {
+                let mut it = iter::repeat(arg_name).take(num_vals).peekable();
+                while let Some(arg_name) = it.next() {
                     write(&arg_name, true)?;
                     if it.peek().is_some() {
                         write(&delim.to_string(), false)?;
                     }
                 }
-                if mult && num == 1 {
-                    write("...", true)?;
-                }
             }
-            _ => {
+            (num_val_names, _) => {
+                // If multiple value names, display them sequentially(ignore num of vals).
                 let mut it = arg.val_names.iter().peekable();
                 while let Some(val) = it.next() {
                     write(&format!("<{}>", val), true)?;
@@ -4882,47 +4883,32 @@ where
                         write(&delim.to_string(), false)?;
                     }
                 }
-                let num = arg.val_names.len();
-                if mult && num == 1 {
+                if num_val_names == 1 && mult_val {
                     write("...", true)?;
                 }
             }
         }
-    } else if let Some(num) = arg.num_vals {
+    } else if let Some(num_vals) = arg.num_vals {
+        // If number_of_values is sepcified, display the value multiple times.
         let arg_name = format!("<{}>", arg.name);
-        let mut it = (0..num).peekable();
-        while it.next().is_some() {
-            write(&arg_name, true)?;
+        let mut it = iter::repeat(&arg_name).take(num_vals).peekable();
+        while let Some(arg_name) = it.next() {
+            write(arg_name, true)?;
             if it.peek().is_some() {
                 write(&delim.to_string(), false)?;
             }
         }
-        if mult && num == 1 {
+    } else if arg.is_positional() {
+        // Value of positional argument with no num_vals and val_names.
+        write(&format!("<{}>", arg.name), true)?;
+
+        if mult_val || mult_occ {
             write("...", true)?;
         }
-    } else if arg.is_positional() {
-        // value of positional argument
-        if !arg.val_names.is_empty() {
-            write(
-                &arg.val_names
-                    .iter()
-                    .map(|n| format!("<{}>", n))
-                    .collect::<Vec<_>>()
-                    .join(&delim.to_string()),
-                true,
-            )?;
-        } else {
-            write(&format!("<{}>", arg.name), true)?;
-            if matches!(arg.num_vals, Some(x) if x > 1)
-                || (matches!(arg.num_vals, None) && (mult || mult_occ))
-            {
-                write("...", true)?;
-            }
-        }
     } else {
-        // value of flag argument
+        // value of flag argument with no num_vals and val_names.
         write(&format!("<{}>", arg.name), true)?;
-        if mult {
+        if mult_val {
             write("...", true)?;
         }
     }

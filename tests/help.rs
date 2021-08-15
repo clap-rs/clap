@@ -186,8 +186,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -o, --option <option>...    tests options
-    -O, --opt <opt>             tests options";
+    -o, --option <option>    tests options
+    -O, --opt <opt>          tests options";
 
 static RIPGREP_USAGE: &str = "ripgrep 0.5
 
@@ -1245,6 +1245,34 @@ fn issue_760() {
                 .takes_value(true),
         );
     assert!(utils::compare_output(app, "ctest --help", ISSUE_760, false));
+}
+
+#[test]
+fn issue_1571() {
+    let app = App::new("hello").arg(
+        Arg::new("name")
+            .long("package")
+            .short('p')
+            .number_of_values(1)
+            .takes_value(true)
+            .multiple_values(true),
+    );
+    assert!(utils::compare_output(
+        app,
+        "hello --help",
+        "hello 
+
+USAGE:
+    hello [OPTIONS]
+
+FLAGS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+OPTIONS:
+    -p, --package <name>    ",
+        false
+    ));
 }
 
 #[test]
