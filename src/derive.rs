@@ -221,7 +221,7 @@ pub trait Args: FromArgMatches + Sized {
 
 /// Parse a sub-command into a user-defined enum.
 ///
-/// Implementing this trait let's a parent container delegate subcommand behavior to `Self`.
+/// Implementing this trait lets a parent container delegate subcommand behavior to `Self`.
 /// with:
 /// - `#[clap(subcommand)] field: SubCmd`: Attribute can be used with either struct fields or enum
 ///   variants that impl `Subcommand`.
