@@ -15,7 +15,7 @@ use std::{
     error::Error,
     ffi::OsStr,
     fmt::{self, Display, Formatter},
-    str,
+    iter, str,
     sync::{Arc, Mutex},
 };
 #[cfg(feature = "env")]
@@ -4847,104 +4847,92 @@ impl<'help> PartialEq for Arg<'help> {
     }
 }
 
+/// Write the values such as <name1> <name2>
+pub(crate) fn display_arg_val<F, T, E>(arg: &Arg, mut write: F) -> Result<(), E>
+where
+    F: FnMut(&str, bool) -> Result<T, E>,
+{
+    let mult_val = arg.is_set(ArgSettings::MultipleValues);
+    let mult_occ = arg.is_set(ArgSettings::MultipleOccurrences);
+    let delim = if arg.is_set(ArgSettings::RequireDelimiter) {
+        arg.val_delim.expect(INTERNAL_ERROR_MSG)
+    } else {
+        ' '
+    };
+    if !arg.val_names.is_empty() {
+        // If have val_name.
+        match (arg.val_names.len(), arg.num_vals) {
+            (1, Some(num_vals)) => {
+                // If single value name with multiple num_of_vals, display all
+                // the values with the single value name.
+                let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
+                let mut it = iter::repeat(arg_name).take(num_vals).peekable();
+                while let Some(arg_name) = it.next() {
+                    write(&arg_name, true)?;
+                    if it.peek().is_some() {
+                        write(&delim.to_string(), false)?;
+                    }
+                }
+            }
+            (num_val_names, _) => {
+                // If multiple value names, display them sequentially(ignore num of vals).
+                let mut it = arg.val_names.iter().peekable();
+                while let Some(val) = it.next() {
+                    write(&format!("<{}>", val), true)?;
+                    if it.peek().is_some() {
+                        write(&delim.to_string(), false)?;
+                    }
+                }
+                if num_val_names == 1 && mult_val {
+                    write("...", true)?;
+                }
+            }
+        }
+    } else if let Some(num_vals) = arg.num_vals {
+        // If number_of_values is sepcified, display the value multiple times.
+        let arg_name = format!("<{}>", arg.name);
+        let mut it = iter::repeat(&arg_name).take(num_vals).peekable();
+        while let Some(arg_name) = it.next() {
+            write(arg_name, true)?;
+            if it.peek().is_some() {
+                write(&delim.to_string(), false)?;
+            }
+        }
+    } else if arg.is_positional() {
+        // Value of positional argument with no num_vals and val_names.
+        write(&format!("<{}>", arg.name), true)?;
+
+        if mult_val || mult_occ {
+            write("...", true)?;
+        }
+    } else {
+        // value of flag argument with no num_vals and val_names.
+        write(&format!("<{}>", arg.name), true)?;
+        if mult_val {
+            write("...", true)?;
+        }
+    }
+    Ok(())
+}
+
 impl<'help> Display for Arg<'help> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if self.index.is_some() || self.is_positional() {
-            // Positional
-            let mut delim = String::new();
-
-            delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
-                self.val_delim.expect(INTERNAL_ERROR_MSG)
-            } else {
-                ' '
-            });
-
-            if !self.val_names.is_empty() {
-                write!(
-                    f,
-                    "{}",
-                    self.val_names
-                        .iter()
-                        .map(|n| format!("<{}>", n))
-                        .collect::<Vec<_>>()
-                        .join(&*delim)
-                )?;
-            } else {
-                write!(f, "<{}>", self.name)?;
-            }
-
-            write!(f, "{}", self.multiple_str())?;
-
-            return Ok(());
-        } else if !self.is_set(ArgSettings::TakesValue) {
-            // Flag
-            if let Some(l) = self.long {
-                write!(f, "--{}", l)?;
-            } else if let Some(s) = self.short {
-                write!(f, "-{}", s)?;
-            }
-
-            return Ok(());
-        }
-
-        let sep = if self.is_set(ArgSettings::RequireEquals) {
-            "="
-        } else {
-            " "
-        };
-
         // Write the name such --long or -l
         if let Some(l) = self.long {
-            write!(f, "--{}{}", l, sep)?;
-        } else {
-            write!(f, "-{}{}", self.short.unwrap(), sep)?;
+            write!(f, "--{}", l)?;
+        } else if let Some(s) = self.short {
+            write!(f, "-{}", s)?;
         }
-
-        let delim = if self.is_set(ArgSettings::RequireDelimiter) {
-            self.val_delim.expect(INTERNAL_ERROR_MSG)
-        } else {
-            ' '
-        };
-
-        // Write the values such as <name1> <name2>
-        if !self.val_names.is_empty() {
-            let num = self.val_names.len();
-            let mut it = self.val_names.iter().peekable();
-
-            while let Some(val) = it.next() {
-                write!(f, "<{}>", val)?;
-                if it.peek().is_some() {
-                    write!(f, "{}", delim)?;
-                }
-            }
-
-            if self.is_set(ArgSettings::MultipleValues) && num == 1 {
-                write!(f, "...")?;
-            }
-        } else if let Some(num) = self.num_vals {
-            let mut it = (0..num).peekable();
-
-            while let Some(_) = it.next() {
-                write!(f, "<{}>", self.name)?;
-                if it.peek().is_some() {
-                    write!(f, "{}", delim)?;
-                }
-            }
-
-            if self.is_set(ArgSettings::MultipleValues) && num == 1 {
-                write!(f, "...")?;
-            }
-        } else {
-            write!(
-                f,
-                "<{}>{}",
-                self.name,
-                if self.is_set(ArgSettings::MultipleValues) {
-                    "..."
-                } else {
-                    ""
-                }
-            )?;
+        if !self.is_positional() && self.is_set(ArgSettings::TakesValue) {
+            let sep = if self.is_set(ArgSettings::RequireEquals) {
+                "="
+            } else {
+                " "
+            };
+            write!(f, "{}", sep)?;
+        }
+        if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
+            display_arg_val(self, |s, _| write!(f, "{}", s))?;
         }
 
         Ok(())
