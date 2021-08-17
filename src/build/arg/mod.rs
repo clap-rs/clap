@@ -4931,7 +4931,7 @@ impl<'help> Display for Arg<'help> {
             };
             write!(f, "{}", sep)?;
         }
-        if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
+        if self.is_set(ArgSettings::TakesValue) {
             display_arg_val(self, |s, _| write!(f, "{}", s))?;
         }
 
@@ -5174,7 +5174,10 @@ mod test {
 
     #[test]
     fn positional_display_required() {
-        let p2 = Arg::new("pos").index(1).setting(ArgSettings::Required);
+        let p2 = Arg::new("pos")
+            .index(1)
+            .setting(ArgSettings::Required)
+            .setting(ArgSettings::TakesValue);
 
         assert_eq!(&*format!("{}", p2), "<pos>");
     }
