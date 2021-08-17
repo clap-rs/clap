@@ -60,7 +60,7 @@ name = "06_rustup"
 path = "benches/06_rustup.rs"
 
 [dependencies]
-clap_derive = { path = "./clap_derive", version = "3.0.0-beta.4", optional = true }
+clap_derive = { path = "./clap_derive", version = "=3.0.0-beta.4", optional = true }
 bitflags = "1.2"
 textwrap = { version = "0.14.0", default-features = false, features = [] }
 indexmap = "1.0"
