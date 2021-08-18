@@ -378,6 +378,13 @@ impl<'help> App<'help> {
         )
     }
 
+    /// Deprecated, see [`App::from`]
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::from`")]
+    pub fn from_yaml(yaml: &'help Yaml) -> Self {
+        Self::from(yaml)
+    }
+
     /// Sets a string of author(s) that will be displayed to the user when they
     /// request the help message.
     ///
@@ -787,6 +794,12 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, see [`App::override_usage`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")]
+    pub fn usage<S: Into<&'help str>>(self, usage: S) -> Self {
+        self.override_usage(usage)
+    }
+
     /// Overrides the `clap` generated help message. This should only be used
     /// when the auto-generated message does not suffice.
     ///
@@ -825,6 +838,12 @@ impl<'help> App<'help> {
     pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
+    }
+
+    /// Deprecated, see [`App::override_help`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")]
+    pub fn help<S: Into<&'help str>>(self, help: S) -> Self {
+        self.override_help(help)
     }
 
     /// Sets the help template to be used, overriding the default format.
@@ -873,6 +892,12 @@ impl<'help> App<'help> {
     pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
         self
+    }
+
+    /// Deprecated, see [`App::help_template`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")]
+    pub fn template<S: Into<&'help str>>(self, s: S) -> Self {
+        self.help_template(s)
     }
 
     /// Enables a single settings for the current (this `App` instance) command or subcommand.
@@ -1033,6 +1058,12 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, see [`App::term_width`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")]
+    pub fn set_term_width(self, width: usize) -> Self {
+        self.term_width(width)
+    }
+
     /// Sets the maximum terminal width at which to wrap help messages. Using `0`
     /// will ignore terminal widths and use source formatting.
     ///
@@ -1134,6 +1165,12 @@ impl<'help> App<'help> {
             self = self.arg(arg);
         }
         self
+    }
+
+    /// Deprecated, see [`App::arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::arg`")]
+    pub fn arg_from_usage(self, usage: &'help str) -> Self {
+        self.arg(usage)
     }
 
     /// If this `App` instance is a subcommand, this method adds an alias, which
@@ -2025,6 +2062,12 @@ impl<'help> App<'help> {
         self.try_get_matches_from(&mut env::args_os())
     }
 
+    /// Deprecated, see [`App::try_get_matches`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches`")]
+    pub fn get_matches_safe(self) -> ClapResult<ArgMatches> {
+        self.try_get_matches()
+    }
+
     /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
     /// and will automatically exit with an error message. This method, however, lets you specify
     /// what iterator to use when performing matches, such as a [`Vec`] of your making.
@@ -2111,6 +2154,16 @@ impl<'help> App<'help> {
         self.try_get_matches_from_mut(itr)
     }
 
+    /// Deprecated, see [`App::try_get_matches_from`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches_from`")]
+    pub fn get_matches_from_safe<I, T>(self, itr: I) -> ClapResult<ArgMatches>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.try_get_matches_from(itr)
+    }
+
     /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
     /// the desired functionality, instead prefer [`App::try_get_matches_from`] which *does*
     /// consume `self`.
@@ -2158,6 +2211,19 @@ impl<'help> App<'help> {
         }
 
         self._do_parse(&mut it)
+    }
+
+    /// Deprecated, see [`App::try_get_matches_from_mut`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `App::try_get_matches_from_mut`"
+    )]
+    pub fn get_matches_from_safe_borrow<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        self.try_get_matches_from_mut(itr)
     }
 
     /// Sets the placeholder text used for subcommands when printing usage and help.

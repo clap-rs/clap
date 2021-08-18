@@ -650,3 +650,57 @@ macro_rules! debug {
 macro_rules! debug {
     ($($arg:tt)*) => {};
 }
+
+/// Deprecated, see [`ArgMatches::value_of_t`]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+macro_rules! value_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        clap::value_t!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, see [`ArgMatches::value_of_t_or_exit`]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+)]
+macro_rules! value_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t_or_exit!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, see [`ArgMatches::values_of_t`]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+macro_rules! values_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, see [`ArgMatches::values_of_t_or_exit`]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+)]
+macro_rules! values_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t_or_exit!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t_or_exit::<$t>($v)
+    };
+}

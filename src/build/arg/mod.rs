@@ -344,6 +344,25 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Deprecated, see [`Arg::new`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")]
+    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
+        Self::new(n)
+    }
+
+    /// Deprecated, see [`Arg::from`]
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::from`")]
+    pub fn from_yaml(y: &'help Yaml) -> Self {
+        Self::from(y)
+    }
+
+    /// Deprecated, see [`Arg::from`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::from`")]
+    pub fn from_usage(u: &'help str) -> Self {
+        Self::from(u)
+    }
+
     pub(crate) fn generated(mut self) -> Self {
         self.provider = ArgProvider::Generated;
         self
@@ -689,6 +708,12 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Deprecated, see [`Arg::about`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::about`")]
+    pub fn help(self, h: &'help str) -> Self {
+        self.about(h)
+    }
+
     /// Sets the long help text of the argument that will be displayed to the user when they print
     /// the help information with `--help`. Typically this a more detailed (multi-line) message
     /// that describes the arg.
@@ -761,6 +786,12 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Deprecated, see [`Arg::long_about`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::long_about`")]
+    pub fn long_help(self, h: &'help str) -> Self {
+        self.long_about(h)
+    }
+
     /// Set this arg as [required] as long as the specified argument is not present at runtime.
     ///
     /// **Pro Tip:** Using `Arg::required_unless_present` implies [`Arg::required`] and is therefore not
@@ -816,6 +847,12 @@ impl<'help> Arg<'help> {
     pub fn required_unless_present<T: Key>(mut self, arg_id: T) -> Self {
         self.r_unless.push(arg_id.into());
         self
+    }
+
+    /// Deprecated, see [`Arg::required_unless_present`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")]
+    pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
+        self.required_unless_present(arg_id)
     }
 
     /// Sets this arg as [required] unless *all* of the specified arguments are present at runtime.
@@ -892,6 +929,19 @@ impl<'help> Arg<'help> {
         self.setting(ArgSettings::RequiredUnlessAll)
     }
 
+    /// Deprecated, see [`Arg::required_unless_present_all`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `Arg::required_unless_present_all`"
+    )]
+    pub fn required_unless_all<T, I>(self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Key,
+    {
+        self.required_unless_present_all(names)
+    }
+
     /// Sets this arg as [required] unless *any* of the specified arguments are present at runtime.
     ///
     /// In other words, parsing will succeed only if user either
@@ -966,6 +1016,19 @@ impl<'help> Arg<'help> {
     {
         self.r_unless.extend(names.into_iter().map(Id::from));
         self
+    }
+
+    /// Deprecated, see [`Arg::required_unless_present_any`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `Arg::required_unless_present_any`"
+    )]
+    pub fn required_unless_any<T, I>(self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Key,
+    {
+        self.required_unless_present_any(names)
     }
 
     /// Sets a conflicting argument by name. I.e. when using this argument,
@@ -1534,6 +1597,12 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Deprecated, see [`Arg::required_if_eq`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")]
+    pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
+        self.required_if_eq(arg_id, val)
+    }
+
     /// Allows specifying that this argument is [required] based on multiple conditions. The
     /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
     /// if one of the specified `arg`'s value equals its corresponding `val`.
@@ -1618,6 +1687,12 @@ impl<'help> Arg<'help> {
         self.r_ifs
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
         self
+    }
+
+    /// Deprecated, see [`Arg::required_if_eq_any`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")]
+    pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
+        self.required_if_eq_any(ifs)
     }
 
     /// Allows specifying that this argument is [required] based on multiple conditions. The
@@ -4204,6 +4279,12 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Deprecated, see [`Arg::forbid_empty_values`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
+    pub fn empty_values(self, empty: bool) -> Self {
+        self.forbid_empty_values(!empty)
+    }
+
     /// Specifies that the argument may have an unknown number of multiple values. Without any other
     /// settings, this argument may appear only *once*.
     ///
@@ -4443,6 +4524,16 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Deprecated, see [`Arg::multiple_occurrences`] (most likely what you want) and
+    /// [`Arg::multiple_values`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
+    )]
+    pub fn multiple(self, multi: bool) -> Self {
+        self.multiple_occurrences(multi).multiple_values(multi)
+    }
+
     /// Indicates that all parameters passed after this should not be parsed
     /// individually, but rather passed in their entirety. It is worth noting
     /// that setting this requires all values to come after a `--` to indicate they
@@ -4664,6 +4755,12 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Deprecated, see [`Arg::setting`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")]
+    pub fn set(self, s: ArgSettings) -> Self {
+        self.setting(s)
+    }
+
     /// Disables a single setting for the current (this `Arg` instance) argument.
     ///
     /// See [`ArgSettings`] for a full list of possibilities and examples.
@@ -4691,6 +4788,12 @@ impl<'help> Arg<'help> {
     {
         self.settings.remove(setting.into());
         self
+    }
+
+    /// Deprecated, see [`Arg::unset_setting`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")]
+    pub fn unset(self, s: ArgSettings) -> Self {
+        self.unset_setting(s)
     }
 
     /// Set a custom heading for this arg to be printed under
