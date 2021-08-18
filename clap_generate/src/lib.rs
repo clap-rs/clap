@@ -5,7 +5,10 @@
 // See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) files in this repository
 // for more information.
 
-//! Generates stuff for [`clap`](https://github.com/clap-rs/clap) based CLIs
+//! Generates completions (and other things) for [`clap`](https://github.com/clap-rs/clap) based CLIs
+//!
+//! - For generating at compile-time, see [`generate_to`]
+//! - For generating at runtime, see [`generate`]
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.4")]
@@ -36,9 +39,10 @@ pub use generators::Generator;
 #[doc(inline)]
 pub use shell::Shell;
 
-/// Generate a file for a specified generator at compile time.
+/// Generate a completions file for a specified shell at compile-time.
 ///
-/// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script"
+/// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script" or a
+/// [`cargo-xtask`]](https://github.com/matklad/cargo-xtask)
 ///
 /// # Examples
 ///
