@@ -93,7 +93,7 @@ fn gen_from_arg_matches_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum
     let update_from_arg_matches = gen_update_from_arg_matches(name, &e.variants, &attrs);
 
     quote! {
-        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
             clippy::style,
             clippy::complexity,
