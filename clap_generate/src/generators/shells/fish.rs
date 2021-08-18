@@ -8,14 +8,15 @@ use clap::*;
 /// Generate fish completion file
 ///
 /// Note: The fish generator currently only supports named options (-o/--option), not positional arguments.
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
 impl Generator for Fish {
-    fn file_name(name: &str) -> String {
+    fn file_name(&self, name: &str) -> String {
         format!("{}.fish", name)
     }
 
-    fn generate(app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &App, buf: &mut dyn Write) {
         let command = app.get_bin_name().unwrap();
         let mut buffer = String::new();
 
@@ -95,7 +96,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
         buffer.push('\n');
     }
 
-    for flag in Fish::flags(app) {
+    for flag in Fish.flags(app) {
         let mut template = basic_template.clone();
 
         if let Some(shorts) = flag.get_short_and_visible_aliases() {

@@ -58,8 +58,8 @@ struct Opt {
     email: Option<String>,
 }
 
-fn print_completions<G: Generator>(app: &mut App) {
-    generate::<G, _>(app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, app: &mut App) {
+    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
@@ -69,11 +69,11 @@ fn main() {
         let mut app = Opt::into_app();
         eprintln!("Generating completion file for {:?}...", generator);
         match generator {
-            Shell::Bash => print_completions::<Bash>(&mut app),
-            Shell::Elvish => print_completions::<Elvish>(&mut app),
-            Shell::Fish => print_completions::<Fish>(&mut app),
-            Shell::PowerShell => print_completions::<PowerShell>(&mut app),
-            Shell::Zsh => print_completions::<Zsh>(&mut app),
+            Shell::Bash => print_completions(Bash, &mut app),
+            Shell::Elvish => print_completions(Elvish, &mut app),
+            Shell::Fish => print_completions(Fish, &mut app),
+            Shell::PowerShell => print_completions(PowerShell, &mut app),
+            Shell::Zsh => print_completions(Zsh, &mut app),
             _ => unimplemented!("New shell type"),
         }
     } else {

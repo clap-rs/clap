@@ -6,14 +6,15 @@ use crate::Generator;
 use clap::*;
 
 /// Generate bash completion file
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 
 impl Generator for Bash {
-    fn file_name(name: &str) -> String {
+    fn file_name(&self, name: &str) -> String {
         format!("{}.bash", name)
     }
 
-    fn generate(app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &App, buf: &mut dyn Write) {
         let bin_name = app.get_bin_name().unwrap();
 
         w!(
@@ -77,7 +78,8 @@ fn all_subcommands(app: &App) -> String {
     debug!("all_subcommands");
 
     let mut subcmds = String::new();
-    let mut scs = Bash::all_subcommands(app)
+    let mut scs = Bash
+        .all_subcommands(app)
         .iter()
         .map(|x| x.0.clone())
         .collect::<Vec<_>>();
@@ -104,7 +106,8 @@ fn subcommand_details(app: &App) -> String {
     debug!("subcommand_details");
 
     let mut subcmd_dets = String::new();
-    let mut scs = Bash::all_subcommands(app)
+    let mut scs = Bash
+        .all_subcommands(app)
         .iter()
         .map(|x| x.1.replace(" ", "__"))
         .collect::<Vec<_>>();
@@ -143,7 +146,7 @@ fn subcommand_details(app: &App) -> String {
 fn option_details_for_path(app: &App, path: &str) -> String {
     debug!("option_details_for_path: path={}", path);
 
-    let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let p = Bash.find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = String::new();
 
     for o in p.get_opts() {
@@ -200,15 +203,17 @@ fn vals_for(o: &Arg) -> String {
 fn all_options_for_path(app: &App, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
-    let p = Bash::find_subcommand_with_path(app, path.split("__").skip(1).collect());
-    let scs: Vec<_> = Bash::subcommands(p).iter().map(|x| x.0.clone()).collect();
+    let p = Bash.find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let scs: Vec<_> = Bash.subcommands(p).iter().map(|x| x.0.clone()).collect();
 
     let opts = format!(
         "{shorts} {longs} {pos} {subcmds}",
-        shorts = Bash::shorts_and_visible_aliases(p)
+        shorts = Bash
+            .shorts_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        longs = Bash::longs_and_visible_aliases(p)
+        longs = Bash
+            .longs_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
         pos = p

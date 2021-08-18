@@ -95,8 +95,8 @@ fn build_cli() -> App<'static> {
         )
 }
 
-fn print_completions<G: Generator>(app: &mut App) {
-    generate::<G, _>(app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, app: &mut App) {
+    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
@@ -106,11 +106,11 @@ fn main() {
         let mut app = build_cli();
         eprintln!("Generating completion file for {}...", generator);
         match generator {
-            "bash" => print_completions::<Bash>(&mut app),
-            "elvish" => print_completions::<Elvish>(&mut app),
-            "fish" => print_completions::<Fish>(&mut app),
-            "powershell" => print_completions::<PowerShell>(&mut app),
-            "zsh" => print_completions::<Zsh>(&mut app),
+            "bash" => print_completions(Bash, &mut app),
+            "elvish" => print_completions(Elvish, &mut app),
+            "fish" => print_completions(Fish, &mut app),
+            "powershell" => print_completions(PowerShell, &mut app),
+            "zsh" => print_completions(Zsh, &mut app),
             _ => panic!("Unknown generator"),
         }
     }

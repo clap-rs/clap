@@ -7,14 +7,15 @@ use crate::INTERNAL_ERROR_MSG;
 use clap::*;
 
 /// Generate elvish completion file
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 
 impl Generator for Elvish {
-    fn file_name(name: &str) -> String {
+    fn file_name(&self, name: &str) -> String {
         format!("{}.elv", name)
     }
 
-    fn generate(app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &App, buf: &mut dyn Write) {
         let bin_name = app.get_bin_name().unwrap();
 
         let mut names = vec![];
@@ -98,7 +99,7 @@ fn generate_inner<'help>(
         }
     }
 
-    for flag in Elvish::flags(p) {
+    for flag in Elvish.flags(p) {
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
             let tooltip = get_tooltip(flag.get_about(), shorts[0]);
             for short in shorts {

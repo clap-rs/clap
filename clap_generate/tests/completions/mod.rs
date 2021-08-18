@@ -23,10 +23,16 @@ macro_rules! assert_eq {
     };
 }
 
-pub fn common<G: Generator>(app: &mut App, name: &str, fixture: &str) {
+pub fn common<G: Generator>(gen: G, app: &mut App, name: &str, fixture: &str) {
     let mut buf = vec![];
-    generate::<G, _>(app, name, &mut buf);
+    generate(gen, app, name, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert_eq!(&string, fixture);
+    assert_eq!(&normalize(&string), &normalize(fixture));
+}
+
+fn normalize(string: &str) -> String {
+    use itertools::Itertools;
+
+    string.lines().map(|s| s.trim_end()).join("\n")
 }
