@@ -1,6 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
+use clap::{ArgEnum, ArgValue};
+
 /// Shell with auto-generated completion script available.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
@@ -17,22 +19,12 @@ pub enum Shell {
     Zsh,
 }
 
-impl Shell {
-    /// A list of supported shells in `[&'static str]` form.
-    pub fn variants() -> [&'static str; 5] {
-        ["bash", "elvish", "fish", "powershell", "zsh"]
-    }
-}
-
 impl Display for Shell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            Shell::Bash => write!(f, "bash"),
-            Shell::Elvish => write!(f, "elvish"),
-            Shell::Fish => write!(f, "fish"),
-            Shell::PowerShell => write!(f, "powershell"),
-            Shell::Zsh => write!(f, "zsh"),
-        }
+        self.to_arg_value()
+            .expect("no values are skipped")
+            .get_name()
+            .fmt(f)
     }
 }
 
@@ -40,15 +32,35 @@ impl FromStr for Shell {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_ascii_lowercase().as_str() {
-            "bash" => Ok(Shell::Bash),
-            "elvish" => Ok(Shell::Elvish),
-            "fish" => Ok(Shell::Fish),
-            "powershell" => Ok(Shell::PowerShell),
-            "zsh" => Ok(Shell::Zsh),
-            _ => Err(String::from(
-                "[valid values: bash, elvish, fish, powershell, zsh]",
-            )),
+        for variant in Self::value_variants() {
+            if variant.to_arg_value().unwrap().matches(s, false) {
+                return Ok(*variant);
+            }
         }
+        Err(format!("Invalid variant: {}", s))
+    }
+}
+
+// Hand-rolled so it can work even when `derive` feature is disabled
+impl ArgEnum for Shell {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Shell::Bash,
+            Shell::Elvish,
+            Shell::Fish,
+            Shell::PowerShell,
+            Shell::Zsh,
+        ]
+    }
+
+    fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>> {
+        let value = match self {
+            Shell::Bash => ArgValue::new("bash"),
+            Shell::Elvish => ArgValue::new("elvish"),
+            Shell::Fish => ArgValue::new("fish"),
+            Shell::PowerShell => ArgValue::new("powershell"),
+            Shell::Zsh => ArgValue::new("zsh"),
+        };
+        Some(value)
     }
 }

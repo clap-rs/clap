@@ -31,7 +31,6 @@ pub use crate::{
     parse::{ArgMatches, Indices, OsValues, Values},
 };
 
-#[cfg(feature = "derive")]
 pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcommand};
 
 #[cfg(feature = "yaml")]
@@ -50,7 +49,6 @@ pub use lazy_static;
 #[allow(missing_docs)]
 mod macros;
 
-#[cfg(feature = "derive")]
 mod derive;
 
 #[cfg(feature = "regex")]
