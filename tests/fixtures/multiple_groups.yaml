@@ -1,0 +1,21 @@
+name: app
+
+args:
+  - arg_1:
+      short: a
+  - arg_2:
+      short: b
+  - arg_3:
+      short: c
+  - arg_4:
+      short: d
+
+groups:
+  - group_1:
+      args:
+        - arg_1
+        - arg_2
+  - group_2:
+      args:
+        - arg_3
+        - arg_4

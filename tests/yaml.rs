@@ -256,3 +256,11 @@ fn arg_field_not_string() {
     let yml = load_yaml!("fixtures/arg_field_not_string.yaml");
     Arg::from(yml);
 }
+
+#[test]
+fn multiple_groups() {
+    let yml = load_yaml!("fixtures/multiple_groups.yaml");
+    let matches = App::from(yml).try_get_matches_from(&["app", "-a", "-c"]);
+    eprintln!("{:?}", matches);
+    assert!(matches.is_ok());
+}
