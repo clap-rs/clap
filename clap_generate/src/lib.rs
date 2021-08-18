@@ -9,6 +9,44 @@
 //!
 //! - For generating at compile-time, see [`generate_to`]
 //! - For generating at runtime, see [`generate`]
+//!
+//! [`Shell`] is a convenience `enum` for an argument value type that implements `Generator`
+//! for each natively-supported shell type.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use clap::{App, AppSettings, Arg, ValueHint};
+//! use clap_generate::{generate, Generator, Shell};
+//! use std::io;
+//!
+//! fn build_cli() -> App<'static> {
+//!     App::new("example")
+//!          .arg(Arg::new("file")
+//!              .about("some input file")
+//!                 .value_hint(ValueHint::AnyPath),
+//!         )
+//!        .arg(
+//!            Arg::new("generator")
+//!                .long("generate")
+//!                .possible_values(Shell::arg_values()),
+//!        )
+//! }
+//!
+//! fn print_completions<G: Generator>(gen: G, app: &mut App) {
+//!     generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+//! }
+//!
+//! fn main() {
+//!     let matches = build_cli().get_matches();
+//!
+//!     if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
+//!         let mut app = build_cli();
+//!         eprintln!("Generating completion file for {}...", generator);
+//!         print_completions(generator, &mut app);
+//!     }
+//! }
+//! ```
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.4")]
