@@ -13,7 +13,6 @@
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
 use clap::{App, AppSettings, IntoApp, Parser, ValueHint};
-use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
@@ -68,14 +67,7 @@ fn main() {
     if let Some(generator) = opt.generator {
         let mut app = Opt::into_app();
         eprintln!("Generating completion file for {:?}...", generator);
-        match generator {
-            Shell::Bash => print_completions(Bash, &mut app),
-            Shell::Elvish => print_completions(Elvish, &mut app),
-            Shell::Fish => print_completions(Fish, &mut app),
-            Shell::PowerShell => print_completions(PowerShell, &mut app),
-            Shell::Zsh => print_completions(Zsh, &mut app),
-            _ => unimplemented!("New shell type"),
-        }
+        print_completions(generator, &mut app);
     } else {
         println!("{:#?}", opt);
     }
