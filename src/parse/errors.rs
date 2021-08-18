@@ -478,11 +478,13 @@ impl Error {
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
-            self.message.print().expect("Error writing Error to stderr");
+            // Swallow broken pipe errors
+            let _ = self.message.print();
             safe_exit(USAGE_CODE);
         }
 
-        self.message.print().expect("Error writing Error to stdout");
+        // Swallow broken pipe errors
+        let _ = self.message.print();
         safe_exit(SUCCESS_CODE)
     }
 
