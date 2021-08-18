@@ -688,13 +688,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let sc_name = match arg_os.to_str() {
                     Some(s) => s.to_string(),
                     None => {
-                        if self.is_set(AS::StrictUtf8) {
-                            return Err(ClapError::invalid_utf8(
-                                Usage::new(self).create_usage_with_title(&[]),
-                                self.app.color(),
-                            ));
-                        }
-                        arg_os.to_string_lossy().into_owned()
+                        return Err(ClapError::invalid_utf8(
+                            Usage::new(self).create_usage_with_title(&[]),
+                            self.app.color(),
+                        ));
                     }
                 };
 
@@ -702,7 +699,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::default();
 
                 while let Some((v, _)) = it.next() {
-                    if self.is_set(AS::StrictUtf8) && v.to_str().is_none() {
+                    if !self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands)
+                        && v.to_str().is_none()
+                    {
                         return Err(ClapError::invalid_utf8(
                             Usage::new(self).create_usage_with_title(&[]),
                             self.app.color(),

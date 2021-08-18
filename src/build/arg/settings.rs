@@ -30,6 +30,7 @@ bitflags! {
         const MULTIPLE_VALS    = 1 << 20;
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
+        const UTF8_NONE        = 1 << 22;
     }
 }
 
@@ -59,7 +60,8 @@ impl_settings! { ArgSettings, ArgFlags,
     HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
     HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
-    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H
+    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
+    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
 }
 
 impl Default for ArgFlags {
@@ -121,6 +123,9 @@ pub enum ArgSettings {
     HiddenShortHelp,
     /// The argument should **not** be shown in long help text
     HiddenLongHelp,
+    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
+    AllowInvalidUtf8,
+
     #[doc(hidden)]
     RequiredUnlessAll,
 }
@@ -201,6 +206,10 @@ mod test {
         assert_eq!(
             "hiddenlonghelp".parse::<ArgSettings>().unwrap(),
             ArgSettings::HiddenLongHelp
+        );
+        assert_eq!(
+            "allowinvalidutf8".parse::<ArgSettings>().unwrap(),
+            ArgSettings::AllowInvalidUtf8
         );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }

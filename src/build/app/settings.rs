@@ -21,36 +21,35 @@ bitflags! {
         const TRAILING_VARARG                = 1 << 12;
         const NO_BIN_NAME                    = 1 << 13;
         const ALLOW_UNK_SC                   = 1 << 14;
-        const UTF8_STRICT                    = 1 << 15;
-        const UTF8_NONE                      = 1 << 16;
-        const LEADING_HYPHEN                 = 1 << 17;
-        const NO_POS_VALUES                  = 1 << 18;
-        const NEXT_LINE_HELP                 = 1 << 19;
-        const DERIVE_DISP_ORDER              = 1 << 20;
-        const COLORED_HELP                   = 1 << 21;
-        const COLOR_ALWAYS                   = 1 << 22;
-        const COLOR_AUTO                     = 1 << 23;
-        const COLOR_NEVER                    = 1 << 24;
-        const DONT_DELIM_TRAIL               = 1 << 25;
-        const ALLOW_NEG_NUMS                 = 1 << 26;
-        const DISABLE_HELP_SC                = 1 << 28;
-        const DONT_COLLAPSE_ARGS             = 1 << 29;
-        const ARGS_NEGATE_SCS                = 1 << 30;
-        const PROPAGATE_VALS_DOWN            = 1 << 31;
-        const ALLOW_MISSING_POS              = 1 << 32;
-        const TRAILING_VALUES                = 1 << 33;
-        const BUILT                          = 1 << 34;
-        const BIN_NAME_BUILT                 = 1 << 35;
-        const VALID_ARG_FOUND                = 1 << 36;
-        const INFER_SUBCOMMANDS              = 1 << 37;
-        const CONTAINS_LAST                  = 1 << 38;
-        const ARGS_OVERRIDE_SELF             = 1 << 39;
-        const HELP_REQUIRED                  = 1 << 40;
-        const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 41;
-        const DISABLE_HELP_FLAG              = 1 << 42;
-        const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 43;
-        const INFER_LONG_ARGS                = 1 << 44;
-        const IGNORE_ERRORS                  = 1 << 45;
+        const SC_UTF8_NONE                   = 1 << 15;
+        const LEADING_HYPHEN                 = 1 << 16;
+        const NO_POS_VALUES                  = 1 << 17;
+        const NEXT_LINE_HELP                 = 1 << 18;
+        const DERIVE_DISP_ORDER              = 1 << 19;
+        const COLORED_HELP                   = 1 << 20;
+        const COLOR_ALWAYS                   = 1 << 21;
+        const COLOR_AUTO                     = 1 << 22;
+        const COLOR_NEVER                    = 1 << 23;
+        const DONT_DELIM_TRAIL               = 1 << 24;
+        const ALLOW_NEG_NUMS                 = 1 << 25;
+        const DISABLE_HELP_SC                = 1 << 27;
+        const DONT_COLLAPSE_ARGS             = 1 << 28;
+        const ARGS_NEGATE_SCS                = 1 << 29;
+        const PROPAGATE_VALS_DOWN            = 1 << 30;
+        const ALLOW_MISSING_POS              = 1 << 31;
+        const TRAILING_VALUES                = 1 << 32;
+        const BUILT                          = 1 << 33;
+        const BIN_NAME_BUILT                 = 1 << 34;
+        const VALID_ARG_FOUND                = 1 << 35;
+        const INFER_SUBCOMMANDS              = 1 << 36;
+        const CONTAINS_LAST                  = 1 << 37;
+        const ARGS_OVERRIDE_SELF             = 1 << 38;
+        const HELP_REQUIRED                  = 1 << 39;
+        const SUBCOMMAND_PRECEDENCE_OVER_ARG = 1 << 40;
+        const DISABLE_HELP_FLAG              = 1 << 41;
+        const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
+        const INFER_LONG_ARGS                = 1 << 43;
+        const IGNORE_ERRORS                  = 1 << 44;
     }
 }
 
@@ -66,7 +65,7 @@ impl BitOr for AppFlags {
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(Flags::UTF8_NONE | Flags::COLOR_AUTO)
+        AppFlags(Flags::COLOR_AUTO)
     }
 }
 
@@ -79,8 +78,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
         => Flags::ALLOW_UNK_SC,
-    AllowInvalidUtf8("allowinvalidutf8")
-        => Flags::UTF8_NONE,
+    AllowInvalidUtf8ForExternalSubcommands("allowinvalidutf8forexternalsubcommands")
+        => Flags::SC_UTF8_NONE,
     AllowLeadingHyphen("allowleadinghyphen")
         => Flags::LEADING_HYPHEN,
     AllowNegativeNumbers("allownegativenumbers")
@@ -121,8 +120,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NO_AUTO_VERSION,
     NoBinaryName("nobinaryname")
         => Flags::NO_BIN_NAME,
-    StrictUtf8("strictutf8")
-        => Flags::UTF8_STRICT,
     SubcommandsNegateReqs("subcommandsnegatereqs")
         => Flags::SC_NEGATE_REQS,
     SubcommandRequired("subcommandrequired")
@@ -163,16 +160,13 @@ impl_settings! { AppSettings, AppFlags,
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Specifies that any invalid UTF-8 code points should *not* be treated as an error.
-    /// This is the default behavior of `clap`.
+    /// Specifies that external subcommands that are invalid UTF-8 should *not* be treated as an error.
     ///
-    /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
-    /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
-    /// or [`ArgMatches::values_of_lossy`] for those particular arguments which may contain invalid
-    /// UTF-8 values
+    /// **NOTE:** Using external subcommand argument values with invalid UTF-8 requires using
+    /// [`ArgMatches::values_of_os`] or [`ArgMatches::values_of_lossy`] for those particular
+    /// arguments which may contain invalid UTF-8 values
     ///
-    /// **NOTE:** This rule only applies to argument values. Flags, options, and
-    /// [`subcommands`] themselves only allow valid UTF-8 code points.
+    /// **NOTE:** Setting this requires [`AppSettings::AllowExternalSubcommands`]
     ///
     /// # Platform Specific
     ///
@@ -183,29 +177,30 @@ pub enum AppSettings {
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
     /// # use clap::{App, AppSettings};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let m = App::new("myprog")
+    ///     .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
     ///
-    /// let r = App::new("myprog")
-    ///   //.setting(AppSettings::AllowInvalidUtf8)
-    ///     .arg("<arg> 'some positional arg'")
-    ///     .try_get_matches_from(
-    ///         vec![
-    ///             OsString::from("myprog"),
-    ///             OsString::from_vec(vec![0xe9])]);
-    ///
-    /// assert!(r.is_ok());
-    /// let m = r.unwrap();
-    /// assert_eq!(m.value_of_os("arg").unwrap().as_bytes(), &[0xe9]);
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
+    /// // string argument name
+    /// match m.subcommand() {
+    ///     Some((external, ext_m)) => {
+    ///          let ext_args: Vec<&std::ffi::OsStr> = ext_m.values_of_os("").unwrap().collect();
+    ///          assert_eq!(external, "subcmd");
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    ///     },
+    ///     _ => {},
+    /// }
     /// ```
     ///
-    /// [`ArgMatches::value_of_os`]: crate::ArgMatches::value_of_os()
     /// [`ArgMatches::values_of_os`]: crate::ArgMatches::values_of_os()
-    /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
     /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
     /// [`subcommands`]: crate::App::subcommand()
-    // TODO: Either this or StrictUtf8
-    AllowInvalidUtf8,
+    AllowInvalidUtf8ForExternalSubcommands,
 
     /// Specifies that leading hyphens are allowed in all argument *values*, such as negative numbers
     /// like `-10`. (which would otherwise be parsed as another flag or option)
@@ -968,40 +963,6 @@ pub enum AppSettings {
     /// [long format]: crate::App::long_about
     UseLongFormatForHelpSubcommand,
 
-    /// Specifies that any invalid UTF-8 code points should be treated as an error and fail
-    /// with a [`ErrorKind::InvalidUtf8`] error.
-    ///
-    /// **NOTE:** This rule only applies to argument values; Things such as flags, options, and
-    /// [`subcommands`] themselves only allow valid UTF-8 code points.
-    ///
-    /// # Platform Specific
-    ///
-    /// Non Windows systems only
-    ///
-    /// # Examples
-    ///
-    #[cfg_attr(not(unix), doc = " ```ignore")]
-    #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// use std::ffi::OsString;
-    /// use std::os::unix::ffi::OsStringExt;
-    ///
-    /// let m = App::new("myprog")
-    ///     .setting(AppSettings::StrictUtf8)
-    ///     .arg("<arg> 'some positional arg'")
-    ///     .try_get_matches_from(
-    ///         vec![
-    ///             OsString::from("myprog"),
-    ///             OsString::from_vec(vec![0xe9])]);
-    ///
-    /// assert!(m.is_err());
-    /// assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
-    /// [`ErrorKind::InvalidUtf8`]: crate::ErrorKind::InvalidUtf8
-    StrictUtf8,
-
     /// Allows specifying that if no [`subcommand`] is present at runtime,
     /// error and exit gracefully.
     ///
@@ -1126,8 +1087,10 @@ mod test {
             AppSettings::AllowExternalSubcommands
         );
         assert_eq!(
-            "allowinvalidutf8".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowInvalidUtf8
+            "allowinvalidutf8forexternalsubcommands"
+                .parse::<AppSettings>()
+                .unwrap(),
+            AppSettings::AllowInvalidUtf8ForExternalSubcommands
         );
         assert_eq!(
             "allowleadinghyphen".parse::<AppSettings>().unwrap(),
@@ -1214,10 +1177,6 @@ mod test {
                 .parse::<AppSettings>()
                 .unwrap(),
             AppSettings::UseLongFormatForHelpSubcommand
-        );
-        assert_eq!(
-            "strictutf8".parse::<AppSettings>().unwrap(),
-            AppSettings::StrictUtf8
         );
         assert_eq!(
             "trailingvararg".parse::<AppSettings>().unwrap(),

@@ -310,8 +310,12 @@ pub enum ErrorKind {
     /// ```
     UnexpectedMultipleUsage,
 
-    /// Occurs when the user provides a value containing invalid UTF-8 for an argument and
-    /// [`AppSettings::StrictUtf8`] is set.
+    /// Occurs when the user provides a value containing invalid UTF-8.
+    ///
+    /// To allow arbitrary data
+    /// - Set [`ArgSettings::AllowInvalidUtf8`] for argument values
+    /// - Set [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] for external-subcommand
+    ///   values
     ///
     /// # Platform Specific
     ///
@@ -325,7 +329,6 @@ pub enum ErrorKind {
     /// # use std::os::unix::ffi::OsStringExt;
     /// # use std::ffi::OsString;
     /// let result = App::new("prog")
-    ///     .setting(AppSettings::StrictUtf8)
     ///     .arg(Arg::new("utf8")
     ///         .short('u')
     ///         .takes_value(true))
@@ -336,7 +339,8 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     ///
-    /// [`AppSettings::StrictUtf8`]: crate::AppSettings::StrictUtf8
+    /// [`ArgSettings::AllowInvalidUtf8`]: crate::ArgSettings::AllowInvalidUtf8
+    /// [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`]: crate::AppSettings::AllowInvalidUtf8ForExternalSubcommands
     InvalidUtf8,
 
     /// Not a true "error" as it means `--help` or similar was used.

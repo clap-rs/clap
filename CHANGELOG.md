@@ -40,6 +40,12 @@ Added `unicode_help`, `env` features.
   * **ErrorKind**
     * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
 * **Changed**
+  * `AppSettings::StrictUtf8` is now default and it and `AppSettings::AllowInvalidUtf8` are replaced by
+    * `AppSettings::AllowInvalidUtf8ForExternalSubcommands`
+      * This only applies to the subcommand args.  Before we paniced if the
+        subcommand itself was invalid but now we will report an error up to the
+        user.
+    * `ArgSettings::AllowInvalidUtf8`
   * Allowing empty values is the default again with `ArgSettings::AllowEmptyValues` changing to
     `ArgSettings::ForbidEmptyValues`
   * `AppSettings::GlobalVersion` renamed to `AppSettings::PropagateVersion` and it is not applied
