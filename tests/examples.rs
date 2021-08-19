@@ -40,8 +40,9 @@ fn examples_are_functional() {
         let help_output = run_example(example_name, &["--help"]);
         assert!(
             help_output.status.success(),
-            "{} --help exited with nonzero",
+            "{} --help exited with nonzero: {}",
             example_name,
+            String::from_utf8_lossy(&help_output.stderr),
         );
         assert!(
             !help_output.stdout.is_empty(),

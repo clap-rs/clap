@@ -105,12 +105,22 @@ impl<'help> ArgGroup<'help> {
     /// # ;
     /// ```
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        let name = n.into();
-        ArgGroup {
-            id: Id::from(&*name),
-            name,
-            ..ArgGroup::default()
-        }
+        ArgGroup::default().name(n)
+    }
+
+    /// Sets the group name.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, ArgGroup};
+    /// ArgGroup::default().name("config")
+    /// # ;
+    /// ```
+    pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
+        self.name = n.into();
+        self.id = Id::from(&self.name);
+        self
     }
 
     /// Adds an [argument] to this group by name
@@ -434,6 +444,7 @@ impl<'help> From<&'help Yaml> for ArgGroup<'help> {
                 .as_str()
                 .expect("failed to convert arg YAML name to str");
             a.name = name_str;
+            a.id = Id::from(&a.name);
             b.get(name_yaml)
                 .expect("failed to get name_str")
                 .as_hash()
@@ -457,7 +468,7 @@ impl<'help> From<&'help Yaml> for ArgGroup<'help> {
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "name" => {
                     if let Some(ys) = v.as_str() {
-                        a.name = ys;
+                        a = a.name(ys);
                     }
                     a
                 }
