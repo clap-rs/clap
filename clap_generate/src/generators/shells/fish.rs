@@ -133,7 +133,15 @@ fn value_completion(option: &Arg) -> String {
     }
 
     if let Some(data) = option.get_possible_values() {
-        format!(" -r -f -a \"{}\"", data.join(" "))
+        // We return the possible values with their own empty description e.g. {a\t,b\t} 
+        // this makes sure that a and b don't get the description of the option or argument
+        format!(
+            " -r -f -a \"{{{}}}\"",
+            data.iter()
+                .map(|value| format!("{}\t", value))
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
         match option.get_value_hint() {
