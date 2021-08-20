@@ -156,3 +156,42 @@ complete -c cmd -s h -l help -d 'Print help information'
 complete -c cmd -s V -l version -d 'Print version information'
 complete -c cmd -s f -s F -l flag -l flg -d 'cmd flag'
 "#;
+
+#[test]
+fn fish_with_sub_subcommands() {
+    let mut app = build_app_sub_subcommands();
+    common::<Fish>(&mut app, "my_app", FISH_SUB_SUBCMDS);
+}
+
+fn build_app_sub_subcommands() -> App<'static> {
+    build_app_with_name("my_app").subcommand(
+        App::new("some_cmd")
+            .about("top level subcommand")
+            .subcommand(
+                App::new("sub_cmd").about("sub-subcommand").arg(
+                    Arg::new("config")
+                        .long("--config")
+                        .takes_value(true)
+                        .about("the other case to test"),
+                ),
+            ),
+    )
+}
+
+static FISH_SUB_SUBCMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
+complete -c my_app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'top level subcommand'
+complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
+complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd" -f -a "sub_cmd" -d 'sub-subcommand'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from help" -s V -l version -d 'Print version information'
+"#;
