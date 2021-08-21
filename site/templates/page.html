@@ -1,0 +1,15 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ page.title }}{% endblock title %}
+
+{% block content %}
+{% include "shared/header.html" %}
+
+<main id="content" class="maxview">
+  <article>
+    <h1 class="post-title">{{ page.title }}</h1>
+
+    {{ page.content | safe }}
+  </article>
+</main>
+{% endblock content %}
