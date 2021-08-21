@@ -134,8 +134,11 @@ fn value_completion(option: &Arg) -> String {
 
     if let Some(data) = option.get_possible_values() {
         format!(
-            " -r -f -a \"{}\"",
-            data.iter().map(|&(pv, _)| pv).collect::<Vec<_>>().join(" ")
+            " -r -f -a \"{{{}}}\"",
+            data.iter()
+                .map(|&(name, about)| format!("{}\t{}", name, about.unwrap_or_default()))
+                .collect::<Vec<_>>()
+                .join(",")
         )
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
