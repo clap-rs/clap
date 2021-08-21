@@ -596,7 +596,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             let pvs = a
                 .possible_vals
                 .iter()
-                .map(|&pv| {
+                .map(|&(pv, _)| {
                     if pv.contains(char::is_whitespace) {
                         format!("{:?}", pv)
                     } else {

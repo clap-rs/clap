@@ -185,7 +185,10 @@ fn vals_for(o: &Arg) -> String {
     debug!("vals_for: o={}", o.get_name());
 
     if let Some(vals) = o.get_possible_values() {
-        format!("$(compgen -W \"{}\" -- \"${{cur}}\")", vals.join(" "))
+        format!(
+            "$(compgen -W \"{}\" -- \"${{cur}}\")",
+            vals.iter().map(|&(pv, _)| pv).collect::<Vec<_>>().join(" ")
+        )
     } else {
         String::from("$(compgen -f \"${cur}\")")
     }

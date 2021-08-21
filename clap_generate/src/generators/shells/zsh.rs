@@ -344,14 +344,31 @@ fn get_args_of(parent: &App, p_global: Option<&App>) -> String {
 // Uses either `possible_vals` or `value_hint` to give hints about possible argument values
 fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
-        Some(format!(
-            "({})",
-            values
-                .iter()
-                .map(|&v| escape_value(v))
-                .collect::<Vec<_>>()
-                .join(" ")
-        ))
+        if values.iter().any(|(_, about)| about.is_some()) {
+            Some(format!(
+                "(({}))",
+                values
+                    .iter()
+                    .map(|&(name, about)| {
+                        format!(
+                            r#"{name}\:"{about}""#,
+                            name = escape_value(name),
+                            about = about.map(|about| escape_help(about)).unwrap_or_default()
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            ))
+        } else {
+            Some(format!(
+                "({})",
+                values
+                    .iter()
+                    .map(|&(name, _)| name)
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ))
+        }
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
         Some(

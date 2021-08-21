@@ -133,7 +133,10 @@ fn value_completion(option: &Arg) -> String {
     }
 
     if let Some(data) = option.get_possible_values() {
-        format!(" -r -f -a \"{}\"", data.join(" "))
+        format!(
+            " -r -f -a \"{}\"",
+            data.iter().map(|&(pv, _)| pv).collect::<Vec<_>>().join(" ")
+        )
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
         match option.get_value_hint() {

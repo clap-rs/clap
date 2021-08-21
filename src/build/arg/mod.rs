@@ -101,7 +101,7 @@ pub struct Arg<'help> {
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
-    pub(crate) possible_vals: Vec<&'help str>,
+    pub(crate) possible_vals: Vec<(&'help str, Option<&'help str>)>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
     pub(crate) max_occurs: Option<usize>,
@@ -230,7 +230,7 @@ impl<'help> Arg<'help> {
 
     /// Get the list of the possible values for this argument, if any
     #[inline]
-    pub fn get_possible_values(&self) -> Option<&[&str]> {
+    pub fn get_possible_values(&self) -> Option<&[(&str, Option<&str>)]> {
         if self.possible_vals.is_empty() {
             None
         } else {
@@ -1904,7 +1904,19 @@ impl<'help> Arg<'help> {
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
     pub fn possible_values(mut self, names: &[&'help str]) -> Self {
-        self.possible_vals.extend(names);
+        self.possible_vals
+            .extend(names.iter().map(|&name| (name, None)).collect::<Vec<_>>());
+        self.takes_value(true)
+    }
+
+    /// TODO Docu
+    pub fn possible_values_about(mut self, values: &[(&'help str, &'help str)]) -> Self {
+        self.possible_vals.extend(
+            values
+                .iter()
+                .map(|&(name, about)| (name, (!about.is_empty()).then(|| about)))
+                .collect::<Vec<_>>(),
+        );
         self.takes_value(true)
     }
 
@@ -1962,7 +1974,13 @@ impl<'help> Arg<'help> {
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
     pub fn possible_value(mut self, name: &'help str) -> Self {
-        self.possible_vals.push(name);
+        self.possible_vals.push((name, None));
+        self.takes_value(true)
+    }
+
+    /// TODO Docu
+    pub fn possible_value_about(mut self, name: &'help str, about: &'help str) -> Self {
+        self.possible_vals.push((name, Some(about)));
         self.takes_value(true)
     }
 
