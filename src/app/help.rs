@@ -701,8 +701,12 @@ impl<'a> Help<'a> {
         }
         if let Some(bn) = parser.meta.bin_name.as_ref() {
             if bn.contains(' ') {
-                // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
-                color!(self, bn.replace(" ", "-"), good)?
+                if parser.is_set(AppSettings::DisableHyphenSubcommand) {
+                    color!(self, bn, good)?
+                } else {
+                    // Incase we're dealing with subcommands i.e. git mv is translated to git-mv
+                    color!(self, bn.replace(" ", "-"), good)?
+                }
             } else {
                 write_name!();
             }

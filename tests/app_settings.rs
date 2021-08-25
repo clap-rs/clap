@@ -73,6 +73,15 @@ OPTIONS:
 ARGS:
     <arg1>    some pos arg";
 
+static DISABLE_HYPHEN_HELP: &'static str = "myprog sub1 
+
+USAGE:
+    myprog sub1
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information";
+
 #[test]
 fn sub_command_negate_required() {
     App::new("sub_command_negate")
@@ -992,4 +1001,26 @@ fn aaos_option_use_delim_false() {
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
         &["one,two"]
     );
+}
+
+#[test]
+fn disable_hyphen_subcommand() {
+    let matches = App::new("myprog")
+        .subcommand(SubCommand::with_name("sub1").setting(AppSettings::DisableHyphenSubcommand))
+        .get_matches_from_safe(vec!["myprog", "sub1", "--help"]);
+
+    let err = matches.unwrap_err();
+
+    assert_eq!(err.message, DISABLE_HYPHEN_HELP);
+}
+
+#[test]
+fn disable_hyphen_subcommand_false() {
+    let matches = App::new("myprog")
+        .subcommand(SubCommand::with_name("sub1"))
+        .get_matches_from_safe(vec!["myprog", "sub1", "--help"]);
+
+    let err = matches.unwrap_err();
+
+    assert!(err.message.starts_with("myprog-sub1"));
 }

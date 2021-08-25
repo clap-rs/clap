@@ -6,48 +6,49 @@ use std::str::FromStr;
 
 bitflags! {
     struct Flags: u64 {
-        const SC_NEGATE_REQS       = 1;
-        const SC_REQUIRED          = 1 << 1;
-        const A_REQUIRED_ELSE_HELP = 1 << 2;
-        const GLOBAL_VERSION       = 1 << 3;
-        const VERSIONLESS_SC       = 1 << 4;
-        const UNIFIED_HELP         = 1 << 5;
-        const WAIT_ON_ERROR        = 1 << 6;
-        const SC_REQUIRED_ELSE_HELP= 1 << 7;
-        const NEEDS_LONG_HELP      = 1 << 8;
-        const NEEDS_LONG_VERSION   = 1 << 9;
-        const NEEDS_SC_HELP        = 1 << 10;
-        const DISABLE_VERSION      = 1 << 11;
-        const HIDDEN               = 1 << 12;
-        const TRAILING_VARARG      = 1 << 13;
-        const NO_BIN_NAME          = 1 << 14;
-        const ALLOW_UNK_SC         = 1 << 15;
-        const UTF8_STRICT          = 1 << 16;
-        const UTF8_NONE            = 1 << 17;
-        const LEADING_HYPHEN       = 1 << 18;
-        const NO_POS_VALUES        = 1 << 19;
-        const NEXT_LINE_HELP       = 1 << 20;
-        const DERIVE_DISP_ORDER    = 1 << 21;
-        const COLORED_HELP         = 1 << 22;
-        const COLOR_ALWAYS         = 1 << 23;
-        const COLOR_AUTO           = 1 << 24;
-        const COLOR_NEVER          = 1 << 25;
-        const DONT_DELIM_TRAIL     = 1 << 26;
-        const ALLOW_NEG_NUMS       = 1 << 27;
-        const LOW_INDEX_MUL_POS    = 1 << 28;
-        const DISABLE_HELP_SC      = 1 << 29;
-        const DONT_COLLAPSE_ARGS   = 1 << 30;
-        const ARGS_NEGATE_SCS      = 1 << 31;
-        const PROPAGATE_VALS_DOWN  = 1 << 32;
-        const ALLOW_MISSING_POS    = 1 << 33;
-        const TRAILING_VALUES      = 1 << 34;
-        const VALID_NEG_NUM_FOUND  = 1 << 35;
-        const PROPAGATED           = 1 << 36;
-        const VALID_ARG_FOUND      = 1 << 37;
-        const INFER_SUBCOMMANDS    = 1 << 38;
-        const CONTAINS_LAST        = 1 << 39;
-        const ARGS_OVERRIDE_SELF   = 1 << 40;
-        const DISABLE_HELP_FLAGS   = 1 << 41;
+        const SC_NEGATE_REQS            = 1;
+        const SC_REQUIRED               = 1 << 1;
+        const A_REQUIRED_ELSE_HELP      = 1 << 2;
+        const GLOBAL_VERSION            = 1 << 3;
+        const VERSIONLESS_SC            = 1 << 4;
+        const UNIFIED_HELP              = 1 << 5;
+        const WAIT_ON_ERROR             = 1 << 6;
+        const SC_REQUIRED_ELSE_HELP     = 1 << 7;
+        const NEEDS_LONG_HELP           = 1 << 8;
+        const NEEDS_LONG_VERSION        = 1 << 9;
+        const NEEDS_SC_HELP             = 1 << 10;
+        const DISABLE_VERSION           = 1 << 11;
+        const HIDDEN                    = 1 << 12;
+        const TRAILING_VARARG           = 1 << 13;
+        const NO_BIN_NAME               = 1 << 14;
+        const ALLOW_UNK_SC              = 1 << 15;
+        const UTF8_STRICT               = 1 << 16;
+        const UTF8_NONE                 = 1 << 17;
+        const LEADING_HYPHEN            = 1 << 18;
+        const NO_POS_VALUES             = 1 << 19;
+        const NEXT_LINE_HELP            = 1 << 20;
+        const DERIVE_DISP_ORDER         = 1 << 21;
+        const COLORED_HELP              = 1 << 22;
+        const COLOR_ALWAYS              = 1 << 23;
+        const COLOR_AUTO                = 1 << 24;
+        const COLOR_NEVER               = 1 << 25;
+        const DONT_DELIM_TRAIL          = 1 << 26;
+        const ALLOW_NEG_NUMS            = 1 << 27;
+        const LOW_INDEX_MUL_POS         = 1 << 28;
+        const DISABLE_HELP_SC           = 1 << 29;
+        const DONT_COLLAPSE_ARGS        = 1 << 30;
+        const ARGS_NEGATE_SCS           = 1 << 31;
+        const PROPAGATE_VALS_DOWN       = 1 << 32;
+        const ALLOW_MISSING_POS         = 1 << 33;
+        const TRAILING_VALUES           = 1 << 34;
+        const VALID_NEG_NUM_FOUND       = 1 << 35;
+        const PROPAGATED                = 1 << 36;
+        const VALID_ARG_FOUND           = 1 << 37;
+        const INFER_SUBCOMMANDS         = 1 << 38;
+        const CONTAINS_LAST             = 1 << 39;
+        const ARGS_OVERRIDE_SELF        = 1 << 40;
+        const DISABLE_HELP_FLAGS        = 1 << 41;
+        const DISABLE_HYPHEN_SUBCOMMAND = 1 << 42;
     }
 }
 
@@ -101,6 +102,7 @@ impl AppFlags {
         DeriveDisplayOrder => Flags::DERIVE_DISP_ORDER,
         DisableHelpFlags => Flags::DISABLE_HELP_FLAGS,
         DisableHelpSubcommand => Flags::DISABLE_HELP_SC,
+        DisableHyphenSubcommand => Flags::DISABLE_HYPHEN_SUBCOMMAND,
         DisableVersion => Flags::DISABLE_VERSION,
         GlobalVersion => Flags::GLOBAL_VERSION,
         HidePossibleValuesInHelp => Flags::NO_POS_VALUES,
@@ -575,6 +577,22 @@ pub enum AppSettings {
     /// [`SubCommand`]: ./struct.SubCommand.html
     DisableHelpSubcommand,
 
+    /// Disables automatically adding hyphen to the binary name of subcommands
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use clap::{App, AppSettings, SubCommand};
+    /// let res = App::new("myprog")
+    ///     .subcommand(SubCommand::with_name("test").setting(AppSettings::DisableHyphenSubcommand))
+    ///     .get_matches_from_safe(vec![
+    ///         "myprog", "test", "--help"
+    ///     ]);
+    /// assert!(res.is_err());
+    /// assert!(res.unwrap_err().message.starts_with("myprog test"));
+    /// ```
+    /// [`SubCommand`]: ./struct.SubCommand.html
+    DisableHyphenSubcommand,
+
     /// Disables `-V` and `--version` [`App`] without affecting any of the [`SubCommand`]s
     /// (Defaults to `false`; application *does* have a version flag)
     ///
@@ -1016,6 +1034,7 @@ impl FromStr for AppSettings {
             "dontcollapseargsinusage" => Ok(AppSettings::DontCollapseArgsInUsage),
             "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
             "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
+            "disablehyphensubcommand" => Ok(AppSettings::DisableHyphenSubcommand),
             "disableversion" => Ok(AppSettings::DisableVersion),
             "globalversion" => Ok(AppSettings::GlobalVersion),
             "hidden" => Ok(AppSettings::Hidden),
@@ -1094,6 +1113,10 @@ mod test {
         assert_eq!(
             "disablehelpsubcommand".parse::<AppSettings>().unwrap(),
             AppSettings::DisableHelpSubcommand
+        );
+        assert_eq!(
+            "disablehyphensubcommand".parse::<AppSettings>().unwrap(),
+            AppSettings::DisableHyphenSubcommand
         );
         assert_eq!(
             "disableversion".parse::<AppSettings>().unwrap(),
