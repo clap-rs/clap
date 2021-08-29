@@ -979,8 +979,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if self.is_set(AS::AllowLeadingHyphen)
             || self.app[&current_positional.id].is_set(ArgSettings::AllowHyphenValues)
-            || (self.is_set(AS::AllowNegativeNumbers)
-                && next.to_str_lossy().parse::<f64>().is_ok())
+            || (self.is_set(AS::AllowNegativeNumbers) && next.to_str_lossy().parse::<f64>().is_ok())
         {
             // If allow hyphen, this isn't a new arg.
             debug!("Parser::is_new_arg: Allow hyphen");
@@ -1215,8 +1214,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if self.is_set(AS::InferLongArgs) {
             let arg_str = arg.to_str_lossy();
             self.app.args.args().find(|a| {
-                a.long
-                    .map_or(false, |long| long.starts_with(&*arg_str))
+                a.long.map_or(false, |long| long.starts_with(&*arg_str))
                     || a.aliases
                         .iter()
                         .any(|(alias, _)| alias.starts_with(&*arg_str))
@@ -1254,13 +1252,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                     used,
                     arg: opt.to_string(),
                 }
-            } else if let Some(parse_result) = self.check_for_help_and_version_str(&arg) {
+            } else if let Some(parse_result) = self.check_for_help_and_version_str(arg) {
                 parse_result
             } else {
                 debug!("Parser::parse_long_arg: Presence validated");
                 self.parse_flag(opt, matcher)
             }
-        } else if let Some(sc_name) = self.possible_long_flag_subcommand(&arg) {
+        } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
             ParseResult::FlagSubCommand(sc_name.to_string())
         } else if self.is_set(AS::AllowLeadingHyphen) {
             ParseResult::MaybeHyphenValue
