@@ -5,9 +5,7 @@ use clap::{App, AppSettings, Arg, ArgMatches, ArgSettings, ErrorKind};
 #[cfg(feature = "suggestions")]
 static DYM: &str =
     "error: Found argument '--optio' which wasn't expected, or isn't valid in this context
-
 \tDid you mean '--option'?
-
 \tIf you tried to supply `--optio` as a value rather than a flag, use `-- --optio`
 
 USAGE:
@@ -18,9 +16,7 @@ For more information try --help";
 #[cfg(feature = "suggestions")]
 static DYM_ISSUE_1073: &str =
     "error: Found argument '--files-without-matches' which wasn't expected, or isn't valid in this context
-
 \tDid you mean '--files-without-match'?
-
 \tIf you tried to supply `--files-without-matches` as a value rather than a flag, use `-- --files-without-matches`
 
 USAGE:

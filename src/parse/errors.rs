@@ -445,6 +445,10 @@ fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
     c.none(msg);
 }
 
+fn start_hint(c: &mut Colorizer) {
+    c.none("\t");
+}
+
 fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
     c.none("\n\n");
     c.none(usage);
@@ -632,7 +636,9 @@ impl Error {
         c.none("]");
 
         if let Some(val) = suffix {
-            c.none("\n\n\tDid you mean ");
+            c.none("\n");
+            start_hint(&mut c);
+            c.none("Did you mean ");
             c.good(format!("{:?}", val));
             c.none("?");
         }
@@ -662,11 +668,14 @@ impl Error {
 
         start_error(&mut c, "The subcommand '");
         c.warning(subcmd.clone());
-        c.none("' wasn't recognized\n\n\tDid you mean ");
+        c.none("' wasn't recognized\n");
+        start_hint(&mut c);
+        c.none("Did you mean ");
         c.good(did_you_mean);
-        c.none("");
+        c.none("?\n");
+        start_hint(&mut c);
         c.none(format!(
-            "?\n\nIf you believe you received this message in error, try re-running with '{} ",
+            "If you believe you received this message in error, try re-running with '{} ",
             name
         ));
         c.good("--");
@@ -938,7 +947,9 @@ impl Error {
 
         if let Some((flag, subcmd)) = did_you_mean {
             let flag = format!("--{}", flag);
-            c.none("\n\n\tDid you mean ");
+            c.none("\n");
+            start_hint(&mut c);
+            c.none("Did you mean ");
 
             if let Some(subcmd) = subcmd {
                 c.none("to put '");
@@ -956,8 +967,10 @@ impl Error {
         // If the user wants to supply things like `--a-flag` or `-b` as a value,
         // suggest `--` for disambiguation.
         if arg.starts_with('-') {
+            c.none("\n");
+            start_hint(&mut c);
             c.none(format!(
-                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                "If you tried to supply `{}` as a value rather than a flag, use `-- {}`",
                 arg, arg
             ));
         }
@@ -978,10 +991,10 @@ impl Error {
 
         start_error(&mut c, "Found argument '");
         c.warning(arg.clone());
-        c.none("' which wasn't expected, or isn't valid in this context");
-
+        c.none("' which wasn't expected, or isn't valid in this context\n");
+        start_hint(&mut c);
         c.none(format!(
-            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+            "If you tried to supply `{}` as a subcommand, remove the '--' before it.",
             arg
         ));
         put_usage(&mut c, usage);
