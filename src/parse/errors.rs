@@ -1046,3 +1046,13 @@ impl error::Error for Error {
         self.source.as_deref()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    /// Check `clap::Error` impls Send and Sync.
+    mod clap_error_impl_send_sync {
+        use crate::Error;
+        trait Foo: std::error::Error + Send + Sync + 'static {}
+        impl Foo for Error {}
+    }
+}
