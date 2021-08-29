@@ -430,7 +430,7 @@ pub struct Error {
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
-    pub(crate) source: Option<Box<dyn error::Error>>,
+    pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
 }
 
 impl Display for Error {
@@ -856,7 +856,7 @@ impl Error {
     pub(crate) fn value_validation(
         arg: String,
         val: String,
-        err: Box<dyn error::Error>,
+        err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
     ) -> Self {
         let mut c = Colorizer::new(true, color);
@@ -1042,8 +1042,9 @@ impl From<fmt::Error> for Error {
 }
 
 impl error::Error for Error {
+    #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        self.source.as_deref()
+        self.source.as_ref().map(|e| e.as_ref() as _)
     }
 }
 
