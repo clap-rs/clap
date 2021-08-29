@@ -1233,10 +1233,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 );
                 self.parse_opt(val, opt, matcher, trailing_values)
             } else if let Some(rest) = val {
-                debug!(
-                    "Parser::parse_long_arg: Got invalid literal `{:?}`",
-                    rest.to_os_string()
-                );
+                debug!("Parser::parse_long_arg: Got invalid literal `{:?}`", rest);
                 let used: Vec<Id> = matcher
                     .arg_names()
                     .filter(|&n| {
@@ -1333,8 +1330,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Check for trailing concatenated value
                 let val = short_arg.split_once(c).expect(INTERNAL_ERROR_MSG).1;
                 debug!(
-                    "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii), rest={:?}, arg_os={:?}",
-                    c, val, val.as_raw_bytes(), arg_os
+                    "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii), short_arg={:?}",
+                    c, val, val.as_raw_bytes(), short_arg
                 );
                 let val = Some(val).filter(|v| !v.is_empty());
 
