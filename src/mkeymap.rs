@@ -1,6 +1,6 @@
 use crate::{build::Arg, util::Id, INTERNAL_ERROR_MSG};
 
-use std::{ffi::OsString, iter::Iterator, ops::Index};
+use std::{ffi::OsStr, ffi::OsString, iter::Iterator, ops::Index};
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct Key {
@@ -49,8 +49,8 @@ impl PartialEq<&str> for KeyType {
     }
 }
 
-impl PartialEq<OsString> for KeyType {
-    fn eq(&self, rhs: &OsString) -> bool {
+impl PartialEq<OsStr> for KeyType {
+    fn eq(&self, rhs: &OsStr) -> bool {
         match self {
             KeyType::Long(l) => l == rhs,
             _ => false,
@@ -86,7 +86,7 @@ impl<'help> MKeyMap<'help> {
     /// Find the arg have corresponding key in this map, we can search the key
     /// with u64(for positional argument), char(for short flag), &str and
     /// OsString (for long flag)
-    pub(crate) fn get<K>(&self, key: &K) -> Option<&Arg<'help>>
+    pub(crate) fn get<K: ?Sized>(&self, key: &K) -> Option<&Arg<'help>>
     where
         KeyType: PartialEq<K>,
     {

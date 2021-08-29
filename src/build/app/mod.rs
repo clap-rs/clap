@@ -18,6 +18,7 @@ use std::{
 };
 
 // Third Party
+use os_str_bytes::RawOsStr;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -27,7 +28,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{safe_exit, termcolor::ColorChoice, ArgStr, Id, Key, USAGE_CODE},
+    util::{safe_exit, termcolor::ColorChoice, Id, Key, USAGE_CODE},
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -2791,7 +2792,7 @@ impl<'help> App<'help> {
     }
 
     /// Find a flag subcommand name by long flag or an alias
-    pub(crate) fn find_long_subcmd(&self, long: &ArgStr) -> Option<&str> {
+    pub(crate) fn find_long_subcmd(&self, long: &RawOsStr) -> Option<&str> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
             .map(|sc| sc.get_name())

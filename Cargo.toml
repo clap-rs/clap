@@ -64,7 +64,7 @@ clap_derive = { path = "./clap_derive", version = "=3.0.0-beta.4", optional = tr
 bitflags = "1.2"
 textwrap = { version = "0.14.0", default-features = false, features = [] }
 indexmap = "1.0"
-os_str_bytes = { version = "3.0", features = ["raw"] }
+os_str_bytes = "4.1"
 vec_map = "0.8"
 strsim = { version = "0.10",  optional = true }
 yaml-rust = { version = "0.4.1",  optional = true }
