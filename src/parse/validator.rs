@@ -122,7 +122,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         .cloned()
                         .collect();
                     return Err(Error::invalid_value(
-                        val_str.to_string(),
+                        val_str.into_owned(),
                         &arg.possible_vals,
                         arg,
                         Usage::new(self.p).create_usage_with_title(&used),
@@ -149,7 +149,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     debug!("error");
                     return Err(Error::value_validation(
                         arg.to_string(),
-                        val.to_string_lossy().to_string(),
+                        val.to_string_lossy().into_owned(),
                         e,
                         self.p.app.color(),
                     ));
