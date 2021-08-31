@@ -1,5 +1,5 @@
 +++
-title = "Cookbook"
+title = "Cheatsheet"
 +++
 
 Work in progress...
