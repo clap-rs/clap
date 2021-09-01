@@ -507,9 +507,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         }
                         ParseResult::EqualsNotProvided { arg } => {
                             return Err(ClapError::no_equals(
+                                self.app,
                                 arg,
                                 Usage::new(self).create_usage_with_title(&[]),
-                                self.app.color(),
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
@@ -521,10 +521,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                         }
                         ParseResult::UnneededAttachedValue { rest, used, arg } => {
                             return Err(ClapError::too_many_values(
+                                self.app,
                                 rest,
                                 arg,
                                 Usage::new(self).create_usage_no_title(&used),
-                                self.app.color(),
                             ))
                         }
                         ParseResult::HelpFlag => {
@@ -596,17 +596,17 @@ impl<'help, 'app> Parser<'help, 'app> {
                         }
                         ParseResult::EqualsNotProvided { arg } => {
                             return Err(ClapError::no_equals(
+                                self.app,
                                 arg,
                                 Usage::new(self).create_usage_with_title(&[]),
-                                self.app.color(),
                             ))
                         }
                         ParseResult::NoMatchingArg { arg } => {
                             return Err(ClapError::unknown_argument(
+                                self.app,
                                 arg,
                                 None,
                                 Usage::new(self).create_usage_with_title(&[]),
-                                self.app.color(),
                             ));
                         }
                         ParseResult::HelpFlag => {
@@ -648,10 +648,10 @@ impl<'help, 'app> Parser<'help, 'app> {
             if let Some(p) = self.app.args.get(&pos_counter) {
                 if p.is_set(ArgSettings::Last) && !trailing_values {
                     return Err(ClapError::unknown_argument(
+                        self.app,
                         arg_os.to_str_lossy().into_owned(),
                         None,
                         Usage::new(self).create_usage_with_title(&[]),
-                        self.app.color(),
                     ));
                 }
 
@@ -692,8 +692,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                     Some(s) => s.to_string(),
                     None => {
                         return Err(ClapError::invalid_utf8(
+                            self.app,
                             Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
                         ));
                     }
                 };
@@ -706,8 +706,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                         && v.to_str().is_none()
                     {
                         return Err(ClapError::invalid_utf8(
+                            self.app,
                             Usage::new(self).create_usage_with_title(&[]),
-                            self.app.color(),
                         ));
                     }
                     sc_m.add_val_to(
@@ -749,9 +749,9 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if self.is_set(AS::SubcommandRequired) {
             let bn = self.app.bin_name.as_ref().unwrap_or(&self.app.name);
             return Err(ClapError::missing_subcommand(
+                self.app,
                 bn.to_string(),
                 Usage::new(self).create_usage_with_title(&[]),
-                self.app.color(),
             ));
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
@@ -780,9 +780,9 @@ impl<'help, 'app> Parser<'help, 'app> {
             // If the arg matches a subcommand name, or any of its aliases (if defined)
             if self.possible_subcommand(arg_os, valid_arg_found).is_some() {
                 return ClapError::unnecessary_double_dash(
+                    self.app,
                     arg_os.to_str_lossy().into_owned(),
                     Usage::new(self).create_usage_with_title(&[]),
-                    self.app.color(),
                 );
             }
         }
@@ -795,6 +795,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .map(|candidate| format!("'{}'", candidate))
                 .collect();
             return ClapError::invalid_subcommand(
+                self.app,
                 arg_os.to_str_lossy().into_owned(),
                 candidates.join(" or "),
                 self.app
@@ -803,26 +804,25 @@ impl<'help, 'app> Parser<'help, 'app> {
                     .unwrap_or(&self.app.name)
                     .to_string(),
                 Usage::new(self).create_usage_with_title(&[]),
-                self.app.color(),
             );
         }
         // If the argument must be a subcommand.
         if !self.app.has_args() || self.is_set(AS::InferSubcommands) && self.app.has_subcommands() {
             return ClapError::unrecognized_subcommand(
+                self.app,
                 arg_os.to_str_lossy().into_owned(),
                 self.app
                     .bin_name
                     .as_ref()
                     .unwrap_or(&self.app.name)
                     .to_string(),
-                self.app.color(),
             );
         }
         ClapError::unknown_argument(
+            self.app,
             arg_os.to_str_lossy().into_owned(),
             None,
             Usage::new(self).create_usage_with_title(&[]),
-            self.app.color(),
         )
     }
 
@@ -933,13 +933,13 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
+                        self.app,
                         cmd.to_string_lossy().into_owned(),
                         self.app
                             .bin_name
                             .as_ref()
                             .unwrap_or(&self.app.name)
                             .to_string(),
-                        self.app.color(),
                     ));
                 }
 
@@ -1865,10 +1865,10 @@ impl<'help, 'app> Parser<'help, 'app> {
             .collect();
 
         ClapError::unknown_argument(
+            self.app,
             format!("--{}", arg),
             did_you_mean,
             Usage::new(self).create_usage_with_title(&*used),
-            self.app.color(),
         )
     }
 

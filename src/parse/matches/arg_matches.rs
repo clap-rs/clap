@@ -14,7 +14,7 @@ use indexmap::IndexMap;
 // Internal
 use crate::{
     parse::MatchedArg,
-    util::{termcolor::ColorChoice, Id, Key},
+    util::{Id, Key},
     {Error, INVALID_UTF8},
 };
 
@@ -391,12 +391,7 @@ impl ArgMatches {
                     v, name, e
                 );
 
-                Error::value_validation(
-                    name.to_string(),
-                    v.to_string(),
-                    message.into(),
-                    ColorChoice::Auto,
-                )
+                Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
             })
         } else {
             Err(Error::argument_not_found_auto(name.to_string()))
@@ -481,11 +476,10 @@ impl ArgMatches {
                 v.parse::<R>().map_err(|e| {
                     let message = format!("The argument '{}' isn't a valid value: {}", v, e);
 
-                    Error::value_validation(
+                    Error::value_validation_without_app(
                         name.to_string(),
                         v.to_string(),
                         message.into(),
-                        ColorChoice::Auto,
                     )
                 })
             })

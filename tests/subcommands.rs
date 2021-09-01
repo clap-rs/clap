@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -476,4 +476,24 @@ fn issue_2494_subcommand_is_present() {
     let m = app.get_matches_from(&["opt", "global"]);
     assert_eq!(m.subcommand_name().unwrap(), "global");
     assert!(!m.is_present("global"));
+}
+
+#[test]
+fn subcommand_not_recognized() {
+    let app = App::new("fake")
+        .subcommand(App::new("sub"))
+        .setting(AppSettings::DisableHelpSubcommand)
+        .setting(AppSettings::InferSubcommands);
+    assert!(utils::compare_output(
+        app,
+        "fake help",
+        "error:  The subcommand 'help' wasn't recognized
+
+USAGE:
+\tfake <subcommands>...
+
+For more information try --help
+",
+        true
+    ));
 }
