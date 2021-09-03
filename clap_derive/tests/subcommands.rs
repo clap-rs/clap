@@ -454,3 +454,23 @@ fn update_ext_subcommand() {
     opt.try_update_from(&["test", "ext", "42", "44"]).unwrap();
     assert_eq!(Opt::parse_from(&["test", "ext", "42", "44"]), opt);
 }
+#[test]
+fn subcommand_name_not_literal() {
+    fn get_name() -> &'static str {
+        "renamed"
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    struct Opt {
+        #[clap(subcommand)]
+        subcmd: SubCmd,
+    }
+
+    #[derive(Clap, PartialEq, Debug)]
+    enum SubCmd {
+        #[clap(name = get_name())]
+        SubCmd1,
+    }
+
+    assert!(Opt::try_parse_from(&["test", "renamed"]).is_ok());
+}
