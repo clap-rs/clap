@@ -2514,3 +2514,40 @@ FLAGS:
         false
     ));
 }
+
+#[test]
+fn disabled_help_flag() {
+    let app = App::new("foo")
+        .subcommand(App::new("sub"))
+        .setting(AppSettings::DisableHelpFlag);
+    assert!(utils::compare_output(
+        app,
+        "foo a",
+        "error: Found argument 'a' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    foo [SUBCOMMAND]
+
+For more information try help
+",
+        true
+    ));
+}
+
+#[test]
+fn disabled_help_flag_and_subcommand() {
+    let app = App::new("foo")
+        .subcommand(App::new("sub"))
+        .setting(AppSettings::DisableHelpFlag)
+        .setting(AppSettings::DisableHelpSubcommand);
+    assert!(utils::compare_output(
+        app,
+        "foo help",
+        "error: Found argument 'help' which wasn't expected, or isn't valid in this context
+
+USAGE:
+    foo [SUBCOMMAND]
+",
+        true
+    ));
+}
