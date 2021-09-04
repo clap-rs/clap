@@ -490,7 +490,7 @@ fn subcommand_not_recognized() {
         "error:  The subcommand 'help' wasn't recognized
 
 USAGE:
-\tfake <subcommands>...
+    fake <subcommands>
 
 For more information try --help
 ",
