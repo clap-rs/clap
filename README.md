@@ -330,7 +330,7 @@ args:
         index: 1
     - verbose:
         short: v
-        multiple: true
+        multiple_occurrences: true
         about: Sets the level of verbosity
 subcommands:
     - test:
@@ -340,7 +340,8 @@ subcommands:
         args:
             - debug:
                 short: d
-                about: print debug information
+                long: debug
+                about: Print debug information
 ```
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
@@ -383,14 +384,14 @@ fn main() {
         (version: "1.0")
         (author: "Kevin K. <kbknapp@gmail.com>")
         (about: "Does awesome things")
-        (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
+        (@arg CONFIG: -c --config [FILE] "Sets a custom config file")
         (@arg INPUT: +required "Sets the input file to use")
-        (@arg verbose: -v --verbose "Print test information verbosely")
+        (@arg verbose: -v --verbose "Sets the level of verbosity")
         (@subcommand test =>
             (about: "controls testing features")
             (version: "1.3")
             (author: "Someone E. <someone_else@other.com>")
-            (@arg debug: -d ... "Sets the level of debugging information")
+            (@arg debug: -d --debug "Print debug information")
         )
     ).get_matches();
 
