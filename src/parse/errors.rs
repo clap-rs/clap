@@ -696,7 +696,7 @@ impl Error {
         c.warning(subcmd.clone());
         c.none("' wasn't recognized\n\n");
         c.warning("USAGE:");
-        c.none(format!("\n\t{} <subcommands>...", name));
+        c.none(format!("\n    {} <subcommands>", name));
         try_help(app, &mut c);
 
         Error {
