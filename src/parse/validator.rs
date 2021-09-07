@@ -1,6 +1,6 @@
 // Internal
 use crate::{
-    build::{AppSettings as AS, Arg, ArgSettings},
+    build::{arg::ArgValue, AppSettings as AS, Arg, ArgSettings},
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
@@ -107,9 +107,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 let ok = if arg.is_set(ArgSettings::IgnoreCase) {
                     arg.possible_vals
                         .iter()
-                        .any(|pv| pv.eq_ignore_ascii_case(&val_str))
+                        .any(|ArgValue { name, .. }| name.eq_ignore_ascii_case(&val_str))
                 } else {
-                    arg.possible_vals.contains(&&*val_str)
+                    arg.possible_vals
+                        .iter()
+                        .any(|ArgValue { name, .. }| name == &&*val_str)
                 };
                 if !ok {
                     let used: Vec<Id> = matcher
@@ -124,7 +126,17 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     return Err(Error::invalid_value(
                         self.p.app,
                         val_str.into_owned(),
-                        &arg.possible_vals,
+                        &arg.possible_vals
+                            .iter()
+                            .filter_map(|value| match value {
+                                ArgValue {
+                                    hidden: false,
+                                    name,
+                                    ..
+                                } => Some(name),
+                                _ => None,
+                            })
+                            .collect::<Vec<_>>(),
                         arg,
                         Usage::new(self.p).create_usage_with_title(&used),
                     ));

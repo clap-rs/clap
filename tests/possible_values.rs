@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, Arg, ArgValue, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
@@ -53,6 +53,25 @@ fn possible_values_of_positional() {
 
     assert!(m.is_present("positional"));
     assert_eq!(m.value_of("positional"), Some("test123"));
+}
+
+#[test]
+fn possible_value_arg_value() {
+    let m = App::new("possible_values")
+        .arg(
+            Arg::new("arg_value").index(1).possible_value(
+                ArgValue::new("test123")
+                    .hidden(false)
+                    .about("It's just a test"),
+            ),
+        )
+        .try_get_matches_from(vec!["myprog", "test123"]);
+
+    assert!(m.is_ok());
+    let m = m.unwrap();
+
+    assert!(m.is_present("arg_value"));
+    assert_eq!(m.value_of("arg_value"), Some("test123"));
 }
 
 #[test]
@@ -190,6 +209,22 @@ fn possible_values_output() {
             "fast",
             "ludicrous speed"
         ])),
+        "clap-test -O slo",
+        PV_ERROR,
+        true
+    ));
+}
+
+#[test]
+fn possible_values_hidden_output() {
+    assert!(utils::compare_output(
+        App::new("test").arg(
+            Arg::new("option")
+                .short('O')
+                .possible_values(&["slow", "fast"])
+                .possible_value(ArgValue::new("ludicrous speed"))
+                .possible_value(ArgValue::new("forbidden speed").hidden(true))
+        ),
         "clap-test -O slo",
         PV_ERROR,
         true
