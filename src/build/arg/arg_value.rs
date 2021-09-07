@@ -54,7 +54,7 @@ impl<'help> ArgValue<'help> {
 impl<'help> ArgValue<'help> {
     /// TODO
     pub fn new(name: &'help str) -> Self {
-        let name = name.into();
+        let name = name;
         ArgValue {
             value: name,
             ..Default::default()
