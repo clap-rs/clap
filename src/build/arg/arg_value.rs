@@ -3,17 +3,17 @@ use std::fmt::Display;
 /// TODO
 #[derive(Debug, Default, Clone)]
 pub struct ArgValue<'help> {
-    pub(crate) name: &'help str,
+    pub(crate) value: &'help str,
     pub(crate) about: Option<&'help str>,
     pub(crate) hidden: bool,
 }
 
 impl Display for ArgValue<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.name.contains(char::is_whitespace) {
-            write!(f, "{:?}", self.name)
+        if self.value.contains(char::is_whitespace) {
+            write!(f, "{:?}", self.value)
         } else {
-            write!(f, "{}", self.name)
+            write!(f, "{}", self.value)
         }
     }
 }
@@ -34,8 +34,8 @@ impl<'help> From<&&'help str> for ArgValue<'help> {
 impl<'help> ArgValue<'help> {
     /// TODO
     #[inline]
-    pub fn get_name(&self) -> &str {
-        self.name
+    pub fn get_value(&self) -> &str {
+        self.value
     }
 
     /// TODO
@@ -53,25 +53,25 @@ impl<'help> ArgValue<'help> {
 
 impl<'help> ArgValue<'help> {
     /// TODO
-    pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        let name = n.into();
+    pub fn new(name: &'help str) -> Self {
+        let name = name.into();
         ArgValue {
-            name,
+            value: name,
             ..Default::default()
         }
     }
 
     /// TODO
     #[inline]
-    pub fn about<S: Into<&'help str>>(mut self, a: S) -> Self {
-        self.about = Some(a.into());
+    pub fn about(mut self, about: &'help str) -> Self {
+        self.about = Some(about);
         self
     }
 
     /// TODO
     #[inline]
-    pub fn hidden(mut self, h: bool) -> Self {
-        self.hidden = h;
+    pub fn hidden(mut self, yes: bool) -> Self {
+        self.hidden = yes;
         self
     }
 }

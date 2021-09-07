@@ -156,7 +156,7 @@ fn value_completion(option: &Arg) -> String {
                 } else {
                     Some(format!(
                         "{}\t{}",
-                        value.get_name(),
+                        value.get_value(),
                         value.get_about().unwrap_or_default()
                     ))
                 })

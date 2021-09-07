@@ -191,7 +191,7 @@ fn vals_for(o: &Arg) -> String {
                 .filter_map(|value| if value.get_hidden() {
                     None
                 } else {
-                    Some(value.get_name())
+                    Some(value.get_value())
                 })
                 .collect::<Vec<_>>()
                 .join(" ")
