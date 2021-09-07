@@ -303,10 +303,12 @@ fn gen_has_subcommand(
             matches!(&*kind, Kind::Flatten)
         });
 
-    let match_arms = variants.iter().map(|(_variant, attrs)| {
+    let subcommands = variants.iter().map(|(_variant, attrs)| {
         let sub_name = attrs.cased_name();
         quote! {
-            #sub_name => true,
+            if #sub_name == name {
+                return true
+            }
         }
     });
     let child_subcommands = flatten_variants
@@ -330,14 +332,11 @@ fn gen_has_subcommand(
         quote! { true }
     } else {
         quote! {
-            match name {
-                #( #match_arms )*
-                _ => {
-                    #( #child_subcommands )else*
+            #( #subcommands )*
 
-                    false
-                }
-            }
+            #( #child_subcommands )else*
+
+            false
         }
     }
 }
@@ -421,7 +420,7 @@ fn gen_from_arg_matches(
             matches!(&*kind, Kind::Flatten)
         });
 
-    let match_arms = variants.iter().map(|(variant, attrs)| {
+    let subcommands = variants.iter().map(|(variant, attrs)| {
         let sub_name = attrs.cased_name();
         let variant_name = &variant.ident;
         let constructor_block = match variant.fields {
@@ -435,8 +434,8 @@ fn gen_from_arg_matches(
         };
 
         quote! {
-            Some((#sub_name, arg_matches)) => {
-                Some(#name :: #variant_name #constructor_block)
+            if #sub_name == name {
+                return Some(#name :: #variant_name #constructor_block)
             }
         }
     });
@@ -461,7 +460,7 @@ fn gen_from_arg_matches(
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
                 ::std::option::Option::Some(#name::#var_name(
-                    ::std::iter::once(#str_ty::from(other))
+                    ::std::iter::once(#str_ty::from(name))
                     .chain(
                         sub_arg_matches.#values_of("").into_iter().flatten().map(#str_ty::from)
                     )
@@ -474,14 +473,17 @@ fn gen_from_arg_matches(
 
     quote! {
         fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Option<Self> {
-            match arg_matches.subcommand() {
-                #( #match_arms, )*
-                ::std::option::Option::Some((other, sub_arg_matches)) => {
-                    #( #child_subcommands )else*
-
-                    #wildcard
+            if let Some((name, sub_arg_matches)) = arg_matches.subcommand() {
+                {
+                    let arg_matches = sub_arg_matches;
+                    #( #subcommands )*
                 }
-                ::std::option::Option::None => ::std::option::Option::None,
+
+                #( #child_subcommands )else*
+
+                #wildcard
+            } else {
+                None
             }
         }
     }
@@ -554,7 +556,7 @@ fn gen_update_from_arg_matches(
         };
 
         quote! {
-            (#sub_name, #name :: #variant_name #pattern) => {
+            #name :: #variant_name #pattern if #sub_name == name => {
                 let arg_matches = sub_arg_matches;
                 #updater
             }
@@ -588,9 +590,9 @@ fn gen_update_from_arg_matches(
             arg_matches: &clap::ArgMatches,
         ) {
             if let Some((name, sub_arg_matches)) = arg_matches.subcommand() {
-                match (name, self) {
+                match self {
                     #( #subcommands ),*
-                    (other_name, s) => {
+                    s => {
                         #( #child_subcommands )*
                         if let Some(sub) = <Self as clap::FromArgMatches>::from_arg_matches(arg_matches) {
                             *s = sub;
