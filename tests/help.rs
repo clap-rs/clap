@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
+use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ArgValue, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -1021,6 +1021,36 @@ fn hide_possible_vals() {
                 .value_name("FILE")
                 .hide_possible_values(true)
                 .possible_values(&["fast", "slow"])
+                .about("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        HIDE_POS_VALS,
+        false
+    ));
+}
+
+#[test]
+fn hide_single_possible_val() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(
+            Arg::new("pos")
+                .short('p')
+                .long("pos")
+                .value_name("VAL")
+                .possible_values(&["fast", "slow"])
+                .possible_value(ArgValue::new("secret speed").hidden(true))
+                .about("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::new("cafe")
+                .short('c')
+                .long("cafe")
+                .value_name("FILE")
                 .about("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
