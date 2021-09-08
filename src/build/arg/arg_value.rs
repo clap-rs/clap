@@ -49,6 +49,16 @@ impl<'help> ArgValue<'help> {
     pub fn get_hidden(&self) -> bool {
         self.hidden
     }
+
+    /// TODO
+    #[inline]
+    pub fn get_visible_value(&self) -> Option<&str> {
+        if self.hidden {
+            None
+        } else {
+            Some(self.value)
+        }
+    }
 }
 
 impl<'help> ArgValue<'help> {

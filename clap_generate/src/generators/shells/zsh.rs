@@ -371,11 +371,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 "({})",
                 values
                     .iter()
-                    .filter_map(|value| if value.get_hidden() {
-                        None
-                    } else {
-                        Some(value.get_value())
-                    })
+                    .filter_map(ArgValue::get_visible_value)
                     .collect::<Vec<_>>()
                     .join(" ")
             ))
