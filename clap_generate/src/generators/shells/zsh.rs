@@ -346,14 +346,14 @@ fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
         if values
             .iter()
-            .any(|value| !value.get_hidden() && value.get_about().is_some())
+            .any(|value| !value.is_hidden() && value.get_about().is_some())
         {
             Some(format!(
                 "(({}))",
                 values
                     .iter()
                     .filter_map(|value| {
-                        if value.get_hidden() {
+                        if value.is_hidden() {
                             None
                         } else {
                             Some(format!(
