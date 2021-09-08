@@ -186,8 +186,8 @@ complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Print this messag
 complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
 complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Print version information'
-complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Print help information'
-complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and not __fish_seen_subcommand_from sub_cmd" -f -a "sub_cmd" -d 'sub-subcommand'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -l help -d 'Print help information'

@@ -57,6 +57,10 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
                 parent_commands
                     .iter()
                     .map(|command| format!("__fish_seen_subcommand_from {}", command))
+                    .chain(
+                        app.get_subcommands()
+                            .map(|command| format!("not __fish_seen_subcommand_from {}", command))
+                    )
                     .collect::<Vec<_>>()
                     .join("; and ")
             )
@@ -114,24 +118,8 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
         buffer.push('\n');
     }
 
-    let mut subcommand_template = basic_template;
-    // We only need to do this for subcommands of subcommands
-    if !parent_commands.is_empty() {
-        // Removes the `"` at the end of the basic_template
-        subcommand_template.remove(subcommand_template.len() - 1);
-        subcommand_template.push_str(
-            format!(
-                "{}\"",
-                app.get_subcommands()
-                    .map(|command| format!("; and not __fish_seen_subcommand_from {}", command))
-                    .collect::<String>()
-            )
-            .as_str(),
-        );
-    }
-
     for subcommand in app.get_subcommands() {
-        let mut template = subcommand_template.clone();
+        let mut template = basic_template.clone();
 
         template.push_str(" -f");
         template.push_str(format!(" -a \"{}\"", &subcommand.get_name()).as_str());
