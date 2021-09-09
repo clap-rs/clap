@@ -1862,7 +1862,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
-    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more controll
+    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more control
     /// over single possible values.
     ///
     /// # Examples
@@ -1928,7 +1928,6 @@ impl<'help> Arg<'help> {
             values
                 .into_iter()
                 .map(|value| value.into())
-                .collect::<Vec<ArgValue>>(),
         );
         self.takes_value(true)
     }
