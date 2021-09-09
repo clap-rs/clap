@@ -20,7 +20,7 @@
 /// [possible values]: crate::Arg::possible_value()
 /// [hide]: ArgValue::hidden()
 /// [about]: ArgValue::about()
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct ArgValue<'help> {
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
@@ -83,7 +83,8 @@ impl<'help> ArgValue<'help> {
     pub fn new(name: &'help str) -> Self {
         ArgValue {
             name,
-            ..Default::default()
+            about: None,
+            hidden: false,
         }
     }
 

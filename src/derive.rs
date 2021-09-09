@@ -1,7 +1,7 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
 //! macros in [`clap_derive`].
 
-use crate::{App, ArgMatches, Error};
+use crate::{App, ArgMatches, ArgValue, Error};
 
 use std::ffi::OsString;
 
@@ -283,7 +283,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// ```
 pub trait ArgEnum: Sized {
     /// All possible argument choices, in display order.
-    const VARIANTS: &'static [&'static str];
+    const VARIANTS: &'static [ArgValue<'static>];
 
     /// Parse an argument into `Self`.
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;

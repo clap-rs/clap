@@ -7,7 +7,7 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::{ArgEnum, Clap};
+use clap::{ArgEnum, ArgValue, Clap};
 
 #[test]
 fn basic() {
@@ -367,7 +367,10 @@ fn skip_variant() {
         Baz,
     }
 
-    assert_eq!(ArgChoice::VARIANTS, ["foo", "bar"]);
+    assert_eq!(
+        ArgChoice::VARIANTS,
+        [ArgValue::new("foo"), ArgValue::new("bar")]
+    );
     assert!(ArgChoice::from_str("foo", true).is_ok());
     assert!(ArgChoice::from_str("bar", true).is_ok());
     assert!(ArgChoice::from_str("baz", true).is_err());

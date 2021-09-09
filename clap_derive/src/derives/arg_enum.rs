@@ -107,7 +107,7 @@ fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
 
     quote! {
-        const VARIANTS: &'static [&'static str] = &[#(#lit),*];
+        const VARIANTS: &'static [clap::ArgValue<'static>] = &[#(clap::ArgValue::new(#lit)),*];
     }
 }
 
