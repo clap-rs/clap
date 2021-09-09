@@ -42,7 +42,7 @@ pub use shell::Shell;
 /// Generate a completions file for a specified shell at compile-time.
 ///
 /// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script" or a
-/// [`cargo-xtask`]](https://github.com/matklad/cargo-xtask)
+/// [`cargo-xtask`](https://github.com/matklad/cargo-xtask)
 ///
 /// # Examples
 ///
