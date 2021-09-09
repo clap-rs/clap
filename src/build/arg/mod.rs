@@ -1924,11 +1924,8 @@ impl<'help> Arg<'help> {
         mut self,
         values: impl IntoIterator<Item = impl Into<ArgValue<'help>>>,
     ) -> Self {
-        self.possible_vals.extend(
-            values
-                .into_iter()
-                .map(|value| value.into())
-        );
+        self.possible_vals
+            .extend(values.into_iter().map(|value| value.into()));
         self.takes_value(true)
     }
 
