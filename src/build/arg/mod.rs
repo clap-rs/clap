@@ -1862,6 +1862,9 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
+    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more controll
+    /// over single possible values.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1869,6 +1872,19 @@ impl<'help> Arg<'help> {
     /// Arg::new("mode")
     ///     .takes_value(true)
     ///     .possible_values(&["fast", "slow", "medium"])
+    /// # ;
+    /// ```
+    /// The same using [`ArgValue`]:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgValue};
+    /// Arg::new("mode").takes_value(true).possible_values(&[
+    ///     ArgValue::new("fast"),
+    /// // value with a help text
+    ///     ArgValue::new("slow").about("not that fast"),
+    /// // value that is hidden from completion and help text
+    ///     ArgValue::new("medium").hidden(true),
+    /// ])
     /// # ;
     /// ```
     ///
@@ -1904,7 +1920,6 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
-    /// TODO update Documentation
     pub fn possible_values(
         mut self,
         values: impl IntoIterator<Item = impl Into<ArgValue<'help>>>,
@@ -1923,6 +1938,9 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
+    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more controll
+    /// over single possible values.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1932,6 +1950,18 @@ impl<'help> Arg<'help> {
     ///     .possible_value("fast")
     ///     .possible_value("slow")
     ///     .possible_value("medium")
+    /// # ;
+    /// ```
+    /// The same using [`ArgValue`]:
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg, ArgValue};
+    /// Arg::new("mode").takes_value(true)
+    ///     .possible_value(ArgValue::new("fast"))
+    /// // value with a help text
+    ///     .possible_value(ArgValue::new("slow").about("not that fast"))
+    /// // value that is hidden from completion and help text
+    ///     .possible_value(ArgValue::new("medium").hidden(true))
     /// # ;
     /// ```
     ///
