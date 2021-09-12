@@ -1871,14 +1871,14 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("mode")
     ///     .takes_value(true)
-    ///     .possible_values(&["fast", "slow", "medium"])
+    ///     .possible_values(["fast", "slow", "medium"])
     /// # ;
     /// ```
     /// The same using [`ArgValue`]:
     ///
     /// ```rust
     /// # use clap::{App, Arg, ArgValue};
-    /// Arg::new("mode").takes_value(true).possible_values(&[
+    /// Arg::new("mode").takes_value(true).possible_values([
     ///     ArgValue::new("fast"),
     /// // value with a help text
     ///     ArgValue::new("slow").about("not that fast"),
@@ -1894,7 +1894,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .takes_value(true)
-    ///         .possible_values(&["fast", "slow", "medium"]))
+    ///         .possible_values(["fast", "slow", "medium"]))
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
     ///     ]);
@@ -1911,7 +1911,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
     ///         .takes_value(true)
-    ///         .possible_values(&["fast", "slow", "medium"]))
+    ///         .possible_values(["fast", "slow", "medium"]))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--mode", "wrong"
     ///     ]);
@@ -2760,7 +2760,7 @@ impl<'help> Arg<'help> {
     ///         App::new("prog")
     ///             .arg(Arg::new("color").long("color")
     ///                 .value_name("WHEN")
-    ///                 .possible_values(&["always", "auto", "never"])
+    ///                 .possible_values(["always", "auto", "never"])
     ///                 .default_value("auto")
     ///                 .overrides_with("color")
     ///                 .min_values(0)
@@ -3781,7 +3781,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("mode")
     ///         .long("mode")
-    ///         .possible_values(&["fast", "slow"])
+    ///         .possible_values(["fast", "slow"])
     ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::HidePossibleValues));
     /// ```

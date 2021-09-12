@@ -11,7 +11,7 @@ pub fn build_app_with_value_hints() -> App<'static> {
         .arg(
             Arg::new("choice")
                 .long("choice")
-                .possible_values(&["bash", "fish", "zsh"]),
+                .possible_values(["bash", "fish", "zsh"]),
         )
         .arg(
             Arg::new("unknown")

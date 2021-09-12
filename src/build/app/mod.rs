@@ -1515,7 +1515,7 @@ impl<'help> App<'help> {
     ///     .arg(Arg::new("format")
     ///         .long("format")
     ///         .takes_value(true)
-    ///         .possible_values(&["txt", "json"]))
+    ///         .possible_values(["txt", "json"]))
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["app", "--save-all"]);
     ///

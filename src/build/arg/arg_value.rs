@@ -39,21 +39,9 @@ impl Display for ArgValue<'_> {
     }
 }
 
-impl<'help> From<&ArgValue<'help>> for ArgValue<'help> {
-    fn from(s: &ArgValue<'help>) -> Self {
-        s.clone()
-    }
-}
-
 impl<'help> From<&'help str> for ArgValue<'help> {
     fn from(s: &'help str) -> Self {
         Self::new(s)
-    }
-}
-
-impl<'help> From<&&'help str> for ArgValue<'help> {
-    fn from(s: &&'help str) -> Self {
-        Self::new(*s)
     }
 }
 

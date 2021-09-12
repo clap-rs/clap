@@ -204,7 +204,7 @@ fn possible_values_of_option_multiple_fail() {
 #[test]
 fn possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values(&[
+        App::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
             "ludicrous speed"
@@ -221,7 +221,7 @@ fn possible_values_hidden_output() {
         App::new("test").arg(
             Arg::new("option")
                 .short('O')
-                .possible_values(&["slow", "fast"])
+                .possible_values(["slow", "fast"])
                 .possible_value(ArgValue::new("ludicrous speed"))
                 .possible_value(ArgValue::new("forbidden speed").hidden(true))
         ),
@@ -234,7 +234,7 @@ fn possible_values_hidden_output() {
 #[test]
 fn escaped_possible_values_output() {
     assert!(utils::compare_output(
-        App::new("test").arg(Arg::new("option").short('O').possible_values(&[
+        App::new("test").arg(Arg::new("option").short('O').possible_values([
             "slow",
             "fast",
             "ludicrous speed"
