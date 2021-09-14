@@ -50,6 +50,7 @@ bitflags! {
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
+        const MULTICALL                      = 1 << 45;
     }
 }
 
@@ -106,6 +107,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::HELP_REQUIRED,
     Hidden("hidden")
         => Flags::HIDDEN,
+    Multicall("multicall")
+        => Flags::MULTICALL,
     NoAutoHelp("noautohelp")
         => Flags::NO_AUTO_HELP,
     NoAutoVersion("noautoversion")
@@ -646,6 +649,61 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     DeriveDisplayOrder,
 
+    /// Parse the bin name (argv[0]) as a subcommand
+    ///
+    /// Busybox is a common example of a "multicall" executable
+    /// where the command `cat` is a link to the `busybox` bin
+    /// and, when `cat` is run, `busybox` acts is if you ran `busybox cat`.
+    ///
+    /// This adds a small performance penalty to startup compared to subcommands
+    /// for comparing argv[0] against applet names.
+    ///
+    /// Multicall can't be used with [`NoBinaryName`] since they interpret
+    /// the command name in incompatible ways.
+    ///
+    /// # Examples
+    ///
+    /// Multicall applets are defined as subcommands
+    /// to an app which has the Multicall setting enabled.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let mut app = App::new("busybox")
+    ///     .setting(AppSettings::Multicall)
+    ///     .subcommand(App::new("true"))
+    ///     .subcommand(App::new("false"));
+    /// // When called from the executable's canonical name
+    /// // its applets can be matched as subcommands.
+    /// let m = app.try_get_matches_from_mut(&["busybox", "true"]).unwrap();
+    /// assert_eq!(m.subcommand_name(), Some("true"));
+    /// // When called from a link named after an applet that applet is matched.
+    /// let m = app.get_matches_from(&["true"]);
+    /// assert_eq!(m.subcommand_name(), Some("true"));
+    /// ```
+    ///
+    /// If the name of an applet is the name of the command,
+    /// the applet's name is matched
+    /// and subcommands may not be provided to select another applet.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let mut app = App::new("hostname")
+    ///     .setting(AppSettings::Multicall)
+    ///     .subcommand(App::new("hostname"))
+    ///     .subcommand(App::new("dnsdomainname"));
+    /// let m = app.try_get_matches_from_mut(&["hostname", "dnsdomainname"]);
+    /// assert!(m.is_err());
+    /// assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// let m = app.get_matches_from(&["hostname"]);
+    /// assert_eq!(m.subcommand_name(), Some("hostname"));
+    /// ```
+    ///
+    /// [`subcommands`]: crate::App::subcommand()
+    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
+    /// [`NoBinaryName`]: crate::AppSettings::NoBinaryName
+    /// [`try_get_matches_from_mut`]: crate::App::try_get_matches_from_mut()
+    Multicall,
+
     /// Specifies to use the version of the current command for all [`subcommands`].
     ///
     /// Defaults to `false`; subcommands have independent version strings from their parents.
@@ -811,6 +869,7 @@ pub enum AppSettings {
     /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
     /// assert_eq!(cmds, ["command", "set"]);
     /// ```
+    /// [`try_get_matches_from_mut`]: crate::App::try_get_matches_from_mut()
     NoBinaryName,
 
     /// Places the help string for all arguments on the line after the argument.

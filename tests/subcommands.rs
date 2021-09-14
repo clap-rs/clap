@@ -507,3 +507,62 @@ For more information try --help
         true
     ));
 }
+
+#[test]
+fn busybox_like_multicall() {
+    let app = App::new("busybox")
+        .setting(AppSettings::Multicall)
+        .arg(
+            Arg::new("install")
+                .long("install")
+                .exclusive(true)
+                .takes_value(true)
+                .default_missing_value("/usr/local/bin"),
+        )
+        .subcommand(App::new("true"))
+        .subcommand(App::new("false"));
+
+    let m = app.clone().get_matches_from(&["busybox", "true"]);
+    assert_eq!(m.subcommand_name(), Some("true"));
+
+    let m = app.clone().get_matches_from(&["true"]);
+    assert_eq!(m.subcommand_name(), Some("true"));
+
+    let m = app.clone().get_matches_from(&["busybox", "--install"]);
+    assert_eq!(m.subcommand_name(), None);
+    assert_eq!(m.occurrences_of("install"), 1);
+
+    let m = app.clone().try_get_matches_from(&["a.out"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+
+    let m = app.try_get_matches_from(&["true", "--install"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn hostname_like_multicall() {
+    let mut app = App::new("hostname")
+        .setting(AppSettings::Multicall)
+        .subcommand(App::new("hostname"))
+        .subcommand(App::new("dnsdomainname"));
+
+    let m = app.clone().get_matches_from(&["hostname"]);
+    assert_eq!(m.subcommand_name(), Some("hostname"));
+
+    let m = app.clone().get_matches_from(&["dnsdomainname"]);
+    assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
+
+    let m = app.clone().try_get_matches_from(&["a.out"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+
+    let m = app.try_get_matches_from_mut(&["hostname", "hostname"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+
+    let m = app.try_get_matches_from(&["hostname", "dnsdomainname"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+}
