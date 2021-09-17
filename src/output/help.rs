@@ -12,7 +12,6 @@ use crate::{
     build::{arg::display_arg_val, App, AppSettings, Arg, ArgSettings},
     output::{fmt::Colorizer, Usage},
     parse::Parser,
-    util::VecMap,
 };
 
 // Third party
@@ -202,7 +201,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::write_args");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
-        let mut ord_m = VecMap::new();
+        let mut ord_m = BTreeMap::new();
 
         // Determine the longest
         for arg in args.iter().filter(|arg| {
@@ -868,7 +867,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::write_subcommands");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
-        let mut ord_m = VecMap::new();
+        let mut ord_m = BTreeMap::new();
         for subcommand in app
             .subcommands
             .iter()
