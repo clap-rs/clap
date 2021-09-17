@@ -1655,7 +1655,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_value: has conditional defaults");
             if matcher.get(&arg.id).is_none() {
-                for (id, val, default) in arg.default_vals_ifs.values() {
+                for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
                         if let Some(v) = val {
                             a.vals_flatten().any(|value| v == value)

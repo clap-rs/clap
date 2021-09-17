@@ -11,7 +11,6 @@ pub use self::fnv::Key;
 #[cfg(feature = "env")]
 pub(crate) use self::str_to_bool::str_to_bool;
 pub(crate) use self::{graph::ChildGraph, id::Id};
-pub(crate) use vec_map::VecMap;
 
 #[cfg(feature = "color")]
 pub(crate) use termcolor;
