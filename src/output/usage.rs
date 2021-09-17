@@ -1,6 +1,8 @@
 // std
 use std::collections::BTreeMap;
 
+use indexmap::IndexSet;
+
 // Internal
 use crate::{
     build::AppSettings as AS,
@@ -382,17 +384,19 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         );
         let mut ret_val = Vec::new();
 
-        let mut unrolled_reqs = vec![];
+        let mut unrolled_reqs = IndexSet::new();
 
         for a in self.p.required.iter() {
             if let Some(m) = matcher {
                 for aa in self.p.app.unroll_requirements_for_arg(a, m) {
-                    unrolled_reqs.push(aa);
+                    // if we don't check for duplicates here this causes duplicate error messages
+                    // see https://github.com/clap-rs/clap/issues/2770
+                    unrolled_reqs.insert(aa);
                 }
             }
             // always include the required arg itself. it will not be enumerated
             // by unroll_requirements_for_arg.
-            unrolled_reqs.push(a.clone());
+            unrolled_reqs.insert(a.clone());
         }
 
         debug!(
