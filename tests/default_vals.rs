@@ -651,3 +651,21 @@ fn required_args_with_default_values() {
         .arg(Arg::new("arg").required(true).default_value("value"))
         .try_get_matches();
 }
+
+#[test]
+fn with_value_delimiter() {
+    let app = App::new("multiple_values").arg(
+        Arg::new("option")
+            .long("option")
+            .about("multiple options")
+            .value_delimiter(';')
+            .default_value("first;second"),
+    );
+
+    let matches = app.get_matches_from(vec![""]);
+
+    assert_eq!(
+        matches.values_of("option").unwrap().collect::<Vec<_>>(),
+        ["first", "second"]
+    );
+}
