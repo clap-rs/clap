@@ -669,3 +669,20 @@ fn with_value_delimiter() {
         ["first", "second"]
     );
 }
+
+#[test]
+fn missing_with_value_delimiter() {
+    let app = App::new("program").arg(
+        Arg::new("option")
+            .long("option")
+            .value_delimiter(';')
+            .default_missing_values(&["value1;value2;value3", "value4;value5"]),
+    );
+
+    let matches = app.get_matches_from(vec!["program", "--option"]);
+
+    assert_eq!(
+        matches.values_of("option").unwrap().collect::<Vec<_>>(),
+        ["value1", "value2", "value3", "value4", "value5"]
+    );
+}
