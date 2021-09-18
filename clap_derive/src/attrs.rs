@@ -308,6 +308,8 @@ impl Attrs {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
+                Hidden(ident) => self.push_method(ident, true),
+
                 ArgEnum(_) => self.is_enum = true,
 
                 FromGlobal(ident) => {
@@ -778,6 +780,18 @@ impl Attrs {
     /// generate methods on top of a field
     pub fn field_methods(&self) -> proc_macro2::TokenStream {
         let methods = &self.methods;
+        let doc_comment = &self.doc_comment;
+        quote!( #(#doc_comment)* #(#methods)* )
+    }
+
+    /// generate methods on top of a field
+    /// filter out any passed method names
+    pub fn field_methods_filtered(&self, filter: &[&str]) -> proc_macro2::TokenStream {
+        let methods: Vec<_> = self
+            .methods
+            .iter()
+            .filter(|m| !filter.contains(&m.name.to_string().as_str()))
+            .collect();
         let doc_comment = &self.doc_comment;
         quote!( #(#doc_comment)* #(#methods)* )
     }

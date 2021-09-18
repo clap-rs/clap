@@ -80,7 +80,7 @@ impl<'help> ArgValue<'help> {
     /// [hidden]: ArgValue::hidden
     /// [possible value]: crate::Arg::possible_values
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
-    pub fn new(name: &'help str) -> Self {
+    pub const fn new(name: &'help str) -> Self {
         ArgValue {
             name,
             about: None,
@@ -100,7 +100,7 @@ impl<'help> ArgValue<'help> {
     /// # ;
     /// ```
     #[inline]
-    pub fn about(mut self, about: &'help str) -> Self {
+    pub const fn about(mut self, about: &'help str) -> Self {
         self.about = Some(about);
         self
     }
@@ -120,7 +120,7 @@ impl<'help> ArgValue<'help> {
     /// ```
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     #[inline]
-    pub fn hidden(mut self, yes: bool) -> Self {
+    pub const fn hidden(mut self, yes: bool) -> Self {
         self.hidden = yes;
         self
     }

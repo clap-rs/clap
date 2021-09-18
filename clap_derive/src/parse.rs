@@ -21,6 +21,7 @@ pub enum ClapAttr {
     Subcommand(Ident),
     VerbatimDocComment(Ident),
     ExternalSubcommand(Ident),
+    Hidden(Ident),
 
     // ident [= "string literal"]
     About(Ident, Option<LitStr>),
@@ -172,6 +173,7 @@ impl Parse for ClapAttr {
                 "subcommand" => Ok(Subcommand(name)),
                 "external_subcommand" => Ok(ExternalSubcommand(name)),
                 "verbatim_doc_comment" => Ok(VerbatimDocComment(name)),
+                "hidden" => Ok(Hidden(name)),
 
                 "default_value" => {
                     abort!(name,

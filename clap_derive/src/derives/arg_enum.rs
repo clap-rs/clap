@@ -47,9 +47,10 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     );
 
     let lits = lits(&e.variants, &attrs);
+    let lits_wo_attrs: Vec<_> = lits.iter().cloned().map(|(ts, i, _)| (ts, i)).collect();
     let variants = gen_variants(&lits);
-    let from_str = gen_from_str(&lits);
-    let as_arg = gen_as_arg(&lits);
+    let from_str = gen_from_str(&lits_wo_attrs);
+    let as_arg = gen_as_arg(&lits_wo_attrs);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -75,7 +76,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 fn lits(
     variants: &Punctuated<Variant, Comma>,
     parent_attribute: &Attrs,
-) -> Vec<(TokenStream, Ident)> {
+) -> Vec<(TokenStream, Ident, Attrs)> {
     variants
         .iter()
         .filter_map(|variant| {
@@ -91,23 +92,32 @@ fn lits(
             }
         })
         .flat_map(|(variant, attrs)| {
-            let mut ret = vec![(attrs.cased_name(), variant.ident.clone())];
+            let mut ret = vec![(attrs.cased_name(), variant.ident.clone(), attrs.clone())];
 
             attrs
                 .enum_aliases()
                 .into_iter()
-                .for_each(|x| ret.push((x, variant.ident.clone())));
+                .for_each(|x| ret.push((x, variant.ident.clone(), attrs.clone())));
 
             ret
         })
         .collect::<Vec<_>>()
 }
 
-fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
+fn gen_variants(lits: &[(TokenStream, Ident, Attrs)]) -> TokenStream {
+    let lit = lits
+        .iter()
+        .map(|(name, _, attrs)| {
+            let fields = attrs.field_methods_filtered(&["alias"]);
+            quote! {
+                clap::ArgValue::new(#name)
+                #fields
+            }
+        })
+        .collect::<Vec<_>>();
 
     quote! {
-        const VARIANTS: &'static [clap::ArgValue<'static>] = &[#(clap::ArgValue::new(#lit)),*];
+        const VARIANTS: &'static [clap::ArgValue<'static>] = &[#(#lit),*];
     }
 }
 
