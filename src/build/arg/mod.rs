@@ -31,7 +31,6 @@ use yaml_rust::Yaml;
 // Internal
 use crate::{
     build::{arg::settings::ArgFlags, usage_parser::UsageParser},
-    util::VecMap,
     util::{Id, Key},
     INTERNAL_ERROR_MSG,
 };
@@ -111,7 +110,7 @@ pub struct Arg<'help> {
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: VecMap<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
@@ -2938,9 +2937,7 @@ impl<'help> Arg<'help> {
         val: Option<&'help OsStr>,
         default: Option<&'help OsStr>,
     ) -> Self {
-        let l = self.default_vals_ifs.len();
-        self.default_vals_ifs
-            .insert(l, (arg_id.into(), val, default));
+        self.default_vals_ifs.push((arg_id.into(), val, default));
         self.takes_value(true)
     }
 
