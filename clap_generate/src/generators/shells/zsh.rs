@@ -358,7 +358,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                         } else {
                             Some(format!(
                                 r#"{name}\:"{about}""#,
-                                name = escape_value(value.get_value()),
+                                name = escape_value(value.get_name()),
                                 about = value.get_about().map(escape_help).unwrap_or_default()
                             ))
                         }
@@ -371,7 +371,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 "({})",
                 values
                     .iter()
-                    .filter_map(ArgValue::get_visible_value)
+                    .filter_map(ArgValue::get_visible_name)
                     .collect::<Vec<_>>()
                     .join(" ")
             ))

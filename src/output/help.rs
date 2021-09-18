@@ -600,7 +600,11 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .iter()
                 .filter_map(|value| match value {
                     ArgValue { hidden: true, .. } => None,
-                    _ => Some(value.to_string()),
+                    _ => Some(if value.name.contains(char::is_whitespace) {
+                        format!("{:?}", value.name)
+                    } else {
+                        value.name.to_string()
+                    }),
                 })
                 .collect::<Vec<_>>()
                 .join(", ");

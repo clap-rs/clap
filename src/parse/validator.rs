@@ -107,9 +107,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 let ok = if arg.is_set(ArgSettings::IgnoreCase) {
                     arg.possible_vals
                         .iter()
-                        .any(|pv| pv.value.eq_ignore_ascii_case(&val_str))
+                        .any(|pv| pv.name.eq_ignore_ascii_case(&val_str))
                 } else {
-                    arg.possible_vals.iter().any(|pv| pv.value == &*val_str)
+                    arg.possible_vals.iter().any(|pv| pv.name == &*val_str)
                 };
                 if !ok {
                     let used: Vec<Id> = matcher
@@ -126,7 +126,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         val_str.into_owned(),
                         &arg.possible_vals
                             .iter()
-                            .filter_map(ArgValue::get_visible_value)
+                            .filter_map(ArgValue::get_visible_name)
                             .collect::<Vec<_>>(),
                         arg,
                         Usage::new(self.p).create_usage_with_title(&used),

@@ -188,7 +188,7 @@ fn vals_for(o: &Arg) -> String {
         format!(
             "$(compgen -W \"{}\" -- \"${{cur}}\")",
             vals.iter()
-                .filter_map(ArgValue::get_visible_value)
+                .filter_map(ArgValue::get_visible_name)
                 .collect::<Vec<_>>()
                 .join(" ")
         )

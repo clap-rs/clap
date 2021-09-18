@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 /// The representation of a possible value of an argument.
 ///
 /// This is used for specifying [possible values] of [Args].
@@ -24,19 +22,9 @@ use std::fmt::Display;
 /// [about]: ArgValue::about()
 #[derive(Debug, Default, Clone)]
 pub struct ArgValue<'help> {
-    pub(crate) value: &'help str,
+    pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
     pub(crate) hidden: bool,
-}
-
-impl Display for ArgValue<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.value.contains(char::is_whitespace) {
-            write!(f, "{:?}", self.value)
-        } else {
-            write!(f, "{}", self.value)
-        }
-    }
 }
 
 impl<'help> From<&'help str> for ArgValue<'help> {
@@ -47,10 +35,10 @@ impl<'help> From<&'help str> for ArgValue<'help> {
 
 /// Getters
 impl<'help> ArgValue<'help> {
-    /// Get the value of the argument value
+    /// Get the name of the argument value
     #[inline]
-    pub fn get_value(&self) -> &str {
-        self.value
+    pub fn get_name(&self) -> &str {
+        self.name
     }
 
     /// Get the help specified for this argument, if any
@@ -65,19 +53,19 @@ impl<'help> ArgValue<'help> {
         self.hidden
     }
 
-    /// Get the value if it is not hidden, `None` otherwise
+    /// Get the name if argument value is not hidden, `None` otherwise
     #[inline]
-    pub fn get_visible_value(&self) -> Option<&str> {
+    pub fn get_visible_name(&self) -> Option<&str> {
         if self.hidden {
             None
         } else {
-            Some(self.value)
+            Some(self.name)
         }
     }
 }
 
 impl<'help> ArgValue<'help> {
-    /// Creates a new instance of [`ArgValue`] using a string value. The value will be used to
+    /// Creates a new instance of [`ArgValue`] using a string name. The name will be used to
     /// decide wether this value was provided by the user to an argument.
     ///
     /// **NOTE:** In case it is not [hidden] it will also be shown in help messages for arguments
@@ -93,9 +81,9 @@ impl<'help> ArgValue<'help> {
     /// [hidden]: ArgValue::hide
     /// [possible value]: crate::Arg::possible_values
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
-    pub fn new(value: &'help str) -> Self {
+    pub fn new(name: &'help str) -> Self {
         ArgValue {
-            value,
+            name,
             ..Default::default()
         }
     }
