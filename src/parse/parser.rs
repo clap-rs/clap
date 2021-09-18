@@ -1685,6 +1685,21 @@ impl<'help, 'app> Parser<'help, 'app> {
             debug!("Parser::add_value: doesn't have conditional defaults");
         }
 
+        fn process_default_vals(arg: &Arg<'_>, default_vals: &[&OsStr]) -> Vec<OsString> {
+            if let Some(delim) = arg.val_delim {
+                let mut vals = vec![];
+                for val in default_vals {
+                    let val = RawOsStr::new(val);
+                    for val in val.split(delim) {
+                        vals.push(val.to_os_str().into_owned());
+                    }
+                }
+                vals
+            } else {
+                default_vals.iter().map(OsString::from).collect()
+            }
+        }
+
         if !arg.default_vals.is_empty() {
             debug!("Parser::add_value:iter:{}: has default vals", arg.name);
             if matcher.get(&arg.id).is_some() {
@@ -1695,7 +1710,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
                 self.add_multiple_vals_to_arg(
                     arg,
-                    arg.default_vals.iter().map(OsString::from),
+                    process_default_vals(arg, &arg.default_vals).into_iter(),
                     matcher,
                     ty,
                     false,
@@ -1723,7 +1738,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     );
                     self.add_multiple_vals_to_arg(
                         arg,
-                        arg.default_missing_vals.iter().map(OsString::from),
+                        process_default_vals(arg, &arg.default_missing_vals).into_iter(),
                         matcher,
                         ty,
                         false,
