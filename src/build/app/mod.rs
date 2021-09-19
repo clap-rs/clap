@@ -134,7 +134,7 @@ impl<'help> App<'help> {
     /// [`App::about`]: App::about()
     #[inline]
     pub fn get_about(&self) -> Option<&str> {
-        self.about.as_deref()
+        self.about
     }
 
     /// Iterate through the *visible* aliases for this subcommand.
@@ -1515,7 +1515,7 @@ impl<'help> App<'help> {
     ///     .arg(Arg::new("format")
     ///         .long("format")
     ///         .takes_value(true)
-    ///         .possible_values(&["txt", "json"]))
+    ///         .possible_values(["txt", "json"]))
     ///     .replace("--save-all", &["--save-context", "--save-runtime", "--format=json"])
     ///     .get_matches_from(vec!["app", "--save-all"]);
     ///

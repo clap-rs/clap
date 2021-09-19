@@ -396,8 +396,8 @@ fn skip_possible_values() {
         .version("1.3")
         .setting(AppSettings::HidePossibleValuesInHelp)
         .args(&[
-            Arg::from("-o, --opt [opt] 'some option'").possible_values(&["one", "two"]),
-            Arg::from("[arg1] 'some pos arg'").possible_values(&["three", "four"]),
+            Arg::from("-o, --opt [opt] 'some option'").possible_values(["one", "two"]),
+            Arg::from("[arg1] 'some pos arg'").possible_values(["three", "four"]),
         ]);
 
     assert!(utils::compare_output(

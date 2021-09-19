@@ -503,7 +503,7 @@ fn conditional_reqs_fail() {
             Arg::new("target")
                 .takes_value(true)
                 .default_value("file")
-                .possible_values(&["file", "stdout"])
+                .possible_values(["file", "stdout"])
                 .long("target"),
         )
         .arg(
@@ -534,7 +534,7 @@ fn conditional_reqs_pass() {
             Arg::new("target")
                 .takes_value(true)
                 .default_value("file")
-                .possible_values(&["file", "stdout"])
+                .possible_values(["file", "stdout"])
                 .long("target"),
         )
         .arg(

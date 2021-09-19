@@ -672,7 +672,7 @@ fn list_correct_required_args() {
             Arg::new("target")
                 .takes_value(true)
                 .required(true)
-                .possible_values(&["file", "stdout"])
+                .possible_values(["file", "stdout"])
                 .long("target"),
         )
         .arg(
@@ -706,7 +706,7 @@ fn required_if_val_present_fail_error_output() {
             Arg::new("target")
                 .takes_value(true)
                 .required(true)
-                .possible_values(&["file", "stdout"])
+                .possible_values(["file", "stdout"])
                 .long("target"),
         )
         .arg(
@@ -1046,7 +1046,7 @@ fn issue_2624() {
                 .long("check")
                 .require_equals(true)
                 .min_values(0)
-                .possible_values(&["silent", "quiet", "diagnose-first"]),
+                .possible_values(["silent", "quiet", "diagnose-first"]),
         )
         .arg(Arg::new("unique").short('u').long("unique"))
         .get_matches_from(&["foo", "-cu"]);

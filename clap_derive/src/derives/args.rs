@@ -361,7 +361,7 @@ pub fn gen_augment(
 
 fn gen_arg_enum_possible_values(ty: &Type) -> TokenStream {
     quote_spanned! { ty.span()=>
-        .possible_values(&<#ty as clap::ArgEnum>::VARIANTS)
+        .possible_values(<#ty as clap::ArgEnum>::VARIANTS.into_iter().copied())
     }
 }
 

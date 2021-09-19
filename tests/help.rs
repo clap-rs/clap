@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind};
+use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ArgValue, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -1010,7 +1010,7 @@ fn hide_possible_vals() {
                 .short('p')
                 .long("pos")
                 .value_name("VAL")
-                .possible_values(&["fast", "slow"])
+                .possible_values(["fast", "slow"])
                 .about("Some vals")
                 .takes_value(true),
         )
@@ -1020,7 +1020,37 @@ fn hide_possible_vals() {
                 .long("cafe")
                 .value_name("FILE")
                 .hide_possible_values(true)
-                .possible_values(&["fast", "slow"])
+                .possible_values(["fast", "slow"])
+                .about("A coffeehouse, coffee shop, or café.")
+                .takes_value(true),
+        );
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        HIDE_POS_VALS,
+        false
+    ));
+}
+
+#[test]
+fn hide_single_possible_val() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .arg(
+            Arg::new("pos")
+                .short('p')
+                .long("pos")
+                .value_name("VAL")
+                .possible_values(["fast", "slow"])
+                .possible_value(ArgValue::new("secret speed").hidden(true))
+                .about("Some vals")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::new("cafe")
+                .short('c')
+                .long("cafe")
+                .value_name("FILE")
                 .about("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
@@ -1127,7 +1157,7 @@ fn issue_688_hidden_pos_vals() {
 				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
-				.possible_values(&filter_values)
+				.possible_values(filter_values)
 				.takes_value(true));
     assert!(utils::compare_output(
         app1,
@@ -1143,7 +1173,7 @@ fn issue_688_hidden_pos_vals() {
 				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear).")
 				.long("filter")
-				.possible_values(&filter_values)
+				.possible_values(filter_values)
 				.takes_value(true));
     assert!(utils::compare_output(
         app2,
@@ -1626,7 +1656,7 @@ fn escaped_whitespace_values() {
             .about("Pass an argument to the program.")
             .long("arg")
             .default_value("\n")
-            .possible_values(&["normal", " ", "\n", "\t", "other"]),
+            .possible_values(["normal", " ", "\n", "\t", "other"]),
     );
     assert!(utils::compare_output(
         app1,
@@ -1805,7 +1835,7 @@ fn multiple_custom_help_headers() {
                 .long("speed")
                 .short('s')
                 .value_name("SPEED")
-                .possible_values(&["fast", "slow"])
+                .possible_values(["fast", "slow"])
                 .about("How fast?")
                 .takes_value(true),
         );
