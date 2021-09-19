@@ -54,7 +54,6 @@ impl<'help> ArgValue<'help> {
     }
 
     /// Get the name if argument value is not hidden, `None` otherwise
-    #[inline]
     pub fn get_visible_name(&self) -> Option<&str> {
         if self.hidden {
             None

@@ -1920,10 +1920,11 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
-    pub fn possible_values(
-        mut self,
-        values: impl IntoIterator<Item = impl Into<ArgValue<'help>>>,
-    ) -> Self {
+    pub fn possible_values<I, T>(mut self, values: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<ArgValue<'help>>,
+    {
         self.possible_vals
             .extend(values.into_iter().map(|value| value.into()));
         self.takes_value(true)

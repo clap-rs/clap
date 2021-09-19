@@ -9,10 +9,7 @@ use std::{
 
 // Internal
 use crate::{
-    build::{
-        arg::{display_arg_val, ArgValue},
-        App, AppSettings, Arg, ArgSettings,
-    },
+    build::{arg::display_arg_val, App, AppSettings, Arg, ArgSettings},
     output::{fmt::Colorizer, Usage},
     parse::Parser,
 };
@@ -598,13 +595,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             let pvs = a
                 .possible_vals
                 .iter()
-                .filter_map(|value| match value {
-                    ArgValue { hidden: true, .. } => None,
-                    _ => Some(if value.name.contains(char::is_whitespace) {
-                        format!("{:?}", value.name)
+                .filter_map(|value| {
+                    if value.is_hidden() {
+                        None
+                    } else if value.get_name().contains(char::is_whitespace) {
+                        Some(format!("{:?}", value.get_name()))
                     } else {
-                        value.name.to_string()
-                    }),
+                        Some(value.get_name().to_string())
+                    }
                 })
                 .collect::<Vec<_>>()
                 .join(", ");
