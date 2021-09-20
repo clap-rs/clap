@@ -1,0 +1,4 @@
+name: crate_name!()
+version: crate_version!()
+about: crate_description!()
+author: crate_authors!(' ')

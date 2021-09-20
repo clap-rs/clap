@@ -54,7 +54,7 @@ macro_rules! load_yaml {
 
             // Create the patterns to match, these can be: macro_in_clap!() or
             // env!("VAR_NAME")
-            let re = Regex::new(r#"(\w*!)\((['|"](\w*)['|"])?\)"#).unwrap();
+            let re = Regex::new(r#"(\w*!)\((['|"](.*)['|"])?\)"#).unwrap();
 
             // Replace all the occurences with the corresponding macro expansion, 
             // if something here fails it just panics, maybe would be better to
@@ -79,10 +79,21 @@ macro_rules! load_yaml {
                         // It's not like the `crate_authors!()` is going to be
                         // called multriple times so there should be no
                         // performance drop compared to `lazy_static!()`
+                        //
+                        // The special characters are printed as literals, 
+                        // for example a `crate_authors('\n')` would break the
+                        // yaml
                         if let Some(separator) = caps.get(3) {
-                            env!("CARGO_PKG_AUTHORS").replace(':', separator);
+                            let mut result = env!("CARGO_PKG_AUTHORS")
+                                .replace(':', separator.as_str())
+                                .to_owned();
+                            result.push('\n');
+                            result
                         } else {
-                            $crate::crate_authors!().to_owned()
+                           let mut result = env!("CARGO_PKG_AUTHORS")
+                                .to_owned();
+                            result.push('\n');
+                            result
                         }
                     },
                     "crate_name!" => {
@@ -93,7 +104,7 @@ macro_rules! load_yaml {
                     }
                     _ => panic!("Unsupported yaml macro")
                 }
-            }).into_owned();
+            });
 
             // Parse as yaml from an &str
             &$crate::YamlLoader::load_from_str(&yaml_str[..])
