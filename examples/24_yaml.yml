@@ -1,0 +1,3 @@
+name: env!("TEST_NAME")
+version: crate_version!()
+about: Simple tests using .yaml and enviroment variables/macros

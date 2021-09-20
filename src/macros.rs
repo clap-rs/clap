@@ -23,13 +23,88 @@
 /// // continued logic goes here, such as `app.get_matches()` etc.
 /// # }
 /// ```
+///
+/// # Feature `yaml_inline_macros`
+///
+/// Allows writting macros like `env!()` or macros from the clap crate like
+/// `crate_version!()` inside the yaml document. The following yaml:
+///
+/// ```yaml
+/// name: crate_name!()
+/// version: crate_version!()
+/// about: env!("CUSTOM_VAR_WITH_DESCRIPTION")
+/// ```
+///
+/// Would expand for example to:
+///
+/// ```yaml
+/// name: example_app
+/// version: 0.0.1
+/// about: Custom description :)
+/// ```
 #[cfg(feature = "yaml")]
 #[macro_export]
 macro_rules! load_yaml {
-    ($yaml:expr) => {
-        &$crate::YamlLoader::load_from_str(include_str!($yaml)).expect("failed to load YAML file")
-            [0]
-    };
+    ($yaml:expr) => {{
+        #[cfg(feature="yaml_inline_macros")] {
+            use regex::{Regex, Captures};
+
+            // First load the string
+            let mut yaml_str: &str = include_str!($yaml);
+
+            // Create the patterns to match, these can be: macro_in_clap!() or
+            // env!("VAR_NAME")
+            let re = Regex::new(r#"(\w*!)\((['|"](\w*)['|"])?\)"#).unwrap();
+
+            // Replace all the occurences with the corresponding macro expansion, 
+            // if something here fails it just panics, maybe would be better to
+            // continue.
+            let yaml_str = re.replace_all(yaml_str, |caps: &Captures| {
+                match &caps[1] {
+                    "env!" => {
+                        let var_name = &caps[3];
+                        std::env::var(var_name).unwrap()
+                    },
+                    "crate_license!" => {
+                        $crate::crate_license!().to_owned()
+                    },
+                    "crate_version!" => {
+                        $crate::crate_version!().to_owned()
+                    },
+                    "crate_authors!" => {
+                        // Impossible to use `crate_authors!()` here because it
+                        // uses `lazy_static!()` and it cannot capture variables
+                        // from its enviroment.
+                        //
+                        // It's not like the `crate_authors!()` is going to be
+                        // called multriple times so there should be no
+                        // performance drop compared to `lazy_static!()`
+                        if let Some(separator) = caps.get(3) {
+                            env!("CARGO_PKG_AUTHORS").replace(':', separator);
+                        } else {
+                            $crate::crate_authors!().to_owned()
+                        }
+                    },
+                    "crate_name!" => {
+                        $crate::crate_name!().to_owned()
+                    },
+                    "crate_description!" => {
+                        $crate::crate_description!().to_owned()
+                    }
+                    _ => panic!("Unsupported yaml macro")
+                }
+            }).into_owned();
+
+            // Parse as yaml from an &str
+            &$crate::YamlLoader::load_from_str(&yaml_str[..])
+                .expect("failed to load YAML file")[0]
+        }
+        #[cfg(not(feature="yaml_inline_macros"))] {
+            // Parse as yaml from an &str
+            &$crate::YamlLoader::load_from_str(include_str!($yaml))
+                .expect("failed to load YAML file")[0]
+        }
+    }};
 }
 
 /// Allows you to pull the licence from your Cargo.toml at compile time. If the `license` field is

@@ -103,6 +103,7 @@ unicode_help = ["textwrap/unicode-width"]  # Enable if any unicode in help messa
 # Optional
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
 yaml = ["yaml-rust"]
+yaml_inline_macros = ["yaml"]
 
 [profile.test]
 opt-level = 1
