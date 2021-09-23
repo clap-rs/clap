@@ -353,7 +353,7 @@ where
                 .value_name("WHEN")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::HidePossibleValues)
-                .possible_values(&["never", "auto", "always", "ansi"]),
+                .possible_values(["never", "auto", "always", "ansi"]),
         )
         .arg(
             flag("colors")

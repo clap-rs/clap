@@ -22,9 +22,9 @@ macro_rules! create_app {
                     .requires("positional2"),
                 Arg::from("[positional2] 'tests positionals with exclusions'"),
                 Arg::from("-O --Option [option3] 'tests options with specific value sets'")
-                    .possible_values(&OPT3_VALS),
+                    .possible_values(OPT3_VALS),
                 Arg::from("[positional3]... 'tests positionals with specific values'")
-                    .possible_values(&POS3_VALS),
+                    .possible_values(POS3_VALS),
                 Arg::from("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
                 Arg::from("--multvalsmo... [one] [two] 'Tests multiple values, not mult occs'"),
                 Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
@@ -96,7 +96,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .long("Option")
                         .setting(ArgSettings::TakesValue)
                         .about("tests options with specific value sets")
-                        .possible_values(&OPT3_VALS),
+                        .possible_values(OPT3_VALS),
                 )
                 .arg(
                     Arg::new("positional3")
@@ -105,7 +105,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .setting(ArgSettings::MultipleOccurrences)
                         .about("tests positionals with specific values")
                         .index(4)
-                        .possible_values(&POS3_VALS),
+                        .possible_values(POS3_VALS),
                 )
                 .arg(
                     Arg::new("multvals")
