@@ -7,7 +7,7 @@ mod tests;
 mod value_hint;
 
 pub use self::arg_value::ArgValue;
-pub use self::settings::ArgSettings;
+pub use self::settings::{ArgFlags, ArgSettings};
 pub use self::value_hint::ValueHint;
 
 // Std
@@ -32,7 +32,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::{
-    build::{arg::settings::ArgFlags, usage_parser::UsageParser},
+    build::usage_parser::UsageParser,
     util::{Id, Key},
     INTERNAL_ERROR_MSG,
 };
@@ -4635,9 +4635,19 @@ impl<'help> Arg<'help> {
     ///     .setting(ArgSettings::TakesValue)
     /// # ;
     /// ```
+    ///
+    /// ```no_run
+    /// # use clap::{Arg, ArgSettings};
+    /// Arg::new("config")
+    ///     .setting(ArgSettings::Required | ArgSettings::TakesValue)
+    /// # ;
+    /// ```
     #[inline]
-    pub fn setting(mut self, setting: ArgSettings) -> Self {
-        self.settings.set(setting);
+    pub fn setting<F>(mut self, setting: F) -> Self
+    where
+        F: Into<ArgFlags>,
+    {
+        self.settings.insert(setting.into());
         self
     }
 
@@ -4651,11 +4661,22 @@ impl<'help> Arg<'help> {
     /// # use clap::{Arg, ArgSettings};
     /// Arg::new("config")
     ///     .unset_setting(ArgSettings::Required)
+    ///     .unset_setting(ArgSettings::TakesValue)
+    /// # ;
+    /// ```
+    ///
+    /// ```no_run
+    /// # use clap::{Arg, ArgSettings};
+    /// Arg::new("config")
+    ///     .unset_setting(ArgSettings::Required | ArgSettings::TakesValue)
     /// # ;
     /// ```
     #[inline]
-    pub fn unset_setting(mut self, setting: ArgSettings) -> Self {
-        self.settings.unset(setting);
+    pub fn unset_setting<F>(mut self, setting: F) -> Self
+    where
+        F: Into<ArgFlags>,
+    {
+        self.settings.remove(setting.into());
         self
     }
 
@@ -4889,7 +4910,14 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                     }
                 }
                 "setting" | "settings" => {
-                    yaml_to_setting!(a, v, setting, "ArgSetting", format!("arg '{}'", name_str))
+                    yaml_to_setting!(
+                        a,
+                        v,
+                        setting,
+                        ArgSettings,
+                        "ArgSetting",
+                        format!("arg '{}'", name_str)
+                    )
                 }
                 s => {
                     if !has_metadata {

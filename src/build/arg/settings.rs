@@ -1,5 +1,5 @@
 // Std
-use std::str::FromStr;
+use std::{ops::BitOr, str::FromStr};
 
 // Third party
 use bitflags::bitflags;
@@ -34,8 +34,15 @@ bitflags! {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct ArgFlags(Flags);
+#[doc(hidden)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ArgFlags(Flags);
+
+impl Default for ArgFlags {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
 
 // @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,
@@ -62,12 +69,6 @@ impl_settings! { ArgSettings, ArgFlags,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
     HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
     AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
-}
-
-impl Default for ArgFlags {
-    fn default() -> Self {
-        ArgFlags(Flags::empty())
-    }
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter

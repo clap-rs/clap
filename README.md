@@ -499,9 +499,9 @@ features = ["std", "suggestions", "color"]
 
 #### Opt-in features
 
-* **"regex"**: Enables regex validators. (builds dependency `regex`)
-* **"wrap_help"**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
-* **"yaml"**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
+* **regex**: Enables regex validators. (builds dependency `regex`)
+* **wrap_help**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
+* **yaml**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 
 ### More Information
 

@@ -77,7 +77,7 @@ impl<'help> ArgValue<'help> {
     /// ArgValue::new("fast")
     /// # ;
     /// ```
-    /// [hidden]: ArgValue::hide
+    /// [hidden]: ArgValue::hidden
     /// [possible value]: crate::Arg::possible_values
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     pub fn new(name: &'help str) -> Self {

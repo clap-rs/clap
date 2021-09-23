@@ -532,6 +532,18 @@ macro_rules! impl_settings {
         ),+
     ) => {
         impl $flags {
+            pub(crate) fn empty() -> Self {
+                $flags(Flags::empty())
+            }
+
+            pub(crate) fn insert(&mut self, rhs: Self) {
+                self.0.insert(rhs.0);
+            }
+
+            pub(crate) fn remove(&mut self, rhs: Self) {
+                self.0.remove(rhs.0);
+            }
+
             pub(crate) fn set(&mut self, s: $settings) {
                 match s {
                     $(
@@ -557,6 +569,43 @@ macro_rules! impl_settings {
                         $settings::$setting => self.0.contains($flag),
                     )*
                 }
+            }
+        }
+
+        impl BitOr for $flags {
+            type Output = Self;
+
+            fn bitor(mut self, rhs: Self) -> Self::Output {
+                self.0.insert(rhs.0);
+                self
+            }
+        }
+
+        impl From<$settings> for $flags {
+            fn from(setting: $settings) -> Self {
+                let mut flags = $flags::empty();
+                flags.set(setting);
+                flags
+            }
+        }
+
+        impl BitOr<$settings> for $flags {
+            type Output = Self;
+
+            fn bitor(mut self, rhs: $settings) -> Self::Output {
+                self.set(rhs);
+                self
+            }
+        }
+
+        impl BitOr for $settings {
+            type Output = $flags;
+
+            fn bitor(self, rhs: Self) -> Self::Output {
+                let mut flags = $flags::empty();
+                flags.set(self);
+                flags.set(rhs);
+                flags
             }
         }
 

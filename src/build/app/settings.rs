@@ -53,15 +53,9 @@ bitflags! {
     }
 }
 
+#[doc(hidden)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub(crate) struct AppFlags(Flags);
-
-impl BitOr for AppFlags {
-    type Output = Self;
-    fn bitor(self, rhs: Self) -> Self {
-        AppFlags(self.0 | rhs.0)
-    }
-}
+pub struct AppFlags(Flags);
 
 impl Default for AppFlags {
     fn default() -> Self {
