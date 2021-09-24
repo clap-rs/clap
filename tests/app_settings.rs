@@ -9,7 +9,8 @@ USAGE:
 
 FLAGS:
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static DONT_COLLAPSE_ARGS: &str = "clap-test v1.4.8
 
@@ -23,7 +24,8 @@ ARGS:
 
 FLAGS:
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static REQUIRE_EQUALS: &str = "clap-test v1.4.8
 
@@ -35,7 +37,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -o, --opt=<FILE>    some";
+    -o, --opt=<FILE>    some
+";
 
 static UNIFIED_HELP: &str = "test 1.3
 
@@ -53,7 +56,8 @@ OPTIONS:
     -f, --flag            some flag
     -h, --help            Print help information
         --option <opt>    some option
-    -V, --version         Print version information";
+    -V, --version         Print version information
+";
 
 static SKIP_POS_VALS: &str = "test 1.3
 
@@ -72,7 +76,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -o, --opt <opt>    some option";
+    -o, --opt <opt>    some option
+";
 
 static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
 
@@ -82,7 +87,8 @@ USAGE:
 FLAGS:
     -h, --help       Print help information
     -i, --info       Provides more info
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 1.0
 
@@ -95,7 +101,8 @@ FLAGS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    info";
+    info    
+";
 
 static LONG_FORMAT_FOR_HELP_SUBCOMMAND: &str = "myprog-test 
 
@@ -111,7 +118,8 @@ FLAGS:
             Print help information
 
     -V, --version
-            Print version information";
+            Print version information
+";
 
 static LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND: &str = "myprog-test-nested 
 
@@ -125,7 +133,8 @@ FLAGS:
             Print help information
 
     -V, --version
-            Print version information";
+            Print version information
+";
 
 static LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND: &str = "myprog 
 
@@ -146,7 +155,9 @@ FLAGS:
 SUBCOMMANDS:
     help
             Print this message or the help of the given subcommand(s)
-    test";
+    test
+            
+";
 
 #[test]
 fn setting() {

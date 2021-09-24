@@ -9,7 +9,8 @@ const USE_FLAG_AS_ARGUMENT: &str =
 USAGE:
     mycat [FLAGS] [filename]
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn flag_using_short() {
@@ -168,7 +169,8 @@ fn issue_2308_multiple_dashes() {
 USAGE:
     test <arg>
 
-For more information try --help";
+For more information try --help
+";
     let app = App::new("test").arg(Arg::new("arg").takes_value(true).required(true));
 
     assert!(utils::compare_output(

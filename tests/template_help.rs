@@ -44,7 +44,8 @@ ARGS:
     <output>    Sets an optional output file
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    test    does testing things";
+    test    does testing things
+";
 
 static SIMPLE_TEMPLATE: &str = "MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
@@ -66,7 +67,8 @@ OPTIONS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    test    does testing things";
+    test    does testing things
+";
 
 #[test]
 fn with_template() {
@@ -97,7 +99,7 @@ fn template_empty() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .help_template("");
-    assert!(utils::compare_output(app, "MyApp --help", "", false));
+    assert!(utils::compare_output(app, "MyApp --help", "\n", false));
 }
 
 #[test]
@@ -110,7 +112,7 @@ fn template_notag() {
     assert!(utils::compare_output(
         app,
         "MyApp --help",
-        "test no tag test",
+        "test no tag test\n",
         false
     ));
 }
@@ -125,7 +127,7 @@ fn template_unknowntag() {
     assert!(utils::compare_output(
         app,
         "MyApp --help",
-        "test {unknown_tag} test",
+        "test {unknown_tag} test\n",
         false
     ));
 }
@@ -140,7 +142,7 @@ fn template_author_version() {
     assert!(utils::compare_output(
         app,
         "MyApp --help",
-        "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp",
+        "Kevin K. <kbknapp@gmail.com>\n1.0\nDoes awesome things\nMyApp\n",
         false
     ));
 }

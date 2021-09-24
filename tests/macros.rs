@@ -22,7 +22,8 @@ OPTIONS:
 SUBCOMMANDS:
     0             Set everything to zero priority
     help          Print this message or the help of the given subcommand(s)
-    view-tasks    View all tasks";
+    view-tasks    View all tasks
+";
 
 #[test]
 fn basic() {

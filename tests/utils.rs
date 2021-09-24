@@ -14,8 +14,8 @@ where
 {
     let re = Regex::new("\x1b[^m]*m").unwrap();
     // Strip out any mismatching \r character on windows that might sneak in on either side
-    let ls = l.as_ref().trim().replace("\r", "");
-    let rs = r.as_ref().trim().replace("\r", "");
+    let ls = l.as_ref().replace("\r", "");
+    let rs = r.as_ref().replace("\r", "");
     let left = re.replace_all(&*ls, "");
     let right = re.replace_all(&*rs, "");
     let b = left == right;

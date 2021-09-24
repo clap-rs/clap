@@ -13,7 +13,8 @@ static DYM: &str =
 USAGE:
     clap-test --option <opt>...
 
-For more information try --help";
+For more information try --help
+";
 
 #[cfg(feature = "suggestions")]
 static DYM_ISSUE_1073: &str =
@@ -26,7 +27,8 @@ static DYM_ISSUE_1073: &str =
 USAGE:
     ripgrep-616 --files-without-match
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn require_equals_fail() {
@@ -51,7 +53,8 @@ fn require_equals_fail_message() {
 USAGE:
     prog [OPTIONS]
 
-For more information try --help";
+For more information try --help
+";
     let app = App::new("prog").arg(
         Arg::new("cfg")
             .setting(ArgSettings::RequireEquals)

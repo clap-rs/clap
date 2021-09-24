@@ -8,7 +8,8 @@ static REQ_GROUP_USAGE: &str = "error: The following required arguments were not
 USAGE:
     clap-test <base|--delete>
 
-For more information try --help";
+For more information try --help
+";
 
 static REQ_GROUP_CONFLICT_USAGE: &str =
     "error: The argument '--delete' cannot be used with '<base>'
@@ -16,7 +17,8 @@ static REQ_GROUP_CONFLICT_USAGE: &str =
 USAGE:
     clap-test <base|--delete>
 
-For more information try --help";
+For more information try --help
+";
 
 static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
     "error: The argument '--delete' cannot be used with '--all'
@@ -24,7 +26,8 @@ static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str =
 USAGE:
     clap-test <--all|--delete>
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn required_group_missing_arg() {
@@ -264,7 +267,8 @@ ARGS:
 
 FLAGS:
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
     let app = App::new("prog")
         .arg(Arg::new("a").value_name("A"))
         .group(ArgGroup::new("group").arg("a").required(true));

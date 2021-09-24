@@ -8,7 +8,8 @@ static REQUIRE_EQUALS: &str = "error: The following required arguments were not 
 USAGE:
     clap-test --opt=<FILE>
 
-For more information try --help";
+For more information try --help
+";
 
 static REQUIRE_EQUALS_FILTERED: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
@@ -16,7 +17,8 @@ static REQUIRE_EQUALS_FILTERED: &str = "error: The following required arguments 
 USAGE:
     clap-test --opt=<FILE> --foo=<FILE>
 
-For more information try --help";
+For more information try --help
+";
 
 static REQUIRE_EQUALS_FILTERED_GROUP: &str =
     "error: The following required arguments were not provided:
@@ -25,7 +27,8 @@ static REQUIRE_EQUALS_FILTERED_GROUP: &str =
 USAGE:
     clap-test --opt=<FILE> --foo=<FILE> <--g1=<FILE>|--g2=<FILE>>
 
-For more information try --help";
+For more information try --help
+";
 
 static MISSING_REQ: &str = "error: The following required arguments were not provided:
     --long-option-2 <option2>
@@ -34,7 +37,8 @@ static MISSING_REQ: &str = "error: The following required arguments were not pro
 USAGE:
     clap-test --long-option-2 <option2> -F <positional2>
 
-For more information try --help";
+For more information try --help
+";
 
 static COND_REQ_IN_USAGE: &str = "error: The following required arguments were not provided:
     --output <output>
@@ -42,7 +46,8 @@ static COND_REQ_IN_USAGE: &str = "error: The following required arguments were n
 USAGE:
     test --target <target> --input <input> --output <output>
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn flag_required() {
@@ -915,7 +920,8 @@ static ISSUE_1158: &str = "error: The following required arguments were not prov
 USAGE:
     example -x <X> -y <Y> -z <Z> <ID>
 
-For more information try --help";
+For more information try --help
+";
 
 fn issue_1158_app() -> App<'static> {
     App::new("example")
@@ -945,7 +951,8 @@ fn multiple_required_unless_usage_printing() {
 USAGE:
     test --c <c> --a <a> --b <b>
 
-For more information try --help";
+For more information try --help
+";
     let app = App::new("test")
         .arg(
             Arg::new("a")

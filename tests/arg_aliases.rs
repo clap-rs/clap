@@ -15,7 +15,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -o, --opt <opt>    [aliases: visible]";
+    -o, --opt <opt>    [aliases: visible]
+";
 
 static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 
@@ -30,7 +31,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -o, --opt <opt>    ";
+    -o, --opt <opt>    
+";
 
 #[test]
 fn single_alias_of_option() {

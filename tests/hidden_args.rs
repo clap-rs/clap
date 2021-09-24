@@ -17,7 +17,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-        --option <opt>    some option";
+        --option <opt>    some option
+";
 
 #[test]
 fn hidden_args() {
@@ -51,7 +52,8 @@ USAGE:
 FLAGS:
     -h, --help       Print help information
     -v, --visible    This text should be visible
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
 
@@ -73,7 +75,8 @@ FLAGS:
             This text should be visible
 
     -V, --version
-            Print version information";
+            Print version information
+";
 
 /// Ensure hidden with short option
 #[test]
@@ -146,7 +149,8 @@ FLAGS:
             This text should be visible
 
     -V, --version
-            Print version information";
+            Print version information
+";
 
 #[test]
 fn hidden_long_args() {
@@ -187,7 +191,8 @@ FLAGS:
     -c, --config     Some help text describing the --config arg
     -h, --help       Print help information
     -v, --visible    This text should be visible
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 #[test]
 fn hidden_long_args_short_help() {
@@ -221,7 +226,8 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-        --option <opt>    some option";
+        --option <opt>    some option
+";
 
 #[test]
 fn hidden_flag_args() {
@@ -246,7 +252,8 @@ USAGE:
 
 FLAGS:
         --flag    some flag
-    -h, --help    Print help information";
+    -h, --help    Print help information
+";
 
 #[test]
 fn hidden_opt_args() {
@@ -275,7 +282,8 @@ ARGS:
     <another>    another pos
 
 FLAGS:
-    -h, --help    Print help information";
+    -h, --help    Print help information
+";
 
 #[test]
 fn hidden_pos_args() {
@@ -301,7 +309,8 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help    Print help information";
+    -h, --help    Print help information
+";
 
 #[test]
 fn hidden_subcmds() {
@@ -323,7 +332,8 @@ static HIDDEN_FLAG_ARGS_ONLY: &str = "test 1.4
 USAGE:
     test
 
-After help";
+After help
+";
 
 #[test]
 fn hidden_flag_args_only() {
@@ -346,7 +356,8 @@ static HIDDEN_OPT_ARGS_ONLY: &str = "test 1.4
 USAGE:
     test
 
-After help";
+After help
+";
 
 #[test]
 fn hidden_opt_args_only() {
@@ -370,7 +381,8 @@ static HIDDEN_POS_ARGS_ONLY: &str = "test 1.4
 USAGE:
     test
 
-After help";
+After help
+";
 
 #[test]
 fn hidden_pos_args_only() {
@@ -394,7 +406,8 @@ static HIDDEN_SUBCMDS_ONLY: &str = "test 1.4
 USAGE:
     test
 
-After help";
+After help
+";
 
 #[test]
 fn hidden_subcmds_only() {

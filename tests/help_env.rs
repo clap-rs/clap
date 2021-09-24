@@ -16,7 +16,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.";
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café.
+";
 
 static SHOW_ENV: &str = "ctest 0.1
 
@@ -28,7 +29,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]";
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
+";
 
 static HIDE_ENV_VALS: &str = "ctest 0.1
 
@@ -40,7 +42,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]";
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR]
+";
 
 static SHOW_ENV_VALS: &str = "ctest 0.1
 
@@ -52,7 +55,8 @@ FLAGS:
     -V, --version    Print version information
 
 OPTIONS:
-    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]";
+    -c, --cafe <FILE>    A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
+";
 
 static HIDE_ENV_FLAG: &str = "ctest 0.1
 
@@ -62,7 +66,8 @@ USAGE:
 FLAGS:
     -c, --cafe       A coffeehouse, coffee shop, or café.
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static SHOW_ENV_FLAG: &str = "ctest 0.1
 
@@ -72,7 +77,8 @@ USAGE:
 FLAGS:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static HIDE_ENV_VALS_FLAG: &str = "ctest 0.1
 
@@ -82,7 +88,8 @@ USAGE:
 FLAGS:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR]
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 static SHOW_ENV_VALS_FLAG: &str = "ctest 0.1
 
@@ -92,7 +99,8 @@ USAGE:
 FLAGS:
     -c, --cafe       A coffeehouse, coffee shop, or café. [env: ENVVAR=MYVAL]
     -h, --help       Print help information
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 #[test]
 fn hide_env() {

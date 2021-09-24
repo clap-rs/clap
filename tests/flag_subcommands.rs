@@ -436,7 +436,8 @@ FLAGS:
 
 OPTIONS:
     -i, --info <info>...        view package information
-    -s, --search <search>...    search locally installed packages for matching strings";
+    -s, --search <search>...    search locally installed packages for matching strings
+";
 
 #[test]
 fn flag_subcommand_long_short_normal_usage_string() {
@@ -493,7 +494,8 @@ FLAGS:
 
 OPTIONS:
     -i, --info <info>...        view package information
-    -s, --search <search>...    search locally installed packages for matching strings";
+    -s, --search <search>...    search locally installed packages for matching strings
+";
 
 #[test]
 fn flag_subcommand_long_normal_usage_string() {
@@ -549,7 +551,8 @@ FLAGS:
 
 OPTIONS:
     -i, --info <info>...        view package information
-    -s, --search <search>...    search locally installed packages for matching strings";
+    -s, --search <search>...    search locally installed packages for matching strings
+";
 
 #[test]
 fn flag_subcommand_short_normal_usage_string() {
