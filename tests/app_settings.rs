@@ -149,6 +149,75 @@ SUBCOMMANDS:
     test";
 
 #[test]
+fn setting() {
+    let m = App::new("setting").setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
+}
+
+#[test]
+fn global_setting() {
+    let m = App::new("global_setting").global_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
+}
+
+#[test]
+fn unset_setting() {
+    let m = App::new("unset_setting").setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
+
+    let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(!m.is_set(AppSettings::AllArgsOverrideSelf), "{:#?}", m);
+}
+
+#[test]
+fn unset_global_setting() {
+    let m = App::new("unset_global_setting").global_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
+
+    let m = m.unset_global_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(!m.is_set(AppSettings::AllArgsOverrideSelf), "{:#?}", m);
+}
+
+#[test]
+fn unset_on_global_setting() {
+    let m = App::new("unset_on_global_setting").global_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
+
+    let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
+    assert!(m.is_set(AppSettings::AllArgsOverrideSelf), "{:#?}", m);
+}
+
+#[test]
+fn setting_bitor() {
+    let m = App::new("setting_bitor").setting(
+        AppSettings::InferSubcommands | AppSettings::Hidden | AppSettings::DisableHelpSubcommand,
+    );
+
+    assert!(m.is_set(AppSettings::InferSubcommands));
+    assert!(m.is_set(AppSettings::Hidden));
+    assert!(m.is_set(AppSettings::DisableHelpSubcommand));
+}
+
+#[test]
+fn unset_setting_bitor() {
+    let m = App::new("unset_setting_bitor")
+        .setting(AppSettings::InferSubcommands)
+        .setting(AppSettings::Hidden)
+        .setting(AppSettings::DisableHelpSubcommand);
+
+    assert!(m.is_set(AppSettings::InferSubcommands));
+    assert!(m.is_set(AppSettings::Hidden));
+    assert!(m.is_set(AppSettings::DisableHelpSubcommand));
+
+    let m = m.unset_setting(
+        AppSettings::InferSubcommands | AppSettings::Hidden | AppSettings::DisableHelpSubcommand,
+    );
+    assert!(!m.is_set(AppSettings::InferSubcommands), "{:#?}", m);
+    assert!(!m.is_set(AppSettings::Hidden), "{:#?}", m);
+    assert!(!m.is_set(AppSettings::DisableHelpSubcommand), "{:#?}", m);
+}
+
+#[test]
 fn sub_command_negate_required() {
     App::new("sub_command_negate")
         .setting(AppSettings::SubcommandsNegateReqs)
@@ -581,24 +650,6 @@ fn leading_double_hyphen_trailingvararg() {
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
         &["--foo", "-Wl", "bar"]
     );
-}
-
-#[test]
-fn unset_setting() {
-    let m = App::new("unset_setting").setting(AppSettings::AllArgsOverrideSelf);
-    assert!(m.is_set(AppSettings::AllArgsOverrideSelf));
-
-    let m = m.unset_setting(AppSettings::AllArgsOverrideSelf);
-    assert!(!m.is_set(AppSettings::AllArgsOverrideSelf));
-}
-
-#[test]
-fn unset_settings() {
-    let m = App::new("unset_settings");
-    assert!(&m.is_set(AppSettings::ColorAuto));
-
-    let m = m.unset_global_setting(AppSettings::ColorAuto);
-    assert!(!m.is_set(AppSettings::ColorAuto), "{:#?}", m);
 }
 
 #[test]

@@ -4,7 +4,7 @@ mod settings;
 #[cfg(test)]
 mod tests;
 
-pub use self::settings::AppSettings;
+pub use self::settings::{AppFlags, AppSettings};
 
 // Std
 use std::{
@@ -24,7 +24,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::{
-    build::{app::settings::AppFlags, arg::ArgProvider, Arg, ArgGroup, ArgSettings},
+    build::{arg::ArgProvider, Arg, ArgGroup, ArgSettings},
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
@@ -897,9 +897,19 @@ impl<'help> App<'help> {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
+    ///
+    /// ```no_run
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .setting(AppSettings::SubcommandRequired | AppSettings::WaitOnError)
+    /// # ;
+    /// ```
     #[inline]
-    pub fn setting(mut self, setting: AppSettings) -> Self {
-        self.settings.set(setting);
+    pub fn setting<F>(mut self, setting: F) -> Self
+    where
+        F: Into<AppFlags>,
+    {
+        self.settings.insert(setting.into());
         self
     }
 
@@ -912,12 +922,23 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_setting(AppSettings::ColorAuto)
+    ///     .unset_setting(AppSettings::SubcommandRequired)
+    ///     .unset_setting(AppSettings::WaitOnError)
+    /// # ;
+    /// ```
+    ///
+    /// ```no_run
+    /// # use clap::{App, AppSettings};
+    /// App::new("myprog")
+    ///     .unset_setting(AppSettings::SubcommandRequired | AppSettings::WaitOnError)
     /// # ;
     /// ```
     #[inline]
-    pub fn unset_setting(mut self, setting: AppSettings) -> Self {
-        self.settings.unset(setting);
+    pub fn unset_setting<F>(mut self, setting: F) -> Self
+    where
+        F: Into<AppFlags>,
+    {
+        self.settings.remove(setting.into());
         self
     }
 
@@ -2889,9 +2910,11 @@ impl<'help> From<&'help Yaml> for App<'help> {
                     }
                     a
                 }
-                "setting" | "settings" => yaml_to_setting!(a, v, setting, "AppSetting", err),
+                "setting" | "settings" => {
+                    yaml_to_setting!(a, v, setting, AppSettings, "AppSetting", err)
+                }
                 "global_setting" | "global_settings" => {
-                    yaml_to_setting!(a, v, global_setting, "AppSetting", err)
+                    yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
                 }
                 "name" => continue,
                 s => {
