@@ -20,7 +20,8 @@ FLAGS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    sub",
+    sub     
+",
         false
     ));
 }

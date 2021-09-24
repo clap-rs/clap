@@ -608,7 +608,8 @@ fn default_vals_donnot_show_in_smart_usage() {
 USAGE:
     bug [OPTIONS] <input>
 
-For more information try --help",
+For more information try --help
+",
         true,
     ));
 }

@@ -13,7 +13,8 @@ FLAGS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    test    Some help [aliases: dongle, done]";
+    test    Some help [aliases: dongle, done]
+";
 
 static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -26,7 +27,8 @@ FLAGS:
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
-    test    Some help";
+    test    Some help
+";
 
 static SUBCMD_ALPHA_ORDER: &str = "test 1
 
@@ -40,7 +42,8 @@ FLAGS:
 SUBCOMMANDS:
     a1      blah a1
     b1      blah b1
-    help    Print this message or the help of the given subcommand(s)";
+    help    Print this message or the help of the given subcommand(s)
+";
 
 static SUBCMD_DECL_ORDER: &str = "test 1
 
@@ -54,7 +57,8 @@ FLAGS:
 SUBCOMMANDS:
     b1      blah b1
     a1      blah a1
-    help    Print this message or the help of the given subcommand(s)";
+    help    Print this message or the help of the given subcommand(s)
+";
 
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD: &str = "error: The subcommand 'subcm' wasn't recognized
@@ -66,7 +70,8 @@ If you believe you received this message in error, try re-running with 'dym -- s
 USAGE:
     dym [SUBCOMMAND]
 
-For more information try --help";
+For more information try --help
+";
 
 #[cfg(feature = "suggestions")]
 static DYM_SUBCMD_AMBIGUOUS: &str = "error: The subcommand 'te' wasn't recognized
@@ -78,7 +83,8 @@ If you believe you received this message in error, try re-running with 'dym -- t
 USAGE:
     dym [SUBCOMMAND]
 
-For more information try --help";
+For more information try --help
+";
 
 static SUBCMD_AFTER_DOUBLE_DASH: &str =
     "error: Found argument 'subcmd' which wasn't expected, or isn't valid in this context
@@ -88,7 +94,8 @@ static SUBCMD_AFTER_DOUBLE_DASH: &str =
 USAGE:
     app [SUBCOMMAND]
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn subcommand() {
@@ -241,7 +248,8 @@ fn subcmd_did_you_mean_output_arg() {
 USAGE:
     dym [SUBCOMMAND]
 
-For more information try --help";
+For more information try --help
+";
 
     let app = App::new("dym")
         .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));
@@ -265,7 +273,8 @@ fn subcmd_did_you_mean_output_arg_false_positives() {
 USAGE:
     dym [SUBCOMMAND]
 
-For more information try --help";
+For more information try --help
+";
 
     let app = App::new("dym")
         .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));

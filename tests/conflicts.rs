@@ -7,21 +7,24 @@ static CONFLICT_ERR: &str = "error: The argument '-F' cannot be used with '--fla
 USAGE:
     clap-test --flag --long-option-2 <option2> <positional> <positional2>
 
-For more information try --help";
+For more information try --help
+";
 
 static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
     clap-test -F --long-option-2 <option2> <positional> <positional2>
 
-For more information try --help";
+For more information try --help
+";
 
 static CONFLICT_ERR_THREE: &str = "error: The argument '--two' cannot be used with '--one'
 
 USAGE:
     three_conflicting_arguments --one
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn flag_conflict() {

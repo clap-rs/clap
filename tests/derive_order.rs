@@ -17,7 +17,8 @@ FLAGS:
 
 OPTIONS:
         --option_a <option_a>    second option
-        --option_b <option_b>    first option";
+        --option_b <option_b>    first option
+";
 
 static DERIVE_ORDER: &str = "test 1.2
 
@@ -32,7 +33,8 @@ FLAGS:
 
 OPTIONS:
         --option_b <option_b>    first option
-        --option_a <option_a>    second option";
+        --option_a <option_a>    second option
+";
 
 static UNIFIED_HELP: &str = "test 1.2
 
@@ -45,7 +47,8 @@ OPTIONS:
     -h, --help                   Print help information
         --option_a <option_a>    second option
         --option_b <option_b>    first option
-    -V, --version                Print version information";
+    -V, --version                Print version information
+";
 
 static UNIFIED_HELP_AND_DERIVE: &str = "test 1.2
 
@@ -58,7 +61,8 @@ OPTIONS:
         --flag_b                 first flag
         --option_b <option_b>    first option
         --flag_a                 second flag
-        --option_a <option_a>    second option";
+        --option_a <option_a>    second option
+";
 
 static DERIVE_ORDER_SC_PROP: &str = "test-sub 1.2
 
@@ -73,7 +77,8 @@ FLAGS:
 
 OPTIONS:
         --option_b <option_b>    first option
-        --option_a <option_a>    second option";
+        --option_a <option_a>    second option
+";
 
 static UNIFIED_SC_PROP: &str = "test-sub 1.2
 
@@ -86,7 +91,8 @@ OPTIONS:
     -h, --help                   Print help information
         --option_a <option_a>    second option
         --option_b <option_b>    first option
-    -V, --version                Print version information";
+    -V, --version                Print version information
+";
 
 static UNIFIED_DERIVE_SC_PROP: &str = "test-sub 1.2
 
@@ -99,7 +105,8 @@ OPTIONS:
         --flag_a                 second flag
         --option_a <option_a>    second option
     -h, --help                   Print help information
-    -V, --version                Print version information";
+    -V, --version                Print version information
+";
 
 static UNIFIED_DERIVE_SC_PROP_EXPLICIT_ORDER: &str = "test-sub 1.2
 
@@ -112,7 +119,8 @@ OPTIONS:
         --option_b <option_b>    first option
         --option_a <option_a>    second option
     -h, --help                   Print help information
-    -V, --version                Print version information";
+    -V, --version                Print version information
+";
 
 static PREFER_USER_HELP_DERIVE_ORDER: &str = "test 1.2
 
@@ -123,7 +131,8 @@ FLAGS:
     -V, --version    Print version information
     -h, --help       Print help message
         --flag_b     first flag
-        --flag_a     second flag";
+        --flag_a     second flag
+";
 
 static PREFER_USER_HELP_SUBCMD_DERIVE_ORDER: &str = "test-sub 1.2
 
@@ -134,7 +143,8 @@ FLAGS:
     -h, --help       Print help message
         --flag_b     first flag
         --flag_a     second flag
-    -V, --version    Print version information";
+    -V, --version    Print version information
+";
 
 #[test]
 fn no_derive_order() {

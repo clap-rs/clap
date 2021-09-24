@@ -11,7 +11,8 @@ static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
 USAGE:
     clap-test -O <option>
 
-For more information try --help";
+For more information try --help
+";
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR: &'static str = "error: \"slo\" isn't a valid value for '-O <option>'
@@ -20,7 +21,8 @@ static PV_ERROR: &'static str = "error: \"slo\" isn't a valid value for '-O <opt
 USAGE:
     clap-test -O <option>
 
-For more information try --help";
+For more information try --help
+";
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
@@ -31,7 +33,8 @@ static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-
 USAGE:
     clap-test -O <option>
 
-For more information try --help";
+For more information try --help
+";
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR_ESCAPED: &'static str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
@@ -40,7 +43,8 @@ static PV_ERROR_ESCAPED: &'static str = "error: \"ludicrous\" isn't a valid valu
 USAGE:
     clap-test -O <option>
 
-For more information try --help";
+For more information try --help
+";
 
 #[test]
 fn possible_values_of_positional() {
