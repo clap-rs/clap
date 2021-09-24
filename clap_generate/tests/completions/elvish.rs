@@ -32,21 +32,21 @@ static ELVISH: &str = r#"
 use builtin;
 use str;
 
-edit:completion:arg-completer[my_app] = [@words]{
+set edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
-        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
-    command = 'my_app'
+    var command = 'my_app'
     for word $words[1..-1] {
         if (str:has-prefix $word '-') {
             break
         }
-        command = $command';'$word
+        set command = $command';'$word
     }
-    completions = [
+    var completions = [
         &'my_app'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
@@ -96,21 +96,21 @@ static ELVISH_SPECIAL_CMDS: &str = r#"
 use builtin;
 use str;
 
-edit:completion:arg-completer[my_app] = [@words]{
+set edit:completion:arg-completer[my_app] = [@words]{
     fn spaces [n]{
         builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
-        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
-    command = 'my_app'
+    var command = 'my_app'
     for word $words[1..-1] {
         if (str:has-prefix $word '-') {
             break
         }
-        command = $command';'$word
+        set command = $command';'$word
     }
-    completions = [
+    var completions = [
         &'my_app'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
@@ -185,21 +185,21 @@ static ELVISH_ALIASES: &str = r#"
 use builtin;
 use str;
 
-edit:completion:arg-completer[cmd] = [@words]{
+set edit:completion:arg-completer[cmd] = [@words]{
     fn spaces [n]{
         builtin:repeat $n ' ' | str:join ''
     }
     fn cand [text desc]{
-        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
-    command = 'cmd'
+    var command = 'cmd'
     for word $words[1..-1] {
         if (str:has-prefix $word '-') {
             break
         }
-        command = $command';'$word
+        set command = $command';'$word
     }
-    completions = [
+    var completions = [
         &'cmd'= {
             cand -o 'cmd option'
             cand -O 'cmd option'
