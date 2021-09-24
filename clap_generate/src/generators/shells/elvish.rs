@@ -25,21 +25,21 @@ impl Generator for Elvish {
 use builtin;
 use str;
 
-edit:completion:arg-completer[{bin_name}] = [@words]{{
+set edit:completion:arg-completer[{bin_name}] = [@words]{{
     fn spaces [n]{{
         builtin:repeat $n ' ' | str:join ''
     }}
     fn cand [text desc]{{
-        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }}
-    command = '{bin_name}'
+    var command = '{bin_name}'
     for word $words[1..-1] {{
         if (str:has-prefix $word '-') {{
             break
         }}
-        command = $command';'$word
+        set command = $command';'$word
     }}
-    completions = [{subcommands_cases}
+    var completions = [{subcommands_cases}
     ]
     $completions[$command]
 }}
