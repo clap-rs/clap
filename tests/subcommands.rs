@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{App, AppSettings, Arg, Clap, ErrorKind};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 
@@ -496,4 +496,37 @@ For more information try --help
 ",
         true
     ));
+}
+
+#[derive(Clap)]
+#[clap(
+    global_setting = AppSettings::DisableHelpSubcommand
+)]
+enum Helper {
+    Help {
+        arg: String
+    },
+    NotHelp {
+        arg: String
+    }
+}
+
+impl Helper {
+    fn handle(&self) -> String {
+        match self {
+            Helper::Help { arg } => format!("Helping {}", arg),
+            Helper::NotHelp { arg } => format!("Not Helping {}", arg)
+        }
+    }
+}
+
+#[test]
+fn override_help_subcommand() {
+    // Test with a subcommand that is not `help`.
+    let command = Helper::parse_from(["help_cmd", "not-help", "foo"]).handle();
+    assert_eq!(command, "Not Helping foo");
+
+    // Test with the `help` subcommand.
+    let command = Helper::parse_from(["help_cmd", "help", "foo"]).handle();
+    assert_eq!(command, "Helping foo");
 }
