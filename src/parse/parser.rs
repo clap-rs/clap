@@ -1082,10 +1082,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                     }
                 }
             }
-            let name = sc.name.clone();
             matcher.subcommand(SubCommand {
-                id: Id::from_ref(&name), // @TODO @maybe: should be sc.id?
-                name,
+                id: sc.id.clone(),
+                name: sc.name.clone(),
                 matches: sc_matcher.into_inner(),
             });
         }
