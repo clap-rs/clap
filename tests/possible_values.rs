@@ -220,6 +220,22 @@ fn possible_values_output() {
 }
 
 #[test]
+fn possible_values_alias_output() {
+    assert!(utils::compare_output(
+        App::new("test").arg(
+            Arg::new("option")
+                .short('O')
+                .possible_value("slow")
+                .possible_value(ArgValue::new("fast").alias("fost"))
+                .possible_value(ArgValue::new("ludicrous speed").aliases(["ls", "lcs"]))
+        ),
+        "clap-test -O slo",
+        PV_ERROR,
+        true
+    ));
+}
+
+#[test]
 fn possible_values_hidden_output() {
     assert!(utils::compare_output(
         App::new("test").arg(
@@ -250,6 +266,42 @@ fn escaped_possible_values_output() {
 }
 
 #[test]
+fn alias() {
+    let m = App::new("pv")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .long("--option")
+                .takes_value(true)
+                .possible_value(ArgValue::new("test123").alias("123"))
+                .possible_value("test321")
+                .case_insensitive(true),
+        )
+        .try_get_matches_from(vec!["pv", "--option", "123"]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().value_of("option").unwrap().eq("123"));
+}
+
+#[test]
+fn aliases() {
+    let m = App::new("pv")
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .long("--option")
+                .takes_value(true)
+                .possible_value(ArgValue::new("test123").aliases(["1", "2", "3"]))
+                .possible_value("test321")
+                .case_insensitive(true),
+        )
+        .try_get_matches_from(vec!["pv", "--option", "2"]);
+
+    assert!(m.is_ok());
+    assert!(m.unwrap().value_of("option").unwrap().eq("2"));
+}
+
+#[test]
 fn case_insensitive() {
     let m = App::new("pv")
         .arg(
@@ -272,7 +324,7 @@ fn case_insensitive() {
 }
 
 #[test]
-fn case_insensitive_faili() {
+fn case_insensitive_fail() {
     let m = App::new("pv")
         .arg(
             Arg::new("option")

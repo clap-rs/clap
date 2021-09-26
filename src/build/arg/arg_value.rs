@@ -20,10 +20,11 @@
 /// [possible values]: crate::Arg::possible_value()
 /// [hide]: ArgValue::hidden()
 /// [about]: ArgValue::about()
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct ArgValue<'help> {
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
+    pub(crate) aliases: Vec<&'help str>, // (name, visible)
     pub(crate) hidden: bool,
 }
 
@@ -61,6 +62,11 @@ impl<'help> ArgValue<'help> {
             Some(self.name)
         }
     }
+
+    /// TODO
+    pub fn get_name_and_aliases(&self) -> Vec<&str> {
+        [self.name].iter().chain(&self.aliases).copied().collect()
+    }
 }
 
 impl<'help> ArgValue<'help> {
@@ -85,6 +91,7 @@ impl<'help> ArgValue<'help> {
             name,
             about: None,
             hidden: false,
+            aliases: Vec::new(),
         }
     }
 
@@ -122,6 +129,21 @@ impl<'help> ArgValue<'help> {
     #[inline]
     pub const fn hidden(mut self, yes: bool) -> Self {
         self.hidden = yes;
+        self
+    }
+
+    /// TODO
+    pub fn alias(mut self, name: &'help str) -> Self {
+        self.aliases.push(name);
+        self
+    }
+
+    /// TODO
+    pub fn aliases<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = &'help str>,
+    {
+        self.aliases.extend(names.into_iter());
         self
     }
 }
