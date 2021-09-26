@@ -910,27 +910,17 @@ impl<'help, 'app> Parser<'help, 'app> {
             // help message there are bigger fish to fry
             let mut sc = self.app.clone();
 
-            for (i, cmd) in cmds.iter().enumerate() {
+            for cmd in cmds.iter() {
                 if cmd == OsStr::new("help") {
                     // cmd help help
                     help_help = true;
                     break; // Maybe?
                 }
 
-                if let Some(mut c) = sc.find_subcommand(cmd).cloned() {
-                    c._build();
-                    sc = c;
-
-                    if i == cmds.len() - 1 {
-                        break;
-                    }
-                } else if let Some(mut c) = sc.find_subcommand(&cmd.to_string_lossy()).cloned() {
-                    c._build();
-                    sc = c;
-
-                    if i == cmds.len() - 1 {
-                        break;
-                    }
+                sc = if let Some(c) = sc.find_subcommand(cmd) {
+                    c
+                } else if let Some(c) = sc.find_subcommand(&cmd.to_string_lossy()) {
+                    c
                 } else {
                     return Err(ClapError::unrecognized_subcommand(
                         self.app,
@@ -942,8 +932,11 @@ impl<'help, 'app> Parser<'help, 'app> {
                             .to_string(),
                     ));
                 }
+                .clone();
 
-                bin_name = format!("{} {}", bin_name, &sc.name);
+                sc._build();
+                bin_name.push(' ');
+                bin_name.push_str(&sc.name);
             }
 
             sc
@@ -964,9 +957,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             parser.app.g_settings = self.app.g_settings;
         }
 
-        if parser.app.bin_name != self.app.bin_name {
-            parser.app.bin_name = Some(format!("{} {}", bin_name, parser.app.name));
-        }
+        parser.app.bin_name = Some(bin_name);
 
         Err(parser.help_err(self.app.is_set(AS::UseLongFormatForHelpSubcommand)))
     }
