@@ -54,7 +54,7 @@ fn default_value() {
 
     impl std::fmt::Display for ArgChoice {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-            std::fmt::Display::fmt(self.as_arg().unwrap(), f)
+            std::fmt::Display::fmt(self.as_arg().unwrap().get_name(), f)
         }
     }
 
@@ -368,8 +368,8 @@ fn skip_variant() {
     }
 
     assert_eq!(
-        ArgChoice::VARIANTS,
-        [ArgValue::new("foo"), ArgValue::new("bar")]
+        ArgChoice::variants(),
+        vec![ArgValue::new("foo"), ArgValue::new("bar")]
     );
     assert!(ArgChoice::from_str("foo", true).is_ok());
     assert!(ArgChoice::from_str("bar", true).is_ok());

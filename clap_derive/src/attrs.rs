@@ -784,18 +784,6 @@ impl Attrs {
         quote!( #(#doc_comment)* #(#methods)* )
     }
 
-    /// generate methods on top of a field
-    /// filter out any passed method names
-    pub fn field_methods_filtered(&self, filter: &[&str]) -> proc_macro2::TokenStream {
-        let methods: Vec<_> = self
-            .methods
-            .iter()
-            .filter(|m| !filter.contains(&m.name.to_string().as_str()))
-            .collect();
-        let doc_comment = &self.doc_comment;
-        quote!( #(#doc_comment)* #(#methods)* )
-    }
-
     pub fn version(&self) -> TokenStream {
         self.version
             .clone()
@@ -831,14 +819,6 @@ impl Attrs {
         } else {
             quote! { false }
         }
-    }
-
-    pub fn enum_aliases(&self) -> Vec<TokenStream> {
-        self.methods
-            .iter()
-            .filter(|m| m.name == "alias")
-            .map(|m| m.args.clone())
-            .collect()
     }
 
     pub fn casing(&self) -> Sp<CasingStyle> {

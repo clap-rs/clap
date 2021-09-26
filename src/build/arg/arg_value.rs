@@ -67,6 +67,19 @@ impl<'help> ArgValue<'help> {
     pub fn get_name_and_aliases(&self) -> Vec<&str> {
         [self.name].iter().chain(&self.aliases).copied().collect()
     }
+
+    /// TODO
+    pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
+        if ignore_case {
+            self.get_name_and_aliases()
+                .iter()
+                .any(|name| name.eq_ignore_ascii_case(value))
+        } else {
+            self.get_name_and_aliases()
+                .iter()
+                .any(|name| name == &value)
+        }
+    }
 }
 
 impl<'help> ArgValue<'help> {

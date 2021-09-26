@@ -47,10 +47,9 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     );
 
     let lits = lits(&e.variants, &attrs);
-    let lits_wo_attrs: Vec<_> = lits.iter().cloned().map(|(ts, i, _)| (ts, i)).collect();
     let variants = gen_variants(&lits);
-    let from_str = gen_from_str(&lits_wo_attrs);
-    let as_arg = gen_as_arg(&lits_wo_attrs);
+    let from_str = gen_from_str(&lits);
+    let as_arg = gen_as_arg(&lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -76,7 +75,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 fn lits(
     variants: &Punctuated<Variant, Comma>,
     parent_attribute: &Attrs,
-) -> Vec<(TokenStream, Ident, Attrs)> {
+) -> Vec<(TokenStream, Ident)> {
     variants
         .iter()
         .filter_map(|variant| {
@@ -88,36 +87,30 @@ fn lits(
             if let Kind::Skip(_) = &*attrs.kind() {
                 None
             } else {
-                Some((variant, attrs))
+                let fields = attrs.field_methods();
+                let name = attrs.cased_name();
+                Some((
+                    quote! {
+                        clap::ArgValue::new(#name)
+                        #fields
+                    },
+                    variant.ident.clone(),
+                ))
             }
-        })
-        .flat_map(|(variant, attrs)| {
-            let mut ret = vec![(attrs.cased_name(), variant.ident.clone(), attrs.clone())];
-
-            attrs
-                .enum_aliases()
-                .into_iter()
-                .for_each(|x| ret.push((x, variant.ident.clone(), attrs.clone())));
-
-            ret
         })
         .collect::<Vec<_>>()
 }
 
-fn gen_variants(lits: &[(TokenStream, Ident, Attrs)]) -> TokenStream {
+fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let lit = lits
         .iter()
-        .map(|(name, _, attrs)| {
-            let fields = attrs.field_methods_filtered(&["alias"]);
-            quote! {
-                clap::ArgValue::new(#name)
-                #fields
-            }
-        })
+        .map(|(arg_value, ..)| arg_value)
         .collect::<Vec<_>>();
 
     quote! {
-        const VARIANTS: &'static [clap::ArgValue<'static>] = &[#(#lit),*];
+        fn variants() -> Vec<clap::ArgValue<'static>> {
+            vec![#(#lit),*]
+        }
     }
 }
 
@@ -126,14 +119,8 @@ fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
 
     quote! {
         fn from_str(input: &str, case_insensitive: bool) -> ::std::result::Result<Self, String> {
-            let func = if case_insensitive {
-                ::std::ascii::AsciiExt::eq_ignore_ascii_case
-            } else {
-                str::eq
-            };
-
             match input {
-                #(val if func(val, #lit) => Ok(Self::#variant),)*
+                #(val if #lit.matches(val, case_insensitive) => Ok(Self::#variant),)*
                 e => Err(format!("Invalid variant: {}", e)),
             }
         }
@@ -144,7 +131,7 @@ fn gen_as_arg(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn as_arg(&self) -> Option<&'static str> {
+        fn as_arg(&self) -> Option<clap::ArgValue<'static>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None
