@@ -15,7 +15,7 @@ enum ArgChoice {
     #[clap(alias = "b", alias = "z")]
     Baz,
     // Hiding variants from help and completion is supported
-    #[clap(hidden)]
+    #[clap(hidden = true)]
     Hidden,
 }
 

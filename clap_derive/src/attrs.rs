@@ -308,8 +308,6 @@ impl Attrs {
                     self.push_method(ident, self.name.clone().translate(*self.env_casing));
                 }
 
-                Hidden(ident) => self.push_method(ident, true),
-
                 ArgEnum(_) => self.is_enum = true,
 
                 FromGlobal(ident) => {

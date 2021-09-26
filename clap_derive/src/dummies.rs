@@ -76,11 +76,13 @@ pub fn args(name: &Ident) {
 pub fn arg_enum(name: &Ident) {
     append_dummy(quote! {
         impl clap::ArgEnum for #name {
-            const VARIANTS: &'static [clap::ArgValue<'static>] = &[];
+            fn variants() -> Vec<clap::ArgValue<'static>> {
+                unimplemented!()
+            }
             fn from_str(_input: &str, _case_insensitive: bool) -> Result<Self, String> {
                 unimplemented!()
             }
-            fn as_arg(&self) -> Option<&'static str> {
+            fn as_arg(&self) -> Option<clap::ArgValue<'static>> {
                 unimplemented!()
             }
         }

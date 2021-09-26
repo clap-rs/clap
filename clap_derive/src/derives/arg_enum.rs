@@ -102,10 +102,7 @@ fn lits(
 }
 
 fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let lit = lits
-        .iter()
-        .map(|(arg_value, ..)| arg_value)
-        .collect::<Vec<_>>();
+    let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
 
     quote! {
         fn variants() -> Vec<clap::ArgValue<'static>> {
