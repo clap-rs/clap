@@ -282,8 +282,8 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// }
 /// ```
 pub trait ArgEnum: Sized {
-    /// All possible argument choices, in display order.
-    fn variants() -> Vec<ArgValue<'static>>;
+    /// All possible argument values, in display order.
+    fn arg_values() -> Vec<ArgValue<'static>>;
 
     /// Parse an argument into `Self`.
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
@@ -291,7 +291,7 @@ pub trait ArgEnum: Sized {
     /// The canonical argument value.
     ///
     /// The value is `None` for skipped variants.
-    fn as_arg(&self) -> Option<ArgValue<'static>>;
+    fn arg_value(&self) -> Option<ArgValue<'static>>;
 }
 
 impl<T: Clap> Clap for Box<T> {

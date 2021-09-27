@@ -4,5 +4,5 @@ use clap::ArgEnum;
 struct Opt {}
 
 fn main() {
-    println!("{:?}", Opt::VARIANTS);
+    println!("{:?}", Opt::arg_values());
 }

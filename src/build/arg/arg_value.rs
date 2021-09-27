@@ -1,3 +1,5 @@
+use std::iter;
+
 /// The representation of a possible value of an argument.
 ///
 /// This is used for specifying [possible values] of [Args].
@@ -20,7 +22,7 @@
 /// [possible values]: crate::Arg::possible_value()
 /// [hide]: ArgValue::hidden()
 /// [about]: ArgValue::about()
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct ArgValue<'help> {
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
@@ -64,20 +66,17 @@ impl<'help> ArgValue<'help> {
     }
 
     /// TODO
-    pub fn get_name_and_aliases(&self) -> Vec<&str> {
-        [self.name].iter().chain(&self.aliases).copied().collect()
+    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
+        iter::once(&self.name).chain(&self.aliases).copied()
     }
 
     /// TODO
     pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
         if ignore_case {
             self.get_name_and_aliases()
-                .iter()
                 .any(|name| name.eq_ignore_ascii_case(value))
         } else {
-            self.get_name_and_aliases()
-                .iter()
-                .any(|name| name == &value)
+            self.get_name_and_aliases().any(|name| name == value)
         }
     }
 }
