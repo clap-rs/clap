@@ -2,7 +2,7 @@ mod utils;
 
 use std::str;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 static VERSION: &str = "clap-test v1.4.8\n";
 
@@ -272,4 +272,60 @@ fn version_about_multi_subcmd_override() {
         VERSION_ABOUT_MULTI_SC_OVERRIDE,
         false
     ));
+}
+
+#[test]
+fn disabled_version_long() {
+    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
+    assert!(utils::compare_output(
+        app,
+        "foo --version",
+        "error: Found argument '--version' which wasn't expected, or isn't valid in this context
+
+\tIf you tried to supply `--version` as a value rather than a flag, use `-- --version`
+
+USAGE:
+    foo
+
+For more information try --help
+",
+        true
+    ));
+}
+
+#[test]
+fn disabled_version_short() {
+    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
+    assert!(utils::compare_output(
+        app,
+        "foo -V",
+        "error: Found argument '-V' which wasn't expected, or isn't valid in this context
+
+\tIf you tried to supply `-V` as a value rather than a flag, use `-- -V`
+
+USAGE:
+    foo
+
+For more information try --help
+",
+        true
+    ));
+}
+
+#[test]
+fn override_version_using_long() {
+    let app = App::new("foo")
+        .setting(AppSettings::DisableVersionFlag)
+        .arg(Arg::new("version").long("version"));
+    let matches = app.get_matches_from(&["foo", "--version"]);
+    assert!(matches.is_present("version"));
+}
+
+#[test]
+fn override_version_using_short() {
+    let app = App::new("foo")
+        .arg(Arg::new("version").short('V').default_missing_value("baz"))
+        .setting(AppSettings::DisableVersionFlag);
+    let matches = app.get_matches_from(&["foo", "-V"]);
+    assert_eq!(matches.value_of("version"), Some("baz"));
 }

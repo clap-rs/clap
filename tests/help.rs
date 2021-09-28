@@ -2638,3 +2638,34 @@ USAGE:
         true
     ));
 }
+
+#[test]
+fn override_help_subcommand() {
+    let app = App::new("bar")
+        .subcommand(App::new("help").arg(Arg::new("arg").takes_value(true)))
+        .subcommand(App::new("not_help").arg(Arg::new("arg").takes_value(true)))
+        .setting(AppSettings::DisableHelpSubcommand);
+    let matches = app.get_matches_from(&["bar", "help", "foo"]);
+    assert_eq!(
+        matches.subcommand_matches("help").unwrap().value_of("arg"),
+        Some("foo")
+    );
+}
+
+#[test]
+fn override_help_flag_using_long() {
+    let app = App::new("foo")
+        .subcommand(App::new("help").long_flag("help"))
+        .setting(AppSettings::DisableHelpFlag);
+    let matches = app.get_matches_from(&["foo", "--help"]);
+    assert!(matches.subcommand_matches("help").is_some());
+}
+
+#[test]
+fn override_help_flag_using_short() {
+    let app = App::new("foo")
+        .setting(AppSettings::DisableHelpFlag)
+        .subcommand(App::new("help").short_flag('h'));
+    let matches = app.get_matches_from(&["foo", "-h"]);
+    assert!(matches.subcommand_matches("help").is_some());
+}
