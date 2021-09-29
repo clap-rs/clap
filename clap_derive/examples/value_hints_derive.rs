@@ -19,7 +19,7 @@ use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
 
-#[derive(ArgEnum, Debug, PartialEq)]
+#[derive(ArgEnum, Debug, PartialEq, Clone)]
 enum GeneratorChoice {
     Bash,
     Elvish,

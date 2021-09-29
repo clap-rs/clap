@@ -4,7 +4,7 @@
 
 use clap::{ArgEnum, Clap};
 
-#[derive(ArgEnum, Debug, PartialEq)]
+#[derive(ArgEnum, Debug, PartialEq, Clone)]
 enum ArgChoice {
     /// Descriptions are supported as doc-comment
     Foo,

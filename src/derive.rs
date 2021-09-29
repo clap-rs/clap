@@ -273,7 +273,7 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///     level: Level,
 /// }
 ///
-/// #[derive(clap::ArgEnum)]
+/// #[derive(clap::ArgEnum, Clone)]
 /// enum Level {
 ///     Debug,
 ///     Info,
@@ -281,17 +281,23 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///     Error,
 /// }
 /// ```
-pub trait ArgEnum: Sized {
+pub trait ArgEnum: Sized + Clone {
     /// All possible argument values, in display order.
-    fn arg_values() -> Vec<ArgValue<'static>>;
+    fn value_variants<'a>() -> &'a [Self];
 
     /// Parse an argument into `Self`.
-    fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String>;
+    fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String> {
+        Self::value_variants()
+            .iter()
+            .find(|v| v.arg_value().unwrap().matches(input, case_insensitive))
+            .cloned()
+            .ok_or_else(|| format!("Invalid variant: {}", input))
+    }
 
     /// The canonical argument value.
     ///
     /// The value is `None` for skipped variants.
-    fn arg_value(&self) -> Option<ArgValue<'static>>;
+    fn arg_value<'a>(&self) -> Option<ArgValue<'a>>;
 }
 
 impl<T: Clap> Clap for Box<T> {

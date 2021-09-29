@@ -48,7 +48,6 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 
     let lits = lits(&e.variants, &attrs);
     let arg_values = gen_arg_values(&lits);
-    let from_str = gen_from_str(&lits);
     let arg_value = gen_arg_value(&lits);
 
     quote! {
@@ -66,7 +65,6 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         #[deny(clippy::correctness)]
         impl clap::ArgEnum for #name {
             #arg_values
-            #from_str
             #arg_value
         }
     }
@@ -102,24 +100,11 @@ fn lits(
 }
 
 fn gen_arg_values(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
+    let lit = lits.iter().map(|l| &l.1).collect::<Vec<_>>();
 
     quote! {
-        fn arg_values() -> Vec<clap::ArgValue<'static>> {
-            vec![#(#lit),*]
-        }
-    }
-}
-
-fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
-
-    quote! {
-        fn from_str(input: &str, case_insensitive: bool) -> ::std::result::Result<Self, String> {
-            match input {
-                #(val if #lit.matches(val, case_insensitive) => Ok(Self::#variant),)*
-                e => Err(format!("Invalid variant: {}", e)),
-            }
+        fn value_variants<'a>() -> &'a [Self]{
+            &[#(Self::#lit),*]
         }
     }
 }
@@ -128,7 +113,7 @@ fn gen_arg_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn arg_value(&self) -> Option<clap::ArgValue<'static>> {
+        fn arg_value<'a>(&self) -> Option<clap::ArgValue<'a>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None
