@@ -65,12 +65,28 @@ impl<'help> ArgValue<'help> {
         }
     }
 
-    /// TODO
+    /// Returns all valid values of the argument value.
+    /// Namely the name and all aliases.
     pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
         iter::once(&self.name).chain(&self.aliases).copied()
     }
 
-    /// TODO
+    /// Tests if the value is valid for this argument value
+    ///
+    /// The value is valid if it is either the name or one of the aliases.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::ArgValue;
+    /// let arg_value = ArgValue::new("fast").alias("not-slow");
+    ///
+    /// assert!(arg_value.matches("fast", false));
+    /// assert!(arg_value.matches("not-slow", false));
+    ///
+    /// assert!(arg_value.matches("FAST", true));
+    /// assert!(!arg_value.matches("FAST", false));
+    /// ```
     pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
         if ignore_case {
             self.get_name_and_aliases()
@@ -142,13 +158,35 @@ impl<'help> ArgValue<'help> {
         self
     }
 
-    /// TODO
+    /// Sets an alias for this argument value.
+    ///
+    /// The alias will be hidden from completion and help texts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::ArgValue;
+    /// ArgValue::new("slow")
+    ///     .alias("not-fast")
+    /// # ;
+    /// ```
     pub fn alias(mut self, name: &'help str) -> Self {
         self.aliases.push(name);
         self
     }
 
-    /// TODO
+    /// Sets multiple aliases for this argument value.
+    ///
+    /// The aliases will be hidden from completion and help texts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::ArgValue;
+    /// ArgValue::new("slow")
+    ///     .aliases(["not-fast", "snake-like"])
+    /// # ;
+    /// ```
     pub fn aliases<I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = &'help str>,
