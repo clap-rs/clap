@@ -2,16 +2,10 @@ name: CI
 on:
   push:
     branches: [master, staging, trying]
-  pull_request:
-    branches: [master]
-    types: [opened, reopened, synchronize]
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   ci:
     name: CI
-    needs: [test, wasm, lint]
+    needs: [test, wasm]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -179,60 +173,3 @@ jobs:
         with:
           command: check
           args: --target ${{ matrix.target }} --features "yaml regex"
-  lint:
-    name: Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Clippy for almost no features
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
-      - name: Clippy for all features
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --features "wrap_help yaml regex" -- -D warnings
-      - name: Format check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
-  coverage:
-    name: Coverage
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          components: llvm-tools-preview
-          override: true
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install llvm-cov
-        uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-llvm-cov
-          version: 0.1.0-alpha.4
-          use-tool-cache: true
-      - name: Coverage
-        uses: actions-rs/cargo@v1
-        with:
-          command: llvm-cov
-          args: --features "wrap_help yaml regex" --lcov --output-path lcov.info
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          path-to-lcov: lcov.info
-          github-token: ${{ secrets.github_token }}

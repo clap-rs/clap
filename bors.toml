@@ -2,7 +2,7 @@ status = [
 	"CI",
 ]
 pr_status = [
-	"CI",
+	"CI-PR", "Lint",
 ]
 timeout_sec = 7200
 prerun_timeout_sec = 7200
