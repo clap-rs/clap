@@ -289,7 +289,11 @@ pub trait ArgEnum: Sized + Clone {
     fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String> {
         Self::value_variants()
             .iter()
-            .find(|v| v.arg_value().unwrap().matches(input, case_insensitive))
+            .find(|v| {
+                v.to_arg_value()
+                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_arg_value")
+                    .matches(input, case_insensitive)
+            })
             .cloned()
             .ok_or_else(|| format!("Invalid variant: {}", input))
     }
@@ -297,7 +301,7 @@ pub trait ArgEnum: Sized + Clone {
     /// The canonical argument value.
     ///
     /// The value is `None` for skipped variants.
-    fn arg_value<'a>(&self) -> Option<ArgValue<'a>>;
+    fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>>;
 }
 
 impl<T: Clap> Clap for Box<T> {

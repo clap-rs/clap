@@ -82,7 +82,7 @@ pub fn arg_enum(name: &Ident) {
             fn from_str(_input: &str, _case_insensitive: bool) -> Result<Self, String> {
                 unimplemented!()
             }
-            fn arg_value<'a>(&self) -> Option<clap::ArgValue<'a>>{
+            fn to_arg_value<'a>(&self) -> Option<clap::ArgValue<'a>>{
                 unimplemented!()
             }
         }

@@ -48,7 +48,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
 
     let lits = lits(&e.variants, &attrs);
     let arg_values = gen_arg_values(&lits);
-    let arg_value = gen_arg_value(&lits);
+    let to_arg_value = gen_to_arg_value(&lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -65,7 +65,7 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         #[deny(clippy::correctness)]
         impl clap::ArgEnum for #name {
             #arg_values
-            #arg_value
+            #to_arg_value
         }
     }
 }
@@ -109,11 +109,11 @@ fn gen_arg_values(lits: &[(TokenStream, Ident)]) -> TokenStream {
     }
 }
 
-fn gen_arg_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
+fn gen_to_arg_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn arg_value<'a>(&self) -> Option<clap::ArgValue<'a>> {
+        fn to_arg_value<'a>(&self) -> Option<clap::ArgValue<'a>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None
