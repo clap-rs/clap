@@ -1,8 +1,8 @@
 use clap::ArgEnum;
 
-#[derive(ArgEnum, Debug)]
+#[derive(ArgEnum, Clone, Debug)]
 struct Opt {}
 
 fn main() {
-    println!("{:?}", Opt::VARIANTS);
+    println!("{:?}", Opt::value_variants());
 }

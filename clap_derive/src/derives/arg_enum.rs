@@ -47,9 +47,8 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
     );
 
     let lits = lits(&e.variants, &attrs);
-    let variants = gen_variants(&lits);
-    let from_str = gen_from_str(&lits);
-    let as_arg = gen_as_arg(&lits);
+    let arg_values = gen_arg_values(&lits);
+    let arg_value = gen_arg_value(&lits);
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -65,9 +64,8 @@ pub fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStr
         )]
         #[deny(clippy::correctness)]
         impl clap::ArgEnum for #name {
-            #variants
-            #from_str
-            #as_arg
+            #arg_values
+            #arg_value
         }
     }
 }
@@ -87,54 +85,35 @@ fn lits(
             if let Kind::Skip(_) = &*attrs.kind() {
                 None
             } else {
-                Some((variant, attrs))
+                let fields = attrs.field_methods();
+                let name = attrs.cased_name();
+                Some((
+                    quote! {
+                        clap::ArgValue::new(#name)
+                        #fields
+                    },
+                    variant.ident.clone(),
+                ))
             }
-        })
-        .flat_map(|(variant, attrs)| {
-            let mut ret = vec![(attrs.cased_name(), variant.ident.clone())];
-
-            attrs
-                .enum_aliases()
-                .into_iter()
-                .for_each(|x| ret.push((x, variant.ident.clone())));
-
-            ret
         })
         .collect::<Vec<_>>()
 }
 
-fn gen_variants(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let lit = lits.iter().map(|l| &l.0).collect::<Vec<_>>();
+fn gen_arg_values(lits: &[(TokenStream, Ident)]) -> TokenStream {
+    let lit = lits.iter().map(|l| &l.1).collect::<Vec<_>>();
 
     quote! {
-        const VARIANTS: &'static [&'static str] = &[#(#lit),*];
-    }
-}
-
-fn gen_from_str(lits: &[(TokenStream, Ident)]) -> TokenStream {
-    let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
-
-    quote! {
-        fn from_str(input: &str, case_insensitive: bool) -> ::std::result::Result<Self, String> {
-            let func = if case_insensitive {
-                ::std::ascii::AsciiExt::eq_ignore_ascii_case
-            } else {
-                str::eq
-            };
-
-            match input {
-                #(val if func(val, #lit) => Ok(Self::#variant),)*
-                e => Err(format!("Invalid variant: {}", e)),
-            }
+        fn value_variants<'a>() -> &'a [Self]{
+            &[#(Self::#lit),*]
         }
     }
 }
 
-fn gen_as_arg(lits: &[(TokenStream, Ident)]) -> TokenStream {
+fn gen_arg_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn as_arg(&self) -> Option<&'static str> {
+        fn arg_value<'a>(&self) -> Option<clap::ArgValue<'a>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None
