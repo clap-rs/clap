@@ -4,7 +4,7 @@ on:
     branches: [master]
     types: [opened, reopened, synchronize]
 concurrency:
-  group: benchmark-${{ github.head_ref }}
+  group: benchmark-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   benchmark:

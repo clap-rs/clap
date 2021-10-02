@@ -6,7 +6,7 @@ on:
     branches: [master]
     types: [opened, reopened, synchronize]
 concurrency:
-  group: ci-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   ci:
