@@ -324,8 +324,8 @@ fn override_version_using_long() {
 #[test]
 fn override_version_using_short() {
     let app = App::new("foo")
-        .arg(Arg::new("version").short('V').default_missing_value("baz"))
+        .arg(Arg::new("version").short('V'))
         .setting(AppSettings::DisableVersionFlag);
     let matches = app.get_matches_from(&["foo", "-V"]);
-    assert_eq!(matches.value_of("version"), Some("baz"));
+    assert!(matches.is_present("version"));
 }
