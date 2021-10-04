@@ -340,27 +340,28 @@ impl Attrs {
                 VerbatimDocComment(ident) => self.verbatim_doc_comment = Some(ident),
 
                 DefaultValueT(ident, expr) => {
+                    let ty = if let Some(ty) = self.ty.as_ref() {
+                        ty
+                    } else {
+                        abort!(
+                            ident,
+                            "#[clap(default_value_t)] (without an argument) can be used \
+                            only on field level";
+
+                            note = "see \
+                                https://docs.rs/structopt/0.3.5/structopt/#magical-methods")
+                    };
+
                     let val = if let Some(expr) = expr {
                         quote!(#expr)
                     } else {
-                        let ty = if let Some(ty) = self.ty.as_ref() {
-                            ty
-                        } else {
-                            abort!(
-                                ident,
-                                "#[clap(default_value_t)] (without an argument) can be used \
-                                only on field level";
-
-                                note = "see \
-                                    https://docs.rs/structopt/0.3.5/structopt/#magical-methods")
-                        };
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
                     let val = quote_spanned!(ident.span()=> {
                         clap::lazy_static::lazy_static! {
                             static ref DEFAULT_VALUE: &'static str = {
-                                let val = #val;
+                                let val: #ty = #val;
                                 let s = ::std::string::ToString::to_string(&val);
                                 ::std::boxed::Box::leak(s.into_boxed_str())
                             };
