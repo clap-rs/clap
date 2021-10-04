@@ -277,39 +277,21 @@ fn version_about_multi_subcmd_override() {
 #[test]
 fn disabled_version_long() {
     let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
-    assert!(utils::compare_output(
-        app,
-        "foo --version",
-        "error: Found argument '--version' which wasn't expected, or isn't valid in this context
-
-\tIf you tried to supply `--version` as a value rather than a flag, use `-- --version`
-
-USAGE:
-    foo
-
-For more information try --help
-",
-        true
-    ));
+    let res = app.try_get_matches_from(&["foo", "--version"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["--version"]);
 }
 
 #[test]
 fn disabled_version_short() {
     let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
-    assert!(utils::compare_output(
-        app,
-        "foo -V",
-        "error: Found argument '-V' which wasn't expected, or isn't valid in this context
-
-\tIf you tried to supply `-V` as a value rather than a flag, use `-- -V`
-
-USAGE:
-    foo
-
-For more information try --help
-",
-        true
-    ));
+    let res = app.try_get_matches_from(&["foo", "-V"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["-V"]);
 }
 
 #[test]
