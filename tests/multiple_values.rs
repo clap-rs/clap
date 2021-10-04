@@ -1319,3 +1319,64 @@ fn number_of_values_preferred_over_value_names() {
         ["val1", "val2", "val3", "val4"]
     );
 }
+
+#[test]
+fn values_per_occurrence_named() {
+    let mut a = App::new("test").arg(
+        Arg::new("pos")
+            .long("pos")
+            .number_of_values(2)
+            .multiple_occurrences(true),
+    );
+
+    let m = a.try_get_matches_from_mut(vec!["myprog", "--pos", "val1", "val2"]);
+    let m = match m {
+        Ok(m) => m,
+        Err(err) => panic!("{}", err),
+    };
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    let m = a.try_get_matches_from_mut(vec![
+        "myprog", "--pos", "val1", "val2", "--pos", "val3", "val4",
+    ]);
+    let m = match m {
+        Ok(m) => m,
+        Err(err) => panic!("{}", err),
+    };
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3", "val4"]
+    );
+}
+
+#[test]
+fn values_per_occurrence_positional() {
+    let mut a = App::new("test").arg(
+        Arg::new("pos")
+            .number_of_values(2)
+            .multiple_occurrences(true),
+    );
+
+    let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2"]);
+    let m = match m {
+        Ok(m) => m,
+        Err(err) => panic!("{}", err),
+    };
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    let m = a.try_get_matches_from_mut(vec!["myprog", "val1", "val2", "val3", "val4"]);
+    let m = match m {
+        Ok(m) => m,
+        Err(err) => panic!("{}", err),
+    };
+    assert_eq!(
+        m.values_of("pos").unwrap().collect::<Vec<_>>(),
+        ["val1", "val2", "val3", "val4"]
+    );
+}
