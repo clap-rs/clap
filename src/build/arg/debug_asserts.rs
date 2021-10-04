@@ -35,15 +35,6 @@ pub(crate) fn assert_arg(arg: &Arg) {
         );
     }
 
-    // Positionals should not have multiple_occurrences
-    if arg.is_positional() {
-        assert!(
-            !arg.is_set(ArgSettings::MultipleOccurrences),
-            "Argument '{}' is a positional argument and can't be set as multiple occurrences",
-            arg.name
-        );
-    }
-
     if arg.is_set(ArgSettings::Required) {
         assert!(
             arg.default_vals.is_empty(),
