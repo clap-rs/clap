@@ -463,7 +463,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                     let sc_name = self.possible_subcommand(&arg_os, valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
                     if let Some(sc_name) = sc_name {
-                        if sc_name == "help" && !self.is_set(AS::NoAutoHelp) {
+                        if sc_name == "help"
+                            && !self.is_set(AS::NoAutoHelp)
+                            && !self.is_set(AS::DisableHelpSubcommand)
+                        {
                             self.parse_help_subcommand(remaining_args)?;
                         }
                         subcmd_name = Some(sc_name.to_owned());
@@ -1093,7 +1096,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.long {
-                if arg == h && !self.is_set(AS::NoAutoHelp) {
+                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.is_set(AS::DisableHelpFlag) {
                     debug!("Help");
                     return Some(ParseResult::HelpFlag);
                 }
@@ -1102,7 +1105,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(version) = self.app.find(&Id::version_hash()) {
             if let Some(v) = version.long {
-                if arg == v && !self.is_set(AS::NoAutoVersion) {
+                if arg == v
+                    && !self.is_set(AS::NoAutoVersion)
+                    && !self.is_set(AS::DisableVersionFlag)
+                {
                     debug!("Version");
                     return Some(ParseResult::VersionFlag);
                 }
@@ -1122,7 +1128,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(help) = self.app.find(&Id::help_hash()) {
             if let Some(h) = help.short {
-                if arg == h && !self.is_set(AS::NoAutoHelp) {
+                if arg == h && !self.is_set(AS::NoAutoHelp) && !self.is_set(AS::DisableHelpFlag) {
                     debug!("Help");
                     return Some(ParseResult::HelpFlag);
                 }
@@ -1131,7 +1137,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(version) = self.app.find(&Id::version_hash()) {
             if let Some(v) = version.short {
-                if arg == v && !self.is_set(AS::NoAutoVersion) {
+                if arg == v
+                    && !self.is_set(AS::NoAutoVersion)
+                    && !self.is_set(AS::DisableVersionFlag)
+                {
                     debug!("Version");
                     return Some(ParseResult::VersionFlag);
                 }

@@ -2,7 +2,7 @@ mod utils;
 
 use std::str;
 
-use clap::{App, Arg, ErrorKind};
+use clap::{App, AppSettings, Arg, ErrorKind};
 
 static VERSION: &str = "clap-test v1.4.8\n";
 
@@ -272,4 +272,42 @@ fn version_about_multi_subcmd_override() {
         VERSION_ABOUT_MULTI_SC_OVERRIDE,
         false
     ));
+}
+
+#[test]
+fn disabled_version_long() {
+    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
+    let res = app.try_get_matches_from(&["foo", "--version"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["--version"]);
+}
+
+#[test]
+fn disabled_version_short() {
+    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
+    let res = app.try_get_matches_from(&["foo", "-V"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["-V"]);
+}
+
+#[test]
+fn override_version_using_long() {
+    let app = App::new("foo")
+        .setting(AppSettings::DisableVersionFlag)
+        .arg(Arg::new("version").long("version"));
+    let matches = app.get_matches_from(&["foo", "--version"]);
+    assert!(matches.is_present("version"));
+}
+
+#[test]
+fn override_version_using_short() {
+    let app = App::new("foo")
+        .arg(Arg::new("version").short('V'))
+        .setting(AppSettings::DisableVersionFlag);
+    let matches = app.get_matches_from(&["foo", "-V"]);
+    assert!(matches.is_present("version"));
 }
