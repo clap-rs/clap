@@ -87,9 +87,15 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag("disablehelpflag")
         => Flags::DISABLE_HELP_FLAG,
+    DisableHelpFlags("disablehelpflag")
+        => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag("disableversionflag")
         => Flags::DISABLE_VERSION_FLAG,
+    DisableVersion("disableversionflag")
+        => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion("propagateversion")
+        => Flags::PROPAGATE_VERSION,
+    GlobalVersion("propagateversion")
         => Flags::PROPAGATE_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
@@ -530,6 +536,10 @@ pub enum AppSettings {
     /// ```
     DisableHelpFlag,
 
+    /// Deprecated, see [`AppSettings::DisableHelpFlag`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
+    DisableHelpFlags,
+
     /// Disables the `help` [`subcommand`].
     ///
     /// # Examples
@@ -566,6 +576,13 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     DisableVersionFlag,
+
+    /// Deprecated, see [`AppSettings::DisableVersionFlag`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `AppSettings::DisableVersionFlag`"
+    )]
+    DisableVersion,
 
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -687,6 +704,13 @@ pub enum AppSettings {
     ///
     /// [`subcommands`]: crate::App::subcommand()
     PropagateVersion,
+
+    /// Deprecated, see [`AppSettings::PropagateVersion`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `AppSettings::PropagateVersion`"
+    )]
+    GlobalVersion,
 
     /// Specifies that this [`subcommand`] should be hidden from help messages
     ///

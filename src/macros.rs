@@ -553,6 +553,7 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn set(&mut self, s: $settings) {
+                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*
@@ -563,6 +564,7 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn unset(&mut self, s: $settings) {
+                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*
@@ -573,6 +575,7 @@ macro_rules! impl_settings {
 
             #[allow(dead_code)]
             pub(crate) fn is_set(&self, s: $settings) -> bool {
+                #[allow(deprecated)]  // some Settings might be deprecated
                 match s {
                     $(
                         $(#[$inner $($args)*])*
@@ -622,6 +625,8 @@ macro_rules! impl_settings {
         impl FromStr for $settings {
             type Err = String;
             fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+                #[allow(deprecated)]  // some Settings might be deprecated
+                #[allow(unreachable_patterns)] // some Settings might be deprecated
                 match &*s.to_ascii_lowercase() {
                     $(
                         $(#[$inner $($args)*])*
