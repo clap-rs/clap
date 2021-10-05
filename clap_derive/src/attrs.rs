@@ -717,9 +717,6 @@ impl Attrs {
                         if let Some(m) = res.find_method("default_value") {
                             abort!(m.name, "default_value is meaningless for Option")
                         }
-                        if let Some(m) = res.find_method("required") {
-                            abort!(m.name, "required is meaningless for Option")
-                        }
                     }
                     Ty::OptionOption => {
                         if res.is_positional() {

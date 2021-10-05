@@ -298,3 +298,42 @@ fn two_optional_vecs() {
 
     assert_eq!(Opt { arg: None, b: None }, Opt::parse_from(&["test"]));
 }
+
+#[test]
+fn required_option_type() {
+    #[derive(Debug, PartialEq, Eq, Clap)]
+    #[clap(setting(clap::AppSettings::SubcommandsNegateReqs))]
+    struct Opt {
+        #[clap(required = true)]
+        req_str: Option<String>,
+
+        #[clap(subcommand)]
+        cmd: Option<SubCommands>,
+    }
+
+    #[derive(Debug, PartialEq, Eq, Clap)]
+    enum SubCommands {
+        ExSub {
+            #[clap(short, long, parse(from_occurrences))]
+            verbose: u8,
+        },
+    }
+
+    assert_eq!(
+        Opt {
+            req_str: Some(("arg").into()),
+            cmd: None,
+        },
+        Opt::parse_from(&["test", "arg"])
+    );
+
+    assert_eq!(
+        Opt {
+            req_str: None,
+            cmd: Some(SubCommands::ExSub { verbose: 1 }),
+        },
+        Opt::parse_from(&["test", "ex-sub", "-v"])
+    );
+
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+}
