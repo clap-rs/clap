@@ -353,8 +353,8 @@ pub fn gen_augment(
     let version = parent_attribute.version();
     quote! {{
         #( #args )*
-        let #app_var = #app_var#app_methods;
         #subcmd
+        let #app_var = #app_var#app_methods;
         #app_var#version
     }}
 }

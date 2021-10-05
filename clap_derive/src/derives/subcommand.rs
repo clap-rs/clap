@@ -274,8 +274,8 @@ fn gen_augment(
     let app_methods = parent_attribute.top_level_methods();
     let version = parent_attribute.version();
     quote! {
-            let app = app #app_methods;
             #( #subcommands )*;
+            let app = app #app_methods;
             app #version
     }
 }
