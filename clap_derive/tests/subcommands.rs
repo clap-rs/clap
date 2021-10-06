@@ -474,3 +474,49 @@ fn subcommand_name_not_literal() {
 
     assert!(Opt::try_parse_from(&["test", "renamed"]).is_ok());
 }
+
+#[test]
+fn skip_subcommand() {
+    #[derive(Debug, PartialEq, Clap)]
+    struct Opt {
+        #[clap(subcommand)]
+        sub: Subcommands,
+    }
+
+    #[derive(Debug, PartialEq, Clap)]
+    enum Subcommands {
+        Add,
+        Remove,
+
+        #[allow(dead_code)]
+        #[clap(skip)]
+        Skip,
+    }
+
+    assert_eq!(
+        Opt::parse_from(&["test", "add"]),
+        Opt {
+            sub: Subcommands::Add
+        }
+    );
+
+    assert_eq!(
+        Opt::parse_from(&["test", "remove"]),
+        Opt {
+            sub: Subcommands::Remove
+        }
+    );
+
+    let res = Opt::try_parse_from(&["test", "skip"]);
+    assert!(
+        matches!(
+            res,
+            Err(clap::Error {
+                kind: clap::ErrorKind::UnknownArgument,
+                ..
+            })
+        ),
+        "Unexpected result: {:?}",
+        res
+    );
+}

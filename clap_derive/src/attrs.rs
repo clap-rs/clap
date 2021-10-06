@@ -552,9 +552,7 @@ impl Attrs {
 
                 res.kind = Sp::new(Kind::Subcommand(ty), res.kind.span());
             }
-            Kind::Skip(_) => {
-                abort!(res.kind.span(), "skip is not supported on variants");
-            }
+            Kind::Skip(_) => (),
             Kind::FromGlobal(_) => {
                 abort!(res.kind.span(), "from_global is not supported on variants");
             }
