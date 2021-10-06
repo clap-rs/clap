@@ -13,7 +13,7 @@
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
+use clap_generate::generators::{Bash, Elvish, Fig, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator};
 use std::io;
 
@@ -25,6 +25,7 @@ fn build_cli() -> App<'static> {
         .arg(Arg::new("generator").long("generate").possible_values([
             "bash",
             "elvish",
+            "fig",
             "fish",
             "powershell",
             "zsh",
@@ -109,6 +110,7 @@ fn main() {
         match generator {
             "bash" => print_completions::<Bash>(&mut app),
             "elvish" => print_completions::<Elvish>(&mut app),
+            "fig" => print_completions::<Fig>(&mut app),
             "fish" => print_completions::<Fish>(&mut app),
             "powershell" => print_completions::<PowerShell>(&mut app),
             "zsh" => print_completions::<Zsh>(&mut app),

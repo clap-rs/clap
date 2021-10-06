@@ -19,6 +19,7 @@ fn generate_completions() {
         );
 
     generate::<Bash, _>(&mut app, "test_app", &mut io::sink());
+    generate::<Fig, _>(&mut app, "test_app", &mut io::sink());
     generate::<Fish, _>(&mut app, "test_app", &mut io::sink());
     generate::<PowerShell, _>(&mut app, "test_app", &mut io::sink());
     generate::<Elvish, _>(&mut app, "test_app", &mut io::sink());
