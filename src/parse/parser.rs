@@ -759,12 +759,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let message = self.write_help_err()?;
-            return Err(ClapError {
+            return Err(ClapError::new(
                 message,
-                kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
-                info: vec![],
-                source: None,
-            });
+                ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+            ));
         }
 
         self.remove_overrides(matcher);
@@ -1903,12 +1901,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
-            _ => ClapError {
-                message: c,
-                kind: ErrorKind::DisplayHelp,
-                info: vec![],
-                source: None,
-            },
+            _ => ClapError::new(c, ErrorKind::DisplayHelp),
         }
     }
 
@@ -1918,12 +1911,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let msg = self.app._render_version(use_long);
         let mut c = Colorizer::new(false, self.color_help());
         c.none(msg);
-        ClapError {
-            message: c,
-            kind: ErrorKind::DisplayVersion,
-            info: vec![],
-            source: None,
-        }
+        ClapError::new(c, ErrorKind::DisplayVersion)
     }
 }
 

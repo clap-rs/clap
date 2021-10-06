@@ -63,12 +63,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             && self.p.is_set(AS::ArgRequiredElseHelp)
         {
             let message = self.p.write_help_err()?;
-            return Err(Error {
+            return Err(Error::new(
                 message,
-                kind: ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
-                info: vec![],
-                source: None,
-            });
+                ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+            ));
         }
         self.validate_conflicts(matcher)?;
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
