@@ -20,7 +20,7 @@ use crate::{
 
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
-use quote::{quote, quote_spanned};
+use quote::{format_ident, quote, quote_spanned};
 use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, Data, DataStruct,
     DeriveInput, Field, Fields, Type,
@@ -372,7 +372,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
         );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
-        let arg_matches = quote! { arg_matches };
+        let arg_matches = format_ident!("arg_matches");
         match &*kind {
             Kind::ExternalSubcommand => {
                 abort! { kind.span(),
@@ -438,7 +438,7 @@ pub fn gen_updater(
         } else {
             quote!()
         };
-        let arg_matches = quote! { arg_matches };
+        let arg_matches = format_ident!("arg_matches");
 
         match &*kind {
             Kind::ExternalSubcommand => {
@@ -547,10 +547,10 @@ fn gen_parsers(
         }
         _ => &field.ty,
     };
-    // Use `quote!` to give this identifier the same hygiene
+    // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
-    let arg_matches = quote! { arg_matches };
+    let arg_matches = format_ident!("arg_matches");
 
     let field_value = match **ty {
         Ty::Bool => {

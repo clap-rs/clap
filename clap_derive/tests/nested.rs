@@ -31,3 +31,23 @@ fn use_option() {
 
     expand_ty!(my_field: Option<String>);
 }
+
+#[test]
+fn issue_447() {
+    macro_rules! Command {
+        ( $name:ident, [
+        #[$meta:meta] $var:ident($inner:ty)
+      ] ) => {
+            #[derive(Debug, PartialEq, clap::Clap)]
+            enum $name {
+                #[$meta]
+                $var($inner),
+            }
+        };
+    }
+
+    Command! {GitCmd, [
+      #[clap(external_subcommand)]
+      Ext(Vec<String>)
+    ]}
+}

@@ -20,7 +20,7 @@ use crate::{
 
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
-use quote::{quote, quote_spanned};
+use quote::{format_ident, quote, quote_spanned};
 use syn::{
     punctuated::Punctuated, spanned::Spanned, Attribute, Data, DataEnum, DeriveInput,
     FieldsUnnamed, Token, Variant,
@@ -119,6 +119,8 @@ fn gen_augment(
 ) -> TokenStream {
     use syn::Fields::*;
 
+    let app_var = Ident::new("app", Span::call_site());
+
     let subcommands: Vec<_> = variants
         .iter()
         .filter_map(|variant| {
@@ -147,11 +149,11 @@ fn gen_augment(
                         Some(subty) => {
                             if is_simple_ty(subty, "OsString") {
                                 quote_spanned! { kind.span()=>
-                                    let app = app.setting(clap::AppSettings::AllowExternalSubcommands).setting(clap::AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+                                    let #app_var = #app_var.setting(clap::AppSettings::AllowExternalSubcommands).setting(clap::AppSettings::AllowInvalidUtf8ForExternalSubcommands);
                                 }
                             } else {
                                 quote_spanned! { kind.span()=>
-                                    let app = app.setting(clap::AppSettings::AllowExternalSubcommands);
+                                    let #app_var = #app_var.setting(clap::AppSettings::AllowExternalSubcommands);
                                 }
                             }
                         }
@@ -170,11 +172,11 @@ fn gen_augment(
                         let ty = &unnamed[0];
                         let subcommand = if override_required {
                             quote! {
-                                let app = <#ty as clap::Subcommand>::augment_subcommands_for_update(app);
+                                let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                             }
                         } else {
                             quote! {
-                                let app = <#ty as clap::Subcommand>::augment_subcommands(app);
+                                let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                             }
                         };
                         Some(subcommand)
@@ -186,24 +188,24 @@ fn gen_augment(
                 },
 
                 Kind::Subcommand(_) => {
-                    let app_var = Ident::new("subcommand", Span::call_site());
+                    let subcommand_var = Ident::new("subcommand", Span::call_site());
                     let arg_block = match variant.fields {
                         Named(_) => {
                             abort!(variant, "non single-typed tuple enums are not supported")
                         }
-                        Unit => quote!( #app_var ),
+                        Unit => quote!( #subcommand_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
                             if override_required {
                                 quote_spanned! { ty.span()=>
                                     {
-                                        <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var)
+                                        <#ty as clap::Subcommand>::augment_subcommands_for_update(#subcommand_var)
                                     }
                                 }
                             } else {
                                 quote_spanned! { ty.span()=>
                                     {
-                                        <#ty as clap::Subcommand>::augment_subcommands(#app_var)
+                                        <#ty as clap::Subcommand>::augment_subcommands(#subcommand_var)
                                     }
                                 }
                             }
@@ -216,35 +218,35 @@ fn gen_augment(
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
                     let subcommand = quote! {
-                        let app = app.subcommand({
-                            let #app_var = clap::App::new(#name);
-                            let #app_var = #arg_block;
-                            let #app_var = #app_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-                            #app_var#from_attrs
+                        let #app_var = #app_var.subcommand({
+                            let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = #arg_block;
+                            let #subcommand_var = #subcommand_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
+                            #subcommand_var#from_attrs
                         });
                     };
                     Some(subcommand)
                 }
 
                 _ => {
-                    let app_var = Ident::new("subcommand", Span::call_site());
+                    let subcommand_var = Ident::new("subcommand", Span::call_site());
                     let arg_block = match variant.fields {
                         Named(ref fields) => {
-                            args::gen_augment(&fields.named, &app_var, &attrs, override_required)
+                            args::gen_augment(&fields.named, &subcommand_var, &attrs, override_required)
                         }
-                        Unit => quote!( #app_var ),
+                        Unit => quote!( #subcommand_var ),
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
                             if override_required {
                                 quote_spanned! { ty.span()=>
                                     {
-                                        <#ty as clap::Args>::augment_args_for_update(#app_var)
+                                        <#ty as clap::Args>::augment_args_for_update(#subcommand_var)
                                     }
                                 }
                             } else {
                                 quote_spanned! { ty.span()=>
                                     {
-                                        <#ty as clap::Args>::augment_args(#app_var)
+                                        <#ty as clap::Args>::augment_args(#subcommand_var)
                                     }
                                 }
                             }
@@ -257,10 +259,10 @@ fn gen_augment(
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
                     let subcommand = quote! {
-                        let app = app.subcommand({
-                            let #app_var = clap::App::new(#name);
-                            let #app_var = #arg_block;
-                            #app_var#from_attrs
+                        let #app_var = #app_var.subcommand({
+                            let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = #arg_block;
+                            #subcommand_var#from_attrs
                         });
                     };
                     Some(subcommand)
@@ -272,7 +274,7 @@ fn gen_augment(
     let app_methods = parent_attribute.top_level_methods();
     quote! {
             #( #subcommands )*;
-            app #app_methods
+            #app_var #app_methods
     }
 }
 
@@ -352,6 +354,8 @@ fn gen_from_arg_matches(
 
     let mut ext_subcmd = None;
 
+    let subcommand_name_var = format_ident!("name");
+    let sub_arg_matches_var = format_ident!("sub_arg_matches");
     let (flatten_variants, variants): (Vec<_>, Vec<_>) = variants
         .iter()
         .filter_map(|variant| {
@@ -436,7 +440,7 @@ fn gen_from_arg_matches(
         };
 
         quote! {
-            if #sub_name == name {
+            if #sub_name == #subcommand_name_var {
                 return Some(#name :: #variant_name #constructor_block)
             }
         }
@@ -462,9 +466,9 @@ fn gen_from_arg_matches(
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
                 ::std::option::Option::Some(#name::#var_name(
-                    ::std::iter::once(#str_ty::from(name))
+                    ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
-                        sub_arg_matches.#values_of("").into_iter().flatten().map(#str_ty::from)
+                        #sub_arg_matches_var.#values_of("").into_iter().flatten().map(#str_ty::from)
                     )
                     .collect::<::std::vec::Vec<_>>()
                 ))
@@ -475,9 +479,9 @@ fn gen_from_arg_matches(
 
     quote! {
         fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Option<Self> {
-            if let Some((name, sub_arg_matches)) = arg_matches.subcommand() {
+            if let Some((#subcommand_name_var, #sub_arg_matches_var)) = arg_matches.subcommand() {
                 {
-                    let arg_matches = sub_arg_matches;
+                    let arg_matches = #sub_arg_matches_var;
                     #( #subcommands )*
                 }
 
