@@ -86,4 +86,6 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
   - This is also true of generating help and usage information (although *slightly* less stringent, as the program is about to exit)
 * Try to be cognizant of memory usage
   - Once parsing is complete, the memory footprint of `clap` should be low since the main program is the star of the show
-* `panic!` on *developer* error, exit gracefully on *end-user* error
+* `panic!` on *developer* error
+  (e.g. [apps](https://github.com/clap-rs/clap/blob/62eff1f8d3394cef819b4aa7b23a1032fc584f03/src/build/app/debug_asserts.rs) and [args](https://github.com/clap-rs/clap/blob/62eff1f8d3394cef819b4aa7b23a1032fc584f03/src/build/arg/debug_asserts.rs)),
+  exit gracefully on *end-user* error
