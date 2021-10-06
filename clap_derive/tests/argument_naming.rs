@@ -288,3 +288,31 @@ fn test_rename_all_is_propagation_can_be_overridden() {
         Opt::parse_from(&["test", "SECOND_VARIANT", "--foo-option"])
     );
 }
+
+#[test]
+fn test_lower_is_renamed() {
+    #[derive(Clap, Debug, PartialEq)]
+    struct Opt {
+        #[clap(rename_all = "lower", long)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::parse_from(&["test", "--foooption"])
+    );
+}
+
+#[test]
+fn test_upper_is_renamed() {
+    #[derive(Clap, Debug, PartialEq)]
+    struct Opt {
+        #[clap(rename_all = "upper", long)]
+        foo_option: bool,
+    }
+
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::parse_from(&["test", "--FOOOPTION"])
+    );
+}

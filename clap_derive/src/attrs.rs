@@ -80,6 +80,10 @@ pub enum CasingStyle {
     ScreamingSnake,
     /// Keep all letters lowercase and indicate word boundaries with underscores.
     Snake,
+    /// Keep all letters lowercase and remove word boundaries.
+    Lower,
+    /// Keep all letters uppercase and remove word boundaries.
+    Upper,
     /// Use the original attribute name defined in the code.
     Verbatim,
 }
@@ -206,6 +210,8 @@ impl CasingStyle {
             "pascal" | "pascalcase" => cs(Pascal),
             "screamingsnake" | "screamingsnakecase" => cs(ScreamingSnake),
             "snake" | "snakecase" => cs(Snake),
+            "lower" | "lowercase" => cs(Lower),
+            "upper" | "uppercase" => cs(Upper),
             "verbatim" | "verbatimcase" => cs(Verbatim),
             s => abort!(name, "unsupported casing: `{}`", s),
         }
@@ -226,6 +232,8 @@ impl Name {
                     Camel => s.to_mixed_case(),
                     ScreamingSnake => s.to_shouty_snake_case(),
                     Snake => s.to_snake_case(),
+                    Lower => s.to_snake_case().replace("_", ""),
+                    Upper => s.to_shouty_snake_case().replace("_", ""),
                     Verbatim => s,
                 };
                 quote_spanned!(ident.span()=> #s)
@@ -246,6 +254,8 @@ impl Name {
                     Camel => s.to_mixed_case(),
                     ScreamingSnake => s.to_shouty_snake_case(),
                     Snake => s.to_snake_case(),
+                    Lower => s.to_snake_case(),
+                    Upper => s.to_shouty_snake_case(),
                     Verbatim => s,
                 };
 
