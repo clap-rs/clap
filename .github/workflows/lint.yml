@@ -1,0 +1,40 @@
+name: Lint
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master, staging, trying]
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Clippy for almost no features
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --no-default-features --features "std cargo"
+      - name: Clippy for all features
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --features "wrap_help yaml regex" -- -D warnings
+      - name: Format check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
