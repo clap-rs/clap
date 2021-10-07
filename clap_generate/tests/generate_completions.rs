@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use clap_generate::{generate, generators::*};
+use clap_generate::{generate, generators::contrib::*, generators::*};
 use std::io;
 
 #[test]

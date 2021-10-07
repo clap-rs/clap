@@ -13,7 +13,7 @@
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::generators::{Bash, Elvish, Fig, Fish, PowerShell, Zsh};
+use clap_generate::generators::{contrib::Fig, Bash, Elvish, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator};
 use std::io;
 

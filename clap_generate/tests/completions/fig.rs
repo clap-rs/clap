@@ -1,3 +1,4 @@
+use super::contrib::Fig;
 use super::*;
 
 fn build_app() -> App<'static> {

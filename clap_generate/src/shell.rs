@@ -47,7 +47,7 @@ impl FromStr for Shell {
             "powershell" => Ok(Shell::PowerShell),
             "zsh" => Ok(Shell::Zsh),
             _ => Err(String::from(
-                "[valid values: bash, elvish, fig, fish, powershell, zsh]",
+                "[valid values: bash, elvish, fish, powershell, zsh]",
             )),
         }
     }

@@ -23,8 +23,6 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 #[allow(missing_docs)]
 mod macros;
 
-/// Contains community supported auto-completion scripts
-mod contrib;
 /// Contains some popular generators
 pub mod generators;
 /// Contains supported shells for auto-completion scripts
@@ -36,8 +34,6 @@ use std::io::Error;
 use std::io::Write;
 use std::path::PathBuf;
 
-#[doc(inline)]
-pub use contrib::Contrib;
 #[doc(inline)]
 pub use generators::Generator;
 #[doc(inline)]

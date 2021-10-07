@@ -1,5 +1,5 @@
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::generators::*;
+use clap_generate::generators::{contrib::*, *};
 use completions::common;
 
 mod completions;
