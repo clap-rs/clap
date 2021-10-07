@@ -350,12 +350,10 @@ pub fn gen_augment(
     });
 
     let app_methods = parent_attribute.top_level_methods();
-    let version = parent_attribute.version();
     quote! {{
         #( #args )*
-        let #app_var = #app_var#app_methods;
         #subcmd
-        #app_var#version
+        #app_var#app_methods
     }}
 }
 

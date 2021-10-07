@@ -764,11 +764,12 @@ impl Attrs {
 
     /// generate methods from attributes on top of struct or enum
     pub fn top_level_methods(&self) -> TokenStream {
+        let version = &self.version;
         let author = &self.author;
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
 
-        quote!( #(#doc_comment)* #author #(#methods)*)
+        quote!( #(#doc_comment)* #author #version #(#methods)*)
     }
 
     /// generate methods on top of a field
@@ -776,13 +777,6 @@ impl Attrs {
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
         quote!( #(#doc_comment)* #(#methods)* )
-    }
-
-    pub fn version(&self) -> TokenStream {
-        self.version
-            .clone()
-            .map(|m| m.to_token_stream())
-            .unwrap_or_default()
     }
 
     pub fn cased_name(&self) -> TokenStream {

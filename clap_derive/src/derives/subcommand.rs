@@ -215,13 +215,12 @@ fn gen_augment(
 
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
-                    let version = attrs.version();
                     let subcommand = quote! {
                         let app = app.subcommand({
                             let #app_var = clap::App::new(#name);
                             let #app_var = #arg_block;
                             let #app_var = #app_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-                            #app_var#from_attrs#version
+                            #app_var#from_attrs
                         });
                     };
                     Some(subcommand)
@@ -257,12 +256,11 @@ fn gen_augment(
 
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
-                    let version = attrs.version();
                     let subcommand = quote! {
                         let app = app.subcommand({
                             let #app_var = clap::App::new(#name);
                             let #app_var = #arg_block;
-                            #app_var#from_attrs#version
+                            #app_var#from_attrs
                         });
                     };
                     Some(subcommand)
@@ -272,11 +270,9 @@ fn gen_augment(
         .collect();
 
     let app_methods = parent_attribute.top_level_methods();
-    let version = parent_attribute.version();
     quote! {
-            let app = app #app_methods;
             #( #subcommands )*;
-            app #version
+            app #app_methods
     }
 }
 
