@@ -239,6 +239,22 @@ impl<'help> Arg<'help> {
         }
     }
 
+    /// Get the names of values for this argument.
+    #[inline]
+    pub fn get_value_names(&self) -> Option<&[&str]> {
+        if self.val_names.is_empty() {
+            None
+        } else {
+            Some(&self.val_names)
+        }
+    }
+
+    /// Get the number of values for this argument.
+    #[inline]
+    pub fn get_num_vals(&self) -> Option<usize> {
+        self.num_vals
+    }
+
     /// Get the index of this argument, if any
     #[inline]
     pub fn get_index(&self) -> Option<usize> {

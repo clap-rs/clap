@@ -62,7 +62,7 @@ _myapp() {
         case $line[2] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'--case=[the case to test]' \
+'--case=[the case to test]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -159,7 +159,7 @@ _my_app() {
         case $line[2] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'--case=[the case to test]' \
+'--case=[the case to test]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -168,7 +168,7 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" \
-'--config=[the other case to test]' \
+'--config=[the other case to test]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -474,10 +474,10 @@ _cmd() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-o+[cmd option]' \
-'-O+[cmd option]' \
-'--option=[cmd option]' \
-'--opt=[cmd option]' \
+'-o+[cmd option]: : ' \
+'-O+[cmd option]: : ' \
+'--option=[cmd option]: : ' \
+'--opt=[cmd option]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -497,3 +497,65 @@ _cmd_commands() {
 }
 
 _cmd "$@""#;
+
+#[test]
+fn zsh_with_files_and_dirs() {
+    let mut app = build_app_with_files_and_dirs();
+    common(Zsh, &mut app, "my_app", ZSH_PATHS);
+}
+
+fn build_app_with_files_and_dirs() -> App<'static> {
+    App::new("my_app")
+        .version("3.0")
+        .about("testing zsh completions")
+        .arg(
+            Arg::new("directory")
+                .long("dir")
+                .about("specify a directory")
+                .value_name("DIR")
+                .number_of_values(3)
+                .value_hint(ValueHint::DirPath),
+        )
+        .arg(
+            Arg::new("file")
+                .long("inputfiles")
+                .value_name("FILE")
+                .multiple_occurrences(true)
+                .about("specify a file")
+                .value_hint(ValueHint::FilePath),
+        )
+}
+
+static ZSH_PATHS: &str = r#"#compdef my_app
+
+autoload -U is-at-least
+
+_my_app() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'--dir=[specify a directory]:DIR:_files -/:DIR:_files -/:DIR:_files -/' \
+'*--inputfiles=[specify a file]:FILE:_files' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
+&& ret=0
+}
+
+(( $+functions[_my_app_commands] )) ||
+_my_app_commands() {
+    local commands; commands=()
+    _describe -t commands 'my_app commands' commands "$@"
+}
+
+_my_app "$@""#;

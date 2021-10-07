@@ -431,19 +431,23 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
         let help = o.get_about().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o, p_global);
 
-        // @TODO @soundness should probably be either multiple occurrences or multiple values and
-        // not both
-        let multiple = if o.is_set(ArgSettings::MultipleOccurrences)
-            || o.is_set(ArgSettings::MultipleValues)
-        {
+        let multiple = if o.is_set(ArgSettings::MultipleOccurrences) {
             "*"
         } else {
             ""
         };
 
+        let vn = match o.get_value_names() {
+            None => " ".to_string(),
+            Some(val) => val[0].to_string(),
+        };
         let vc = match value_completion(o) {
-            Some(val) => format!(": :{}", val),
-            None => "".to_string(),
+            Some(val) => format!(":{}:{}", vn, val),
+            None => format!(":{}: ", vn),
+        };
+        let vc = match o.get_num_vals() {
+            Some(num_vals) => vc.repeat(num_vals),
+            None => vc,
         };
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
