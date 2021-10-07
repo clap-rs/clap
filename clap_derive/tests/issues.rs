@@ -76,3 +76,32 @@ fn issue_324() {
     let help = get_long_help::<Opt>();
     assert!(help.contains("MY_VERSION"));
 }
+
+#[test]
+fn issue_490() {
+    use clap::Clap;
+    use std::iter::FromIterator;
+    use std::str::FromStr;
+
+    struct U16ish;
+    impl FromStr for U16ish {
+        type Err = ();
+        fn from_str(_: &str) -> Result<Self, Self::Err> {
+            unimplemented!()
+        }
+    }
+    impl<'a> FromIterator<&'a U16ish> for Vec<u16> {
+        fn from_iter<T: IntoIterator<Item = &'a U16ish>>(_: T) -> Self {
+            unimplemented!()
+        }
+    }
+
+    #[derive(Clap, Debug)]
+    struct Opt {
+        opt_vec: Vec<u16>,
+        #[clap(long)]
+        opt_opt_vec: Option<Vec<u16>>,
+    }
+
+    // Assert that it compiles
+}

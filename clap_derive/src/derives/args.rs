@@ -542,6 +542,13 @@ fn gen_parsers(
     let flag = *attrs.parser().kind == ParserKind::FromFlag;
     let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
     let name = attrs.cased_name();
+    let convert_type = match **ty {
+        Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
+        Ty::OptionOption | Ty::OptionVec => {
+            sub_type(&field.ty).and_then(sub_type).unwrap_or(&field.ty)
+        }
+        _ => &field.ty,
+    };
     // Use `quote!` to give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
@@ -584,7 +591,7 @@ fn gen_parsers(
         Ty::OptionVec => quote_spanned! { ty.span()=>
             if #arg_matches.is_present(#name) {
                 Some(#arg_matches.#values_of(#name)
-                     .map(|v| v.map(#parse).collect())
+                     .map(|v| v.map::<#convert_type, _>(#parse).collect())
                      .unwrap_or_else(Vec::new))
             } else {
                 None
@@ -600,7 +607,7 @@ fn gen_parsers(
 
             quote_spanned! { ty.span()=>
                 #arg_matches.#values_of(#name)
-                    .map(|v| v.map(#parse).collect())
+                    .map(|v| v.map::<#convert_type, _>(#parse).collect())
                     .unwrap_or_else(Vec::new)
             }
         }
