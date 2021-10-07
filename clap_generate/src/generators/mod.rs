@@ -1,3 +1,4 @@
+mod contrib;
 mod shells;
 
 // Std
@@ -5,6 +6,7 @@ use std::io::Write;
 
 // Internal
 use clap::{App, Arg};
+pub use contrib::*;
 pub use shells::*;
 
 /// Generator trait which can be used to write generators

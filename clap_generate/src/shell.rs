@@ -9,8 +9,6 @@ pub enum Shell {
     Bash,
     /// Elvish shell
     Elvish,
-    /// Fig autocomplete
-    Fig,
     /// Friendly Interactive SHell (fish)
     Fish,
     /// PowerShell
@@ -21,8 +19,8 @@ pub enum Shell {
 
 impl Shell {
     /// A list of supported shells in `[&'static str]` form.
-    pub fn variants() -> [&'static str; 6] {
-        ["bash", "elvish", "fig", "fish", "powershell", "zsh"]
+    pub fn variants() -> [&'static str; 5] {
+        ["bash", "elvish", "fish", "powershell", "zsh"]
     }
 }
 
@@ -31,7 +29,6 @@ impl Display for Shell {
         match *self {
             Shell::Bash => write!(f, "bash"),
             Shell::Elvish => write!(f, "elvish"),
-            Shell::Fig => write!(f, "fig"),
             Shell::Fish => write!(f, "fish"),
             Shell::PowerShell => write!(f, "powershell"),
             Shell::Zsh => write!(f, "zsh"),
@@ -46,7 +43,6 @@ impl FromStr for Shell {
         match s.to_ascii_lowercase().as_str() {
             "bash" => Ok(Shell::Bash),
             "elvish" => Ok(Shell::Elvish),
-            "fig" => Ok(Shell::Fig),
             "fish" => Ok(Shell::Fish),
             "powershell" => Ok(Shell::PowerShell),
             "zsh" => Ok(Shell::Zsh),

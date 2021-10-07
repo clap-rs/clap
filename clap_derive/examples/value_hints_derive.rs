@@ -13,7 +13,7 @@
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
 use clap::{App, AppSettings, ArgEnum, Clap, IntoApp, ValueHint};
-use clap_generate::generators::{Bash, Elvish, Fig, Fish, PowerShell, Zsh};
+use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
 use clap_generate::{generate, Generator};
 use std::ffi::OsString;
 use std::io;
@@ -23,7 +23,6 @@ use std::path::PathBuf;
 enum GeneratorChoice {
     Bash,
     Elvish,
-    Fig,
     Fish,
     #[clap(name = "powershell")]
     PowerShell,
@@ -83,7 +82,6 @@ fn main() {
         match generator {
             GeneratorChoice::Bash => print_completions::<Bash>(&mut app),
             GeneratorChoice::Elvish => print_completions::<Elvish>(&mut app),
-            GeneratorChoice::Fig => print_completions::<Fig>(&mut app),
             GeneratorChoice::Fish => print_completions::<Fish>(&mut app),
             GeneratorChoice::PowerShell => print_completions::<PowerShell>(&mut app),
             GeneratorChoice::Zsh => print_completions::<Zsh>(&mut app),
