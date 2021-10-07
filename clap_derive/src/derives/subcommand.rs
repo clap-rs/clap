@@ -121,7 +121,7 @@ fn gen_augment(
 
     let subcommands: Vec<_> = variants
         .iter()
-        .map(|variant| {
+        .filter_map(|variant| {
             let attrs = Attrs::from_variant(
                 variant,
                 parent_attribute.casing(),
@@ -130,6 +130,8 @@ fn gen_augment(
             let kind = attrs.kind();
 
             match &*kind {
+                Kind::Skip(_) => None,
+
                 Kind::ExternalSubcommand => {
                     let ty = match variant.fields {
                         Unnamed(ref fields) if fields.unnamed.len() == 1 => &fields.unnamed[0].ty,
@@ -141,7 +143,7 @@ fn gen_augment(
                              or `Vec<OsString>`."
                         ),
                     };
-                    match subty_if_name(ty, "Vec") {
+                    let subcommand = match subty_if_name(ty, "Vec") {
                         Some(subty) => {
                             if is_simple_ty(subty, "OsString") {
                                 quote_spanned! { kind.span()=>
@@ -159,13 +161,14 @@ fn gen_augment(
                             "The type must be `Vec<_>` \
                              to be used with `external_subcommand`."
                         ),
-                    }
+                    };
+                    Some(subcommand)
                 }
 
                 Kind::Flatten => match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
-                        if override_required {
+                        let subcommand = if override_required {
                             quote! {
                                 let app = <#ty as clap::Subcommand>::augment_subcommands_for_update(app);
                             }
@@ -173,7 +176,8 @@ fn gen_augment(
                             quote! {
                                 let app = <#ty as clap::Subcommand>::augment_subcommands(app);
                             }
-                        }
+                        };
+                        Some(subcommand)
                     }
                     _ => abort!(
                         variant,
@@ -212,14 +216,15 @@ fn gen_augment(
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
                     let version = attrs.version();
-                    quote! {
+                    let subcommand = quote! {
                         let app = app.subcommand({
                             let #app_var = clap::App::new(#name);
                             let #app_var = #arg_block;
                             let #app_var = #app_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
                             #app_var#from_attrs#version
                         });
-                    }
+                    };
+                    Some(subcommand)
                 }
 
                 _ => {
@@ -253,13 +258,14 @@ fn gen_augment(
                     let name = attrs.cased_name();
                     let from_attrs = attrs.top_level_methods();
                     let version = attrs.version();
-                    quote! {
+                    let subcommand = quote! {
                         let app = app.subcommand({
                             let #app_var = clap::App::new(#name);
                             let #app_var = #arg_block;
                             #app_var#from_attrs#version
                         });
-                    }
+                    };
+                    Some(subcommand)
                 }
             }
         })
