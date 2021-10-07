@@ -37,7 +37,7 @@ struct Opt {
 
     // An optional list of values, will be `None` if not present on
     // the command line, will be `Some(vec![])` if no argument is
-    // provided (i.e. `--optv`) and will be `Some(Some(String))` if
+    // provided (i.e. `--optv`) and will be `Some(Vec<String>)` if
     // argument list is provided (e.g. `--optv a b c`).
     #[clap(long)]
     optv: Option<Vec<String>>,

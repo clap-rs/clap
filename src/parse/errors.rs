@@ -432,11 +432,23 @@ pub struct Error {
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
     pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
+    backtrace: Backtrace,
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        Display::fmt(&self.message, f)
+        #[cfg(feature = "debug")]
+        {
+            writeln!(f, "{}", self.message)?;
+            writeln!(f)?;
+            writeln!(f, "Backtrace:")?;
+            writeln!(f, "{}", self.backtrace)?;
+        }
+        #[cfg(not(feature = "debug"))]
+        {
+            Display::fmt(&self.message, f)?;
+        }
+        Ok(())
     }
 }
 
@@ -519,6 +531,16 @@ impl Error {
         self.message.print()
     }
 
+    pub(crate) fn new(message: Colorizer, kind: ErrorKind) -> Self {
+        Self {
+            message,
+            kind,
+            info: vec![],
+            source: None,
+            backtrace: Backtrace::new(),
+        }
+    }
+
     pub(crate) fn argument_conflict(
         app: &App,
         arg: &Arg,
@@ -556,6 +578,7 @@ impl Error {
             kind: ErrorKind::ArgumentConflict,
             info,
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -574,6 +597,7 @@ impl Error {
             kind: ErrorKind::EmptyValue,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -592,6 +616,7 @@ impl Error {
             kind: ErrorKind::NoEquals,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -655,6 +680,7 @@ impl Error {
             kind: ErrorKind::InvalidValue,
             info,
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -686,6 +712,7 @@ impl Error {
             kind: ErrorKind::InvalidSubcommand,
             info: vec![subcmd],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -704,6 +731,7 @@ impl Error {
             kind: ErrorKind::UnrecognizedSubcommand,
             info: vec![subcmd],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -734,6 +762,7 @@ impl Error {
             kind: ErrorKind::MissingRequiredArgument,
             info,
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -751,6 +780,7 @@ impl Error {
             kind: ErrorKind::MissingSubcommand,
             info: vec![],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -769,6 +799,7 @@ impl Error {
             kind: ErrorKind::InvalidUtf8,
             info: vec![],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -801,6 +832,7 @@ impl Error {
                 max_occurs.to_string(),
             ],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -820,6 +852,7 @@ impl Error {
             kind: ErrorKind::TooManyValues,
             info: vec![arg, val],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -848,6 +881,7 @@ impl Error {
             kind: ErrorKind::TooFewValues,
             info: vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -862,6 +896,7 @@ impl Error {
             kind,
             info,
             source,
+            backtrace,
         } = Self::value_validation_with_color(arg, val, err, app.color());
         try_help(app, &mut message);
         Self {
@@ -869,6 +904,7 @@ impl Error {
             kind,
             info,
             source,
+            backtrace,
         }
     }
 
@@ -901,6 +937,7 @@ impl Error {
             kind: ErrorKind::ValueValidation,
             info: vec![arg, val, err.to_string()],
             source: Some(err),
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -929,6 +966,7 @@ impl Error {
             kind: ErrorKind::WrongNumberOfValues,
             info: vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -947,6 +985,7 @@ impl Error {
             kind: ErrorKind::UnexpectedMultipleUsage,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -996,6 +1035,7 @@ impl Error {
             kind: ErrorKind::UnknownArgument,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -1018,6 +1058,7 @@ impl Error {
             kind: ErrorKind::UnknownArgument,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -1033,6 +1074,7 @@ impl Error {
             kind: ErrorKind::ArgumentNotFound,
             info: vec![arg],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -1050,6 +1092,7 @@ impl Error {
             kind,
             info: vec![],
             source: None,
+            backtrace: Backtrace::new(),
         }
     }
 }
@@ -1070,6 +1113,43 @@ impl error::Error for Error {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.source.as_ref().map(|e| e.as_ref() as _)
+    }
+}
+
+#[cfg(feature = "debug")]
+#[derive(Debug)]
+struct Backtrace(backtrace::Backtrace);
+
+#[cfg(feature = "debug")]
+impl Backtrace {
+    fn new() -> Self {
+        Self(backtrace::Backtrace::new())
+    }
+}
+
+#[cfg(feature = "debug")]
+impl Display for Backtrace {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        // `backtrace::Backtrace` uses `Debug` instead of `Display`
+        write!(f, "{:?}", self.0)
+    }
+}
+
+#[cfg(not(feature = "debug"))]
+#[derive(Debug)]
+struct Backtrace;
+
+#[cfg(not(feature = "debug"))]
+impl Backtrace {
+    fn new() -> Self {
+        Self
+    }
+}
+
+#[cfg(not(feature = "debug"))]
+impl Display for Backtrace {
+    fn fmt(&self, _: &mut Formatter) -> fmt::Result {
+        Ok(())
     }
 }
 

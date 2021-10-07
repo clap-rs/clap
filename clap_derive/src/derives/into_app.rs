@@ -96,6 +96,7 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
         Sp::call_site(DEFAULT_ENV_CASING),
     );
     let name = attrs.cased_name();
+    let app_var = Ident::new("app", Span::call_site());
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -112,14 +113,14 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
         #[deny(clippy::correctness)]
         impl clap::IntoApp for #enum_name {
             fn into_app<'b>() -> clap::App<'b> {
-                let app = clap::App::new(#name)
+                let #app_var = clap::App::new(#name)
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp);
-                <#enum_name as clap::Subcommand>::augment_subcommands(app)
+                <#enum_name as clap::Subcommand>::augment_subcommands(#app_var)
             }
 
             fn into_app_for_update<'b>() -> clap::App<'b> {
-                let app = clap::App::new(#name);
-                <#enum_name as clap::Subcommand>::augment_subcommands_for_update(app)
+                let #app_var = clap::App::new(#name);
+                <#enum_name as clap::Subcommand>::augment_subcommands_for_update(#app_var)
             }
         }
     }
