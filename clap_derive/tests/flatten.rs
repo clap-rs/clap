@@ -155,21 +155,29 @@ fn update_subcommands_with_flatten() {
 
 #[test]
 fn flatten_with_doc_comment() {
-    #[derive(Clap, Debug)]
-    struct DaemonOpts {
-        #[clap(short)]
-        user: String,
-        #[clap(short)]
-        group: String,
+    #[derive(Clap, PartialEq, Debug)]
+    struct Common {
+        /// This is an arg. Arg means "argument". Command line argument.
+        arg: i32,
     }
 
-    #[derive(Clap, Debug)]
-    #[clap(name = "basic")]
+    #[derive(Clap, PartialEq, Debug)]
     struct Opt {
-        /// A very important doc comment I just can't leave out!
+        /// The very important comment that clippy had me put here.
+        /// It knows better.
         #[clap(flatten)]
-        opts: DaemonOpts,
+        common: Common,
     }
+    assert_eq!(
+        Opt {
+            common: Common { arg: 42 }
+        },
+        Opt::parse_from(&["test", "42"])
+    );
+
+    let help = utils::get_help::<Opt>();
+    assert!(help.contains("This is an arg."));
+    assert!(!help.contains("The very important"));
 }
 
 #[test]
