@@ -374,7 +374,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                         } else {
                             Some(format!(
                                 r#"{name}\:"{tooltip}""#,
-                                name = escape_value(value.get_name()),
+                                name = escape_value(value.get_name(), true),
                                 tooltip = value.get_help().map(escape_help).unwrap_or_default()
                             ))
                         }
@@ -388,7 +388,8 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 values
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(PossibleValue::get_name)
+                    .map(|pv| escape_value(pv.get_name(), false))
+                    // TODO(pseyfert): review, merge conflict Some(format!("{}", escape_value(value.get_name(), false)
                     .collect::<Vec<_>>()
                     .join(" ")
             ))
@@ -431,13 +432,34 @@ fn escape_help(string: &str) -> String {
 }
 
 /// Escape value string inside single quotes and parentheses
-fn escape_value(string: &str) -> String {
+fn escape_value(string: &str, with_tooltip: bool) -> String {
     string
-        .replace('\\', "\\\\")
-        .replace('\'', "'\\''")
+        // .replace('\\', "\\\\")
+        // .replace('\\', "\\\\\\\\")   // ':: :((\\\\\:"some descr"))' \
+        .replace('\\', if with_tooltip {"\\\\\\\\"} else {"\\\\"})
+        .replace('\'', "'\\\\\\''")
         .replace('(', "\\(")
         .replace(')', "\\)")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
+        .replace('"', "\\\"")
         .replace(' ', "\\ ")
+        .replace('`', "\\`")
+        .replace('&', "\\&")
+        .replace('#', "\\#")
+        .replace('{', "\\{") // only needed w/o tooltip
+        .replace('}', "\\}") // only needed w/o tooltip
+        .replace('$', "\\$") // only needed w/o tooltip
+        .replace('|', "\\|")
+        .replace('~', "\\~")
+        .replace('?', "\\?")
+        .replace('^', "\\^")
+        .replace('*', "\\*")
+        .replace(';', "\\;")
+        .replace('<', "\\<")
+        .replace('>', "\\>")
+        .replace('=', "\\=")   // ':: :((\=\:"some descr"))' \
+        .replace(':', if with_tooltip {"\\\\\\:"} else {":"})   // ':: :((\\\:\:"some descr"))' \
 }
 
 fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
