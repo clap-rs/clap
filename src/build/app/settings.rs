@@ -130,8 +130,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors("ignoreerrors")
         => Flags::IGNORE_ERRORS,
-    DisableVersionForSubcommands("disableversionforsubcommands")
-        => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
         => Flags::WAIT_ON_ERROR,
     Built("built")
@@ -652,27 +650,6 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     DisableVersionFlag,
-
-    /// Disables `-V` and `--version` for all [`subcommands`] of this [`App`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersionForSubcommands)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
-    /// [`App`]: crate::App
-    DisableVersionForSubcommands,
 
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -1214,12 +1191,6 @@ mod test {
         assert_eq!(
             "unifiedhelpmessage".parse::<AppSettings>().unwrap(),
             AppSettings::UnifiedHelpMessage
-        );
-        assert_eq!(
-            "disableversionforsubcommands"
-                .parse::<AppSettings>()
-                .unwrap(),
-            AppSettings::DisableVersionForSubcommands
         );
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),

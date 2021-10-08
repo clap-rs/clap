@@ -11,6 +11,9 @@ TODO: `YamlLoader`
 * **Renamed Features**
   * `unicode_help` to `unicode` to encompass more functionality
 
+* **Removed Settings**
+  * `AppSettings::DisableVersionForSubcommands`
+
 <a name="v3.0.0-beta.4"></a>
 ## v3.0.0-beta.4 (2021-08-14)
 
