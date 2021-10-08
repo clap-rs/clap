@@ -34,7 +34,6 @@ enum GeneratorChoice {
     name = "value_hints_derive",
     // AppSettings::TrailingVarArg is required to use ValueHint::CommandWithArguments
     setting = AppSettings::TrailingVarArg,
-    setting = AppSettings::DisableVersionFlag
 )]
 struct Opt {
     /// If provided, outputs the completion file for given shell
