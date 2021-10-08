@@ -1036,10 +1036,45 @@ pub enum AppSettings {
     /// ```
     WaitOnError,
 
-    /// @TODO-v3: @docs write them...maybe rename
+    /// Tells clap to treat the auto-generated `-h, --help` flags just like any other flag, and
+    /// *not* print the help message. This allows one to handle printing of the help message
+    /// manually.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let result = App::new("myprog")
+    ///     .setting(AppSettings::NoAutoHelp)
+    ///     .try_get_matches_from("myprog --help".split(" "));
+    ///
+    /// // Normally, if `--help` is used clap prints the help message and returns an
+    /// // ErrorKind::DisplayHelp
+    /// //
+    /// // However, `--help` was treated like a normal flag
+    ///
+    /// assert!(result.is_ok());
+    /// assert!(result.unwrap().is_present("help"));
+    /// ```
     NoAutoHelp,
 
-    /// @TODO-v3: @docs write them...maybe rename
+    /// Tells clap to treat the auto-generated `-V, --version` flags just like any other flag, and
+    /// *not* print the version message. This allows one to handle printing of the version message
+    /// manually.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let result = App::new("myprog")
+    ///     .version("3.0")
+    ///     .setting(AppSettings::NoAutoVersion)
+    ///     .try_get_matches_from("myprog --version".split(" "));
+    ///
+    /// // Normally, if `--version` is used clap prints the version message and returns an
+    /// // ErrorKind::DisplayVersion
+    /// //
+    /// // However, `--version` was treated like a normal flag
+    ///
+    /// assert!(result.is_ok());
+    /// assert!(result.unwrap().is_present("version"));
+    /// ```
     NoAutoVersion,
 
     #[doc(hidden)]
