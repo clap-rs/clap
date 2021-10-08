@@ -1,5 +1,5 @@
-use super::contrib::Fig;
 use super::*;
+use crate::Fig;
 
 fn build_app() -> App<'static> {
     build_app_with_name("myapp")

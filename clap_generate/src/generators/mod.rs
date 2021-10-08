@@ -1,5 +1,3 @@
-/// Community supported generators
-pub mod contrib;
 mod shells;
 
 // Std

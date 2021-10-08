@@ -2,8 +2,8 @@
 use std::io::Write;
 
 // Internal
-use crate::Generator;
 use clap::*;
+use clap_generate::*;
 
 /// Generate fig completion file
 pub struct Fig;
@@ -31,7 +31,8 @@ impl Generator for Fig {
 
         buffer.push_str("};\n\nexport default completion;\n");
 
-        w!(buf, buffer.as_bytes());
+        buf.write_all(buffer.as_bytes())
+            .expect("Failed to write to generated file");
     }
 }
 
@@ -47,8 +48,6 @@ fn gen_fig_inner(
     app: &App,
     buffer: &mut String,
 ) {
-    debug!("gen_fig_inner: parent_commands={:?}", parent_commands);
-
     if app.has_subcommands() {
         buffer.push_str(&format!("{:indent$}subcommands: [\n", "", indent = indent));
         // generate subcommands

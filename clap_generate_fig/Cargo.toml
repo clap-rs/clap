@@ -1,0 +1,40 @@
+[package]
+name = "clap_generate_fig"
+version = "3.0.0-beta.4"
+edition = "2018"
+authors = [
+	"Clap Maintainers"
+]
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"README.md"
+]
+description = "A generator library used with clap for Fig completion scripts"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_generate_fig"
+documentation = "https://docs.rs/clap_generate_fig"
+homepage = "https://clap.rs/"
+keywords = [
+	"clap",
+	"cli",
+	"generate",
+	"completion",
+	"manpage",
+	"fig",
+]
+categories = ["command-line-interface"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[lib]
+bench = false
+
+[dependencies]
+clap = { path = "../", version = "=3.0.0-beta.4" }
+clap_generate = { path = "../clap_generate", version = "3.0.0-beta.4" }
+
+[dev-dependencies]
+pretty_assertions = "0.7"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
