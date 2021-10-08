@@ -2395,18 +2395,13 @@ impl<'help> App<'help> {
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
                 // done and to recursively call this method
                 {
-                    if $_self
-                        .settings
-                        .is_set(AppSettings::DisableVersionForSubcommands)
-                    {
-                        $sc.set(AppSettings::DisableVersionFlag);
-                    }
-
-                    if $_self.settings.is_set(AppSettings::PropagateVersion)
-                        && $sc.version.is_none()
-                        && $_self.version.is_some()
-                    {
-                        $sc.version = Some($_self.version.unwrap());
+                    if $_self.settings.is_set(AppSettings::PropagateVersion) {
+                        if $sc.version.is_none() && $_self.version.is_some() {
+                            $sc.version = Some($_self.version.unwrap());
+                        }
+                        if $sc.long_version.is_none() && $_self.long_version.is_some() {
+                            $sc.long_version = Some($_self.long_version.unwrap());
+                        }
                     }
 
                     $sc.settings = $sc.settings | $_self.g_settings;
@@ -2464,7 +2459,14 @@ impl<'help> App<'help> {
             }
         }
 
-        if self.is_set(AppSettings::DisableVersionFlag)
+        // Determine if we should remove the generated --version flag
+        //
+        // Note that if only mut_arg() was used, the first expression will evaluate to `true`
+        // however inside the condition block, we only check for Generated args, not
+        // GeneratedMutated args, so the `mut_arg("version", ..) will be skipped and fall through
+        // to the following condition below (Adding the short `-V`)
+        if self.settings.is_set(AppSettings::DisableVersionFlag)
+            || (self.version.is_none() && self.long_version.is_none())
             || self.args.args().any(|x| {
                 x.provider == ArgProvider::User
                     && (x.long == Some("version") || x.id == Id::version_hash())
@@ -2476,6 +2478,8 @@ impl<'help> App<'help> {
         {
             debug!("App::_check_help_and_version: Removing generated version");
 
+            // This is the check mentioned above that only checks for Generated, not
+            // GeneratedMuated args by design.
             let generated_version_pos = self
                 .args
                 .args()
@@ -2484,7 +2488,16 @@ impl<'help> App<'help> {
             if let Some(index) = generated_version_pos {
                 self.args.remove(index);
             }
-        } else {
+        }
+
+        // If we still have a generated --version flag, determine if we can apply the short `-V`
+        if self.args.args().any(|x| {
+            x.id == Id::version_hash()
+                && matches!(
+                    x.provider,
+                    ArgProvider::Generated | ArgProvider::GeneratedMutated
+                )
+        }) {
             let other_arg_has_short = self.args.args().any(|x| x.short == Some('V'));
             let version = self
                 .args
@@ -2520,6 +2533,7 @@ impl<'help> App<'help> {
                 .args_mut()
                 .filter(|a| !a.is_positional())
                 .filter(|a| a.disp_ord == 999)
+                .filter(|a| a.provider != ArgProvider::Generated)
                 .enumerate()
             {
                 a.disp_ord = i;
