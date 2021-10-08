@@ -352,9 +352,7 @@ impl<'help> Arg<'help> {
     /// [`short`]: Arg::short()
     #[inline]
     pub fn short(mut self, s: char) -> Self {
-        if s == '-' {
-            panic!("short option name cannot be `-`");
-        }
+        assert!(s != '-', "short option name cannot be `-`");
 
         self.short = Some(s);
         self
@@ -447,9 +445,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
     pub fn short_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(name != '-', "short alias name cannot be `-`");
 
         self.short_aliases.push((name, false));
         self
@@ -502,9 +498,7 @@ impl<'help> Arg<'help> {
     /// ```
     pub fn short_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            if s == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(s != &'-', "short alias name cannot be `-`");
             self.short_aliases.push((*s, false));
         }
         self
@@ -554,9 +548,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`App::alias`]: Arg::short_alias()
     pub fn visible_short_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(name != '-', "short alias name cannot be `-`");
 
         self.short_aliases.push((name, true));
         self
@@ -603,9 +595,7 @@ impl<'help> Arg<'help> {
     /// [`App::aliases`]: Arg::short_aliases()
     pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
         for n in names {
-            if n == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(n != &'-', "short alias name cannot be `-`");
             self.short_aliases.push((*n, true));
         }
         self

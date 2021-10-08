@@ -1179,9 +1179,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     pub fn short_flag_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(!(name == '-'), "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, false));
         self
     }
@@ -1261,9 +1259,7 @@ impl<'help> App<'help> {
     /// ```
     pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            if s == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(s != &'-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, false));
         }
         self
@@ -1341,9 +1337,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::short_flag_alias`]: App::short_flag_alias()
     pub fn visible_short_flag_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(name != '-', "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, true));
         self
     }
@@ -1414,9 +1408,7 @@ impl<'help> App<'help> {
     /// [`App::short_flag_aliases`]: App::short_flag_aliases()
     pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            if s == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(!(s == &'-'), "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, true));
         }
         self
@@ -2323,13 +2315,11 @@ impl<'help> App<'help> {
                 .map(|arg| String::from(arg.name))
                 .collect();
 
-            if !args_missing_help.is_empty() {
-                panic!(
+            assert!(args_missing_help.is_empty(),
                     "AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
                 );
-            }
         }
 
         for sub_app in &self.subcommands {
@@ -2661,9 +2651,10 @@ impl<'help> App<'help> {
 
     #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
-        if !self.is_set(AppSettings::Built) {
-            panic!("If App::_build hasn't been called, manually search through Arg shorts");
-        }
+        assert!(
+            self.is_set(AppSettings::Built),
+            "If App::_build hasn't been called, manually search through Arg shorts"
+        );
 
         self.args.contains(s)
     }
