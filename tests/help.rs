@@ -403,9 +403,6 @@ FLAGS:
 
     -h, --help
             Print help information
-
-    -V, --version
-            Print version information
 ";
 
 static HELP_CONFLICT: &str = "conflict 
@@ -414,9 +411,8 @@ USAGE:
     conflict [FLAGS]
 
 FLAGS:
-    -h               
-        --help       Print help information
-    -V, --version    Print version information
+    -h            
+        --help    Print help information
 ";
 
 static LAST_ARG: &str = "last 0.1
@@ -612,8 +608,7 @@ ARGS:
     <arg2>    
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 ";
 
 static ISSUE_1364: &str = "demo 
@@ -625,9 +620,8 @@ ARGS:
     <FILES>...    
 
 FLAGS:
-    -f               
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -f            
+    -h, --help    Print help information
 ";
 
 static OPTION_USAGE_ORDER: &str = "order 
@@ -643,7 +637,6 @@ FLAGS:
     -s                     
         --select_file      
         --select_folder    
-    -V, --version          Print version information
     -x                     
 ";
 
@@ -919,9 +912,6 @@ FLAGS:
 
         --no-git-push
             Do not push generated commit and tags to git remote
-
-    -V, --version
-            Print version information
 ";
     let app = App::new("test")
         .term_width(67)
@@ -971,7 +961,6 @@ FLAGS:
         --no-git-commit    Do not commit version changes
         --no-git-push      Do not push generated commit and tags to
                            git remote
-    -V, --version          Print version information
 ";
     let app = App::new("test")
         .term_width(68)
@@ -1335,8 +1324,7 @@ USAGE:
     hello [OPTIONS]
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 
 OPTIONS:
     -p, --package <name>    
@@ -2267,7 +2255,6 @@ fn option_usage_order() {
 fn about_in_subcommands_list() {
     let app = App::new("about-in-subcommands-list")
         .setting(AppSettings::ColorNever)
-        .global_setting(AppSettings::DisableVersionFlag)
         .subcommand(
             App::new("sub")
                 .long_about("long about sub")
@@ -2296,7 +2283,6 @@ ARGS:
 FLAGS:
     -h, --help       Print help information
         --option1    
-    -V, --version    Print version information
 ";
 
     let app = clap::App::new("hello")
@@ -2359,7 +2345,8 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help    Print help information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 NETWORKING:
     -s, --speed <SPEED>    How fast
@@ -2369,7 +2356,6 @@ NETWORKING:
 fn only_custom_heading_opts() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .help_heading("NETWORKING")
         .arg(Arg::from("-s, --speed [SPEED] 'How fast'"));
 
@@ -2390,7 +2376,8 @@ ARGS:
     <gear>    Which gear
 
 FLAGS:
-    -h, --help    Print help information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 NETWORKING:
     <speed>    How fast
@@ -2400,7 +2387,6 @@ NETWORKING:
 fn custom_heading_pos() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .arg(Arg::new("gear").about("Which gear"))
         .help_heading("NETWORKING")
         .arg(Arg::new("speed").about("How fast"));
@@ -2419,7 +2405,8 @@ USAGE:
     test [speed]
 
 FLAGS:
-    -h, --help    Print help information
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 NETWORKING:
     <speed>    How fast
@@ -2429,7 +2416,6 @@ NETWORKING:
 fn only_custom_heading_pos() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .help_heading("NETWORKING")
         .arg(Arg::new("speed").about("How fast"));
 
@@ -2538,8 +2524,7 @@ USAGE:
     my_app [OPTIONS]
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 
 OPTIONS:
         --some_arg <some_arg> <some_arg>    
@@ -2568,8 +2553,7 @@ ARGS:
     <arg2>    
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 ",
         false
     ));
@@ -2596,8 +2580,7 @@ ARGS:
     <baz>...    
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 ",
         false
     ));
@@ -2605,38 +2588,27 @@ FLAGS:
 
 #[test]
 fn disabled_help_flag() {
-    let app = App::new("foo")
+    let res = App::new("foo")
         .subcommand(App::new("sub"))
-        .setting(AppSettings::DisableHelpFlag);
-    assert!(utils::compare_output(
-        app,
-        "foo a",
-        "error: Found argument 'a' which wasn't expected, or isn't valid in this context
-
-USAGE:
-    foo [SUBCOMMAND]
-
-For more information try help
-",
-        true
-    ));
+        .setting(AppSettings::DisableHelpFlag)
+        .try_get_matches_from("foo a".split(" "));
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(err.info, &["a"]);
 }
 
 #[test]
 fn disabled_help_flag_and_subcommand() {
-    let app = App::new("foo")
+    let res = App::new("foo")
         .subcommand(App::new("sub"))
         .setting(AppSettings::DisableHelpFlag)
-        .setting(AppSettings::DisableHelpSubcommand);
-    assert!(utils::compare_output(
-        app,
-        "foo help",
-        "error: Found argument 'help' which wasn't expected, or isn't valid in this context
-
-USAGE:
-    foo [SUBCOMMAND]",
-        true
-    ));
+        .setting(AppSettings::DisableHelpSubcommand)
+        .try_get_matches_from("foo help".split(" "));
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(err.info, &["help"]);
 }
 
 #[test]

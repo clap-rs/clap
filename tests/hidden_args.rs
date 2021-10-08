@@ -233,8 +233,8 @@ OPTIONS:
 fn hidden_flag_args() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("version", |a| a.hidden(true))
         .args(&[Arg::from("--option [opt] 'some option'")]);
 
     assert!(utils::compare_output(
@@ -251,19 +251,17 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-        --flag    some flag
-    -h, --help    Print help information
+        --flag       some flag
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[test]
 fn hidden_opt_args() {
-    let app = App::new("test")
-        .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
-        .args(&[
-            Arg::from("--flag 'some flag'"),
-            Arg::from("--option [opt] 'some option'").hidden(true),
-        ]);
+    let app = App::new("test").version("1.4").args(&[
+        Arg::from("--flag 'some flag'"),
+        Arg::from("--option [opt] 'some option'").hidden(true),
+    ]);
 
     assert!(utils::compare_output(
         app,
@@ -282,18 +280,16 @@ ARGS:
     <another>    another pos
 
 FLAGS:
-    -h, --help    Print help information
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[test]
 fn hidden_pos_args() {
-    let app = App::new("test")
-        .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
-        .args(&[
-            Arg::new("pos").about("some pos").hidden(true),
-            Arg::new("another").about("another pos"),
-        ]);
+    let app = App::new("test").version("1.4").args(&[
+        Arg::new("pos").about("some pos").hidden(true),
+        Arg::new("another").about("another pos"),
+    ]);
 
     assert!(utils::compare_output(
         app,
@@ -309,14 +305,14 @@ USAGE:
     test
 
 FLAGS:
-    -h, --help    Print help information
+    -h, --help       Print help information
+    -V, --version    Print version information
 ";
 
 #[test]
 fn hidden_subcmds() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .subcommand(App::new("sub").setting(AppSettings::Hidden));
 
     assert!(utils::compare_output(
@@ -339,9 +335,9 @@ After help
 fn hidden_flag_args_only() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .after_help("After help")
-        .mut_arg("help", |a| a.hidden(true));
+        .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("version", |a| a.hidden(true));
 
     assert!(utils::compare_output(
         app,
@@ -363,9 +359,9 @@ After help
 fn hidden_opt_args_only() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .after_help("After help")
         .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("version", |a| a.hidden(true))
         .args(&[Arg::from("--option [opt] 'some option'").hidden(true)]);
 
     assert!(utils::compare_output(
@@ -388,9 +384,9 @@ After help
 fn hidden_pos_args_only() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .after_help("After help")
         .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("version", |a| a.hidden(true))
         .args(&[Arg::new("pos").about("some pos").hidden(true)]);
 
     assert!(utils::compare_output(
@@ -413,9 +409,9 @@ After help
 fn hidden_subcmds_only() {
     let app = App::new("test")
         .version("1.4")
-        .setting(AppSettings::DisableVersionFlag)
         .after_help("After help")
         .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("version", |a| a.hidden(true))
         .subcommand(App::new("sub").setting(AppSettings::Hidden));
 
     assert!(utils::compare_output(

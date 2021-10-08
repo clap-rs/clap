@@ -394,6 +394,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
+    ///     .version("3.0")
     ///     .try_get_matches_from(vec!["prog", "--version"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayVersion);

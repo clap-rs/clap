@@ -15,8 +15,7 @@ USAGE:
     test [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)

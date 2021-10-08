@@ -26,10 +26,10 @@ USAGE:
     test [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
         --flag_b     first flag
         --flag_a     second flag
+    -h, --help       Print help information
+    -V, --version    Print version information
 
 OPTIONS:
         --option_b <option_b>    first option
@@ -56,12 +56,12 @@ USAGE:
     test [OPTIONS]
 
 OPTIONS:
-    -h, --help                   Print help information
-    -V, --version                Print version information
         --flag_b                 first flag
         --option_b <option_b>    first option
         --flag_a                 second flag
         --option_a <option_a>    second option
+    -h, --help                   Print help information
+    -V, --version                Print version information
 ";
 
 static DERIVE_ORDER_SC_PROP: &str = "test-sub 1.2
@@ -128,10 +128,10 @@ USAGE:
     test [FLAGS]
 
 FLAGS:
-    -V, --version    Print version information
     -h, --help       Print help message
         --flag_b     first flag
         --flag_a     second flag
+    -V, --version    Print version information
 ";
 
 static PREFER_USER_HELP_SUBCMD_DERIVE_ORDER: &str = "test-sub 1.2

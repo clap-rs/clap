@@ -266,8 +266,7 @@ ARGS:
     <A>    
 
 FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -h, --help    Print help information
 ";
     let app = App::new("prog")
         .arg(Arg::new("a").value_name("A"))

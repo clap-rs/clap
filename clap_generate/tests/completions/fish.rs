@@ -6,6 +6,7 @@ fn build_app() -> App<'static> {
 
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
+        .version("3.0")
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -84,6 +85,7 @@ fn fish_with_special_help() {
 
 fn build_app_special_help() -> App<'static> {
     App::new("my_app")
+        .version("3.0")
         .arg(
             Arg::new("single-quotes")
                 .long("single-quotes")
@@ -130,6 +132,7 @@ fn fish_with_aliases() {
 
 fn build_app_with_aliases() -> App<'static> {
     App::new("cmd")
+        .version("3.0")
         .about("testing bash completions")
         .arg(
             Arg::new("flag")
