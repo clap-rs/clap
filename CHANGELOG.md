@@ -8,7 +8,8 @@ TODO: `YamlLoader`
 
 #### BREAKING CHANGES
 
-
+* **Renamed Features**
+  * `unicode_help` to `unicode` to encompass more functionality
 
 <a name="v3.0.0-beta.4"></a>
 ## v3.0.0-beta.4 (2021-08-14)

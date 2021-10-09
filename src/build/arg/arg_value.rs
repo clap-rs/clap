@@ -1,5 +1,7 @@
 use std::iter;
 
+use crate::util::eq_ignore_case;
+
 /// The representation of a possible value of an argument.
 ///
 /// This is used for specifying [possible values] of [Args].
@@ -90,7 +92,7 @@ impl<'help> ArgValue<'help> {
     pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
         if ignore_case {
             self.get_name_and_aliases()
-                .any(|name| name.eq_ignore_ascii_case(value))
+                .any(|name| eq_ignore_case(name, value))
         } else {
             self.get_name_and_aliases().any(|name| name == value)
         }
