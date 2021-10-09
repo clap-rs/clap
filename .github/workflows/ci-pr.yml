@@ -41,7 +41,7 @@ jobs:
   test-full:
     name: Tests (Full)
     env:
-      FLAGS: --features 'wrap_help yaml regex'
+      FLAGS: --features 'wrap_help yaml regex unstable-replace'
     strategy:
       fail-fast: false
       matrix:

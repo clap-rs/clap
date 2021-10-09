@@ -97,13 +97,13 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex debug"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
@@ -139,13 +139,13 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --features "wrap_help yaml regex"
+          args: --features "wrap_help yaml regex unstable-replace"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --features "wrap_help yaml regex debug"
+          args: --features "wrap_help yaml regex unstable-replace debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
