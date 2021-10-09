@@ -266,6 +266,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(Some(OsStr::new("ENVIRONMENT")), arg.get_env());
     /// ```
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     pub fn get_env(&self) -> Option<&OsStr> {
         self.env.as_ref().map(|x| x.0)
     }
@@ -2295,6 +2296,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
     /// ```
     #[cfg(feature = "regex")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "regex")))]
     pub fn validator_regex(
         self,
         regex: impl Into<RegexRef<'help>>,
@@ -3219,6 +3221,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     #[inline]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
@@ -3228,6 +3231,7 @@ impl<'help> Arg<'help> {
     /// from the environment if available in the exact same manner as [`Arg::env`] only using
     /// [`OsStr`]s instead.
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         self.env = Some((name, env::var_os(name)));
@@ -4019,6 +4023,7 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `--help` the `[env: MODE]` portion of the help
     /// text would be omitted.
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     #[inline]
     pub fn hide_env(self, hide: bool) -> Self {
         if hide {
@@ -4057,6 +4062,7 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `$ CONNECT=super_secret connect --help` the
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     #[inline]
     pub fn hide_env_values(self, hide: bool) -> Self {
         if hide {
@@ -4786,6 +4792,7 @@ impl<'help> Arg<'help> {
 }
 
 #[cfg(feature = "yaml")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "yaml")))]
 impl<'help> From<&'help Yaml> for Arg<'help> {
     /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
     ///

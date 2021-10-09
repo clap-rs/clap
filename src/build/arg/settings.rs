@@ -115,10 +115,12 @@ pub enum ArgSettings {
     IgnoreCase,
     /// Hides environment variable arguments from the help message
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     HideEnv,
     /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
     /// information)
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     HideEnvValues,
     /// The argument should **not** be shown in short help text
     HiddenShortHelp,

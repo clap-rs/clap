@@ -424,6 +424,7 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
 }
 
 #[cfg(feature = "yaml")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "yaml")))]
 impl<'help> From<&'help Yaml> for ArgGroup<'help> {
     /// Creates a new instance of `ArgGroup` from a .yaml (YAML) file.
     ///

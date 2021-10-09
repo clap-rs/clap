@@ -10,6 +10,7 @@ use std::borrow::Cow;
 ///
 /// [`Cow`]: std::borrow::Cow
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "regex")))]
 pub struct RegexRef<'a>(Cow<'a, Regex>);
 
 impl<'a> Deref for RegexRef<'a> {

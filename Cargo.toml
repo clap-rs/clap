@@ -105,6 +105,7 @@ unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode character
 # Optional
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
 yaml = ["yaml-rust"]
+nightly = []
 
 # In-work features
 unstable-replace = []
@@ -117,7 +118,7 @@ lto = true
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace"]
+features = ["yaml", "regex", "unstable-replace", "nightly"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [workspace]

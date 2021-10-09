@@ -12,6 +12,7 @@ use crate::INTERNAL_ERROR_MSG;
 pub(crate) enum ValueType {
     Unknown,
     #[cfg(feature = "env")]
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "env")))]
     EnvVariable,
     CommandLine,
     DefaultValue,

@@ -24,6 +24,7 @@
 /// # }
 /// ```
 #[cfg(feature = "yaml")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "yaml")))]
 #[macro_export]
 macro_rules! load_yaml {
     ($yaml:expr) => {
@@ -49,6 +50,7 @@ macro_rules! load_yaml {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! crate_license {
     () => {{
@@ -79,6 +81,7 @@ macro_rules! crate_license {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! crate_version {
     () => {
@@ -108,6 +111,7 @@ macro_rules! crate_version {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! crate_authors {
     ($sep:expr) => {{
@@ -138,6 +142,7 @@ macro_rules! crate_authors {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! crate_description {
     () => {
@@ -159,6 +164,7 @@ macro_rules! crate_description {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! crate_name {
     () => {
@@ -190,6 +196,7 @@ macro_rules! crate_name {
 /// # }
 /// ```
 #[cfg(feature = "cargo")]
+#[cfg_attr(feature = "nightly", doc(cfg(feature = "cargo")))]
 #[macro_export]
 macro_rules! app_from_crate {
     () => {

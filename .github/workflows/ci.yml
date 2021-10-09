@@ -139,13 +139,13 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable-replace"
+          args: --features "wrap_help yaml regex unstable-replace nightly"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --features "wrap_help yaml regex unstable-replace debug"
+          args: --features "wrap_help yaml regex unstable-replace nightly debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
