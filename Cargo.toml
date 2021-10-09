@@ -88,7 +88,7 @@ default = [
 	"color",
 	"env",
 	"suggestions",
-	"unicode_help",
+	"unicode",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
 
@@ -99,7 +99,7 @@ cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-v
 color = ["atty", "termcolor"]
 env = [] # Use environment variables during arg parsing
 suggestions = ["strsim"]
-unicode_help = ["textwrap/unicode-width"]  # Enable if any unicode in help message
+unicode = ["textwrap/unicode-width"]  # support for unicode characters in arguments and help messages
 
 # Optional
 wrap_help = ["terminal_size", "textwrap/terminal_size"]

@@ -475,7 +475,7 @@ Disabling optional features can decrease the binary size of `clap` and decrease 
 * **color**: Turns on colored error messages. You still have to turn on colored help by setting `AppSettings::ColoredHelp`. (builds dependency `termcolor`)
 * **env**: Turns on the usage of environment variables during parsing.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **unicode_help**: Turns on support for unicode characters in help messages. (builds dependency `textwrap`)
+* **unicode**: Turns on support for unicode characters in arguments and help messages. (builds dependency `textwrap`)
 
 To disable these, add this to your `Cargo.toml`:
 
