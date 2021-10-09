@@ -193,6 +193,7 @@ mod tests {
 
     fn common() -> App<'static> {
         let mut app = App::new("myapp")
+            .version("3.0")
             .subcommand(
                 App::new("test").subcommand(App::new("config")).arg(
                     Arg::new("file")

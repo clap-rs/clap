@@ -6,6 +6,7 @@ fn build_app() -> App<'static> {
 
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
+        .version("3.0")
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -250,6 +251,7 @@ fn zsh_with_special_help() {
 
 fn build_app_special_help() -> App<'static> {
     App::new("my_app")
+        .version("3.0")
         .arg(
             Arg::new("single-quotes")
                 .long("single-quotes")
@@ -324,7 +326,9 @@ fn zsh_with_nested_subcommands() {
 }
 
 fn build_app_nested_subcommands() -> App<'static> {
-    App::new("first").subcommand(App::new("second").subcommand(App::new("third")))
+    App::new("first")
+        .version("3.0")
+        .subcommand(App::new("second").subcommand(App::new("third")))
 }
 
 static ZSH_NESTED_SUBCOMMANDS: &str = r#"#compdef my_app
@@ -431,6 +435,7 @@ fn zsh_with_aliases() {
 
 fn build_app_with_aliases() -> App<'static> {
     App::new("cmd")
+        .version("3.0")
         .about("testing bash completions")
         .arg(
             Arg::new("flag")

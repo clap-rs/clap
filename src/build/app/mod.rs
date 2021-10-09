@@ -1179,9 +1179,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     pub fn short_flag_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(!(name == '-'), "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, false));
         self
     }
@@ -1261,9 +1259,7 @@ impl<'help> App<'help> {
     /// ```
     pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            if s == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(s != &'-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, false));
         }
         self
@@ -1341,9 +1337,7 @@ impl<'help> App<'help> {
     /// ```
     /// [`App::short_flag_alias`]: App::short_flag_alias()
     pub fn visible_short_flag_alias(mut self, name: char) -> Self {
-        if name == '-' {
-            panic!("short alias name cannot be `-`");
-        }
+        assert!(name != '-', "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, true));
         self
     }
@@ -1414,9 +1408,7 @@ impl<'help> App<'help> {
     /// [`App::short_flag_aliases`]: App::short_flag_aliases()
     pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            if s == &'-' {
-                panic!("short alias name cannot be `-`");
-            }
+            assert!(!(s == &'-'), "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, true));
         }
         self
@@ -2323,13 +2315,11 @@ impl<'help> App<'help> {
                 .map(|arg| String::from(arg.name))
                 .collect();
 
-            if !args_missing_help.is_empty() {
-                panic!(
+            assert!(args_missing_help.is_empty(),
                     "AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
                 );
-            }
         }
 
         for sub_app in &self.subcommands {
@@ -2395,18 +2385,13 @@ impl<'help> App<'help> {
                 // We have to create a new scope in order to tell rustc the borrow of `sc` is
                 // done and to recursively call this method
                 {
-                    if $_self
-                        .settings
-                        .is_set(AppSettings::DisableVersionForSubcommands)
-                    {
-                        $sc.set(AppSettings::DisableVersionFlag);
-                    }
-
-                    if $_self.settings.is_set(AppSettings::PropagateVersion)
-                        && $sc.version.is_none()
-                        && $_self.version.is_some()
-                    {
-                        $sc.version = Some($_self.version.unwrap());
+                    if $_self.settings.is_set(AppSettings::PropagateVersion) {
+                        if $sc.version.is_none() && $_self.version.is_some() {
+                            $sc.version = Some($_self.version.unwrap());
+                        }
+                        if $sc.long_version.is_none() && $_self.long_version.is_some() {
+                            $sc.long_version = Some($_self.long_version.unwrap());
+                        }
                     }
 
                     $sc.settings = $sc.settings | $_self.g_settings;
@@ -2464,7 +2449,14 @@ impl<'help> App<'help> {
             }
         }
 
-        if self.is_set(AppSettings::DisableVersionFlag)
+        // Determine if we should remove the generated --version flag
+        //
+        // Note that if only mut_arg() was used, the first expression will evaluate to `true`
+        // however inside the condition block, we only check for Generated args, not
+        // GeneratedMutated args, so the `mut_arg("version", ..) will be skipped and fall through
+        // to the following condition below (Adding the short `-V`)
+        if self.settings.is_set(AppSettings::DisableVersionFlag)
+            || (self.version.is_none() && self.long_version.is_none())
             || self.args.args().any(|x| {
                 x.provider == ArgProvider::User
                     && (x.long == Some("version") || x.id == Id::version_hash())
@@ -2476,6 +2468,8 @@ impl<'help> App<'help> {
         {
             debug!("App::_check_help_and_version: Removing generated version");
 
+            // This is the check mentioned above that only checks for Generated, not
+            // GeneratedMuated args by design.
             let generated_version_pos = self
                 .args
                 .args()
@@ -2484,7 +2478,16 @@ impl<'help> App<'help> {
             if let Some(index) = generated_version_pos {
                 self.args.remove(index);
             }
-        } else {
+        }
+
+        // If we still have a generated --version flag, determine if we can apply the short `-V`
+        if self.args.args().any(|x| {
+            x.id == Id::version_hash()
+                && matches!(
+                    x.provider,
+                    ArgProvider::Generated | ArgProvider::GeneratedMutated
+                )
+        }) {
             let other_arg_has_short = self.args.args().any(|x| x.short == Some('V'));
             let version = self
                 .args
@@ -2520,6 +2523,7 @@ impl<'help> App<'help> {
                 .args_mut()
                 .filter(|a| !a.is_positional())
                 .filter(|a| a.disp_ord == 999)
+                .filter(|a| a.provider != ArgProvider::Generated)
                 .enumerate()
             {
                 a.disp_ord = i;
@@ -2647,9 +2651,10 @@ impl<'help> App<'help> {
 
     #[inline]
     pub(crate) fn contains_short(&self, s: char) -> bool {
-        if !self.is_set(AppSettings::Built) {
-            panic!("If App::_build hasn't been called, manually search through Arg shorts");
-        }
+        assert!(
+            self.is_set(AppSettings::Built),
+            "If App::_build hasn't been called, manually search through Arg shorts"
+        );
 
         self.args.contains(s)
     }

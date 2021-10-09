@@ -1,4 +1,8 @@
-use crate::{build::arg::debug_asserts::assert_arg, App, AppSettings, ArgSettings, ValueHint};
+use crate::{
+    build::arg::{debug_asserts::assert_arg, ArgProvider},
+    util::Id,
+    App, AppSettings, ArgSettings, ValueHint,
+};
 use std::cmp::Ordering;
 
 #[derive(Eq)]
@@ -43,6 +47,26 @@ pub(crate) fn assert_app(app: &App) {
 
     let mut short_flags = vec![];
     let mut long_flags = vec![];
+
+    // Invalid version flag settings
+    if app.version.is_none() && app.long_version.is_none() {
+        // PropagateVersion is meaningless if there is no version
+        assert!(
+            !app.settings.is_set(AppSettings::PropagateVersion),
+            "No version information via App::version or App::long_version to propagate"
+        );
+
+        // Used `App::mut_arg("version", ..) but did not provide any version information to display
+        let has_mutated_version = app
+            .args
+            .args()
+            .any(|x| x.id == Id::version_hash() && x.provider == ArgProvider::GeneratedMutated);
+
+        if has_mutated_version {
+            assert!(app.settings.is_set(AppSettings::NoAutoVersion),
+                "Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion");
+        }
+    }
 
     for sc in &app.subcommands {
         if let Some(s) = sc.short_flag.as_ref() {

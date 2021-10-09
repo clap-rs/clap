@@ -6,6 +6,7 @@ fn build_app() -> App<'static> {
 
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
+        .version("3.0")
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -160,6 +161,7 @@ fn elvish_with_aliases() {
 
 fn build_app_with_aliases() -> App<'static> {
     App::new("cmd")
+        .version("3.0")
         .about("testing bash completions")
         .arg(
             Arg::new("flag")

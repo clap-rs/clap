@@ -4,216 +4,152 @@ use std::str;
 
 use clap::{App, AppSettings, Arg, ErrorKind};
 
-static VERSION: &str = "clap-test v1.4.8\n";
+fn common() -> App<'static> {
+    App::new("foo")
+}
+
+fn with_version() -> App<'static> {
+    common().version("3.0")
+}
+
+fn with_long_version() -> App<'static> {
+    common().long_version("3.0 (abcdefg)")
+}
+
+fn with_subcommand() -> App<'static> {
+    with_version().subcommand(App::new("bar").subcommand(App::new("baz")))
+}
 
 #[test]
-fn version_short() {
-    let m = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .long_version("1.3 (abcdef12)")
-        .try_get_matches_from(vec!["myprog", "-V"]);
+fn no_version_flag_short() {
+    let res = common().try_get_matches_from("foo -V".split(" "));
 
-    assert!(m.is_err());
-    let err = m.unwrap_err();
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["-V"]);
+}
+
+#[test]
+fn no_version_flag_long() {
+    let res = common().try_get_matches_from("foo --version".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.info, ["--version"]);
+}
+
+#[test]
+fn version_flag_from_version_short() {
+    let res = with_version().try_get_matches_from("foo -V".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
+    assert_eq!(err.to_string(), "foo 3.0\n");
 }
 
 #[test]
-fn version_long() {
-    let m = App::new("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .long_version("1.3 (abcdef12)")
-        .try_get_matches_from(vec!["myprog", "--version"]);
+fn version_flag_from_version_long() {
+    let res = with_version().try_get_matches_from("foo --version".split(" "));
 
-    assert!(m.is_err());
-    let err = m.unwrap_err();
+    assert!(res.is_err());
+    let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3 (abcdef12)\n");
+    assert_eq!(err.to_string(), "foo 3.0\n");
 }
 
 #[test]
-fn complex_version_output() {
-    let mut a = App::new("clap-test").version("v1.4.8");
-    let _ = a.try_get_matches_from_mut(vec![""]);
+fn version_flag_from_long_version_short() {
+    let res = with_long_version().try_get_matches_from("foo -V".split(" "));
 
-    // Now we check the output of print_version()
-    assert_eq!(a.render_version(), VERSION);
-}
-
-fn prefer_user_app() -> App<'static> {
-    App::new("test")
-        .version("1.3")
-        .arg(
-            Arg::new("version1")
-                .long("version")
-                .short('V')
-                .about("some version"),
-        )
-        .subcommand(
-            App::new("foo").arg(
-                Arg::new("version1")
-                    .long("version")
-                    .short('V')
-                    .about("some version"),
-            ),
-        )
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
 }
 
 #[test]
-fn prefer_user_version_long() {
-    let m = prefer_user_app().try_get_matches_from(vec!["test", "--version"]);
+fn version_flag_from_long_version_long() {
+    let res = with_long_version().try_get_matches_from("foo --version".split(" "));
 
-    assert!(m.is_ok());
-    assert!(m.unwrap().is_present("version1"));
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
 }
 
 #[test]
-fn prefer_user_version_short() {
-    let m = prefer_user_app().try_get_matches_from(vec!["test", "-V"]);
+fn override_version_long_with_user_flag() {
+    let res = with_version()
+        .arg(Arg::new("ver").long("version"))
+        .try_get_matches_from("foo --version".split(" "));
 
-    assert!(m.is_ok());
-    assert!(m.unwrap().is_present("version1"));
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("ver"));
 }
 
 #[test]
-fn prefer_user_subcmd_version_long() {
-    let m = prefer_user_app().try_get_matches_from(vec!["test", "foo", "--version"]);
+fn override_version_long_with_user_flag_no_version_flag() {
+    let res = with_version()
+        .arg(Arg::new("ver").long("version"))
+        .try_get_matches_from("foo -V".split(" "));
 
-    assert!(m.is_ok());
-    assert!(m
-        .unwrap()
-        .subcommand_matches("foo")
-        .unwrap()
-        .is_present("version1"));
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
 }
 
 #[test]
-fn prefer_user_subcmd_version_short() {
-    let m = prefer_user_app().try_get_matches_from(vec!["test", "foo", "-V"]);
+fn override_version_short_with_user_flag() {
+    let res = with_version()
+        .arg(Arg::new("ver").short('V'))
+        .try_get_matches_from("foo -V".split(" "));
 
-    assert!(m.is_ok());
-    assert!(m
-        .unwrap()
-        .subcommand_matches("foo")
-        .unwrap()
-        .is_present("version1"));
+    assert!(res.is_ok());
+    let m = res.unwrap();
+    assert!(m.is_present("ver"));
 }
 
-static OVERRIDE_VERSION_SHORT: &str = "test 1.3
+#[test]
+fn override_version_short_with_user_flag_long_still_works() {
+    let res = with_version()
+        .arg(Arg::new("ver").short('V'))
+        .try_get_matches_from("foo --version".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+}
+
+#[test]
+fn mut_version_short() {
+    let res = with_version()
+        .mut_arg("version", |a| a.short('z'))
+        .try_get_matches_from("foo -z".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+}
+
+#[test]
+fn mut_version_long() {
+    let res = with_version()
+        .mut_arg("version", |a| a.long("qux"))
+        .try_get_matches_from("foo --qux".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+}
+
+static VERSION_ABOUT_MULTI_SC: &str = "foo-bar-baz 3.0
 
 USAGE:
-    test
-
-FLAGS:
-    -h, --help       Print help information
-    -v, --version    Print version information
-";
-
-#[test]
-fn override_version_short() {
-    let app = App::new("test")
-        .version("1.3")
-        .mut_arg("version", |a| a.short('v'));
-
-    let m = app.clone().try_get_matches_from(vec!["test", "-v"]);
-
-    assert!(m.is_err());
-    let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
-
-    let m = app.clone().try_get_matches_from(vec!["test", "--version"]);
-
-    assert!(m.is_err());
-    let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
-
-    assert!(utils::compare_output(
-        app,
-        "test -h",
-        OVERRIDE_VERSION_SHORT,
-        false
-    ));
-}
-
-static OVERRIDE_VERSION_LONG: &str = "test 1.3
-
-USAGE:
-    test [FLAGS]
-
-FLAGS:
-    -h, --help    Print help information
-    -V, --vers    Print version information
-";
-
-#[test]
-fn override_version_long() {
-    let app = App::new("test")
-        .version("1.3")
-        .mut_arg("version", |a| a.long("vers"));
-
-    let m = app.clone().try_get_matches_from(vec!["test", "-V"]);
-
-    assert!(m.is_err());
-    let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
-
-    let m = app.clone().try_get_matches_from(vec!["test", "--vers"]);
-
-    assert!(m.is_err());
-    let err = m.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "test 1.3\n");
-
-    assert!(utils::compare_output(
-        app,
-        "test -h",
-        OVERRIDE_VERSION_LONG,
-        false
-    ));
-}
-
-static OVERRIDE_VERSION_ABOUT: &str = "test 1.3
-
-USAGE:
-    test
-
-FLAGS:
-    -h, --help       Print help information
-    -V, --version    version info
-";
-
-#[test]
-fn override_version_about() {
-    let app = App::new("test")
-        .version("1.3")
-        .mut_arg("version", |a| a.about("version info"));
-
-    assert!(utils::compare_output(
-        app.clone(),
-        "test -h",
-        OVERRIDE_VERSION_ABOUT,
-        false
-    ));
-    assert!(utils::compare_output(
-        app,
-        "test --help",
-        OVERRIDE_VERSION_ABOUT,
-        false
-    ));
-}
-
-static VERSION_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
-
-USAGE:
-    myapp subcmd multi
+    foo bar baz
 
 FLAGS:
     -h, --help       Print help information
@@ -222,92 +158,87 @@ FLAGS:
 
 #[test]
 fn version_about_multi_subcmd() {
-    let app = App::new("myapp")
+    let app = with_subcommand()
         .mut_arg("version", |a| a.about("Print custom version about text"))
-        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
-
-    assert!(utils::compare_output(
-        app.clone(),
-        "myapp help subcmd multi",
-        VERSION_ABOUT_MULTI_SC,
-        false
-    ));
-    assert!(utils::compare_output(
-        app.clone(),
-        "myapp subcmd multi -h",
-        VERSION_ABOUT_MULTI_SC,
-        false
-    ));
-    assert!(utils::compare_output(
-        app,
-        "myapp subcmd multi --help",
-        VERSION_ABOUT_MULTI_SC,
-        false
-    ));
-}
-
-static VERSION_ABOUT_MULTI_SC_OVERRIDE: &str = "myapp-subcmd-multi 1.0
-
-USAGE:
-    myapp subcmd multi
-
-FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print custom version about text from multi
-";
-
-#[test]
-fn version_about_multi_subcmd_override() {
-    let app = App::new("myapp")
-        .mut_arg("version", |a| a.about("Print custom version about text"))
-        .subcommand(App::new("subcmd").subcommand(
-            App::new("multi").version("1.0").mut_arg("version", |a| {
-                a.about("Print custom version about text from multi")
-            }),
-        ));
+        .global_setting(AppSettings::PropagateVersion);
 
     assert!(utils::compare_output(
         app,
-        "myapp help subcmd multi",
-        VERSION_ABOUT_MULTI_SC_OVERRIDE,
+        "foo bar baz -h",
+        VERSION_ABOUT_MULTI_SC,
         false
     ));
 }
 
 #[test]
-fn disabled_version_long() {
-    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
-    let res = app.try_get_matches_from(&["foo", "--version"]);
+fn no_propagation_by_default_long() {
+    // Version Flag should not be propagated to subcommands
+    let res = with_subcommand().try_get_matches_from("foo bar --version".split(" "));
+
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
-    assert_eq!(err.info, ["--version"]);
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.info, &["--version"]);
 }
 
 #[test]
-fn disabled_version_short() {
-    let app = App::new("foo").setting(AppSettings::DisableVersionFlag);
-    let res = app.try_get_matches_from(&["foo", "-V"]);
+fn no_propagation_by_default_short() {
+    let res = with_subcommand().try_get_matches_from("foo bar -V".split(" "));
+
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
-    assert_eq!(err.info, ["-V"]);
+    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.info, &["-V"]);
 }
 
 #[test]
-fn override_version_using_long() {
-    let app = App::new("foo")
-        .setting(AppSettings::DisableVersionFlag)
-        .arg(Arg::new("version").long("version"));
-    let matches = app.get_matches_from(&["foo", "--version"]);
-    assert!(matches.is_present("version"));
+fn propagate_version_long() {
+    let res = with_subcommand()
+        .setting(AppSettings::PropagateVersion)
+        .try_get_matches_from("foo bar --version".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
 }
 
 #[test]
-fn override_version_using_short() {
-    let app = App::new("foo")
-        .arg(Arg::new("version").short('V'))
-        .setting(AppSettings::DisableVersionFlag);
-    let matches = app.get_matches_from(&["foo", "-V"]);
-    assert!(matches.is_present("version"));
+fn propagate_version_short() {
+    let res = with_subcommand()
+        .setting(AppSettings::PropagateVersion)
+        .try_get_matches_from("foo bar -V".split(" "));
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion"]
+fn mut_arg_version_panic() {
+    let _res = common()
+        .mut_arg("version", |v| v.short('z'))
+        .try_get_matches_from("foo -z".split(" "));
+}
+
+#[test]
+fn mut_arg_version_no_auto_version() {
+    let res = common()
+        .mut_arg("version", |v| v.short('z'))
+        .setting(AppSettings::NoAutoVersion)
+        .try_get_matches_from("foo -z".split(" "));
+
+    assert!(res.is_ok());
+    assert!(res.unwrap().is_present("version"));
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "No version information via App::version or App::long_version to propagate"]
+fn propagate_version_no_version_info() {
+    let _res = common()
+        .setting(AppSettings::PropagateVersion)
+        .subcommand(App::new("bar"))
+        .try_get_matches_from("foo".split(" "));
 }

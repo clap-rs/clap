@@ -130,8 +130,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors("ignoreerrors")
         => Flags::IGNORE_ERRORS,
-    DisableVersionForSubcommands("disableversionforsubcommands")
-        => Flags::DISABLE_VERSION_FOR_SC,
     WaitOnError("waitonerror")
         => Flags::WAIT_ON_ERROR,
     Built("built")
@@ -653,27 +651,6 @@ pub enum AppSettings {
     /// ```
     DisableVersionFlag,
 
-    /// Disables `-V` and `--version` for all [`subcommands`] of this [`App`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let res = App::new("myprog")
-    ///     .version("v1.1")
-    ///     .setting(AppSettings::DisableVersionForSubcommands)
-    ///     .subcommand(App::new("test"))
-    ///     .try_get_matches_from(vec![
-    ///         "myprog", "test", "-V"
-    ///     ]);
-    /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
-    /// [`App`]: crate::App
-    DisableVersionForSubcommands,
-
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
@@ -1036,10 +1013,45 @@ pub enum AppSettings {
     /// ```
     WaitOnError,
 
-    /// @TODO-v3: @docs write them...maybe rename
+    /// Tells clap to treat the auto-generated `-h, --help` flags just like any other flag, and
+    /// *not* print the help message. This allows one to handle printing of the help message
+    /// manually.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let result = App::new("myprog")
+    ///     .setting(AppSettings::NoAutoHelp)
+    ///     .try_get_matches_from("myprog --help".split(" "));
+    ///
+    /// // Normally, if `--help` is used clap prints the help message and returns an
+    /// // ErrorKind::DisplayHelp
+    /// //
+    /// // However, `--help` was treated like a normal flag
+    ///
+    /// assert!(result.is_ok());
+    /// assert!(result.unwrap().is_present("help"));
+    /// ```
     NoAutoHelp,
 
-    /// @TODO-v3: @docs write them...maybe rename
+    /// Tells clap to treat the auto-generated `-V, --version` flags just like any other flag, and
+    /// *not* print the version message. This allows one to handle printing of the version message
+    /// manually.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// let result = App::new("myprog")
+    ///     .version("3.0")
+    ///     .setting(AppSettings::NoAutoVersion)
+    ///     .try_get_matches_from("myprog --version".split(" "));
+    ///
+    /// // Normally, if `--version` is used clap prints the version message and returns an
+    /// // ErrorKind::DisplayVersion
+    /// //
+    /// // However, `--version` was treated like a normal flag
+    ///
+    /// assert!(result.is_ok());
+    /// assert!(result.unwrap().is_present("version"));
+    /// ```
     NoAutoVersion,
 
     #[doc(hidden)]
@@ -1179,12 +1191,6 @@ mod test {
         assert_eq!(
             "unifiedhelpmessage".parse::<AppSettings>().unwrap(),
             AppSettings::UnifiedHelpMessage
-        );
-        assert_eq!(
-            "disableversionforsubcommands"
-                .parse::<AppSettings>()
-                .unwrap(),
-            AppSettings::DisableVersionForSubcommands
         );
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),

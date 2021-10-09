@@ -67,10 +67,12 @@ fn crate_authors() {
 
 #[test]
 fn crate_name() {
-    let res = App::new(crate_name!()).try_get_matches_from(vec!["clap", "--version"]);
+    let res = App::new(crate_name!())
+        .version("3.0")
+        .try_get_matches_from(vec!["clap", "--version"]);
 
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "clap \n");
+    assert_eq!(err.to_string(), "clap 3.0\n");
 }

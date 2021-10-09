@@ -6,11 +6,10 @@ USAGE:
     prog [FLAGS]
 
 FLAGS:
-    -a               
-    -b               
-    -c               
-    -h, --help       Print help information
-    -V, --version    Print version information
+    -a            
+    -b            
+    -c            
+    -h, --help    Print help information
 ";
 
 static ONLY_B_ERROR: &str = "error: The following required arguments were not provided:

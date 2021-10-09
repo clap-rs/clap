@@ -32,7 +32,6 @@ fn basic() {
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
         (@global_setting ColorNever)
-        (@setting DisableVersionForSubcommands)
         (@arg opt: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")

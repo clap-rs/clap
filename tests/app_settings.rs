@@ -116,9 +116,6 @@ ARGS:
 FLAGS:
     -h, --help
             Print help information
-
-    -V, --version
-            Print version information
 ";
 
 static LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND: &str = "myprog-test-nested 
@@ -131,12 +128,9 @@ USAGE:
 FLAGS:
     -h, --help
             Print help information
-
-    -V, --version
-            Print version information
 ";
 
-static LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND: &str = "myprog 
+static LONG_FORMAT_SINGLE_ARG_HELP_SUBCOMMAND: &str = "myprog 1.0
 
 USAGE:
     myprog [foo] [SUBCOMMAND]
@@ -1167,6 +1161,7 @@ fn nested_help_subcommand_with_global_setting() {
 #[test]
 fn single_arg_help_with_long_format_setting() {
     let m = App::new("myprog")
+        .version("1.0")
         .setting(AppSettings::UseLongFormatForHelpSubcommand)
         .subcommand(App::new("test"))
         .arg(
@@ -1199,4 +1194,65 @@ fn use_long_format_for_help_subcommand_with_setting() {
         LONG_FORMAT_FOR_HELP_SUBCOMMAND,
         false
     ));
+}
+
+#[test]
+fn no_auto_help() {
+    let app = App::new("myprog")
+        .setting(AppSettings::NoAutoHelp)
+        .subcommand(App::new("foo"));
+
+    let result = app.clone().try_get_matches_from("myprog --help".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("help"));
+
+    let result = app.clone().try_get_matches_from("myprog -h".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("help"));
+
+    let result = app.clone().try_get_matches_from("myprog help".split(" "));
+
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().subcommand_name(), Some("help"));
+}
+
+#[test]
+fn no_auto_version() {
+    let app = App::new("myprog")
+        .version("3.0")
+        .setting(AppSettings::NoAutoVersion);
+
+    let result = app
+        .clone()
+        .try_get_matches_from("myprog --version".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+
+    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+}
+
+#[test]
+fn no_auto_version_mut_arg() {
+    let app = App::new("myprog")
+        .version("3.0")
+        .mut_arg("version", |v| v.about("custom about"))
+        .setting(AppSettings::NoAutoVersion);
+
+    let result = app
+        .clone()
+        .try_get_matches_from("myprog --version".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+
+    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
 }

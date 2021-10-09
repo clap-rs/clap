@@ -42,6 +42,7 @@ pub fn runner() -> Runner {
                     &[
                         ["DisableHelpFlags", "DisableHelpFlag"],
                         ["DisableVersion", "DisableVersionFlag"],
+                        // @TODO @v3 shoud be removed, not renamed
                         ["VersionlessSubcommands", "DisableVersionForSubcommands"],
                     ],
                 )
