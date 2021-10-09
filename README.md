@@ -503,6 +503,10 @@ features = ["std", "suggestions", "color"]
 * **wrap_help**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
 * **yaml**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 
+#### Experimental features
+
+* **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
+
 ### More Information
 
 You can find complete documentation on the [docs.rs][docs] for this project.

@@ -1437,6 +1437,8 @@ impl<'help> App<'help> {
 
     /// Replaces an argument or subcommand used on the CLI at runtime with other arguments or subcommands.
     ///
+    /// **Note:** This is gated behind [`unstable-replace`](https://github.com/clap-rs/clap/issues/2836)
+    ///
     /// When this method is used, `name` is removed from the CLI, and `target`
     /// is inserted in its place. Parsing continues as if the user typed
     /// `target` instead of `name`.
@@ -1539,6 +1541,7 @@ impl<'help> App<'help> {
     ///
     /// [`App::replace`]: App::replace()
     #[inline]
+    #[cfg(feature = "unstable-replace")]
     pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
         self.replacers.insert(name, target);
         self

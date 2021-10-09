@@ -10,6 +10,8 @@ TODO: `YamlLoader`
 
 * **Renamed Features**
   * `unicode_help` to `unicode` to encompass more functionality
+* **Gated Features**
+  * `App::replace` is now gated behind `unstable-replace`
 
 * **Removed Settings**
   * `AppSettings::DisableVersionForSubcommands`

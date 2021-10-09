@@ -327,6 +327,7 @@ fn invisible_aliases_help_output() {
 }
 
 #[test]
+#[cfg(feature = "unstable-replace")]
 fn replace() {
     let m = App::new("prog")
         .subcommand(App::new("module").subcommand(App::new("install").about("Install module")))
