@@ -80,7 +80,7 @@ jobs:
       - name: Default features
         run: cargo check --all-targets
       - name: All features + Debug
-        run: cargo check --all-targets  --features "wrap_help yaml regex debug"
+        run: cargo check --all-targets --features "wrap_help yaml regex unstable-replace debug"
       - name: No features
         run: cargo check --all-targets --no-default-features --features "std cargo"
       - name: UI Tests

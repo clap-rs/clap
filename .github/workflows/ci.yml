@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [master, staging, trying]
+    branches: [staging, trying]
 jobs:
   ci:
     name: CI
@@ -109,7 +109,7 @@ jobs:
         if: matrix.features == 'release'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex" --release
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace" --release
   nightly:
     name: Nightly Tests
     strategy:
@@ -151,7 +151,7 @@ jobs:
         if: matrix.features == 'release'
         with:
           command: test
-          args: --features "wrap_help yaml regex" --release
+          args: --features "wrap_help yaml regex unstable-replace" --release
   wasm:
     name: Wasm Check
     runs-on: ubuntu-latest
@@ -172,4 +172,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "yaml regex"
+          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace"
