@@ -9,7 +9,7 @@ Another really great way to help is if you find an interesting, or helpful way i
 To test with all features both enabled and disabled, you can run these commands:
 
 ```sh
-$ cargo test --features "wrap_help yaml regex"
+$ cargo test --features "wrap_help yaml regex unstable-replace"
 ```
 
 Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
@@ -39,7 +39,7 @@ During the CI process `clap` runs against many different lints using [`clippy`](
 In order to check the code for lints and to format it run either:
 
 ```sh
-$ cargo clippy --features "wrap_help yaml regex" -- -D warnings
+$ cargo clippy --features "wrap_help yaml regex unstable-replace" -- -D warnings
 $ cargo fmt -- --check
 
 # Or
@@ -64,8 +64,8 @@ $ just debug <test_name>
 ### Tests and Documentation
 
 1. Create tests for your changes
-2. **Ensure the tests are passing.** Run the tests (`cargo test --features "wrap_help yaml regex"`), alternatively `just run-tests` if you have `just` installed.
-3. **Optional** Run the lints (`cargo build --features lints`) (requires a nightly compiler), alternatively `just lint`
+2. **Ensure the tests are passing.** Run the tests as specified above.
+3. **Ensure linting is passing** Run the lints as specified above.
 4. Ensure your changes contain documentation if adding new APIs or features.
 
 ### Preparing the PR

@@ -5,7 +5,7 @@
 [![Crates.io](https://img.shields.io/crates/d/clap?style=flat-square)](https://crates.io/crates/clap)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-MIT)
-[![Build Status](https://img.shields.io/github/workflow/status/clap-rs/clap/CI/master?style=flat-square)](https://github.com/clap-rs/clap/actions/workflows/ci.yml?query=branch%3Amaster)
+[![Build Status](https://img.shields.io/github/workflow/status/clap-rs/clap/CI/staging?style=flat-square)](https://github.com/clap-rs/clap/actions/workflows/ci.yml?query=branch%3Astaging)
 [![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/master?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=master)
 [![Contributors](https://img.shields.io/github/contributors/clap-rs/clap?style=flat-square)](https://github.com/clap-rs/clap/graphs/contributors)
 
@@ -37,6 +37,7 @@ We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.4` 
    1. [Optional Dependencies / Features](#optional-dependencies--features)
       1. [Features enabled by default](#features-enabled-by-default)
       2. [Opt-in features](#opt-in-features)
+      3. [Experimental features](#experimental-features)
    2. [More Information](#more-information)
 7. [Sponsors](#sponsors)
 8. [Contributing](#contributing)
@@ -504,6 +505,8 @@ features = ["std", "suggestions", "color"]
 * **yaml**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 
 #### Experimental features
+
+These features are opt-in. But be wary that they can contain breaking changes between minor releases.
 
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
 
