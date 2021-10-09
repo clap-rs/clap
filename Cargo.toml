@@ -63,6 +63,7 @@ path = "benches/06_rustup.rs"
 clap_derive = { path = "./clap_derive", version = "=3.0.0-beta.4", optional = true }
 bitflags = "1.2"
 textwrap = { version = "0.14.0", default-features = false, features = [] }
+unicase = { version = "2.6", optional = true }
 indexmap = "1.0"
 os_str_bytes = "4.1"
 strsim = { version = "0.10",  optional = true }
@@ -99,7 +100,7 @@ cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-v
 color = ["atty", "termcolor"]
 env = [] # Use environment variables during arg parsing
 suggestions = ["strsim"]
-unicode = ["textwrap/unicode-width"]  # support for unicode characters in arguments and help messages
+unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
 
 # Optional
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
