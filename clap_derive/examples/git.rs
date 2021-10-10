@@ -3,9 +3,9 @@
 //! Documentation can be added either through doc comments or
 //! `help`/`about` attributes.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "git")]
 /// the stupid content tracker
 enum Opt {

@@ -26,9 +26,8 @@ use std::ffi::OsString;
 /// the CLI.
 ///
 /// ```rust
-/// # use clap::{Clap};
 /// /// My super CLI
-/// #[derive(Clap)]
+/// #[derive(clap::Parser)]
 /// #[clap(name = "demo")]
 /// struct Context {
 ///     /// More verbose output
@@ -70,7 +69,7 @@ use std::ffi::OsString;
 /// }
 /// ```
 ///
-pub trait Clap: FromArgMatches + IntoApp + Sized {
+pub trait Parser: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
         let matches = <Self as IntoApp>::into_app().get_matches();
@@ -194,7 +193,7 @@ pub trait FromArgMatches: Sized {
 /// # Example
 ///
 /// ```rust
-/// #[derive(clap::Clap)]
+/// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(flatten)]
 ///     logging: LogArgs,
@@ -231,7 +230,7 @@ pub trait Args: FromArgMatches + Sized {
 /// # Example
 ///
 /// ```rust
-/// #[derive(clap::Clap)]
+/// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(subcommand)]
 ///     action: Action,
@@ -260,14 +259,14 @@ pub trait Subcommand: FromArgMatches + Sized {
 
 /// Parse arguments into enums.
 ///
-/// When deriving [`Clap`], a field whose type implements `ArgEnum` can have the attribute
+/// When deriving [`Parser`], a field whose type implements `ArgEnum` can have the attribute
 /// `#[clap(arg_enum)]`.  In addition to parsing, help and error messages may report possible
 /// variants.
 ///
 /// # Example
 ///
 /// ```rust
-/// #[derive(clap::Clap)]
+/// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(arg_enum)]
 ///     level: Level,
@@ -304,13 +303,13 @@ pub trait ArgEnum: Sized + Clone {
     fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>>;
 }
 
-impl<T: Clap> Clap for Box<T> {
+impl<T: Parser> Parser for Box<T> {
     fn parse() -> Self {
-        Box::new(<T as Clap>::parse())
+        Box::new(<T as Parser>::parse())
     }
 
     fn try_parse() -> Result<Self, Error> {
-        <T as Clap>::try_parse().map(Box::new)
+        <T as Parser>::try_parse().map(Box::new)
     }
 
     fn parse_from<I, It>(itr: I) -> Self
@@ -319,7 +318,7 @@ impl<T: Clap> Clap for Box<T> {
         // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
-        Box::new(<T as Clap>::parse_from(itr))
+        Box::new(<T as Parser>::parse_from(itr))
     }
 
     fn try_parse_from<I, It>(itr: I) -> Result<Self, Error>
@@ -328,7 +327,7 @@ impl<T: Clap> Clap for Box<T> {
         // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
-        <T as Clap>::try_parse_from(itr).map(Box::new)
+        <T as Parser>::try_parse_from(itr).map(Box::new)
     }
 }
 

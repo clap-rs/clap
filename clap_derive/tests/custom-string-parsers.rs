@@ -12,13 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
 use std::ffi::{CString, OsStr};
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct PathOpt {
     #[clap(short, long, parse(from_os_str))]
     path: PathBuf,
@@ -61,7 +61,7 @@ fn parse_hex(input: &str) -> Result<u64, ParseIntError> {
     u64::from_str_radix(input, 16)
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct HexOpt {
     #[clap(short, parse(try_from_str = parse_hex))]
     number: u64,
@@ -109,7 +109,7 @@ fn custom_parser_4(_: &OsStr) -> Result<&'static str, String> {
     Ok("D")
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct NoOpOpt {
     #[clap(short, parse(from_str = custom_parser_1))]
     a: &'static str,
@@ -160,7 +160,7 @@ fn update_every_custom_parser() {
 // conversion function from `&str` to `u8`.
 type Bytes = Vec<u8>;
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct DefaultedOpt {
     #[clap(short, parse(from_str))]
     bytes: Bytes,
@@ -199,7 +199,7 @@ fn foo(value: u64) -> Foo {
     Foo(value as u8)
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Occurrences {
     #[clap(short, long, parse(from_occurrences))]
     signed: i32,
@@ -242,7 +242,7 @@ fn test_custom_bool() {
             _ => Err(format!("invalid bool {}", s)),
         }
     }
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, parse(try_from_str = parse_bool))]
         debug: bool,
@@ -328,7 +328,7 @@ fn test_custom_bool() {
 
 #[test]
 fn test_cstring() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     struct Opt {
         #[clap(parse(try_from_str = CString::new))]
         c_string: CString,

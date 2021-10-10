@@ -1,15 +1,15 @@
 #![cfg(not(windows))]
 
-use clap::{Clap, ErrorKind};
+use clap::{ErrorKind, Parser};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
-#[derive(Clap, Debug, PartialEq, Eq)]
+#[derive(Parser, Debug, PartialEq, Eq)]
 struct Positional {
     arg: String,
 }
 
-#[derive(Clap, Debug, PartialEq, Eq)]
+#[derive(Parser, Debug, PartialEq, Eq)]
 struct Named {
     #[clap(short, long)]
     arg: String,
@@ -74,13 +74,13 @@ fn invalid_utf8_strict_option_long_equals() {
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
 }
 
-#[derive(Clap, Debug, PartialEq, Eq)]
+#[derive(Parser, Debug, PartialEq, Eq)]
 struct PositionalOs {
     #[clap(parse(from_os_str))]
     arg: OsString,
 }
 
-#[derive(Clap, Debug, PartialEq, Eq)]
+#[derive(Parser, Debug, PartialEq, Eq)]
 struct NamedOs {
     #[clap(short, long, parse(from_os_str))]
     arg: OsString,
@@ -169,7 +169,7 @@ fn invalid_utf8_option_long_equals() {
     );
 }
 
-#[derive(Debug, PartialEq, Clap)]
+#[derive(Debug, PartialEq, Parser)]
 enum External {
     #[clap(external_subcommand)]
     Other(Vec<String>),
@@ -199,7 +199,7 @@ fn refuse_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
     assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidUtf8);
 }
 
-#[derive(Debug, PartialEq, Clap)]
+#[derive(Debug, PartialEq, Parser)]
 enum ExternalOs {
     #[clap(external_subcommand)]
     Other(Vec<OsString>),

@@ -7,10 +7,10 @@ title = "Fast & Modern CLI Framework for Rust"
 Here is an example of a simple program:
 
 ```rust
-use clap::Clap;
+use clap::Parser;
 
 /// Simple program to greet a person
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "hello")]
 struct Hello {
     /// Name of the person to greet

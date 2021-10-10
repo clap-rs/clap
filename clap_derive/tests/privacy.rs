@@ -13,9 +13,9 @@
 // MIT/Apache 2.0 license.
 
 mod options {
-    use clap::Clap;
+    use clap::Parser;
 
-    #[derive(Debug, Clap)]
+    #[derive(Debug, Parser)]
     pub struct Options {
         #[clap(subcommand)]
         pub subcommand: super::subcommands::SubCommand,
@@ -23,9 +23,9 @@ mod options {
 }
 
 mod subcommands {
-    use clap::Clap;
+    use clap::Parser;
 
-    #[derive(Debug, Clap)]
+    #[derive(Debug, Parser)]
     pub enum SubCommand {
         /// foo
         Foo {

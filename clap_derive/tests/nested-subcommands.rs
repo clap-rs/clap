@@ -12,9 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Opt {
     #[clap(short, long)]
     force: bool,
@@ -24,13 +24,13 @@ struct Opt {
     cmd: Sub,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Sub {
     Fetch {},
     Add {},
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Opt2 {
     #[clap(short, long)]
     force: bool,
@@ -107,7 +107,7 @@ fn test_badinput() {
     assert!(result.is_err());
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Opt3 {
     #[clap(short, long)]
     all: bool,
@@ -115,7 +115,7 @@ struct Opt3 {
     cmd: Sub2,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Sub2 {
     Foo {
         file: String,
@@ -125,7 +125,7 @@ enum Sub2 {
     Bar {},
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Sub3 {
     Baz {},
     Quux {},
@@ -145,7 +145,7 @@ fn test_subsubcommand() {
     );
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum SubSubCmdWithOption {
     Remote {
         #[clap(subcommand)]
@@ -156,13 +156,13 @@ enum SubSubCmdWithOption {
         cmd: Stash,
     },
 }
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Remote {
     Add { name: String, url: String },
     Remove { name: String },
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 enum Stash {
     Save,
     Pop,

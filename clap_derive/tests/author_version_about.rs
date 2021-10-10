@@ -14,12 +14,12 @@
 
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::*;
 
 #[test]
 fn no_author_version_about() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(name = "foo")]
     struct Opt {}
 
@@ -29,7 +29,7 @@ fn no_author_version_about() {
 
 #[test]
 fn use_env() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     #[clap(author, about, version)]
     struct Opt {}
 
@@ -43,7 +43,7 @@ fn use_env() {
 fn explicit_version_not_str_lit() {
     const VERSION: &str = "custom version";
 
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(version = VERSION)]
     pub struct Opt {}
 

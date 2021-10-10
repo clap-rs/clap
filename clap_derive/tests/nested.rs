@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
+use clap::Parser;
 
 // Tests that clap_derive properly detects an `Option` field
 // that results from a macro expansion
@@ -20,7 +20,7 @@ use clap::Clap;
 fn use_option() {
     macro_rules! expand_ty {
         ($name:ident: $ty:ty) => {
-            #[derive(Clap)]
+            #[derive(Parser)]
             struct Outer {
                 #[clap(short, long)]
                 #[allow(dead_code)]
@@ -38,7 +38,7 @@ fn issue_447() {
         ( $name:ident, [
         #[$meta:meta] $var:ident($inner:ty)
       ] ) => {
-            #[derive(Debug, PartialEq, clap::Clap)]
+            #[derive(Debug, PartialEq, clap::Parser)]
             enum $name {
                 #[$meta]
                 $var($inner),

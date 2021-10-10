@@ -1,6 +1,6 @@
 //! The preprocessing we apply to doc comments.
 //!
-//! #[derive(Clap)] works in terms of "paragraphs". Paragraph is a sequence of
+//! #[derive(Parser)] works in terms of "paragraphs". Paragraph is a sequence of
 //! non-empty adjacent lines, delimited by sequences of blank (whitespace only) lines.
 
 use crate::attrs::Method;

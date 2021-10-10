@@ -6,11 +6,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn skip_1() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short)]
         x: u32,
@@ -37,7 +37,7 @@ fn skip_1() {
 
 #[test]
 fn skip_2() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short)]
         x: u32,
@@ -79,7 +79,7 @@ fn skip_enum() {
         }
     }
 
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
         #[clap(long, short)]
         number: u32,
@@ -101,7 +101,7 @@ fn skip_enum() {
 
 #[test]
 fn skip_help_doc_comments() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
         #[clap(skip, about = "internal_stuff")]
         a: u32,
@@ -132,7 +132,7 @@ fn skip_help_doc_comments() {
 
 #[test]
 fn skip_val() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     pub struct Opt {
         #[clap(long, short)]
         number: u32,

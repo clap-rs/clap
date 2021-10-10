@@ -1,10 +1,10 @@
 //! How to use environment variable fallback an how it
 //! interacts with `default_value`.
 
-use clap::{ArgSettings, Clap};
+use clap::{ArgSettings, Parser};
 
 /// Example for allowing to specify options via environment variables.
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "env")]
 struct Opt {
     // Use `env` to enable specifying the option with an environment

@@ -1,9 +1,9 @@
-#[derive(clap::Clap)]
+#[derive(clap::Parser)]
 enum Opt {
     Sub(SubCmd),
 }
 
-#[derive(clap::Clap)]
+#[derive(clap::Parser)]
 enum SubCmd {}
 
 fn main() {}

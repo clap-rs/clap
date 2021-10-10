@@ -4,16 +4,16 @@ use proc_macro2::Ident;
 use proc_macro_error::append_dummy;
 use quote::quote;
 
-pub fn clap_struct(name: &Ident) {
+pub fn parser_struct(name: &Ident) {
     into_app(name);
     args(name);
-    append_dummy(quote!( impl clap::Clap for #name {} ));
+    append_dummy(quote!( impl clap::Parser for #name {} ));
 }
 
-pub fn clap_enum(name: &Ident) {
+pub fn parser_enum(name: &Ident) {
     into_app(name);
     subcommand(name);
-    append_dummy(quote!( impl clap::Clap for #name {} ));
+    append_dummy(quote!( impl clap::Parser for #name {} ));
 }
 
 pub fn into_app(name: &Ident) {

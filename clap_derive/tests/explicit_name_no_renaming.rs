@@ -1,11 +1,11 @@
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::*;
 
 #[test]
 fn explicit_short_long_no_rename() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short = '.', long = ".foo", multiple_occurrences(true))]
         foo: Vec<String>,
@@ -21,7 +21,7 @@ fn explicit_short_long_no_rename() {
 
 #[test]
 fn explicit_name_no_rename() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(name = ".options")]
         foo: Vec<String>,

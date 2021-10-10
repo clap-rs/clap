@@ -19,10 +19,10 @@ clap = "3"
 And then, in your rust file:
 ```rust
 use std::path::PathBuf;
-use clap::Clap;
+use clap::Parser;
 
 /// A basic example
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = "basic")]
 struct Opt {
     // A flag, true if used in the command line. Note doc comment will

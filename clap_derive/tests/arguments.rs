@@ -12,12 +12,12 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Clap;
 use clap::IntoApp;
+use clap::Parser;
 
 #[test]
 fn required_argument() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         arg: i32,
     }
@@ -28,7 +28,7 @@ fn required_argument() {
 
 #[test]
 fn optional_argument() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         arg: Option<i32>,
     }
@@ -39,7 +39,7 @@ fn optional_argument() {
 
 #[test]
 fn argument_with_default() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(default_value = "42")]
         arg: i32,
@@ -51,7 +51,7 @@ fn argument_with_default() {
 
 #[test]
 fn arguments() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         arg: Vec<i32>,
     }
@@ -65,7 +65,7 @@ fn arguments() {
 
 #[test]
 fn arguments_safe() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         arg: Vec<i32>,
     }
@@ -87,7 +87,7 @@ fn arguments_safe() {
 
 #[test]
 fn auto_value_name() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         my_special_arg: i32,
     }
@@ -103,7 +103,7 @@ fn auto_value_name() {
 
 #[test]
 fn explicit_value_name() {
-    #[derive(Clap, PartialEq, Debug)]
+    #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(value_name = "BROWNIE_POINTS")]
         my_special_arg: i32,

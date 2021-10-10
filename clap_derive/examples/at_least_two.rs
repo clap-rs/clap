@@ -1,9 +1,9 @@
 //! How to require presence of at least N values,
 //! like `val1 val2 ... valN ... valM`.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct Opt {
     #[clap(required = true, min_values = 2)]
     foos: Vec<String>,

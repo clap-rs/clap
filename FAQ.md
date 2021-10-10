@@ -20,7 +20,7 @@ Simple! `clap` *is* `structopt`. With the 3.0 release, `clap` imported the `stru
 
 If you were using `structopt` before, you have to change the attributes from `#[structopt(...)]` to `#[clap(...)]`.
 
-Also the derive statements changed from `#[derive(Structopt)]` to `#[derive(Clap)]`. There is also some additional functionality and breaking changes that's been added to the `clap_derive` crate. See the documentation for that crate, for more details.
+Also the derive statements changed from `#[derive(Structopt)]` to `#[derive(Parser)]`. There is also some additional functionality and breaking changes that's been added to the `clap_derive` crate. See the documentation for that crate, for more details.
 
 #### How does `clap` compare to [getopts](https://github.com/rust-lang-nursery/getopts)?
 

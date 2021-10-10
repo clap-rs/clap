@@ -6,11 +6,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn raw_bool_literal() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(name = "raw_bool")]
     struct Opt {
         #[clap(raw(false))]

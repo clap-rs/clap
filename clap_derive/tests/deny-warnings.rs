@@ -14,7 +14,7 @@
 
 #![deny(warnings)]
 
-use clap::Clap;
+use clap::Parser;
 
 fn try_str(s: &str) -> Result<String, std::convert::Infallible> {
     Ok(s.into())
@@ -22,7 +22,7 @@ fn try_str(s: &str) -> Result<String, std::convert::Infallible> {
 
 #[test]
 fn warning_never_struct() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(parse(try_from_str = try_str))]
         s: String,
@@ -37,7 +37,7 @@ fn warning_never_struct() {
 
 #[test]
 fn warning_never_enum() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     enum Opt {
         Foo {
             #[clap(parse(try_from_str = try_str))]

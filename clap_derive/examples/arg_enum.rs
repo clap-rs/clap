@@ -2,7 +2,7 @@
 //!
 //! All the variants of the enum and the enum itself support `rename_all`
 
-use clap::{ArgEnum, Clap};
+use clap::{ArgEnum, Parser};
 
 #[derive(ArgEnum, Debug, PartialEq, Clone)]
 enum ArgChoice {
@@ -19,7 +19,7 @@ enum ArgChoice {
     Hidden,
 }
 
-#[derive(Clap, PartialEq, Debug)]
+#[derive(Parser, PartialEq, Debug)]
 struct Opt {
     #[clap(arg_enum)]
     arg: ArgChoice,

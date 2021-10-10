@@ -1,8 +1,8 @@
-use clap::Clap;
 use clap::IntoApp;
+use clap::Parser;
 #[test]
 fn app_name_in_short_help_from_struct() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     struct MyApp {}
 
@@ -15,7 +15,7 @@ fn app_name_in_short_help_from_struct() {
 
 #[test]
 fn app_name_in_long_help_from_struct() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     struct MyApp {}
 
@@ -28,7 +28,7 @@ fn app_name_in_long_help_from_struct() {
 
 #[test]
 fn app_name_in_short_help_from_enum() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     enum MyApp {}
 
@@ -41,7 +41,7 @@ fn app_name_in_short_help_from_enum() {
 
 #[test]
 fn app_name_in_long_help_from_enum() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     enum MyApp {}
 
@@ -54,7 +54,7 @@ fn app_name_in_long_help_from_enum() {
 
 #[test]
 fn app_name_in_short_version_from_struct() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     struct MyApp {}
 
@@ -65,7 +65,7 @@ fn app_name_in_short_version_from_struct() {
 
 #[test]
 fn app_name_in_long_version_from_struct() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     struct MyApp {}
 
@@ -76,7 +76,7 @@ fn app_name_in_long_version_from_struct() {
 
 #[test]
 fn app_name_in_short_version_from_enum() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     enum MyApp {}
 
@@ -87,7 +87,7 @@ fn app_name_in_short_version_from_enum() {
 
 #[test]
 fn app_name_in_long_version_from_enum() {
-    #[derive(Clap)]
+    #[derive(Parser)]
     #[clap(name = "my-app")]
     enum MyApp {}
 

@@ -1,8 +1,8 @@
-use clap::Clap;
+use clap::Parser;
 
 #[test]
 fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     enum Opt {
         Command { foo: u32 },
     }
@@ -15,7 +15,7 @@ fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
 
 #[test]
 fn test_multi_word_enum_variant_is_renamed() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     enum Opt {
         FirstCommand { foo: u32 },
     }
@@ -28,7 +28,7 @@ fn test_multi_word_enum_variant_is_renamed() {
 
 #[test]
 fn test_standalone_long_generates_kebab_case() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
     struct Opt {
         #[clap(long)]
@@ -43,7 +43,7 @@ fn test_standalone_long_generates_kebab_case() {
 
 #[test]
 fn test_custom_long_overwrites_default_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(long = "foo")]
         foo_option: bool,
@@ -57,7 +57,7 @@ fn test_custom_long_overwrites_default_name() {
 
 #[test]
 fn test_standalone_long_uses_previous_defined_custom_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(name = "foo", long)]
         foo_option: bool,
@@ -71,7 +71,7 @@ fn test_standalone_long_uses_previous_defined_custom_name() {
 
 #[test]
 fn test_standalone_long_ignores_afterwards_defined_custom_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(long, name = "foo")]
         foo_option: bool,
@@ -85,7 +85,7 @@ fn test_standalone_long_ignores_afterwards_defined_custom_name() {
 
 #[test]
 fn test_standalone_short_generates_kebab_case() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
     struct Opt {
         #[clap(short)]
@@ -97,7 +97,7 @@ fn test_standalone_short_generates_kebab_case() {
 
 #[test]
 fn test_custom_short_overwrites_default_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short = 'o')]
         foo_option: bool,
@@ -108,7 +108,7 @@ fn test_custom_short_overwrites_default_name() {
 
 #[test]
 fn test_standalone_short_uses_previous_defined_custom_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(name = "option", short)]
         foo_option: bool,
@@ -119,7 +119,7 @@ fn test_standalone_short_uses_previous_defined_custom_name() {
 
 #[test]
 fn test_standalone_short_ignores_afterwards_defined_custom_name() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(short, name = "option")]
         foo_option: bool,
@@ -130,7 +130,7 @@ fn test_standalone_short_ignores_afterwards_defined_custom_name() {
 
 #[test]
 fn test_standalone_long_uses_previous_defined_casing() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(rename_all = "screaming_snake", long)]
         foo_option: bool,
@@ -144,7 +144,7 @@ fn test_standalone_long_uses_previous_defined_casing() {
 
 #[test]
 fn test_standalone_short_uses_previous_defined_casing() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(rename_all = "screaming_snake", short)]
         foo_option: bool,
@@ -155,7 +155,7 @@ fn test_standalone_short_uses_previous_defined_casing() {
 
 #[test]
 fn test_standalone_long_works_with_verbatim_casing() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[allow(non_snake_case)]
     struct Opt {
         #[clap(rename_all = "verbatim", long)]
@@ -170,7 +170,7 @@ fn test_standalone_long_works_with_verbatim_casing() {
 
 #[test]
 fn test_standalone_short_works_with_verbatim_casing() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(rename_all = "verbatim", short)]
         _foo: bool,
@@ -181,7 +181,7 @@ fn test_standalone_short_works_with_verbatim_casing() {
 
 #[test]
 fn test_rename_all_is_propagated_from_struct_to_fields() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     struct Opt {
         #[clap(long)]
@@ -193,14 +193,14 @@ fn test_rename_all_is_propagated_from_struct_to_fields() {
 
 #[test]
 fn test_rename_all_is_not_propagated_from_struct_into_flattened() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     struct Opt {
         #[clap(flatten)]
         foo: Foo,
     }
 
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Foo {
         #[clap(long)]
         foo: bool,
@@ -216,14 +216,14 @@ fn test_rename_all_is_not_propagated_from_struct_into_flattened() {
 
 #[test]
 fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     struct Opt {
         #[clap(subcommand)]
         foo: Foo,
     }
 
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     enum Foo {
         Command {
             #[clap(long)]
@@ -241,7 +241,7 @@ fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
 
 #[test]
 fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     enum Opt {
         FirstVariant,
@@ -264,7 +264,7 @@ fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
 
 #[test]
 fn test_rename_all_is_propagation_can_be_overridden() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     #[clap(rename_all = "screaming_snake")]
     enum Opt {
         #[clap(rename_all = "kebab_case")]
@@ -291,7 +291,7 @@ fn test_rename_all_is_propagation_can_be_overridden() {
 
 #[test]
 fn test_lower_is_renamed() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(rename_all = "lower", long)]
         foo_option: bool,
@@ -305,7 +305,7 @@ fn test_lower_is_renamed() {
 
 #[test]
 fn test_upper_is_renamed() {
-    #[derive(Clap, Debug, PartialEq)]
+    #[derive(Parser, Debug, PartialEq)]
     struct Opt {
         #[clap(rename_all = "upper", long)]
         foo_option: bool,

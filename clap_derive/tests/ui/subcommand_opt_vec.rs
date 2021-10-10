@@ -6,9 +6,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 struct MakeCookie {
     #[clap(short)]
     s: String,
@@ -17,7 +17,7 @@ struct MakeCookie {
     cmd: Option<Vec<Command>>,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 enum Command {
     /// Pound acorns into flour for cookie dough.
     Pound { acorns: u32 },

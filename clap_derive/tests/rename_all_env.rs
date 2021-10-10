@@ -1,11 +1,11 @@
 mod utils;
 
-use clap::Clap;
+use clap::Parser;
 use utils::*;
 
 #[test]
 fn it_works() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     #[clap(rename_all_env = "kebab")]
     struct BehaviorModel {
         #[clap(env)]
@@ -18,7 +18,7 @@ fn it_works() {
 
 #[test]
 fn default_is_screaming() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     struct BehaviorModel {
         #[clap(env)]
         be_nice: String,
@@ -30,7 +30,7 @@ fn default_is_screaming() {
 
 #[test]
 fn overridable() {
-    #[derive(Debug, PartialEq, Clap)]
+    #[derive(Debug, PartialEq, Parser)]
     #[clap(rename_all_env = "kebab")]
     struct BehaviorModel {
         #[clap(env)]
