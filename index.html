@@ -68,18 +68,18 @@
 
     <p><strong>Clap</strong> is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing console/terminal applications.</p>
 <p>Here is an example of a simple program:</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">use clap::Clap;
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">use clap::Parser;
 
-/// Simple program to greet a person
-#[derive(Clap, Debug)]
-#[clap(name = "hello")]
+&#x2F;&#x2F;&#x2F; Simple program to greet a person
+#[derive(Parser, Debug)]
+#[clap(name = &quot;hello&quot;)]
 struct Hello {
-    /// Name of the person to greet
+    &#x2F;&#x2F;&#x2F; Name of the person to greet
     #[clap(short, long)]
     name: String,
 
-    /// Number of times to greet
-    #[clap(short, long, default_value = "1")]
+    &#x2F;&#x2F;&#x2F; Number of times to greet
+    #[clap(short, long, default_value = &quot;1&quot;)]
     count: u8,
 }
 
@@ -87,7 +87,7 @@ fn main() {
     let hello = Hello::parse();
 
     for _ in 0..hello.count {
-        println!("Hello {}!", hello.name)
+        println!(&quot;Hello {}!&quot;, hello.name)
     }
 }
 </code></pre>
@@ -103,15 +103,15 @@ Hello John!
 Simple program to greet a person
 
 USAGE:
-    hello [OPTIONS] --name <name>
+    hello [OPTIONS] --name &lt;name&gt;
 
 FLAGS:
     -h, --help       Print help information
     -V, --version    Print version information
 
 OPTIONS:
-    -c, --count <count>    Number of times to greet [default: 1]
-    -n, --name <name>      Name of the person to greet
+    -c, --count &lt;count&gt;    Number of times to greet [default: 1]
+    -n, --name &lt;name&gt;      Name of the person to greet
 </code></pre>
 
   </article>
