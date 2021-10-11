@@ -13,7 +13,7 @@ fn propagate_version() {
 #[test]
 fn global_setting() {
     let mut app = App::new("test")
-        .global_setting(AppSettings::ColoredHelp)
+        .global_setting(AppSettings::UnifiedHelpMessage)
         .subcommand(App::new("subcmd"));
     app._propagate();
     assert!(app
@@ -21,13 +21,13 @@ fn global_setting() {
         .iter()
         .find(|s| s.name == "subcmd")
         .unwrap()
-        .is_set(AppSettings::ColoredHelp));
+        .is_set(AppSettings::UnifiedHelpMessage));
 }
 
 #[test]
 fn global_settings() {
     let mut app = App::new("test")
-        .global_setting(AppSettings::ColoredHelp)
+        .global_setting(AppSettings::UnifiedHelpMessage)
         .global_setting(AppSettings::TrailingVarArg)
         .subcommand(App::new("subcmd"));
     app._propagate();
@@ -36,7 +36,7 @@ fn global_settings() {
         .iter()
         .find(|s| s.name == "subcmd")
         .unwrap()
-        .is_set(AppSettings::ColoredHelp));
+        .is_set(AppSettings::UnifiedHelpMessage));
     assert!(app
         .subcommands
         .iter()
