@@ -19,12 +19,7 @@
 //! but includes the `--install` option as an example of why it can be useful
 //! for the main program to take arguments that aren't applet subcommands.
 
-use std::{
-    env::args_os,
-    fs::{hard_link, read_link},
-    path::{Path, PathBuf},
-    process::exit,
-};
+use std::process::exit;
 
 use clap::{App, AppSettings, Arg};
 
@@ -45,28 +40,7 @@ fn main() {
         .subcommand(App::new("false").about("does nothing unsuccessfully"));
     let matches = app.get_matches_mut();
     if matches.occurrences_of("install") > 0 {
-        let exec_path = read_link("/proc/self/exe")
-            .ok()
-            .or_else(|| {
-                args_os().next().and_then(|s| {
-                    let p: &Path = s.as_ref();
-                    if p.is_absolute() {
-                        Some(PathBuf::from(s))
-                    } else {
-                        None
-                    }
-                })
-            })
-            .expect(
-                "Should be able to read /proc/self/exe or argv0 should be present and absolute",
-            );
-        let mut dest = PathBuf::from(matches.value_of("install").unwrap());
-        for applet in app.get_subcommands().map(|c| c.get_name()) {
-            dest.push(applet);
-            hard_link(&exec_path, &dest).expect("Should be able to hardlink");
-            dest.pop();
-        }
-        exit(0);
+        unimplemented!("Make hardlinks to the executable here");
     }
 
     exit(match matches.subcommand_name() {
