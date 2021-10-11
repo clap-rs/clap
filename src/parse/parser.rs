@@ -1874,7 +1874,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let mut c = Colorizer::new(true, self.app.color());
+        let mut c = Colorizer::new(true, self.app.get_color());
         Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
         Ok(c)
     }
@@ -1886,7 +1886,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let mut c = Colorizer::new(false, self.app.color());
+        let mut c = Colorizer::new(false, self.app.get_color());
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
@@ -1898,7 +1898,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::version_err");
 
         let msg = self.app._render_version(use_long);
-        let mut c = Colorizer::new(false, self.app.color());
+        let mut c = Colorizer::new(false, self.app.get_color());
         c.none(msg);
         ClapError::new(c, ErrorKind::DisplayVersion)
     }

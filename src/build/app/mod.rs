@@ -1788,7 +1788,7 @@ impl<'help> App<'help> {
     /// [`--help` (long)]: Arg::long_about()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
-        let color = self.color();
+        let color = self.get_color();
 
         let p = Parser::new(self);
         let mut c = Colorizer::new(false, color);
@@ -1815,7 +1815,7 @@ impl<'help> App<'help> {
     /// [`--help` (long)]: Arg::long_about()
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
-        let color = self.color();
+        let color = self.get_color();
 
         let p = Parser::new(self);
         let mut c = Colorizer::new(false, color);
@@ -2657,7 +2657,7 @@ impl<'help> App<'help> {
 
     #[inline]
     // Should we color the output?
-    pub(crate) fn color(&self) -> ColorChoice {
+    pub(crate) fn get_color(&self) -> ColorChoice {
         debug!("App::color: Color setting...");
 
         if self.is_set(AppSettings::ColorNever) {

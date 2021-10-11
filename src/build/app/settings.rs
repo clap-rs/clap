@@ -26,7 +26,6 @@ bitflags! {
         const NO_POS_VALUES                  = 1 << 17;
         const NEXT_LINE_HELP                 = 1 << 18;
         const DERIVE_DISP_ORDER              = 1 << 19;
-        const COLORED_HELP                   = 1 << 20;
         const COLOR_ALWAYS                   = 1 << 21;
         const COLOR_AUTO                     = 1 << 22;
         const COLOR_NEVER                    = 1 << 23;
