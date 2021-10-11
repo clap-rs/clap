@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
+        .version("3.0")
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -46,12 +47,12 @@ static FIG: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -60,12 +61,12 @@ static FIG: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -74,6 +75,10 @@ static FIG: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
   ],
   args: {
@@ -122,12 +127,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -144,12 +149,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -157,12 +162,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       name: "some-cmd-with-hypens",
       options: [
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -171,12 +176,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -185,6 +190,10 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
   ],
   args: {
@@ -205,6 +214,7 @@ fn fig_with_special_help() {
 
 fn build_app_special_help() -> App<'static> {
     App::new("my_app")
+        .version("3.0")
         .arg(
             Arg::new("single-quotes")
                 .long("single-quotes")
@@ -240,6 +250,10 @@ static FIG_SPECIAL_HELP: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
     {
       name: "--single-quotes",
@@ -279,6 +293,7 @@ fn fig_with_aliases() {
 
 fn build_app_with_aliases() -> App<'static> {
     App::new("cmd")
+        .version("3.0")
         .about("testing bash completions")
         .arg(
             Arg::new("flag")
@@ -315,6 +330,10 @@ static FIG_ALIASES: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
     {
       name: ["-f", "-F", "--flag", "--flg"],
@@ -368,12 +387,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -406,12 +425,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
       ],
       options: [
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -420,12 +439,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: "--version",
-          description: "Print version information",
-        },
-        {
           name: ["-h", "--help"],
           description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
         },
       ],
     },
@@ -434,6 +453,10 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
     },
   ],
   args: {
