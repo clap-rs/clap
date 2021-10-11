@@ -7,5 +7,5 @@ fn main() {
         .subcommand(App::new("test").subcommand(App::new("config")))
         .subcommand(App::new("hello"));
 
-    generate::<Bash, _>(&mut app, "myapp", &mut io::stdout());
+    generate(Bash, &mut app, "myapp", &mut io::stdout());
 }

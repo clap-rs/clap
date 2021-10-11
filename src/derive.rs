@@ -25,7 +25,8 @@ use std::ffi::OsString;
 /// throughout the application representing the normalized values coming from
 /// the CLI.
 ///
-/// ```rust
+#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+#[cfg_attr(feature = "derive", doc = " ```")]
 /// /// My super CLI
 /// #[derive(clap::Parser)]
 /// #[clap(name = "demo")]
@@ -150,7 +151,8 @@ pub trait FromArgMatches: Sized {
     /// Motivation: If our application had two CLI options, `--name
     /// <STRING>` and the flag `--debug`, we may create a struct as follows:
     ///
-    /// ```no_run
+    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+    #[cfg_attr(feature = "derive", doc = " ```no_run")]
     /// struct Context {
     ///     name: String,
     ///     debug: bool
@@ -160,7 +162,8 @@ pub trait FromArgMatches: Sized {
     /// We then need to convert the `ArgMatches` that `clap` generated into our struct.
     /// `from_arg_matches` serves as the equivalent of:
     ///
-    /// ```no_run
+    #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+    #[cfg_attr(feature = "derive", doc = " ```no_run")]
     /// # use clap::ArgMatches;
     /// # struct Context {
     /// #   name: String,
@@ -192,7 +195,8 @@ pub trait FromArgMatches: Sized {
 ///
 /// # Example
 ///
-/// ```rust
+#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+#[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(flatten)]
@@ -229,7 +233,8 @@ pub trait Args: FromArgMatches + Sized {
 ///
 /// # Example
 ///
-/// ```rust
+#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+#[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(subcommand)]
@@ -265,7 +270,8 @@ pub trait Subcommand: FromArgMatches + Sized {
 ///
 /// # Example
 ///
-/// ```rust
+#[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
+#[cfg_attr(feature = "derive", doc = " ```")]
 /// #[derive(clap::Parser)]
 /// struct Args {
 ///     #[clap(arg_enum)]

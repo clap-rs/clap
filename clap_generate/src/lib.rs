@@ -9,6 +9,44 @@
 //!
 //! - For generating at compile-time, see [`generate_to`]
 //! - For generating at runtime, see [`generate`]
+//!
+//! [`Shell`] is a convenience `enum` for an argument value type that implements `Generator`
+//! for each natively-supported shell type.
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use clap::{App, AppSettings, Arg, ValueHint};
+//! use clap_generate::{generate, Generator, Shell};
+//! use std::io;
+//!
+//! fn build_cli() -> App<'static> {
+//!     App::new("example")
+//!          .arg(Arg::new("file")
+//!              .about("some input file")
+//!                 .value_hint(ValueHint::AnyPath),
+//!         )
+//!        .arg(
+//!            Arg::new("generator")
+//!                .long("generate")
+//!                .possible_values(Shell::arg_values()),
+//!        )
+//! }
+//!
+//! fn print_completions<G: Generator>(gen: G, app: &mut App) {
+//!     generate(gen, app, app.get_name().to_string(), &mut io::stdout());
+//! }
+//!
+//! fn main() {
+//!     let matches = build_cli().get_matches();
+//!
+//!     if let Ok(generator) = matches.value_of_t::<Shell>("generator") {
+//!         let mut app = build_cli();
+//!         eprintln!("Generating completion file for {}...", generator);
+//!         print_completions(generator, &mut app);
+//!     }
+//! }
+//! ```
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.4")]
@@ -118,7 +156,8 @@ pub use shell::Shell;
 ///     };
 ///
 ///     let mut app = build_cli();
-///     let path = generate_to::<Bash, _, _>(
+///     let path = generate_to(
+///         Bash,
 ///         &mut app, // We need to specify what generator to use
 ///         "myapp",  // We need to specify the bin name manually
 ///         outdir,   // We need to specify where to write to
@@ -136,7 +175,12 @@ pub use shell::Shell;
 ///
 /// **NOTE:** Please look at the individual [generators]
 /// to see the name of the files generated.
-pub fn generate_to<G, S, T>(app: &mut clap::App, bin_name: S, out_dir: T) -> Result<PathBuf, Error>
+pub fn generate_to<G, S, T>(
+    gen: G,
+    app: &mut clap::App,
+    bin_name: S,
+    out_dir: T,
+) -> Result<PathBuf, Error>
 where
     G: Generator,
     S: Into<String>,
@@ -145,12 +189,12 @@ where
     app.set_bin_name(bin_name);
 
     let out_dir = PathBuf::from(out_dir.into());
-    let file_name = G::file_name(app.get_bin_name().unwrap());
+    let file_name = gen.file_name(app.get_bin_name().unwrap());
 
     let path = out_dir.join(file_name);
     let mut file = File::create(&path)?;
 
-    _generate::<G, S>(app, &mut file);
+    _generate::<G, S>(gen, app, &mut file);
     Ok(path)
 }
 
@@ -176,7 +220,7 @@ where
 ///     let matches = cli::build_cli().get_matches();
 ///
 ///     if matches.is_present("generate-bash-completions") {
-///         generate::<Bash, _>(&mut cli::build_cli(), "myapp", &mut io::stdout());
+///         generate(Bash, &mut cli::build_cli(), "myapp", &mut io::stdout());
 ///     }
 ///
 ///     // normal logic continues...
@@ -189,16 +233,16 @@ where
 /// ```shell
 /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
 /// ```
-pub fn generate<G, S>(app: &mut clap::App, bin_name: S, buf: &mut dyn Write)
+pub fn generate<G, S>(gen: G, app: &mut clap::App, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
     app.set_bin_name(bin_name);
-    _generate::<G, S>(app, buf)
+    _generate::<G, S>(gen, app, buf)
 }
 
-fn _generate<G, S>(app: &mut clap::App, buf: &mut dyn Write)
+fn _generate<G, S>(gen: G, app: &mut clap::App, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
@@ -207,5 +251,5 @@ where
     app._build();
     app._build_bin_names();
 
-    G::generate(app, buf)
+    gen.generate(app, buf)
 }

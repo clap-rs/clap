@@ -12,22 +12,11 @@
 //! . ./value_hints_derive.fish
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
-use clap::{App, AppSettings, ArgEnum, IntoApp, Parser, ValueHint};
-use clap_generate::generators::{Bash, Elvish, Fish, PowerShell, Zsh};
-use clap_generate::{generate, Generator};
+use clap::{App, AppSettings, IntoApp, Parser, ValueHint};
+use clap_generate::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;
-
-#[derive(ArgEnum, Debug, PartialEq, Clone)]
-enum GeneratorChoice {
-    Bash,
-    Elvish,
-    Fish,
-    #[clap(name = "powershell")]
-    PowerShell,
-    Zsh,
-}
 
 #[derive(Parser, Debug, PartialEq)]
 #[clap(
@@ -38,7 +27,7 @@ enum GeneratorChoice {
 struct Opt {
     /// If provided, outputs the completion file for given shell
     #[clap(long = "generate", arg_enum)]
-    generator: Option<GeneratorChoice>,
+    generator: Option<Shell>,
     // Showcasing all possible ValueHints:
     #[clap(long, value_hint = ValueHint::Unknown)]
     unknown: Option<String>,
@@ -68,8 +57,8 @@ struct Opt {
     email: Option<String>,
 }
 
-fn print_completions<G: Generator>(app: &mut App) {
-    generate::<G, _>(app, app.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(gen: G, app: &mut App) {
+    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
 }
 
 fn main() {
@@ -78,13 +67,7 @@ fn main() {
     if let Some(generator) = opt.generator {
         let mut app = Opt::into_app();
         eprintln!("Generating completion file for {:?}...", generator);
-        match generator {
-            GeneratorChoice::Bash => print_completions::<Bash>(&mut app),
-            GeneratorChoice::Elvish => print_completions::<Elvish>(&mut app),
-            GeneratorChoice::Fish => print_completions::<Fish>(&mut app),
-            GeneratorChoice::PowerShell => print_completions::<PowerShell>(&mut app),
-            GeneratorChoice::Zsh => print_completions::<Zsh>(&mut app),
-        }
+        print_completions(generator, &mut app);
     } else {
         println!("{:#?}", opt);
     }

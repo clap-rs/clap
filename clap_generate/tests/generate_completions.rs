@@ -18,9 +18,9 @@ fn generate_completions() {
                 .arg(Arg::new("debug").short('d')),
         );
 
-    generate::<Bash, _>(&mut app, "test_app", &mut io::sink());
-    generate::<Fish, _>(&mut app, "test_app", &mut io::sink());
-    generate::<PowerShell, _>(&mut app, "test_app", &mut io::sink());
-    generate::<Elvish, _>(&mut app, "test_app", &mut io::sink());
-    generate::<Zsh, _>(&mut app, "test_app", &mut io::sink());
+    generate(Bash, &mut app, "test_app", &mut io::sink());
+    generate(Fish, &mut app, "test_app", &mut io::sink());
+    generate(PowerShell, &mut app, "test_app", &mut io::sink());
+    generate(Elvish, &mut app, "test_app", &mut io::sink());
+    generate(Zsh, &mut app, "test_app", &mut io::sink());
 }

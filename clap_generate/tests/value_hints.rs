@@ -119,7 +119,7 @@ _my_app() {
 '--help[Print help information]' \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
-    
+
 }
 
 (( $+functions[_my_app_commands] )) ||
@@ -149,11 +149,11 @@ complete -c my_app -l help -d 'Print help information'
 #[test]
 fn zsh_with_value_hints() {
     let mut app = build_app_with_value_hints();
-    common::<Zsh>(&mut app, "my_app", ZSH_VALUE_HINTS);
+    common(Zsh, &mut app, "my_app", ZSH_VALUE_HINTS);
 }
 
 #[test]
 fn fish_with_value_hints() {
     let mut app = build_app_with_value_hints();
-    common::<Fish>(&mut app, "my_app", FISH_VALUE_HINTS);
+    common(Fish, &mut app, "my_app", FISH_VALUE_HINTS);
 }
