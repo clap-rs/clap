@@ -43,7 +43,6 @@ static BASH: &str = r#"_myapp() {
             myapp)
                 cmd="myapp"
                 ;;
-
             help)
                 cmd+="__help"
                 ;;
@@ -63,7 +62,6 @@ static BASH: &str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-
                 *)
                     COMPREPLY=()
                     ;;
@@ -71,7 +69,6 @@ static BASH: &str = r#"_myapp() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-
         myapp__help)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -79,7 +76,6 @@ static BASH: &str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-
                 *)
                     COMPREPLY=()
                     ;;
@@ -94,7 +90,6 @@ static BASH: &str = r#"_myapp() {
                 return 0
             fi
             case "${prev}" in
-
                 --case)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -145,7 +140,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             my_app)
                 cmd="my_app"
                 ;;
-
             help)
                 cmd+="__help"
                 ;;
@@ -171,7 +165,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-
                 *)
                     COMPREPLY=()
                     ;;
@@ -179,7 +172,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-
         my_app__help)
             opts=" -h -V  --help --version  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -187,7 +179,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-
                 *)
                     COMPREPLY=()
                     ;;
@@ -202,7 +193,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-
                 *)
                     COMPREPLY=()
                     ;;
@@ -217,7 +207,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-
                 --config)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -236,7 +225,6 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
                 return 0
             fi
             case "${prev}" in
-
                 --case)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -298,7 +286,6 @@ static BASH_ALIASES: &str = r#"_cmd() {
             cmd)
                 cmd="cmd"
                 ;;
-
             *)
                 ;;
         esac
@@ -312,7 +299,6 @@ static BASH_ALIASES: &str = r#"_cmd() {
                 return 0
             fi
             case "${prev}" in
-
                 --option)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -336,7 +322,6 @@ static BASH_ALIASES: &str = r#"_cmd() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-
     esac
 }
 
