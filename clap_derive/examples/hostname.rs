@@ -23,9 +23,9 @@
 //!
 //! This example omits the implementation of displaying address config.
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(name = env!("CARGO_CRATE_NAME"), setting = clap::AppSettings::Multicall)]
 enum Args {
     /// Show the configured hostname
