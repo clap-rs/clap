@@ -19,7 +19,7 @@ use crate::{
     parse::features::suggestions,
     parse::{ArgMatcher, SubCommand},
     parse::{Validator, ValueType},
-    util::{termcolor::ColorChoice, ChildGraph, Id},
+    util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
@@ -825,17 +825,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             None,
             Usage::new(self).create_usage_with_title(&[]),
         )
-    }
-
-    // Should we color the help?
-    pub(crate) fn color_help(&self) -> ColorChoice {
-        debug!("Parser::color_help");
-
-        if self.is_set(AS::ColoredHelp) {
-            self.app.color()
-        } else {
-            ColorChoice::Never
-        }
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
@@ -1885,7 +1874,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let mut c = Colorizer::new(true, self.color_help());
+        let mut c = Colorizer::new(true, self.app.color());
         Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
         Ok(c)
     }
@@ -1897,7 +1886,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(false, self.app.color());
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
@@ -1909,7 +1898,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::version_err");
 
         let msg = self.app._render_version(use_long);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(false, self.app.color());
         c.none(msg);
         ClapError::new(c, ErrorKind::DisplayVersion)
     }

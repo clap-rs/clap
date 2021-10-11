@@ -80,8 +80,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
-    ColoredHelp("coloredhelp")
-        => Flags::COLORED_HELP,
     ColorAlways("coloralways")
         => Flags::COLOR_ALWAYS,
     ColorAuto("colorauto")
@@ -492,24 +490,6 @@ pub enum AppSettings {
     /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
     SubcommandPrecedenceOverArg,
-
-    /// Uses colorized help messages.
-    ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature
-    ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ColoredHelp)
-    ///     .get_matches();
-    /// ```
-    ColoredHelp,
 
     /// Enables colored output only when the output is going to a terminal or TTY.
     ///
@@ -1105,10 +1085,6 @@ mod test {
         assert_eq!(
             "allownegativenumbers".parse::<AppSettings>().unwrap(),
             AppSettings::AllowNegativeNumbers
-        );
-        assert_eq!(
-            "coloredhelp".parse::<AppSettings>().unwrap(),
-            AppSettings::ColoredHelp
         );
         assert_eq!(
             "colorauto".parse::<AppSettings>().unwrap(),

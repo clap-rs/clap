@@ -15,6 +15,7 @@ TODO: `YamlLoader`
 
 * **Removed Settings**
   * `AppSettings::DisableVersionForSubcommands`
+  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `AppSettings::Color(Auto|Always|Never)`
 
 <a name="v3.0.0-beta.4"></a>
 ## v3.0.0-beta.4 (2021-08-14)
