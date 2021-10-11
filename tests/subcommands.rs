@@ -512,13 +512,6 @@ For more information try --help
 fn busybox_like_multicall() {
     let app = App::new("busybox")
         .setting(AppSettings::Multicall)
-        .arg(
-            Arg::new("install")
-                .long("install")
-                .exclusive(true)
-                .takes_value(true)
-                .default_missing_value("/usr/local/bin"),
-        )
         .subcommand(App::new("true"))
         .subcommand(App::new("false"));
 
@@ -528,15 +521,7 @@ fn busybox_like_multicall() {
     let m = app.clone().get_matches_from(&["true"]);
     assert_eq!(m.subcommand_name(), Some("true"));
 
-    let m = app.clone().get_matches_from(&["busybox", "--install"]);
-    assert_eq!(m.subcommand_name(), None);
-    assert_eq!(m.occurrences_of("install"), 1);
-
     let m = app.clone().try_get_matches_from(&["a.out"]);
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
-
-    let m = app.try_get_matches_from(&["true", "--install"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
