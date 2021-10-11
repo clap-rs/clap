@@ -1,13 +1,13 @@
 //! How to extract subcommands' args into external structs.
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 pub struct Foo {
     pub bar: Option<String>,
 }
 
-#[derive(Debug, Parser)]
+#[derive(Debug, Subcommand)]
 pub enum Command {
     #[clap(name = "foo")]
     Foo(Foo),

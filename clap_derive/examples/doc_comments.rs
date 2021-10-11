@@ -1,6 +1,6 @@
 //! How to use doc comments in place of `help/long_help`.
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 /// A basic example for the usage of doc comments as replacement
 /// of the arguments `help`, `long_help`, `about` and `long_about`.
@@ -52,7 +52,7 @@ code) in the description:
     sub_command: SubCommand,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Subcommand, Debug)]
 #[clap()]
 enum SubCommand {
     /// The same rules described previously for flags. Are

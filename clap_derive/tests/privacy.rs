@@ -23,9 +23,9 @@ mod options {
 }
 
 mod subcommands {
-    use clap::Parser;
+    use clap::Subcommand;
 
-    #[derive(Debug, Parser)]
+    #[derive(Debug, Subcommand)]
     pub enum SubCommand {
         /// foo
         Foo {
