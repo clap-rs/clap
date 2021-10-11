@@ -5,7 +5,14 @@
 // See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) files in this repository
 // for more information.
 
-//! Generates completions (and other things) for [`clap`](https://github.com/clap-rs/clap) based CLIs
+#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
+#![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.4")]
+#![doc = include_str!("../README.md")]
+#![deny(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
+#![forbid(unsafe_code)]
+#![allow(clippy::needless_doctest_main)]
+
+//! ## Quick Start
 //!
 //! - For generating at compile-time, see [`generate_to`]
 //! - For generating at runtime, see [`generate`]
@@ -13,7 +20,7 @@
 //! [`Shell`] is a convenience `enum` for an argument value type that implements `Generator`
 //! for each natively-supported shell type.
 //!
-//! # Example
+//! ## Example
 //!
 //! ```rust,no_run
 //! use clap::{App, AppSettings, Arg, ValueHint};
@@ -47,12 +54,6 @@
 //!     }
 //! }
 //! ```
-
-#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_generate/3.0.0-beta.4")]
-#![deny(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
-#![forbid(unsafe_code)]
-#![allow(clippy::needless_doctest_main)]
 
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                   report at https://github.com/clap-rs/clap/issues";

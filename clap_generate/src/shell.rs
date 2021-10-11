@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use clap::{ArgEnum, ArgValue};
 
+use crate::{generators, Generator};
+
 /// Shell with auto-generated completion script available.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
@@ -63,35 +65,34 @@ impl ArgEnum for Shell {
     }
 
     fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>> {
-        let value = match self {
+        Some(match self {
             Shell::Bash => ArgValue::new("bash"),
             Shell::Elvish => ArgValue::new("elvish"),
             Shell::Fish => ArgValue::new("fish"),
             Shell::PowerShell => ArgValue::new("powershell"),
             Shell::Zsh => ArgValue::new("zsh"),
-        };
-        Some(value)
+        })
     }
 }
 
-impl crate::Generator for Shell {
+impl Generator for Shell {
     fn file_name(&self, name: &str) -> String {
         match self {
-            Shell::Bash => crate::generators::Bash.file_name(name),
-            Shell::Elvish => crate::generators::Elvish.file_name(name),
-            Shell::Fish => crate::generators::Fish.file_name(name),
-            Shell::PowerShell => crate::generators::PowerShell.file_name(name),
-            Shell::Zsh => crate::generators::Zsh.file_name(name),
+            Shell::Bash => generators::Bash.file_name(name),
+            Shell::Elvish => generators::Elvish.file_name(name),
+            Shell::Fish => generators::Fish.file_name(name),
+            Shell::PowerShell => generators::PowerShell.file_name(name),
+            Shell::Zsh => generators::Zsh.file_name(name),
         }
     }
 
     fn generate(&self, app: &clap::App, buf: &mut dyn std::io::Write) {
         match self {
-            Shell::Bash => crate::generators::Bash.generate(app, buf),
-            Shell::Elvish => crate::generators::Elvish.generate(app, buf),
-            Shell::Fish => crate::generators::Fish.generate(app, buf),
-            Shell::PowerShell => crate::generators::PowerShell.generate(app, buf),
-            Shell::Zsh => crate::generators::Zsh.generate(app, buf),
+            Shell::Bash => generators::Bash.generate(app, buf),
+            Shell::Elvish => generators::Elvish.generate(app, buf),
+            Shell::Fish => generators::Fish.generate(app, buf),
+            Shell::PowerShell => generators::PowerShell.generate(app, buf),
+            Shell::Zsh => generators::Zsh.generate(app, buf),
         }
     }
 }
