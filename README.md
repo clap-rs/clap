@@ -385,15 +385,13 @@ ARGS:
     INPUT    The input file to use
 
 USAGE:
-    MyApp [FLAGS] [OPTIONS] <INPUT> [SUBCOMMAND]
-
-FLAGS:
-    -h, --help       Print help information
-    -v               Sets the level of verbosity
-    -V, --version    Print version information
+    MyApp [OPTIONS] <INPUT> [SUBCOMMAND]
 
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
+    -h, --help             Print help information
+    -v                     Sets the level of verbosity
+    -V, --version          Print version information
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)

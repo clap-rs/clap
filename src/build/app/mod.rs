@@ -206,7 +206,7 @@ impl<'help> App<'help> {
         self.args.args()
     }
 
-    /// Iterate through the *positionals*.
+    /// Iterate through the *positionals* arguments.
     #[inline]
     pub fn get_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments().filter(|a| a.is_positional())
@@ -222,22 +222,6 @@ impl<'help> App<'help> {
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
             .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-    }
-
-    /// Iterate through the *positionals* that don't have custom heading.
-    pub fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_positionals()
-            .filter(|a| a.get_help_heading().is_none())
-    }
-
-    /// Iterate through the *flags* that don't have custom heading.
-    pub fn get_flags_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_flags().filter(|a| a.get_help_heading().is_none())
-    }
-
-    /// Iterate through the *options* that don't have custom heading.
-    pub fn get_opts_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_opts().filter(|a| a.get_help_heading().is_none())
     }
 
     // Get a list of subcommands which contain the provided Argument
@@ -863,10 +847,6 @@ impl<'help> App<'help> {
     ///   * `{usage}`               - Automatically generated or given usage string.
     ///   * `{all-args}`            - Help for all arguments (options, flags, positional
     ///                               arguments, and subcommands) including titles.
-    ///   * `{unified}`             - Unified help for options and flags. Note, you must *also*
-    ///                               set [`AppSettings::UnifiedHelpMessage`] to fully merge both
-    ///                               options and flags, otherwise the ordering is "best effort".
-    ///   * `{flags}`               - Help for flags.
     ///   * `{options}`             - Help for options.
     ///   * `{positionals}`         - Help for positional arguments.
     ///   * `{subcommands}`         - Help for subcommands.
@@ -986,7 +966,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_global_setting(AppSettings::UnifiedHelpMessage)
+    ///     .unset_global_setting(AppSettings::AllowNegativeNumbers)
     /// # ;
     /// ```
     /// [global]: App::global_setting()
@@ -1116,7 +1096,7 @@ impl<'help> App<'help> {
     /// header for the specified argument type) until a subsequent call to
     /// [`App::help_heading`] or [`App::stop_custom_headings`].
     ///
-    /// This is useful if the default `FLAGS`, `OPTIONS`, or `ARGS` headings are
+    /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
     ///
     /// [`App::arg`]: App::arg()
@@ -1732,9 +1712,9 @@ impl<'help> App<'help> {
     /// cust-ord
     ///
     /// USAGE:
-    ///     cust-ord [FLAGS] [OPTIONS]
+    ///     cust-ord [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
@@ -2200,7 +2180,7 @@ impl<'help> App<'help> {
     /// USAGE:
     ///     myprog [SUBCOMMAND]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
@@ -2228,7 +2208,7 @@ impl<'help> App<'help> {
     /// USAGE:
     ///     myprog [THING]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
@@ -2674,6 +2654,23 @@ impl<'a, T> Captures<'a> for T {}
 
 // Internal Query Methods
 impl<'help> App<'help> {
+    /// Iterate through the *named* arguments.
+    pub(crate) fn get_non_positional(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_arguments().filter(|a| !a.is_positional())
+    }
+
+    /// Iterate through the *positionals* that don't have custom heading.
+    pub(crate) fn get_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_positionals()
+            .filter(|a| a.get_help_heading().is_none())
+    }
+
+    /// Iterate through the *named* that don't have custom heading.
+    pub(crate) fn get_non_positional_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_non_positional()
+            .filter(|a| a.get_help_heading().is_none())
+    }
+
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
         self.args.args().find(|a| a.id == *arg_id)
     }

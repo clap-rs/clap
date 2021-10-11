@@ -265,7 +265,7 @@ USAGE:
 ARGS:
     <A>    
 
-FLAGS:
+OPTIONS:
     -h, --help    Print help information
 ";
     let app = App::new("prog")

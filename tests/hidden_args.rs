@@ -9,15 +9,13 @@ Kevin K.
 tests stuff
 
 USAGE:
-    test [FLAGS] [OPTIONS]
-
-FLAGS:
-    -F, --flag2      some other flag
-    -h, --help       Print help information
-    -V, --version    Print version information
+    test [OPTIONS]
 
 OPTIONS:
+    -F, --flag2           some other flag
+    -h, --help            Print help information
         --option <opt>    some option
+    -V, --version         Print version information
 ";
 
 #[test]
@@ -47,9 +45,9 @@ Steve P.
 hides short args
 
 USAGE:
-    test [FLAGS]
+    test [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -v, --visible    This text should be visible
     -V, --version    Print version information
@@ -62,9 +60,9 @@ Steve P.
 hides short args
 
 USAGE:
-    test [FLAGS]
+    test [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -c, --config
             Some help text describing the --config arg
 
@@ -139,9 +137,9 @@ Steve P.
 hides long args
 
 USAGE:
-    test [FLAGS]
+    test [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -h, --help
             Print help information
 
@@ -185,9 +183,9 @@ Steve P.
 hides long args
 
 USAGE:
-    test [FLAGS]
+    test [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -c, --config     Some help text describing the --config arg
     -h, --help       Print help information
     -v, --visible    This text should be visible
@@ -220,57 +218,6 @@ fn hidden_long_args_short_help() {
     ));
 }
 
-static HIDDEN_FLAG_ARGS: &str = "test 1.4
-
-USAGE:
-    test [OPTIONS]
-
-OPTIONS:
-        --option <opt>    some option
-";
-
-#[test]
-fn hidden_flag_args() {
-    let app = App::new("test")
-        .version("1.4")
-        .mut_arg("help", |a| a.hidden(true))
-        .mut_arg("version", |a| a.hidden(true))
-        .args(&[Arg::from("--option [opt] 'some option'")]);
-
-    assert!(utils::compare_output(
-        app,
-        "test --help",
-        HIDDEN_FLAG_ARGS,
-        false
-    ));
-}
-
-static HIDDEN_OPT_ARGS: &str = "test 1.4
-
-USAGE:
-    test [FLAGS]
-
-FLAGS:
-        --flag       some flag
-    -h, --help       Print help information
-    -V, --version    Print version information
-";
-
-#[test]
-fn hidden_opt_args() {
-    let app = App::new("test").version("1.4").args(&[
-        Arg::from("--flag 'some flag'"),
-        Arg::from("--option [opt] 'some option'").hidden(true),
-    ]);
-
-    assert!(utils::compare_output(
-        app,
-        "test --help",
-        HIDDEN_OPT_ARGS,
-        false
-    ));
-}
-
 static HIDDEN_POS_ARGS: &str = "test 1.4
 
 USAGE:
@@ -279,7 +226,7 @@ USAGE:
 ARGS:
     <another>    another pos
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -304,7 +251,7 @@ static HIDDEN_SUBCMDS: &str = "test 1.4
 USAGE:
     test
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -319,30 +266,6 @@ fn hidden_subcmds() {
         app,
         "test --help",
         HIDDEN_SUBCMDS,
-        false
-    ));
-}
-
-static HIDDEN_FLAG_ARGS_ONLY: &str = "test 1.4
-
-USAGE:
-    test
-
-After help
-";
-
-#[test]
-fn hidden_flag_args_only() {
-    let app = App::new("test")
-        .version("1.4")
-        .after_help("After help")
-        .mut_arg("help", |a| a.hidden(true))
-        .mut_arg("version", |a| a.hidden(true));
-
-    assert!(utils::compare_output(
-        app,
-        "test --help",
-        HIDDEN_FLAG_ARGS_ONLY,
         false
     ));
 }

@@ -19,7 +19,7 @@ pub const DISPLAY_ORDER: usize = 2;
 
 // Check if the global settings compile
 #[derive(Parser, Debug, PartialEq, Eq)]
-#[clap(global_setting = AppSettings::UnifiedHelpMessage)]
+#[clap(global_setting = AppSettings::AllowLeadingHyphen)]
 struct Opt {
     #[clap(
         long = "x",

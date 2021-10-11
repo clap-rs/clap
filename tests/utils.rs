@@ -16,13 +16,15 @@ where
     // Strip out any mismatching \r character on windows that might sneak in on either side
     let ls = l.as_ref().replace("\r", "");
     let rs = r.as_ref().replace("\r", "");
-    let left = re.replace_all(&*ls, "");
+    let left_ = re.replace_all(&*ls, "");
     let right = re.replace_all(&*rs, "");
-    let b = left == right;
+    let b = left_ == right;
     if !b {
+        dbg!(&left_);
+        dbg!(&right);
         println!();
         println!("--> left");
-        println!("{}", left);
+        println!("{}", left_);
         println!("--> right");
         println!("{}", right);
         println!("--")

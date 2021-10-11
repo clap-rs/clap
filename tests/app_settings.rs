@@ -7,7 +7,7 @@ static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 USAGE:
     clap-test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -22,7 +22,7 @@ ARGS:
     <arg2>    some
     <arg3>    some
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -32,31 +32,10 @@ static REQUIRE_EQUALS: &str = "clap-test v1.4.8
 USAGE:
     clap-test --opt=<FILE>
 
-FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 OPTIONS:
+    -h, --help          Print help information
     -o, --opt=<FILE>    some
-";
-
-static UNIFIED_HELP: &str = "test 1.3
-
-Kevin K.
-
-tests stuff
-
-USAGE:
-    test [OPTIONS] [arg1]
-
-ARGS:
-    <arg1>    some pos arg
-
-OPTIONS:
-    -f, --flag            some flag
-    -h, --help            Print help information
-        --option <opt>    some option
-    -V, --version         Print version information
+    -V, --version       Print version information
 ";
 
 static SKIP_POS_VALS: &str = "test 1.3
@@ -71,20 +50,18 @@ USAGE:
 ARGS:
     <arg1>    some pos arg
 
-FLAGS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 OPTIONS:
+    -h, --help         Print help information
     -o, --opt <opt>    some option
+    -V, --version      Print version information
 ";
 
 static ARG_REQUIRED_ELSE_HELP: &str = "test 1.0
 
 USAGE:
-    test [FLAGS]
+    test [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -i, --info       Provides more info
     -V, --version    Print version information
@@ -95,7 +72,7 @@ static SUBCOMMAND_REQUIRED_ELSE_HELP: &str = "test 1.0
 USAGE:
     test <SUBCOMMAND>
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -113,7 +90,7 @@ ARGS:
     <foo>
             long form about message
 
-FLAGS:
+OPTIONS:
     -h, --help
             Print help information
 ";
@@ -125,7 +102,7 @@ long form about message
 USAGE:
     myprog test nested
 
-FLAGS:
+OPTIONS:
     -h, --help
             Print help information
 ";
@@ -139,7 +116,7 @@ ARGS:
     <foo>
             long form about message
 
-FLAGS:
+OPTIONS:
     -h, --help
             Print help information
 
@@ -443,26 +420,6 @@ fn no_bin_name() {
     assert!(result.is_ok());
     let matches = result.unwrap();
     assert_eq!(matches.value_of("test").unwrap(), "testing");
-}
-
-#[test]
-fn unified_help() {
-    let app = App::new("myTest")
-        .name("test")
-        .author("Kevin K.")
-        .about("tests stuff")
-        .version("1.3")
-        .setting(AppSettings::UnifiedHelpMessage)
-        .arg("-f, --flag 'some flag'")
-        .arg("[arg1] 'some pos arg'")
-        .arg("--option [opt] 'some option'");
-
-    assert!(utils::compare_output(
-        app,
-        "test --help",
-        UNIFIED_HELP,
-        false
-    ));
 }
 
 #[test]

@@ -283,6 +283,19 @@ pub(crate) fn assert_app(app: &App) {
     detect_duplicate_flags(&long_flags, "long");
     detect_duplicate_flags(&short_flags, "short");
 
+    if let Some(help_template) = app.template {
+        assert!(
+            !help_template.contains("{flags}"),
+            "{}",
+            "`{flags}` template variable was removed in clap3, they are now included in `{options}`"
+        );
+        assert!(
+            !help_template.contains("{unified}"),
+            "{}",
+            "`{unified}` template variable was removed in clap3, use `{options}` instead"
+        );
+    }
+
     app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpRequired));
     assert_app_flags(app);
 }

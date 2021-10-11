@@ -151,7 +151,7 @@ static VERSION_ABOUT_MULTI_SC: &str = "foo-bar-baz 3.0
 USAGE:
     foo bar baz
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print custom version about text
 ";

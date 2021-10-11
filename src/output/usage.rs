@@ -62,19 +62,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             String::new()
         };
 
-        let flags = self.needs_flags_tag();
-        if flags && !self.p.is_set(AS::UnifiedHelpMessage) {
-            usage.push_str(" [FLAGS]");
-        } else if flags {
-            usage.push_str(" [OPTIONS]");
-        }
-        if !self.p.is_set(AS::UnifiedHelpMessage)
-            && self
-                .p
-                .app
-                .get_opts()
-                .any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden))
-        {
+        if self.needs_options_tag() {
             usage.push_str(" [OPTIONS]");
         }
 
@@ -93,7 +81,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         if self
             .p
             .app
-            .get_opts()
+            .get_non_positional()
             .any(|o| o.is_set(ArgSettings::MultipleValues))
             && self
                 .p
@@ -328,22 +316,28 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         }
     }
 
-    // Determines if we need the `[FLAGS]` tag in the usage string
-    fn needs_flags_tag(&self) -> bool {
-        debug!("Usage::needs_flags_tag");
-        'outer: for f in self.p.app.get_flags() {
-            debug!("Usage::needs_flags_tag:iter: f={}", f.name);
+    // Determines if we need the `[OPTIONS]` tag in the usage string
+    fn needs_options_tag(&self) -> bool {
+        debug!("Usage::needs_options_tag");
+        'outer: for f in self.p.app.get_non_positional() {
+            debug!("Usage::needs_options_tag:iter: f={}", f.name);
 
-            // Don't print `[FLAGS]` just for help or version
+            // Don't print `[OPTIONS]` just for help or version
             if f.long == Some("help") || f.long == Some("version") {
+                debug!("Usage::needs_options_tag:iter Option is built-in");
                 continue;
             }
 
             if f.is_set(ArgSettings::Hidden) {
+                debug!("Usage::needs_options_tag:iter Option is hidden");
+                continue;
+            }
+            if f.is_set(ArgSettings::Required) {
+                debug!("Usage::needs_options_tag:iter Option is required");
                 continue;
             }
             for grp_s in self.p.app.groups_for_arg(&f.id) {
-                debug!("Usage::needs_flags_tag:iter:iter: grp_s={:?}", grp_s);
+                debug!("Usage::needs_options_tag:iter:iter: grp_s={:?}", grp_s);
                 if self
                     .p
                     .app
@@ -351,16 +345,16 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     .iter()
                     .any(|g| g.id == grp_s && g.required)
                 {
-                    debug!("Usage::needs_flags_tag:iter:iter: Group is required");
+                    debug!("Usage::needs_options_tag:iter:iter: Group is required");
                     continue 'outer;
                 }
             }
 
-            debug!("Usage::needs_flags_tag:iter: [FLAGS] required");
+            debug!("Usage::needs_options_tag:iter: [OPTIONS] required");
             return true;
         }
 
-        debug!("Usage::needs_flags_tag: [FLAGS] not required");
+        debug!("Usage::needs_options_tag: [OPTIONS] not required");
         false
     }
 
