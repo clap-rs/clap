@@ -1,18 +1,6 @@
 //! Example of a `busybox-style` multicall program
 //!
-//! `busybox` is a single executable that contains a variety of applets
-//! for a fully functional Linux userland.
-//!
-//! `busybox`-style differs from `hostname`-style in that there is a launcher program
-//! which the applets are available as subcommands.
-//! i.e. you can use the `cat` command either as a link named `cat`
-//! or as `busybox cat`.
-//!
-//! This behaviour is opted-into by not naming an applet the same as the main program.
-//!
-//! This is desirable when the launcher program has additional options
-//! or it is useful to run the applet without installing a symlink
-//! e.g. for testing purposes, or there may already be a command of that name installed.
+//! See the documentation for clap::AppSettings::Multicall for rationale.
 //!
 //! This example omits every command except true and false,
 //! which are the most trivial to implement,

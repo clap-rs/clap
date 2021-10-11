@@ -651,12 +651,19 @@ pub enum AppSettings {
 
     /// Parse the bin name (argv[0]) as a subcommand
     ///
-    /// Busybox is a common example of a "multicall" executable
-    /// where the command `cat` is a link to the `busybox` bin
-    /// and, when `cat` is run, `busybox` acts is if you ran `busybox cat`.
+    /// This adds a small performance penalty to startup
+    /// as it requires comparing the bin name against every subcommand name.
     ///
-    /// This adds a small performance penalty to startup compared to subcommands
-    /// for comparing argv[0] against applet names.
+    /// A "multicall" executable is a single executable
+    /// that contains a variety of applets,
+    /// and decides which applet to run based on the name of the file.
+    /// The executable can be called from different names by creating hard links
+    /// or symbolic links to it.
+    ///
+    /// This is desirable when it is convenient to store code
+    /// for many programs in the same file,
+    /// such as deduplicating code across multiple programs
+    /// without loading a shared library at runtime.
     ///
     /// Multicall can't be used with [`NoBinaryName`] since they interpret
     /// the command name in incompatible ways.
@@ -665,6 +672,16 @@ pub enum AppSettings {
     ///
     /// Multicall applets are defined as subcommands
     /// to an app which has the Multicall setting enabled.
+    ///
+    /// Busybox is a common example of a "multicall" executable
+    /// with a subcommmand for each applet that can be run directly,
+    /// e.g. with the `cat` applet being run by running `busybox cat`,
+    /// or with `cat` as a link to the `busybox` binary.
+    ///
+    /// This is desirable when the launcher program has additional options
+    /// or it is useful to run the applet without installing a symlink
+    /// e.g. to test the applet without installing it
+    /// or there may already be a command of that name installed.
     ///
     /// ```rust
     /// # use clap::{App, AppSettings};
@@ -681,9 +698,19 @@ pub enum AppSettings {
     /// assert_eq!(m.subcommand_name(), Some("true"));
     /// ```
     ///
-    /// If the name of an applet is the name of the command,
-    /// the applet's name is matched
-    /// and subcommands may not be provided to select another applet.
+    /// `hostname` is another example of a multicall executable.
+    /// It differs from busybox by not supporting running applets via subcommand
+    /// and is instead only runnable via links.
+    ///
+    /// This is desirable when the executable has a primary purpose
+    /// rather than being a collection of varied applets,
+    /// so it is appropriate to name the executable after its purpose,
+    /// but there is other related functionality that would be convenient to provide
+    /// and it is convenient for the code to implement it to be in the same executable.
+    ///
+    /// This behaviour can be opted-into
+    /// by naming a subcommand with the same as the program
+    /// as applet names take priority.
     ///
     /// ```rust
     /// # use clap::{App, AppSettings, ErrorKind};
