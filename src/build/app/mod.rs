@@ -137,6 +137,14 @@ impl<'help> App<'help> {
         self.about
     }
 
+    /// Get the help message specified via [`App::long_about`].
+    ///
+    /// [`App::long_about`]: App::long_about()
+    #[inline]
+    pub fn get_long_about(&self) -> Option<&str> {
+        self.long_about
+    }
+
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
