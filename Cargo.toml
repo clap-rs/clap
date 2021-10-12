@@ -81,6 +81,14 @@ lazy_static = "1"
 version-sync = "0.9"
 criterion = "0.3.2"
 
+[[example]]
+name = "busybox"
+path = "examples/24a_multicall_busybox.rs"
+
+[[example]]
+name = "hostname"
+path = "examples/24b_multicall_hostname.rs"
+
 [features]
 default = [
 	"std",
