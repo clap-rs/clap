@@ -19,8 +19,7 @@ impl Generator for Zsh {
         w!(
             buf,
             format!(
-                "\
-#compdef {name}
+                "#compdef {name}
 
 autoload -U is-at-least
 
@@ -36,8 +35,7 @@ _{name}() {{
     fi
 
     local context curcontext=\"$curcontext\" state line
-    {initial_args}
-    {subcommands}
+    {initial_args}{subcommands}
 }}
 
 {subcommand_details}
@@ -250,7 +248,8 @@ fn get_subcommands_of(parent: &App) -> String {
     }
 
     format!(
-        "case $state in
+        "
+    case $state in
     ({name})
         words=($line[{pos}] \"${{words[@]}}\")
         (( CURRENT += 1 ))

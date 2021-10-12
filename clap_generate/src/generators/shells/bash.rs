@@ -33,8 +33,7 @@ impl Generator for Bash {
         case \"${{i}}\" in
             {name})
                 cmd=\"{cmd}\"
-                ;;
-            {subcmds}
+                ;;{subcmds}
             *)
                 ;;
         esac
@@ -47,16 +46,14 @@ impl Generator for Bash {
                 COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
                 return 0
             fi
-            case \"${{prev}}\" in
-                {name_opts_details}
+            case \"${{prev}}\" in{name_opts_details}
                 *)
                     COMPREPLY=()
                     ;;
             esac
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
-            ;;
-        {subcmd_details}
+            ;;{subcmd_details}
     esac
 }}
 
@@ -77,7 +74,7 @@ complete -F _{name} -o bashdefault -o default {name}
 fn all_subcommands(app: &App) -> String {
     debug!("all_subcommands");
 
-    let mut subcmds = String::new();
+    let mut subcmds = vec![String::new()];
     let mut scs = Bash
         .all_subcommands(app)
         .iter()
@@ -87,25 +84,23 @@ fn all_subcommands(app: &App) -> String {
     scs.sort();
     scs.dedup();
 
-    for sc in &scs {
-        subcmds = format!(
-            "{}
-            {name})
+    subcmds.extend(scs.iter().map(|sc| {
+        format!(
+            "{name})
                 cmd+=\"__{fn_name}\"
                 ;;",
-            subcmds,
             name = sc,
             fn_name = sc.replace("-", "__")
-        );
-    }
+        )
+    }));
 
-    subcmds
+    subcmds.join("\n            ")
 }
 
 fn subcommand_details(app: &App) -> String {
     debug!("subcommand_details");
 
-    let mut subcmd_dets = String::new();
+    let mut subcmd_dets = vec![String::new()];
     let mut scs = Bash
         .all_subcommands(app)
         .iter()
@@ -114,17 +109,15 @@ fn subcommand_details(app: &App) -> String {
 
     scs.sort();
 
-    for sc in &scs {
-        subcmd_dets = format!(
-            "{}
-        {subcmd})
+    subcmd_dets.extend(scs.iter().map(|sc| {
+        format!(
+            "{subcmd})
             opts=\"{sc_opts}\"
             if [[ ${{cur}} == -* || ${{COMP_CWORD}} -eq {level} ]] ; then
                 COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
                 return 0
             fi
-            case \"${{prev}}\" in
-                {opts_details}
+            case \"${{prev}}\" in{opts_details}
                 *)
                     COMPREPLY=()
                     ;;
@@ -132,56 +125,51 @@ fn subcommand_details(app: &App) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd_dets,
             subcmd = sc.replace("-", "__"),
             sc_opts = all_options_for_path(app, &*sc),
             level = sc.split("__").map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(app, &*sc)
-        );
-    }
+        )
+    }));
 
-    subcmd_dets
+    subcmd_dets.join("\n        ")
 }
 
 fn option_details_for_path(app: &App, path: &str) -> String {
     debug!("option_details_for_path: path={}", path);
 
     let p = Bash.find_subcommand_with_path(app, path.split("__").skip(1).collect());
-    let mut opts = String::new();
+    let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
         if let Some(longs) = o.get_long_and_visible_aliases() {
-            for long in longs {
-                opts = format!(
-                    "{}
-                --{})
+            opts.extend(longs.iter().map(|long| {
+                format!(
+                    "--{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                    opts,
                     long,
                     vals_for(o)
-                );
-            }
+                )
+            }));
         }
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
-            for short in shorts {
-                opts = format!(
-                    "{}
-                -{})
+            opts.extend(shorts.iter().map(|short| {
+                format!(
+                    "-{})
                     COMPREPLY=({})
                     return 0
                     ;;",
-                    opts,
                     short,
                     vals_for(o)
-                );
-            }
+                )
+            }));
         }
     }
 
-    opts
+    opts.join("\n                ")
 }
 
 fn vals_for(o: &Arg) -> String {

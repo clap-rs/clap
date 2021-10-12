@@ -28,11 +28,5 @@ pub fn common<G: Generator>(gen: G, app: &mut App, name: &str, fixture: &str) {
     generate(gen, app, name, &mut buf);
     let string = String::from_utf8(buf).unwrap();
 
-    assert_eq!(&normalize(&string), &normalize(fixture));
-}
-
-fn normalize(string: &str) -> String {
-    use itertools::Itertools;
-
-    string.lines().map(|s| s.trim_end()).join("\n")
+    assert_eq!(&string, fixture);
 }

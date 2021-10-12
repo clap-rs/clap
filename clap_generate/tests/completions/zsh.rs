@@ -308,7 +308,6 @@ _my_app() {
 '--brackets[List packages \[filter\]]' \
 '--expansions[Execute the shell command with $SHELL]' \
 && ret=0
-
 }
 
 (( $+functions[_my_app_commands] )) ||
@@ -370,7 +369,8 @@ _arguments "${_arguments_options[@]}" \
 ":: :_my_app__second_commands" \
 "*::: :->second" \
 && ret=0
-case $state in
+
+    case $state in
     (second)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
@@ -488,7 +488,6 @@ _cmd() {
 '--flg[cmd flag]' \
 '::positional:' \
 && ret=0
-
 }
 
 (( $+functions[_cmd_commands] )) ||

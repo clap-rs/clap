@@ -119,7 +119,6 @@ _my_app() {
 '--help[Print help information]' \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
-
 }
 
 (( $+functions[_my_app_commands] )) ||
