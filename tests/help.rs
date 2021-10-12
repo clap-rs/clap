@@ -585,7 +585,7 @@ Will M.
 does stuff
 
 USAGE:
-    test --fake <some>:<val>
+    test [FLAGS] --fake <some>:<val>
 
 FLAGS:
     -h, --help       Print help information
@@ -1804,7 +1804,7 @@ Will M.
 does stuff
 
 USAGE:
-    test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
+    test [FLAGS] [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
 
 FLAGS:
     -h, --help       Print help information
@@ -1887,7 +1887,7 @@ Will M.
 does stuff
 
 USAGE:
-    test --song <song> --song-volume <volume>
+    test [FLAGS] --song <song> --song-volume <volume>
 
 FLAGS:
     -h, --help       Print help information
@@ -2307,7 +2307,7 @@ FLAGS:
 static ONLY_CUSTOM_HEADING_FLAGS: &str = "test 1.4
 
 USAGE:
-    test [OPTIONS]
+    test [FLAGS] [OPTIONS]
 
 OPTIONS:
         --speed <speed>    How fast
@@ -2342,7 +2342,7 @@ fn only_custom_heading_flags() {
 static ONLY_CUSTOM_HEADING_OPTS: &str = "test 1.4
 
 USAGE:
-    test
+    test [OPTIONS]
 
 FLAGS:
     -h, --help       Print help information
@@ -2430,7 +2430,7 @@ fn only_custom_heading_pos() {
 static ONLY_CUSTOM_HEADING_FLAGS_NO_ARGS: &str = "test 1.4
 
 USAGE:
-    test
+    test [FLAGS]
 
 NETWORKING:
         --flag    Some flag
@@ -2456,7 +2456,7 @@ fn only_custom_heading_flags_no_args() {
 static ONLY_CUSTOM_HEADING_OPTS_NO_ARGS: &str = "test 1.4
 
 USAGE:
-    test
+    test [OPTIONS]
 
 NETWORKING:
     -s, --speed <SPEED>    How fast
