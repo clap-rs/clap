@@ -66,6 +66,8 @@ mod macros;
 pub mod generators;
 /// Contains supported shells for auto-completion scripts
 mod shell;
+/// Helpers for writing generators
+pub mod utils;
 
 use std::ffi::OsString;
 use std::fs::File;

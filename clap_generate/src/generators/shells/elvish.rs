@@ -2,6 +2,7 @@
 use std::io::Write;
 
 // Internal
+use crate::utils;
 use crate::Generator;
 use crate::INTERNAL_ERROR_MSG;
 use clap::*;
@@ -99,7 +100,7 @@ fn generate_inner<'help>(
         }
     }
 
-    for flag in Elvish.flags(p) {
+    for flag in utils::flags(p) {
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
             let tooltip = get_tooltip(flag.get_about(), shorts[0]);
             for short in shorts {

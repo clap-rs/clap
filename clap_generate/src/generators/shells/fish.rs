@@ -2,6 +2,7 @@
 use std::io::Write;
 
 // Internal
+use crate::utils;
 use crate::Generator;
 use clap::*;
 
@@ -96,7 +97,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
         buffer.push('\n');
     }
 
-    for flag in Fish.flags(app) {
+    for flag in utils::flags(app) {
         let mut template = basic_template.clone();
 
         if let Some(shorts) = flag.get_short_and_visible_aliases() {

@@ -2,6 +2,7 @@
 use std::io::Write;
 
 // Internal
+use crate::utils;
 use crate::Generator;
 use clap::*;
 
@@ -75,8 +76,7 @@ fn all_subcommands(app: &App) -> String {
     debug!("all_subcommands");
 
     let mut subcmds = vec![String::new()];
-    let mut scs = Bash
-        .all_subcommands(app)
+    let mut scs = utils::all_subcommands(app)
         .iter()
         .map(|x| x.0.clone())
         .collect::<Vec<_>>();
@@ -101,8 +101,7 @@ fn subcommand_details(app: &App) -> String {
     debug!("subcommand_details");
 
     let mut subcmd_dets = vec![String::new()];
-    let mut scs = Bash
-        .all_subcommands(app)
+    let mut scs = utils::all_subcommands(app)
         .iter()
         .map(|x| x.1.replace(" ", "__"))
         .collect::<Vec<_>>();
@@ -138,7 +137,7 @@ fn subcommand_details(app: &App) -> String {
 fn option_details_for_path(app: &App, path: &str) -> String {
     debug!("option_details_for_path: path={}", path);
 
-    let p = Bash.find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
     let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
@@ -191,17 +190,15 @@ fn vals_for(o: &Arg) -> String {
 fn all_options_for_path(app: &App, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
-    let p = Bash.find_subcommand_with_path(app, path.split("__").skip(1).collect());
-    let scs: Vec<_> = Bash.subcommands(p).iter().map(|x| x.0.clone()).collect();
+    let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
+    let scs: Vec<_> = utils::subcommands(p).iter().map(|x| x.0.clone()).collect();
 
     let opts = format!(
         "{shorts} {longs} {pos} {subcmds}",
-        shorts = Bash
-            .shorts_and_visible_aliases(p)
+        shorts = utils::shorts_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        longs = Bash
-            .longs_and_visible_aliases(p)
+        longs = utils::longs_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
         pos = p
