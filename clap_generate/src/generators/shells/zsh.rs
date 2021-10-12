@@ -2,6 +2,7 @@
 use std::io::Write;
 
 // Internal
+use crate::utils;
 use crate::Generator;
 use crate::INTERNAL_ERROR_MSG;
 use clap::*;
@@ -100,7 +101,7 @@ _{bin_name_underscore}_commands() {{
     ret.push(parent_text);
 
     // Next we start looping through all the children, grandchildren, etc.
-    let mut all_subcommands = Zsh.all_subcommands(p);
+    let mut all_subcommands = utils::all_subcommands(p);
 
     all_subcommands.sort();
     all_subcommands.dedup();
@@ -216,7 +217,7 @@ fn get_subcommands_of(parent: &App) -> String {
         return String::new();
     }
 
-    let subcommand_names = Zsh.subcommands(parent);
+    let subcommand_names = utils::subcommands(parent);
     let mut all_subcommands = vec![];
 
     for &(ref name, ref bin_name) in &subcommand_names {
@@ -528,7 +529,7 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
 
     let mut ret = vec![];
 
-    for f in Zsh.flags(p) {
+    for f in utils::flags(p) {
         debug!("write_flags_of:iter: f={}", f.get_name());
 
         let help = f.get_about().map_or(String::new(), escape_help);
