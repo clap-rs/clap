@@ -97,7 +97,7 @@ _my_app() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
 '--choice=[]: :(bash fish zsh)' \
-'--unknown=[]' \
+'--unknown=[]: : ' \
 '--other=[]: :( )' \
 '-p+[]: :_files' \
 '--path=[]: :_files' \
