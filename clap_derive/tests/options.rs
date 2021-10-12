@@ -16,7 +16,7 @@
 
 mod utils;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use utils::*;
 
 #[test]
@@ -311,7 +311,7 @@ fn required_option_type() {
         cmd: Option<SubCommands>,
     }
 
-    #[derive(Debug, PartialEq, Eq, Parser)]
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
     enum SubCommands {
         ExSub {
             #[clap(short, long, parse(from_occurrences))]

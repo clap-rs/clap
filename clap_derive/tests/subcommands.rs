@@ -14,7 +14,7 @@
 
 mod utils;
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 use utils::*;
 
 #[derive(Parser, PartialEq, Debug)]
@@ -171,13 +171,13 @@ fn global_passed_down() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Subcommand)]
     enum Subcommands {
         Add,
         Global(GlobalCmd),
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Args)]
     struct GlobalCmd {
         #[clap(from_global)]
         other: bool,
@@ -208,7 +208,7 @@ fn external_subcommand() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Subcommand)]
     enum Subcommands {
         Add,
         Remove,
@@ -250,7 +250,7 @@ fn external_subcommand_os_string() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Subcommand)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<OsString>),
@@ -274,7 +274,7 @@ fn external_subcommand_optional() {
         sub: Option<Subcommands>,
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Subcommand)]
     enum Subcommands {
         #[clap(external_subcommand)]
         Other(Vec<String>),
@@ -298,7 +298,7 @@ fn enum_in_enum_subsubcommand() {
         Daemon(DaemonCommand),
     }
 
-    #[derive(Parser, Debug, PartialEq)]
+    #[derive(Subcommand, Debug, PartialEq)]
     pub enum DaemonCommand {
         Start,
         Stop,
@@ -360,25 +360,25 @@ fn update_sub_subcommands() {
         Child2(Child2),
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Debug)]
     enum Child1 {
         Command1(Command1),
         Command2(Command2),
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Debug)]
     enum Child2 {
         Command1(Command1),
         Command2(Command2),
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Command1 {
         arg1: i32,
         arg2: i32,
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Command2 {
         arg2: i32,
     }
@@ -424,13 +424,13 @@ fn update_ext_subcommand() {
         Ext(Vec<String>),
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Command1 {
         arg1: i32,
         arg2: i32,
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Command2 {
         arg2: i32,
     }
@@ -466,7 +466,7 @@ fn subcommand_name_not_literal() {
         subcmd: SubCmd,
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Subcommand, PartialEq, Debug)]
     enum SubCmd {
         #[clap(name = get_name())]
         SubCmd1,
@@ -483,7 +483,7 @@ fn skip_subcommand() {
         sub: Subcommands,
     }
 
-    #[derive(Debug, PartialEq, Parser)]
+    #[derive(Debug, PartialEq, Subcommand)]
     enum Subcommands {
         Add,
         Remove,

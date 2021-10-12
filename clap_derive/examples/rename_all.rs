@@ -18,7 +18,7 @@
 //!                   with underscores.
 //! - **Verbatim**: Use the original attribute name defined in the code.
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[clap(name = "rename_all", rename_all = "screaming_snake_case")]
@@ -55,13 +55,13 @@ enum Opt {
     },
 }
 
-#[derive(Parser, Debug)]
+#[derive(Subcommand, Debug)]
 enum Subcommands {
     // This one will be available as `first-subcommand`.
     FirstSubcommand,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 struct BonusOptions {
     // And this one will be available as `baz-option`.
     #[clap(long)]

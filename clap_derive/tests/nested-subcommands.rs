@@ -12,7 +12,7 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, PartialEq, Debug)]
 struct Opt {
@@ -24,7 +24,7 @@ struct Opt {
     cmd: Sub,
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum Sub {
     Fetch {},
     Add {},
@@ -115,7 +115,7 @@ struct Opt3 {
     cmd: Sub2,
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum Sub2 {
     Foo {
         file: String,
@@ -125,7 +125,7 @@ enum Sub2 {
     Bar {},
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum Sub3 {
     Baz {},
     Quux {},
@@ -156,13 +156,13 @@ enum SubSubCmdWithOption {
         cmd: Stash,
     },
 }
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum Remote {
     Add { name: String, url: String },
     Remove { name: String },
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum Stash {
     Save,
     Pop,

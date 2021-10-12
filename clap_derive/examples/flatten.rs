@@ -1,6 +1,6 @@
 //! How to use flattening.
 
-use clap::Parser;
+use clap::{Args, Parser};
 
 #[derive(Parser, Debug)]
 struct Cmdline {
@@ -12,7 +12,7 @@ struct Cmdline {
     daemon_opts: DaemonOpts,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 struct DaemonOpts {
     /// daemon user
     #[clap(short)]

@@ -14,12 +14,12 @@
 
 mod utils;
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 use utils::get_help;
 
 #[test]
 fn flatten() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
@@ -43,7 +43,7 @@ fn flatten() {
 #[test]
 #[should_panic]
 fn flatten_twice() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
@@ -61,12 +61,12 @@ fn flatten_twice() {
 
 #[test]
 fn flatten_in_subcommand() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Common {
         arg: i32,
     }
 
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Add {
         #[clap(short)]
         interactive: bool,
@@ -102,18 +102,18 @@ fn flatten_in_subcommand() {
     );
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Subcommand, PartialEq, Debug)]
 enum BaseCli {
     Command1(Command1),
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Args, PartialEq, Debug)]
 struct Command1 {
     arg1: i32,
     arg2: i32,
 }
 
-#[derive(Parser, PartialEq, Debug)]
+#[derive(Args, PartialEq, Debug)]
 struct Command2 {
     arg2: i32,
 }
@@ -155,7 +155,7 @@ fn update_subcommands_with_flatten() {
 
 #[test]
 fn flatten_with_doc_comment() {
-    #[derive(Parser, PartialEq, Debug)]
+    #[derive(Args, PartialEq, Debug)]
     struct Common {
         /// This is an arg. Arg means "argument". Command line argument.
         arg: i32,
@@ -183,7 +183,7 @@ fn flatten_with_doc_comment() {
 #[test]
 fn docstrings_ordering_with_multiple_clap() {
     /// This is the docstring for Flattened
-    #[derive(Parser)]
+    #[derive(Args)]
     struct Flattened {
         #[clap(long)]
         foo: bool,
@@ -204,7 +204,7 @@ fn docstrings_ordering_with_multiple_clap() {
 #[test]
 fn docstrings_ordering_with_multiple_clap_partial() {
     /// This is the docstring for Flattened
-    #[derive(Parser)]
+    #[derive(Args)]
     struct Flattened {
         #[clap(long)]
         foo: bool,
