@@ -364,5 +364,6 @@ fn assert_app_flags(app: &App) {
     }
 
     checker!(AllowInvalidUtf8ForExternalSubcommands requires AllowExternalSubcommands);
+    #[cfg(feature = "unstable-multicall")]
     checker!(Multicall conflicts NoBinaryName);
 }

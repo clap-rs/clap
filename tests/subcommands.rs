@@ -508,6 +508,7 @@ For more information try --help
     ));
 }
 
+#[cfg(feature = "unstable-multicall")]
 #[test]
 fn busybox_like_multicall() {
     let app = App::new("busybox")
@@ -526,6 +527,7 @@ fn busybox_like_multicall() {
     assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
 }
 
+#[cfg(feature = "unstable-multicall")]
 #[test]
 fn hostname_like_multicall() {
     let mut app = App::new("hostname")

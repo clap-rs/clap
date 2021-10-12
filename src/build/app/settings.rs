@@ -50,6 +50,7 @@ bitflags! {
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
+        #[cfg(feature = "unstable-multicall")]
         const MULTICALL                      = 1 << 45;
     }
 }
@@ -107,6 +108,7 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::HELP_REQUIRED,
     Hidden("hidden")
         => Flags::HIDDEN,
+    #[cfg(feature = "unstable-multicall")]
     Multicall("multicall")
         => Flags::MULTICALL,
     NoAutoHelp("noautohelp")
@@ -729,6 +731,7 @@ pub enum AppSettings {
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     /// [`NoBinaryName`]: crate::AppSettings::NoBinaryName
     /// [`try_get_matches_from_mut`]: crate::App::try_get_matches_from_mut()
+    #[cfg(feature = "unstable-multicall")]
     Multicall,
 
     /// Specifies to use the version of the current command for all [`subcommands`].

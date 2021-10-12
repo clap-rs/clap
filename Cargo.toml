@@ -108,6 +108,7 @@ yaml = ["yaml-rust"]
 
 # In-work features
 unstable-replace = []
+unstable-multicall = []
 
 [profile.test]
 opt-level = 1
@@ -117,7 +118,7 @@ lto = true
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace"]
+features = ["yaml", "regex", "unstable-replace", "unstable-multicall"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [workspace]

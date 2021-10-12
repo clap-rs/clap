@@ -2134,6 +2134,7 @@ impl<'help> App<'help> {
     {
         let mut it = Input::from(itr.into_iter());
 
+        #[cfg(feature = "unstable-multicall")]
         if self.settings.is_set(AppSettings::Multicall) {
             if let Some((argv0, _)) = it.next() {
                 let argv0 = Path::new(&argv0);

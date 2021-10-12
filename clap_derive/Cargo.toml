@@ -38,7 +38,7 @@ heck = "0.3.0"
 proc-macro-error = "1"
 
 [dev-dependencies]
-clap = { path = "../" }
+clap = { path = "../", features = ["unstable-multicall"] }
 clap_generate = { path = "../clap_generate" }
 trybuild = "1.0"
 rustversion = "1"
