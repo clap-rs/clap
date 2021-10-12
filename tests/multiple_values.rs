@@ -1257,7 +1257,7 @@ fn value_names_building_num_vals() {
         .arg(
             Arg::new("pos")
                 .long("pos")
-                .value_names(&["who", "what", "why"]),
+                .value_names(["who", "what", "why"]),
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
@@ -1288,7 +1288,7 @@ fn value_names_building_num_vals_from_usage() {
 #[test]
 fn value_names_building_num_vals_for_positional() {
     let m = App::new("test")
-        .arg(Arg::new("pos").value_names(&["who", "what", "why"]))
+        .arg(Arg::new("pos").value_names(["who", "what", "why"]))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
@@ -1307,7 +1307,7 @@ fn number_of_values_preferred_over_value_names() {
             Arg::new("pos")
                 .long("pos")
                 .number_of_values(4)
-                .value_names(&["who", "what", "why"]),
+                .value_names(["who", "what", "why"]),
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3", "val4"]);
 

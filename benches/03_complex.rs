@@ -111,7 +111,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                     Arg::new("multvals")
                         .long("multvals")
                         .about("Tests multiple values, not mult occs")
-                        .value_names(&["one", "two"]),
+                        .value_names(["one", "two"]),
                 )
                 .arg(
                     Arg::new("multvalsmo")
@@ -120,7 +120,7 @@ pub fn build_from_builder(c: &mut Criterion) {
                         .setting(ArgSettings::MultipleValues)
                         .setting(ArgSettings::MultipleOccurrences)
                         .about("Tests multiple values, not mult occs")
-                        .value_names(&["one", "two"]),
+                        .value_names(["one", "two"]),
                 )
                 .arg(
                     Arg::new("minvals")

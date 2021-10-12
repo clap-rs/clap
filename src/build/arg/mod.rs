@@ -479,7 +479,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::new("test")
     ///                     .long("test")
-    ///                     .aliases(&["do-stuff", "do-tests", "tests"])
+    ///                     .aliases(["do-stuff", "do-tests", "tests"])
     ///                     .about("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
@@ -487,8 +487,13 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
-    pub fn aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|&x| (x, false)));
+    pub fn aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|x| (x.into(), false)));
         self
     }
 
@@ -504,7 +509,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::new("test")
     ///                     .short('t')
-    ///                     .short_aliases(&['e', 's'])
+    ///                     .short_aliases(['e', 's'])
     ///                     .about("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
@@ -512,10 +517,13 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
-    pub fn short_aliases(mut self, names: &[char]) -> Self {
+    pub fn short_aliases<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = char>,
+    {
         for s in names {
-            assert!(s != &'-', "short alias name cannot be `-`");
-            self.short_aliases.push((*s, false));
+            assert!(s != '-', "short alias name cannot be `-`");
+            self.short_aliases.push((s, false));
         }
         self
     }
@@ -580,15 +588,20 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .long("test")
-    ///                 .visible_aliases(&["something", "awesome", "cool"]))
+    ///                 .visible_aliases(["something", "awesome", "cool"]))
     ///        .get_matches_from(vec![
     ///             "prog", "--awesome"
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
     /// [`App::aliases`]: Arg::aliases()
-    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|n| (*n, true)));
+    pub fn visible_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|n| (n.into(), true)));
         self
     }
 
@@ -602,17 +615,20 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///             .arg(Arg::new("test")
     ///                 .long("test")
-    ///                 .visible_short_aliases(&['t', 'e']))
+    ///                 .visible_short_aliases(['t', 'e']))
     ///        .get_matches_from(vec![
     ///             "prog", "-t"
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
     /// [`App::aliases`]: Arg::short_aliases()
-    pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
+    pub fn visible_short_aliases<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = char>,
+    {
         for n in names {
-            assert!(n != &'-', "short alias name cannot be `-`");
-            self.short_aliases.push((*n, true));
+            assert!(n != '-', "short alias name cannot be `-`");
+            self.short_aliases.push((n, true));
         }
         self
     }
@@ -2555,7 +2571,7 @@ impl<'help> Arg<'help> {
     /// # use clap::{App, Arg};
     /// Arg::new("speed")
     ///     .short('s')
-    ///     .value_names(&["fast", "slow"]);
+    ///     .value_names(["fast", "slow"]);
     /// ```
     ///
     /// ```rust
@@ -2563,7 +2579,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("io")
     ///         .long("io-files")
-    ///         .value_names(&["INFILE", "OUTFILE"]))
+    ///         .value_names(["INFILE", "OUTFILE"]))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -2588,8 +2604,12 @@ impl<'help> Arg<'help> {
     /// [`Arg::number_of_values`]: Arg::number_of_values()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
-    pub fn value_names(mut self, names: &[&'help str]) -> Self {
-        self.val_names = names.to_vec();
+    pub fn value_names<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = &'help str>,
+    {
+        self.val_names.clear();
+        self.val_names.extend(names);
         self.takes_value(true)
     }
 
@@ -2642,7 +2662,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
     pub fn value_name(self, name: &'help str) -> Self {
-        self.value_names(&[name])
+        self.value_names([name])
     }
 
     /// Specifies the value of the argument when *not* specified at runtime.
@@ -4099,7 +4119,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::NextLineHelp)
-    ///         .value_names(&["value1", "value2"])
+    ///         .value_names(["value1", "value2"])
     ///         .about("Some really long help and complex\n\
     ///                help that makes more sense to be\n\
     ///                on a line after the option"))
@@ -5204,7 +5224,7 @@ mod test {
 
     #[test]
     fn option_display2() {
-        let o2 = Arg::new("opt").short('o').value_names(&["file", "name"]);
+        let o2 = Arg::new("opt").short('o').value_names(["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
@@ -5215,7 +5235,7 @@ mod test {
             .short('o')
             .takes_value(true)
             .multiple_values(true)
-            .value_names(&["file", "name"]);
+            .value_names(["file", "name"]);
 
         assert_eq!(&*format!("{}", o2), "-o <file> <name>");
     }
@@ -5235,7 +5255,7 @@ mod test {
         let o = Arg::new("opt")
             .long("option")
             .takes_value(true)
-            .visible_aliases(&["als2", "als3", "als4"])
+            .visible_aliases(["als2", "als3", "als4"])
             .alias("als_not_visible");
 
         assert_eq!(&*format!("{}", o), "--option <opt>");
@@ -5256,7 +5276,7 @@ mod test {
         let o = Arg::new("opt")
             .short('a')
             .takes_value(true)
-            .visible_short_aliases(&['b', 'c', 'd'])
+            .visible_short_aliases(['b', 'c', 'd'])
             .short_alias('e');
 
         assert_eq!(&*format!("{}", o), "-a <opt>");
@@ -5293,7 +5313,7 @@ mod test {
 
     #[test]
     fn positional_display_val_names() {
-        let p2 = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
+        let p2 = Arg::new("pos").index(1).value_names(["file1", "file2"]);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }
@@ -5303,7 +5323,7 @@ mod test {
         let p2 = Arg::new("pos")
             .index(1)
             .setting(ArgSettings::Required)
-            .value_names(&["file1", "file2"]);
+            .value_names(["file1", "file2"]);
 
         assert_eq!(&*format!("{}", p2), "<file1> <file2>");
     }

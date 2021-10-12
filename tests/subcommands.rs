@@ -209,7 +209,7 @@ fn single_alias() {
 #[test]
 fn multiple_aliases() {
     let m = App::new("myprog")
-        .subcommand(App::new("test").aliases(&["do-stuff", "test-stuff"]))
+        .subcommand(App::new("test").aliases(["do-stuff", "test-stuff"]))
         .get_matches_from(vec!["myprog", "test-stuff"]);
     assert_eq!(m.subcommand_name(), Some("test"));
 }

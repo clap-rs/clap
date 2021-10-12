@@ -4,7 +4,7 @@ fn main() {
     let matches = App::new("MyApp")
         .subcommand(
             App::new("ls")
-                .aliases(&["list", "dir"])
+                .aliases(["list", "dir"])
                 .about("Adds files to myapp")
                 .license("MIT OR Apache-2.0")
                 .version("0.1")

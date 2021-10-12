@@ -10,7 +10,7 @@ enum Opt {
     #[clap(alias = "foobar")]
     Foo,
     // https://docs.rs/clap/2/clap/struct.App.html#method.aliases
-    #[clap(aliases = &["baz", "fizz"])]
+    #[clap(aliases = ["baz", "fizz"])]
     Bar,
 }
 

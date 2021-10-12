@@ -133,7 +133,7 @@ macro_rules! yaml_char {
 #[cfg(feature = "yaml")]
 macro_rules! yaml_chars {
     ($v:expr) => {{
-        &$v.as_vec()
+        $v.as_vec()
             .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a list", $v))
             .into_iter()
             .map(|s| {

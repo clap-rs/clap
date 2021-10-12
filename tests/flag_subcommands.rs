@@ -122,7 +122,7 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
                     .long("test")
                     .about("testing testing"),
             )
-            .visible_short_flag_aliases(&['M', 'B'])
+            .visible_short_flag_aliases(['M', 'B'])
             .short_flag_alias('C'),
     );
     let app1 = app.clone();
@@ -150,7 +150,7 @@ fn flag_subcommand_short_with_aliases() {
                         .long("test")
                         .about("testing testing"),
                 )
-                .short_flag_aliases(&['M', 'B']),
+                .short_flag_aliases(['M', 'B']),
         )
         .get_matches_from(vec!["myprog", "-Bt"]);
     assert_eq!(matches.subcommand_name().unwrap(), "some");
@@ -189,7 +189,7 @@ fn flag_subcommand_short_with_aliases_hyphen() {
                         .long("test")
                         .about("testing testing"),
                 )
-                .short_flag_aliases(&['-', '-', '-']),
+                .short_flag_aliases(['-', '-', '-']),
         )
         .get_matches_from(vec!["myprog", "-Bt"]);
 }
@@ -259,7 +259,7 @@ fn flag_subcommand_long_with_aliases() {
                         .long("test")
                         .about("testing testing"),
                 )
-                .long_flag_aliases(&["result", "someall"]),
+                .long_flag_aliases(["result", "someall"]),
         )
         .get_matches_from(vec!["myprog", "--result", "--test"]);
     assert_eq!(matches.subcommand_name().unwrap(), "some");

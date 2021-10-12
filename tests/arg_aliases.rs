@@ -58,7 +58,7 @@ fn multiple_aliases_of_option() {
             .long("aliases")
             .takes_value(true)
             .about("multiple aliases")
-            .aliases(&["alias1", "alias2", "alias3"]),
+            .aliases(["alias1", "alias2", "alias3"]),
     );
     let long = a
         .clone()
@@ -106,7 +106,7 @@ fn single_alias_of_flag() {
 
 #[test]
 fn multiple_aliases_of_flag() {
-    let a = App::new("test").arg(Arg::new("flag").long("flag").aliases(&[
+    let a = App::new("test").arg(Arg::new("flag").long("flag").aliases([
         "invisible",
         "set",
         "of",
@@ -149,7 +149,7 @@ fn alias_on_a_subcommand_option() {
                     .about("testing testing"),
             ),
         )
-        .arg(Arg::new("other").long("other").aliases(&["o1", "o2", "o3"]))
+        .arg(Arg::new("other").long("other").aliases(["o1", "o2", "o3"]))
         .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
 
     assert!(m.subcommand_matches("some").is_some());
@@ -169,9 +169,9 @@ fn invisible_arg_aliases_help_output() {
                     .long("opt")
                     .short('o')
                     .takes_value(true)
-                    .aliases(&["invisible", "als1", "more"]),
+                    .aliases(["invisible", "als1", "more"]),
             )
-            .arg(Arg::from("-f, --flag").aliases(&["unseeable", "flg1", "anyway"])),
+            .arg(Arg::from("-f, --flag").aliases(["unseeable", "flg1", "anyway"])),
     );
     assert!(utils::compare_output(
         app,
@@ -199,7 +199,7 @@ fn visible_arg_aliases_help_output() {
                 Arg::new("flg")
                     .long("flag")
                     .short('f')
-                    .visible_aliases(&["v_flg", "flag2", "flg3"]),
+                    .visible_aliases(["v_flg", "flag2", "flg3"]),
             ),
     );
     assert!(utils::compare_output(

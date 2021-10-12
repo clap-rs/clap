@@ -58,7 +58,7 @@ fn multiple_short_aliases_of_option() {
             .long("aliases")
             .takes_value(true)
             .about("multiple aliases")
-            .short_aliases(&['1', '2', '3']),
+            .short_aliases(['1', '2', '3']),
     );
     let long = a
         .clone()
@@ -103,7 +103,7 @@ fn multiple_short_aliases_of_flag() {
     let a = App::new("test").arg(
         Arg::new("flag")
             .long("flag")
-            .short_aliases(&['a', 'b', 'c', 'd', 'e']),
+            .short_aliases(['a', 'b', 'c', 'd', 'e']),
     );
 
     let flag = a.clone().try_get_matches_from(vec!["", "--flag"]);
@@ -144,7 +144,7 @@ fn short_alias_on_a_subcommand_option() {
         .arg(
             Arg::new("other")
                 .long("other")
-                .short_aliases(&['1', '2', '3']),
+                .short_aliases(['1', '2', '3']),
         )
         .get_matches_from(vec!["test", "some", "-o", "awesome"]);
 
@@ -165,9 +165,9 @@ fn invisible_short_arg_aliases_help_output() {
                     .long("opt")
                     .short('o')
                     .takes_value(true)
-                    .short_aliases(&['a', 'b', 'c']),
+                    .short_aliases(['a', 'b', 'c']),
             )
-            .arg(Arg::from("-f, --flag").short_aliases(&['x', 'y', 'z'])),
+            .arg(Arg::from("-f, --flag").short_aliases(['x', 'y', 'z'])),
     );
     assert!(utils::compare_output(
         app,
@@ -196,7 +196,7 @@ fn visible_short_arg_aliases_help_output() {
                     .long("flag")
                     .short('f')
                     .visible_alias("flag1")
-                    .visible_short_aliases(&['a', 'b', '🦆']),
+                    .visible_short_aliases(['a', 'b', '🦆']),
             ),
     );
     assert!(utils::compare_output(

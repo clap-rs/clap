@@ -1232,7 +1232,7 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .subcommand(App::new("test")
-    ///         .aliases(&["do-stuff", "do-tests", "tests"]))
+    ///         .aliases(["do-stuff", "do-tests", "tests"]))
     ///         .arg(Arg::new("input")
     ///             .about("the file to add")
     ///             .index(1)
@@ -1241,8 +1241,13 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::visible_aliases`]: App::visible_aliases()
-    pub fn aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|n| (*n, false)));
+    pub fn aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|n| (n.into(), false)));
         self
     }
 
@@ -1257,7 +1262,7 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
     ///     .subcommand(App::new("test").short_flag('t')
-    ///         .short_flag_aliases(&['a', 'b', 'c']))
+    ///         .short_flag_aliases(['a', 'b', 'c']))
     ///         .arg(Arg::new("input")
     ///             .about("the file to add")
     ///             .index(1)
@@ -1265,10 +1270,13 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "-a"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
+    pub fn short_flag_aliases<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = char>,
+    {
         for s in names {
-            assert!(s != &'-', "short alias name cannot be `-`");
-            self.short_flag_aliases.push((*s, false));
+            assert!(s != '-', "short alias name cannot be `-`");
+            self.short_flag_aliases.push((s, false));
         }
         self
     }
@@ -1284,7 +1292,7 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
     ///             .subcommand(App::new("test").long_flag("test")
-    ///                 .long_flag_aliases(&["testing", "testall", "test_all"]))
+    ///                 .long_flag_aliases(["testing", "testall", "test_all"]))
     ///                 .arg(Arg::new("input")
     ///                             .about("the file to add")
     ///                             .index(1)
@@ -1292,9 +1300,13 @@ impl<'help> App<'help> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
-    pub fn long_flag_aliases(mut self, names: &[&'help str]) -> Self {
+    pub fn long_flag_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
         for s in names {
-            self.long_flag_aliases.push((s, false));
+            self.long_flag_aliases.push((s.into(), false));
         }
         self
     }
@@ -1390,13 +1402,18 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
     ///     .subcommand(App::new("test")
-    ///         .visible_aliases(&["do-stuff", "tests"]))
+    ///         .visible_aliases(["do-stuff", "tests"]))
     ///     .get_matches_from(vec!["myprog", "do-stuff"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::alias`]: App::alias()
-    pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
-        self.aliases.extend(names.iter().map(|n| (*n, true)));
+    pub fn visible_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
+        self.aliases
+            .extend(names.into_iter().map(|n| (n.into(), true)));
         self
     }
 
@@ -1409,15 +1426,18 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
     ///             .subcommand(App::new("test").short_flag('b')
-    ///                 .visible_short_flag_aliases(&['t']))
+    ///                 .visible_short_flag_aliases(['t']))
     ///             .get_matches_from(vec!["myprog", "-t"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::short_flag_aliases`]: App::short_flag_aliases()
-    pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
+    pub fn visible_short_flag_aliases<I>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = char>,
+    {
         for s in names {
-            assert!(!(s == &'-'), "short alias name cannot be `-`");
-            self.short_flag_aliases.push((*s, true));
+            assert!(!(s == '-'), "short alias name cannot be `-`");
+            self.short_flag_aliases.push((s, true));
         }
         self
     }
@@ -1431,14 +1451,18 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg, };
     /// let m = App::new("myprog")
     ///             .subcommand(App::new("test").long_flag("test")
-    ///                 .visible_long_flag_aliases(&["testing", "testall", "test_all"]))
+    ///                 .visible_long_flag_aliases(["testing", "testall", "test_all"]))
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::long_flag_aliases`]: App::long_flag_aliases()
-    pub fn visible_long_flag_aliases(mut self, names: &[&'help str]) -> Self {
+    pub fn visible_long_flag_aliases<I, T>(mut self, names: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<&'help str>,
+    {
         for s in names {
-            self.long_flag_aliases.push((s, true));
+            self.long_flag_aliases.push((s.into(), true));
         }
         self
     }
