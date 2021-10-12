@@ -1023,10 +1023,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.write_args(&opts_flags)?;
                     }
                     "flags" => {
-                        self.write_args(&self.parser.app.get_flags_with_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_flags().collect::<Vec<_>>())?;
                     }
                     "options" => {
-                        self.write_args(&self.parser.app.get_opts_with_no_heading().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_opts().collect::<Vec<_>>())?;
                     }
                     "positionals" => {
                         self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;

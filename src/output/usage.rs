@@ -72,7 +72,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             && self
                 .p
                 .app
-                .get_opts_with_no_heading()
+                .get_opts()
                 .any(|o| !o.is_set(ArgSettings::Required) && !o.is_set(ArgSettings::Hidden))
         {
             usage.push_str(" [OPTIONS]");
@@ -93,7 +93,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         if self
             .p
             .app
-            .get_opts_with_no_heading()
+            .get_opts()
             .any(|o| o.is_set(ArgSettings::MultipleValues))
             && self
                 .p
@@ -331,7 +331,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     // Determines if we need the `[FLAGS]` tag in the usage string
     fn needs_flags_tag(&self) -> bool {
         debug!("Usage::needs_flags_tag");
-        'outer: for f in self.p.app.get_flags_with_no_heading() {
+        'outer: for f in self.p.app.get_flags() {
             debug!("Usage::needs_flags_tag:iter: f={}", f.name);
 
             // Don't print `[FLAGS]` just for help or version
