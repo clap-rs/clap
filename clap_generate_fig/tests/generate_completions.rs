@@ -6,13 +6,8 @@ use std::io;
 #[test]
 fn generate_completions() {
     let mut app = App::new("test_app")
-        .arg(
-            Arg::new("config")
-                .short('c')
-                .conflicts_with("v")
-                .global(true),
-        )
-        .arg(Arg::new("v").short('v'))
+        .arg(Arg::new("config").short('c').global(true))
+        .arg(Arg::new("v").short('v').conflicts_with("config"))
         .subcommand(
             App::new("test")
                 .about("Subcommand")

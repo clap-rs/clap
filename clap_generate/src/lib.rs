@@ -250,9 +250,7 @@ where
     G: Generator,
     S: Into<String>,
 {
-    // TODO: All the subcommands need to be built instead of just the top one
-    app._build();
-    app._build_bin_names();
+    app._build_all();
 
     gen.generate(app, buf)
 }

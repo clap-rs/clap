@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
+        .setting(AppSettings::PropagateVersion)
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -66,8 +67,6 @@ set edit:completion:arg-completer[my_app] = [@words]{
         &'my_app;help'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
         }
     ]
     $completions[$command]
@@ -145,8 +144,6 @@ set edit:completion:arg-completer[my_app] = [@words]{
         &'my_app;help'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
         }
     ]
     $completions[$command]

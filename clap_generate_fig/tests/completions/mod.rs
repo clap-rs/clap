@@ -1,4 +1,4 @@
-use clap::{App, Arg, ValueHint};
+use clap::{App, AppSettings, Arg, ValueHint};
 use clap_generate::{generate, generators::*};
 use std::fmt;
 
