@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
+        .version("3.0")
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -26,7 +27,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
 #[test]
 fn fig() {
     let mut app = build_app();
-    common::<Fig>(&mut app, "myapp", FIG);
+    common(Fig, &mut app, "myapp", FIG);
 }
 
 static FIG: &str = r#"const completion: Fig.Spec = {
@@ -93,7 +94,7 @@ export default completion;
 #[test]
 fn fig_with_special_commands() {
     let mut app = build_app_special_commands();
-    common::<Fig>(&mut app, "my_app", FIG_SPECIAL_CMDS);
+    common(Fig, &mut app, "my_app", FIG_SPECIAL_CMDS);
 }
 
 fn build_app_special_commands() -> App<'static> {
@@ -208,11 +209,12 @@ export default completion;
 #[test]
 fn fig_with_special_help() {
     let mut app = build_app_special_help();
-    common::<Fig>(&mut app, "my_app", FIG_SPECIAL_HELP);
+    common(Fig, &mut app, "my_app", FIG_SPECIAL_HELP);
 }
 
 fn build_app_special_help() -> App<'static> {
     App::new("my_app")
+        .version("3.0")
         .arg(
             Arg::new("single-quotes")
                 .long("single-quotes")
@@ -286,11 +288,12 @@ export default completion;
 #[test]
 fn fig_with_aliases() {
     let mut app = build_app_with_aliases();
-    common::<Fig>(&mut app, "cmd", FIG_ALIASES);
+    common(Fig, &mut app, "cmd", FIG_ALIASES);
 }
 
 fn build_app_with_aliases() -> App<'static> {
     App::new("cmd")
+        .version("3.0")
         .about("testing bash completions")
         .arg(
             Arg::new("flag")
@@ -349,7 +352,7 @@ export default completion;
 #[test]
 fn fig_with_sub_subcommands() {
     let mut app = build_app_sub_subcommands();
-    common::<Fig>(&mut app, "my_app", FIG_SUB_SUBCMDS);
+    common(Fig, &mut app, "my_app", FIG_SUB_SUBCMDS);
 }
 
 fn build_app_sub_subcommands() -> App<'static> {

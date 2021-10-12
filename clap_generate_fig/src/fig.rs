@@ -9,11 +9,11 @@ use clap_generate::*;
 pub struct Fig;
 
 impl Generator for Fig {
-    fn file_name(name: &str) -> String {
+    fn file_name(&self, name: &str) -> String {
         format!("{}.ts", name)
     }
 
-    fn generate(app: &App, buf: &mut dyn Write) {
+    fn generate(&self, app: &App, buf: &mut dyn Write) {
         let command = app.get_bin_name().unwrap();
         let mut buffer = String::new();
 
@@ -160,7 +160,7 @@ fn gen_options(app: &App, indent: usize) -> String {
         buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
     }
 
-    for flag in Fig::flags(app) {
+    for flag in utils::flags(app) {
         buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
 
         let mut flags = vec![];

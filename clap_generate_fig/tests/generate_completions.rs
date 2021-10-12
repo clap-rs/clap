@@ -19,5 +19,5 @@ fn generate_completions() {
                 .arg(Arg::new("debug").short('d')),
         );
 
-    generate::<Fig, _>(&mut app, "test_app", &mut io::sink());
+    generate(Fig, &mut app, "test_app", &mut io::sink());
 }
