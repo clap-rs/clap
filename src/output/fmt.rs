@@ -1,7 +1,4 @@
-#[cfg(not(feature = "color"))]
-use crate::util::termcolor::{Color, ColorChoice};
-#[cfg(feature = "color")]
-use termcolor::{Color, ColorChoice};
+use crate::util::color::{Color, ColorChoice};
 
 use std::{
     fmt::{self, Display, Formatter},
@@ -63,12 +60,12 @@ impl Colorizer {
 impl Colorizer {
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::{BufferWriter, ColorSpec, WriteColor};
+        use termcolor::{BufferWriter, ColorChoice as DepColorChoice, ColorSpec, WriteColor};
 
         let color_when = match self.color_when {
-            always @ ColorChoice::Always => always,
-            choice if is_a_tty(self.use_stderr) => choice,
-            _ => ColorChoice::Never,
+            ColorChoice::Always => DepColorChoice::Always,
+            ColorChoice::Auto if is_a_tty(self.use_stderr) => DepColorChoice::Auto,
+            _ => DepColorChoice::Never,
         };
 
         let writer = if self.use_stderr {

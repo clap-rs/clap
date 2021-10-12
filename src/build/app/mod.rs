@@ -28,7 +28,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{safe_exit, termcolor::ColorChoice, Id, Key, USAGE_CODE},
+    util::{color::ColorChoice, safe_exit, Id, Key, USAGE_CODE},
     Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -90,6 +90,7 @@ pub struct App<'help> {
     pub(crate) template: Option<&'help str>,
     pub(crate) settings: AppFlags,
     pub(crate) g_settings: AppFlags,
+    pub(crate) color: ColorChoice,
     pub(crate) args: MKeyMap<'help>,
     pub(crate) subcommands: Vec<App<'help>>,
     pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
@@ -985,7 +986,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_global_setting(AppSettings::ColorAuto)
+    ///     .unset_global_setting(AppSettings::UnifiedHelpMessage)
     /// # ;
     /// ```
     /// [global]: App::global_setting()
@@ -993,6 +994,28 @@ impl<'help> App<'help> {
     pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
+        self
+    }
+
+    /// Sets the behaviour of colored output during runtime.
+    ///
+    /// **NOTE:** This choice is propagated to all child subcommands.
+    ///
+    /// **NOTE:** Default behaviour is [`ColorChoice::Auto`].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, ColorChoice};
+    /// App::new("myprog")
+    ///     .color(ColorChoice::Never)
+    ///     .get_matches();
+    /// ```
+    /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
+    #[cfg(feature = "color")]
+    #[inline]
+    pub fn color(mut self, color: ColorChoice) -> Self {
+        self.color = color;
         self
     }
 
@@ -2656,20 +2679,8 @@ impl<'help> App<'help> {
     }
 
     #[inline]
-    // Should we color the output?
     pub(crate) fn get_color(&self) -> ColorChoice {
-        debug!("App::color: Color setting...");
-
-        if self.is_set(AppSettings::ColorNever) {
-            debug!("Never");
-            ColorChoice::Never
-        } else if self.is_set(AppSettings::ColorAlways) {
-            debug!("Always");
-            ColorChoice::Always
-        } else {
-            debug!("Auto");
-            ColorChoice::Auto
-        }
+        self.color
     }
 
     #[inline]

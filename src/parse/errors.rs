@@ -12,7 +12,7 @@ use crate::{
     build::Arg,
     output::fmt::Colorizer,
     parse::features::suggestions,
-    util::{safe_exit, termcolor::ColorChoice, SUCCESS_CODE, USAGE_CODE},
+    util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
     App, AppSettings,
 };
 

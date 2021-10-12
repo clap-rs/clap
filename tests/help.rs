@@ -2263,13 +2263,11 @@ fn option_usage_order() {
 
 #[test]
 fn about_in_subcommands_list() {
-    let app = App::new("about-in-subcommands-list")
-        .setting(AppSettings::ColorNever)
-        .subcommand(
-            App::new("sub")
-                .long_about("long about sub")
-                .about("short about sub"),
-        );
+    let app = App::new("about-in-subcommands-list").subcommand(
+        App::new("sub")
+            .long_about("long about sub")
+            .about("short about sub"),
+    );
 
     assert!(utils::compare_output(
         app,

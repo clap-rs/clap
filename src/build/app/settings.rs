@@ -26,9 +26,6 @@ bitflags! {
         const NO_POS_VALUES                  = 1 << 17;
         const NEXT_LINE_HELP                 = 1 << 18;
         const DERIVE_DISP_ORDER              = 1 << 19;
-        const COLOR_ALWAYS                   = 1 << 21;
-        const COLOR_AUTO                     = 1 << 22;
-        const COLOR_NEVER                    = 1 << 23;
         const DONT_DELIM_TRAIL               = 1 << 24;
         const ALLOW_NEG_NUMS                 = 1 << 25;
         const DISABLE_HELP_SC                = 1 << 27;
@@ -58,7 +55,7 @@ pub struct AppFlags(Flags);
 
 impl Default for AppFlags {
     fn default() -> Self {
-        AppFlags(Flags::COLOR_AUTO)
+        Self::empty()
     }
 }
 
@@ -79,12 +76,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
-    ColorAlways("coloralways")
-        => Flags::COLOR_ALWAYS,
-    ColorAuto("colorauto")
-        => Flags::COLOR_AUTO,
-    ColorNever("colornever")
-        => Flags::COLOR_NEVER,
     DontDelimitTrailingValues("dontdelimittrailingvalues")
         => Flags::DONT_DELIM_TRAIL,
     DontCollapseArgsInUsage("dontcollapseargsinusage")
@@ -489,62 +480,6 @@ pub enum AppSettings {
     /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
     SubcommandPrecedenceOverArg,
-
-    /// Enables colored output only when the output is going to a terminal or TTY.
-    ///
-    /// **NOTE:** This is the default behavior of `clap`.
-    ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature.
-    ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ColorAuto)
-    ///     .get_matches();
-    /// ```
-    ColorAuto,
-
-    /// Enables colored output regardless of whether or not the output is going to a terminal/TTY.
-    ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature.
-    ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms).
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ColorAlways)
-    ///     .get_matches();
-    /// ```
-    ColorAlways,
-
-    /// Disables colored output no matter if the output is going to a terminal/TTY, or not.
-    ///
-    /// **NOTE:** Must be compiled with the `color` cargo feature
-    ///
-    /// # Platform Specific
-    ///
-    /// This setting only applies to Unix, Linux, and OSX (i.e. non-Windows platforms)
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::ColorNever)
-    ///     .get_matches();
-    /// ```
-    ColorNever,
 
     /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
     ///
@@ -1084,18 +1019,6 @@ mod test {
         assert_eq!(
             "allownegativenumbers".parse::<AppSettings>().unwrap(),
             AppSettings::AllowNegativeNumbers
-        );
-        assert_eq!(
-            "colorauto".parse::<AppSettings>().unwrap(),
-            AppSettings::ColorAuto
-        );
-        assert_eq!(
-            "coloralways".parse::<AppSettings>().unwrap(),
-            AppSettings::ColorAlways
-        );
-        assert_eq!(
-            "colornever".parse::<AppSettings>().unwrap(),
-            AppSettings::ColorNever
         );
         assert_eq!(
             "disablehelpsubcommand".parse::<AppSettings>().unwrap(),
