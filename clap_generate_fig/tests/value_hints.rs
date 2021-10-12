@@ -211,5 +211,5 @@ export default completion;
 #[test]
 fn fig_with_value_hints() {
     let mut app = build_app_with_value_hints();
-    common::<Fig>(&mut app, "my_app", FIG_VALUE_HINTS);
+    common(Fig, &mut app, "my_app", FIG_VALUE_HINTS);
 }

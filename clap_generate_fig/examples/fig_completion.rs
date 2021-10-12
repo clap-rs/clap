@@ -8,5 +8,5 @@ fn main() {
         .subcommand(App::new("test").subcommand(App::new("config")))
         .subcommand(App::new("hello"));
 
-    generate::<Fig, _>(&mut app, "myapp", &mut io::stdout());
+    generate(Fig, &mut app, "myapp", &mut io::stdout());
 }
