@@ -127,9 +127,8 @@ mod tests {
     use clap::Arg;
     use pretty_assertions::assert_eq;
 
-    fn common() -> App<'static> {
-        let mut app = App::new("myapp")
-            .version("3.0")
+    fn common_app() -> App<'static> {
+        App::new("myapp")
             .subcommand(
                 App::new("test").subcommand(App::new("config")).arg(
                     Arg::new("file")
@@ -141,16 +140,26 @@ mod tests {
                 ),
             )
             .subcommand(App::new("hello"))
-            .bin_name("my-app");
+            .bin_name("my-app")
+    }
 
-        app._build();
-        app._build_bin_names();
+    fn built() -> App<'static> {
+        let mut app = common_app();
+
+        app._build_all();
+        app
+    }
+
+    fn built_with_version() -> App<'static> {
+        let mut app = common_app().version("3.0");
+
+        app._build_all();
         app
     }
 
     #[test]
     fn test_subcommands() {
-        let app = common();
+        let app = built_with_version();
 
         assert_eq!(
             subcommands(&app),
@@ -164,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_all_subcommands() {
-        let app = common();
+        let app = built_with_version();
 
         assert_eq!(
             all_subcommands(&app),
@@ -173,13 +182,14 @@ mod tests {
                 ("hello".to_string(), "my-app hello".to_string()),
                 ("help".to_string(), "my-app help".to_string()),
                 ("config".to_string(), "my-app test config".to_string()),
+                ("help".to_string(), "my-app test help".to_string()),
             ]
         );
     }
 
     #[test]
     fn test_find_subcommand_with_path() {
-        let app = common();
+        let app = built_with_version();
         let sc_app = find_subcommand_with_path(&app, "test config".split(' ').collect());
 
         assert_eq!(sc_app.get_name(), "config");
@@ -187,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_flags() {
-        let app = common();
+        let app = built_with_version();
         let actual_flags = flags(&app);
 
         assert_eq!(actual_flags.len(), 2);
@@ -196,15 +206,29 @@ mod tests {
 
         let sc_flags = flags(find_subcommand_with_path(&app, vec!["test"]));
 
-        assert_eq!(sc_flags.len(), 3);
+        assert_eq!(sc_flags.len(), 2);
         assert_eq!(sc_flags[0].get_long(), Some("file"));
         assert_eq!(sc_flags[1].get_long(), Some("help"));
-        assert_eq!(sc_flags[2].get_long(), Some("version"));
+    }
+
+    #[test]
+    fn test_flag_subcommand() {
+        let app = built();
+        let actual_flags = flags(&app);
+
+        assert_eq!(actual_flags.len(), 1);
+        assert_eq!(actual_flags[0].get_long(), Some("help"));
+
+        let sc_flags = flags(find_subcommand_with_path(&app, vec!["test"]));
+
+        assert_eq!(sc_flags.len(), 2);
+        assert_eq!(sc_flags[0].get_long(), Some("file"));
+        assert_eq!(sc_flags[1].get_long(), Some("help"));
     }
 
     #[test]
     fn test_shorts() {
-        let app = common();
+        let app = built_with_version();
         let shorts = shorts_and_visible_aliases(&app);
 
         assert_eq!(shorts.len(), 2);
@@ -213,16 +237,15 @@ mod tests {
 
         let sc_shorts = shorts_and_visible_aliases(find_subcommand_with_path(&app, vec!["test"]));
 
-        assert_eq!(sc_shorts.len(), 4);
+        assert_eq!(sc_shorts.len(), 3);
         assert_eq!(sc_shorts[0], 'p');
         assert_eq!(sc_shorts[1], 'f');
         assert_eq!(sc_shorts[2], 'h');
-        assert_eq!(sc_shorts[3], 'V');
     }
 
     #[test]
     fn test_longs() {
-        let app = common();
+        let app = built_with_version();
         let longs = longs_and_visible_aliases(&app);
 
         assert_eq!(longs.len(), 2);
@@ -231,10 +254,9 @@ mod tests {
 
         let sc_longs = longs_and_visible_aliases(find_subcommand_with_path(&app, vec!["test"]));
 
-        assert_eq!(sc_longs.len(), 4);
+        assert_eq!(sc_longs.len(), 3);
         assert_eq!(sc_longs[0], "path");
         assert_eq!(sc_longs[1], "file");
         assert_eq!(sc_longs[2], "help");
-        assert_eq!(sc_longs[3], "version");
     }
 }

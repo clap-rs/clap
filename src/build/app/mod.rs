@@ -2272,6 +2272,16 @@ impl<'help> App<'help> {
 
     // used in clap_generate (https://github.com/clap-rs/clap_generate)
     #[doc(hidden)]
+    pub fn _build_all(&mut self) {
+        self._build();
+        for subcmd in self.get_subcommands_mut() {
+            subcmd._build();
+        }
+        self._build_bin_names();
+    }
+
+    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    #[doc(hidden)]
     pub fn _build(&mut self) {
         debug!("App::_build");
         if !self.settings.is_set(AppSettings::Built) {

@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
+        .setting(AppSettings::PropagateVersion)
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -73,8 +74,6 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '-h[Print help information]' \
 '--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -195,8 +194,6 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '-h[Print help information]' \
 '--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -364,8 +361,6 @@ _my_app() {
 _arguments "${_arguments_options[@]}" \
 '-h[Print help information]' \
 '--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
 ":: :_my_app__second_commands" \
 "*::: :->second" \
 && ret=0
@@ -378,8 +373,16 @@ _arguments "${_arguments_options[@]}" \
         case $line[1] in
             (third)
 _arguments "${_arguments_options[@]}" \
-'--help[Print help information]' \
 '--version[Print version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+'--version[Print version information]' \
+'-h[Print help information]' \
+'--help[Print help information]' \
 && ret=0
 ;;
         esac
@@ -390,8 +393,6 @@ esac
 _arguments "${_arguments_options[@]}" \
 '-h[Print help information]' \
 '--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
 && ret=0
 ;;
         esac
@@ -412,10 +413,16 @@ _my_app__help_commands() {
     local commands; commands=()
     _describe -t commands 'my_app help commands' commands "$@"
 }
+(( $+functions[_my_app__second__help_commands] )) ||
+_my_app__second__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'my_app second help commands' commands "$@"
+}
 (( $+functions[_my_app__second_commands] )) ||
 _my_app__second_commands() {
     local commands; commands=(
 'third:' \
+'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'my_app second commands' commands "$@"
 }

@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
+        .setting(AppSettings::PropagateVersion)
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -82,8 +83,6 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
         'my_app;help' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break
         }
     })
@@ -174,8 +173,6 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
         'my_app;help' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break
         }
     })

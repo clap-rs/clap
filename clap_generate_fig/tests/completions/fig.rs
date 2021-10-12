@@ -8,6 +8,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
+        .setting(AppSettings::PropagateVersion)
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -63,10 +64,6 @@ static FIG: &str = r#"const completion: Fig.Spec = {
         {
           name: ["-h", "--help"],
           description: "Print help information",
-        },
-        {
-          name: ["-V", "--version"],
-          description: "Print version information",
         },
       ],
     },
@@ -178,10 +175,6 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
         {
           name: ["-h", "--help"],
           description: "Print help information",
-        },
-        {
-          name: ["-V", "--version"],
-          description: "Print version information",
         },
       ],
     },
@@ -413,11 +406,25 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
               },
             },
             {
-              name: "--help",
+              name: ["-h", "--help"],
               description: "Print help information",
             },
             {
-              name: "--version",
+              name: ["-V", "--version"],
+              description: "Print version information",
+            },
+          ],
+        },
+        {
+          name: "help",
+          description: "Print this message or the help of the given subcommand(s)",
+          options: [
+            {
+              name: ["-h", "--help"],
+              description: "Print help information",
+            },
+            {
+              name: ["-V", "--version"],
               description: "Print version information",
             },
           ],
@@ -441,10 +448,6 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
         {
           name: ["-h", "--help"],
           description: "Print help information",
-        },
-        {
-          name: ["-V", "--version"],
-          description: "Print version information",
         },
       ],
     },

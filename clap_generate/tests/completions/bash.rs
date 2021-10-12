@@ -7,6 +7,7 @@ fn build_app() -> App<'static> {
 fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
+        .setting(AppSettings::PropagateVersion)
         .about("Tests completions")
         .arg(
             Arg::new("file")
@@ -70,7 +71,7 @@ static BASH: &str = r#"_myapp() {
             return 0
             ;;
         myapp__help)
-            opts=" -h -V  --help --version  "
+            opts=" -h  --help  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -173,7 +174,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             return 0
             ;;
         my_app__help)
-            opts=" -h -V  --help --version  "
+            opts=" -h  --help  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
