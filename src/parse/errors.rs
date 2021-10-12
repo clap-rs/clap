@@ -491,9 +491,7 @@ impl Error {
     pub fn use_stderr(&self) -> bool {
         !matches!(
             self.kind,
-            ErrorKind::DisplayHelp
-                | ErrorKind::DisplayVersion
-                | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
         )
     }
 
