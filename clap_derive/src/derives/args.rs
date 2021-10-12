@@ -349,11 +349,13 @@ pub fn gen_augment(
         }
     });
 
-    let app_methods = parent_attribute.top_level_methods();
+    let initial_app_methods = parent_attribute.initial_top_level_methods();
+    let final_app_methods = parent_attribute.final_top_level_methods();
     quote! {{
+        let #app_var = #app_var#initial_app_methods;
         #( #args )*
         #subcmd
-        #app_var#app_methods
+        #app_var#final_app_methods
     }}
 }
 

@@ -106,6 +106,7 @@ pub struct Attrs {
     author: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    help_heading: Option<Method>,
     is_enum: bool,
     has_custom_parser: bool,
     kind: Sp<Kind>,
@@ -285,6 +286,7 @@ impl Attrs {
             author: None,
             version: None,
             verbatim_doc_comment: None,
+            help_heading: None,
             is_enum: false,
             has_custom_parser: false,
             kind: Sp::new(Kind::Arg(Sp::new(Ty::Other, default_span)), default_span),
@@ -381,6 +383,10 @@ impl Attrs {
 
                     let raw_ident = Ident::new("default_value", ident.span());
                     self.methods.push(Method::new(raw_ident, val));
+                }
+
+                HelpHeading(ident, expr) => {
+                    self.help_heading = Some(Method::new(ident, quote!(#expr)));
                 }
 
                 About(ident, about) => {
@@ -773,7 +779,12 @@ impl Attrs {
     }
 
     /// generate methods from attributes on top of struct or enum
-    pub fn top_level_methods(&self) -> TokenStream {
+    pub fn initial_top_level_methods(&self) -> TokenStream {
+        let help_heading = self.help_heading.as_ref().into_iter();
+        quote!( #(#help_heading)* )
+    }
+
+    pub fn final_top_level_methods(&self) -> TokenStream {
         let version = &self.version;
         let author = &self.author;
         let methods = &self.methods;
@@ -786,7 +797,8 @@ impl Attrs {
     pub fn field_methods(&self) -> proc_macro2::TokenStream {
         let methods = &self.methods;
         let doc_comment = &self.doc_comment;
-        quote!( #(#doc_comment)* #(#methods)* )
+        let help_heading = self.help_heading.as_ref().into_iter();
+        quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
     }
 
     pub fn cased_name(&self) -> TokenStream {

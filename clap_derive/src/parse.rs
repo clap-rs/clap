@@ -41,6 +41,7 @@ pub enum ClapAttr {
     // ident = arbitrary_expr
     NameExpr(Ident, Expr),
     DefaultValueT(Ident, Option<Expr>),
+    HelpHeading(Ident, Expr),
 
     // ident(arbitrary_expr,*)
     MethodCall(Ident, Vec<Expr>),
@@ -100,6 +101,15 @@ impl Parse for ClapAttr {
                         Ok(Skip(name, Some(expr)))
                     }
 
+                    "help_heading" => {
+                        let expr = ExprLit {
+                            attrs: vec![],
+                            lit: Lit::Str(lit),
+                        };
+                        let expr = Expr::Lit(expr);
+                        Ok(HelpHeading(name, expr))
+                    }
+
                     _ => Ok(NameLitStr(name, lit)),
                 }
             } else {
@@ -107,6 +117,7 @@ impl Parse for ClapAttr {
                     Ok(expr) => match &*name_str {
                         "skip" => Ok(Skip(name, Some(expr))),
                         "default_value_t" => Ok(DefaultValueT(name, Some(expr))),
+                        "help_heading" => Ok(HelpHeading(name, expr)),
                         _ => Ok(NameExpr(name, expr)),
                     },
 
