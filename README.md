@@ -371,34 +371,6 @@ fn main() {
 }
 ```
 
-#### Using Macros
-
-Finally there is a macro version, which is like a hybrid approach offering the speed of the
-builder pattern (the first example), but without all the verbosity.
-
-```rust,no_run
-use clap::clap_app;
-
-fn main() {
-    let matches = clap_app!(myapp =>
-        (version: "1.0")
-        (author: "Kevin K. <kbknapp@gmail.com>")
-        (about: "Does awesome things")
-        (@arg CONFIG: -c --config [FILE] "Sets a custom config file")
-        (@arg INPUT: +required "Sets the input file to use")
-        (@arg verbose: -v --verbose "Sets the level of verbosity")
-        (@subcommand test =>
-            (about: "controls testing features")
-            (version: "1.3")
-            (author: "Someone E. <someone_else@other.com>")
-            (@arg debug: -d --debug "Print debug information")
-        )
-    ).get_matches();
-
-    // Same as previous examples...
-}
-```
-
 #### Running it
 
 If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output (except the first example where the help message sort of explains the Rust code).

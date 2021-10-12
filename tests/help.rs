@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{clap_app, App, AppSettings, Arg, ArgGroup, ArgSettings, ArgValue, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ArgValue, ErrorKind};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -707,11 +707,21 @@ fn help_subcommand() {
 
 #[test]
 fn req_last_arg_usage() {
-    let app = clap_app!(example =>
-        (version: "1.0")
-        (@arg FIRST: ... * "First")
-        (@arg SECOND: ... * +last "Second")
-    );
+    let app = App::new("example")
+        .version("1.0")
+        .arg(
+            Arg::new("FIRST")
+                .about("First")
+                .multiple_values(true)
+                .required(true),
+        )
+        .arg(
+            Arg::new("SECOND")
+                .about("Second")
+                .multiple_values(true)
+                .required(true)
+                .last(true),
+        );
     assert!(utils::compare_output(
         app,
         "example --help",

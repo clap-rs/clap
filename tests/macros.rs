@@ -27,6 +27,7 @@ SUBCOMMANDS:
 
 #[test]
 fn basic() {
+    #![allow(deprecated)]
     clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -61,6 +62,7 @@ fn basic() {
 
 #[test]
 fn quoted_app_name() {
+    #![allow(deprecated)]
     let mut app = clap::clap_app!(("app name with spaces-and-hyphens") =>
         (version: "0.1")
         (about: "tests clap library")
@@ -102,6 +104,7 @@ fn quoted_app_name() {
 
 #[test]
 fn quoted_arg_long_name() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -140,6 +143,7 @@ fn quoted_arg_long_name() {
 
 #[test]
 fn quoted_arg_name() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -178,6 +182,7 @@ fn quoted_arg_name() {
 
 #[test]
 fn quoted_subcommand_name() {
+    #![allow(deprecated)]
     clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -213,6 +218,7 @@ fn quoted_subcommand_name() {
 
 #[test]
 fn group_macro() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -233,6 +239,7 @@ fn group_macro() {
 
 #[test]
 fn group_macro_set_multiple() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -255,6 +262,7 @@ fn group_macro_set_multiple() {
 
 #[test]
 fn group_macro_set_not_multiple() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -274,6 +282,7 @@ fn group_macro_set_not_multiple() {
 
 #[test]
 fn group_macro_set_required() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -293,6 +302,7 @@ fn group_macro_set_required() {
 
 #[test]
 fn group_macro_set_not_required() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -312,6 +322,7 @@ fn group_macro_set_not_required() {
 
 #[test]
 fn group_macro_attributes_alternative() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -342,6 +353,7 @@ fn group_macro_attributes_alternative() {
 
 #[test]
 fn group_macro_multiple_methods() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -371,6 +383,7 @@ fn group_macro_multiple_methods() {
 
 #[test]
 fn group_macro_multiple_methods_alternative() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -400,6 +413,7 @@ fn group_macro_multiple_methods_alternative() {
 
 #[test]
 fn group_macro_multiple_invokations() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")
         (about: "tests clap library")
@@ -428,6 +442,7 @@ fn group_macro_multiple_invokations() {
 
 #[test]
 fn literals() {
+    #![allow(deprecated)]
     let app = clap::clap_app!("clap-tests" =>
         (version: "0.1")
         (@arg "task-num": -"t-n" --"task-num" +takes_value possible_value["all" 0 1 2]
@@ -453,6 +468,7 @@ fn literals() {
 
 #[test]
 fn multiarg() {
+    #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (@arg flag: --flag "value")
         (@arg multiarg: --multiarg
@@ -481,6 +497,8 @@ fn multiarg() {
 
 #[test]
 fn validator() {
+    #![allow(deprecated)]
+
     use std::str::FromStr;
 
     fn validate(val: &str) -> Result<u32, String> {
