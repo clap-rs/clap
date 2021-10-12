@@ -46,12 +46,12 @@ static FIG: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -60,12 +60,12 @@ static FIG: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -74,10 +74,6 @@ static FIG: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
-    },
-    {
-      name: ["-V", "--version"],
-      description: "Print version information",
     },
   ],
   args: {
@@ -126,12 +122,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -148,12 +144,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -161,12 +157,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       name: "some-cmd-with-hypens",
       options: [
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -175,12 +171,12 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -189,10 +185,6 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
-    },
-    {
-      name: ["-V", "--version"],
-      description: "Print version information",
     },
   ],
   args: {
@@ -248,10 +240,6 @@ static FIG_SPECIAL_HELP: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
-    },
-    {
-      name: ["-V", "--version"],
-      description: "Print version information",
     },
     {
       name: "--single-quotes",
@@ -329,10 +317,6 @@ static FIG_ALIASES: &str = r#"const completion: Fig.Spec = {
       description: "Print help information",
     },
     {
-      name: ["-V", "--version"],
-      description: "Print version information",
-    },
-    {
       name: ["-f", "-F", "--flag", "--flg"],
       description: "cmd flag",
     },
@@ -384,12 +368,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
           },
         },
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -422,12 +406,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
       ],
       options: [
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -436,12 +420,12 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
       description: "Print this message or the help of the given subcommand(s)",
       options: [
         {
-          name: ["-h", "--help"],
-          description: "Print help information",
+          name: "--version",
+          description: "Print version information",
         },
         {
-          name: ["-V", "--version"],
-          description: "Print version information",
+          name: ["-h", "--help"],
+          description: "Print help information",
         },
       ],
     },
@@ -450,10 +434,6 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-h", "--help"],
       description: "Print help information",
-    },
-    {
-      name: ["-V", "--version"],
-      description: "Print version information",
     },
   ],
   args: {
