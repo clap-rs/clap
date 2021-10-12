@@ -260,6 +260,7 @@ fn arg_required_else_help() {
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::new("test").index(1))
         .try_get_matches_from(vec![""]);
+
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
@@ -274,6 +275,7 @@ fn arg_required_else_help_over_reqs() {
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::new("test").index(1).required(true))
         .try_get_matches_from(vec![""]);
+
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
@@ -297,7 +299,7 @@ fn arg_required_else_help_error_message() {
         app,
         "test",
         ARG_REQUIRED_ELSE_HELP,
-        false
+        true // Unlike normal displaying of help, we should provide a fatal exit code
     ));
 }
 
@@ -307,6 +309,7 @@ fn subcommand_required_else_help() {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("info"))
         .try_get_matches_from(&[""]);
+
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
@@ -325,7 +328,7 @@ fn subcommand_required_else_help_error_message() {
         app,
         "test",
         SUBCOMMAND_REQUIRED_ELSE_HELP,
-        false
+        true // Unlike normal displaying of help, we should provide a fatal exit code
     ));
 }
 
