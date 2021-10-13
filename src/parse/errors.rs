@@ -12,7 +12,7 @@ use crate::{
     build::Arg,
     output::fmt::Colorizer,
     parse::features::suggestions,
-    util::{safe_exit, termcolor::ColorChoice, SUCCESS_CODE, USAGE_CODE},
+    util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
     App, AppSettings,
 };
 
@@ -546,7 +546,7 @@ impl Error {
         other: Option<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -582,7 +582,7 @@ impl Error {
     }
 
     pub(crate) fn empty_value(app: &App, arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -601,7 +601,7 @@ impl Error {
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Equal sign is needed when assigning values to '");
         c.warning(&arg);
@@ -629,7 +629,7 @@ impl Error {
     where
         G: AsRef<str> + Display,
     {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
 
         let mut sorted: Vec<String> = good_vals
@@ -690,7 +690,7 @@ impl Error {
         name: String,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "The subcommand '");
         c.warning(subcmd.clone());
@@ -716,7 +716,7 @@ impl Error {
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, " The subcommand '");
         c.warning(subcmd.clone());
@@ -739,7 +739,7 @@ impl Error {
         required: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(
             &mut c,
@@ -766,7 +766,7 @@ impl Error {
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "'");
         c.warning(name);
@@ -784,7 +784,7 @@ impl Error {
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(
             &mut c,
@@ -809,7 +809,7 @@ impl Error {
         curr_occurs: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_occurs);
 
         start_error(&mut c, "The argument '");
@@ -836,7 +836,7 @@ impl Error {
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "The value '");
         c.warning(val.clone());
@@ -862,7 +862,7 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_vals);
 
         start_error(&mut c, "The argument '");
@@ -896,7 +896,7 @@ impl Error {
             info,
             source,
             backtrace,
-        } = Self::value_validation_with_color(arg, val, err, app.color());
+        } = Self::value_validation_with_color(arg, val, err, app.get_color());
         try_help(app, &mut message);
         Self {
             message,
@@ -947,7 +947,7 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_vals);
 
         start_error(&mut c, "The argument '");
@@ -970,7 +970,7 @@ impl Error {
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -994,7 +994,7 @@ impl Error {
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Found argument '");
         c.warning(arg.clone());
@@ -1039,7 +1039,7 @@ impl Error {
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.color());
+        let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Found argument '");
         c.warning(arg.clone());

@@ -32,7 +32,7 @@ fn basic() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@global_setting ColorNever)
+        (@global_setting UnifiedHelpMessage)
         (@arg opt: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")

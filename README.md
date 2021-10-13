@@ -444,7 +444,7 @@ Disabling optional features can decrease the binary size of `clap` and decrease 
 * **std**: _Not Currently Used._ Placeholder for supporting `no_std` environments in a backwards compatible manner.
 * **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above. (builds dependency `clap_derive`)
 * **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
-* **color**: Turns on colored error messages. (builds dependency `termcolor`)
+* **color**: Turns on colored error messages. (builds dependency `atty`, `termcolor`)
 * **env**: Turns on the usage of environment variables during parsing.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
 * **unicode**: Turns on support for unicode characters in arguments and help messages. (builds dependency `textwrap`, `unicase`)

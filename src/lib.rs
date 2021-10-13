@@ -29,6 +29,7 @@ pub use crate::{
     },
     parse::errors::{Error, ErrorKind, Result},
     parse::{ArgMatches, Indices, OsValues, Values},
+    util::color::ColorChoice,
 };
 
 pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcommand};
