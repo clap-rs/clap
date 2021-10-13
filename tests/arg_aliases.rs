@@ -7,15 +7,13 @@ static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
 USAGE:
-    ct test [FLAGS] [OPTIONS]
-
-FLAGS:
-    -f, --flag       [aliases: v_flg, flag2, flg3]
-    -h, --help       Print help information
-    -V, --version    Print version information
+    ct test [OPTIONS]
 
 OPTIONS:
+    -f, --flag         [aliases: v_flg, flag2, flg3]
+    -h, --help         Print help information
     -o, --opt <opt>    [aliases: visible]
+    -V, --version      Print version information
 ";
 
 static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
@@ -23,15 +21,13 @@ static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 Some help
 
 USAGE:
-    ct test [FLAGS] [OPTIONS]
-
-FLAGS:
-    -f, --flag       
-    -h, --help       Print help information
-    -V, --version    Print version information
+    ct test [OPTIONS]
 
 OPTIONS:
+    -f, --flag         
+    -h, --help         Print help information
     -o, --opt <opt>    
+    -V, --version      Print version information
 ";
 
 #[test]

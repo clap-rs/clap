@@ -7,17 +7,15 @@ use clap::ErrorKind;
 static LITERALS: &str = "clap-tests 0.1
 
 USAGE:
-    clap-tests [FLAGS] [OPTIONS] [SUBCOMMAND]
-
-FLAGS:
-    -4, --4          Sets priority to 4
-    -5, --5          Sets priority to 5
-    -6, --6          Sets priority to 6
-    -h, --help       Print help information
-    -V, --version    Print version information
+    clap-tests [OPTIONS] [SUBCOMMAND]
 
 OPTIONS:
+    -4, --4                      Sets priority to 4
+    -5, --5                      Sets priority to 5
+    -6, --6                      Sets priority to 6
+    -h, --help                   Print help information
     -t, --task-num <task-num>    Task number [possible values: all, 0, 1, 2]
+    -V, --version                Print version information
 
 SUBCOMMANDS:
     0             Set everything to zero priority
@@ -32,7 +30,7 @@ fn basic() {
         (version: "0.1")
         (about: "tests clap library")
         (author: "Kevin K. <kbknapp@gmail.com>")
-        (@global_setting UnifiedHelpMessage)
+        (@global_setting AllowNegativeNumbers)
         (@arg opt: -o --option +takes_value ... "tests options")
         (@arg positional: index(1) "tests positionals")
         (@arg flag: -f --flag ... +global "tests flags")

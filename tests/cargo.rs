@@ -7,7 +7,7 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 USAGE:
     prog
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";
@@ -19,7 +19,7 @@ Kevin K. <kbknapp@gmail.com>:Clap Maintainers
 USAGE:
     prog
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";

@@ -3,7 +3,7 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-use clap::{App, AppSettings, Arg, ArgSettings};
+use clap::{App, Arg, ArgSettings};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -267,7 +267,7 @@ ARGS:
 {positionals}
 
 OPTIONS:
-{unified}";
+{options}";
 
 /// Build a clap application with short help strings.
 fn app_short() -> App<'static> {
@@ -306,7 +306,6 @@ where
         .version("0.4.0") // Simulating
         .about(ABOUT)
         .max_term_width(100)
-        .setting(AppSettings::UnifiedHelpMessage)
         .override_usage(USAGE)
         .help_template(TEMPLATE)
         // Handle help/version manually to make their output formatting

@@ -18,8 +18,6 @@ static EXAMPLE1_TMPS_F: &str = "{bin} {version}
 USAGE:
     {usage}
 
-FLAGS:
-{flags}
 OPTIONS:
 {options}
 ARGS:
@@ -32,14 +30,13 @@ Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 USAGE:
-    MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
+    MyApp [OPTIONS] <output> [SUBCOMMAND]
 
-FLAGS:
-    -d               Turn debugging information on
-    -h, --help       Print help information
-    -V, --version    Print version information
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
+    -d                     Turn debugging information on
+    -h, --help             Print help information
+    -V, --version          Print version information
 ARGS:
     <output>    Sets an optional output file
 SUBCOMMANDS:
@@ -52,18 +49,16 @@ Kevin K. <kbknapp@gmail.com>
 Does awesome things
 
 USAGE:
-    MyApp [FLAGS] [OPTIONS] <output> [SUBCOMMAND]
+    MyApp [OPTIONS] <output> [SUBCOMMAND]
 
 ARGS:
     <output>    Sets an optional output file
 
-FLAGS:
-    -d               Turn debugging information on
-    -h, --help       Print help information
-    -V, --version    Print version information
-
 OPTIONS:
     -c, --config <FILE>    Sets a custom config file
+    -d                     Turn debugging information on
+    -h, --help             Print help information
+    -V, --version          Print version information
 
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)

@@ -82,22 +82,20 @@ Guillaume Pinot <texitoi@texitoi.eu>, others
 A basic example
 
 USAGE:
-    basic [FLAGS] [OPTIONS] --output <output> [--] [file]...
+    basic [OPTIONS] --output <output> [--] [file]...
 
 ARGS:
     <FILE>...    Files to process
 
-FLAGS:
-    -d, --debug      Activate debug mode
-    -h, --help       Print help information
-    -V, --version    Print version information
-    -v, --verbose    Verbose mode (-v, -vv, -vvv, etc.)
-
 OPTIONS:
-    -l, --level <level>...     admin_level to consider
     -c, --nb-cars <nb-cars>    Number of cars
+    -d, --debug                Activate debug mode
+    -h, --help                 Print help information
+    -l, --level <level>...     admin_level to consider
     -o, --output <output>      Output file
     -s, --speed <speed>        Set speed [default: 42]
+    -V, --version              Print version information
+    -v, --verbose              Verbose mode (-v, -vv, -vvv, etc.)
 
 ARGS:
     <file>...    Files to process

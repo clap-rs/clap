@@ -7,7 +7,7 @@ static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 USAGE:
     clap-test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -21,7 +21,7 @@ static INVISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 USAGE:
     clap-test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -35,7 +35,7 @@ static SUBCMD_ALPHA_ORDER: &str = "test 1
 USAGE:
     test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
@@ -50,7 +50,7 @@ static SUBCMD_DECL_ORDER: &str = "test 1
 USAGE:
     test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 

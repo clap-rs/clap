@@ -196,7 +196,7 @@ pub fn example10(c: &mut Criterion) {
 }
 
 pub fn example4_template(c: &mut Criterion) {
-    let mut app = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nFLAGS:\n{flags}\n\nARGS:\n{args}\n");
+    let mut app = app_example4().help_template("{bin} {version}\n{author}\n{about}\n\nUSAGE:\n    {usage}\n\nOPTIONS:\n{options}\n\nARGS:\n{args}\n");
     c.bench_function("example4_template", |b| b.iter(|| build_help(&mut app)));
 }
 

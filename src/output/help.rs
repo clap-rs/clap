@@ -747,16 +747,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .get_positionals_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
-        let flags = self
+        let non_pos = self
             .parser
             .app
-            .get_flags_with_no_heading()
-            .filter(|arg| should_show_arg(self.use_long, arg))
-            .collect::<Vec<_>>();
-        let opts = self
-            .parser
-            .app
-            .get_opts_with_no_heading()
+            .get_non_positional_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let subcmds = self.parser.app.has_visible_subcommands();
@@ -778,63 +772,37 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             true
         };
 
-        let unified_help = self.parser.is_set(AppSettings::UnifiedHelpMessage);
-
-        if unified_help && (!flags.is_empty() || !opts.is_empty()) {
-            let opts_flags = self
-                .parser
-                .app
-                .args
-                .args()
-                .filter(|a| !a.is_positional())
-                .collect::<Vec<_>>();
+        if !non_pos.is_empty() {
             if !first {
                 self.none("\n\n")?;
             }
             self.warning("OPTIONS:\n")?;
-            self.write_args(&*opts_flags)?;
+            self.write_args(&non_pos)?;
             first = false;
-        } else {
-            if !flags.is_empty() {
-                if !first {
-                    self.none("\n\n")?;
-                }
-                self.warning("FLAGS:\n")?;
-                self.write_args(&flags)?;
-                first = false;
-            }
-            if !opts.is_empty() {
-                if !first {
-                    self.none("\n\n")?;
-                }
-                self.warning("OPTIONS:\n")?;
-                self.write_args(&opts)?;
-                first = false;
-            }
-            if !custom_headings.is_empty() {
-                for heading in custom_headings {
-                    let args = self
-                        .parser
-                        .app
-                        .args
-                        .args()
-                        .filter(|a| {
-                            if let Some(help_heading) = a.help_heading {
-                                return help_heading == heading;
-                            }
-                            false
-                        })
-                        .filter(|arg| should_show_arg(self.use_long, arg))
-                        .collect::<Vec<_>>();
-
-                    if !args.is_empty() {
-                        if !first {
-                            self.none("\n\n")?;
+        }
+        if !custom_headings.is_empty() {
+            for heading in custom_headings {
+                let args = self
+                    .parser
+                    .app
+                    .args
+                    .args()
+                    .filter(|a| {
+                        if let Some(help_heading) = a.help_heading {
+                            return help_heading == heading;
                         }
-                        self.warning(&*format!("{}:\n", heading))?;
-                        self.write_args(&*args)?;
-                        first = false
+                        false
+                    })
+                    .filter(|arg| should_show_arg(self.use_long, arg))
+                    .collect::<Vec<_>>();
+
+                if !args.is_empty() {
+                    if !first {
+                        self.none("\n\n")?;
                     }
+                    self.warning(&*format!("{}:\n", heading))?;
+                    self.write_args(&*args)?;
+                    first = false
                 }
             }
         }
@@ -1012,21 +980,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     "all-args" => {
                         self.write_all_args()?;
                     }
-                    "unified" => {
-                        let opts_flags = self
-                            .parser
-                            .app
-                            .args
-                            .args()
-                            .filter(|a| !a.is_positional())
-                            .collect::<Vec<_>>();
-                        self.write_args(&opts_flags)?;
-                    }
-                    "flags" => {
-                        self.write_args(&self.parser.app.get_flags().collect::<Vec<_>>())?;
-                    }
                     "options" => {
-                        self.write_args(&self.parser.app.get_opts().collect::<Vec<_>>())?;
+                        // Include even those with a heading as we don't have a good way of
+                        // handling help_heading in the template.
+                        self.write_args(&self.parser.app.get_non_positional().collect::<Vec<_>>())?;
                     }
                     "positionals" => {
                         self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;

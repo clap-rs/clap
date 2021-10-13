@@ -7,7 +7,7 @@ const USE_FLAG_AS_ARGUMENT: &str =
 \tIf you tried to supply `--another-flag` as a value rather than a flag, use `-- --another-flag`
 
 USAGE:
-    mycat [FLAGS] [filename]
+    mycat [OPTIONS] [filename]
 
 For more information try --help
 ";

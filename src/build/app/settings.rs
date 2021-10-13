@@ -11,7 +11,6 @@ bitflags! {
         const ARG_REQUIRED_ELSE_HELP         = 1 << 2;
         const PROPAGATE_VERSION              = 1 << 3;
         const DISABLE_VERSION_FOR_SC         = 1 << 4;
-        const UNIFIED_HELP                   = 1 << 5;
         const WAIT_ON_ERROR                  = 1 << 6;
         const SC_REQUIRED_ELSE_HELP          = 1 << 7;
         const NO_AUTO_HELP                   = 1 << 8;
@@ -112,8 +111,6 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg("trailingvararg")
         => Flags::TRAILING_VARARG,
-    UnifiedHelpMessage("unifiedhelpmessage")
-        => Flags::UNIFIED_HELP,
     NextLineHelp("nextlinehelp")
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors("ignoreerrors")
@@ -892,25 +889,6 @@ pub enum AppSettings {
     /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
     TrailingVarArg,
 
-    /// Groups flags and options together, presenting a more unified help message
-    /// (a la `getopts` or `docopt` style).
-    ///
-    /// The default is that the auto-generated help message will group flags, and options
-    /// separately.
-    ///
-    /// **NOTE:** This setting is cosmetic only and does not affect any functionality.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
-    /// App::new("myprog")
-    ///     .setting(AppSettings::UnifiedHelpMessage)
-    ///     .get_matches();
-    /// // running `myprog --help` will display a unified "docopt" or "getopts" style help message
-    /// ```
-    UnifiedHelpMessage,
-
     /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting
     ///
@@ -1085,10 +1063,6 @@ mod test {
         assert_eq!(
             "trailingvararg".parse::<AppSettings>().unwrap(),
             AppSettings::TrailingVarArg
-        );
-        assert_eq!(
-            "unifiedhelpmessage".parse::<AppSettings>().unwrap(),
-            AppSettings::UnifiedHelpMessage
         );
         assert_eq!(
             "waitonerror".parse::<AppSettings>().unwrap(),

@@ -3,9 +3,9 @@ use clap::{App, Arg, ErrorKind};
 static HELP: &str = "prog 
 
 USAGE:
-    prog [FLAGS]
+    prog [OPTIONS]
 
-FLAGS:
+OPTIONS:
     -a            
     -b            
     -c            
@@ -16,7 +16,7 @@ static ONLY_B_ERROR: &str = "error: The following required arguments were not pr
     -c
 
 USAGE:
-    prog [FLAGS] -c -b
+    prog [OPTIONS] -c -b
 
 For more information try --help
 ";
@@ -25,7 +25,7 @@ static ONLY_C_ERROR: &str = "error: The following required arguments were not pr
     -b
 
 USAGE:
-    prog [FLAGS] -b -c
+    prog [OPTIONS] -b -c
 
 For more information try --help
 ";

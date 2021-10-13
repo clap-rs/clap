@@ -9,7 +9,7 @@ A simple to use, efficient, and full-featured Command Line Argument Parser
 USAGE:
     clap
 
-FLAGS:
+OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 ";

@@ -14,7 +14,7 @@ fn very_large_display_order() {
 USAGE:
     test [SUBCOMMAND]
 
-FLAGS:
+OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:

@@ -430,10 +430,8 @@ Query the package database.
 USAGE:
     pacman {query, --query, -Q} [OPTIONS]
 
-FLAGS:
-    -h, --help    Print help information
-
 OPTIONS:
+    -h, --help                  Print help information
     -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
 ";
@@ -487,10 +485,8 @@ Query the package database.
 USAGE:
     pacman {query, --query} [OPTIONS]
 
-FLAGS:
-    -h, --help    Print help information
-
 OPTIONS:
+    -h, --help                  Print help information
     -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
 ";
@@ -543,10 +539,8 @@ Query the package database.
 USAGE:
     pacman {query, -Q} [OPTIONS]
 
-FLAGS:
-    -h, --help    Print help information
-
 OPTIONS:
+    -h, --help                  Print help information
     -i, --info <info>...        view package information
     -s, --search <search>...    search locally installed packages for matching strings
 ";

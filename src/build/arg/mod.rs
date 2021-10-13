@@ -659,9 +659,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Print help information
     /// -V, --version    Print version information
@@ -723,9 +723,9 @@ impl<'help> Arg<'help> {
     /// prog
     ///
     /// USAGE:
-    ///     prog [FLAGS]
+    ///     prog [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///         --config
     ///             The config file used by the myprog must be in JSON format
     ///             with only valid keys and may not contain other nonsense
@@ -2575,14 +2575,12 @@ impl<'help> Arg<'help> {
     /// valnames
     ///
     /// USAGE:
-    ///    valnames [FLAGS] [OPTIONS]
-    ///
-    /// FLAGS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    ///    valnames [OPTIONS]
     ///
     /// OPTIONS:
+    ///     -h, --help                       Print help information
     ///     --io-files <INFILE> <OUTFILE>    Some help text
+    ///     -V, --version                    Print version information
     /// ```
     /// [`Arg::next_line_help(true)`]: Arg::next_line_help()
     /// [`Arg::number_of_values`]: Arg::number_of_values()
@@ -2628,14 +2626,12 @@ impl<'help> Arg<'help> {
     /// valnames
     ///
     /// USAGE:
-    ///    valnames [FLAGS] [OPTIONS]
-    ///
-    /// FLAGS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    ///    valnames [OPTIONS]
     ///
     /// OPTIONS:
     ///     --config <FILE>     Some help text
+    ///     -h, --help          Print help information
+    ///     -V, --version       Print version information
     /// ```
     /// [option]: Arg::takes_value()
     /// [positional]: Arg::index()
@@ -3293,13 +3289,11 @@ impl<'help> Arg<'help> {
     /// cust-ord
     ///
     /// USAGE:
-    ///     cust-ord [FLAGS] [OPTIONS]
-    ///
-    /// FLAGS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    ///     cust-ord [OPTIONS]
     ///
     /// OPTIONS:
+    ///     -h, --help                Print help information
+    ///     -V, --version             Print version information
     ///     -O, --other-option <b>    I should be first!
     ///     -o, --long-option <a>     Some help and text
     /// ```
@@ -3318,14 +3312,13 @@ impl<'help> Arg<'help> {
     /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
     /// the `--` syntax is otherwise not possible.
     ///
-    /// **NOTE:** This will change the usage string to look like `$ prog [FLAGS] [-- <ARG>]` if
+    /// **NOTE:** This will change the usage string to look like `$ prog [OPTIONS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
     ///
     /// **NOTE:** This setting will imply [`crate::AppSettings::DontCollapseArgsInUsage`] because failing
     /// to set this can make the usage string very confusing.
     ///
-    /// **NOTE**: This setting only applies to positional arguments, and has no affect on FLAGS /
-    /// OPTIONS
+    /// **NOTE**: This setting only applies to positional arguments, and has no affect on OPTIONS
     ///
     /// **NOTE:** Setting this requires [`crate::ArgSettings::TakesValue`]
     ///
@@ -3873,9 +3866,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -4114,13 +4107,11 @@ impl<'help> Arg<'help> {
     /// nlh
     ///
     /// USAGE:
-    ///     nlh [FLAGS] [OPTIONS]
-    ///
-    /// FLAGS:
-    ///     -h, --help       Print help information
-    ///     -V, --version    Print version information
+    ///     nlh [OPTIONS]
     ///
     /// OPTIONS:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
     ///     -o, --long-option-flag <value1> <value2>
     ///         Some really long help and complex
     ///         help that makes more sense to be
@@ -4499,9 +4490,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -4526,9 +4517,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Print help information
     /// -V, --version    Print version information
@@ -4577,9 +4568,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
@@ -4604,9 +4595,9 @@ impl<'help> Arg<'help> {
     /// helptest
     ///
     /// USAGE:
-    ///    helptest [FLAGS]
+    ///    helptest [OPTIONS]
     ///
-    /// FLAGS:
+    /// OPTIONS:
     ///     --config     Some help text describing the --config arg
     /// -h, --help       Print help information
     /// -V, --version    Print version information
