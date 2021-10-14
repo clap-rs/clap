@@ -201,9 +201,20 @@ fn all_options_for_path(app: &App, path: &str) -> String {
         longs = utils::longs_and_visible_aliases(p)
             .iter()
             .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
-        pos = p
-            .get_positionals()
-            .fold(String::new(), |acc, p| format!("{} {}", acc, p)),
+        pos = p.get_positionals().fold(String::new(), |acc, p| {
+            if let Some(vals) = p.get_possible_values() {
+                format!(
+                    "{} {}",
+                    acc,
+                    vals.iter()
+                        .map(|x| x.get_name())
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                )
+            } else {
+                format!("{} {}", acc, p)
+            }
+        }),
         subcmds = scs.join(" "),
     );
 
