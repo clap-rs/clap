@@ -108,19 +108,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .app
                 .get_positionals()
                 .any(|arg| should_show_arg(self.use_long, arg));
-            let flags = self
+            let non_pos = self
                 .parser
                 .app
-                .get_flags()
-                .any(|arg| should_show_arg(self.use_long, arg));
-            let opts = self
-                .parser
-                .app
-                .get_opts()
+                .get_non_positionals()
                 .any(|arg| should_show_arg(self.use_long, arg));
             let subcmds = self.parser.app.has_visible_subcommands();
 
-            if flags || opts || pos || subcmds {
+            if non_pos || pos || subcmds {
                 self.write_templated_help(Self::DEFAULT_TEMPLATE)?;
             } else {
                 self.write_templated_help(Self::DEFAULT_NO_ARGS_TEMPLATE)?;
@@ -750,7 +745,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let non_pos = self
             .parser
             .app
-            .get_non_positional_with_no_heading()
+            .get_non_positionals_with_no_heading()
             .filter(|arg| should_show_arg(self.use_long, arg))
             .collect::<Vec<_>>();
         let subcmds = self.parser.app.has_visible_subcommands();
@@ -983,7 +978,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     "options" => {
                         // Include even those with a heading as we don't have a good way of
                         // handling help_heading in the template.
-                        self.write_args(&self.parser.app.get_non_positional().collect::<Vec<_>>())?;
+                        self.write_args(&self.parser.app.get_non_positionals().collect::<Vec<_>>())?;
                     }
                     "positionals" => {
                         self.write_args(&self.parser.app.get_positionals().collect::<Vec<_>>())?;

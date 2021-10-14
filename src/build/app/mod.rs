@@ -212,12 +212,6 @@ impl<'help> App<'help> {
         self.get_arguments().filter(|a| a.is_positional())
     }
 
-    /// Iterate through the *flags*.
-    pub fn get_flags(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_arguments()
-            .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-    }
-
     /// Iterate through the *options*.
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
@@ -2654,8 +2648,8 @@ impl<'a, T> Captures<'a> for T {}
 
 // Internal Query Methods
 impl<'help> App<'help> {
-    /// Iterate through the *named* arguments.
-    pub(crate) fn get_non_positional(&self) -> impl Iterator<Item = &Arg<'help>> {
+    /// Iterate through the *flags* & *options* arguments.
+    pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments().filter(|a| !a.is_positional())
     }
 
@@ -2665,9 +2659,9 @@ impl<'help> App<'help> {
             .filter(|a| a.get_help_heading().is_none())
     }
 
-    /// Iterate through the *named* that don't have custom heading.
-    pub(crate) fn get_non_positional_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_non_positional()
+    /// Iterate through the *flags* & *options* that don't have custom heading.
+    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_non_positionals()
             .filter(|a| a.get_help_heading().is_none())
     }
 

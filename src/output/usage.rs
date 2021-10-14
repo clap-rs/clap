@@ -81,7 +81,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         if self
             .p
             .app
-            .get_non_positional()
+            .get_non_positionals()
             .any(|o| o.is_set(ArgSettings::MultipleValues))
             && self
                 .p
@@ -319,7 +319,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     // Determines if we need the `[OPTIONS]` tag in the usage string
     fn needs_options_tag(&self) -> bool {
         debug!("Usage::needs_options_tag");
-        'outer: for f in self.p.app.get_non_positional() {
+        'outer: for f in self.p.app.get_non_positionals() {
             debug!("Usage::needs_options_tag:iter: f={}", f.name);
 
             // Don't print `[OPTIONS]` just for help or version
