@@ -2905,7 +2905,6 @@ impl<'help> From<&'help Yaml> for App<'help> {
                 "before_long_help" => yaml_to_str!(a, v, before_long_help),
                 "after_help" => yaml_to_str!(a, v, after_help),
                 "after_long_help" => yaml_to_str!(a, v, after_long_help),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
                 "help_template" => yaml_to_str!(a, v, help_template),
                 "override_help" => yaml_to_str!(a, v, override_help),
                 "override_usage" => yaml_to_str!(a, v, override_usage),
