@@ -1086,23 +1086,20 @@ impl<'help> App<'help> {
     /// [argument]: Arg
     pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let mut arg = a.into();
-        if let Some(help_heading) = self.current_help_heading {
-            arg = arg.help_heading(Some(help_heading));
-        }
+        arg.help_heading.get_or_insert(self.current_help_heading);
         self.args.push(arg);
         self
     }
 
-    /// Set a custom section heading for future args. Every call to [`App::arg`]
-    /// (and its related methods) will use this header (instead of the default
-    /// header for the specified argument type) until a subsequent call to
-    /// [`App::help_heading`].
+    /// Set the default section heading for future args.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
     ///
     /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
     ///
     /// [`App::arg`]: App::arg()
-    /// [`App::help_heading`]: App::help_heading()
+    /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
     pub fn help_heading<O>(mut self, heading: O) -> Self
     where

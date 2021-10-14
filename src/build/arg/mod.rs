@@ -118,7 +118,7 @@ pub struct Arg<'help> {
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
-    pub(crate) help_heading: Option<&'help str>,
+    pub(crate) help_heading: Option<Option<&'help str>>,
     pub(crate) global: bool,
     pub(crate) exclusive: bool,
     pub(crate) value_hint: ValueHint,
@@ -156,7 +156,7 @@ impl<'help> Arg<'help> {
     /// Get the help heading specified for this argument, if any
     #[inline]
     pub fn get_help_heading(&self) -> Option<&str> {
-        self.help_heading
+        self.help_heading.unwrap_or_default()
     }
 
     /// Get the short option name for this argument, if any
@@ -4699,7 +4699,7 @@ impl<'help> Arg<'help> {
     where
         O: Into<Option<&'help str>>,
     {
-        self.help_heading = heading.into();
+        self.help_heading = Some(heading.into());
         self
     }
 
