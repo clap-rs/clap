@@ -564,6 +564,7 @@ OPTIONS:
 
 NETWORKING:
     -n, --no-proxy    Do not use system proxy settings
+        --port        
 ";
 
 static ISSUE_1487: &str = "test 
@@ -1763,7 +1764,8 @@ fn custom_headers_headers() {
                 .short('n')
                 .long("no-proxy")
                 .about("Do not use system proxy settings"),
-        );
+        )
+        .args(&[Arg::new("port").long("port")]);
 
     assert!(utils::compare_output(
         app,

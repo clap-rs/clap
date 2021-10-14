@@ -1139,7 +1139,7 @@ impl<'help> App<'help> {
         // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
         // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
         for arg in args.into_iter() {
-            self.args.push(arg.into());
+            self = self.arg(arg);
         }
         self
     }
