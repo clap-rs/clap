@@ -1159,8 +1159,10 @@ impl<'help> App<'help> {
         I: IntoIterator<Item = T>,
         T: Into<Arg<'help>>,
     {
-        // @TODO @perf @p4 @v3-beta: maybe extend_from_slice would be possible and perform better?
-        // But that may also not let us do `&["-a 'some'", "-b 'other']` because of not Into<Arg>
+        let args = args.into_iter();
+        let (lower, _) = args.size_hint();
+        self.args.reserve(lower);
+
         for arg in args.into_iter() {
             self = self.arg(arg);
         }
