@@ -4874,6 +4874,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
                 "last" => yaml_to_bool!(a, v, last),
+                "help_heading" => yaml_to_str!(a, v, help_heading),
                 "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
                 #[cfg(feature = "env")]
