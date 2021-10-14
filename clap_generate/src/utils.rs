@@ -66,7 +66,7 @@ pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
 
     p.get_arguments()
         .filter_map(|a| {
-            if a.get_index().is_none() {
+            if !a.is_positional() {
                 if a.get_visible_short_aliases().is_some() && a.get_short().is_some() {
                     let mut shorts_and_visible_aliases = a.get_visible_short_aliases().unwrap();
                     shorts_and_visible_aliases.push(a.get_short().unwrap());
@@ -91,7 +91,7 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
 
     p.get_arguments()
         .filter_map(|a| {
-            if a.get_index().is_none() {
+            if !a.is_positional() {
                 if a.get_visible_aliases().is_some() && a.get_long().is_some() {
                     let mut visible_aliases: Vec<_> = a
                         .get_visible_aliases()

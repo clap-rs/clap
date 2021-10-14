@@ -298,6 +298,22 @@ impl<'help> Arg<'help> {
     pub fn get_default_values(&self) -> &[&OsStr] {
         &self.default_vals
     }
+
+    /// Checks whether this argument is a positional or not.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::Arg;
+    /// let arg = Arg::new("foo");
+    /// assert_eq!(true, arg.is_positional());
+    ///
+    /// let arg = Arg::new("foo").long("foo");
+    /// assert_eq!(false, arg.is_positional());
+    /// ```
+    pub fn is_positional(&self) -> bool {
+        self.long.is_none() && self.short.is_none()
+    }
 }
 
 impl<'help> Arg<'help> {
@@ -4743,10 +4759,6 @@ impl<'help> Arg<'help> {
 
     pub(crate) fn longest_filter(&self) -> bool {
         self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
-    }
-
-    pub(crate) fn is_positional(&self) -> bool {
-        self.long.is_none() && self.short.is_none()
     }
 
     // Used for positionals when printing

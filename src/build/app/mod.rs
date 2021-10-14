@@ -215,7 +215,7 @@ impl<'help> App<'help> {
     /// Iterate through the *options*.
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
-            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| a.is_set(ArgSettings::TakesValue) && !a.is_positional())
     }
 
     // Get a list of subcommands which contain the provided Argument
@@ -2627,7 +2627,7 @@ impl<'help> App<'help> {
             .iter()
             .filter_map(|x| self.find(x))
             .map(|x| {
-                if x.index.is_some() {
+                if x.is_positional() {
                     // Print val_name for positional arguments. e.g. <file_name>
                     x.name_no_brackets().to_string()
                 } else {
