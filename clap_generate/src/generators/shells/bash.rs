@@ -1,9 +1,10 @@
 // Std
-use std::io::Write;
+use std::{fmt::Write as _, io::Write};
 
 // Internal
 use crate::utils;
 use crate::Generator;
+
 use clap::*;
 
 /// Generate bash completion file
@@ -191,32 +192,27 @@ fn all_options_for_path(app: &App, path: &str) -> String {
     debug!("all_options_for_path: path={}", path);
 
     let p = utils::find_subcommand_with_path(app, path.split("__").skip(1).collect());
-    let scs: Vec<_> = utils::subcommands(p).iter().map(|x| x.0.clone()).collect();
 
-    let opts = format!(
-        "{shorts} {longs} {pos} {subcmds}",
-        shorts = utils::shorts_and_visible_aliases(p)
-            .iter()
-            .fold(String::new(), |acc, s| format!("{} -{}", acc, s)),
-        longs = utils::longs_and_visible_aliases(p)
-            .iter()
-            .fold(String::new(), |acc, l| format!("{} --{}", acc, l)),
-        pos = p.get_positionals().fold(String::new(), |acc, p| {
-            if let Some(vals) = p.get_possible_values() {
-                format!(
-                    "{} {}",
-                    acc,
-                    vals.iter()
-                        .map(|x| x.get_name())
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                )
-            } else {
-                format!("{} {}", acc, p)
+    let mut opts = String::new();
+    for short in utils::shorts_and_visible_aliases(p) {
+        write!(&mut opts, "-{} ", short).unwrap();
+    }
+    for long in utils::longs_and_visible_aliases(p) {
+        write!(&mut opts, "--{} ", long).unwrap();
+    }
+    for pos in p.get_positionals() {
+        if let Some(vals) = pos.get_possible_values() {
+            for value in vals {
+                write!(&mut opts, "{} ", value.get_name()).unwrap();
             }
-        }),
-        subcmds = scs.join(" "),
-    );
+        } else {
+            write!(&mut opts, "{} ", pos).unwrap();
+        }
+    }
+    for (sc, _) in utils::subcommands(p) {
+        write!(&mut opts, "{} ", sc).unwrap();
+    }
+    opts.pop();
 
     opts
 }
