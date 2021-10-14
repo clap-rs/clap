@@ -1758,7 +1758,7 @@ fn custom_headers_headers() {
                 .require_delimiter(true)
                 .value_delimiter(':'),
         )
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
@@ -1812,19 +1812,19 @@ fn multiple_custom_help_headers() {
                 .require_delimiter(true)
                 .value_delimiter(':'),
         )
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .about("Do not use system proxy settings"),
         )
-        .help_heading("SPECIAL")
+        .help_heading(Some("SPECIAL"))
         .arg(
             Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'")
                 .help_heading(Some("IGNORE THIS")),
         )
-        .stop_custom_headings()
+        .help_heading(None)
         .arg(
             Arg::from(
                 "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
@@ -1880,7 +1880,7 @@ fn custom_help_headers_hidden_args() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
@@ -1888,12 +1888,12 @@ fn custom_help_headers_hidden_args() {
                 .about("Do not use system proxy settings")
                 .hidden_short_help(true),
         )
-        .help_heading("SPECIAL")
+        .help_heading(Some("SPECIAL"))
         .arg(
             Arg::from("-b, --song <song> 'Change which song is played for birthdays'")
                 .help_heading(Some("IGNORE THIS")),
         )
-        .stop_custom_headings()
+        .help_heading(None)
         .arg(
             Arg::from("-v --song-volume <volume> 'Change the volume of the birthday song'")
                 .help_heading(Some("SPECIAL")),
@@ -2299,7 +2299,7 @@ fn custom_heading_pos() {
     let app = App::new("test")
         .version("1.4")
         .arg(Arg::new("gear").about("Which gear"))
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").about("How fast"));
 
     assert!(utils::compare_output(
@@ -2325,7 +2325,7 @@ fn only_custom_heading_opts_no_args() {
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hidden(true))
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(Arg::from("-s, --speed [SPEED] 'How fast'"));
 
     assert!(utils::compare_output(
@@ -2351,7 +2351,7 @@ fn only_custom_heading_pos_no_args() {
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hidden(true))
-        .help_heading("NETWORKING")
+        .help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").about("How fast"));
 
     assert!(utils::compare_output(

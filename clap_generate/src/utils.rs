@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, Arg, ArgSettings};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.
 ///
@@ -7,7 +7,7 @@ use clap::{App, Arg};
 pub fn all_subcommands(app: &App) -> Vec<(String, String)> {
     let mut subcmds: Vec<_> = subcommands(app);
 
-    for sc_v in app.get_subcommands().map(|s| all_subcommands(s)) {
+    for sc_v in app.get_subcommands().map(all_subcommands) {
         subcmds.extend(sc_v);
     }
 
@@ -66,7 +66,7 @@ pub fn shorts_and_visible_aliases(p: &App) -> Vec<char> {
 
     p.get_arguments()
         .filter_map(|a| {
-            if a.get_index().is_none() {
+            if !a.is_positional() {
                 if a.get_visible_short_aliases().is_some() && a.get_short().is_some() {
                     let mut shorts_and_visible_aliases = a.get_visible_short_aliases().unwrap();
                     shorts_and_visible_aliases.push(a.get_short().unwrap());
@@ -91,7 +91,7 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
 
     p.get_arguments()
         .filter_map(|a| {
-            if a.get_index().is_none() {
+            if !a.is_positional() {
                 if a.get_visible_aliases().is_some() && a.get_long().is_some() {
                     let mut visible_aliases: Vec<_> = a
                         .get_visible_aliases()
@@ -118,7 +118,10 @@ pub fn longs_and_visible_aliases(p: &App) -> Vec<String> {
 /// Includes `help` and `version` depending on the [`clap::AppSettings`].
 pub fn flags<'help>(p: &App<'help>) -> Vec<Arg<'help>> {
     debug!("flags: name={}", p.get_name());
-    p.get_flags().cloned().collect()
+    p.get_arguments()
+        .filter(|a| !a.is_set(ArgSettings::TakesValue) && !a.is_positional())
+        .cloned()
+        .collect()
 }
 
 #[cfg(test)]

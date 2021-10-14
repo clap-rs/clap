@@ -298,6 +298,22 @@ impl<'help> Arg<'help> {
     pub fn get_default_values(&self) -> &[&OsStr] {
         &self.default_vals
     }
+
+    /// Checks whether this argument is a positional or not.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use clap::Arg;
+    /// let arg = Arg::new("foo");
+    /// assert_eq!(true, arg.is_positional());
+    ///
+    /// let arg = Arg::new("foo").long("foo");
+    /// assert_eq!(false, arg.is_positional());
+    /// ```
+    pub fn is_positional(&self) -> bool {
+        self.long.is_none() && self.short.is_none()
+    }
 }
 
 impl<'help> Arg<'help> {
@@ -4679,8 +4695,11 @@ impl<'help> Arg<'help> {
 
     /// Set a custom heading for this arg to be printed under
     #[inline]
-    pub fn help_heading(mut self, s: Option<&'help str>) -> Self {
-        self.help_heading = s;
+    pub fn help_heading<O>(mut self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.help_heading = heading.into();
         self
     }
 
@@ -4743,10 +4762,6 @@ impl<'help> Arg<'help> {
 
     pub(crate) fn longest_filter(&self) -> bool {
         self.is_set(ArgSettings::TakesValue) || self.long.is_some() || self.short.is_none()
-    }
-
-    pub(crate) fn is_positional(&self) -> bool {
-        self.long.is_none() && self.short.is_none()
     }
 
     // Used for positionals when printing
@@ -4871,6 +4886,7 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
                 "exclusive" => yaml_to_bool!(a, v, exclusive),
                 "last" => yaml_to_bool!(a, v, last),
+                "help_heading" => yaml_to_str!(a, v, help_heading),
                 "value_hint" => yaml_str_parse!(a, v, value_hint),
                 "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
                 #[cfg(feature = "env")]

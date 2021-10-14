@@ -14,6 +14,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
                 .value_hint(ValueHint::FilePath)
                 .about("some input file"),
         )
+        .arg(Arg::new("choice").possible_values(["first", "second"]))
         .subcommand(
             App::new("test").about("tests things").arg(
                 Arg::new("case")
@@ -57,7 +58,7 @@ static BASH: &str = r#"_myapp() {
 
     case "${cmd}" in
         myapp)
-            opts=" -h -V  --help --version  <file> test help"
+            opts=" -h -V  --help --version  <file> first second test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -160,7 +161,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts=" -h -V  --help --version  <file> test some_cmd some-cmd-with-hypens help"
+            opts=" -h -V  --help --version  <file> first second test some_cmd some-cmd-with-hypens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

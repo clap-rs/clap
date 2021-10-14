@@ -146,6 +146,14 @@ impl<'help> App<'help> {
         self.long_about
     }
 
+    /// Get the custom section heading specified via [`App::help_heading`].
+    ///
+    /// [`App::help_heading`]: App::help_heading()
+    #[inline]
+    pub fn get_help_heading(&self) -> Option<&'help str> {
+        self.current_help_heading
+    }
+
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
@@ -212,16 +220,10 @@ impl<'help> App<'help> {
         self.get_arguments().filter(|a| a.is_positional())
     }
 
-    /// Iterate through the *flags*.
-    pub fn get_flags(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_arguments()
-            .filter(|a| !a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
-    }
-
     /// Iterate through the *options*.
     pub fn get_opts(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments()
-            .filter(|a| a.is_set(ArgSettings::TakesValue) && a.get_index().is_none())
+            .filter(|a| a.is_set(ArgSettings::TakesValue) && !a.is_positional())
     }
 
     // Get a list of subcommands which contain the provided Argument
@@ -1094,26 +1096,19 @@ impl<'help> App<'help> {
     /// Set a custom section heading for future args. Every call to [`App::arg`]
     /// (and its related methods) will use this header (instead of the default
     /// header for the specified argument type) until a subsequent call to
-    /// [`App::help_heading`] or [`App::stop_custom_headings`].
+    /// [`App::help_heading`].
     ///
     /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
     ///
     /// [`App::arg`]: App::arg()
     /// [`App::help_heading`]: App::help_heading()
-    /// [`App::stop_custom_headings`]: App::stop_custom_headings()
     #[inline]
-    pub fn help_heading(mut self, heading: &'help str) -> Self {
-        self.current_help_heading = Some(heading);
-        self
-    }
-
-    /// Stop using [custom argument headings] and return to default headings.
-    ///
-    /// [custom argument headings]: App::help_heading()
-    #[inline]
-    pub fn stop_custom_headings(mut self) -> Self {
-        self.current_help_heading = None;
+    pub fn help_heading<O>(mut self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.current_help_heading = heading.into();
         self
     }
 
@@ -2633,7 +2628,7 @@ impl<'help> App<'help> {
             .iter()
             .filter_map(|x| self.find(x))
             .map(|x| {
-                if x.index.is_some() {
+                if x.is_positional() {
                     // Print val_name for positional arguments. e.g. <file_name>
                     x.name_no_brackets().to_string()
                 } else {
@@ -2654,8 +2649,8 @@ impl<'a, T> Captures<'a> for T {}
 
 // Internal Query Methods
 impl<'help> App<'help> {
-    /// Iterate through the *named* arguments.
-    pub(crate) fn get_non_positional(&self) -> impl Iterator<Item = &Arg<'help>> {
+    /// Iterate through the *flags* & *options* arguments.
+    pub(crate) fn get_non_positionals(&self) -> impl Iterator<Item = &Arg<'help>> {
         self.get_arguments().filter(|a| !a.is_positional())
     }
 
@@ -2665,9 +2660,9 @@ impl<'help> App<'help> {
             .filter(|a| a.get_help_heading().is_none())
     }
 
-    /// Iterate through the *named* that don't have custom heading.
-    pub(crate) fn get_non_positional_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
-        self.get_non_positional()
+    /// Iterate through the *flags* & *options* that don't have custom heading.
+    pub(crate) fn get_non_positionals_with_no_heading(&self) -> impl Iterator<Item = &Arg<'help>> {
+        self.get_non_positionals()
             .filter(|a| a.get_help_heading().is_none())
     }
 
