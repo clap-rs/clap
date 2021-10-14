@@ -1094,26 +1094,16 @@ impl<'help> App<'help> {
     /// Set a custom section heading for future args. Every call to [`App::arg`]
     /// (and its related methods) will use this header (instead of the default
     /// header for the specified argument type) until a subsequent call to
-    /// [`App::help_heading`] or [`App::stop_custom_headings`].
+    /// [`App::help_heading`].
     ///
     /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
     ///
     /// [`App::arg`]: App::arg()
     /// [`App::help_heading`]: App::help_heading()
-    /// [`App::stop_custom_headings`]: App::stop_custom_headings()
     #[inline]
-    pub fn help_heading(mut self, heading: &'help str) -> Self {
-        self.current_help_heading = Some(heading);
-        self
-    }
-
-    /// Stop using [custom argument headings] and return to default headings.
-    ///
-    /// [custom argument headings]: App::help_heading()
-    #[inline]
-    pub fn stop_custom_headings(mut self) -> Self {
-        self.current_help_heading = None;
+    pub fn help_heading(mut self, heading: Option<&'help str>) -> Self {
+        self.current_help_heading = heading;
         self
     }
 
