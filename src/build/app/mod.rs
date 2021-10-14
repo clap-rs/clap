@@ -146,6 +146,14 @@ impl<'help> App<'help> {
         self.long_about
     }
 
+    /// Get the custom section heading specified via [`App::help_heading`].
+    ///
+    /// [`App::help_heading`]: App::help_heading()
+    #[inline]
+    pub fn get_help_heading(&self) -> Option<&'help str> {
+        self.current_help_heading
+    }
+
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
