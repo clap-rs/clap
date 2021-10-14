@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         rust: [1.54.0, stable, beta]
+        features: [minimal, full, release]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:
           - i686-pc-windows-msvc
@@ -25,10 +26,6 @@ jobs:
           - x86_64-unknown-linux-gnu
           - i686-unknown-linux-gnu
           - x86_64-apple-darwin
-        features:
-          - none
-          - all
-          - release
         exclude:
           - features: release
             rust: stable
@@ -71,6 +68,8 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install linker
@@ -86,39 +85,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install gcc-multilib
-      - name: Test almost no features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
-      - name: Test all features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace"
-      - name: Check debug
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace debug"
-      - name: Test release
-        uses: actions-rs/cargo@v1
+
+      - name: Check Debug
         if: matrix.features == 'release'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace" --release
+        run: make check-debug TOOLCHAIN_TARGET=${{matrix.target}
+
+      - name: Compile
+        run: make build-${{ matrix.features} TOOLCHAIN_TARGET=${{matrix.target}
+      - name: Test
+        run: make test-${{ matrix.features} TOOLCHAIN_TARGET=${{matrix.target}
   nightly:
     name: Nightly Tests
     strategy:
       fail-fast: false
       matrix:
-        features:
-          - none
-          - all
-          - release
+        features: [minimal, full, release]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -126,32 +107,15 @@ jobs:
         with:
           toolchain: nightly
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Test almost no features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
-        with:
-          command: test
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.4
-      - name: Test all features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: test
-          args: --features "wrap_help yaml regex unstable-replace"
-      - name: Check debug
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: check
-          args: --features "wrap_help yaml regex unstable-replace debug"
-      - name: Test release
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'release'
-        with:
-          command: test
-          args: --features "wrap_help yaml regex unstable-replace" --release
+
+      - name: Compile
+        run: make build-${{ matrix.features} TOOLCHAIN_TARGET=${{matrix.target}
+      - name: Test
+        run: make test-${{ matrix.features} TOOLCHAIN_TARGET=${{matrix.target}
   wasm:
     name: Wasm Check
     runs-on: ubuntu-latest
@@ -166,10 +130,9 @@ jobs:
           toolchain: 1.54.0
           target: ${{ matrix.target }}
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace"
+        run: make check-wasm TOOLCHAIN_TARGET=${{matrix.target}

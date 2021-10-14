@@ -15,13 +15,12 @@ jobs:
         run: exit 0
   test-minimal:
     name: Tests (Minimal)
-    env:
-      FLAGS: --no-default-features --features 'std cargo'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
         rust: [stable]
+        features: [minimal, full]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install rust
@@ -34,35 +33,11 @@ jobs:
         uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Compile
-        run: cargo test --no-run ${{ env.FLAGS }}
+        run: make build-${{ matrix.features}
       - name: Test
-        run: cargo test ${{ env.FLAGS }}
-  test-full:
-    name: Tests (Full)
-    env:
-      FLAGS: --features 'wrap_help yaml regex unstable-replace'
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        rust: [stable]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-      - name: Cache Builds
-        uses: Swatinem/rust-cache@v1
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Compile
-        run: cargo test --no-run ${{ env.FLAGS }}
-      - name: Test
-        run: cargo test ${{ env.FLAGS }}
+        run: make test-${{ matrix.features}
   msrv:
     name: "Check MSRV: 1.54.0"
     runs-on: ubuntu-latest
@@ -77,11 +52,15 @@ jobs:
         uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Minimal features
+        run: make check-minimal
+
       - name: Default features
-        run: cargo check --all-targets
+        run: make check-default
+
       - name: All features + Debug
-        run: cargo check --all-targets --features "wrap_help yaml regex unstable-replace debug"
-      - name: No features
-        run: cargo check --all-targets --no-default-features --features "std cargo"
+        run: make check-debug
+
       - name: UI Tests
         run: cargo test --package clap_derive -- ui
