@@ -4679,8 +4679,11 @@ impl<'help> Arg<'help> {
 
     /// Set a custom heading for this arg to be printed under
     #[inline]
-    pub fn help_heading(mut self, s: Option<&'help str>) -> Self {
-        self.help_heading = s;
+    pub fn help_heading<O>(mut self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.help_heading = heading.into();
         self
     }
 

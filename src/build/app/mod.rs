@@ -1110,8 +1110,11 @@ impl<'help> App<'help> {
     /// [`App::arg`]: App::arg()
     /// [`App::help_heading`]: App::help_heading()
     #[inline]
-    pub fn help_heading(mut self, heading: Option<&'help str>) -> Self {
-        self.current_help_heading = heading;
+    pub fn help_heading<O>(mut self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.current_help_heading = heading.into();
         self
     }
 
