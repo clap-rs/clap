@@ -7,7 +7,7 @@ use clap::{App, Arg};
 pub fn all_subcommands(app: &App) -> Vec<(String, String)> {
     let mut subcmds: Vec<_> = subcommands(app);
 
-    for sc_v in app.get_subcommands().map(|s| all_subcommands(s)) {
+    for sc_v in app.get_subcommands().map(all_subcommands) {
         subcmds.extend(sc_v);
     }
 
