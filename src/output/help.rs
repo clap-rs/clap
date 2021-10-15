@@ -755,7 +755,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .app
             .args
             .args()
-            .filter_map(|arg| arg.help_heading)
+            .filter_map(|arg| arg.get_help_heading())
             .collect::<IndexSet<_>>();
 
         let mut first = if !pos.is_empty() {
@@ -783,7 +783,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     .args
                     .args()
                     .filter(|a| {
-                        if let Some(help_heading) = a.help_heading {
+                        if let Some(help_heading) = a.get_help_heading() {
                             return help_heading == heading;
                         }
                         false

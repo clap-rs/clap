@@ -1788,14 +1788,17 @@ OPTIONS:
     -f, --fake <some>:<val>    some help
     -h, --help                 Print help information
     -s, --speed <SPEED>        How fast? [possible values: fast, slow]
+        --style <style>        Choose musical style to play the song
     -V, --version              Print version information
 
 NETWORKING:
     -a, --server-addr    Set server address
     -n, --no-proxy       Do not use system proxy settings
 
+OVERRIDE SPECIAL:
+    -b, --birthday-song <song>    Change which song is played for birthdays
+
 SPECIAL:
-    -b, --birthday-song <song>             Change which song is played for birthdays
     -v, --birthday-song-volume <volume>    Change the volume of the birthday song
 ";
 
@@ -1822,15 +1825,17 @@ fn multiple_custom_help_headers() {
         .help_heading(Some("SPECIAL"))
         .arg(
             Arg::from("-b, --birthday-song <song> 'Change which song is played for birthdays'")
-                .help_heading(Some("IGNORE THIS")),
+                .help_heading(Some("OVERRIDE SPECIAL")),
         )
-        .help_heading(None)
         .arg(
-            Arg::from(
-                "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
-            )
-            .help_heading(Some("SPECIAL")),
+            Arg::from("--style <style> 'Choose musical style to play the song'")
+                .required(false)
+                .help_heading(None),
         )
+        .arg(Arg::from(
+            "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
+        ))
+        .help_heading(None)
         .arg(
             Arg::new("server-addr")
                 .short('a')
@@ -1869,8 +1874,10 @@ OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
 
+OVERRIDE SPECIAL:
+    -b, --song <song>    Change which song is played for birthdays
+
 SPECIAL:
-    -b, --song <song>             Change which song is played for birthdays
     -v, --song-volume <volume>    Change the volume of the birthday song
 ";
 
@@ -1891,13 +1898,12 @@ fn custom_help_headers_hidden_args() {
         .help_heading(Some("SPECIAL"))
         .arg(
             Arg::from("-b, --song <song> 'Change which song is played for birthdays'")
-                .help_heading(Some("IGNORE THIS")),
+                .help_heading(Some("OVERRIDE SPECIAL")),
         )
+        .arg(Arg::from(
+            "-v --song-volume <volume> 'Change the volume of the birthday song'",
+        ))
         .help_heading(None)
-        .arg(
-            Arg::from("-v --song-volume <volume> 'Change the volume of the birthday song'")
-                .help_heading(Some("SPECIAL")),
-        )
         .arg(
             Arg::new("server-addr")
                 .short('a')
