@@ -198,9 +198,15 @@ pub fn gen_augment(
             | Kind::ExternalSubcommand => None,
             Kind::Flatten => {
                 let ty = &field.ty;
-                Some(quote_spanned! { kind.span()=>
-                    let #app_var = <#ty as clap::Args>::augment_args(#app_var);
-                })
+                if override_required {
+                    Some(quote_spanned! { kind.span()=>
+                        let #app_var = <#ty as clap::Args>::augment_args_for_update(#app_var);
+                    })
+                } else {
+                    Some(quote_spanned! { kind.span()=>
+                        let #app_var = <#ty as clap::Args>::augment_args(#app_var);
+                    })
+                }
             }
             Kind::Arg(ty) => {
                 let convert_type = match **ty {
