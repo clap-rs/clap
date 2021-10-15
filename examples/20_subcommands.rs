@@ -79,7 +79,7 @@ fn main() {
                         .long("stuff")
                         .about("Stuff to add")
                         .takes_value(true)
-                        .multiple_values(true),
+                        .multiple_occurrences(true),
                 ),
         )
         .get_matches();

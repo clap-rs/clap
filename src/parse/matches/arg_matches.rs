@@ -224,11 +224,11 @@ impl ArgMatches {
     /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .arg(Arg::new("output")
-    ///         .multiple_values(true)
+    ///         .multiple_occurrences(true)
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec![
-    ///         "myprog", "-o", "val1", "val2", "val3"
+    ///         "myprog", "-o", "val1", "-o", "val2", "-o", "val3"
     ///     ]);
     /// let vals: Vec<&str> = m.values_of("output").unwrap().collect();
     /// assert_eq!(vals, ["val1", "val2", "val3"]);
@@ -981,9 +981,9 @@ impl ArgMatches {
 /// let m = App::new("myapp")
 ///     .arg(Arg::new("output")
 ///         .short('o')
-///         .multiple_values(true)
+///         .multiple_occurrences(true)
 ///         .takes_value(true))
-///     .get_matches_from(vec!["myapp", "-o", "val1", "val2"]);
+///     .get_matches_from(vec!["myapp", "-o", "val1", "-o", "val2"]);
 ///
 /// let mut values = m.values_of("output").unwrap();
 ///
