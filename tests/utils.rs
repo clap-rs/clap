@@ -7,7 +7,7 @@ use regex::Regex;
 
 use clap::{App, Arg, ArgGroup};
 
-fn compare<S, S2>(l: S, r: S2) -> bool
+pub fn compare<S, S2>(l: S, r: S2) -> bool
 where
     S: AsRef<str>,
     S2: AsRef<str>,

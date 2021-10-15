@@ -423,6 +423,10 @@ pub enum ErrorKind {
 }
 
 /// Command Line Argument Parser Error
+///
+/// See [`App::error`] to create an error.
+///
+/// [`App::error`]: crate::App::error
 #[derive(Debug)]
 pub struct Error {
     /// Formatted error message, enhancing the cause message with extra information
@@ -533,6 +537,27 @@ impl Error {
     pub(crate) fn new(message: Colorizer, kind: ErrorKind) -> Self {
         Self {
             message,
+            kind,
+            info: vec![],
+            source: None,
+            backtrace: Backtrace::new(),
+        }
+    }
+
+    pub(crate) fn user_error(
+        app: &App,
+        usage: String,
+        kind: ErrorKind,
+        message: impl std::fmt::Display,
+    ) -> Self {
+        let mut c = Colorizer::new(true, app.get_color());
+
+        start_error(&mut c, message.to_string());
+        put_usage(&mut c, usage);
+        try_help(app, &mut c);
+
+        Self {
+            message: c,
             kind,
             info: vec![],
             source: None,
@@ -1077,34 +1102,31 @@ impl Error {
         }
     }
 
-    /// Create an error with a custom description.
+    /// Deprecated, see [`App::error`]
     ///
-    /// This can be used in combination with `Error::exit` to exit your program
-    /// with a custom error message.
+    /// [`App::error`]: crate::App::error
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
         let mut c = Colorizer::new(true, ColorChoice::Auto);
 
         start_error(&mut c, description);
-
-        Error {
-            message: c,
-            kind,
-            info: vec![],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Error::new(c, kind)
     }
 }
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error::with_description(e.to_string(), ErrorKind::Io)
+        let mut c = Colorizer::new(true, ColorChoice::Auto);
+        start_error(&mut c, e.to_string());
+        Error::new(c, ErrorKind::Io)
     }
 }
 
 impl From<fmt::Error> for Error {
     fn from(e: fmt::Error) -> Self {
-        Error::with_description(e.to_string(), ErrorKind::Format)
+        let mut c = Colorizer::new(true, ColorChoice::Auto);
+        start_error(&mut c, e.to_string());
+        Error::new(c, ErrorKind::Format)
     }
 }
 
