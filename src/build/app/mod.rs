@@ -1920,8 +1920,17 @@ impl<'help> App<'help> {
         self._render_version(true)
     }
 
-    /// @TODO-v3-alpha @docs @p2: write docs
-    pub fn generate_usage(&mut self) -> String {
+    /// Returns the usage statement
+    ///
+    /// ### Examples
+    ///
+    /// ```rust
+    /// # use clap::App;
+    /// use std::io;
+    /// let mut app = App::new("myprog");
+    /// println!("{}", app.render_usage());
+    /// ```
+    pub fn render_usage(&mut self) -> String {
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing incase we run into a subcommand
         self._build();
