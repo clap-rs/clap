@@ -71,6 +71,8 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install linker
@@ -126,6 +128,8 @@ jobs:
         with:
           toolchain: nightly
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Test almost no features
@@ -166,6 +170,8 @@ jobs:
           toolchain: 1.54.0
           target: ${{ matrix.target }}
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Check

@@ -19,6 +19,8 @@ jobs:
           toolchain: nightly
           components: llvm-tools-preview
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install llvm-cov
