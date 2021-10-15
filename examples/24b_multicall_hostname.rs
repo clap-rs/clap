@@ -11,9 +11,11 @@ use clap::{App, AppSettings};
 fn main() {
     let app = App::new(env!("CARGO_CRATE_NAME"))
         .setting(AppSettings::ArgRequiredElseHelp)
-        .setting(AppSettings::Multicall)
         .subcommand(App::new("hostname").about("shot hostname part of FQDN"))
         .subcommand(App::new("dnsdomainname").about("show domain name part of FQDN"));
+
+    #[cfg(feature = "unstable-multicall")]
+    let app = app.setting(AppSettings::Multicall);
 
     match app.get_matches().subcommand_name() {
         Some("hostname") => println!("www"),
