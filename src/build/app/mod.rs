@@ -2168,7 +2168,9 @@ impl<'help> App<'help> {
                             return self._do_parse(&mut it);
                         }
                         _ => {
-                            debug!("App::try_get_matches_from_mut: existing applet or no program name");
+                            debug!(
+                                "App::try_get_matches_from_mut: existing applet or no program name"
+                            );
                             debug!("App::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
                             it.insert(&[&command]);
                             debug!("App::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");

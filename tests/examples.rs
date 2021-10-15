@@ -38,13 +38,13 @@ fn examples_are_functional() {
                 continue;
                 #[allow(unreachable_code)]
                 "busybox".into()
-            },
+            }
             Some("24b_multicall_hostname.rs") => {
                 #[cfg(not(feature = "unstable-multicall"))]
                 continue;
                 #[allow(unreachable_code)]
                 "hostname".into()
-            },
+            }
             _ => path
                 .file_stem()
                 .and_then(OsStr::to_str)
