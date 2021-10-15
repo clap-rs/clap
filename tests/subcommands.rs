@@ -423,10 +423,7 @@ fn subcommand_placeholder_test() {
         .subcommand(App::new("subcommand"))
         .subcommand_placeholder("TEST_PLACEHOLDER", "TEST_HEADER");
 
-    assert_eq!(
-        &app.generate_usage(),
-        "USAGE:\n    myprog [TEST_PLACEHOLDER]"
-    );
+    assert_eq!(&app.render_usage(), "USAGE:\n    myprog [TEST_PLACEHOLDER]");
 
     let mut help_text = Vec::new();
     app.write_help(&mut help_text)

@@ -189,13 +189,13 @@ fn positional_hyphen_does_not_panic() {
 #[test]
 fn single_positional_usage_string() {
     let mut app = App::new("test").arg("[FILE] 'some file'");
-    assert_eq!(app.generate_usage(), "USAGE:\n    test [FILE]");
+    assert_eq!(app.render_usage(), "USAGE:\n    test [FILE]");
 }
 
 #[test]
 fn single_positional_multiple_usage_string() {
     let mut app = App::new("test").arg("[FILE]... 'some file'");
-    assert_eq!(app.generate_usage(), "USAGE:\n    test [FILE]...");
+    assert_eq!(app.render_usage(), "USAGE:\n    test [FILE]...");
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn multiple_positional_usage_string() {
     let mut app = App::new("test")
         .arg("[FILE] 'some file'")
         .arg("[FILES]... 'some file'");
-    assert_eq!(app.generate_usage(), "USAGE:\n    test [ARGS]");
+    assert_eq!(app.render_usage(), "USAGE:\n    test [ARGS]");
 }
 
 #[test]
@@ -211,13 +211,13 @@ fn multiple_positional_one_required_usage_string() {
     let mut app = App::new("test")
         .arg("<FILE> 'some file'")
         .arg("[FILES]... 'some file'");
-    assert_eq!(app.generate_usage(), "USAGE:\n    test <FILE> [FILES]...");
+    assert_eq!(app.render_usage(), "USAGE:\n    test <FILE> [FILES]...");
 }
 
 #[test]
 fn single_positional_required_usage_string() {
     let mut app = App::new("test").arg("<FILE> 'some file'");
-    assert_eq!(app.generate_usage(), "USAGE:\n    test <FILE>");
+    assert_eq!(app.render_usage(), "USAGE:\n    test <FILE>");
 }
 
 // This tests a programmer error and will only succeed with debug_assertions
