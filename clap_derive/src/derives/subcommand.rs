@@ -451,7 +451,8 @@ fn gen_from_arg_matches(
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
                 quote! {
-                    if let Some(res) = <#ty as clap::FromArgMatches>::from_arg_matches(arg_matches) {
+                    if <#ty as clap::Subcommand>::has_subcommand(name) {
+                        let res = <#ty as clap::FromArgMatches>::from_arg_matches(arg_matches).unwrap();
                         return Some(#name :: #variant_name (res));
                     }
                 }
@@ -600,9 +601,7 @@ fn gen_update_from_arg_matches(
                     #( #subcommands ),*
                     s => {
                         #( #child_subcommands )*
-                        if let Some(sub) = <Self as clap::FromArgMatches>::from_arg_matches(arg_matches) {
-                            *s = sub;
-                        }
+                        *s = <Self as clap::FromArgMatches>::from_arg_matches(arg_matches).unwrap();
                     }
                 }
             }
