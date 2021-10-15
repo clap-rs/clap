@@ -892,7 +892,6 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn parse_help_subcommand(&self, cmds: &[OsString]) -> ClapResult<ParseResult> {
         debug!("Parser::parse_help_subcommand");
 
-        let mut help_help = false;
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
 
         let mut sc = {
@@ -901,12 +900,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             let mut sc = self.app.clone();
 
             for cmd in cmds.iter() {
-                if cmd == OsStr::new("help") {
-                    // cmd help help
-                    help_help = true;
-                    break; // Maybe?
-                }
-
                 sc = if let Some(c) = sc.find_subcommand(cmd) {
                     c
                 } else if let Some(c) = sc.find_subcommand(&cmd.to_string_lossy()) {
@@ -924,6 +917,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 .clone();
 
+                if cmd == OsStr::new("help") {
+                    let pb = Arg::new("subcommand")
+                        .index(1)
+                        .setting(ArgSettings::TakesValue)
+                        .setting(ArgSettings::MultipleValues)
+                        .value_name("SUBCOMMAND")
+                        .about("The subcommand whose help message to display");
+                    sc = sc.arg(pb);
+                }
+
                 sc._build();
                 bin_name.push(' ');
                 bin_name.push_str(&sc.name);
@@ -931,23 +934,9 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             sc
         };
+        sc = sc.bin_name(bin_name);
 
         let parser = Parser::new(&mut sc);
-
-        if help_help {
-            let mut pb = Arg::new("subcommand")
-                .index(1)
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::MultipleValues)
-                .about("The subcommand whose help message to display");
-
-            pb._build();
-            //parser.positionals.insert(1, pb.name);
-            parser.app.settings = parser.app.settings | self.app.g_settings;
-            parser.app.g_settings = self.app.g_settings;
-        }
-
-        parser.app.bin_name = Some(bin_name);
 
         Err(parser.help_err(self.app.is_set(AS::UseLongFormatForHelpSubcommand)))
     }

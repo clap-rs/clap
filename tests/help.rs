@@ -2137,6 +2137,62 @@ fn after_help_no_args() {
     assert_eq!(help, AFTER_HELP_NO_ARGS);
 }
 
+static HELP_SUBCMD_HELP: &str = "myapp-help 
+
+Print this message or the help of the given subcommand(s)
+
+USAGE:
+    myapp help [SUBCOMMAND]...
+
+ARGS:
+    <SUBCOMMAND>...    The subcommand whose help message to display
+
+OPTIONS:
+    -h, --help    Print custom help about text
+";
+
+#[test]
+fn help_subcmd_help() {
+    let app = App::new("myapp")
+        .mut_arg("help", |h| h.about("Print custom help about text"))
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "myapp help help",
+        HELP_SUBCMD_HELP,
+        false
+    ));
+}
+
+static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
+
+Print this message or the help of the given subcommand(s)
+
+USAGE:
+    myapp subcmd help [SUBCOMMAND]...
+
+ARGS:
+    <SUBCOMMAND>...    The subcommand whose help message to display
+
+OPTIONS:
+    -h, --help    Print custom help about text
+";
+
+#[test]
+fn subcmd_help_subcmd_help() {
+    let app = App::new("myapp")
+        .mut_arg("help", |h| h.about("Print custom help about text"))
+        .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "myapp subcmd help help",
+        SUBCMD_HELP_SUBCMD_HELP,
+        false
+    ));
+}
+
 static HELP_ABOUT_MULTI_SC: &str = "myapp-subcmd-multi 1.0
 
 USAGE:
