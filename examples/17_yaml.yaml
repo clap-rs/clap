@@ -16,7 +16,7 @@ args:
         about: example option argument from yaml
         short: o
         long: option
-        multiple_values: true
+        multiple_occurrences: true
         takes_value: true
     - pos:
         about: example positional argument from yaml
@@ -28,7 +28,7 @@ args:
     - flag:
         about: demo flag argument
         short: F
-        multiple_values: true
+        multiple_occurrences: true
         takes_value: true
         global: true
         # Conflicts, mutual overrides, and requirements can all be defined as a
@@ -76,7 +76,7 @@ subcommands:
         args:
             - scopt:
                 short: B
-                multiple_values: true
+                multiple_occurrences: true
                 about: example subcommand option
                 takes_value: true
             - scpos1:
