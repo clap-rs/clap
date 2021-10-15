@@ -102,6 +102,32 @@ fn flatten_in_subcommand() {
     );
 }
 
+#[test]
+fn update_args_with_flatten() {
+    #[derive(Args, PartialEq, Debug)]
+    struct Common {
+        arg: i32,
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(flatten)]
+        common: Common,
+    }
+
+    let mut opt = Opt {
+        common: Common { arg: 42 },
+    };
+    opt.try_update_from(&["test"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "42"]), opt);
+
+    let mut opt = Opt {
+        common: Common { arg: 42 },
+    };
+    opt.try_update_from(&["test", "52"]).unwrap();
+    assert_eq!(Opt::parse_from(&["test", "52"]), opt);
+}
+
 #[derive(Subcommand, PartialEq, Debug)]
 enum BaseCli {
     Command1(Command1),
