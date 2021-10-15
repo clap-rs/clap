@@ -198,13 +198,18 @@ pub fn gen_augment(
             | Kind::ExternalSubcommand => None,
             Kind::Flatten => {
                 let ty = &field.ty;
+                let old_heading_var = format_ident!("old_heading");
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
+                        let #old_heading_var = #app_var.get_help_heading();
                         let #app_var = <#ty as clap::Args>::augment_args_for_update(#app_var);
+                        let #app_var = #app_var.help_heading(#old_heading_var);
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
+                        let #old_heading_var = #app_var.get_help_heading();
                         let #app_var = <#ty as clap::Args>::augment_args(#app_var);
+                        let #app_var = #app_var.help_heading(#old_heading_var);
                     })
                 }
             }
@@ -358,10 +363,10 @@ pub fn gen_augment(
     let initial_app_methods = parent_attribute.initial_top_level_methods();
     let final_app_methods = parent_attribute.final_top_level_methods();
     quote! {{
-        let #app_var = #app_var#initial_app_methods;
+        let #app_var = #app_var #initial_app_methods;
         #( #args )*
         #subcmd
-        #app_var#final_app_methods
+        #app_var #final_app_methods
     }}
 }
 
