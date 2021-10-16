@@ -32,10 +32,24 @@ fn examples_are_functional() {
     for path in example_paths {
         example_count += 1;
 
-        let example_name = path
-            .file_stem()
-            .and_then(OsStr::to_str)
-            .expect("unable to determine example name");
+        let example_name = match path.file_name().and_then(OsStr::to_str) {
+            Some("24a_multicall_busybox.rs") => {
+                #[cfg(not(feature = "unstable-multicall"))]
+                continue;
+                #[allow(unreachable_code)]
+                "busybox".into()
+            }
+            Some("24b_multicall_hostname.rs") => {
+                #[cfg(not(feature = "unstable-multicall"))]
+                continue;
+                #[allow(unreachable_code)]
+                "hostname".into()
+            }
+            _ => path
+                .file_stem()
+                .and_then(OsStr::to_str)
+                .expect("unable to determine example name"),
+        };
 
         let help_output = run_example(example_name, &["--help"]);
         assert!(

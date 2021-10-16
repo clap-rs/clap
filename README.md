@@ -478,6 +478,7 @@ features = ["std", "suggestions", "color"]
 These features are opt-in. But be wary that they can contain breaking changes between minor releases.
 
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
+* **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
 
 ### More Information
 

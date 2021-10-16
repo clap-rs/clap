@@ -31,7 +31,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: llvm-cov
-          args: --features "wrap_help yaml regex unstable-replace" --lcov --output-path lcov.info
+          args: --features "wrap_help yaml regex unstable-replace unstable-multicall" --lcov --output-path lcov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

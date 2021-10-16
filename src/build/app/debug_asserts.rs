@@ -358,8 +358,25 @@ fn assert_app_flags(app: &App) {
                     panic!("{}", s)
                 }
             }
-        }
+        };
+        ($a:ident conflicts $($b:ident)|+) => {
+            if app.is_set($a) {
+                let mut s = String::new();
+
+                $(
+                    if app.is_set($b) {
+                        s.push_str(&format!("\nAppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
+                    }
+                )+
+
+                if !s.is_empty() {
+                    panic!("{}", s)
+                }
+            }
+        };
     }
 
     checker!(AllowInvalidUtf8ForExternalSubcommands requires AllowExternalSubcommands);
+    #[cfg(feature = "unstable-multicall")]
+    checker!(Multicall conflicts NoBinaryName);
 }

@@ -81,6 +81,14 @@ lazy_static = "1"
 version-sync = "0.9"
 criterion = "0.3.2"
 
+[[example]]
+name = "busybox"
+path = "examples/24a_multicall_busybox.rs"
+
+[[example]]
+name = "hostname"
+path = "examples/24b_multicall_hostname.rs"
+
 [features]
 default = [
 	"std",
@@ -108,6 +116,7 @@ yaml = ["yaml-rust"]
 
 # In-work features
 unstable-replace = []
+unstable-multicall = []
 
 [profile.test]
 opt-level = 1
@@ -117,7 +126,7 @@ lto = true
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace"]
+features = ["yaml", "regex", "unstable-replace", "unstable-multicall"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [workspace]
