@@ -2065,7 +2065,7 @@ impl<'help> App<'help> {
 
                 drop(self);
                 drop(e);
-                safe_exit(2);
+                safe_exit(USAGE_CODE);
             }
 
             drop(self);
