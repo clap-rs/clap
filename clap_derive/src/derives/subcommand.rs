@@ -216,13 +216,15 @@ fn gen_augment(
                     };
 
                     let name = attrs.cased_name();
-                    let from_attrs = attrs.top_level_methods();
+                    let initial_app_methods = parent_attribute.initial_top_level_methods();
+                    let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = #subcommand_var#initial_app_methods;
                             let #subcommand_var = #arg_block;
                             let #subcommand_var = #subcommand_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-                            #subcommand_var#from_attrs
+                            #subcommand_var#final_from_attrs
                         });
                     };
                     Some(subcommand)
@@ -257,12 +259,14 @@ fn gen_augment(
                     };
 
                     let name = attrs.cased_name();
-                    let from_attrs = attrs.top_level_methods();
+                    let initial_app_methods = parent_attribute.initial_top_level_methods();
+                    let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::App::new(#name);
+                            let #subcommand_var = #subcommand_var#initial_app_methods;
                             let #subcommand_var = #arg_block;
-                            #subcommand_var#from_attrs
+                            #subcommand_var#final_from_attrs
                         });
                     };
                     Some(subcommand)
@@ -271,10 +275,12 @@ fn gen_augment(
         })
         .collect();
 
-    let app_methods = parent_attribute.top_level_methods();
+    let initial_app_methods = parent_attribute.initial_top_level_methods();
+    let final_app_methods = parent_attribute.final_top_level_methods();
     quote! {
+            let #app_var = #app_var#initial_app_methods;
             #( #subcommands )*;
-            #app_var #app_methods
+            #app_var #final_app_methods
     }
 }
 
