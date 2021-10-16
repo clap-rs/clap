@@ -170,13 +170,18 @@ fn gen_augment(
                 Kind::Flatten => match variant.fields {
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0];
+                        let old_heading_var = format_ident!("old_heading");
                         let subcommand = if override_required {
                             quote! {
+                                let #old_heading_var = #app_var.get_help_heading();
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
+                                let #app_var = #app_var.help_heading(#old_heading_var);
                             }
                         } else {
                             quote! {
+                                let #old_heading_var = #app_var.get_help_heading();
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
+                                let #app_var = #app_var.help_heading(#old_heading_var);
                             }
                         };
                         Some(subcommand)
@@ -221,10 +226,10 @@ fn gen_augment(
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::App::new(#name);
-                            let #subcommand_var = #subcommand_var#initial_app_methods;
+                            let #subcommand_var = #subcommand_var #initial_app_methods;
                             let #subcommand_var = #arg_block;
                             let #subcommand_var = #subcommand_var.setting(::clap::AppSettings::SubcommandRequiredElseHelp);
-                            #subcommand_var#final_from_attrs
+                            #subcommand_var #final_from_attrs
                         });
                     };
                     Some(subcommand)
@@ -264,9 +269,9 @@ fn gen_augment(
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::App::new(#name);
-                            let #subcommand_var = #subcommand_var#initial_app_methods;
+                            let #subcommand_var = #subcommand_var #initial_app_methods;
                             let #subcommand_var = #arg_block;
-                            #subcommand_var#final_from_attrs
+                            #subcommand_var #final_from_attrs
                         });
                     };
                     Some(subcommand)
@@ -278,7 +283,7 @@ fn gen_augment(
     let initial_app_methods = parent_attribute.initial_top_level_methods();
     let final_app_methods = parent_attribute.final_top_level_methods();
     quote! {
-            let #app_var = #app_var#initial_app_methods;
+            let #app_var = #app_var #initial_app_methods;
             #( #subcommands )*;
             #app_var #final_app_methods
     }
