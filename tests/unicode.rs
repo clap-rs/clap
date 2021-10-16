@@ -1,5 +1,6 @@
+#![cfg(feature = "unicode")]
+
 #[test]
-#[cfg(feature = "unicode")]
 fn possible_values_case_insensitive() {
     let m = clap::App::new("pv")
         .arg(

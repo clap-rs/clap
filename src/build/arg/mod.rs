@@ -2282,6 +2282,7 @@ impl<'help> Arg<'help> {
     /// automatically via [`RegexRef`]'s `Into` implementation.
     ///
     /// **NOTE:** If using YAML then a single vector with two entries should be provided:
+    ///
     /// ```yaml
     /// validator_regex: [remove-all-files, needs the exact phrase 'remove-all-files' to continue]
     /// ```
@@ -2292,7 +2293,9 @@ impl<'help> Arg<'help> {
     /// provided regular expression.
     ///
     /// # Examples
+    ///
     /// You can use the classical `"\d+"` regular expression to match digits only:
+    ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// use regex::Regex;
@@ -2309,7 +2312,9 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_ok());
     /// assert_eq!(res.unwrap().value_of("digits"), Some("12345"));
     /// ```
+    ///
     /// However, any valid `Regex` can be used:
+    ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// use regex::Regex;

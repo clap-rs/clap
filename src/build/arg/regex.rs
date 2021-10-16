@@ -1,49 +1,67 @@
-use ::regex::Regex;
-use core::convert::TryFrom;
-use core::ops::Deref;
-use core::str::FromStr;
+use ::regex::{Error, Regex, RegexSet};
+
+use core::{convert::TryFrom, ops::Deref, str::FromStr};
 use std::borrow::Cow;
 
-/// Contains either a regular expression or a reference to one.
+/// Contains either a regular expression or a set of them or a reference to one.
 ///
 /// Essentially a [`Cow`] wrapper with custom convenience traits.
 ///
 /// [`Cow`]: std::borrow::Cow
 #[derive(Debug, Clone)]
-pub struct RegexRef<'a>(Cow<'a, Regex>);
+pub enum RegexRef<'a> {
+    /// Used if the underlying is a regex set
+    RegexSet(Cow<'a, RegexSet>),
+    /// Used if the underlying is a regex
+    Regex(Cow<'a, Regex>),
+}
 
-impl<'a> Deref for RegexRef<'a> {
-    type Target = Regex;
-
-    fn deref(&self) -> &Regex {
-        self.0.deref()
+impl<'a> RegexRef<'a> {
+    pub(crate) fn is_match(&self, text: &str) -> bool {
+        match self {
+            Self::Regex(r) => r.deref().is_match(text),
+            Self::RegexSet(r) => r.deref().is_match(text),
+        }
     }
 }
 
 impl<'a> FromStr for RegexRef<'a> {
-    type Err = <Regex as core::str::FromStr>::Err;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Regex::from_str(s).map(|v| RegexRef(Cow::Owned(v)))
+        Regex::from_str(s).map(|v| Self::Regex(Cow::Owned(v)))
     }
 }
 
 impl<'a> TryFrom<&'a str> for RegexRef<'a> {
-    type Error = <RegexRef<'a> as FromStr>::Err;
+    type Error = <Self as FromStr>::Err;
+
     fn try_from(r: &'a str) -> Result<Self, Self::Error> {
-        RegexRef::from_str(r)
+        Self::from_str(r)
     }
 }
 
 impl<'a> From<&'a Regex> for RegexRef<'a> {
     fn from(r: &'a Regex) -> Self {
-        RegexRef(Cow::Borrowed(r))
+        Self::Regex(Cow::Borrowed(r))
     }
 }
 
 impl<'a> From<Regex> for RegexRef<'a> {
     fn from(r: Regex) -> Self {
-        RegexRef(Cow::Owned(r))
+        Self::Regex(Cow::Owned(r))
+    }
+}
+
+impl<'a> From<&'a RegexSet> for RegexRef<'a> {
+    fn from(r: &'a RegexSet) -> Self {
+        Self::RegexSet(Cow::Borrowed(r))
+    }
+}
+
+impl<'a> From<RegexSet> for RegexRef<'a> {
+    fn from(r: RegexSet) -> Self {
+        Self::RegexSet(Cow::Owned(r))
     }
 }
 
@@ -51,6 +69,7 @@ impl<'a> From<Regex> for RegexRef<'a> {
 mod tests {
     use super::*;
     use core::convert::TryInto;
+
     #[test]
     fn test_try_from_with_valid_string() {
         let t: Result<RegexRef, _> = "^Hello, World$".try_into();
