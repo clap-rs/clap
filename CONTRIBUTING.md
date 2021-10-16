@@ -6,30 +6,16 @@ Another really great way to help is if you find an interesting, or helpful way i
 
 ### Testing Code
 
-To test with all features both enabled and disabled, you can run these commands:
+To test with all features enabled, you can run this command:
 
 ```sh
-$ cargo test --features "wrap_help yaml regex unstable-replace"
+$ make tests
 ```
-
-Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
-
-For example, to test the code, as above simply run:
-
-```sh
-$ just run-tests
-```
-
-From here on, I will list the appropriate `cargo` command as well as the `just` command.
 
 Sometimes it's helpful to only run a subset of the tests, which can be done via:
 
 ```sh
-$ cargo test --test <test_name>
-
-# Or
-
-$ just run-test <test_name>
+$ make test <test_group> [test_name]
 ```
 
 ### Linting Code
@@ -39,33 +25,22 @@ During the CI process `clap` runs against many different lints using [`clippy`](
 In order to check the code for lints and to format it run either:
 
 ```sh
-$ cargo clippy --features "wrap_help yaml regex unstable-replace" -- -D warnings
-$ cargo fmt -- --check
-
-# Or
-
-$ just lint
+$ make lint
 ```
 
 ### Debugging Code
 
-Another helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running the full test suite or individual tests, run:
+Another helpful technique is to see the `clap` debug output while developing features. In order to see the debug output while running an individual test, run:
 
 ```sh
-$ cargo test --features debug
-
-# Or for individual tests
-$ cargo test --test <test_name> --features debug
-
-# The corresponding just command for individual debugging tests is:
-$ just debug <test_name>
+$ make debug <test_group> [test_name]
 ```
 
 ### Tests and Documentation
 
 1. Create tests for your changes
 2. **Ensure the tests are passing.** Run the tests as specified above.
-3. **Ensure linting is passing** Run the lints as specified above.
+3. **Ensure linting is passing.** Run the lints as specified above.
 4. Ensure your changes contain documentation if adding new APIs or features.
 
 ### Preparing the PR

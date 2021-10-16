@@ -27,7 +27,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --no-default-features --features "std cargo"
+          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.5 -- -D warnings
       - name: Clippy for all features
         uses: actions-rs/cargo@v1
         with:
