@@ -64,3 +64,22 @@ mod util;
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                   report at https://github.com/clap-rs/clap/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
+
+/// Deprecated, see [`App`]
+#[derive(Debug, Copy, Clone)]
+pub struct SubCommand {}
+
+impl SubCommand {
+    /// Deprecated, see [`App::new`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::new`)")]
+    pub fn with_name<'help>(name: &str) -> App<'help> {
+        App::new(name)
+    }
+
+    /// Deprecated, see [`App::from`]
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::from`)")]
+    pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
+        App::from(yaml)
+    }
+}

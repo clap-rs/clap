@@ -108,6 +108,19 @@ impl<'help> ArgGroup<'help> {
         ArgGroup::default().name(n)
     }
 
+    /// Deprecated, see [`ArgGroup::new`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
+    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
+        Self::new(n)
+    }
+
+    /// Deprecated, see [`ArgGroup::from`]
+    #[cfg(feature = "yaml")]
+    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::from`")]
+    pub fn from_yaml(yaml: &'help Yaml) -> Self {
+        Self::from(yaml)
+    }
+
     /// Sets the group name.
     ///
     /// # Examples
