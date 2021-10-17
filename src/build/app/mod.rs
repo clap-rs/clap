@@ -29,7 +29,7 @@ use crate::{
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
     util::{color::ColorChoice, safe_exit, Id, Key, USAGE_CODE},
-    Result as ClapResult, INTERNAL_ERROR_MSG,
+    Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
 /// Represents a command line interface which is made up of all possible
@@ -1799,6 +1799,21 @@ impl<'help> App<'help> {
 
         self.args.push(f(a));
         self
+    }
+
+    /// Custom error message for post-parsing validation
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, ErrorKind};
+    /// let mut app = App::new("myprog");
+    /// let err = app.error(ErrorKind::InvalidValue, "Some failure case");
+    /// ```
+    pub fn error(&mut self, kind: ErrorKind, message: impl std::fmt::Display) -> Error {
+        self._build();
+        let usage = self.render_usage();
+        Error::user_error(self, usage, kind, message)
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
