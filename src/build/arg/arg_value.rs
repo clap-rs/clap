@@ -38,6 +38,12 @@ impl<'help> From<&'help str> for ArgValue<'help> {
     }
 }
 
+impl<'help> From<&'help &'help str> for ArgValue<'help> {
+    fn from(s: &'help &'help str) -> Self {
+        Self::new(s)
+    }
+}
+
 /// Getters
 impl<'help> ArgValue<'help> {
     /// Get the name of the argument value
