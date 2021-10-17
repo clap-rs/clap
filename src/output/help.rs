@@ -604,12 +604,17 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
             spec_vals.push(format!("[possible values: {}]", pvs));
         }
+        let connector = if self.use_long { "\n" } else { " " };
         let prefix = if !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
-            " "
+            if self.use_long {
+                "\n\n"
+            } else {
+                " "
+            }
         } else {
             ""
         };
-        prefix.to_string() + &spec_vals.join(" ")
+        prefix.to_string() + &spec_vals.join(connector)
     }
 
     fn write_about(&mut self, before_new_line: bool, after_new_line: bool) -> io::Result<()> {
