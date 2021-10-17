@@ -184,3 +184,23 @@ fn verbatim_doc_comment_field() {
     assert!(help.contains("This help ends in a period."));
     assert!(help.contains("This help does not end in a period"));
 }
+
+#[test]
+fn multiline_separates_default() {
+    #[derive(Parser, Debug)]
+    struct App {
+        /// Multiline
+        ///
+        /// Doc comment
+        #[clap(long, default_value = "x")]
+        x: String,
+    }
+
+    let help = get_long_help::<App>();
+    assert!(!help.contains("Doc comment [default"));
+    assert!(help.lines().any(|s| s.trim().starts_with("[default")));
+
+    // The short help should still have the default on the same line
+    let help = get_help::<App>();
+    assert!(help.contains("Multiline [default"));
+}
