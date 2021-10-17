@@ -1,6 +1,6 @@
 [package]
 name = "clap_generate_fig"
-version = "3.0.0-beta.4"
+version = "3.0.0-beta.5"
 edition = "2018"
 authors = [
 	"Clap Maintainers"
@@ -30,8 +30,8 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-beta.4" }
-clap_generate = { path = "../clap_generate", version = "3.0.0-beta.4" }
+clap = { path = "../", version = "=3.0.0-beta.5" }
+clap_generate = { path = "../clap_generate", version = "=3.0.0-beta.5" }
 
 [dev-dependencies]
 pretty_assertions = "0.7"

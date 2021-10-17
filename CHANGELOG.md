@@ -6,16 +6,84 @@ TODO: `YamlLoader`
 <a name="v3.0.0-rc.0"></a>
 ## v3.0.0-rc.0
 
+
+<a name="v3.0.0-beta.5"></a>
+## v3.0.0-beta.5 (2021-10-18)
+
 #### BREAKING CHANGES
 
 * **Renamed Features**
   * `unicode_help` to `unicode` to encompass more functionality
-* **Gated Features**
+* **Gated behind features**
   * `App::replace` is now gated behind `unstable-replace`
-
+* **Removed `derive` requirement**
+  * `clap::ArgEnum`
+  * `clap::Args`
+  * `clap::FromArgMatches`
+  * `clap::IntoApp`
+  * `clap::Subcommand`
+* **Renamed Traits**
+  * `clap::Clap` => `clap::Parser`
+* **Renamed Methods**
+  * `App::generate_usage` => `App::render_usage`
 * **Removed Settings**
-  * `AppSettings::DisableVersionForSubcommands`
-  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `AppSettings::Color(Auto|Always|Never)`
+  * `AppSettings::DisableVersionForSubcommands` is now default behaviour
+  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
+  * `AppSettings::StrictUtf8` is now default behaviour
+  * `AppSettings::AllowInvalidUtf8` in favor of `ArgSettings::AllowInvalidUtf8`
+  * `AppSettings::UnifiedHelpMessage` is now default behaviour
+  * `AppSettings::ColorAlways` in favor of `App::color`
+  * `AppSettings::ColorNever` in favor of `App::color`
+  * `AppSettings::ColorAuto` in favor of `App::color`
+* **Removed methods**
+  * **App**
+    * `App::get_flags`
+    * `App::get_positionals_with_no_heading`
+    * `App::get_flags_with_no_heading`
+    * `App::get_opts_with_no_heading`
+    * `App::stop_custom_headings` in favor of `App:help_heading(None)`
+  * **Error**
+    * `Error::with_description` in favor of `App::error`
+  * **ArgEnum**
+    * `ArgEnum::as_arg` in favor of `ArgEnum::to_arg_value`
+  * **clap_generate::Generator**
+    * `Generator::all_subcommands`
+    * `Generator::find_subcommand_with_path`
+    * `Generator::subcommands`
+    * `Generator::shorts_and_visible_aliases`
+    * `Generator::longs_and_visible_aliases`
+    * `Generator::flags`
+* **Removed**
+  * `ArgEnum::VARIANTS` in favor of `ArgEnum::value_variants`
+* **Deprecated**
+  * `clap::clap_app!` in favor of other builders
+* **Changed**
+  * `App::get_possible_values` returns `Option<&[ArgValue]>` now
+  * `RegexRef` is now an enum also allowing `RegexSet` to be used
+  * `clap_generate::Generator::file_name` and `clap_generate::Generator::generate` now take `&self`
+  * `clap_generate::generate` and `clap_generate::generate_to` now takes `Generator` as first argument
+
+#### Features
+
+* **Added**
+  * `clap::ArgValue` to denote information about possible values for args
+  * `clap::ColorChoice` to specify color setting for the app
+* **Added Settings**
+  * `AppSettings::AllowInvalidUtf8ForExternalSubcommands`
+  * `AppSettings::Multicall` behind `unstable-multicall` feature
+  * `ArgSettings::AllowInvalidUtf8`
+* **Added Methods**
+  * **ArgEnum**
+    * `ArgEnum::value_variants`
+    * `ArgEnum::to_arg_value`
+  * **App**
+    * `App::color`
+    * `App::error`
+    * `App::get_long_about`
+    * `App::get_help_heading`
+  * **Arg**
+    * `Arg::is_positional`
+* Allow positionals to occur multiple times
 
 <a name="v3.0.0-beta.4"></a>
 ## v3.0.0-beta.4 (2021-08-14)
@@ -34,7 +102,6 @@ Added `unicode_help`, `env` features.
     * `Arg::hide_env_values`
   * **ArgSettings**
     * `ArgSettings::HideEnvValues`
-
 * **Removed Methods**
   * **Arg**
     * `Arg::settings` in favor of `Arg::setting(Setting1 | Setting2)`
@@ -42,17 +109,11 @@ Added `unicode_help`, `env` features.
 * **Renamed Settings**
   * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
   * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
-  * `AppSettings::VersionlessSubcommands` => `AppSettings::DisableVersionForSubcommands`
+  * `AppSettings::VersionlessSubcommands` => `AppSettings::DisableVersionForSubcommands` (changed again 3.0.0-beta.5)
 * **Renamed Variants**
   * **ErrorKind**
     * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
 * **Changed**
-  * `AppSettings::StrictUtf8` is now default and it and `AppSettings::AllowInvalidUtf8` are replaced by
-    * `AppSettings::AllowInvalidUtf8ForExternalSubcommands`
-      * This only applies to the subcommand args.  Before we paniced if the
-        subcommand itself was invalid but now we will report an error up to the
-        user.
-    * `ArgSettings::AllowInvalidUtf8`
   * Allowing empty values is the default again with `ArgSettings::AllowEmptyValues` changing to
     `ArgSettings::ForbidEmptyValues`
   * `AppSettings::GlobalVersion` renamed to `AppSettings::PropagateVersion` and it is not applied
@@ -78,6 +139,7 @@ Added `unicode_help`, `env` features.
 
 * **Added**
   * `clap_generate::Shell`
+  * `clap::Args` behind `derive` feature
 * **Added Methods**
   * **App**
     * `App::license`

@@ -711,7 +711,7 @@ fn required_if_val_present_fail_error_output() {
             Arg::new("target")
                 .takes_value(true)
                 .required(true)
-                .possible_values(["file", "stdout"])
+                .possible_values(&["file", "stdout"])
                 .long("target"),
         )
         .arg(

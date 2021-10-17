@@ -72,6 +72,7 @@ pub fn runner() -> Runner {
                         ["version_short", "mut_arg"],
                         ["help_message", "mut_arg"],
                         ["help_short", "mut_arg"],
+                        ["generate_usage", "render_usage"],
                     ],
                 )
                 .rename_methods(

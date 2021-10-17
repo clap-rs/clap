@@ -1,6 +1,6 @@
 [package]
 name = "clap_generate"
-version = "3.0.0-beta.4"
+version = "3.0.0-beta.5"
 edition = "2018"
 authors = [
 	"Kevin K. <kbknapp@gmail.com>",
@@ -30,7 +30,7 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-beta.4", default-features = false, features = ["std"] }
+clap = { path = "../", version = "=3.0.0-beta.5", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 pretty_assertions = "0.7"
