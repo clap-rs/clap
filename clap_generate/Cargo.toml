@@ -30,7 +30,7 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-beta.4" }
+clap = { path = "../", version = "=3.0.0-beta.4", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 pretty_assertions = "0.7"
