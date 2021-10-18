@@ -78,6 +78,11 @@ impl<'help> MKeyMap<'help> {
         self.keys.iter().any(|x| x.key == key)
     }
 
+    /// Reserves capacity for at least additional more elements to be inserted
+    pub(crate) fn reserve(&mut self, additional: usize) {
+        self.args.reserve(additional);
+    }
+
     /// Push an argument in the map.
     pub(crate) fn push(&mut self, new_arg: Arg<'help>) {
         self.args.push(new_arg);
@@ -119,10 +124,8 @@ impl<'help> MKeyMap<'help> {
     /// We need a lazy build here since some we may change args after creating
     /// the map, you can checkout who uses `args_mut`.
     pub(crate) fn _build(&mut self) {
-        for (i, arg) in self.args.iter_mut().enumerate() {
-            for k in _get_keys(arg) {
-                self.keys.push(Key { key: k, index: i });
-            }
+        for (i, arg) in self.args.iter().enumerate() {
+            append_keys(&mut self.keys, arg, i);
         }
     }
 
@@ -151,25 +154,27 @@ impl<'help> Index<&'_ KeyType> for MKeyMap<'help> {
 }
 
 /// Generate key types for an specific Arg.
-fn _get_keys(arg: &Arg) -> Vec<KeyType> {
-    if let Some(index) = arg.index {
-        return vec![KeyType::Position(index)];
-    }
+fn append_keys(keys: &mut Vec<Key>, arg: &Arg, index: usize) {
+    if let Some(pos_index) = arg.index {
+        let key = KeyType::Position(pos_index);
+        keys.push(Key { key, index });
+    } else {
+        if let Some(short) = arg.short {
+            let key = KeyType::Short(short);
+            keys.push(Key { key, index });
+        }
+        if let Some(long) = arg.long {
+            let key = KeyType::Long(OsString::from(long));
+            keys.push(Key { key, index });
+        }
 
-    let mut keys = vec![];
-
-    if let Some(short) = arg.short {
-        keys.push(KeyType::Short(short));
+        for (short, _) in arg.short_aliases.iter() {
+            let key = KeyType::Short(*short);
+            keys.push(Key { key, index });
+        }
+        for (long, _) in arg.aliases.iter() {
+            let key = KeyType::Long(OsString::from(long));
+            keys.push(Key { key, index });
+        }
     }
-    if let Some(long) = arg.long {
-        keys.push(KeyType::Long(OsString::from(long)));
-    }
-
-    for (short, _) in arg.short_aliases.iter() {
-        keys.push(KeyType::Short(*short));
-    }
-    for (long, _) in arg.aliases.iter() {
-        keys.push(KeyType::Long(OsString::from(long)));
-    }
-    keys
 }
