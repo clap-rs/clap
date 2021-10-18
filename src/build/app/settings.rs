@@ -25,6 +25,9 @@ bitflags! {
         const NO_POS_VALUES                  = 1 << 17;
         const NEXT_LINE_HELP                 = 1 << 18;
         const DERIVE_DISP_ORDER              = 1 << 19;
+        const COLOR_ALWAYS                   = 1 << 21;
+        const COLOR_AUTO                     = 1 << 22;
+        const COLOR_NEVER                    = 1 << 23;
         const DONT_DELIM_TRAIL               = 1 << 24;
         const ALLOW_NEG_NUMS                 = 1 << 25;
         const DISABLE_HELP_SC                = 1 << 27;
@@ -56,7 +59,7 @@ pub struct AppFlags(Flags);
 
 impl Default for AppFlags {
     fn default() -> Self {
-        Self::empty()
+        AppFlags(Flags::COLOR_AUTO)
     }
 }
 
@@ -77,6 +80,12 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
+    ColorAlways("coloralways")
+        => Flags::COLOR_ALWAYS,
+    ColorAuto("colorauto")
+        => Flags::COLOR_AUTO,
+    ColorNever("colornever")
+        => Flags::COLOR_NEVER,
     DontDelimitTrailingValues("dontdelimittrailingvalues")
         => Flags::DONT_DELIM_TRAIL,
     DontCollapseArgsInUsage("dontcollapseargsinusage")
@@ -488,6 +497,18 @@ pub enum AppSettings {
     /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
     SubcommandPrecedenceOverArg,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorAuto,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorAlways,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorNever,
 
     /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
     ///

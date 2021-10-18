@@ -90,7 +90,6 @@ pub struct App<'help> {
     pub(crate) template: Option<&'help str>,
     pub(crate) settings: AppFlags,
     pub(crate) g_settings: AppFlags,
-    pub(crate) color: ColorChoice,
     pub(crate) args: MKeyMap<'help>,
     pub(crate) subcommands: Vec<App<'help>>,
     pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
@@ -1021,9 +1020,13 @@ impl<'help> App<'help> {
     /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
     #[cfg(feature = "color")]
     #[inline]
-    pub fn color(mut self, color: ColorChoice) -> Self {
-        self.color = color;
-        self
+    pub fn color(self, color: ColorChoice) -> Self {
+        #[allow(deprecated)]
+        match color {
+            ColorChoice::Auto => self.setting(AppSettings::ColorAuto),
+            ColorChoice::Always => self.setting(AppSettings::ColorAlways),
+            ColorChoice::Never => self.setting(AppSettings::ColorNever),
+        }
     }
 
     /// Sets the terminal width at which to wrap help messages. Defaults to
@@ -2818,8 +2821,21 @@ impl<'help> App<'help> {
     }
 
     #[inline]
+    // Should we color the output?
     pub(crate) fn get_color(&self) -> ColorChoice {
-        self.color
+        debug!("App::color: Color setting...");
+
+        #[allow(deprecated)]
+        if self.is_set(AppSettings::ColorNever) {
+            debug!("Never");
+            ColorChoice::Never
+        } else if self.is_set(AppSettings::ColorAlways) {
+            debug!("Always");
+            ColorChoice::Always
+        } else {
+            debug!("Auto");
+            ColorChoice::Auto
+        }
     }
 
     #[inline]
