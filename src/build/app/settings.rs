@@ -50,6 +50,7 @@ bitflags! {
         const IGNORE_ERRORS                  = 1 << 44;
         #[cfg(feature = "unstable-multicall")]
         const MULTICALL                      = 1 << 45;
+        const NO_OP                          = 0;
     }
 }
 
@@ -72,6 +73,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
         => Flags::ALLOW_UNK_SC,
+    StrictUtf8("strictutf8")
+        => Flags::NO_OP,
     AllowInvalidUtf8ForExternalSubcommands("allowinvalidutf8forexternalsubcommands")
         => Flags::SC_UTF8_NONE,
     AllowLeadingHyphen("allowleadinghyphen")
@@ -80,6 +83,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
+    ColoredHelp("coloredhelp")
+        => Flags::NO_OP,
     ColorAlways("coloralways")
         => Flags::COLOR_ALWAYS,
     ColorAuto("colorauto")
@@ -131,6 +136,7 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg("trailingvararg")
         => Flags::TRAILING_VARARG,
+    UnifiedHelp("unifiedhelp") => Flags::NO_OP,
     NextLineHelp("nextlinehelp")
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors("ignoreerrors")
@@ -157,6 +163,13 @@ impl_settings! { AppSettings, AppFlags,
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
+    /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite.
+    #[deprecated(
+        since = "3.0.0",
+        note = "This is now the default see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite."
+    )]
+    StrictUtf8,
+
     /// Specifies that external subcommands that are invalid UTF-8 should *not* be treated as an error.
     ///
     /// **NOTE:** Using external subcommand argument values with invalid UTF-8 requires using
@@ -497,6 +510,10 @@ pub enum AppSettings {
     /// assert!(matches.subcommand_matches("sub").is_some());
     /// ```
     SubcommandPrecedenceOverArg,
+
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.0.0", note = "This is now the default")]
+    ColoredHelp,
 
     /// Deprecated, see [`App::color`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
@@ -1022,6 +1039,10 @@ pub enum AppSettings {
     /// ```
     /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
     TrailingVarArg,
+
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.0.0", note = "This is now the default")]
+    UnifiedHelp,
 
     /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting

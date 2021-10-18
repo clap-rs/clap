@@ -31,6 +31,7 @@ bitflags! {
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
         const UTF8_NONE        = 1 << 22;
+        const NO_OP            = 0;
     }
 }
 
@@ -51,6 +52,7 @@ impl_settings! { ArgSettings, ArgFlags,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
     Multiple("multiple") => Flags::MULTIPLE,
     ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
+    EmptyValues("emptyvalues") => Flags::NO_OP,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -97,6 +99,13 @@ pub enum ArgSettings {
     Multiple,
     /// Forbids an arg from accepting empty values such as `""`
     ForbidEmptyValues,
+    /// Deprecated, this is now the default, see [`ArgSettings::ForbidEmptyValues`] for the
+    /// opposite.
+    #[deprecated(
+        since = "3.0.0",
+        note = "This is now the default see [`ArgSettings::ForbidEmptyValues`] for the opposite."
+    )]
+    EmptyValues,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)
