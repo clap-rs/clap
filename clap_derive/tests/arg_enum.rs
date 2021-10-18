@@ -7,7 +7,7 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::{ArgEnum, ArgValue, Parser};
+use clap::{ArgEnum, Parser, PossibleValue};
 
 #[test]
 fn basic() {
@@ -54,7 +54,7 @@ fn default_value() {
 
     impl std::fmt::Display for ArgChoice {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-            std::fmt::Display::fmt(self.to_arg_value().unwrap().get_name(), f)
+            std::fmt::Display::fmt(self.to_possible_value().unwrap().get_name(), f)
         }
     }
 
@@ -370,10 +370,10 @@ fn skip_variant() {
     assert_eq!(
         ArgChoice::value_variants()
             .iter()
-            .map(ArgEnum::to_arg_value)
+            .map(ArgEnum::to_possible_value)
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
-        vec![ArgValue::new("foo"), ArgValue::new("bar")]
+        vec![PossibleValue::new("foo"), PossibleValue::new("bar")]
     );
     assert!(ArgChoice::from_str("foo", true).is_ok());
     assert!(ArgChoice::from_str("bar", true).is_ok());

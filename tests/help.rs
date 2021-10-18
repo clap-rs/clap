@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ArgValue, ErrorKind};
+use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -1049,7 +1049,7 @@ fn hide_single_possible_val() {
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(["fast", "slow"])
-                .possible_value(ArgValue::new("secret speed").hidden(true))
+                .possible_value(PossibleValue::new("secret speed").hidden(true))
                 .about("Some vals")
                 .takes_value(true),
         )

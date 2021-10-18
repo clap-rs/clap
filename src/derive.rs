@@ -1,7 +1,7 @@
 //! This module contains traits that are usable with the `#[derive(...)].`
 //! macros in [`clap_derive`].
 
-use crate::{App, ArgMatches, ArgValue, Error};
+use crate::{App, ArgMatches, Error, PossibleValue};
 
 use std::ffi::OsString;
 
@@ -295,8 +295,8 @@ pub trait ArgEnum: Sized + Clone {
         Self::value_variants()
             .iter()
             .find(|v| {
-                v.to_arg_value()
-                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_arg_value")
+                v.to_possible_value()
+                    .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
                     .matches(input, case_insensitive)
             })
             .cloned()
@@ -306,7 +306,7 @@ pub trait ArgEnum: Sized + Clone {
     /// The canonical argument value.
     ///
     /// The value is `None` for skipped variants.
-    fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>>;
+    fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>>;
 }
 
 impl<T: Parser> Parser for Box<T> {

@@ -372,7 +372,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 "({})",
                 values
                     .iter()
-                    .filter_map(ArgValue::get_visible_name)
+                    .filter_map(PossibleValue::get_visible_name)
                     .collect::<Vec<_>>()
                     .join(" ")
             ))

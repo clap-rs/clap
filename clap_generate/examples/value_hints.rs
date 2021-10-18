@@ -23,7 +23,7 @@ fn build_cli() -> App<'static> {
         .arg(
             Arg::new("generator")
                 .long("generate")
-                .possible_values(Shell::arg_values()),
+                .possible_values(Shell::possible_values()),
         )
         .arg(
             Arg::new("unknown")
