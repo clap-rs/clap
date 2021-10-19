@@ -104,7 +104,7 @@ fn build_app_special_commands() -> App<'static> {
                     .about("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
@@ -156,7 +156,7 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       ],
     },
     {
-      name: "some-cmd-with-hypens",
+      name: "some-cmd-with-hyphens",
       options: [
         {
           name: ["-h", "--help"],

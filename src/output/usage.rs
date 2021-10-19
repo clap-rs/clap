@@ -66,8 +66,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             usage.push_str(" [OPTIONS]");
         }
 
-        let allow_mising_positional = self.p.app.is_set(AS::AllowMissingPositional);
-        if !allow_mising_positional {
+        let allow_missing_positional = self.p.app.is_set(AS::AllowMissingPositional);
+        if !allow_missing_positional {
             usage.push_str(&req_string);
         }
 
@@ -135,7 +135,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             }
         }
 
-        if allow_mising_positional {
+        if allow_missing_positional {
             usage.push_str(&req_string);
         }
 

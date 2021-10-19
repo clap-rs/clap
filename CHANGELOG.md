@@ -940,7 +940,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   doesn't include the various [ARGS] [FLAGS] or [OPTIONS] if the only ones available are hidden ([7b4000af](https://github.com/kbknapp/clap-rs/commit/7b4000af97637703645c5fb2ac8bb65bd546b95b), closes [#882](https://github.com/kbknapp/clap-rs/issues/882))
 *   now correctly shows subcommand as required in the usage string when AppSettings::SubcommandRequiredElseHelp is used ([8f0884c1](https://github.com/kbknapp/clap-rs/commit/8f0884c1764983a49b45de52a1eddf8d721564d8))
 *   fixes some memory leaks when an error is detected and clap exits ([8c2dd287](https://github.com/kbknapp/clap-rs/commit/8c2dd28718262ace4ae0db98563809548e02a86b))
-*   fixes a trait that's marked private accidentlly, but should be crate internal public ([1ae21108](https://github.com/kbknapp/clap-rs/commit/1ae21108015cea87e5360402e1747025116c7878))
+*   fixes a trait that's marked private accidentally, but should be crate internal public ([1ae21108](https://github.com/kbknapp/clap-rs/commit/1ae21108015cea87e5360402e1747025116c7878))
 * **Completions:**   fixes a bug that tried to propagate global args multiple times when generating multiple completion scripts ([5e9b9cf4](https://github.com/kbknapp/clap-rs/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94), closes [#846](https://github.com/kbknapp/clap-rs/issues/846))
 
 #### Features
@@ -1718,7 +1718,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Bug Fixes
 
-* **Required Args:**  fixes issue where missing required args are sometimes duplicatd in error messages ([3beebd81](https://github.com/kbknapp/clap-rs/commit/3beebd81e7bc2faa4115ac109cf570e512c5477f), closes [#492](https://github.com/kbknapp/clap-rs/issues/492))
+* **Required Args:**  fixes issue where missing required args are sometimes duplicated in error messages ([3beebd81](https://github.com/kbknapp/clap-rs/commit/3beebd81e7bc2faa4115ac109cf570e512c5477f), closes [#492](https://github.com/kbknapp/clap-rs/issues/492))
 
 
 <a name="v2.3.0"></a>
@@ -1854,7 +1854,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Features
 
-* **Defult Values:**  adds support for default values in args ([73211952](https://github.com/kbknapp/clap-rs/commit/73211952964a79d97b434dd567e6d7d34be7feb5), closes [#418](https://github.com/kbknapp/clap-rs/issues/418))
+* **Default Values:**  adds support for default values in args ([73211952](https://github.com/kbknapp/clap-rs/commit/73211952964a79d97b434dd567e6d7d34be7feb5), closes [#418](https://github.com/kbknapp/clap-rs/issues/418))
 
 #### Documentation
 
@@ -2213,7 +2213,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Features
 
-* **Unicode:**  allows non-panicing on invalid unicode characters ([c5bf7ddc](https://github.com/kbknapp/clap-rs/commit/c5bf7ddc8cfb876ec928a5aaf5591232bbb32e5d))
+* **Unicode:**  allows non-panicking on invalid unicode characters ([c5bf7ddc](https://github.com/kbknapp/clap-rs/commit/c5bf7ddc8cfb876ec928a5aaf5591232bbb32e5d))
 
 #### Documentation
 
@@ -2256,7 +2256,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Features
 
-*   adds abiltiy not consume self when parsing matches and/or exit on help ([94003db4](https://github.com/kbknapp/clap-rs/commit/94003db4b5eebe552ca337521c1c001295822745))
+*   adds ability not consume self when parsing matches and/or exit on help ([94003db4](https://github.com/kbknapp/clap-rs/commit/94003db4b5eebe552ca337521c1c001295822745))
 * **App:**  Added ability for users to handle errors themselves ([934e6fbb](https://github.com/kbknapp/clap-rs/commit/934e6fbb643b2385efc23444fe6fce31494dc288))
 
 

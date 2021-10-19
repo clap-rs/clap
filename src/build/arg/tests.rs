@@ -1,7 +1,7 @@
 use super::{settings::ArgSettings, Arg};
 
 #[test]
-fn short_flag_misspel() {
+fn short_flag_misspell() {
     let a = Arg::from("-f1, --flag 'some flag'");
     assert_eq!(a.name, "flag");
     assert_eq!(a.short.unwrap(), 'f');

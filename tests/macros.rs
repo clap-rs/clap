@@ -410,7 +410,7 @@ fn group_macro_multiple_methods_alternative() {
 }
 
 #[test]
-fn group_macro_multiple_invokations() {
+fn group_macro_multiple_invocations() {
     #![allow(deprecated)]
     let app = clap::clap_app!(claptests =>
         (version: "0.1")

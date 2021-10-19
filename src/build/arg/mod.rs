@@ -2032,7 +2032,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
-    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more controll
+    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more control
     /// over single possible values.
     ///
     /// # Examples
@@ -3739,7 +3739,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// For example, assume an appliction with two subcommands, and you'd like to define a
+    /// For example, assume an application with two subcommands, and you'd like to define a
     /// `--verbose` flag that can be called on any of the subcommands and parent, but you don't
     /// want to clutter the source with three duplicate [`Arg`] definitions.
     ///

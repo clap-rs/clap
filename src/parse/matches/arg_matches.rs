@@ -628,8 +628,8 @@ impl ArgMatches {
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o", "val"]);
-    ///             // ARGV idices: ^0       ^1    ^2    ^3
-    ///             // clap idices:          ^1          ^3
+    ///             // ARGV indices: ^0       ^1    ^2    ^3
+    ///             // clap indices:          ^1          ^3
     ///
     /// assert_eq!(m.index_of("flag"), Some(1));
     /// assert_eq!(m.index_of("option"), Some(3));
@@ -646,8 +646,8 @@ impl ArgMatches {
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-f", "-o=val"]);
-    ///             // ARGV idices: ^0       ^1    ^2
-    ///             // clap idices:          ^1       ^3
+    ///             // ARGV indices: ^0       ^1    ^2
+    ///             // clap indices:          ^1       ^3
     ///
     /// assert_eq!(m.index_of("flag"), Some(1));
     /// assert_eq!(m.index_of("option"), Some(3));
@@ -669,8 +669,8 @@ impl ArgMatches {
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-fzF", "-oval"]);
-    ///             // ARGV idices: ^0      ^1       ^2
-    ///             // clap idices:         ^1,2,3    ^5
+    ///             // ARGV indices: ^0      ^1       ^2
+    ///             // clap indices:         ^1,2,3    ^5
     ///             //
     ///             // clap sees the above as 'myapp -f -z -F -o val'
     ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
@@ -695,8 +695,8 @@ impl ArgMatches {
     ///         .short('o')
     ///         .takes_value(true))
     ///     .get_matches_from(vec!["myapp", "-fzFoval"]);
-    ///             // ARGV idices: ^0       ^1
-    ///             // clap idices:          ^1,2,3^5
+    ///             // ARGV indices: ^0       ^1
+    ///             // clap indices:          ^1,2,3^5
     ///             //
     ///             // clap sees the above as 'myapp -f -z -F -o val'
     ///             //                         ^0    ^1 ^2 ^3 ^4 ^5
@@ -716,8 +716,8 @@ impl ArgMatches {
     ///         .use_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
-    ///             // ARGV idices: ^0       ^1
-    ///             // clap idices:             ^2   ^3   ^4
+    ///             // ARGV indices: ^0       ^1
+    ///             // clap indices:             ^2   ^3   ^4
     ///             //
     ///             // clap sees the above as 'myapp -o val1 val2 val3'
     ///             //                         ^0    ^1 ^2   ^3   ^4
@@ -755,8 +755,8 @@ impl ArgMatches {
     ///         .use_delimiter(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
-    ///             // ARGV idices: ^0       ^1
-    ///             // clap idices:             ^2   ^3   ^4
+    ///             // ARGV indices: ^0       ^1
+    ///             // clap indices:             ^2   ^3   ^4
     ///             //
     ///             // clap sees the above as 'myapp -o val1 val2 val3'
     ///             //                         ^0    ^1 ^2   ^3   ^4
@@ -776,8 +776,8 @@ impl ArgMatches {
     ///         .short('f')
     ///         .multiple_occurrences(true))
     ///     .get_matches_from(vec!["myapp", "-o", "val1", "-f", "-o", "val2", "-f"]);
-    ///             // ARGV idices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
-    ///             // clap idices:                ^2      ^3          ^5      ^6
+    ///             // ARGV indices: ^0       ^1    ^2      ^3    ^4    ^5      ^6
+    ///             // clap indices:                ^2      ^3          ^5      ^6
     ///
     /// assert_eq!(m.indices_of("option").unwrap().collect::<Vec<_>>(), &[2, 5]);
     /// assert_eq!(m.indices_of("flag").unwrap().collect::<Vec<_>>(), &[3, 6]);
@@ -796,8 +796,8 @@ impl ArgMatches {
     ///         .takes_value(true)
     ///         .multiple_values(true))
     ///     .get_matches_from(vec!["myapp", "-o=val1,val2,val3"]);
-    ///             // ARGV idices: ^0       ^1
-    ///             // clap idices:             ^2
+    ///             // ARGV indices: ^0       ^1
+    ///             // clap indices:             ^2
     ///             //
     ///             // clap sees the above as 'myapp -o "val1,val2,val3"'
     ///             //                         ^0    ^1  ^2

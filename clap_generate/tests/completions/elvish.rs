@@ -89,7 +89,7 @@ fn build_app_special_commands() -> App<'static> {
                     .about("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static ELVISH_SPECIAL_CMDS: &str = r#"
@@ -118,7 +118,7 @@ set edit:completion:arg-completer[my_app] = [@words]{
             cand --version 'Print version information'
             cand test 'tests things'
             cand some_cmd 'tests other things'
-            cand some-cmd-with-hypens 'some-cmd-with-hypens'
+            cand some-cmd-with-hyphens 'some-cmd-with-hyphens'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'my_app;test'= {
@@ -135,7 +135,7 @@ set edit:completion:arg-completer[my_app] = [@words]{
             cand -V 'Print version information'
             cand --version 'Print version information'
         }
-        &'my_app;some-cmd-with-hypens'= {
+        &'my_app;some-cmd-with-hyphens'= {
             cand -h 'Print help information'
             cand --help 'Print help information'
             cand -V 'Print version information'

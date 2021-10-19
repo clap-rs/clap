@@ -37,10 +37,10 @@ fn overridable() {
         be_nice: String,
 
         #[clap(rename_all_env = "pascal", env)]
-        be_agressive: String,
+        be_aggressive: String,
     }
 
     let help = get_help::<BehaviorModel>();
     assert!(help.contains("[env: be-nice=]"));
-    assert!(help.contains("[env: BeAgressive=]"));
+    assert!(help.contains("[env: BeAggressive=]"));
 }

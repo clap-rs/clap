@@ -665,7 +665,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.seen.push(p.id.clone());
                 // Creating new value group rather than appending when the arg
                 // doesn't have any value. This behaviour is right because
-                // positional arguments are always present continiously.
+                // positional arguments are always present continuously.
                 let append = self.arg_have_val(matcher, p);
                 self.add_val_to_arg(
                     p,
