@@ -14,7 +14,7 @@
 
 mod utils;
 
-use clap::Parser;
+use clap::{ArgEnum, Parser};
 use utils::*;
 
 #[test]
@@ -203,4 +203,15 @@ fn multiline_separates_default() {
     // The short help should still have the default on the same line
     let help = get_help::<App>();
     assert!(help.contains("Multiline [default"));
+}
+
+#[test]
+fn argenum_multiline_doc_comment() {
+    #[derive(ArgEnum, Clone)]
+    enum LoremIpsum {
+        /// Multiline
+        ///
+        /// Doc comment
+        Bar,
+    }
 }
