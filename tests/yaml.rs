@@ -5,7 +5,7 @@ use clap::{load_yaml, App, Arg, ErrorKind, ValueHint};
 #[test]
 fn create_app_from_yaml() {
     let yaml = load_yaml!("fixtures/app.yaml");
-    App::from(yaml);
+    let _ = App::from(yaml);
 }
 
 // TODO: Uncomment to test yaml with 2 spaces https://github.com/chyh1990/yaml-rust/issues/101
@@ -61,14 +61,14 @@ fn app_settings() {
 #[should_panic = "Unknown AppSetting 'random' found in YAML file for app"]
 fn app_setting_invalid() {
     let yaml = load_yaml!("fixtures/app_setting_invalid.yaml");
-    App::from(yaml);
+    let _ = App::from(yaml);
 }
 
 #[test]
 #[should_panic = "Unknown ArgSetting 'random' found in YAML file for arg 'option'"]
 fn arg_setting_invalid() {
     let yaml = load_yaml!("fixtures/arg_setting_invalid.yaml");
-    App::from(yaml);
+    let _ = App::from(yaml);
 }
 
 // ValueHint must be parsed correctly from Yaml
@@ -179,34 +179,34 @@ fn regex_with_valid_string() {
 #[should_panic]
 fn regex_with_invalid_yaml() {
     let yml = load_yaml!("fixtures/app_regex_invalid.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 fn extra_fields() {
     let yml = load_yaml!("fixtures/extra_fields.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 #[should_panic = "Unknown setting 'random' in YAML file for arg 'option'"]
 fn extra_fields_invalid_arg() {
     let yml = load_yaml!("fixtures/extra_fields_invalid_arg.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 #[should_panic = "Unknown setting 'random' in YAML file for subcommand 'info'"]
 fn extra_fields_invalid_app() {
     let yml = load_yaml!("fixtures/extra_fields_invalid_app.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 #[should_panic = "YAML file must be a hash"]
 fn app_not_hash() {
     let yml = load_yaml!("fixtures/not_hash.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
@@ -220,21 +220,21 @@ fn arg_file_not_hash() {
 #[should_panic = "Subcommand must be a hash"]
 fn subcommand_not_hash() {
     let yml = load_yaml!("fixtures/field_not_hash.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 #[should_panic = "Arg must be a hash"]
 fn arg_not_hash() {
     let yml = load_yaml!("fixtures/arg_not_hash.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
 #[should_panic = "Subcommand name must be a string"]
 fn subcommand_name_not_string() {
     let yml = load_yaml!("fixtures/name_not_string.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
@@ -248,7 +248,7 @@ fn arg_name_not_string() {
 #[should_panic = "App fields must be strings"]
 fn app_field_not_string() {
     let yml = load_yaml!("fixtures/app_field_not_string.yaml");
-    App::from(yml);
+    let _ = App::from(yml);
 }
 
 #[test]
