@@ -85,7 +85,7 @@ fn lits(
             if let Kind::Skip(_) = &*attrs.kind() {
                 None
             } else {
-                let fields = attrs.field_methods();
+                let fields = attrs.field_methods(false);
                 let name = attrs.cased_name();
                 Some((
                     quote! {

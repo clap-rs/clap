@@ -794,11 +794,22 @@ impl Attrs {
     }
 
     /// generate methods on top of a field
-    pub fn field_methods(&self) -> proc_macro2::TokenStream {
+    pub fn field_methods(&self, supports_long_about: bool) -> proc_macro2::TokenStream {
         let methods = &self.methods;
-        let doc_comment = &self.doc_comment;
         let help_heading = self.help_heading.as_ref().into_iter();
-        quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
+        match supports_long_about {
+            true => {
+                let doc_comment = &self.doc_comment;
+                quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
+            }
+            false => {
+                let doc_comment = self
+                    .doc_comment
+                    .iter()
+                    .filter(|mth| mth.name != "long_about");
+                quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
+            }
+        }
     }
 
     pub fn cased_name(&self) -> TokenStream {

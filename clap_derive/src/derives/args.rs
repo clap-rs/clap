@@ -347,7 +347,7 @@ pub fn gen_augment(
                 };
 
                 let name = attrs.cased_name();
-                let methods = attrs.field_methods();
+                let methods = attrs.field_methods(true);
 
                 Some(quote_spanned! { field.span()=>
                     let #app_var = #app_var.arg(
