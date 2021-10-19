@@ -138,7 +138,7 @@ fn variant_with_defined_casing() {
 }
 
 #[test]
-fn casing_is_propogated_from_parent() {
+fn casing_is_propagated_from_parent() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
@@ -161,7 +161,7 @@ fn casing_is_propogated_from_parent() {
 }
 
 #[test]
-fn casing_propogation_is_overridden() {
+fn casing_propagation_is_overridden() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {

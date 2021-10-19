@@ -125,7 +125,7 @@ fn build_app_special_commands() -> App<'static> {
                     .about("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
@@ -145,8 +145,8 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             help)
                 cmd+="__help"
                 ;;
-            some-cmd-with-hypens)
-                cmd+="__some__cmd__with__hypens"
+            some-cmd-with-hyphens)
+                cmd+="__some__cmd__with__hyphens"
                 ;;
             some_cmd)
                 cmd+="__some_cmd"
@@ -161,7 +161,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
 
     case "${cmd}" in
         my_app)
-            opts="-h -V --help --version <file> first second test some_cmd some-cmd-with-hypens help"
+            opts="-h -V --help --version <file> first second test some_cmd some-cmd-with-hyphens help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -188,7 +188,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my_app__some__cmd__with__hypens)
+        my_app__some__cmd__with__hyphens)
             opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

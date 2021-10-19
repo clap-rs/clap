@@ -56,14 +56,14 @@ fn build_app_special_commands() -> App<'static> {
                     .about("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static FISH_SPECIAL_CMDS: &str = r#"complete -c my_app -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
 complete -c my_app -n "__fish_use_subcommand" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_use_subcommand" -f -a "test" -d 'tests things'
 complete -c my_app -n "__fish_use_subcommand" -f -a "some_cmd" -d 'tests other things'
-complete -c my_app -n "__fish_use_subcommand" -f -a "some-cmd-with-hypens"
+complete -c my_app -n "__fish_use_subcommand" -f -a "some-cmd-with-hyphens"
 complete -c my_app -n "__fish_use_subcommand" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c my_app -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
@@ -71,8 +71,8 @@ complete -c my_app -n "__fish_seen_subcommand_from test" -s V -l version -d 'Pri
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -l config -d 'the other case to test' -r
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Print help information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Print version information'
-complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s h -l help -d 'Print help information'
-complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hypens" -s V -l version -d 'Print version information'
+complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hyphens" -s h -l help -d 'Print help information'
+complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hyphens" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
 "#;
 

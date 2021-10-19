@@ -108,7 +108,7 @@ fn build_app_special_commands() -> App<'static> {
                     .about("the other case to test"),
             ),
         )
-        .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
+        .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
 }
 
 static POWERSHELL_SPECIAL_CMDS: &str = r#"
@@ -143,7 +143,7 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             [CompletionResult]::new('--conf', 'conf', [CompletionResultType]::ParameterName, 'some config file')
             [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'tests things')
             [CompletionResult]::new('some_cmd', 'some_cmd', [CompletionResultType]::ParameterValue, 'tests other things')
-            [CompletionResult]::new('some-cmd-with-hypens', 'some-cmd-with-hypens', [CompletionResultType]::ParameterValue, 'some-cmd-with-hypens')
+            [CompletionResult]::new('some-cmd-with-hyphens', 'some-cmd-with-hyphens', [CompletionResultType]::ParameterValue, 'some-cmd-with-hyphens')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
         }
@@ -163,7 +163,7 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             break
         }
-        'my_app;some-cmd-with-hypens' {
+        'my_app;some-cmd-with-hyphens' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')

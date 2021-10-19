@@ -155,7 +155,7 @@
         "min_values": {
           "type": "integer"
         },
-        "multiple_occurences": {
+        "multiple_occurrences": {
           "type": "boolean"
         },
         "multiple_values": {

@@ -65,7 +65,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .into_iter()
         .chain(vec!["-m"; 1024].into_iter())
         .collect();
-    let m = App::new("mo_flags_larg_qty")
+    let m = App::new("mo_flags_large_qty")
         .arg(
             Arg::from("-m --multflag 'allowed multiple flag'")
                 .setting(ArgSettings::MultipleOccurrences),

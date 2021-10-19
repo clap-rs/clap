@@ -126,7 +126,7 @@ pub enum ErrorKind {
     /// ```
     EmptyValue,
 
-    /// Occurs when the user doesn't use equals for an option that requres equal
+    /// Occurs when the user doesn't use equals for an option that requires equal
     /// sign to provide values.
     ///
     /// ```rust
