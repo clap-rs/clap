@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgValue, ErrorKind};
+use clap::{App, Arg, ErrorKind, PossibleValue};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
@@ -64,7 +64,7 @@ fn possible_value_arg_value() {
     let m = App::new("possible_values")
         .arg(
             Arg::new("arg_value").index(1).possible_value(
-                ArgValue::new("test123")
+                PossibleValue::new("test123")
                     .hidden(false)
                     .about("It's just a test"),
             ),
@@ -226,8 +226,8 @@ fn possible_values_alias_output() {
             Arg::new("option")
                 .short('O')
                 .possible_value("slow")
-                .possible_value(ArgValue::new("fast").alias("fost"))
-                .possible_value(ArgValue::new("ludicrous speed").aliases(["ls", "lcs"]))
+                .possible_value(PossibleValue::new("fast").alias("fost"))
+                .possible_value(PossibleValue::new("ludicrous speed").aliases(["ls", "lcs"]))
         ),
         "clap-test -O slo",
         PV_ERROR,
@@ -242,8 +242,8 @@ fn possible_values_hidden_output() {
             Arg::new("option")
                 .short('O')
                 .possible_values(["slow", "fast"])
-                .possible_value(ArgValue::new("ludicrous speed"))
-                .possible_value(ArgValue::new("forbidden speed").hidden(true))
+                .possible_value(PossibleValue::new("ludicrous speed"))
+                .possible_value(PossibleValue::new("forbidden speed").hidden(true))
         ),
         "clap-test -O slo",
         PV_ERROR,
@@ -273,7 +273,7 @@ fn alias() {
                 .short('o')
                 .long("--option")
                 .takes_value(true)
-                .possible_value(ArgValue::new("test123").alias("123"))
+                .possible_value(PossibleValue::new("test123").alias("123"))
                 .possible_value("test321")
                 .case_insensitive(true),
         )
@@ -291,7 +291,7 @@ fn aliases() {
                 .short('o')
                 .long("--option")
                 .takes_value(true)
-                .possible_value(ArgValue::new("test123").aliases(["1", "2", "3"]))
+                .possible_value(PossibleValue::new("test123").aliases(["1", "2", "3"]))
                 .possible_value("test321")
                 .case_insensitive(true),
         )

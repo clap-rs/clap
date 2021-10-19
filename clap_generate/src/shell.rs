@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use clap::{ArgEnum, ArgValue};
+use clap::{ArgEnum, PossibleValue};
 
 use crate::{generators, Generator};
 
@@ -23,16 +23,16 @@ pub enum Shell {
 
 impl Shell {
     /// Report all `possible_values`
-    pub fn arg_values() -> impl Iterator<Item = ArgValue<'static>> {
+    pub fn possible_values() -> impl Iterator<Item = PossibleValue<'static>> {
         Shell::value_variants()
             .iter()
-            .filter_map(ArgEnum::to_arg_value)
+            .filter_map(ArgEnum::to_possible_value)
     }
 }
 
 impl Display for Shell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.to_arg_value()
+        self.to_possible_value()
             .expect("no values are skipped")
             .get_name()
             .fmt(f)
@@ -44,7 +44,7 @@ impl FromStr for Shell {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         for variant in Self::value_variants() {
-            if variant.to_arg_value().unwrap().matches(s, false) {
+            if variant.to_possible_value().unwrap().matches(s, false) {
                 return Ok(*variant);
             }
         }
@@ -64,13 +64,13 @@ impl ArgEnum for Shell {
         ]
     }
 
-    fn to_arg_value<'a>(&self) -> Option<ArgValue<'a>> {
+    fn to_possible_value<'a>(&self) -> Option<PossibleValue<'a>> {
         Some(match self {
-            Shell::Bash => ArgValue::new("bash"),
-            Shell::Elvish => ArgValue::new("elvish"),
-            Shell::Fish => ArgValue::new("fish"),
-            Shell::PowerShell => ArgValue::new("powershell"),
-            Shell::Zsh => ArgValue::new("zsh"),
+            Shell::Bash => PossibleValue::new("bash"),
+            Shell::Elvish => PossibleValue::new("elvish"),
+            Shell::Fish => PossibleValue::new("fish"),
+            Shell::PowerShell => PossibleValue::new("powershell"),
+            Shell::Zsh => PossibleValue::new("zsh"),
         })
     }
 }

@@ -12,40 +12,40 @@ use crate::util::eq_ignore_case;
 /// # Examples
 ///
 /// ```rust
-/// # use clap::{Arg, ArgValue};
+/// # use clap::{Arg, PossibleValue};
 /// let cfg = Arg::new("config")
 ///       .takes_value(true)
 ///       .value_name("FILE")
-///       .possible_value(ArgValue::new("fast"))
-///       .possible_value(ArgValue::new("slow").about("slower than fast"))
-///       .possible_value(ArgValue::new("secret speed").hidden(true));
+///       .possible_value(PossibleValue::new("fast"))
+///       .possible_value(PossibleValue::new("slow").about("slower than fast"))
+///       .possible_value(PossibleValue::new("secret speed").hidden(true));
 /// ```
 /// [Args]: crate::Arg
 /// [possible values]: crate::Arg::possible_value()
-/// [hide]: ArgValue::hidden()
-/// [about]: ArgValue::about()
+/// [hide]: PossibleValue::hidden()
+/// [about]: PossibleValue::about()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub struct ArgValue<'help> {
+pub struct PossibleValue<'help> {
     pub(crate) name: &'help str,
     pub(crate) about: Option<&'help str>,
     pub(crate) aliases: Vec<&'help str>, // (name, visible)
     pub(crate) hidden: bool,
 }
 
-impl<'help> From<&'help str> for ArgValue<'help> {
+impl<'help> From<&'help str> for PossibleValue<'help> {
     fn from(s: &'help str) -> Self {
         Self::new(s)
     }
 }
 
-impl<'help> From<&'help &'help str> for ArgValue<'help> {
+impl<'help> From<&'help &'help str> for PossibleValue<'help> {
     fn from(s: &'help &'help str) -> Self {
         Self::new(s)
     }
 }
 
 /// Getters
-impl<'help> ArgValue<'help> {
+impl<'help> PossibleValue<'help> {
     /// Get the name of the argument value
     #[inline]
     pub fn get_name(&self) -> &str {
@@ -86,8 +86,8 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// let arg_value = ArgValue::new("fast").alias("not-slow");
+    /// # use clap::PossibleValue;
+    /// let arg_value = PossibleValue::new("fast").alias("not-slow");
     ///
     /// assert!(arg_value.matches("fast", false));
     /// assert!(arg_value.matches("not-slow", false));
@@ -105,8 +105,8 @@ impl<'help> ArgValue<'help> {
     }
 }
 
-impl<'help> ArgValue<'help> {
-    /// Creates a new instance of [`ArgValue`] using a string name. The name will be used to
+impl<'help> PossibleValue<'help> {
+    /// Creates a new instance of [`PossibleValue`] using a string name. The name will be used to
     /// decide wether this value was provided by the user to an argument.
     ///
     /// **NOTE:** In case it is not [hidden] it will also be shown in help messages for arguments
@@ -115,15 +115,15 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// ArgValue::new("fast")
+    /// # use clap::PossibleValue;
+    /// PossibleValue::new("fast")
     /// # ;
     /// ```
-    /// [hidden]: ArgValue::hidden
+    /// [hidden]: PossibleValue::hidden
     /// [possible value]: crate::Arg::possible_values
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     pub fn new(name: &'help str) -> Self {
-        ArgValue {
+        PossibleValue {
             name,
             ..Default::default()
         }
@@ -135,8 +135,8 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// ArgValue::new("slow")
+    /// # use clap::PossibleValue;
+    /// PossibleValue::new("slow")
     ///     .about("not fast")
     /// # ;
     /// ```
@@ -154,8 +154,8 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// ArgValue::new("secret")
+    /// # use clap::PossibleValue;
+    /// PossibleValue::new("secret")
     ///     .hidden(true)
     /// # ;
     /// ```
@@ -173,8 +173,8 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// ArgValue::new("slow")
+    /// # use clap::PossibleValue;
+    /// PossibleValue::new("slow")
     ///     .alias("not-fast")
     /// # ;
     /// ```
@@ -190,8 +190,8 @@ impl<'help> ArgValue<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::ArgValue;
-    /// ArgValue::new("slow")
+    /// # use clap::PossibleValue;
+    /// PossibleValue::new("slow")
     ///     .aliases(["not-fast", "snake-like"])
     /// # ;
     /// ```

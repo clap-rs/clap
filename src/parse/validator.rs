@@ -1,6 +1,6 @@
 // Internal
 use crate::{
-    build::{arg::ArgValue, AppSettings as AS, Arg, ArgSettings},
+    build::{arg::PossibleValue, AppSettings as AS, Arg, ArgSettings},
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
@@ -121,7 +121,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         val_str.into_owned(),
                         &arg.possible_vals
                             .iter()
-                            .filter_map(ArgValue::get_visible_name)
+                            .filter_map(PossibleValue::get_visible_name)
                             .collect::<Vec<_>>(),
                         arg,
                         Usage::new(self.p).create_usage_with_title(&used),

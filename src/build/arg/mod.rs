@@ -1,12 +1,12 @@
-mod arg_value;
 #[cfg(debug_assertions)]
 pub mod debug_asserts;
+mod possible_value;
 mod settings;
 #[cfg(test)]
 mod tests;
 mod value_hint;
 
-pub use self::arg_value::ArgValue;
+pub use self::possible_value::PossibleValue;
 pub use self::settings::{ArgFlags, ArgSettings};
 pub use self::value_hint::ValueHint;
 
@@ -102,7 +102,7 @@ pub struct Arg<'help> {
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: usize,
     pub(crate) unified_ord: usize,
-    pub(crate) possible_vals: Vec<ArgValue<'help>>,
+    pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
     pub(crate) max_occurs: Option<usize>,
@@ -231,7 +231,7 @@ impl<'help> Arg<'help> {
 
     /// Get the list of the possible values for this argument, if any
     #[inline]
-    pub fn get_possible_values(&self) -> Option<&[ArgValue]> {
+    pub fn get_possible_values(&self) -> Option<&[PossibleValue]> {
         if self.possible_vals.is_empty() {
             None
         } else {
@@ -1959,7 +1959,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
-    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more control
+    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
     /// over single possible values.
     ///
     /// # Examples
@@ -1971,16 +1971,16 @@ impl<'help> Arg<'help> {
     ///     .possible_values(["fast", "slow", "medium"])
     /// # ;
     /// ```
-    /// The same using [`ArgValue`]:
+    /// The same using [`PossibleValue`]:
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgValue};
+    /// # use clap::{App, Arg, PossibleValue};
     /// Arg::new("mode").takes_value(true).possible_values([
-    ///     ArgValue::new("fast"),
+    ///     PossibleValue::new("fast"),
     /// // value with a help text
-    ///     ArgValue::new("slow").about("not that fast"),
+    ///     PossibleValue::new("slow").about("not that fast"),
     /// // value that is hidden from completion and help text
-    ///     ArgValue::new("medium").hidden(true),
+    ///     PossibleValue::new("medium").hidden(true),
     /// ])
     /// # ;
     /// ```
@@ -2020,7 +2020,7 @@ impl<'help> Arg<'help> {
     pub fn possible_values<I, T>(mut self, values: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        T: Into<ArgValue<'help>>,
+        T: Into<PossibleValue<'help>>,
     {
         self.possible_vals
             .extend(values.into_iter().map(|value| value.into()));
@@ -2032,7 +2032,7 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
-    /// **NOTE:** You can use both strings directly or use [`ArgValue`] if you want more control
+    /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
     /// over single possible values.
     ///
     /// # Examples
@@ -2046,16 +2046,16 @@ impl<'help> Arg<'help> {
     ///     .possible_value("medium")
     /// # ;
     /// ```
-    /// The same using [`ArgValue`]:
+    /// The same using [`PossibleValue`]:
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgValue};
+    /// # use clap::{App, Arg, PossibleValue};
     /// Arg::new("mode").takes_value(true)
-    ///     .possible_value(ArgValue::new("fast"))
+    ///     .possible_value(PossibleValue::new("fast"))
     /// // value with a help text
-    ///     .possible_value(ArgValue::new("slow").about("not that fast"))
+    ///     .possible_value(PossibleValue::new("slow").about("not that fast"))
     /// // value that is hidden from completion and help text
-    ///     .possible_value(ArgValue::new("medium").hidden(true))
+    ///     .possible_value(PossibleValue::new("medium").hidden(true))
     /// # ;
     /// ```
     ///
@@ -2097,7 +2097,7 @@ impl<'help> Arg<'help> {
     /// [positional arguments]: Arg::index()
     pub fn possible_value<T>(mut self, value: T) -> Self
     where
-        T: Into<ArgValue<'help>>,
+        T: Into<PossibleValue<'help>>,
     {
         self.possible_vals.push(value.into());
         self.takes_value(true)
