@@ -9,6 +9,7 @@ authors = [
 include = [
 	"src/**/*",
 	"Cargo.toml",
+	"LICENSE-*",
 	"README.md"
 ]
 description = "A generator library used with clap for shell completion scripts, manpage, etc."

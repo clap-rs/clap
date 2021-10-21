@@ -8,6 +8,7 @@ authors = [
 include = [
 	"src/**/*",
 	"Cargo.toml",
+	"LICENSE-*",
 	"README.md"
 ]
 description = "A generator library used with clap for Fig completion scripts"
