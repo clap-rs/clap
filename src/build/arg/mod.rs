@@ -2748,7 +2748,7 @@ impl<'help> Arg<'help> {
     /// used at runtime.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
-    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
+    /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
     /// at runtime. `Arg::default_value_if` however only takes effect when the user has not provided
     /// a value at runtime **and** these other conditions are met as well. If you have set
     /// `Arg::default_value` and `Arg::default_value_if`, and the user **did not** provide this arg
@@ -2947,8 +2947,8 @@ impl<'help> Arg<'help> {
     /// present at runtime **and** have the value `val`.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
-    /// different. `Arg::default_value` *only* takes affect when the user has not provided this arg
-    /// at runtime. This setting however only takes affect when the user has not provided a value at
+    /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
+    /// at runtime. This setting however only takes effect when the user has not provided a value at
     /// runtime **and** these other conditions are met as well. If you have set `Arg::default_value`
     /// and `Arg::default_value_if`, and the user **did not** provide this arg at runtime, nor were
     /// the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be applied.
@@ -3414,7 +3414,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** This setting will imply [`crate::AppSettings::DontCollapseArgsInUsage`] because failing
     /// to set this can make the usage string very confusing.
     ///
-    /// **NOTE**: This setting only applies to positional arguments, and has no affect on OPTIONS
+    /// **NOTE**: This setting only applies to positional arguments, and has no effect on OPTIONS
     ///
     /// **NOTE:** Setting this requires [`crate::ArgSettings::TakesValue`]
     ///
