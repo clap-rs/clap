@@ -9,6 +9,7 @@ authors = [
 include = [
 	"src/**/*",
 	"Cargo.toml",
+	"LICENSE-*",
 	"README.md"
 ]
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"

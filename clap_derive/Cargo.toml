@@ -9,6 +9,7 @@ authors = [
 include = [
 	"src/**/*",
 	"Cargo.toml",
+	"LICENSE-*",
 	"README.md"
 ]
 description = "Parse command line argument by defining a struct, derive crate."
