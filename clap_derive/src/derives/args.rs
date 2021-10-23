@@ -58,7 +58,7 @@ pub fn gen_for_struct(
         Sp::call_site(DEFAULT_CASING),
         Sp::call_site(DEFAULT_ENV_CASING),
     );
-    let app_var = Ident::new("app", Span::call_site());
+    let app_var = Ident::new("__clap_app", Span::call_site());
     let augmentation = gen_augment(fields, &app_var, &attrs, false);
     let augmentation_update = gen_augment(fields, &app_var, &attrs, true);
 
@@ -118,12 +118,12 @@ pub fn gen_from_arg_matches_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl clap::FromArgMatches for #struct_name {
-            fn from_arg_matches(arg_matches: &clap::ArgMatches) -> Option<Self> {
+            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> Option<Self> {
                 let v = #struct_name #constructor;
                 Some(v)
             }
 
-            fn update_from_arg_matches(&mut self, arg_matches: &clap::ArgMatches) {
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) {
                 #updater
             }
         }
@@ -198,7 +198,7 @@ pub fn gen_augment(
             | Kind::ExternalSubcommand => None,
             Kind::Flatten => {
                 let ty = &field.ty;
-                let old_heading_var = format_ident!("old_heading");
+                let old_heading_var = format_ident!("__clap_old_heading");
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
                         let #old_heading_var = #app_var.get_help_heading();
@@ -385,7 +385,7 @@ pub fn gen_constructor(fields: &Punctuated<Field, Comma>, parent_attribute: &Att
         );
         let field_name = field.ident.as_ref().unwrap();
         let kind = attrs.kind();
-        let arg_matches = format_ident!("arg_matches");
+        let arg_matches = format_ident!("__clap_arg_matches");
         match &*kind {
             Kind::ExternalSubcommand => {
                 abort! { kind.span(),
@@ -451,7 +451,7 @@ pub fn gen_updater(
         } else {
             quote!()
         };
-        let arg_matches = format_ident!("arg_matches");
+        let arg_matches = format_ident!("__clap_arg_matches");
 
         match &*kind {
             Kind::ExternalSubcommand => {
@@ -563,7 +563,7 @@ fn gen_parsers(
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
-    let arg_matches = format_ident!("arg_matches");
+    let arg_matches = format_ident!("__clap_arg_matches");
 
     let field_value = match **ty {
         Ty::Bool => {
