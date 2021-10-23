@@ -1813,9 +1813,7 @@ impl<'help> App<'help> {
     /// let err = app.error(ErrorKind::InvalidValue, "Some failure case");
     /// ```
     pub fn error(&mut self, kind: ErrorKind, message: impl std::fmt::Display) -> Error {
-        self._build();
-        let usage = self.render_usage();
-        Error::user_error(self, usage, kind, message)
+        Error::raw(kind, message).format(self)
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same

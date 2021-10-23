@@ -491,6 +491,24 @@ impl Error {
         }
     }
 
+    /// Create an unformatted error
+    ///
+    /// Prefer [`App::error`] for generating errors.  This is for you need to pass the error up to
+    /// a place that has access to the `App` at which point you can call [`Error::format]
+    ///
+    /// [`App::error`]: crate::App::error
+    pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
+        Self::new(message.to_string(), kind)
+    }
+
+    /// Format the existing message with the App's context
+    pub fn format(mut self, app: &mut App) -> Self {
+        app._build();
+        let usage = app.render_usage();
+        self.message.format(app, usage);
+        self
+    }
+
     /// Should the message be written to `stdout` or not
     #[inline]
     pub fn use_stderr(&self) -> bool {
@@ -553,17 +571,6 @@ impl Error {
     pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
         self.source = Some(source);
         self
-    }
-
-    pub(crate) fn user_error(
-        app: &App,
-        usage: String,
-        kind: ErrorKind,
-        message: impl std::fmt::Display,
-    ) -> Self {
-        let mut err = Self::new(message.to_string(), kind);
-        err.message.format(app, usage);
-        err
     }
 
     pub(crate) fn argument_conflict(
