@@ -14,7 +14,7 @@ _FEATURES = minimal default wasm full release
 _FEATURES_minimal = --no-default-features --features "std cargo"
 _FEATURES_default =
 _FEATURES_wasm = --features "yaml regex unstable-replace unstable-multicall unstable-grouped"
-_FEATURES_full = --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
+_FEATURES_full = --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped doc"
 _FEATURES_debug = ${_FEATURES_full} --features debug
 _FEATURES_release = ${_FEATURES_full} --release
 

@@ -38,7 +38,7 @@ include = [
 ]
 
 [package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"]
+features = ["doc"]
 
 [features]
 default = [
@@ -51,6 +51,7 @@ default = [
 	"unicode",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
+doc = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
