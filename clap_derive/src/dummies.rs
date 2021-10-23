@@ -32,10 +32,10 @@ pub fn into_app(name: &Ident) {
 pub fn from_arg_matches(name: &Ident) {
     append_dummy(quote! {
         impl clap::FromArgMatches for #name {
-            fn from_arg_matches(_m: &clap::ArgMatches) -> Option<Self> {
+            fn from_arg_matches(_m: &clap::ArgMatches) -> Result<Self, clap::Error> {
                 unimplemented!()
             }
-            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) {
+            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> Result<(), clap::Error>{
                 unimplemented!()
             }
         }
