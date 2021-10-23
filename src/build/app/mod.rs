@@ -2032,7 +2032,7 @@ impl<'help> App<'help> {
             .unwrap_or_else(|e| {
                 // Otherwise, write to stderr and exit
                 if e.use_stderr() {
-                    e.message.print().expect("Error writing Error to stderr");
+                    e.print().expect("Error writing Error to stderr");
 
                     if self.settings.is_set(AppSettings::WaitOnError) {
                         wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
@@ -2114,7 +2114,7 @@ impl<'help> App<'help> {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
-                e.message.print().expect("Error writing Error to stderr");
+                e.print().expect("Error writing Error to stderr");
 
                 if self.settings.is_set(AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
