@@ -17,9 +17,9 @@ clap = "3"
 ```
 
 And then, in your rust file:
-```rust
+```rust,no_run
 use std::path::PathBuf;
-use clap::Parser;
+use clap::{Parser, ValueHint};
 
 /// A basic example
 #[derive(Parser, Debug)]
@@ -48,7 +48,7 @@ struct Opt {
     // the long option will be translated by default to kebab case,
     // i.e. `--nb-cars`.
     /// Number of cars
-    #[clap(short = "c", long)]
+    #[clap(short = 'c', long)]
     nb_cars: Option<i32>,
 
     /// admin_level to consider
@@ -67,7 +67,7 @@ fn main() {
 ```
 
 Using this example:
-```
+```bash
 $ ./basic
 error: The following required arguments were not provided:
     --output <output>
