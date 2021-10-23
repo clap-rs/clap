@@ -97,19 +97,19 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall debug"
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall" --release
+          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
   nightly:
     name: Nightly Tests
     strategy:
@@ -139,19 +139,19 @@ jobs:
         if: matrix.features == 'all'
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall"
+          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
       - name: Check debug
         uses: actions-rs/cargo@v1
         if: matrix.features == 'all'
         with:
           command: check
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall debug"
+          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall" --release
+          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
   wasm:
     name: Wasm Check
     runs-on: ubuntu-latest
@@ -172,4 +172,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace unstable-multicall"
+          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace unstable-multicall unstable-grouped"
