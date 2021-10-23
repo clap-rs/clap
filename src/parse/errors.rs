@@ -544,6 +544,16 @@ impl Error {
         }
     }
 
+    pub(crate) fn set_info(mut self, info: Vec<String>) -> Self {
+        self.info = info;
+        self
+    }
+
+    pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
+        self.source = Some(source);
+        self
+    }
+
     pub(crate) fn user_error(
         app: &App,
         usage: String,
@@ -556,13 +566,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self {
-            message: c,
-            kind,
-            info: vec![],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, kind)
     }
 
     pub(crate) fn argument_conflict(
@@ -597,13 +601,7 @@ impl Error {
             info.push(other);
         }
 
-        Error {
-            message: c,
-            kind: ErrorKind::ArgumentConflict,
-            info,
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::ArgumentConflict).set_info(info)
     }
 
     pub(crate) fn empty_value(app: &App, arg: &Arg, usage: String) -> Self {
@@ -616,13 +614,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::EmptyValue,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::EmptyValue).set_info(vec![arg])
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
@@ -635,13 +627,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::NoEquals,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::NoEquals).set_info(vec![arg])
     }
 
     pub(crate) fn invalid_value<G>(
@@ -699,13 +685,7 @@ impl Error {
         let mut info = vec![arg.to_string(), bad_val];
         info.extend(sorted);
 
-        Error {
-            message: c,
-            kind: ErrorKind::InvalidValue,
-            info,
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::InvalidValue).set_info(info)
     }
 
     pub(crate) fn invalid_subcommand(
@@ -731,13 +711,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::InvalidSubcommand,
-            info: vec![subcmd],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::InvalidSubcommand).set_info(vec![subcmd])
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
@@ -750,13 +724,7 @@ impl Error {
         c.none(format!("\n    {} <subcommands>", name));
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::UnrecognizedSubcommand,
-            info: vec![subcmd],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::UnrecognizedSubcommand).set_info(vec![subcmd])
     }
 
     pub(crate) fn missing_required_argument(
@@ -781,13 +749,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::MissingRequiredArgument,
-            info,
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::MissingRequiredArgument).set_info(info)
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
@@ -799,13 +761,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::MissingSubcommand,
-            info: vec![],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::MissingSubcommand)
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
@@ -818,13 +774,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::InvalidUtf8,
-            info: vec![],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::InvalidUtf8)
     }
 
     pub(crate) fn too_many_occurrences(
@@ -847,17 +797,11 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::TooManyOccurrences,
-            info: vec![
-                arg.to_string(),
-                curr_occurs.to_string(),
-                max_occurs.to_string(),
-            ],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::TooManyOccurrences).set_info(vec![
+            arg.to_string(),
+            curr_occurs.to_string(),
+            max_occurs.to_string(),
+        ])
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
@@ -871,13 +815,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::TooManyValues,
-            info: vec![arg, val],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::TooManyValues).set_info(vec![arg, val])
     }
 
     pub(crate) fn too_few_values(
@@ -900,13 +838,11 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::TooFewValues,
-            info: vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::TooFewValues).set_info(vec![
+            arg.to_string(),
+            curr_vals.to_string(),
+            min_vals.to_string(),
+        ])
     }
 
     pub(crate) fn value_validation(
@@ -915,21 +851,9 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let Self {
-            mut message,
-            kind,
-            info,
-            source,
-            backtrace,
-        } = Self::value_validation_with_color(arg, val, err, app.get_color());
-        try_help(app, &mut message);
-        Self {
-            message,
-            kind,
-            info,
-            source,
-            backtrace,
-        }
+        let mut err = Self::value_validation_with_color(arg, val, err, app.get_color());
+        try_help(app, &mut err.message);
+        err
     }
 
     pub(crate) fn value_validation_without_app(
@@ -956,13 +880,9 @@ impl Error {
 
         c.none(format!(": {}", err));
 
-        Error {
-            message: c,
-            kind: ErrorKind::ValueValidation,
-            info: vec![arg, val, err.to_string()],
-            source: Some(err),
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::ValueValidation)
+            .set_info(vec![arg, val, err.to_string()])
+            .set_source(err)
     }
 
     pub(crate) fn wrong_number_of_values(
@@ -985,13 +905,11 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::WrongNumberOfValues,
-            info: vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::WrongNumberOfValues).set_info(vec![
+            arg.to_string(),
+            curr_vals.to_string(),
+            num_vals.to_string(),
+        ])
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
@@ -1004,13 +922,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::UnexpectedMultipleUsage,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::UnexpectedMultipleUsage).set_info(vec![arg])
     }
 
     pub(crate) fn unknown_argument(
@@ -1054,13 +966,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::UnknownArgument,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::UnknownArgument).set_info(vec![arg])
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
@@ -1077,13 +983,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Error {
-            message: c,
-            kind: ErrorKind::UnknownArgument,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::UnknownArgument).set_info(vec![arg])
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
@@ -1093,13 +993,7 @@ impl Error {
         c.warning(arg.clone());
         c.none("' wasn't found");
 
-        Error {
-            message: c,
-            kind: ErrorKind::ArgumentNotFound,
-            info: vec![arg],
-            source: None,
-            backtrace: Backtrace::new(),
-        }
+        Self::new(c, ErrorKind::ArgumentNotFound).set_info(vec![arg])
     }
 
     /// Deprecated, see [`App::error`]
