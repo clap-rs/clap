@@ -55,6 +55,7 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
         Sp::call_site(DEFAULT_ENV_CASING),
     );
     let name = attrs.cased_name();
+    let app_var = Ident::new("__clap_app", Span::call_site());
 
     let tokens = quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -71,13 +72,13 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
         #[deny(clippy::correctness)]
         impl clap::IntoApp for #struct_name {
             fn into_app<'b>() -> clap::App<'b> {
-                let app = clap::App::new(#name);
-                <#struct_name as clap::Args>::augment_args(app)
+                let #app_var = clap::App::new(#name);
+                <#struct_name as clap::Args>::augment_args(#app_var)
             }
 
             fn into_app_for_update<'b>() -> clap::App<'b> {
-                let app = clap::App::new(#name);
-                <#struct_name as clap::Args>::augment_args_for_update(app)
+                let #app_var = clap::App::new(#name);
+                <#struct_name as clap::Args>::augment_args_for_update(#app_var)
             }
         }
     };
@@ -96,7 +97,7 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
         Sp::call_site(DEFAULT_ENV_CASING),
     );
     let name = attrs.cased_name();
-    let app_var = Ident::new("app", Span::call_site());
+    let app_var = Ident::new("__clap_app", Span::call_site());
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
