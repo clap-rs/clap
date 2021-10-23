@@ -561,13 +561,9 @@ impl Error {
         kind: ErrorKind,
         message: impl std::fmt::Display,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, message.to_string());
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::new(c, kind)
+        let mut err = Self::new(message.to_string(), kind);
+        err.message.format(app, usage);
+        err
     }
 
     pub(crate) fn argument_conflict(
@@ -1037,6 +1033,22 @@ pub(crate) enum Message {
 }
 
 impl Message {
+    fn format(&mut self, app: &App, usage: String) {
+        match self {
+            Message::Raw(s) => {
+                let mut c = Colorizer::new(true, app.get_color());
+
+                let mut message = String::new();
+                std::mem::swap(s, &mut message);
+                start_error(&mut c, message);
+                put_usage(&mut c, usage);
+                try_help(app, &mut c);
+                *self = Self::Formatted(c);
+            }
+            Message::Formatted(_) => {}
+        }
+    }
+
     fn formatted(&self) -> Cow<Colorizer> {
         match self {
             Message::Raw(s) => {
