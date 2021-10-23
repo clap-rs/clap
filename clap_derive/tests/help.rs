@@ -159,3 +159,27 @@ fn app_help_heading_flattened() {
         .unwrap();
     assert_eq!(should_be_in_sub_c.get_help_heading(), Some("SUB C"));
 }
+
+#[test]
+fn flatten_field_with_help_heading() {
+    #[derive(Debug, Clone, Parser)]
+    struct CliOptions {
+        #[clap(flatten)]
+        #[clap(help_heading = "HEADING A")]
+        options_a: OptionsA,
+    }
+
+    #[derive(Debug, Clone, Args)]
+    struct OptionsA {
+        #[clap(long)]
+        should_be_in_section_a: Option<u32>,
+    }
+
+    let app = CliOptions::into_app();
+
+    let should_be_in_section_a = app
+        .get_arguments()
+        .find(|a| a.get_name() == "should-be-in-section-a")
+        .unwrap();
+    assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+}
