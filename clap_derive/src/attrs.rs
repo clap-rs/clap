@@ -812,6 +812,11 @@ impl Attrs {
         }
     }
 
+    pub fn help_heading(&self) -> TokenStream {
+        let help_heading = self.help_heading.as_ref().into_iter();
+        quote!( #(#help_heading)* )
+    }
+
     pub fn cased_name(&self) -> TokenStream {
         self.name.clone().translate(*self.casing)
     }
