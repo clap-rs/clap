@@ -283,10 +283,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     };
                     let conf_with_arg = || g.conflicts.iter().any(|x| !matcher.is_default_value(x));
                     let arg_conf_with_gr = || {
-                        matcher
-                            .arg_names()
-                            .filter_map(|x| self.p.app.find(x))
-                            .any(|x| x.blacklist.iter().any(|c| *c == g.id))
+                        !matcher.is_default_value(&g.id)
+                            && matcher
+                                .arg_names()
+                                .filter_map(|x| self.p.app.find(x))
+                                .any(|x| x.blacklist.iter().any(|c| *c == g.id))
                     };
                     conf_with_self() || conf_with_arg() || arg_conf_with_gr()
                 } else if let Some(ma) = matcher.get(name) {
