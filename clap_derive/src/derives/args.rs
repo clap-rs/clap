@@ -15,7 +15,7 @@
 use crate::{
     attrs::{Attrs, Kind, Name, ParserKind, DEFAULT_CASING, DEFAULT_ENV_CASING},
     dummies,
-    utils::{sub_type, subty_if_name, Sp, Ty},
+    utils::{inner_type, sub_type, Sp, Ty},
 };
 
 use proc_macro2::{Ident, Span, TokenStream};
@@ -217,13 +217,7 @@ pub fn gen_augment(
                 }
             }
             Kind::Arg(ty) => {
-                let convert_type = match **ty {
-                    Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
-                    Ty::OptionOption | Ty::OptionVec => {
-                        sub_type(&field.ty).and_then(sub_type).unwrap_or(&field.ty)
-                    }
-                    _ => &field.ty,
-                };
+                let convert_type = inner_type(**ty, &field.ty);
 
                 let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
                 let flag = *attrs.parser().kind == ParserKind::FromFlag;
@@ -261,19 +255,16 @@ pub fn gen_augment(
                 };
 
                 let value_name = attrs.value_name();
+                let possible_values = if attrs.is_enum() {
+                    gen_arg_enum_possible_values(convert_type)
+                } else {
+                    quote!()
+                };
 
                 let modifier = match **ty {
                     Ty::Bool => quote!(),
 
                     Ty::Option => {
-                        let mut possible_values = quote!();
-
-                        if attrs.is_enum() {
-                            if let Some(subty) = subty_if_name(&field.ty, "Option") {
-                                possible_values = gen_arg_enum_possible_values(subty);
-                            }
-                        };
-
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
@@ -289,8 +280,9 @@ pub fn gen_augment(
                         .min_values(0)
                         .max_values(1)
                         .multiple_values(false)
+                        #possible_values
                         #validator
-                            #allow_invalid_utf8
+                        #allow_invalid_utf8
                     },
 
                     Ty::OptionVec => quote_spanned! { ty.span()=>
@@ -298,19 +290,12 @@ pub fn gen_augment(
                         .value_name(#value_name)
                         .multiple_values(true)
                         .min_values(0)
+                        #possible_values
                         #validator
-                            #allow_invalid_utf8
+                        #allow_invalid_utf8
                     },
 
                     Ty::Vec => {
-                        let mut possible_values = quote!();
-
-                        if attrs.is_enum() {
-                            if let Some(subty) = subty_if_name(&field.ty, "Vec") {
-                                possible_values = gen_arg_enum_possible_values(subty);
-                            }
-                        };
-
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
@@ -332,12 +317,6 @@ pub fn gen_augment(
 
                     Ty::Other => {
                         let required = !attrs.has_method("default_value") && !override_required;
-                        let mut possible_values = quote!();
-
-                        if attrs.is_enum() {
-                            possible_values = gen_arg_enum_possible_values(&field.ty);
-                        };
-
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
@@ -524,6 +503,7 @@ fn gen_parsers(
     let parser = attrs.parser();
     let func = &parser.func;
     let span = parser.kind.span();
+    let convert_type = inner_type(**ty, &field.ty);
     let (value_of, values_of, mut parse) = match *parser.kind {
         FromStr => (
             quote_spanned!(span=> value_of),
@@ -552,17 +532,17 @@ fn gen_parsers(
         ),
         FromFlag => (quote!(), quote!(), func.clone()),
     };
+    if attrs.is_enum() {
+        let ci = attrs.case_insensitive();
+
+        parse = quote_spanned! { convert_type.span()=>
+            |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).expect("app should verify the choice was valid")
+        }
+    }
 
     let flag = *attrs.parser().kind == ParserKind::FromFlag;
     let occurrences = *attrs.parser().kind == ParserKind::FromOccurrences;
     let name = attrs.cased_name();
-    let convert_type = match **ty {
-        Ty::Vec | Ty::Option => sub_type(&field.ty).unwrap_or(&field.ty),
-        Ty::OptionOption | Ty::OptionVec => {
-            sub_type(&field.ty).and_then(sub_type).unwrap_or(&field.ty)
-        }
-        _ => &field.ty,
-    };
     // Give this identifier the same hygiene
     // as the `arg_matches` parameter definition. This
     // allows us to refer to `arg_matches` within a `quote_spanned` block
@@ -582,12 +562,6 @@ fn gen_parsers(
         }
 
         Ty::Option => {
-            if attrs.is_enum() {
-                if let Some(subty) = subty_if_name(&field.ty, "Option") {
-                    parse = gen_arg_enum_parse(subty, attrs);
-                }
-            }
-
             quote_spanned! { ty.span()=>
                 #arg_matches.#value_of(#name)
                     .map(#parse)
@@ -613,12 +587,6 @@ fn gen_parsers(
         },
 
         Ty::Vec => {
-            if attrs.is_enum() {
-                if let Some(subty) = subty_if_name(&field.ty, "Vec") {
-                    parse = gen_arg_enum_parse(subty, attrs);
-                }
-            }
-
             quote_spanned! { ty.span()=>
                 #arg_matches.#values_of(#name)
                     .map(|v| v.map::<#convert_type, _>(#parse).collect())
@@ -635,10 +603,6 @@ fn gen_parsers(
         },
 
         Ty::Other => {
-            if attrs.is_enum() {
-                parse = gen_arg_enum_parse(&field.ty, attrs);
-            }
-
             quote_spanned! { ty.span()=>
                 #arg_matches.#value_of(#name)
                     .map(#parse)
@@ -656,13 +620,5 @@ fn gen_parsers(
         }
     } else {
         quote_spanned!(field.span()=> #field_name: #field_value )
-    }
-}
-
-fn gen_arg_enum_parse(ty: &Type, attrs: &Attrs) -> TokenStream {
-    let ci = attrs.case_insensitive();
-
-    quote_spanned! { ty.span()=>
-        |s| <#ty as clap::ArgEnum>::from_str(s, #ci).expect("app should verify the choice was valid")
     }
 }

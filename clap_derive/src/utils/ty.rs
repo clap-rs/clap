@@ -40,6 +40,16 @@ impl Ty {
     }
 }
 
+pub fn inner_type(ty: Ty, field_ty: &syn::Type) -> &syn::Type {
+    match ty {
+        Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
+        Ty::OptionOption | Ty::OptionVec => {
+            sub_type(field_ty).and_then(sub_type).unwrap_or(field_ty)
+        }
+        _ => field_ty,
+    }
+}
+
 pub fn sub_type(ty: &syn::Type) -> Option<&syn::Type> {
     subty_if(ty, |_| true)
 }
