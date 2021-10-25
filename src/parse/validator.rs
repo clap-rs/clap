@@ -281,7 +281,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .count()
                             > 1
                     };
-                    let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
+                    let conf_with_arg = || g.conflicts.iter().any(|x| !matcher.is_default_value(x));
                     let arg_conf_with_gr = || {
                         matcher
                             .arg_names()
