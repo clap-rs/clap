@@ -14,11 +14,7 @@
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
 #![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.5")]
-
-//! This crate is custom derive for clap. It should not be used
-//! directly. See [clap documentation](http://docs.rs/clap)
-//! for the usage of `#[derive(Parser)]`.
-
+#![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
 extern crate proc_macro;
