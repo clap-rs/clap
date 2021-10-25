@@ -249,8 +249,6 @@ impl<'help> ArgGroup<'help> {
     /// Use of more than one arg is an error." Vice setting `ArgGroup::multiple(true)` which
     /// states, '*At least* one arg from this group must be used. Using multiple is OK."
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -286,8 +284,6 @@ impl<'help> ArgGroup<'help> {
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -322,8 +318,6 @@ impl<'help> ArgGroup<'help> {
     /// group is used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
-    ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
     ///
     /// # Examples
     ///
@@ -363,8 +357,6 @@ impl<'help> ArgGroup<'help> {
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -396,8 +388,6 @@ impl<'help> ArgGroup<'help> {
     /// present when one of the arguments from this group are used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
-    ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
     ///
     /// # Examples
     ///
