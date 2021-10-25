@@ -277,7 +277,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .app
                             .unroll_args_in_group(&g.id)
                             .iter()
-                            .filter(|&a| matcher.contains(a))
+                            .filter(|&a| matcher.contains(a) && !matcher.is_default_value(a))
                             .count()
                             > 1
                     };
