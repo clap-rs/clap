@@ -233,6 +233,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
+    assert!(m.value_of("arg").is_none());
 }
 
 #[test]
@@ -346,18 +347,6 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
 // Unsetting the default
 
 #[test]
-fn option_default_if_arg_present_with_value_no_default() {
-    let r = App::new("df")
-        .arg(Arg::from("--opt [FILE] 'some arg'"))
-        .arg(Arg::from("[arg] 'some arg'").default_value_if("opt", Some("value"), Some("default")))
-        .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
-    let m = r.unwrap();
-    assert!(m.is_present("arg"));
-    assert_eq!(m.value_of("arg").unwrap(), "default");
-}
-
-#[test]
 fn no_default_if_arg_present_with_value_no_default() {
     let r = App::new("df")
         .arg(Arg::from("--opt [FILE] 'some arg'"))
@@ -381,6 +370,7 @@ fn no_default_if_arg_present_with_value_with_default() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
+    assert!(m.value_of("arg").is_none());
 }
 
 #[test]
@@ -451,6 +441,7 @@ fn no_default_ifs_arg_present() {
     assert!(r.is_ok());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
+    assert!(m.value_of("arg").is_none());
 }
 
 #[test]
@@ -493,48 +484,15 @@ fn default_ifs_arg_present_order() {
     assert_eq!(m.value_of("arg").unwrap(), "default");
 }
 
-#[test]
-fn conditional_reqs_fail() {
-    let m = App::new("Test app")
-        .version("1.0")
-        .author("F0x06")
-        .about("Arg test")
-        .arg(
-            Arg::new("target")
-                .takes_value(true)
-                .default_value("file")
-                .possible_values(["file", "stdout"])
-                .long("target"),
-        )
-        .arg(
-            Arg::new("input")
-                .takes_value(true)
-                .required(true)
-                .long("input"),
-        )
-        .arg(
-            Arg::new("output")
-                .takes_value(true)
-                .required_if_eq("target", "file")
-                .long("output"),
-        )
-        .try_get_matches_from(vec!["test", "--input", "some"]);
-
-    assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
-}
+// Interaction with requires
 
 #[test]
 fn conditional_reqs_pass() {
     let m = App::new("Test app")
-        .version("1.0")
-        .author("F0x06")
-        .about("Arg test")
         .arg(
             Arg::new("target")
                 .takes_value(true)
                 .default_value("file")
-                .possible_values(["file", "stdout"])
                 .long("target"),
         )
         .arg(
@@ -599,6 +557,7 @@ fn default_vals_donnot_show_in_smart_usage() {
                 .default_value("bar"),
         )
         .arg(Arg::new("input").required(true));
+
     assert!(utils::compare_output(
         app,
         "bug",

@@ -215,7 +215,6 @@ fn issue_753() {
             Arg::from("-s, --server=[SERVER_IP] 'NTP server IP address'")
                 .required_unless_present("list"),
         )
-        .arg(Arg::from("-p, --port=[SERVER_PORT] 'NTP server port'").default_value("123"))
         .try_get_matches_from(vec!["test", "--list"]);
     assert!(m.is_ok());
 }

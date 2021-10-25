@@ -163,18 +163,6 @@ fn conflict_output_three_conflicting() {
 }
 
 #[test]
-fn conflict_with_unused_default_value() {
-    let result = App::new("conflict")
-        .arg(Arg::from("-o, --opt=[opt] 'some opt'").default_value("default"))
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("opt"))
-        .try_get_matches_from(vec!["myprog", "-f"]);
-    assert!(result.is_ok());
-    let m = result.unwrap();
-    assert_eq!(m.value_of("opt"), Some("default"));
-    assert!(m.is_present("flag"));
-}
-
-#[test]
 fn two_conflicting_arguments() {
     let a = App::new("two_conflicting_arguments")
         .arg(
@@ -248,14 +236,28 @@ fn conflicts_with_invalid_arg() {
 }
 
 #[test]
-fn conflicts_with_default() {
+fn conflict_with_unused_default() {
+    let result = App::new("conflict")
+        .arg(Arg::from("-o, --opt=[opt] 'some opt'").default_value("default"))
+        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("opt"))
+        .try_get_matches_from(vec!["myprog", "-f"]);
+
+    assert!(result.is_ok());
+    let m = result.unwrap();
+
+    assert_eq!(m.value_of("opt"), Some("default"));
+    assert!(m.is_present("flag"));
+}
+
+#[test]
+fn conflicts_with_alongside_default() {
     let result = App::new("conflict")
         .arg(
             Arg::from("-o, --opt=[opt] 'some opt'")
                 .default_value("default")
                 .conflicts_with("flag"),
         )
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("opt"))
+        .arg(Arg::from("-f, --flag 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
     assert!(result.is_ok(), "{:?}", result.unwrap());
