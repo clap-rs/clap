@@ -2254,6 +2254,7 @@ impl<'help> App<'help> {
                 }
             }
         };
+
         // Get the name of the program (argument 1 of env::args()) and determine the
         // actual file
         // that was used to execute the program. This is because a program called

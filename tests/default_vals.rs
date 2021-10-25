@@ -591,7 +591,7 @@ fn issue_1050_num_vals_and_defaults() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "Argument group 'group' is required but contains argument 'arg' which has a default value."]
+#[should_panic = "Argument group 'group' is required but all of it's arguments have a default value."]
 fn required_groups_with_default_values() {
     use clap::{App, Arg, ArgGroup};
 
