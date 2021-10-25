@@ -1059,7 +1059,7 @@ impl Message {
     fn formatted(&self) -> Cow<Colorizer> {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, ColorChoice::Auto);
+                let mut c = Colorizer::new(true, ColorChoice::Never);
                 start_error(&mut c, s);
                 Cow::Owned(c)
             }
