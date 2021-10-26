@@ -812,7 +812,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 self.none("\n\n")?;
             }
 
-            self.warning(self.parser.app.subcommand_header.unwrap_or("SUBCOMMANDS"))?;
+            self.warning(self.parser.app.subcommand_heading.unwrap_or("SUBCOMMANDS"))?;
             self.warning(":\n")?;
 
             self.write_subcommands(self.parser.app)?;

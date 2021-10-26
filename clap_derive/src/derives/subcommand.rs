@@ -240,14 +240,24 @@ fn gen_augment(
 
                 _ => {
                     let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
-                    let arg_block = match variant.fields {
+                    let sub_augment = match variant.fields {
                         Named(ref fields) => {
+                            // Defer to `gen_augment` for adding app methods
                             args::gen_augment(&fields.named, &subcommand_var, &attrs, override_required)
                         }
-                        Unit => quote!( #subcommand_var ),
+                        Unit => {
+                            let arg_block = quote!( #subcommand_var );
+                            let initial_app_methods = attrs.initial_top_level_methods();
+                            let final_from_attrs = attrs.final_top_level_methods();
+                            quote! {
+                                let #subcommand_var = #subcommand_var #initial_app_methods;
+                                let #subcommand_var = #arg_block;
+                                #subcommand_var #final_from_attrs
+                            }
+                        },
                         Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                             let ty = &unnamed[0];
-                            if override_required {
+                            let arg_block = if override_required {
                                 quote_spanned! { ty.span()=>
                                     {
                                         <#ty as clap::Args>::augment_args_for_update(#subcommand_var)
@@ -259,6 +269,13 @@ fn gen_augment(
                                         <#ty as clap::Args>::augment_args(#subcommand_var)
                                     }
                                 }
+                            };
+                            let initial_app_methods = attrs.initial_top_level_methods();
+                            let final_from_attrs = attrs.final_top_level_methods();
+                            quote! {
+                                let #subcommand_var = #subcommand_var #initial_app_methods;
+                                let #subcommand_var = #arg_block;
+                                #subcommand_var #final_from_attrs
                             }
                         }
                         Unnamed(..) => {
@@ -267,14 +284,10 @@ fn gen_augment(
                     };
 
                     let name = attrs.cased_name();
-                    let initial_app_methods = attrs.initial_top_level_methods();
-                    let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
                             let #subcommand_var = clap::App::new(#name);
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
-                            #subcommand_var #final_from_attrs
+                            #sub_augment
                         });
                     };
                     Some(subcommand)
