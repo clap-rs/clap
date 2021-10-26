@@ -69,10 +69,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             ));
         }
         self.validate_conflicts(matcher)?;
+
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
         }
+
         self.validate_matched_args(matcher)?;
 
         Ok(())
@@ -583,6 +584,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
+
+        self.validate_required_unless(matcher)?;
+
         Ok(())
     }
 
@@ -619,6 +623,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             })
             .map(|a| a.id.clone())
             .collect();
+
         if failed_args.is_empty() {
             Ok(())
         } else {
@@ -631,10 +636,14 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
         if a.is_set(ArgSettings::RequiredUnlessAll) {
             debug!("Validator::fails_arg_required_unless:{}:All", a.name);
-            !a.r_unless.iter().all(|id| matcher.contains(id))
+            !a.r_unless
+                .iter()
+                .all(|id| matcher.contains(id) && !matcher.is_default_value(id))
         } else {
             debug!("Validator::fails_arg_required_unless:{}:Any", a.name);
-            !a.r_unless.iter().any(|id| matcher.contains(id))
+            !a.r_unless
+                .iter()
+                .any(|id| matcher.contains(id) && !matcher.is_default_value(id))
         }
     }
 
