@@ -2382,11 +2382,12 @@ impl<'help> App<'help> {
 
     fn _do_parse(&mut self, it: &mut Input) -> ClapResult<ArgMatches> {
         debug!("App::_do_parse");
-        let mut matcher = ArgMatcher::default();
 
         // If there are global arguments, or settings we need to propagate them down to subcommands
         // before parsing in case we run into a subcommand
         self._build();
+
+        let mut matcher = ArgMatcher::new(self);
 
         // do the real parsing
         let mut parser = Parser::new(self);

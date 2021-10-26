@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
 use crate::{
-    build::{Arg, ArgSettings},
+    build::{App, Arg, ArgSettings},
     parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
     util::Id,
 };
@@ -16,12 +16,27 @@ pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
 
 impl Deref for ArgMatcher {
     type Target = ArgMatches;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl ArgMatcher {
+    pub(crate) fn new(app: &App) -> Self {
+        ArgMatcher(ArgMatches {
+            #[cfg(debug_assertions)]
+            valid_args: {
+                let args = app.args.args().map(|a| a.id.clone());
+                let groups = app.groups.iter().map(|g| g.id.clone());
+                args.chain(groups).collect()
+            },
+            #[cfg(debug_assertions)]
+            valid_subcommands: app.subcommands.iter().map(|sc| sc.id.clone()).collect(),
+            ..Default::default()
+        })
+    }
+
     pub(crate) fn into_inner(self) -> ArgMatches {
         self.0
     }

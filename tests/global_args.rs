@@ -94,5 +94,4 @@ fn global_arg_available_in_subcommand() {
 
     assert!(m.is_present("global"));
     assert!(m.subcommand_matches("ping").unwrap().is_present("global"));
-    assert!(!m.subcommand_matches("ping").unwrap().is_present("not"));
 }

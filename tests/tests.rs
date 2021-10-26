@@ -150,7 +150,7 @@ pub fn check_complex_output(args: &str, out: &str) {
         .unwrap();
     }
 
-    let _ = match matches.value_of("Option3").unwrap_or("") {
+    let _ = match matches.value_of("option3").unwrap_or("") {
         "fast" => writeln!(w, "option3 present quickly"),
         "slow" => writeln!(w, "option3 present slowly"),
         _ => writeln!(w, "option3 NOT present"),

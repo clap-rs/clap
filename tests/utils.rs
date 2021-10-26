@@ -70,7 +70,7 @@ pub fn complex_app() -> App<'static> {
                 .conflicts_with("option")
                 .requires("positional2"),
             Arg::from("[positional2] 'tests positionals with exclusions'"),
-            Arg::from("-O --Option [option3] 'specific vals'").possible_values(opt3_vals),
+            Arg::from("-O --option3 [option3] 'specific vals'").possible_values(opt3_vals),
             Arg::from("[positional3]... 'tests specific values'").possible_values(pos3_vals),
             Arg::from("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
             Arg::from("--multvalsmo... [one] [two] 'Tests multiple values, and mult occs'"),
