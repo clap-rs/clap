@@ -478,6 +478,7 @@ These features are opt-in. But be wary that they can contain breaking changes be
 
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
 * **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
+* **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
 
 ### More Information
 

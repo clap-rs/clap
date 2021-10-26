@@ -1,3 +1,5 @@
+#![cfg(feature = "unstable-grouped")]
+
 mod utils;
 
 use clap::{App, AppSettings, Arg};

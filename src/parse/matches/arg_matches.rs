@@ -247,6 +247,7 @@ impl ArgMatches {
     }
 
     /// Placeholder documentation.
+    #[cfg(feature = "unstable-grouped")]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
         #[allow(clippy::type_complexity)]
         let arg_values: for<'a> fn(
