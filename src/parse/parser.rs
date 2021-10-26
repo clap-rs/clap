@@ -23,6 +23,7 @@ use crate::{
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
+#[derive(Debug)]
 pub(crate) enum ParseState {
     ValuesDone,
     Opt(Id),

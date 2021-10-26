@@ -419,19 +419,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             if let Some(arg) = self.p.app.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
                 self.validate_arg_values(arg, ma, matcher)?;
-                self.validate_arg_requires(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma)?;
-            } else {
-                let grp = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| g.id == *name)
-                    .expect(INTERNAL_ERROR_MSG);
-                if grp.requires.iter().any(|n| !matcher.contains(n)) {
-                    return self.missing_required_error(matcher, vec![name.clone()]);
-                }
             }
             Ok(())
         })
@@ -538,26 +526,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 a,
                 Usage::new(self.p).create_usage_with_title(&[]),
             ));
-        }
-        Ok(())
-    }
-
-    fn validate_arg_requires(
-        &self,
-        a: &Arg<'help>,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher,
-    ) -> ClapResult<()> {
-        debug!("Validator::validate_arg_requires:{:?}", a.name);
-        for (val, name) in &a.requires {
-            if let Some(val) = val {
-                let missing_req = |v| v == val && !matcher.contains(name);
-                if ma.vals_flatten().any(missing_req) {
-                    return self.missing_required_error(matcher, vec![a.id.clone()]);
-                }
-            } else if !matcher.contains(name) {
-                return self.missing_required_error(matcher, vec![name.clone()]);
-            }
         }
         Ok(())
     }
