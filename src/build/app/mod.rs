@@ -97,7 +97,7 @@ pub struct App<'help> {
     pub(crate) groups: Vec<ArgGroup<'help>>,
     pub(crate) current_help_heading: Option<&'help str>,
     pub(crate) subcommand_placeholder: Option<&'help str>,
-    pub(crate) subcommand_header: Option<&'help str>,
+    pub(crate) subcommand_heading: Option<&'help str>,
 }
 
 impl<'help> App<'help> {
@@ -1128,6 +1128,8 @@ impl<'help> App<'help> {
     ///
     /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
+    ///
+    /// For subcommands, see [`App::subcommand_placeholder`]
     ///
     /// [`App::arg`]: App::arg()
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
@@ -2292,7 +2294,7 @@ impl<'help> App<'help> {
     }
 
     /// Sets the placeholder text used for subcommands when printing usage and help.
-    /// By default, this is "SUBCOMMAND" with a header of "SUBCOMMANDS".
+    /// By default, this is "SUBCOMMAND" with a heading of "SUBCOMMANDS".
     ///
     /// # Examples
     ///
@@ -2348,13 +2350,13 @@ impl<'help> App<'help> {
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
-    pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, header: T) -> Self
+    pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, heading: T) -> Self
     where
         S: Into<&'help str>,
         T: Into<&'help str>,
     {
         self.subcommand_placeholder = Some(placeholder.into());
-        self.subcommand_header = Some(header.into());
+        self.subcommand_heading = Some(heading.into());
         self
     }
 }
