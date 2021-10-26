@@ -90,27 +90,27 @@ fn app_help_heading_flattened() {
     }
 
     #[derive(Debug, Clone, Subcommand)]
-    #[clap(help_heading = "SUB A")]
     enum SubA {
         #[clap(flatten)]
         SubB(SubB),
         #[clap(subcommand)]
         SubC(SubC),
         SubAOne,
+        #[clap(help_heading = "SUB A")]
         SubATwo {
             should_be_in_sub_a: Option<u32>,
         },
     }
 
     #[derive(Debug, Clone, Subcommand)]
-    #[clap(help_heading = "SUB B")]
     enum SubB {
+        #[clap(help_heading = "SUB B")]
         SubBOne { should_be_in_sub_b: Option<u32> },
     }
 
     #[derive(Debug, Clone, Subcommand)]
-    #[clap(help_heading = "SUB C")]
     enum SubC {
+        #[clap(help_heading = "SUB C")]
         SubCOne { should_be_in_sub_c: Option<u32> },
     }
 
