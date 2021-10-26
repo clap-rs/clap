@@ -1,5 +1,6 @@
 // Std
 use std::{
+    borrow::Cow,
     convert::From,
     error,
     fmt::{self, Debug, Display, Formatter},
@@ -430,7 +431,7 @@ pub enum ErrorKind {
 #[derive(Debug)]
 pub struct Error {
     /// Formatted error message, enhancing the cause message with extra information
-    pub(crate) message: Colorizer,
+    pub(crate) message: Message,
     /// The type of error
     pub kind: ErrorKind,
     /// Additional information depending on the error kind, like values and argument names.
@@ -444,14 +445,14 @@ impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         #[cfg(feature = "debug")]
         {
-            writeln!(f, "{}", self.message)?;
+            writeln!(f, "{}", self.message.formatted())?;
             writeln!(f)?;
             writeln!(f, "Backtrace:")?;
             writeln!(f, "{}", self.backtrace)?;
         }
         #[cfg(not(feature = "debug"))]
         {
-            Display::fmt(&self.message, f)?;
+            Display::fmt(&self.message.formatted(), f)?;
         }
         Ok(())
     }
@@ -490,6 +491,24 @@ impl Error {
         }
     }
 
+    /// Create an unformatted error
+    ///
+    /// Prefer [`App::error`] for generating errors.  This is for you need to pass the error up to
+    /// a place that has access to the `App` at which point you can call [`Error::format]
+    ///
+    /// [`App::error`]: crate::App::error
+    pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
+        Self::new(message.to_string(), kind)
+    }
+
+    /// Format the existing message with the App's context
+    pub fn format(mut self, app: &mut App) -> Self {
+        app._build();
+        let usage = app.render_usage();
+        self.message.format(app, usage);
+        self
+    }
+
     /// Should the message be written to `stdout` or not
     #[inline]
     pub fn use_stderr(&self) -> bool {
@@ -505,12 +524,12 @@ impl Error {
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
             // Swallow broken pipe errors
-            let _ = self.message.print();
+            let _ = self.print();
             safe_exit(USAGE_CODE);
         }
 
         // Swallow broken pipe errors
-        let _ = self.message.print();
+        let _ = self.print();
         safe_exit(SUCCESS_CODE)
     }
 
@@ -531,12 +550,12 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.message.print()
+        self.message.formatted().print()
     }
 
-    pub(crate) fn new(message: Colorizer, kind: ErrorKind) -> Self {
+    pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind) -> Self {
         Self {
-            message,
+            message: message.into(),
             kind,
             info: vec![],
             source: None,
@@ -552,21 +571,6 @@ impl Error {
     pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
         self.source = Some(source);
         self
-    }
-
-    pub(crate) fn user_error(
-        app: &App,
-        usage: String,
-        kind: ErrorKind,
-        message: impl std::fmt::Display,
-    ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, message.to_string());
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::new(c, kind)
     }
 
     pub(crate) fn argument_conflict(
@@ -852,7 +856,12 @@ impl Error {
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
         let mut err = Self::value_validation_with_color(arg, val, err, app.get_color());
-        try_help(app, &mut err.message);
+        match &mut err.message {
+            Message::Raw(_) => {
+                unreachable!("`value_validation_with_color` only deals in formatted errors")
+            }
+            Message::Formatted(c) => try_help(app, c),
+        }
         err
     }
 
@@ -1001,26 +1010,19 @@ impl Error {
     /// [`App::error`]: crate::App::error
     #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Auto);
-
-        start_error(&mut c, description);
-        Error::new(c, kind)
+        Error::new(description, kind)
     }
 }
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Auto);
-        start_error(&mut c, e.to_string());
-        Error::new(c, ErrorKind::Io)
+        Error::new(e.to_string(), ErrorKind::Io)
     }
 }
 
 impl From<fmt::Error> for Error {
     fn from(e: fmt::Error) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Auto);
-        start_error(&mut c, e.to_string());
-        Error::new(c, ErrorKind::Format)
+        Error::new(e.to_string(), ErrorKind::Format)
     }
 }
 
@@ -1028,6 +1030,53 @@ impl error::Error for Error {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.source.as_ref().map(|e| e.as_ref() as _)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum Message {
+    Raw(String),
+    Formatted(Colorizer),
+}
+
+impl Message {
+    fn format(&mut self, app: &App, usage: String) {
+        match self {
+            Message::Raw(s) => {
+                let mut c = Colorizer::new(true, app.get_color());
+
+                let mut message = String::new();
+                std::mem::swap(s, &mut message);
+                start_error(&mut c, message);
+                put_usage(&mut c, usage);
+                try_help(app, &mut c);
+                *self = Self::Formatted(c);
+            }
+            Message::Formatted(_) => {}
+        }
+    }
+
+    fn formatted(&self) -> Cow<Colorizer> {
+        match self {
+            Message::Raw(s) => {
+                let mut c = Colorizer::new(true, ColorChoice::Never);
+                start_error(&mut c, s);
+                Cow::Owned(c)
+            }
+            Message::Formatted(c) => Cow::Borrowed(c),
+        }
+    }
+}
+
+impl From<String> for Message {
+    fn from(inner: String) -> Self {
+        Self::Raw(inner)
+    }
+}
+
+impl From<Colorizer> for Message {
+    fn from(inner: Colorizer) -> Self {
+        Self::Formatted(inner)
     }
 }
 

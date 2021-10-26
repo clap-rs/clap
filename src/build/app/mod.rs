@@ -1813,9 +1813,7 @@ impl<'help> App<'help> {
     /// let err = app.error(ErrorKind::InvalidValue, "Some failure case");
     /// ```
     pub fn error(&mut self, kind: ErrorKind, message: impl std::fmt::Display) -> Error {
-        self._build();
-        let usage = self.render_usage();
-        Error::user_error(self, usage, kind, message)
+        Error::raw(kind, message).format(self)
     }
 
     /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
@@ -2032,7 +2030,7 @@ impl<'help> App<'help> {
             .unwrap_or_else(|e| {
                 // Otherwise, write to stderr and exit
                 if e.use_stderr() {
-                    e.message.print().expect("Error writing Error to stderr");
+                    e.print().expect("Error writing Error to stderr");
 
                     if self.settings.is_set(AppSettings::WaitOnError) {
                         wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
@@ -2114,7 +2112,7 @@ impl<'help> App<'help> {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             // Otherwise, write to stderr and exit
             if e.use_stderr() {
-                e.message.print().expect("Error writing Error to stderr");
+                e.print().expect("Error writing Error to stderr");
 
                 if self.settings.is_set(AppSettings::WaitOnError) {
                     wlnerr!("\nPress [ENTER] / [RETURN] to continue...");

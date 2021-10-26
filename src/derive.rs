@@ -74,14 +74,22 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     /// Parse from `std::env::args_os()`, exit on error
     fn parse() -> Self {
         let matches = <Self as IntoApp>::into_app().get_matches();
-        <Self as FromArgMatches>::from_arg_matches(&matches).expect("IntoApp validated everything")
+        let res =
+            <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
+        match res {
+            Ok(s) => s,
+            Err(e) => {
+                // Since this is more of a development-time error, we aren't doing as fancy of a quit
+                // as `get_matches`
+                e.exit()
+            }
+        }
     }
 
     /// Parse from `std::env::args_os()`, return Err on error.
     fn try_parse() -> Result<Self, Error> {
         let matches = <Self as IntoApp>::into_app().try_get_matches()?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches)
-            .expect("IntoApp validated everything"))
+        <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
     }
 
     /// Parse from iterator, exit on error
@@ -92,7 +100,16 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
-        <Self as FromArgMatches>::from_arg_matches(&matches).expect("IntoApp validated everything")
+        let res =
+            <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>);
+        match res {
+            Ok(s) => s,
+            Err(e) => {
+                // Since this is more of a development-time error, we aren't doing as fancy of a quit
+                // as `get_matches_from`
+                e.exit()
+            }
+        }
     }
 
     /// Parse from iterator, return Err on error.
@@ -103,8 +120,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
-        Ok(<Self as FromArgMatches>::from_arg_matches(&matches)
-            .expect("IntoApp validated everything"))
+        <Self as FromArgMatches>::from_arg_matches(&matches).map_err(format_error::<Self>)
     }
 
     /// Update from iterator, exit on error
@@ -116,7 +132,13 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     {
         // TODO find a way to get partial matches
         let matches = <Self as IntoApp>::into_app_for_update().get_matches_from(itr);
-        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
+        let res = <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
+            .map_err(format_error::<Self>);
+        if let Err(e) = res {
+            // Since this is more of a development-time error, we aren't doing as fancy of a quit
+            // as `get_matches_from`
+            e.exit()
+        }
     }
 
     /// Update from iterator, return Err on error.
@@ -127,8 +149,8 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app_for_update().try_get_matches_from(itr)?;
-        <Self as FromArgMatches>::update_from_arg_matches(self, &matches);
-        Ok(())
+        <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
+            .map_err(format_error::<Self>)
     }
 }
 
@@ -178,10 +200,10 @@ pub trait FromArgMatches: Sized {
     ///    }
     /// }
     /// ```
-    fn from_arg_matches(matches: &ArgMatches) -> Option<Self>;
+    fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error>;
 
     /// Assign values from `ArgMatches` to `self`.
-    fn update_from_arg_matches(&mut self, matches: &ArgMatches);
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error>;
 }
 
 /// Parse arguments into a user-defined container.
@@ -347,10 +369,10 @@ impl<T: IntoApp> IntoApp for Box<T> {
 }
 
 impl<T: FromArgMatches> FromArgMatches for Box<T> {
-    fn from_arg_matches(matches: &ArgMatches) -> Option<Self> {
+    fn from_arg_matches(matches: &ArgMatches) -> Result<Self, Error> {
         <T as FromArgMatches>::from_arg_matches(matches).map(Box::new)
     }
-    fn update_from_arg_matches(&mut self, matches: &ArgMatches) {
+    fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error> {
         <T as FromArgMatches>::update_from_arg_matches(self, matches)
     }
 }
@@ -374,4 +396,9 @@ impl<T: Subcommand> Subcommand for Box<T> {
     fn has_subcommand(name: &str) -> bool {
         <T as Subcommand>::has_subcommand(name)
     }
+}
+
+fn format_error<I: IntoApp>(err: crate::Error) -> crate::Error {
+    let mut app = I::into_app();
+    err.format(&mut app)
 }

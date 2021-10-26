@@ -18,7 +18,7 @@ fn is_a_tty(stderr: bool) -> bool {
     atty::is(stream)
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct Colorizer {
     use_stderr: bool,
     color_when: ColorChoice,

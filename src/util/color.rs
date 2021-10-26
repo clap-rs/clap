@@ -65,7 +65,7 @@ impl Default for ColorChoice {
 pub(crate) use termcolor::Color;
 
 #[cfg(not(feature = "color"))]
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub(crate) enum Color {
     Green,
     Yellow,

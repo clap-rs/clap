@@ -448,14 +448,14 @@ fn gen_from_arg_matches(
             Unit => quote!(),
             Unnamed(ref fields) if fields.unnamed.len() == 1 => {
                 let ty = &fields.unnamed[0];
-                quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches).unwrap() ) )
+                quote!( ( <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)? ) )
             }
             Unnamed(..) => abort_call_site!("{}: tuple enums are not supported", variant.ident),
         };
 
         quote! {
             if #sub_name == #subcommand_name_var {
-                return Some(#name :: #variant_name #constructor_block)
+                return ::std::result::Result::Ok(#name :: #variant_name #constructor_block)
             }
         }
     });
@@ -466,8 +466,8 @@ fn gen_from_arg_matches(
                 let ty = &fields.unnamed[0];
                 quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
-                        let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches).unwrap();
-                        return Some(#name :: #variant_name (__clap_res));
+                        let __clap_res = <#ty as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)?;
+                        return ::std::result::Result::Ok(#name :: #variant_name (__clap_res));
                     }
                 }
             }
@@ -480,7 +480,7 @@ fn gen_from_arg_matches(
 
     let wildcard = match ext_subcmd {
         Some((span, var_name, str_ty, values_of)) => quote_spanned! { span=>
-                ::std::option::Option::Some(#name::#var_name(
+                ::std::result::Result::Ok(#name::#var_name(
                     ::std::iter::once(#str_ty::from(#subcommand_name_var))
                     .chain(
                         #sub_arg_matches_var.#values_of("").into_iter().flatten().map(#str_ty::from)
@@ -489,11 +489,13 @@ fn gen_from_arg_matches(
                 ))
         },
 
-        None => quote!(None),
+        None => quote! {
+            ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::UnrecognizedSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
+        },
     };
 
     quote! {
-        fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> Option<Self> {
+        fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> Result<Self, clap::Error> {
             if let Some((#subcommand_name_var, #sub_arg_matches_var)) = __clap_arg_matches.subcommand() {
                 {
                     let __clap_arg_matches = #sub_arg_matches_var;
@@ -504,7 +506,7 @@ fn gen_from_arg_matches(
 
                 #wildcard
             } else {
-                None
+                ::std::result::Result::Err(clap::Error::raw(clap::ErrorKind::MissingSubcommand, "A subcommand is required but one was not provided."))
             }
         }
     }
@@ -568,7 +570,7 @@ fn gen_update_from_arg_matches(
                         quote!(clap::FromArgMatches::update_from_arg_matches(
                             __clap_arg,
                             __clap_sub_arg_matches
-                        )),
+                        )?),
                     )
                 } else {
                     abort_call_site!("{}: tuple enums are not supported", variant.ident)
@@ -592,8 +594,8 @@ fn gen_update_from_arg_matches(
                 quote! {
                     if <#ty as clap::Subcommand>::has_subcommand(__clap_name) {
                         if let #name :: #variant_name (child) = s {
-                            <#ty as clap::FromArgMatches>::update_from_arg_matches(child, __clap_arg_matches);
-                            return;
+                            <#ty as clap::FromArgMatches>::update_from_arg_matches(child, __clap_arg_matches)?;
+                            return ::std::result::Result::Ok(());
                         }
                     }
                 }
@@ -609,16 +611,17 @@ fn gen_update_from_arg_matches(
         fn update_from_arg_matches<'b>(
             &mut self,
             __clap_arg_matches: &clap::ArgMatches,
-        ) {
+        ) -> Result<(), clap::Error> {
             if let Some((__clap_name, __clap_sub_arg_matches)) = __clap_arg_matches.subcommand() {
                 match self {
                     #( #subcommands ),*
                     s => {
                         #( #child_subcommands )*
-                        *s = <Self as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches).unwrap();
+                        *s = <Self as clap::FromArgMatches>::from_arg_matches(__clap_arg_matches)?;
                     }
                 }
             }
+            ::std::result::Result::Ok(())
         }
     }
 }
