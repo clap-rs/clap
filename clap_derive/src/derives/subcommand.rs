@@ -224,7 +224,7 @@ fn gen_augment(
                     };
 
                     let name = attrs.cased_name();
-                    let initial_app_methods = parent_attribute.initial_top_level_methods();
+                    let initial_app_methods = attrs.initial_top_level_methods();
                     let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
@@ -267,7 +267,7 @@ fn gen_augment(
                     };
 
                     let name = attrs.cased_name();
-                    let initial_app_methods = parent_attribute.initial_top_level_methods();
+                    let initial_app_methods = attrs.initial_top_level_methods();
                     let final_from_attrs = attrs.final_top_level_methods();
                     let subcommand = quote! {
                         let #app_var = #app_var.subcommand({
