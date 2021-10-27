@@ -96,6 +96,7 @@ pub struct Arg<'help> {
     pub(crate) r_ifs: Vec<(Id, &'help str)>,
     pub(crate) r_ifs_all: Vec<(Id, &'help str)>,
     pub(crate) r_unless: Vec<Id>,
+    pub(crate) r_unless_all: Vec<Id>,
     pub(crate) short: Option<char>,
     pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
@@ -925,8 +926,8 @@ impl<'help> Arg<'help> {
         I: IntoIterator<Item = T>,
         T: Key,
     {
-        self.r_unless.extend(names.into_iter().map(Id::from));
-        self.setting(ArgSettings::RequiredUnlessAll)
+        self.r_unless_all.extend(names.into_iter().map(Id::from));
+        self
     }
 
     /// Deprecated, see [`Arg::required_unless_present_all`]

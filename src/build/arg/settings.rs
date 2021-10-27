@@ -14,7 +14,6 @@ bitflags! {
         const TAKES_VAL        = 1 << 5;
         const USE_DELIM        = 1 << 6;
         const NEXT_LINE_HELP   = 1 << 7;
-        const R_UNLESS_ALL     = 1 << 8;
         const REQ_DELIM        = 1 << 9;
         const DELIM_NOT_SET    = 1 << 10;
         const HIDE_POS_VALS    = 1 << 11;
@@ -54,7 +53,6 @@ impl_settings! { ArgSettings, ArgFlags,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
     NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
-    RequiredUnlessAll("requiredunlessall") => Flags::R_UNLESS_ALL,
     RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
     HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
     AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
@@ -126,9 +124,6 @@ pub enum ArgSettings {
     HiddenLongHelp,
     /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
     AllowInvalidUtf8,
-
-    #[doc(hidden)]
-    RequiredUnlessAll,
 }
 
 #[cfg(test)]
@@ -156,10 +151,6 @@ mod test {
         assert_eq!(
             "nextlinehelp".parse::<ArgSettings>().unwrap(),
             ArgSettings::NextLineHelp
-        );
-        assert_eq!(
-            "requiredunlessall".parse::<ArgSettings>().unwrap(),
-            ArgSettings::RequiredUnlessAll
         );
         assert_eq!(
             "requiredelimiter".parse::<ArgSettings>().unwrap(),
