@@ -419,7 +419,7 @@ fn vec_type() {
         Opt {
             arg: vec![ArgChoice::Foo, ArgChoice::Bar]
         },
-        Opt::try_parse_from(&["", "-a", "foo", "bar"]).unwrap()
+        Opt::try_parse_from(&["", "-a", "foo", "-a", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
 }
@@ -440,10 +440,6 @@ fn option_vec_type() {
 
     assert_eq!(Opt { arg: None }, Opt::try_parse_from(&[""]).unwrap());
     assert_eq!(
-        Opt { arg: Some(vec![]) },
-        Opt::try_parse_from(&["", "-a"]).unwrap()
-    );
-    assert_eq!(
         Opt {
             arg: Some(vec![ArgChoice::Foo])
         },
@@ -453,7 +449,7 @@ fn option_vec_type() {
         Opt {
             arg: Some(vec![ArgChoice::Foo, ArgChoice::Bar])
         },
-        Opt::try_parse_from(&["", "-a", "foo", "bar"]).unwrap()
+        Opt::try_parse_from(&["", "-a", "foo", "-a", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
 }
