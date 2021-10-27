@@ -252,6 +252,19 @@ pub(crate) fn assert_app(app: &App) {
             group.name,
         );
 
+        // Required groups should have at least one arg without default values
+        if group.required && !group.args.is_empty() {
+            assert!(
+                group.args.iter().any(|arg| {
+                    app.args
+                        .args()
+                        .any(|x| x.id == *arg && x.default_vals.is_empty())
+                }),
+                "Argument group '{}' is required but all of it's arguments have a default value.",
+                group.name
+            )
+        }
+
         for arg in &group.args {
             // Args listed inside groups should exist
             assert!(
@@ -260,18 +273,6 @@ pub(crate) fn assert_app(app: &App) {
                 group.name,
                 arg
             );
-
-            // Required groups shouldn't have args with default values
-            if group.required {
-                assert!(
-                    app.args
-                        .args ()
-                        .any(|x| x.id == *arg && x.default_vals.is_empty()),
-                    "Argument group '{}' is required but contains argument '{:?}' which has a default value.",
-                    group.name,
-                    arg
-                )
-            }
         }
     }
 

@@ -69,10 +69,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             ));
         }
         self.validate_conflicts(matcher)?;
+
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
         }
+
         self.validate_matched_args(matcher)?;
 
         Ok(())
@@ -277,16 +278,17 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .app
                             .unroll_args_in_group(&g.id)
                             .iter()
-                            .filter(|&a| matcher.contains(a))
+                            .filter(|&a| matcher.contains(a) && !matcher.is_default_value(a))
                             .count()
                             > 1
                     };
-                    let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
+                    let conf_with_arg = || g.conflicts.iter().any(|x| !matcher.is_default_value(x));
                     let arg_conf_with_gr = || {
-                        matcher
-                            .arg_names()
-                            .filter_map(|x| self.p.app.find(x))
-                            .any(|x| x.blacklist.iter().any(|c| *c == g.id))
+                        !matcher.is_default_value(&g.id)
+                            && matcher
+                                .arg_names()
+                                .filter_map(|x| self.p.app.find(x))
+                                .any(|x| x.blacklist.iter().any(|c| *c == g.id))
                     };
                     conf_with_self() || conf_with_arg() || arg_conf_with_gr()
                 } else if let Some(ma) = matcher.get(name) {
@@ -337,9 +339,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 debug!("Validator::gather_conflicts:iter: id={:?}", name);
                 // if arg is "present" only because it got default value
                 // it doesn't conflict with anything and should be skipped
-                let skip = matcher
-                    .get(name)
-                    .map_or(false, |a| a.ty == ValueType::DefaultValue);
+                let skip = matcher.is_default_value(name);
                 if skip {
                     debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
                 }
@@ -402,8 +402,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                for r in &g.requires {
-                    self.p.required.insert(r.clone());
+                if !matcher.is_default_value(&g.id) {
+                    for r in &g.requires {
+                        self.p.required.insert(r.clone());
+                    }
                 }
             }
         }
@@ -420,19 +422,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             if let Some(arg) = self.p.app.find(name) {
                 self.validate_arg_num_vals(arg, ma)?;
                 self.validate_arg_values(arg, ma, matcher)?;
-                self.validate_arg_requires(arg, ma, matcher)?;
                 self.validate_arg_num_occurs(arg, ma)?;
-            } else {
-                let grp = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| g.id == *name)
-                    .expect(INTERNAL_ERROR_MSG);
-                if grp.requires.iter().any(|n| !matcher.contains(n)) {
-                    return self.missing_required_error(matcher, vec![name.clone()]);
-                }
             }
             Ok(())
         })
@@ -543,26 +533,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Ok(())
     }
 
-    fn validate_arg_requires(
-        &self,
-        a: &Arg<'help>,
-        ma: &MatchedArg,
-        matcher: &ArgMatcher,
-    ) -> ClapResult<()> {
-        debug!("Validator::validate_arg_requires:{:?}", a.name);
-        for (val, name) in &a.requires {
-            if let Some(val) = val {
-                let missing_req = |v| v == val && !matcher.contains(name);
-                if ma.vals_flatten().any(missing_req) {
-                    return self.missing_required_error(matcher, vec![a.id.clone()]);
-                }
-            } else if !matcher.contains(name) {
-                return self.missing_required_error(matcher, vec![name.clone()]);
-            }
-        }
-        Ok(())
-    }
-
     fn validate_required(&mut self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!(
             "Validator::validate_required: required={:?}",
@@ -595,20 +565,28 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
-                    if ma.contains_val(val) && !matcher.contains(&a.id) {
+                    if ma.contains_val(val)
+                        && !matches!(ma.ty, ValueType::DefaultValue)
+                        && !matcher.contains(&a.id)
+                    {
                         return self.missing_required_error(matcher, vec![a.id.clone()]);
                     }
                 }
             }
 
-            let match_all = a
-                .r_ifs_all
-                .iter()
-                .all(|(other, val)| matcher.get(other).map_or(false, |ma| ma.contains_val(val)));
+            let match_all = a.r_ifs_all.iter().all(|(other, val)| {
+                matcher.get(other).map_or(false, |ma| {
+                    ma.contains_val(val) && !matches!(ma.ty, ValueType::DefaultValue)
+                })
+            });
+
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
+
+        self.validate_required_unless(matcher)?;
+
         Ok(())
     }
 
@@ -645,6 +623,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             })
             .map(|a| a.id.clone())
             .collect();
+
         if failed_args.is_empty() {
             Ok(())
         } else {
@@ -657,10 +636,14 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
         if a.is_set(ArgSettings::RequiredUnlessAll) {
             debug!("Validator::fails_arg_required_unless:{}:All", a.name);
-            !a.r_unless.iter().all(|id| matcher.contains(id))
+            !a.r_unless
+                .iter()
+                .all(|id| matcher.contains(id) && !matcher.is_default_value(id))
         } else {
             debug!("Validator::fails_arg_required_unless:{}:Any", a.name);
-            !a.r_unless.iter().any(|id| matcher.contains(id))
+            !a.r_unless
+                .iter()
+                .any(|id| matcher.contains(id) && !matcher.is_default_value(id))
         }
     }
 
