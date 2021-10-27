@@ -41,7 +41,7 @@ OPTIONS:
         --multvals <one> <two>       Tests multiple values, not mult occs
         --multvalsmo <one> <two>     Tests multiple values, and mult occs
     -o, --option <opt>...            tests options
-    -O, --Option <option3>           specific vals [possible values: fast, slow]
+    -O, --option3 <option3>          specific vals [possible values: fast, slow]
     -V, --version                    Print version information
 
 SUBCOMMANDS:

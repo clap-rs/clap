@@ -702,7 +702,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 };
 
                 // Collect the external subcommand args
-                let mut sc_m = ArgMatcher::default();
+                let mut sc_m = ArgMatcher::new(self.app);
 
                 while let Some((v, _)) = it.next() {
                     if !self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands)
@@ -993,7 +993,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         let partial_parsing_enabled = self.is_set(AS::IgnoreErrors);
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
-            let mut sc_matcher = ArgMatcher::default();
             // Display subcommand name, short and long in usage
             let mut sc_names = sc.name.clone();
             let mut flag_subcmd = false;
@@ -1029,6 +1028,8 @@ impl<'help, 'app> Parser<'help, 'app> {
 
             // Ensure all args are built and ready to parse
             sc._build();
+
+            let mut sc_matcher = ArgMatcher::new(sc);
 
             debug!("Parser::parse_subcommand: About to parse sc={}", sc.name);
 

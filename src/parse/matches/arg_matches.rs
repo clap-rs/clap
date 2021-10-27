@@ -72,18 +72,51 @@ pub(crate) struct SubCommand {
 /// }
 /// ```
 /// [`App::get_matches`]: crate::App::get_matches()
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ArgMatches {
+    #[cfg(debug_assertions)]
+    pub(crate) valid_args: Vec<Id>,
+    #[cfg(debug_assertions)]
+    pub(crate) valid_subcommands: Vec<Id>,
     pub(crate) args: IndexMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
 }
 
-impl Default for ArgMatches {
-    fn default() -> Self {
-        ArgMatches {
-            args: IndexMap::new(),
-            subcommand: None,
+// Private methods
+impl ArgMatches {
+    #[inline]
+    fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
+        #[cfg(debug_assertions)]
+        {
+            if *arg != Id::empty_hash() && !self.valid_args.contains(arg) {
+                panic!(
+                    "`'{:?}' is not a name of an argument or a group.\n\
+                     Make sure you're using the name of the argument itself \
+                     and not the name of short or long flags.",
+                    arg
+                );
+            }
         }
+
+        self.args.get(arg)
+    }
+
+    #[inline]
+    fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
+        #[cfg(debug_assertions)]
+        {
+            if *id != Id::empty_hash() && !self.valid_subcommands.contains(id) {
+                panic!("'{:?}' is not a name of a subcommand.", id);
+            }
+        }
+
+        if let Some(ref sc) = self.subcommand {
+            if sc.id == *id {
+                return Some(sc);
+            }
+        }
+
+        None
     }
 }
 
@@ -121,7 +154,7 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        if let Some(arg) = self.args.get(&Id::from(id)) {
+        if let Some(arg) = self.get_arg(&Id::from(id)) {
             if let Some(v) = arg.first() {
                 return Some(v.to_str().expect(INVALID_UTF8));
             }
@@ -161,7 +194,7 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        if let Some(arg) = self.args.get(&Id::from(id)) {
+        if let Some(arg) = self.get_arg(&Id::from(id)) {
             if let Some(v) = arg.first() {
                 return Some(v.to_string_lossy());
             }
@@ -204,8 +237,7 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
-        self.args
-            .get(&Id::from(id))
+        self.get_arg(&Id::from(id))
             .and_then(|arg| arg.first().map(OsString::as_os_str))
     }
 
@@ -235,7 +267,7 @@ impl ArgMatches {
     /// ```
     /// [`Iterator`]: std::iter::Iterator
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
-        self.args.get(&Id::from(id)).map(|arg| {
+        self.get_arg(&Id::from(id)).map(|arg| {
             fn to_str_slice(o: &OsString) -> &str {
                 o.to_str().expect(INVALID_UTF8)
             }
@@ -259,8 +291,7 @@ impl ArgMatches {
             arg.vals()
                 .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect())
         };
-        self.args
-            .get(&Id::from(id))
+        self.get_arg(&Id::from(id))
             .map(arg_values)
             .map(|iter| GroupedValues { iter })
     }
@@ -293,7 +324,7 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        self.args.get(&Id::from(id)).map(|arg| {
+        self.get_arg(&Id::from(id)).map(|arg| {
             arg.vals_flatten()
                 .map(|v| v.to_string_lossy().into_owned())
                 .collect()
@@ -338,7 +369,7 @@ impl ArgMatches {
             o
         }
 
-        self.args.get(&Id::from(id)).map(|arg| OsValues {
+        self.get_arg(&Id::from(id)).map(|arg| OsValues {
             iter: arg.vals_flatten().map(to_str_slice),
         })
     }
@@ -551,6 +582,10 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     pub fn is_present<T: Key>(&self, id: T) -> bool {
         let id = Id::from(id);
+
+        #[cfg(debug_assertions)]
+        self.get_arg(&id);
+
         self.args.contains_key(&id)
     }
 
@@ -594,7 +629,7 @@ impl ArgMatches {
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        self.args.get(&Id::from(id)).map_or(0, |a| a.occurs)
+        self.get_arg(&Id::from(id)).map_or(0, |a| a.occurs)
     }
 
     /// Gets the starting index of the argument in respect to all other arguments. Indices are
@@ -727,7 +762,7 @@ impl ArgMatches {
     /// ```
     /// [delimiter]: crate::Arg::value_delimiter()
     pub fn index_of<T: Key>(&self, name: T) -> Option<usize> {
-        if let Some(arg) = self.args.get(&Id::from(name)) {
+        if let Some(arg) = self.get_arg(&Id::from(name)) {
             if let Some(i) = arg.get_index(0) {
                 return Some(i);
             }
@@ -807,7 +842,7 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ArgMatches::index_of()
     /// [delimiter]: Arg::value_delimiter()
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        self.args.get(&Id::from(id)).map(|arg| Indices {
+        self.get_arg(&Id::from(id)).map(|arg| Indices {
             iter: arg.indices(),
         })
     }
@@ -844,12 +879,7 @@ impl ArgMatches {
     /// [`Subcommand`]: crate::Subcommand
     /// [`App`]: crate::App
     pub fn subcommand_matches<T: Key>(&self, id: T) -> Option<&ArgMatches> {
-        if let Some(ref s) = self.subcommand {
-            if s.id == id.into() {
-                return Some(&s.matches);
-            }
-        }
-        None
+        self.get_subcommand(&id.into()).map(|sc| &sc.matches)
     }
 
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]

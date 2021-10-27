@@ -47,7 +47,7 @@ args:
             - positional2
     - option3:
         short: O
-        long: Option
+        long: option3
         about: tests options with specific value sets
         takes_value: true
         possible_values:

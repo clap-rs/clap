@@ -4267,7 +4267,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_ok());
-    /// assert_eq!(res.unwrap().value_of("config"), None);
+    /// assert_eq!(res.unwrap().value_of("cfg"), Some(""));
     /// ```
     ///
     /// By adding this setting, we can forbid empty values.
