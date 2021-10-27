@@ -259,10 +259,46 @@ fn two_option_option_types() {
 }
 
 #[test]
-fn vec_type_is_multiple_values() {
+fn vec_type_is_multiple_occurrences() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
+        arg: Vec<i32>,
+    }
+    assert_eq!(
+        Opt { arg: vec![24] },
+        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+    );
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(
+        Opt { arg: vec![24, 42] },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
+}
+
+#[test]
+fn vec_type_with_required() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short, long, required = true)]
+        arg: Vec<i32>,
+    }
+    assert_eq!(
+        Opt { arg: vec![24] },
+        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+    );
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+    assert_eq!(
+        Opt { arg: vec![24, 42] },
+        Opt::try_parse_from(&["test", "-a", "24", "-a", "42"]).unwrap()
+    );
+}
+
+#[test]
+fn vec_type_with_multiple_values_only() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short, long, multiple_values(true), multiple_occurrences(false))]
         arg: Vec<i32>,
     }
     assert_eq!(
@@ -312,6 +348,28 @@ fn option_vec_type() {
         Opt {
             arg: Some(vec![1, 2])
         },
+        Opt::try_parse_from(&["test", "-a", "1", "-a", "2"]).unwrap()
+    );
+
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+}
+
+#[test]
+fn option_vec_type_structopt_behavior() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short, long, multiple_values(true), min_values(0))]
+        arg: Option<Vec<i32>>,
+    }
+    assert_eq!(
+        Opt { arg: Some(vec![1]) },
+        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            arg: Some(vec![1, 2])
+        },
         Opt::try_parse_from(&["test", "-a", "1", "2"]).unwrap()
     );
 
@@ -337,9 +395,9 @@ fn two_option_vec_types() {
     assert_eq!(
         Opt {
             arg: Some(vec![1]),
-            b: Some(vec![])
+            b: None,
         },
-        Opt::try_parse_from(&["test", "-a", "1", "-b"]).unwrap()
+        Opt::try_parse_from(&["test", "-a", "1"]).unwrap()
     );
 
     assert_eq!(
@@ -355,7 +413,7 @@ fn two_option_vec_types() {
             arg: Some(vec![1, 2]),
             b: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a", "1", "2", "-b", "1", "2"]).unwrap()
+        Opt::try_parse_from(&["test", "-a", "1", "-a", "2", "-b", "1", "-b", "2"]).unwrap()
     );
 
     assert_eq!(
