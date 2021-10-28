@@ -2,6 +2,9 @@ name: CI
 on:
   push:
     branches: [staging, trying]
+concurrency:
+    group: ci-${{ github.ref}}
+    cancel-in-progress: true
 jobs:
   ci:
     name: CI
@@ -10,11 +13,28 @@ jobs:
     steps:
       - name: Done
         run: exit 0
+  args:
+    name: Args
+    runs-on: ubuntu-latest
+    outputs:
+      minimal: ${{ steps.minimal.outputs.list }}
+      full: ${{ steps.full.outputs.list }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: minimal
+        name: Get args (Minimal)
+        run: echo "::set-output name=list::$(make features-minimal)"
+      - id: full
+        name: Get args (Full)
+        run: echo "::set-output name=list::$(make features-full)"
   test:
     name: Tests
+    needs: [args]
     strategy:
       fail-fast: false
       matrix:
+        features: [minimal, full, release]
         rust: [1.54.0, stable, beta]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:
@@ -25,10 +45,6 @@ jobs:
           - x86_64-unknown-linux-gnu
           - i686-unknown-linux-gnu
           - x86_64-apple-darwin
-        features:
-          - none
-          - all
-          - release
         exclude:
           - features: release
             rust: stable
@@ -64,15 +80,6 @@ jobs:
             target: x86_64-apple-darwin
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Install linker
         if: matrix.target == 'i686-pc-windows-gnu'
         uses: egor-tensin/setup-mingw@v2
@@ -86,38 +93,50 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install gcc-multilib
-      - name: Test almost no features
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Test (Minimal)
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
+        if: matrix.features == 'minimal'
         with:
           command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.5
-      - name: Test all features
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.minimal }}
+      - name: Test (Full)
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
+        if: matrix.features == 'full'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.full }}
       - name: Check debug
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
+        if: matrix.features == 'full'
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
-      - name: Test release
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.full }} --features debug
+      - name: Test (Release)
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
         with:
           command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.full }} --release
   nightly:
     name: Nightly Tests
+    needs: [args]
     strategy:
       fail-fast: false
       matrix:
         features:
-          - none
-          - all
+          - minimal
+          - full
           - release
     runs-on: ubuntu-latest
     steps:
@@ -128,32 +147,33 @@ jobs:
           override: true
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Test almost no features
+      - name: Test (Minimal)
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
+        if: matrix.features == 'minimal'
         with:
           command: test
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.5
-      - name: Test all features
+          args: ${{ needs.args.outputs.minimal }}
+      - name: Test (Full)
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
+        if: matrix.features == 'full'
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
+          args: ${{ needs.args.outputs.full }}
       - name: Check debug
         uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
+        if: matrix.features == 'full'
         with:
           command: check
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
+          args: ${{ needs.args.outputs.full }} --features debug
       - name: Test release
         uses: actions-rs/cargo@v1
         if: matrix.features == 'release'
         with:
           command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
+          args: ${{ needs.args.outputs.full }} --release
   wasm:
     name: Wasm Check
+    needs: [args]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -166,10 +186,17 @@ jobs:
           toolchain: 1.54.0
           target: ${{ matrix.target }}
           override: true
+      - name: Cache Builds
+        uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Check
+      - name: Check (Minimal)
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace unstable-multicall unstable-grouped"
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.minimal }}
+      - name: Check (Full)
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --target ${{ matrix.target }} ${{ needs.args.outputs.full }}

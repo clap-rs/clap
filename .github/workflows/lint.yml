@@ -8,8 +8,24 @@ concurrency:
   group: lint-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  args:
+    name: Args
+    runs-on: ubuntu-latest
+    outputs:
+      minimal: ${{ steps.minimal.outputs.list }}
+      full: ${{ steps.full.outputs.list }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: minimal
+        name: Get args (Minimal)
+        run: echo "::set-output name=list::$(make features-minimal)"
+      - id: full
+        name: Get args (Full)
+        run: echo "::set-output name=list::$(make features-full)"
   lint:
     name: Lint
+    needs: [args]
     runs-on: ubuntu-latest
     steps:
       - name: Install rust
@@ -23,18 +39,15 @@ jobs:
         uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Clippy for almost no features
+      - name: Clippy (Minimal)
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.5 -- -D warnings
-      - name: Clippy for all features
+          args: ${{ needs.args.outputs.minimal }} -- -D warnings
+      - name: Clippy (Full)
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" -- -D warnings
+          args: ${{ needs.args.outputs.full }} -- -D warnings
       - name: Format check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
+        run: make fmt-check

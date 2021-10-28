@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ColorChoice, Error, ErrorKind};
+use clap::{App, Arg, Error, ErrorKind};
 
 fn compare_error(
     err: Error,
@@ -52,8 +52,10 @@ For more information try --help
                 .long("no-git-push")
                 .about("Do not push generated commit and tags to git remote"),
         );
+
     #[cfg(feature = "color")]
-    let app = app.color(ColorChoice::Never);
+    let app = app.color(clap::ColorChoice::Never);
+
     let mut app = app;
     let expected_kind = ErrorKind::InvalidValue;
     let err = app.error(expected_kind, "Failed for mysterious reasons");

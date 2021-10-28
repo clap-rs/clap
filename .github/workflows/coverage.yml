@@ -28,10 +28,7 @@ jobs:
           version: 0.1.0-alpha.4
           use-tool-cache: true
       - name: Coverage
-        uses: actions-rs/cargo@v1
-        with:
-          command: llvm-cov
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --lcov --output-path lcov.info
+        run: make coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

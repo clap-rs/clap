@@ -64,3 +64,6 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 * `panic!` on *developer* error
   (e.g. [apps](https://github.com/clap-rs/clap/blob/62eff1f8d3394cef819b4aa7b23a1032fc584f03/src/build/app/debug_asserts.rs) and [args](https://github.com/clap-rs/clap/blob/62eff1f8d3394cef819b4aa7b23a1032fc584f03/src/build/arg/debug_asserts.rs)),
   exit gracefully on *end-user* error
+* For any new feature that is added:
+  - Add it to the `README.md` with description (and deps if needed) alongside other features
+  - Add it to `FEATURES_FULL` in `Makefile` if it is not a default feature
