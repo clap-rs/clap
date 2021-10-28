@@ -5,7 +5,7 @@ on:
   push:
     branches: [staging, trying]
 concurrency:
-  group: lint-${{ github.ref }}
+  group: lint-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 jobs:
   lint:

@@ -5,7 +5,7 @@ on:
   push:
     branches: [master]
 concurrency:
-  group: coverage-${{ github.ref }}
+  group: coverage-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 jobs:
   coverage:

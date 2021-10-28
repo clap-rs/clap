@@ -2,6 +2,9 @@ name: CI
 on:
   push:
     branches: [staging, trying]
+concurrency:
+    group: ci-${{ github.ref}}
+    cancel-in-progress: true
 jobs:
   ci:
     name: CI

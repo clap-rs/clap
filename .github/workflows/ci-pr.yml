@@ -3,9 +3,15 @@ on:
   pull_request:
     branches: [master]
 concurrency:
-  group: ci-pr-${{ github.ref }}
+  group: ci-pr-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 jobs:
+  check:
+    name: CHECK
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ github.head_ref }}"
+      - run: echo "${{ github.ref }}"
   ci-pr:
     name: CI-PR
     needs: [test-minimal, test-full, msrv]
@@ -35,9 +41,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Compile
-        run: cargo test --no-run ${{ env.FLAGS }}
+        uses: actions-rs/cargo@v1
+        with:
+            command: test
+            args: --no-run ${{ env.FLAGS }}
       - name: Test
-        run: cargo test ${{ env.FLAGS }}
+        uses: actions-rs/cargo@v1
+        with:
+            command: test
+            args: ${{ env.FLAGS }}
   test-full:
     name: Tests (Full)
     env:
@@ -60,9 +72,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Compile
-        run: cargo test --no-run ${{ env.FLAGS }}
+        uses: actions-rs/cargo@v1
+        with:
+            command: test
+            args: --no-run ${{ env.FLAGS }}
       - name: Test
-        run: cargo test ${{ env.FLAGS }}
+        uses: actions-rs/cargo@v1
+        with:
+            command: test
+            args: ${{ env.FLAGS }}
   msrv:
     name: "Check MSRV: 1.54.0"
     runs-on: ubuntu-latest
