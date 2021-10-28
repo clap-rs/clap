@@ -1,7 +1,7 @@
 [package]
 name = "clap_derive"
 version = "3.0.0-beta.5"
-edition = "2018"
+edition = "2021"
 authors = [
 	"Guillaume Pinot <texitoi@texitoi.eu>",
 	"Clap Maintainers"
