@@ -1,4 +1,4 @@
-use clap::{Args, IntoApp, Parser, Subcommand};
+use clap::{AppSettings, Args, ColorChoice, IntoApp, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -182,4 +182,46 @@ fn flatten_field_with_help_heading() {
         .find(|a| a.get_name() == "should-be-in-section-a")
         .unwrap();
     assert_eq!(should_be_in_section_a.get_help_heading(), Some("HEADING A"));
+}
+
+// The challenge with this test is creating an error situation not caught by `clap`'s error checking
+// but by the code that `clap_derive` generates.
+//
+// Ultimately, the easiest way to confirm is to put a debug statement in the desired error path.
+#[test]
+fn derive_generated_error_has_full_context() {
+    #[derive(Debug, Parser)]
+    #[clap(setting(AppSettings::SubcommandsNegateReqs), color = ColorChoice::Never)]
+    struct Opts {
+        #[clap(long)]
+        req_str: String,
+
+        #[clap(subcommand)]
+        cmd: Option<SubCommands>,
+    }
+
+    #[derive(Debug, Parser)]
+    enum SubCommands {
+        Sub {
+            #[clap(short, long, parse(from_occurrences))]
+            verbose: u8,
+        },
+    }
+
+    let result = Opts::try_parse_from(&["test", "sub"]);
+    assert!(
+        result.is_err(),
+        "`SubcommandsNegateReqs` with non-optional `req_str` should fail: {:?}",
+        result.unwrap()
+    );
+
+    let expected = r#"error: The following required argument was not provided: req-str
+
+USAGE:
+    clap_derive --req-str <REQ_STR>
+    clap_derive <SUBCOMMAND>
+
+For more information try --help
+"#;
+    assert_eq!(result.unwrap_err().to_string(), expected);
 }
