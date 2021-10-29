@@ -2,7 +2,9 @@ name: Site
 on:
   push:
     branches: [master]
-    paths: ["site/**"]
+    paths:
+      - site/**
+      - .github/workflows/site.yml
 concurrency:
   group: site
   cancel-in-progress: true
@@ -14,13 +16,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        uses: shalzz/zola-deploy-action@master
+        uses: shalzz/zola-deploy-action@v0.14.1
         env:
           BUILD_DIR: site
           BUILD_ONLY: true
       - name: Deploy
         if: ${{ success() }}
-        uses: JamesIves/github-pages-deploy-action@4.1.0
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           branch: gh-pages
           folder: site/public
