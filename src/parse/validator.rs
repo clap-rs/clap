@@ -66,6 +66,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             return Err(Error::new(
                 message,
                 ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+                self.p.is_set(AS::WaitOnError),
             ));
         }
         self.validate_conflicts(matcher)?;
