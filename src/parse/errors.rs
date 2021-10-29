@@ -870,7 +870,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::value_validation_with_color(arg, val, err, ColorChoice::Auto)
+        Self::value_validation_with_color(arg, val, err, ColorChoice::Never)
     }
 
     fn value_validation_with_color(
@@ -996,7 +996,7 @@ impl Error {
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Auto);
+        let mut c = Colorizer::new(true, ColorChoice::Never);
 
         start_error(&mut c, "The argument '");
         c.warning(arg.clone());
