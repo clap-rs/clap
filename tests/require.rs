@@ -1079,14 +1079,14 @@ fn required_unless_all_with_any() {
 
     let result = app.clone().try_get_matches_from(vec!["myprog", "--foo"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(result.is_ok(), "{:?}", result.unwrap_err());
     assert!(!result.unwrap().is_present("flag"));
 
     let result = app
         .clone()
         .try_get_matches_from(vec!["myprog", "--bar", "--baz"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(result.is_ok(), "{:?}", result.unwrap_err());
     assert!(!result.unwrap().is_present("flag"));
 
     let result = app.try_get_matches_from(vec!["myprog", "--bar"]);
@@ -1154,7 +1154,11 @@ fn requires_with_default_value() {
         .arg(Arg::new("flag").long("flag"))
         .try_get_matches_from(vec!["myprog"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "requires should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -1173,7 +1177,11 @@ fn requires_if_with_default_value() {
         .arg(Arg::new("flag").long("flag"))
         .try_get_matches_from(vec!["myprog"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "requires_if should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -1188,7 +1196,11 @@ fn group_requires_with_default_value() {
         .group(ArgGroup::new("one").arg("opt").requires("flag"))
         .try_get_matches_from(vec!["myprog"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "arg group requires should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -1206,7 +1218,11 @@ fn required_if_eq_on_default_value() {
         )
         .try_get_matches_from(vec!["myprog"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "required_if_eq should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -1224,7 +1240,11 @@ fn required_if_eq_all_on_default_value() {
         )
         .try_get_matches_from(vec!["myprog"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "required_if_eq_all should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));

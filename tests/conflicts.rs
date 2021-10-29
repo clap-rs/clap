@@ -260,7 +260,11 @@ fn conflicts_with_alongside_default() {
         .arg(Arg::from("-f, --flag 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "conflicts_with should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -279,7 +283,11 @@ fn group_in_conflicts_with() {
         .arg(Arg::new("flag").long("flag").conflicts_with("one"))
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "conflicts_with on an arg group should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -298,7 +306,11 @@ fn group_conflicts_with_default_value() {
         .arg(Arg::new("flag").long("flag").group("one"))
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "arg group count should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
@@ -313,7 +325,11 @@ fn group_conflicts_with_default_arg() {
         .group(ArgGroup::new("one").conflicts_with("opt"))
         .try_get_matches_from(vec!["myprog", "--flag"]);
 
-    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(
+        result.is_ok(),
+        "arg group conflicts_with should ignore default_value: {:?}",
+        result.unwrap_err()
+    );
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));
