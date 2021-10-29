@@ -1060,6 +1060,40 @@ fn issue_2624() {
     assert!(matches.is_present("unique"));
 }
 
+#[test]
+fn required_unless_all_with_any() {
+    let app = App::new("prog")
+        .arg(Arg::new("foo").long("foo"))
+        .arg(Arg::new("bar").long("bar"))
+        .arg(Arg::new("baz").long("baz"))
+        .arg(
+            Arg::new("flag")
+                .long("flag")
+                .required_unless_present_any(&["foo"])
+                .required_unless_present_all(&["bar", "baz"]),
+        );
+
+    let result = app.clone().try_get_matches_from(vec!["myprog"]);
+
+    assert!(result.is_err(), "{:?}", result.unwrap());
+
+    let result = app.clone().try_get_matches_from(vec!["myprog", "--foo"]);
+
+    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(!result.unwrap().is_present("flag"));
+
+    let result = app
+        .clone()
+        .try_get_matches_from(vec!["myprog", "--bar", "--baz"]);
+
+    assert!(result.is_ok(), "{:?}", result.unwrap());
+    assert!(!result.unwrap().is_present("flag"));
+
+    let result = app.try_get_matches_from(vec!["myprog", "--bar"]);
+
+    assert!(result.is_err(), "{:?}", result.unwrap());
+}
+
 #[cfg(debug_assertions)]
 #[test]
 #[should_panic = "Argument or group 'extra' specified in 'requires*' for 'config' does not exist"]

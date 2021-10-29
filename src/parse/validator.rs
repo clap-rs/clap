@@ -617,7 +617,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .args
             .args()
             .filter(|&a| {
-                !a.r_unless.is_empty()
+                (!a.r_unless.is_empty() || !a.r_unless_all.is_empty())
                     && !matcher.contains(&a.id)
                     && self.fails_arg_required_unless(a, matcher)
             })
@@ -634,17 +634,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        if a.is_set(ArgSettings::RequiredUnlessAll) {
-            debug!("Validator::fails_arg_required_unless:{}:All", a.name);
-            !a.r_unless
-                .iter()
-                .all(|id| matcher.contains(id) && !matcher.is_default_value(id))
-        } else {
-            debug!("Validator::fails_arg_required_unless:{}:Any", a.name);
-            !a.r_unless
-                .iter()
-                .any(|id| matcher.contains(id) && !matcher.is_default_value(id))
-        }
+        let exists = |id| matcher.contains(id) && !matcher.is_default_value(id);
+
+        (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
+            && !a.r_unless.iter().any(exists)
     }
 
     // `incl`: an arg to include in the error even if not used
