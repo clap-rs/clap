@@ -923,7 +923,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     let pb = Arg::new("subcommand")
                         .index(1)
                         .setting(ArgSettings::TakesValue)
-                        .setting(ArgSettings::MultipleValues)
+                        .setting(ArgSettings::MultipleOccurrences)
                         .value_name("SUBCOMMAND")
                         .about("The subcommand whose help message to display");
                     sc = sc.arg(pb);
