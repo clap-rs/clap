@@ -138,7 +138,7 @@ USAGE:
 OPTIONS:
         --first      first about
     -h, --help       Print help information
-        --second     [env: ENV_REPLACED=]
+    -s, --second     
         --third      third arg
     -V, --version    Print version information
 ";
@@ -1257,11 +1257,11 @@ fn partial_mut_args() {
         .arg(
             Arg::new("first").long("first").about("first arg"), // this about will be replaced
         )
-        .arg(Arg::new("second").long("second").env("ENV_SECOND")) // this env will be replaced
+        .arg(Arg::new("second").long("second").short('r')) // this short will be replaced
         .arg(Arg::new("third").long("third").about("third arg")) // this will not be mutated
         .mut_args(|v| match v.get_name() {
             "first" => Some(v.about("first about")),
-            "second" => Some(v.env("ENV_REPLACED")),
+            "second" => Some(v.short('s')),
             _ => None,
         });
 
