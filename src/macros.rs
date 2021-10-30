@@ -536,18 +536,22 @@ macro_rules! impl_settings {
         ),+
     ) => {
         impl $flags {
+            #[allow(dead_code)]
             pub(crate) fn empty() -> Self {
                 $flags(Flags::empty())
             }
 
+            #[allow(dead_code)]
             pub(crate) fn insert(&mut self, rhs: Self) {
                 self.0.insert(rhs.0);
             }
 
+            #[allow(dead_code)]
             pub(crate) fn remove(&mut self, rhs: Self) {
                 self.0.remove(rhs.0);
             }
 
+            #[allow(dead_code)]
             pub(crate) fn set(&mut self, s: $settings) {
                 match s {
                     $(
@@ -557,6 +561,7 @@ macro_rules! impl_settings {
                 }
             }
 
+            #[allow(dead_code)]
             pub(crate) fn unset(&mut self, s: $settings) {
                 match s {
                     $(
@@ -566,6 +571,7 @@ macro_rules! impl_settings {
                 }
             }
 
+            #[allow(dead_code)]
             pub(crate) fn is_set(&self, s: $settings) -> bool {
                 match s {
                     $(
