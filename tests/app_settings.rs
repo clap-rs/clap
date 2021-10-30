@@ -130,6 +130,19 @@ SUBCOMMANDS:
             
 ";
 
+static PARTIAL_MUT_ARGS: &str = "myprog 3.0
+
+USAGE:
+    myprog [OPTIONS]
+
+OPTIONS:
+        --first      first about
+    -h, --help       Print help information
+    -s, --second     
+        --third      third arg
+    -V, --version    Print version information
+";
+
 #[test]
 fn setting() {
     let m = App::new("setting").setting(AppSettings::AllArgsOverrideSelf);
@@ -1215,4 +1228,47 @@ fn no_auto_version_mut_arg() {
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
+}
+
+#[test]
+fn no_auto_version_mut_args() {
+    let app = App::new("myprog")
+        .version("3.0")
+        .mut_args(|v| Some(v.about("custom about")))
+        .setting(AppSettings::NoAutoVersion);
+
+    let result = app
+        .clone()
+        .try_get_matches_from("myprog --version".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+
+    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+}
+
+#[test]
+fn partial_mut_args() {
+    let app = App::new("myprog")
+        .version("3.0")
+        .arg(
+            Arg::new("first").long("first").about("first arg"), // this about will be replaced
+        )
+        .arg(Arg::new("second").long("second").short('r')) // this short will be replaced
+        .arg(Arg::new("third").long("third").about("third arg")) // this will not be mutated
+        .mut_args(|v| match v.get_name() {
+            "first" => Some(v.about("first about")),
+            "second" => Some(v.short('s')),
+            _ => None,
+        });
+
+    assert!(utils::compare_output(
+        app,
+        "myprog -h",
+        PARTIAL_MUT_ARGS,
+        false
+    ));
 }
