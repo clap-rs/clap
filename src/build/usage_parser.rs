@@ -46,7 +46,6 @@ impl<'help> UsageParser<'help> {
         debug!("UsageParser::parse");
         let mut arg = Arg {
             disp_ord: 999,
-            unified_ord: 999,
             ..Default::default()
         };
         loop {
