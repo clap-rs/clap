@@ -102,7 +102,6 @@ pub struct Arg<'help> {
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
     pub(crate) disp_ord: usize,
-    pub(crate) unified_ord: usize,
     pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
@@ -340,7 +339,6 @@ impl<'help> Arg<'help> {
             id: Id::from(&*name),
             name,
             disp_ord: 999,
-            unified_ord: 999,
             ..Default::default()
         }
     }
@@ -5204,7 +5202,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("aliases", &self.aliases)
             .field("short_aliases", &self.short_aliases)
             .field("disp_ord", &self.disp_ord)
-            .field("unified_ord", &self.unified_ord)
             .field("possible_vals", &self.possible_vals)
             .field("val_names", &self.val_names)
             .field("num_vals", &self.num_vals)
