@@ -1216,3 +1216,23 @@ fn no_auto_version_mut_arg() {
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
 }
+
+#[test]
+fn no_auto_version_mut_args() {
+    let app = App::new("myprog")
+        .version("3.0")
+        .mut_args(|v| Some(v.about("custom about")))
+        .setting(AppSettings::NoAutoVersion);
+
+    let result = app
+        .clone()
+        .try_get_matches_from("myprog --version".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+
+    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_present("version"));
+}
