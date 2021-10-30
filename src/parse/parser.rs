@@ -763,6 +763,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             return Err(ClapError::new(
                 message,
                 ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+                self.app.settings.is_set(AS::WaitOnError),
             ));
         }
 
@@ -1881,7 +1882,11 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
-            _ => ClapError::new(c, ErrorKind::DisplayHelp),
+            _ => ClapError::new(
+                c,
+                ErrorKind::DisplayHelp,
+                self.app.settings.is_set(AS::WaitOnError),
+            ),
         }
     }
 
@@ -1891,7 +1896,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         let msg = self.app._render_version(use_long);
         let mut c = Colorizer::new(false, self.app.get_color());
         c.none(msg);
-        ClapError::new(c, ErrorKind::DisplayVersion)
+        ClapError::new(
+            c,
+            ErrorKind::DisplayVersion,
+            self.app.settings.is_set(AS::WaitOnError),
+        )
     }
 }
 

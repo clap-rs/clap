@@ -4,7 +4,7 @@ use std::{
     convert::From,
     error,
     fmt::{self, Debug, Display, Formatter},
-    io,
+    io::{self, BufRead},
     result::Result as StdResult,
 };
 
@@ -438,6 +438,7 @@ pub struct Error {
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
     pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
+    wait_on_exit: bool,
     backtrace: Backtrace,
 }
 
@@ -498,7 +499,7 @@ impl Error {
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
-        Self::new(message.to_string(), kind)
+        Self::new(message.to_string(), kind, false)
     }
 
     /// Format the existing message with the App's context
@@ -506,6 +507,7 @@ impl Error {
         app._build();
         let usage = app.render_usage();
         self.message.format(app, usage);
+        self.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
         self
     }
 
@@ -525,6 +527,14 @@ impl Error {
         if self.use_stderr() {
             // Swallow broken pipe errors
             let _ = self.print();
+
+            if self.wait_on_exit {
+                wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
+                let mut s = String::new();
+                let i = io::stdin();
+                i.lock().read_line(&mut s).unwrap();
+            }
+
             safe_exit(USAGE_CODE);
         }
 
@@ -553,12 +563,13 @@ impl Error {
         self.message.formatted().print()
     }
 
-    pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind) -> Self {
+    pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
         Self {
             message: message.into(),
             kind,
             info: vec![],
             source: None,
+            wait_on_exit,
             backtrace: Backtrace::new(),
         }
     }
@@ -605,7 +616,12 @@ impl Error {
             info.push(other);
         }
 
-        Self::new(c, ErrorKind::ArgumentConflict).set_info(info)
+        Self::new(
+            c,
+            ErrorKind::ArgumentConflict,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(info)
     }
 
     pub(crate) fn empty_value(app: &App, arg: &Arg, usage: String) -> Self {
@@ -618,7 +634,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::EmptyValue).set_info(vec![arg])
+        Self::new(
+            c,
+            ErrorKind::EmptyValue,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg])
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
@@ -631,7 +652,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::NoEquals).set_info(vec![arg])
+        Self::new(
+            c,
+            ErrorKind::NoEquals,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg])
     }
 
     pub(crate) fn invalid_value<G>(
@@ -689,7 +715,12 @@ impl Error {
         let mut info = vec![arg.to_string(), bad_val];
         info.extend(sorted);
 
-        Self::new(c, ErrorKind::InvalidValue).set_info(info)
+        Self::new(
+            c,
+            ErrorKind::InvalidValue,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(info)
     }
 
     pub(crate) fn invalid_subcommand(
@@ -715,7 +746,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::InvalidSubcommand).set_info(vec![subcmd])
+        Self::new(
+            c,
+            ErrorKind::InvalidSubcommand,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![subcmd])
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
@@ -728,7 +764,12 @@ impl Error {
         c.none(format!("\n    {} <subcommands>", name));
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::UnrecognizedSubcommand).set_info(vec![subcmd])
+        Self::new(
+            c,
+            ErrorKind::UnrecognizedSubcommand,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![subcmd])
     }
 
     pub(crate) fn missing_required_argument(
@@ -753,7 +794,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::MissingRequiredArgument).set_info(info)
+        Self::new(
+            c,
+            ErrorKind::MissingRequiredArgument,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(info)
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
@@ -765,7 +811,11 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::MissingSubcommand)
+        Self::new(
+            c,
+            ErrorKind::MissingSubcommand,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
@@ -778,7 +828,11 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::InvalidUtf8)
+        Self::new(
+            c,
+            ErrorKind::InvalidUtf8,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
     }
 
     pub(crate) fn too_many_occurrences(
@@ -801,7 +855,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::TooManyOccurrences).set_info(vec![
+        Self::new(
+            c,
+            ErrorKind::TooManyOccurrences,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![
             arg.to_string(),
             curr_occurs.to_string(),
             max_occurs.to_string(),
@@ -819,7 +878,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::TooManyValues).set_info(vec![arg, val])
+        Self::new(
+            c,
+            ErrorKind::TooManyValues,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg, val])
     }
 
     pub(crate) fn too_few_values(
@@ -842,7 +906,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::TooFewValues).set_info(vec![
+        Self::new(
+            c,
+            ErrorKind::TooFewValues,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![
             arg.to_string(),
             curr_vals.to_string(),
             min_vals.to_string(),
@@ -855,7 +924,13 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err = Self::value_validation_with_color(arg, val, err, app.get_color());
+        let mut err = Self::value_validation_with_color(
+            arg,
+            val,
+            err,
+            app.get_color(),
+            app.settings.is_set(AppSettings::WaitOnError),
+        );
         match &mut err.message {
             Message::Raw(_) => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
@@ -870,7 +945,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::value_validation_with_color(arg, val, err, ColorChoice::Never)
+        Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false)
     }
 
     fn value_validation_with_color(
@@ -878,6 +953,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
+        wait_on_exit: bool,
     ) -> Self {
         let mut c = Colorizer::new(true, color);
 
@@ -889,7 +965,7 @@ impl Error {
 
         c.none(format!(": {}", err));
 
-        Self::new(c, ErrorKind::ValueValidation)
+        Self::new(c, ErrorKind::ValueValidation, wait_on_exit)
             .set_info(vec![arg, val, err.to_string()])
             .set_source(err)
     }
@@ -914,7 +990,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::WrongNumberOfValues).set_info(vec![
+        Self::new(
+            c,
+            ErrorKind::WrongNumberOfValues,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![
             arg.to_string(),
             curr_vals.to_string(),
             num_vals.to_string(),
@@ -931,7 +1012,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::UnexpectedMultipleUsage).set_info(vec![arg])
+        Self::new(
+            c,
+            ErrorKind::UnexpectedMultipleUsage,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg])
     }
 
     pub(crate) fn unknown_argument(
@@ -975,7 +1061,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::UnknownArgument).set_info(vec![arg])
+        Self::new(
+            c,
+            ErrorKind::UnknownArgument,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg])
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
@@ -992,7 +1083,12 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        Self::new(c, ErrorKind::UnknownArgument).set_info(vec![arg])
+        Self::new(
+            c,
+            ErrorKind::UnknownArgument,
+            app.settings.is_set(AppSettings::WaitOnError),
+        )
+        .set_info(vec![arg])
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
@@ -1002,7 +1098,7 @@ impl Error {
         c.warning(arg.clone());
         c.none("' wasn't found");
 
-        Self::new(c, ErrorKind::ArgumentNotFound).set_info(vec![arg])
+        Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
     /// Deprecated, see [`App::error`]
@@ -1010,19 +1106,19 @@ impl Error {
     /// [`App::error`]: crate::App::error
     #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
     pub fn with_description(description: String, kind: ErrorKind) -> Self {
-        Error::new(description, kind)
+        Error::raw(kind, description)
     }
 }
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Self {
-        Error::new(e.to_string(), ErrorKind::Io)
+        Error::raw(ErrorKind::Io, e)
     }
 }
 
 impl From<fmt::Error> for Error {
     fn from(e: fmt::Error) -> Self {
-        Error::new(e.to_string(), ErrorKind::Format)
+        Error::raw(ErrorKind::Format, e)
     }
 }
 

@@ -12,7 +12,7 @@ use std::{
     env,
     ffi::OsString,
     fmt,
-    io::{self, BufRead, Write},
+    io::{self, Write},
     ops::Index,
     path::Path,
 };
@@ -28,7 +28,7 @@ use crate::{
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser, ValueType},
-    util::{color::ColorChoice, safe_exit, Id, Key, USAGE_CODE},
+    util::{color::ColorChoice, Id, Key},
     Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
@@ -2068,24 +2068,7 @@ impl<'help> App<'help> {
     /// [`App::get_matches`]: App::get_matches()
     pub fn get_matches_mut(&mut self) -> ArgMatches {
         self.try_get_matches_from_mut(&mut env::args_os())
-            .unwrap_or_else(|e| {
-                // Otherwise, write to stderr and exit
-                if e.use_stderr() {
-                    e.print().expect("Error writing Error to stderr");
-
-                    if self.settings.is_set(AppSettings::WaitOnError) {
-                        wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                        let mut s = String::new();
-                        let i = io::stdin();
-                        i.lock().read_line(&mut s).unwrap();
-                    }
-
-                    drop(e);
-                    safe_exit(USAGE_CODE);
-                }
-
-                e.exit()
-            })
+            .unwrap_or_else(|e| e.exit())
     }
 
     /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
@@ -2151,22 +2134,6 @@ impl<'help> App<'help> {
         T: Into<OsString> + Clone,
     {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
-            // Otherwise, write to stderr and exit
-            if e.use_stderr() {
-                e.print().expect("Error writing Error to stderr");
-
-                if self.settings.is_set(AppSettings::WaitOnError) {
-                    wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
-                    let mut s = String::new();
-                    let i = io::stdin();
-                    i.lock().read_line(&mut s).unwrap();
-                }
-
-                drop(self);
-                drop(e);
-                safe_exit(USAGE_CODE);
-            }
-
             drop(self);
             e.exit()
         })
