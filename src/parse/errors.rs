@@ -439,21 +439,17 @@ pub struct Error {
     pub info: Vec<String>,
     pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
-    backtrace: Backtrace,
+    backtrace: Option<Backtrace>,
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        #[cfg(feature = "debug")]
-        {
-            writeln!(f, "{}", self.message.formatted())?;
+        // Assuming `self.message` already has a trailing newline, from `try_help` or similar
+        write!(f, "{}", self.message.formatted())?;
+        if let Some(backtrace) = self.backtrace.as_ref() {
             writeln!(f)?;
             writeln!(f, "Backtrace:")?;
-            writeln!(f, "{}", self.backtrace)?;
-        }
-        #[cfg(not(feature = "debug"))]
-        {
-            Display::fmt(&self.message.formatted(), f)?;
+            writeln!(f, "{}", backtrace)?;
         }
         Ok(())
     }
@@ -1182,8 +1178,8 @@ struct Backtrace(backtrace::Backtrace);
 
 #[cfg(feature = "debug")]
 impl Backtrace {
-    fn new() -> Self {
-        Self(backtrace::Backtrace::new())
+    fn new() -> Option<Self> {
+        Some(Self(backtrace::Backtrace::new()))
     }
 }
 
@@ -1201,8 +1197,8 @@ struct Backtrace;
 
 #[cfg(not(feature = "debug"))]
 impl Backtrace {
-    fn new() -> Self {
-        Self
+    fn new() -> Option<Self> {
+        None
     }
 }
 
