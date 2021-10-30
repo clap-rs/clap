@@ -50,10 +50,11 @@ fn test_path_opt_simple() {
             option_path_1: None,
             option_path_2: Some(PathBuf::from("j.zip")),
         },
-        PathOpt::parse_from(&[
+        PathOpt::try_parse_from(&[
             "test", "-p", "/usr/bin", "-v", "/a/b/c", "-v", "/d/e/f", "-v", "/g/h/i", "-q",
             "j.zip",
         ])
+        .unwrap()
     );
 }
 
@@ -71,13 +72,13 @@ struct HexOpt {
 fn test_parse_hex() {
     assert_eq!(
         HexOpt { number: 5 },
-        HexOpt::parse_from(&["test", "-n", "5"])
+        HexOpt::try_parse_from(&["test", "-n", "5"]).unwrap()
     );
     assert_eq!(
         HexOpt {
             number: 0x00ab_cdef
         },
-        HexOpt::parse_from(&["test", "-n", "abcdef"])
+        HexOpt::try_parse_from(&["test", "-n", "abcdef"]).unwrap()
     );
 
     let err = HexOpt::try_parse_from(&["test", "-n", "gg"]).unwrap_err();
@@ -130,7 +131,7 @@ fn test_every_custom_parser() {
             c: "C",
             d: "D"
         },
-        NoOpOpt::parse_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"])
+        NoOpOpt::try_parse_from(&["test", "-a=?", "-b=?", "-c=?", "-d=?"]).unwrap()
     );
 }
 
@@ -180,7 +181,7 @@ fn test_parser_with_default_value() {
             integer: 9000,
             path: PathBuf::from("src/lib.rs"),
         },
-        DefaultedOpt::parse_from(&[
+        DefaultedOpt::try_parse_from(&[
             "test",
             "-b",
             "E²=p²c²+m²c⁴",
@@ -189,6 +190,7 @@ fn test_parser_with_default_value() {
             "-p",
             "src/lib.rs",
         ])
+        .unwrap()
     );
 }
 
@@ -227,9 +229,10 @@ fn test_parser_occurrences() {
             little_unsigned: 4,
             custom: Foo(5),
         },
-        Occurrences::parse_from(&[
+        Occurrences::try_parse_from(&[
             "test", "-s", "--signed", "--signed", "-l", "-rrrr", "-cccc", "--custom",
         ])
+        .unwrap()
     );
 }
 
@@ -268,7 +271,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dfalse"])
+        Opt::try_parse_from(&["test", "-dfalse"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -277,7 +280,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dtrue"])
+        Opt::try_parse_from(&["test", "-dtrue"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -286,7 +289,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dtrue", "-vfalse"])
+        Opt::try_parse_from(&["test", "-dtrue", "-vfalse"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -295,7 +298,7 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dtrue", "-vtrue"])
+        Opt::try_parse_from(&["test", "-dtrue", "-vtrue"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -304,7 +307,7 @@ fn test_custom_bool() {
             tribool: Some(false),
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dtrue", "-tfalse"])
+        Opt::try_parse_from(&["test", "-dtrue", "-tfalse"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -313,7 +316,7 @@ fn test_custom_bool() {
             tribool: Some(true),
             bitset: vec![],
         },
-        Opt::parse_from(&["test", "-dtrue", "-ttrue"])
+        Opt::try_parse_from(&["test", "-dtrue", "-ttrue"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -322,7 +325,8 @@ fn test_custom_bool() {
             tribool: None,
             bitset: vec![false, true, false, false],
         },
-        Opt::parse_from(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"])
+        Opt::try_parse_from(&["test", "-dtrue", "-bfalse", "-btrue", "-bfalse", "-bfalse"])
+            .unwrap()
     );
 }
 
@@ -336,7 +340,10 @@ fn test_cstring() {
 
     assert!(Opt::try_parse_from(&["test"]).is_err());
     assert_eq!(
-        Opt::parse_from(&["test", "bla"]).c_string.to_bytes(),
+        Opt::try_parse_from(&["test", "bla"])
+            .unwrap()
+            .c_string
+            .to_bytes(),
         b"bla"
     );
     assert!(Opt::try_parse_from(&["test", "bla\0bla"]).is_err());

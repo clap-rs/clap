@@ -15,7 +15,7 @@ fn explicit_short_long_no_rename() {
         Opt {
             foo: vec!["short".into(), "long".into()]
         },
-        Opt::parse_from(&["test", "-.", "short", "--.foo", "long"])
+        Opt::try_parse_from(&["test", "-.", "short", "--.foo", "long"]).unwrap()
     );
 }
 

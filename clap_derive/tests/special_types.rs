@@ -28,7 +28,7 @@ fn special_types_bool() {
         Opt {
             arg: inner::bool("success".into())
         },
-        Opt::parse_from(&["test", "success"])
+        Opt::try_parse_from(&["test", "success"]).unwrap()
     );
 }
 
@@ -48,7 +48,7 @@ fn special_types_option() {
         Opt {
             arg: Some("success".into())
         },
-        Opt::parse_from(&["test", "success"])
+        Opt::try_parse_from(&["test", "success"]).unwrap()
     );
 }
 
@@ -68,6 +68,6 @@ fn special_types_vec() {
         Opt {
             arg: vec!["success".into()]
         },
-        Opt::parse_from(&["test", "success"])
+        Opt::try_parse_from(&["test", "success"]).unwrap()
     );
 }

@@ -45,7 +45,7 @@ fn test_fetch() {
             force: false,
             repo: "origin".to_string()
         },
-        Opt::parse_from(&["test", "fetch", "--all", "origin"])
+        Opt::try_parse_from(&["test", "fetch", "--all", "origin"]).unwrap()
     );
     assert_eq!(
         Opt::Fetch {
@@ -53,7 +53,7 @@ fn test_fetch() {
             force: true,
             repo: "origin".to_string()
         },
-        Opt::parse_from(&["test", "fetch", "-f", "origin"])
+        Opt::try_parse_from(&["test", "fetch", "-f", "origin"]).unwrap()
     );
 }
 
@@ -64,14 +64,14 @@ fn test_add() {
             interactive: false,
             verbose: false
         },
-        Opt::parse_from(&["test", "add"])
+        Opt::try_parse_from(&["test", "add"]).unwrap()
     );
     assert_eq!(
         Opt::Add {
             interactive: true,
             verbose: true
         },
-        Opt::parse_from(&["test", "add", "-i", "-v"])
+        Opt::try_parse_from(&["test", "add", "-i", "-v"]).unwrap()
     );
 }
 
@@ -100,7 +100,7 @@ fn test_hyphenated_subcommands() {
         Opt2::DoSomething {
             arg: "blah".to_string()
         },
-        Opt2::parse_from(&["test", "do-something", "blah"])
+        Opt2::try_parse_from(&["test", "do-something", "blah"]).unwrap()
     );
 }
 
@@ -113,9 +113,12 @@ enum Opt3 {
 
 #[test]
 fn test_null_commands() {
-    assert_eq!(Opt3::Add, Opt3::parse_from(&["test", "add"]));
-    assert_eq!(Opt3::Init, Opt3::parse_from(&["test", "init"]));
-    assert_eq!(Opt3::Fetch, Opt3::parse_from(&["test", "fetch"]));
+    assert_eq!(Opt3::Add, Opt3::try_parse_from(&["test", "add"]).unwrap());
+    assert_eq!(Opt3::Init, Opt3::try_parse_from(&["test", "init"]).unwrap());
+    assert_eq!(
+        Opt3::Fetch,
+        Opt3::try_parse_from(&["test", "fetch"]).unwrap()
+    );
 }
 
 #[derive(Parser, PartialEq, Debug)]
@@ -144,14 +147,14 @@ fn test_tuple_commands() {
         Opt4::Add(Add {
             file: "f".to_string()
         }),
-        Opt4::parse_from(&["test", "add", "f"])
+        Opt4::try_parse_from(&["test", "add", "f"]).unwrap()
     );
-    assert_eq!(Opt4::Init, Opt4::parse_from(&["test", "init"]));
+    assert_eq!(Opt4::Init, Opt4::try_parse_from(&["test", "init"]).unwrap());
     assert_eq!(
         Opt4::Fetch(Fetch {
             remote: "origin".to_string()
         }),
-        Opt4::parse_from(&["test", "fetch", "origin"])
+        Opt4::try_parse_from(&["test", "fetch", "origin"]).unwrap()
     );
 
     let output = get_long_help::<Opt4>();
@@ -184,7 +187,7 @@ fn global_passed_down() {
     }
 
     assert_eq!(
-        Opt::parse_from(&["test", "global"]),
+        Opt::try_parse_from(&["test", "global"]).unwrap(),
         Opt {
             other: false,
             sub: Subcommands::Global(GlobalCmd { other: false })
@@ -192,7 +195,7 @@ fn global_passed_down() {
     );
 
     assert_eq!(
-        Opt::parse_from(&["test", "global", "--other"]),
+        Opt::try_parse_from(&["test", "global", "--other"]).unwrap(),
         Opt {
             other: true,
             sub: Subcommands::Global(GlobalCmd { other: true })
@@ -217,14 +220,14 @@ fn external_subcommand() {
     }
 
     assert_eq!(
-        Opt::parse_from(&["test", "add"]),
+        Opt::try_parse_from(&["test", "add"]).unwrap(),
         Opt {
             sub: Subcommands::Add
         }
     );
 
     assert_eq!(
-        Opt::parse_from(&["test", "remove"]),
+        Opt::try_parse_from(&["test", "remove"]).unwrap(),
         Opt {
             sub: Subcommands::Remove
         }
@@ -310,7 +313,7 @@ fn enum_in_enum_subsubcommand() {
     let result = Opt::try_parse_from(&["test", "daemon"]);
     assert!(result.is_err());
 
-    let result = Opt::parse_from(&["test", "daemon", "start"]);
+    let result = Opt::try_parse_from(&["test", "daemon", "start"]).unwrap();
     assert_eq!(Opt::Daemon(DaemonCommand::Start), result);
 }
 
@@ -337,17 +340,26 @@ fn update_subcommands() {
     let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
     opt.try_update_from(&["test", "command1", "42", "44"])
         .unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command1", "42", "44"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command1", "42", "44"]).unwrap(),
+        opt
+    );
 
     // Partial subcommand update
     let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
     opt.try_update_from(&["test", "command1", "42"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command1", "42", "14"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command1", "42", "14"]).unwrap(),
+        opt
+    );
 
     // Change subcommand
     let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
     opt.try_update_from(&["test", "command2", "43"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command2", "43"]).unwrap(),
+        opt
+    );
 }
 
 #[test]
@@ -388,7 +400,7 @@ fn update_sub_subcommands() {
     opt.try_update_from(&["test", "child1", "command1", "42", "44"])
         .unwrap();
     assert_eq!(
-        Opt::parse_from(&["test", "child1", "command1", "42", "44"]),
+        Opt::try_parse_from(&["test", "child1", "command1", "42", "44"]).unwrap(),
         opt
     );
 
@@ -397,7 +409,7 @@ fn update_sub_subcommands() {
     opt.try_update_from(&["test", "child1", "command1", "42"])
         .unwrap();
     assert_eq!(
-        Opt::parse_from(&["test", "child1", "command1", "42", "14"]),
+        Opt::try_parse_from(&["test", "child1", "command1", "42", "14"]).unwrap(),
         opt
     );
 
@@ -405,13 +417,19 @@ fn update_sub_subcommands() {
     let mut opt = Opt::Child1(Child1::Command1(Command1 { arg1: 12, arg2: 14 }));
     opt.try_update_from(&["test", "child1", "command2", "43"])
         .unwrap();
-    assert_eq!(Opt::parse_from(&["test", "child1", "command2", "43"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "child1", "command2", "43"]).unwrap(),
+        opt
+    );
 
     // Change subcommand
     let mut opt = Opt::Child1(Child1::Command1(Command1 { arg1: 12, arg2: 14 }));
     opt.try_update_from(&["test", "child2", "command2", "43"])
         .unwrap();
-    assert_eq!(Opt::parse_from(&["test", "child2", "command2", "43"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "child2", "command2", "43"]).unwrap(),
+        opt
+    );
 }
 
 #[test]
@@ -438,21 +456,30 @@ fn update_ext_subcommand() {
     // Full subcommand update
     let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
     opt.try_update_from(&["test", "ext", "42", "44"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "ext", "42", "44"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "ext", "42", "44"]).unwrap(),
+        opt
+    );
 
     // No partial subcommand update
     let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
     opt.try_update_from(&["test", "ext", "42"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "ext", "42"]), opt);
+    assert_eq!(Opt::try_parse_from(&["test", "ext", "42"]).unwrap(), opt);
 
     // Change subcommand
     let mut opt = Opt::Ext(vec!["12".into(), "14".into()]);
     opt.try_update_from(&["test", "command2", "43"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command2", "43"]).unwrap(),
+        opt
+    );
 
     let mut opt = Opt::Command1(Command1 { arg1: 12, arg2: 14 });
     opt.try_update_from(&["test", "ext", "42", "44"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "ext", "42", "44"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "ext", "42", "44"]).unwrap(),
+        opt
+    );
 }
 #[test]
 fn subcommand_name_not_literal() {
@@ -494,14 +521,14 @@ fn skip_subcommand() {
     }
 
     assert_eq!(
-        Opt::parse_from(&["test", "add"]),
+        Opt::try_parse_from(&["test", "add"]).unwrap(),
         Opt {
             sub: Subcommands::Add
         }
     );
 
     assert_eq!(
-        Opt::parse_from(&["test", "remove"]),
+        Opt::try_parse_from(&["test", "remove"]).unwrap(),
         Opt {
             sub: Subcommands::Remove
         }

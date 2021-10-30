@@ -51,7 +51,7 @@ fn test_no_cmd() {
             verbose: 0,
             cmd: None
         },
-        Opt2::parse_from(&["test"])
+        Opt2::try_parse_from(&["test"]).unwrap()
     );
 }
 
@@ -63,7 +63,7 @@ fn test_fetch() {
             verbose: 3,
             cmd: Sub::Fetch {}
         },
-        Opt::parse_from(&["test", "-vvv", "fetch"])
+        Opt::try_parse_from(&["test", "-vvv", "fetch"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -71,7 +71,7 @@ fn test_fetch() {
             verbose: 0,
             cmd: Sub::Fetch {}
         },
-        Opt::parse_from(&["test", "--force", "fetch"])
+        Opt::try_parse_from(&["test", "--force", "fetch"]).unwrap()
     );
 }
 
@@ -83,7 +83,7 @@ fn test_add() {
             verbose: 0,
             cmd: Sub::Add {}
         },
-        Opt::parse_from(&["test", "add"])
+        Opt::try_parse_from(&["test", "add"]).unwrap()
     );
     assert_eq!(
         Opt {
@@ -91,7 +91,7 @@ fn test_add() {
             verbose: 2,
             cmd: Sub::Add {}
         },
-        Opt::parse_from(&["test", "-vv", "add"])
+        Opt::try_parse_from(&["test", "-vv", "add"]).unwrap()
     );
 }
 
@@ -141,7 +141,7 @@ fn test_subsubcommand() {
                 cmd: Sub3::Quux {}
             }
         },
-        Opt3::parse_from(&["test", "--all", "foo", "lib.rs", "quux"])
+        Opt3::try_parse_from(&["test", "--all", "foo", "lib.rs", "quux"]).unwrap()
     );
 }
 

@@ -27,13 +27,13 @@ fn basic() {
         Opt {
             arg: ArgChoice::Foo
         },
-        Opt::parse_from(&["", "foo"])
+        Opt::try_parse_from(&["", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::Bar
         },
-        Opt::parse_from(&["", "bar"])
+        Opt::try_parse_from(&["", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "fOo"]).is_err());
 }
@@ -68,19 +68,19 @@ fn default_value() {
         Opt {
             arg: ArgChoice::Foo
         },
-        Opt::parse_from(&["", "foo"])
+        Opt::try_parse_from(&["", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::Bar
         },
-        Opt::parse_from(&["", "bar"])
+        Opt::try_parse_from(&["", "bar"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::Bar
         },
-        Opt::parse_from(&[""])
+        Opt::try_parse_from(&[""]).unwrap()
     );
 }
 
@@ -103,13 +103,13 @@ fn multi_word_is_renamed_kebab() {
         Opt {
             arg: ArgChoice::FooBar
         },
-        Opt::parse_from(&["", "foo-bar"])
+        Opt::try_parse_from(&["", "foo-bar"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::BAR_BAZ
         },
-        Opt::parse_from(&["", "bar-baz"])
+        Opt::try_parse_from(&["", "bar-baz"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "FooBar"]).is_err());
 }
@@ -132,7 +132,7 @@ fn variant_with_defined_casing() {
         Opt {
             arg: ArgChoice::FooBar
         },
-        Opt::parse_from(&["", "FOO_BAR"])
+        Opt::try_parse_from(&["", "FOO_BAR"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "FooBar"]).is_err());
 }
@@ -155,7 +155,7 @@ fn casing_is_propagated_from_parent() {
         Opt {
             arg: ArgChoice::FooBar
         },
-        Opt::parse_from(&["", "FOO_BAR"])
+        Opt::try_parse_from(&["", "FOO_BAR"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "FooBar"]).is_err());
 }
@@ -179,7 +179,7 @@ fn casing_propagation_is_overridden() {
         Opt {
             arg: ArgChoice::FooBar
         },
-        Opt::parse_from(&["", "fooBar"])
+        Opt::try_parse_from(&["", "fooBar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "FooBar"]).is_err());
     assert!(Opt::try_parse_from(&["", "FOO_BAR"]).is_err());
@@ -202,13 +202,13 @@ fn case_insensitive() {
         Opt {
             arg: ArgChoice::Foo
         },
-        Opt::parse_from(&["", "foo"])
+        Opt::try_parse_from(&["", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::Foo
         },
-        Opt::parse_from(&["", "fOo"])
+        Opt::try_parse_from(&["", "fOo"]).unwrap()
     );
 }
 
@@ -229,7 +229,7 @@ fn case_insensitive_set_to_false() {
         Opt {
             arg: ArgChoice::Foo
         },
-        Opt::parse_from(&["", "foo"])
+        Opt::try_parse_from(&["", "foo"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "fOo"]).is_err());
 }
@@ -252,13 +252,13 @@ fn alias() {
         Opt {
             arg: ArgChoice::TOTP
         },
-        Opt::parse_from(&["", "totp"])
+        Opt::try_parse_from(&["", "totp"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::TOTP
         },
-        Opt::parse_from(&["", "TOTP"])
+        Opt::try_parse_from(&["", "TOTP"]).unwrap()
     );
 }
 
@@ -280,19 +280,19 @@ fn multiple_alias() {
         Opt {
             arg: ArgChoice::TOTP
         },
-        Opt::parse_from(&["", "totp"])
+        Opt::try_parse_from(&["", "totp"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::TOTP
         },
-        Opt::parse_from(&["", "TOTP"])
+        Opt::try_parse_from(&["", "TOTP"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: ArgChoice::TOTP
         },
-        Opt::parse_from(&["", "t"])
+        Opt::try_parse_from(&["", "t"]).unwrap()
     );
 }
 
@@ -310,18 +310,18 @@ fn option() {
         arg: Option<ArgChoice>,
     }
 
-    assert_eq!(Opt { arg: None }, Opt::parse_from(&[""]));
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&[""]).unwrap());
     assert_eq!(
         Opt {
             arg: Some(ArgChoice::Foo)
         },
-        Opt::parse_from(&["", "foo"])
+        Opt::try_parse_from(&["", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(ArgChoice::Bar)
         },
-        Opt::parse_from(&["", "bar"])
+        Opt::try_parse_from(&["", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "fOo"]).is_err());
 }
@@ -340,19 +340,22 @@ fn option_option() {
         arg: Option<Option<ArgChoice>>,
     }
 
-    assert_eq!(Opt { arg: None }, Opt::parse_from(&[""]));
-    assert_eq!(Opt { arg: Some(None) }, Opt::parse_from(&["", "--arg"]));
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&[""]).unwrap());
+    assert_eq!(
+        Opt { arg: Some(None) },
+        Opt::try_parse_from(&["", "--arg"]).unwrap()
+    );
     assert_eq!(
         Opt {
             arg: Some(Some(ArgChoice::Foo))
         },
-        Opt::parse_from(&["", "--arg", "foo"])
+        Opt::try_parse_from(&["", "--arg", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(Some(ArgChoice::Bar))
         },
-        Opt::parse_from(&["", "--arg", "bar"])
+        Opt::try_parse_from(&["", "--arg", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "--arg", "fOo"]).is_err());
 }
@@ -371,18 +374,18 @@ fn vector() {
         arg: Vec<ArgChoice>,
     }
 
-    assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&[""]));
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&[""]).unwrap());
     assert_eq!(
         Opt {
             arg: vec![ArgChoice::Foo]
         },
-        Opt::parse_from(&["", "-a", "foo"])
+        Opt::try_parse_from(&["", "-a", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: vec![ArgChoice::Foo, ArgChoice::Bar]
         },
-        Opt::parse_from(&["", "-a", "foo", "bar"])
+        Opt::try_parse_from(&["", "-a", "foo", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
 }
@@ -401,19 +404,22 @@ fn option_vector() {
         arg: Option<Vec<ArgChoice>>,
     }
 
-    assert_eq!(Opt { arg: None }, Opt::parse_from(&[""]));
-    assert_eq!(Opt { arg: Some(vec![]) }, Opt::parse_from(&["", "-a"]));
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&[""]).unwrap());
+    assert_eq!(
+        Opt { arg: Some(vec![]) },
+        Opt::try_parse_from(&["", "-a"]).unwrap()
+    );
     assert_eq!(
         Opt {
             arg: Some(vec![ArgChoice::Foo])
         },
-        Opt::parse_from(&["", "-a", "foo"])
+        Opt::try_parse_from(&["", "-a", "foo"]).unwrap()
     );
     assert_eq!(
         Opt {
             arg: Some(vec![ArgChoice::Foo, ArgChoice::Bar])
         },
-        Opt::parse_from(&["", "-a", "foo", "bar"])
+        Opt::try_parse_from(&["", "-a", "foo", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
 }

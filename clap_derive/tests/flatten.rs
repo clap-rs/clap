@@ -33,7 +33,7 @@ fn flatten() {
         Opt {
             common: Common { arg: 42 }
         },
-        Opt::parse_from(&["test", "42"])
+        Opt::try_parse_from(&["test", "42"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["test"]).is_err());
     assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
@@ -56,7 +56,7 @@ fn flatten_twice() {
         #[clap(flatten)]
         c2: Common,
     }
-    Opt::parse_from(&["test", "42", "43"]);
+    Opt::try_parse_from(&["test", "42", "43"]).unwrap();
 }
 
 #[test]
@@ -91,14 +91,14 @@ fn flatten_in_subcommand() {
             all: false,
             common: Common { arg: 42 }
         },
-        Opt::parse_from(&["test", "fetch", "42"])
+        Opt::try_parse_from(&["test", "fetch", "42"]).unwrap()
     );
     assert_eq!(
         Opt::Add(Add {
             interactive: true,
             common: Common { arg: 43 }
         }),
-        Opt::parse_from(&["test", "add", "-i", "43"])
+        Opt::try_parse_from(&["test", "add", "-i", "43"]).unwrap()
     );
 }
 
@@ -119,13 +119,13 @@ fn update_args_with_flatten() {
         common: Common { arg: 42 },
     };
     opt.try_update_from(&["test"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "42"]), opt);
+    assert_eq!(Opt::try_parse_from(&["test", "42"]).unwrap(), opt);
 
     let mut opt = Opt {
         common: Common { arg: 42 },
     };
     opt.try_update_from(&["test", "52"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "52"]), opt);
+    assert_eq!(Opt::try_parse_from(&["test", "52"]).unwrap(), opt);
 }
 
 #[derive(Subcommand, PartialEq, Debug)]
@@ -155,11 +155,11 @@ enum Opt {
 fn merge_subcommands_with_flatten() {
     assert_eq!(
         Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 42, arg2: 44 })),
-        Opt::parse_from(&["test", "command1", "42", "44"])
+        Opt::try_parse_from(&["test", "command1", "42", "44"]).unwrap()
     );
     assert_eq!(
         Opt::Command2(Command2 { arg2: 43 }),
-        Opt::parse_from(&["test", "command2", "43"])
+        Opt::try_parse_from(&["test", "command2", "43"]).unwrap()
     );
 }
 
@@ -168,15 +168,24 @@ fn update_subcommands_with_flatten() {
     let mut opt = Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 12, arg2: 14 }));
     opt.try_update_from(&["test", "command1", "42", "44"])
         .unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command1", "42", "44"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command1", "42", "44"]).unwrap(),
+        opt
+    );
 
     let mut opt = Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 12, arg2: 14 }));
     opt.try_update_from(&["test", "command1", "42"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command1", "42", "14"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command1", "42", "14"]).unwrap(),
+        opt
+    );
 
     let mut opt = Opt::BaseCli(BaseCli::Command1(Command1 { arg1: 12, arg2: 14 }));
     opt.try_update_from(&["test", "command2", "43"]).unwrap();
-    assert_eq!(Opt::parse_from(&["test", "command2", "43"]), opt);
+    assert_eq!(
+        Opt::try_parse_from(&["test", "command2", "43"]).unwrap(),
+        opt
+    );
 }
 
 #[test]
@@ -198,7 +207,7 @@ fn flatten_with_doc_comment() {
         Opt {
             common: Common { arg: 42 }
         },
-        Opt::parse_from(&["test", "42"])
+        Opt::try_parse_from(&["test", "42"]).unwrap()
     );
 
     let help = utils::get_help::<Opt>();

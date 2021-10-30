@@ -12,6 +12,6 @@ fn raw_idents() {
         Opt {
             r#type: vec!["long".into(), "short".into()]
         },
-        Opt::parse_from(&["test", "--type", "long", "-t", "short"])
+        Opt::try_parse_from(&["test", "--type", "long", "-t", "short"]).unwrap()
     );
 }

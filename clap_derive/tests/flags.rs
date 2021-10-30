@@ -22,9 +22,18 @@ fn unique_flag() {
         alice: bool,
     }
 
-    assert_eq!(Opt { alice: false }, Opt::parse_from(&["test"]));
-    assert_eq!(Opt { alice: true }, Opt::parse_from(&["test", "-a"]));
-    assert_eq!(Opt { alice: true }, Opt::parse_from(&["test", "--alice"]));
+    assert_eq!(
+        Opt { alice: false },
+        Opt::try_parse_from(&["test"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: true },
+        Opt::try_parse_from(&["test", "-a"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: true },
+        Opt::try_parse_from(&["test", "--alice"]).unwrap()
+    );
     assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "-a"]).is_err());
@@ -41,19 +50,25 @@ fn multiple_flag() {
         bob: u8,
     }
 
-    assert_eq!(Opt { alice: 0, bob: 0 }, Opt::parse_from(&["test"]));
-    assert_eq!(Opt { alice: 1, bob: 0 }, Opt::parse_from(&["test", "-a"]));
+    assert_eq!(
+        Opt { alice: 0, bob: 0 },
+        Opt::try_parse_from(&["test"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: 1, bob: 0 },
+        Opt::try_parse_from(&["test", "-a"]).unwrap()
+    );
     assert_eq!(
         Opt { alice: 2, bob: 0 },
-        Opt::parse_from(&["test", "-a", "-a"])
+        Opt::try_parse_from(&["test", "-a", "-a"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 2, bob: 2 },
-        Opt::parse_from(&["test", "-a", "--alice", "-bb"])
+        Opt::try_parse_from(&["test", "-a", "--alice", "-bb"]).unwrap()
     );
     assert_eq!(
         Opt { alice: 3, bob: 1 },
-        Opt::parse_from(&["test", "-aaa", "--bob"])
+        Opt::try_parse_from(&["test", "-aaa", "--bob"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["test", "-i"]).is_err());
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
@@ -73,19 +88,19 @@ fn non_bool_flags() {
         bob: std::sync::atomic::AtomicBool,
     }
 
-    let falsey = Opt::parse_from(&["test"]);
+    let falsey = Opt::try_parse_from(&["test"]).unwrap();
     assert!(!falsey.alice.load(std::sync::atomic::Ordering::Relaxed));
     assert!(!falsey.bob.load(std::sync::atomic::Ordering::Relaxed));
 
-    let alice = Opt::parse_from(&["test", "-a"]);
+    let alice = Opt::try_parse_from(&["test", "-a"]).unwrap();
     assert!(alice.alice.load(std::sync::atomic::Ordering::Relaxed));
     assert!(!alice.bob.load(std::sync::atomic::Ordering::Relaxed));
 
-    let bob = Opt::parse_from(&["test", "-b"]);
+    let bob = Opt::try_parse_from(&["test", "-b"]).unwrap();
     assert!(!bob.alice.load(std::sync::atomic::Ordering::Relaxed));
     assert!(bob.bob.load(std::sync::atomic::Ordering::Relaxed));
 
-    let both = Opt::parse_from(&["test", "-b", "-a"]);
+    let both = Opt::try_parse_from(&["test", "-b", "-a"]).unwrap();
     assert!(both.alice.load(std::sync::atomic::Ordering::Relaxed));
     assert!(both.bob.load(std::sync::atomic::Ordering::Relaxed));
 }
@@ -105,41 +120,41 @@ fn combined_flags() {
             alice: false,
             bob: 0
         },
-        Opt::parse_from(&["test"])
+        Opt::try_parse_from(&["test"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::parse_from(&["test", "-a"])
+        Opt::try_parse_from(&["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 0
         },
-        Opt::parse_from(&["test", "-a"])
+        Opt::try_parse_from(&["test", "-a"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: false,
             bob: 1
         },
-        Opt::parse_from(&["test", "-b"])
+        Opt::try_parse_from(&["test", "-b"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 1
         },
-        Opt::parse_from(&["test", "--alice", "--bob"])
+        Opt::try_parse_from(&["test", "--alice", "--bob"]).unwrap()
     );
     assert_eq!(
         Opt {
             alice: true,
             bob: 4
         },
-        Opt::parse_from(&["test", "-bb", "-a", "-bb"])
+        Opt::try_parse_from(&["test", "-bb", "-a", "-bb"]).unwrap()
     );
 }
