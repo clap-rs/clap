@@ -38,7 +38,7 @@ fn option_overrides_itself() {
 fn mult_option_require_delim_overrides_itself() {
     let res = App::new("posix")
         .arg(
-            Arg::from("--opt [val]... 'some option'")
+            Arg::from("[opt]... --opt [val]... 'some option'")
                 .overrides_with("opt")
                 .number_of_values(1)
                 .takes_value(true)
@@ -59,7 +59,7 @@ fn mult_option_require_delim_overrides_itself() {
 #[test]
 fn mult_option_overrides_itself() {
     let res = App::new("posix")
-        .arg(Arg::from("--opt [val]... 'some option'").overrides_with("opt"))
+        .arg(Arg::from("[opt]... --opt [val]... 'some option'").overrides_with("opt"))
         .try_get_matches_from(vec![
             "",
             "--opt",

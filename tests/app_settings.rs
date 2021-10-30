@@ -1038,7 +1038,7 @@ fn aaos_opts_mult() {
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(
-            Arg::from("--opt [val]... 'some option'")
+            Arg::from("[opt]... --opt [val]... 'some option'")
                 .number_of_values(1)
                 .takes_value(true)
                 .use_delimiter(true)
@@ -1060,7 +1060,7 @@ fn aaos_opts_mult_req_delims() {
     // opts with multiple and require delims
     let res = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
-        .arg(Arg::from("--opt [val]... 'some option'"))
+        .arg(Arg::from("[opt]... --opt [val]... 'some option'"))
         .try_get_matches_from(vec![
             "",
             "--opt",
