@@ -883,7 +883,7 @@ impl ArgMatches {
     }
 
     /// Because [`Subcommand`]s are essentially "sub-[`App`]s" they have their own [`ArgMatches`]
-    /// as well.But simply getting the sub-[`ArgMatches`] doesn't help much if we don't also know
+    /// as well. But simply getting the sub-[`ArgMatches`] doesn't help much if we don't also know
     /// which subcommand was actually used. This method returns the name of the subcommand that was
     /// used at runtime, or `None` if one wasn't.
     ///

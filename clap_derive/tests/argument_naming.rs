@@ -9,7 +9,7 @@ fn test_single_word_enum_variant_is_default_renamed_into_kebab_case() {
 
     assert_eq!(
         Opt::Command { foo: 0 },
-        Opt::parse_from(&["test", "command", "0"])
+        Opt::try_parse_from(&["test", "command", "0"]).unwrap()
     );
 }
 
@@ -22,7 +22,7 @@ fn test_multi_word_enum_variant_is_renamed() {
 
     assert_eq!(
         Opt::FirstCommand { foo: 0 },
-        Opt::parse_from(&["test", "first-command", "0"])
+        Opt::try_parse_from(&["test", "first-command", "0"]).unwrap()
     );
 }
 
@@ -37,7 +37,7 @@ fn test_standalone_long_generates_kebab_case() {
 
     assert_eq!(
         Opt { FOO_OPTION: true },
-        Opt::parse_from(&["test", "--foo-option"])
+        Opt::try_parse_from(&["test", "--foo-option"]).unwrap()
     );
 }
 
@@ -51,7 +51,7 @@ fn test_custom_long_overwrites_default_name() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--foo"])
+        Opt::try_parse_from(&["test", "--foo"]).unwrap()
     );
 }
 
@@ -65,7 +65,7 @@ fn test_standalone_long_uses_previous_defined_custom_name() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--foo"])
+        Opt::try_parse_from(&["test", "--foo"]).unwrap()
     );
 }
 
@@ -79,7 +79,7 @@ fn test_standalone_long_ignores_afterwards_defined_custom_name() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--foo-option"])
+        Opt::try_parse_from(&["test", "--foo-option"]).unwrap()
     );
 }
 
@@ -92,7 +92,10 @@ fn test_standalone_short_generates_kebab_case() {
         FOO_OPTION: bool,
     }
 
-    assert_eq!(Opt { FOO_OPTION: true }, Opt::parse_from(&["test", "-f"]));
+    assert_eq!(
+        Opt { FOO_OPTION: true },
+        Opt::try_parse_from(&["test", "-f"]).unwrap()
+    );
 }
 
 #[test]
@@ -103,7 +106,10 @@ fn test_custom_short_overwrites_default_name() {
         foo_option: bool,
     }
 
-    assert_eq!(Opt { foo_option: true }, Opt::parse_from(&["test", "-o"]));
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-o"]).unwrap()
+    );
 }
 
 #[test]
@@ -114,7 +120,10 @@ fn test_standalone_short_uses_previous_defined_custom_name() {
         foo_option: bool,
     }
 
-    assert_eq!(Opt { foo_option: true }, Opt::parse_from(&["test", "-o"]));
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-o"]).unwrap()
+    );
 }
 
 #[test]
@@ -125,7 +134,10 @@ fn test_standalone_short_ignores_afterwards_defined_custom_name() {
         foo_option: bool,
     }
 
-    assert_eq!(Opt { foo_option: true }, Opt::parse_from(&["test", "-f"]));
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-f"]).unwrap()
+    );
 }
 
 #[test]
@@ -138,7 +150,7 @@ fn test_standalone_long_uses_previous_defined_casing() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--FOO_OPTION"])
+        Opt::try_parse_from(&["test", "--FOO_OPTION"]).unwrap()
     );
 }
 
@@ -150,7 +162,10 @@ fn test_standalone_short_uses_previous_defined_casing() {
         foo_option: bool,
     }
 
-    assert_eq!(Opt { foo_option: true }, Opt::parse_from(&["test", "-F"]));
+    assert_eq!(
+        Opt { foo_option: true },
+        Opt::try_parse_from(&["test", "-F"]).unwrap()
+    );
 }
 
 #[test]
@@ -164,7 +179,7 @@ fn test_standalone_long_works_with_verbatim_casing() {
 
     assert_eq!(
         Opt { _fOO_oPtiON: true },
-        Opt::parse_from(&["test", "--_fOO_oPtiON"])
+        Opt::try_parse_from(&["test", "--_fOO_oPtiON"]).unwrap()
     );
 }
 
@@ -176,7 +191,10 @@ fn test_standalone_short_works_with_verbatim_casing() {
         _foo: bool,
     }
 
-    assert_eq!(Opt { _foo: true }, Opt::parse_from(&["test", "-_"]));
+    assert_eq!(
+        Opt { _foo: true },
+        Opt::try_parse_from(&["test", "-_"]).unwrap()
+    );
 }
 
 #[test]
@@ -188,7 +206,10 @@ fn test_rename_all_is_propagated_from_struct_to_fields() {
         foo: bool,
     }
 
-    assert_eq!(Opt { foo: true }, Opt::parse_from(&["test", "--FOO"]));
+    assert_eq!(
+        Opt { foo: true },
+        Opt::try_parse_from(&["test", "--FOO"]).unwrap()
+    );
 }
 
 #[test]
@@ -210,7 +231,7 @@ fn test_rename_all_is_not_propagated_from_struct_into_flattened() {
         Opt {
             foo: Foo { foo: true }
         },
-        Opt::parse_from(&["test", "--foo"])
+        Opt::try_parse_from(&["test", "--foo"]).unwrap()
     );
 }
 
@@ -235,7 +256,7 @@ fn test_rename_all_is_not_propagated_from_struct_into_subcommand() {
         Opt {
             foo: Foo::Command { foo: true }
         },
-        Opt::parse_from(&["test", "command", "--foo"])
+        Opt::try_parse_from(&["test", "command", "--foo"]).unwrap()
     );
 }
 
@@ -253,12 +274,12 @@ fn test_rename_all_is_propagated_from_enum_to_variants_and_their_fields() {
 
     assert_eq!(
         Opt::FirstVariant,
-        Opt::parse_from(&["test", "FIRST_VARIANT"])
+        Opt::try_parse_from(&["test", "FIRST_VARIANT"]).unwrap()
     );
 
     assert_eq!(
         Opt::SecondVariant { foo: true },
-        Opt::parse_from(&["test", "SECOND_VARIANT", "--FOO"])
+        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--FOO"]).unwrap()
     );
 }
 
@@ -280,12 +301,12 @@ fn test_rename_all_is_propagation_can_be_overridden() {
 
     assert_eq!(
         Opt::FirstVariant { foo_option: true },
-        Opt::parse_from(&["test", "first-variant", "--foo-option"])
+        Opt::try_parse_from(&["test", "first-variant", "--foo-option"]).unwrap()
     );
 
     assert_eq!(
         Opt::SecondVariant { foo_option: true },
-        Opt::parse_from(&["test", "SECOND_VARIANT", "--foo-option"])
+        Opt::try_parse_from(&["test", "SECOND_VARIANT", "--foo-option"]).unwrap()
     );
 }
 
@@ -299,7 +320,7 @@ fn test_lower_is_renamed() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--foooption"])
+        Opt::try_parse_from(&["test", "--foooption"]).unwrap()
     );
 }
 
@@ -313,6 +334,6 @@ fn test_upper_is_renamed() {
 
     assert_eq!(
         Opt { foo_option: true },
-        Opt::parse_from(&["test", "--FOOOPTION"])
+        Opt::try_parse_from(&["test", "--FOOOPTION"]).unwrap()
     );
 }

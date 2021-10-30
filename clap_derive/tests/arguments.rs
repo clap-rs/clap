@@ -21,7 +21,10 @@ fn required_argument() {
     struct Opt {
         arg: i32,
     }
-    assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test", "42"]));
+    assert_eq!(
+        Opt { arg: 42 },
+        Opt::try_parse_from(&["test", "42"]).unwrap()
+    );
     assert!(Opt::try_parse_from(&["test"]).is_err());
     assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
@@ -32,8 +35,11 @@ fn optional_argument() {
     struct Opt {
         arg: Option<i32>,
     }
-    assert_eq!(Opt { arg: Some(42) }, Opt::parse_from(&["test", "42"]));
-    assert_eq!(Opt { arg: None }, Opt::parse_from(&["test"]));
+    assert_eq!(
+        Opt { arg: Some(42) },
+        Opt::try_parse_from(&["test", "42"]).unwrap()
+    );
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
     assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
@@ -44,8 +50,11 @@ fn argument_with_default() {
         #[clap(default_value = "42")]
         arg: i32,
     }
-    assert_eq!(Opt { arg: 24 }, Opt::parse_from(&["test", "24"]));
-    assert_eq!(Opt { arg: 42 }, Opt::parse_from(&["test"]));
+    assert_eq!(
+        Opt { arg: 24 },
+        Opt::try_parse_from(&["test", "24"]).unwrap()
+    );
+    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(&["test"]).unwrap());
     assert!(Opt::try_parse_from(&["test", "42", "24"]).is_err());
 }
 
@@ -55,11 +64,14 @@ fn arguments() {
     struct Opt {
         arg: Vec<i32>,
     }
-    assert_eq!(Opt { arg: vec![24] }, Opt::parse_from(&["test", "24"]));
-    assert_eq!(Opt { arg: vec![] }, Opt::parse_from(&["test"]));
+    assert_eq!(
+        Opt { arg: vec![24] },
+        Opt::try_parse_from(&["test", "24"]).unwrap()
+    );
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
     assert_eq!(
         Opt { arg: vec![24, 42] },
-        Opt::parse_from(&["test", "24", "42"])
+        Opt::try_parse_from(&["test", "24", "42"]).unwrap()
     );
 }
 
@@ -98,7 +110,10 @@ fn auto_value_name() {
 
     assert!(help.contains("MY_SPECIAL_ARG"));
     // Ensure the implicit `num_vals` is just 1
-    assert_eq!(Opt { my_special_arg: 10 }, Opt::parse_from(&["test", "10"]));
+    assert_eq!(
+        Opt { my_special_arg: 10 },
+        Opt::try_parse_from(&["test", "10"]).unwrap()
+    );
 }
 
 #[test]
@@ -116,5 +131,8 @@ fn explicit_value_name() {
     assert!(help.contains("BROWNIE_POINTS"));
     assert!(!help.contains("MY_SPECIAL_ARG"));
     // Ensure the implicit `num_vals` is just 1
-    assert_eq!(Opt { my_special_arg: 10 }, Opt::parse_from(&["test", "10"]));
+    assert_eq!(
+        Opt { my_special_arg: 10 },
+        Opt::try_parse_from(&["test", "10"]).unwrap()
+    );
 }
