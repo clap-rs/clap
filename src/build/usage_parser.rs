@@ -64,12 +64,6 @@ impl<'help> UsageParser<'help> {
             }
         }
 
-        if arg.is_positional() && arg.is_set(ArgSettings::MultipleOccurrences) {
-            // We had a positional and need to set mult vals too
-            arg.settings.set(ArgSettings::MultipleValues);
-            arg.settings.unset(ArgSettings::MultipleOccurrences);
-        }
-
         debug!("UsageParser::parse: vals...{:?}", arg.val_names);
         arg
     }
@@ -1109,8 +1103,8 @@ mod test {
         let a = Arg::from("[pos]... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1120,8 +1114,8 @@ mod test {
         let a = Arg::from("[pos]... 'some help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help' info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1131,8 +1125,8 @@ mod test {
         let a = Arg::from("[pos]... 'some \'help\' info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some 'help' info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1145,8 +1139,8 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help\ninfo");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1159,8 +1153,8 @@ mod test {
         );
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help' stuff\ninfo");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1170,8 +1164,8 @@ mod test {
         let a = Arg::from("<pos>... 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1190,8 +1184,8 @@ mod test {
     fn pos_mult() {
         let a = Arg::from("[pos]...");
         assert_eq!(a.name, "pos");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
     }
@@ -1201,8 +1195,8 @@ mod test {
         let a = Arg::from("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
         assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
         assert!(a.val_names.is_empty());
         assert_eq!(a.default_vals, vec![std::ffi::OsStr::new("a")]);
