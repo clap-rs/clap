@@ -3,7 +3,7 @@ mod utils;
 use std::io::Write;
 use std::str;
 
-use clap::{App, Arg};
+use clap::{App, Arg, ArgSettings};
 
 static SCF2OP: &str = "flag present 2 times
 option NOT present
@@ -389,4 +389,18 @@ fn sc_short_flag_x2_short_opt_eq_pos() {
 #[test]
 fn sc_short_flag_x2_long_opt_eq_pos() {
     check_complex_output("clap-test subcmd value -f -f --option=some", SCF2OP);
+}
+
+#[test]
+fn mut_arg_all() {
+    let mut app = utils::complex_app();
+    let arg_names = app
+        .get_arguments()
+        .map(|a| a.get_name())
+        .filter(|a| *a != "version" && *a != "help")
+        .collect::<Vec<_>>();
+
+    for arg_name in arg_names {
+        app = app.mut_arg(arg_name, |arg| arg.setting(ArgSettings::HidePossibleValues));
+    }
 }

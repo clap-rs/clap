@@ -128,13 +128,13 @@ pub struct Arg<'help> {
 impl<'help> Arg<'help> {
     /// Get the name of the argument
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn get_name(&self) -> &'help str {
         self.name
     }
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_about(&self) -> Option<&str> {
+    pub fn get_about(&self) -> Option<&'help str> {
         self.about
     }
 
@@ -149,13 +149,13 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     #[inline]
-    pub fn get_long_about(&self) -> Option<&str> {
+    pub fn get_long_about(&self) -> Option<&'help str> {
         self.long_about
     }
 
     /// Get the help heading specified for this argument, if any
     #[inline]
-    pub fn get_help_heading(&self) -> Option<&str> {
+    pub fn get_help_heading(&self) -> Option<&'help str> {
         self.help_heading.unwrap_or_default()
     }
 
@@ -196,13 +196,13 @@ impl<'help> Arg<'help> {
 
     /// Get the long option name for this argument, if any
     #[inline]
-    pub fn get_long(&self) -> Option<&str> {
+    pub fn get_long(&self) -> Option<&'help str> {
         self.long
     }
 
     /// Get visible aliases for this argument, if any
     #[inline]
-    pub fn get_visible_aliases(&self) -> Option<Vec<&str>> {
+    pub fn get_visible_aliases(&self) -> Option<Vec<&'help str>> {
         if self.aliases.is_empty() {
             None
         } else {
@@ -218,7 +218,7 @@ impl<'help> Arg<'help> {
 
     /// Get the long option name and its visible aliases, if any
     #[inline]
-    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&str>> {
+    pub fn get_long_and_visible_aliases(&self) -> Option<Vec<&'help str>> {
         let mut longs = match self.long {
             Some(long) => vec![long],
             None => return None,
@@ -241,7 +241,7 @@ impl<'help> Arg<'help> {
 
     /// Get the names of values for this argument.
     #[inline]
-    pub fn get_value_names(&self) -> Option<&[&str]> {
+    pub fn get_value_names(&self) -> Option<&[&'help str]> {
         if self.val_names.is_empty() {
             None
         } else {

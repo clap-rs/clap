@@ -115,7 +115,7 @@ impl<'help> App<'help> {
 
     /// Get the long flag of the subcommand.
     #[inline]
-    pub fn get_long_flag(&self) -> Option<&str> {
+    pub fn get_long_flag(&self) -> Option<&'help str> {
         self.long_flag
     }
 
@@ -134,7 +134,7 @@ impl<'help> App<'help> {
     ///
     /// [`App::about`]: App::about()
     #[inline]
-    pub fn get_about(&self) -> Option<&str> {
+    pub fn get_about(&self) -> Option<&'help str> {
         self.about
     }
 
@@ -142,7 +142,7 @@ impl<'help> App<'help> {
     ///
     /// [`App::long_about`]: App::long_about()
     #[inline]
-    pub fn get_long_about(&self) -> Option<&str> {
+    pub fn get_long_about(&self) -> Option<&'help str> {
         self.long_about
     }
 
@@ -156,7 +156,7 @@ impl<'help> App<'help> {
 
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
-    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> {
+    pub fn get_visible_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         self.aliases.iter().filter(|(_, vis)| *vis).map(|a| a.0)
     }
 
@@ -180,7 +180,7 @@ impl<'help> App<'help> {
 
     /// Iterate through the set of *all* the aliases for this subcommand, both visible and hidden.
     #[inline]
-    pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> {
+    pub fn get_all_aliases(&self) -> impl Iterator<Item = &str> + '_ {
         self.aliases.iter().map(|a| a.0)
     }
 
