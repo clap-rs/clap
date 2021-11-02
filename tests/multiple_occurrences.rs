@@ -60,6 +60,38 @@ fn multiple_occurrences_of_flags_mixed() {
 }
 
 #[test]
+fn multiple_occurrences_of_positional() {
+    let app = App::new("test").arg(Arg::new("multi").setting(ArgSettings::MultipleOccurrences));
+
+    let m = app
+        .clone()
+        .try_get_matches_from(&["test"])
+        .expect("zero occurrences work");
+    assert!(!m.is_present("multi"));
+    assert_eq!(m.occurrences_of("multi"), 0);
+    assert!(m.values_of("multi").is_none());
+
+    let m = app
+        .clone()
+        .try_get_matches_from(&["test", "one"])
+        .expect("single occurrence work");
+    assert!(m.is_present("multi"));
+    assert_eq!(m.occurrences_of("multi"), 1);
+    assert_eq!(m.values_of("multi").unwrap().collect::<Vec<_>>(), ["one"]);
+
+    let m = app
+        .clone()
+        .try_get_matches_from(&["test", "one", "two", "three", "four"])
+        .expect("many occurrences work");
+    assert!(m.is_present("multi"));
+    assert_eq!(m.occurrences_of("multi"), 4);
+    assert_eq!(
+        m.values_of("multi").unwrap().collect::<Vec<_>>(),
+        ["one", "two", "three", "four"]
+    );
+}
+
+#[test]
 fn multiple_occurrences_of_flags_large_quantity() {
     let args: Vec<&str> = vec![""]
         .into_iter()
@@ -191,6 +223,30 @@ fn max_occurrences_try_inputs() {
     let m = app
         .clone()
         .try_get_matches_from(vec!["prog", "-v", "-vv", "-v"]);
+    assert!(m.is_err());
+    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
+}
+
+#[test]
+fn max_occurrences_positional() {
+    let app = App::new("prog").arg(Arg::new("verbose").max_occurrences(3));
+    let m = app.clone().try_get_matches_from(vec!["prog", "v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 1);
+
+    let m = app.clone().try_get_matches_from(vec!["prog", "v", "v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 2);
+
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["prog", "v", "v", "v"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    assert_eq!(m.unwrap().occurrences_of("verbose"), 3);
+
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["prog", "v", "v", "v", "v"]);
     assert!(m.is_err());
     assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyOccurrences);
 }

@@ -178,10 +178,8 @@ impl<'help, 'app> Parser<'help, 'app> {
             num_p
         );
 
-        // Next we verify that only the highest index has a .multiple_values(true) (if any)
-        let only_highest = |a: &Arg| {
-            a.is_set(ArgSettings::MultipleValues) && (a.index.unwrap_or(0) != highest_idx)
-        };
+        // Next we verify that only the highest index has takes multiple arguments (if any)
+        let only_highest = |a: &Arg| a.is_multiple() && (a.index.unwrap_or(0) != highest_idx);
         if self.app.get_positionals().any(only_highest) {
             // First we make sure if there is a positional that allows multiple values
             // the one before it (second to last) has one of these:
@@ -208,8 +206,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             );
 
             // We make sure if the second to last is Multiple the last is ArgSettings::Last
-            let ok = second_to_last.is_set(ArgSettings::MultipleValues)
-                || last.is_set(ArgSettings::Last);
+            let ok = second_to_last.is_multiple() || last.is_set(ArgSettings::Last);
             assert!(
                 ok,
                 "Only the last positional argument, or second to last positional \
@@ -220,12 +217,15 @@ impl<'help, 'app> Parser<'help, 'app> {
             let count = self
                 .app
                 .get_positionals()
-                .filter(|p| p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
+                .filter(|p| {
+                    p.settings.is_set(ArgSettings::MultipleOccurrences)
+                        || (p.settings.is_set(ArgSettings::MultipleValues) && p.num_vals.is_none())
+                })
                 .count();
             let ok = count <= 1
                 || (last.is_set(ArgSettings::Last)
-                    && last.is_set(ArgSettings::MultipleValues)
-                    && second_to_last.is_set(ArgSettings::MultipleValues)
+                    && last.is_multiple()
+                    && second_to_last.is_multiple()
                     && count == 2);
             assert!(
                 ok,
@@ -390,12 +390,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let is_second_to_last = pos_counter + 1 == positional_count;
 
                 // The last positional argument, or second to last positional
-                // argument may be set to .multiple_values(true)
+                // argument may be set to .multiple_values(true) or `.multiple_occurrences(true)`
                 let low_index_mults = is_second_to_last
-                    && self.app.get_positionals().any(|a| {
-                        a.is_set(ArgSettings::MultipleValues)
-                            && (positional_count != a.index.unwrap_or(0))
-                    })
+                    && self
+                        .app
+                        .get_positionals()
+                        .any(|a| a.is_multiple() && (positional_count != a.index.unwrap_or(0)))
                     && self
                         .app
                         .get_positionals()
@@ -683,7 +683,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
-                if !p.settings.is_set(ArgSettings::MultipleValues) {
+                if !p.is_multiple() {
                     pos_counter += 1;
                     parse_state = ParseState::ValuesDone;
                 } else {

@@ -2504,6 +2504,106 @@ OPTIONS:
 }
 
 #[test]
+fn positional_multiple_values_is_dotted() {
+    let app = App::new("test").arg(
+        Arg::new("foo")
+            .required(true)
+            .takes_value(true)
+            .multiple_values(true),
+    );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test <foo>...
+
+ARGS:
+    <foo>...    
+
+OPTIONS:
+    -h, --help    Print help information
+",
+        false
+    ));
+
+    let app = App::new("test").arg(
+        Arg::new("foo")
+            .required(true)
+            .takes_value(true)
+            .value_name("BAR")
+            .multiple_values(true),
+    );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test <BAR>...
+
+ARGS:
+    <BAR>...    
+
+OPTIONS:
+    -h, --help    Print help information
+",
+        false
+    ));
+}
+
+#[test]
+fn positional_multiple_occurrences_is_dotted() {
+    let app = App::new("test").arg(
+        Arg::new("foo")
+            .required(true)
+            .takes_value(true)
+            .multiple_occurrences(true),
+    );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test <foo>...
+
+ARGS:
+    <foo>...    
+
+OPTIONS:
+    -h, --help    Print help information
+",
+        false
+    ));
+
+    let app = App::new("test").arg(
+        Arg::new("foo")
+            .required(true)
+            .takes_value(true)
+            .value_name("BAR")
+            .multiple_occurrences(true),
+    );
+    assert!(utils::compare_output(
+        app,
+        "test --help",
+        "test 
+
+USAGE:
+    test <BAR>...
+
+ARGS:
+    <BAR>...    
+
+OPTIONS:
+    -h, --help    Print help information
+",
+        false
+    ));
+}
+
+#[test]
 fn disabled_help_flag() {
     let res = App::new("foo")
         .subcommand(App::new("sub"))

@@ -4912,6 +4912,11 @@ impl<'help> Arg<'help> {
             Cow::Borrowed(self.name)
         }
     }
+
+    /// Either multiple values or occurrences
+    pub(crate) fn is_multiple(&self) -> bool {
+        self.is_set(ArgSettings::MultipleValues) | self.is_set(ArgSettings::MultipleOccurrences)
+    }
 }
 
 #[cfg(feature = "yaml")]
@@ -5109,7 +5114,7 @@ where
                         write(&delim.to_string(), false)?;
                     }
                 }
-                if num_val_names == 1 && mult_val {
+                if (num_val_names == 1 && mult_val) || (arg.is_positional() && mult_occ) {
                     write("...", true)?;
                 }
             }

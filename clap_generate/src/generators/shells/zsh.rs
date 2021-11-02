@@ -613,7 +613,9 @@ fn write_positionals_of(p: &App) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_name());
 
-        let cardinality = if arg.is_set(ArgSettings::MultipleValues) {
+        let cardinality = if arg.is_set(ArgSettings::MultipleValues)
+            || arg.is_set(ArgSettings::MultipleOccurrences)
+        {
             "*:"
         } else if !arg.is_set(ArgSettings::Required) {
             ":"
