@@ -1,4 +1,4 @@
-use clap::{AppSettings, Args, ColorChoice, IntoApp, Parser, Subcommand};
+use clap::{AppSettings, Args, IntoApp, Parser, Subcommand};
 
 #[test]
 fn arg_help_heading_applied() {
@@ -191,7 +191,7 @@ fn flatten_field_with_help_heading() {
 #[test]
 fn derive_generated_error_has_full_context() {
     #[derive(Debug, Parser)]
-    #[clap(setting(AppSettings::SubcommandsNegateReqs), color = ColorChoice::Never)]
+    #[clap(setting(AppSettings::SubcommandsNegateReqs))]
     struct Opts {
         #[clap(long)]
         req_str: String,
