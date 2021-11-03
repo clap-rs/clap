@@ -4,7 +4,7 @@ use crate::{
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
-        ArgMatcher, MatchedArg, ParseState, Parser,
+        ArgMatcher, MatchedArg, ParseState, Parser, ValueType,
     },
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
@@ -565,16 +565,21 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
                 if let Some(ma) = matcher.get(other) {
-                    if ma.contains_val(val) && !matcher.contains(&a.id) {
+                    if ma.contains_val(val)
+                        && !matches!(ma.ty, ValueType::DefaultValue)
+                        && !matcher.contains(&a.id)
+                    {
                         return self.missing_required_error(matcher, vec![a.id.clone()]);
                     }
                 }
             }
 
-            let match_all = a
-                .r_ifs_all
-                .iter()
-                .all(|(other, val)| matcher.get(other).map_or(false, |ma| ma.contains_val(val)));
+            let match_all = a.r_ifs_all.iter().all(|(other, val)| {
+                matcher.get(other).map_or(false, |ma| {
+                    ma.contains_val(val) && !matches!(ma.ty, ValueType::DefaultValue)
+                })
+            });
+
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
