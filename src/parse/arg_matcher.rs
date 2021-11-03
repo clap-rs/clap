@@ -131,11 +131,6 @@ impl ArgMatcher {
             .map_or(false, |a| a.contains_explicit_val(val))
     }
 
-    pub(crate) fn is_default_value(&self, arg: &Id) -> bool {
-        self.get(arg)
-            .map_or(false, |a| a.ty == ValueType::DefaultValue)
-    }
-
     pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ci: bool) {
         debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
         let ma = self.entry(arg).or_insert(MatchedArg::new());

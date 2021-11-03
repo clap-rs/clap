@@ -279,18 +279,25 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .app
                             .unroll_args_in_group(&g.id)
                             .iter()
-                            .filter(|&a| matcher.contains(a) && !matcher.is_default_value(a))
+                            .filter(|&a| matcher.contains_explicit_val(a, None))
                             .count()
                             > 1
                     };
-                    let conf_with_arg = || g.conflicts.iter().any(|x| !matcher.is_default_value(x));
+
+                    let conf_with_arg = || {
+                        g.conflicts
+                            .iter()
+                            .any(|x| matcher.contains_explicit_val(x, None))
+                    };
+
                     let arg_conf_with_gr = || {
-                        !matcher.is_default_value(&g.id)
+                        matcher.contains_explicit_val(&g.id, None)
                             && matcher
                                 .arg_names()
                                 .filter_map(|x| self.p.app.find(x))
                                 .any(|x| x.blacklist.iter().any(|c| *c == g.id))
                     };
+
                     conf_with_self() || conf_with_arg() || arg_conf_with_gr()
                 } else if let Some(ma) = matcher.get(name) {
                     debug!(
@@ -340,9 +347,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 debug!("Validator::gather_conflicts:iter: id={:?}", name);
                 // if arg is "present" only because it got default value
                 // it doesn't conflict with anything and should be skipped
-                let skip = matcher.is_default_value(name);
+                let skip = !matcher.contains_explicit_val(name, None);
                 if skip {
-                    debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
+                    debug!("Validator::gather_conflicts:iter: This is not an explicit value, skipping.",);
                 }
                 !skip
             })
@@ -403,7 +410,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                if !matcher.is_default_value(&g.id) {
+                if matcher.contains_explicit_val(&g.id, None) {
                     for r in &g.requires {
                         self.p.required.insert(r.clone());
                     }
@@ -629,7 +636,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        let exists = |id| matcher.contains(id) && !matcher.is_default_value(id);
+        let exists = |id| matcher.contains_explicit_val(id, None);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
             && !a.r_unless.iter().any(exists)
