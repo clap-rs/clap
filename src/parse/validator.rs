@@ -70,10 +70,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             ));
         }
         self.validate_conflicts(matcher)?;
+
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
         }
+
         self.validate_matched_args(matcher)?;
 
         Ok(())
@@ -584,6 +585,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
+
+        self.validate_required_unless(matcher)?;
+
         Ok(())
     }
 
@@ -620,6 +624,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             })
             .map(|a| a.id.clone())
             .collect();
+
         if failed_args.is_empty() {
             Ok(())
         } else {
@@ -630,7 +635,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        let exists = |id| matcher.contains(id);
+        let exists = |id| matcher.contains(id) && !matcher.is_default_value(id);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
             && !a.r_unless.iter().any(exists)
