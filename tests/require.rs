@@ -238,7 +238,7 @@ fn required_unless_present() {
 }
 
 #[test]
-fn required_unless_present_err() {
+fn required_unless_err() {
     let res = App::new("unlesstest")
         .arg(
             Arg::new("cfg")
@@ -1140,69 +1140,4 @@ fn required_unless_invalid_arg() {
                 .long("config"),
         )
         .try_get_matches_from(vec![""]);
-}
-
-#[test]
-fn requires_with_default_value() {
-    let result = App::new("prog")
-        .arg(
-            Arg::new("opt")
-                .long("opt")
-                .default_value("default")
-                .requires("flag"),
-        )
-        .arg(Arg::new("flag").long("flag"))
-        .try_get_matches_from(vec!["myprog"]);
-
-    assert!(
-        result.is_ok(),
-        "requires should ignore default_value: {:?}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-
-    assert_eq!(m.value_of("opt"), Some("default"));
-    assert!(!m.is_present("flag"));
-}
-
-#[test]
-fn requires_if_with_default_value() {
-    let result = App::new("prog")
-        .arg(
-            Arg::new("opt")
-                .long("opt")
-                .default_value("default")
-                .requires_if("default", "flag"),
-        )
-        .arg(Arg::new("flag").long("flag"))
-        .try_get_matches_from(vec!["myprog"]);
-
-    assert!(
-        result.is_ok(),
-        "requires_if should ignore default_value: {:?}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-
-    assert_eq!(m.value_of("opt"), Some("default"));
-    assert!(!m.is_present("flag"));
-}
-
-#[test]
-fn group_requires_with_default_value() {
-    let result = App::new("prog")
-        .arg(Arg::new("opt").long("opt").default_value("default"))
-        .arg(Arg::new("flag").long("flag"))
-        .group(ArgGroup::new("one").arg("opt").requires("flag"))
-        .try_get_matches_from(vec!["myprog"]);
-
-    assert!(
-        result.is_ok(),
-        "arg group requires should ignore default_value: {:?}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-
-    assert_eq!(m.value_of("opt"), Some("default"));
-    assert!(!m.is_present("flag"));
 }
