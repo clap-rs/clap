@@ -125,15 +125,23 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn contains_val(&self, val: &str) -> bool {
-        self.vals_flatten().any(|v| {
-            if self.case_insensitive {
-                // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
-                v.to_str().map_or(false, |v| eq_ignore_case(v, val))
-            } else {
-                OsString::as_os_str(v) == OsStr::new(val)
-            }
-        })
+    pub(crate) fn contains_explicit_val(&self, val: Option<&str>) -> bool {
+        if self.ty == ValueType::DefaultValue {
+            return false;
+        }
+
+        if let Some(val) = val {
+            self.vals_flatten().any(|v| {
+                if self.case_insensitive {
+                    // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
+                    v.to_str().map_or(false, |v| eq_ignore_case(v, val))
+                } else {
+                    OsString::as_os_str(v) == OsStr::new(val)
+                }
+            })
+        } else {
+            true
+        }
     }
 
     pub(crate) fn set_ty(&mut self, ty: ValueType) {

@@ -27,7 +27,7 @@ use crate::{
     build::{arg::ArgProvider, Arg, ArgGroup, ArgSettings},
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
-    parse::{ArgMatcher, ArgMatches, Input, Parser, ValueType},
+    parse::{ArgMatcher, ArgMatches, Input, Parser},
     util::{color::ColorChoice, Id, Key},
     Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
 };
@@ -2919,18 +2919,7 @@ impl<'help> App<'help> {
 
     pub(crate) fn unroll_requirements_for_arg(&self, arg: &Id, matcher: &ArgMatcher) -> Vec<Id> {
         let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| -> Option<Id> {
-            if let Some(v) = val {
-                if matcher
-                    .get(arg)
-                    .filter(|ma| !matches!(ma.ty, ValueType::DefaultValue))
-                    .map(|ma| ma.contains_val(v))
-                    .unwrap_or(false)
-                {
-                    Some(req_arg.clone())
-                } else {
-                    None
-                }
-            } else if !matcher.is_default_value(arg) {
+            if matcher.contains_explicit_val(arg, *val) {
                 Some(req_arg.clone())
             } else {
                 None

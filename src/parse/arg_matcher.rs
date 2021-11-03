@@ -126,6 +126,11 @@ impl ArgMatcher {
         self.0.args.iter()
     }
 
+    pub(crate) fn contains_explicit_val(&self, arg: &Id, val: Option<&str>) -> bool {
+        self.get(arg)
+            .map_or(false, |a| a.contains_explicit_val(val))
+    }
+
     pub(crate) fn is_default_value(&self, arg: &Id) -> bool {
         self.get(arg)
             .map_or(false, |a| a.ty == ValueType::DefaultValue)
