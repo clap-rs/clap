@@ -25,6 +25,9 @@ bitflags! {
         const NO_POS_VALUES                  = 1 << 17;
         const NEXT_LINE_HELP                 = 1 << 18;
         const DERIVE_DISP_ORDER              = 1 << 19;
+        const COLOR_ALWAYS                   = 1 << 21;
+        const COLOR_AUTO                     = 1 << 22;
+        const COLOR_NEVER                    = 1 << 23;
         const DONT_DELIM_TRAIL               = 1 << 24;
         const ALLOW_NEG_NUMS                 = 1 << 25;
         const DISABLE_HELP_SC                = 1 << 27;
@@ -47,6 +50,7 @@ bitflags! {
         const IGNORE_ERRORS                  = 1 << 44;
         #[cfg(feature = "unstable-multicall")]
         const MULTICALL                      = 1 << 45;
+        const NO_OP                          = 0;
     }
 }
 
@@ -56,7 +60,7 @@ pub struct AppFlags(Flags);
 
 impl Default for AppFlags {
     fn default() -> Self {
-        Self::empty()
+        AppFlags(Flags::COLOR_AUTO)
     }
 }
 
@@ -69,6 +73,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ARGS_NEGATE_SCS,
     AllowExternalSubcommands("allowexternalsubcommands")
         => Flags::ALLOW_UNK_SC,
+    StrictUtf8("strictutf8")
+        => Flags::NO_OP,
     AllowInvalidUtf8ForExternalSubcommands("allowinvalidutf8forexternalsubcommands")
         => Flags::SC_UTF8_NONE,
     AllowLeadingHyphen("allowleadinghyphen")
@@ -77,6 +83,14 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
+    ColoredHelp("coloredhelp")
+        => Flags::NO_OP,
+    ColorAlways("coloralways")
+        => Flags::COLOR_ALWAYS,
+    ColorAuto("colorauto")
+        => Flags::COLOR_AUTO,
+    ColorNever("colornever")
+        => Flags::COLOR_NEVER,
     DontDelimitTrailingValues("dontdelimittrailingvalues")
         => Flags::DONT_DELIM_TRAIL,
     DontCollapseArgsInUsage("dontcollapseargsinusage")
@@ -87,9 +101,15 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag("disablehelpflag")
         => Flags::DISABLE_HELP_FLAG,
+    DisableHelpFlags("disablehelpflag")
+        => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag("disableversionflag")
         => Flags::DISABLE_VERSION_FLAG,
+    DisableVersion("disableversionflag")
+        => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion("propagateversion")
+        => Flags::PROPAGATE_VERSION,
+    GlobalVersion("propagateversion")
         => Flags::PROPAGATE_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
@@ -116,6 +136,7 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
     TrailingVarArg("trailingvararg")
         => Flags::TRAILING_VARARG,
+    UnifiedHelp("unifiedhelp") => Flags::NO_OP,
     NextLineHelp("nextlinehelp")
         => Flags::NEXT_LINE_HELP,
     IgnoreErrors("ignoreerrors")
@@ -142,6 +163,13 @@ impl_settings! { AppSettings, AppFlags,
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
+    /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite.
+    #[deprecated(
+        since = "3.0.0",
+        note = "This is now the default see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite."
+    )]
+    StrictUtf8,
+
     /// Specifies that external subcommands that are invalid UTF-8 should *not* be treated as an error.
     ///
     /// **NOTE:** Using external subcommand argument values with invalid UTF-8 requires using
@@ -483,6 +511,22 @@ pub enum AppSettings {
     /// ```
     SubcommandPrecedenceOverArg,
 
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.0.0", note = "This is now the default")]
+    ColoredHelp,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorAuto,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorAlways,
+
+    /// Deprecated, see [`App::color`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
+    ColorNever,
+
     /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
     ///
     /// # Examples
@@ -530,6 +574,10 @@ pub enum AppSettings {
     /// ```
     DisableHelpFlag,
 
+    /// Deprecated, see [`AppSettings::DisableHelpFlag`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
+    DisableHelpFlags,
+
     /// Disables the `help` [`subcommand`].
     ///
     /// # Examples
@@ -566,6 +614,13 @@ pub enum AppSettings {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
     /// ```
     DisableVersionFlag,
+
+    /// Deprecated, see [`AppSettings::DisableVersionFlag`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `AppSettings::DisableVersionFlag`"
+    )]
+    DisableVersion,
 
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
@@ -687,6 +742,13 @@ pub enum AppSettings {
     ///
     /// [`subcommands`]: crate::App::subcommand()
     PropagateVersion,
+
+    /// Deprecated, see [`AppSettings::PropagateVersion`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `AppSettings::PropagateVersion`"
+    )]
+    GlobalVersion,
 
     /// Specifies that this [`subcommand`] should be hidden from help messages
     ///
@@ -977,6 +1039,10 @@ pub enum AppSettings {
     /// ```
     /// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
     TrailingVarArg,
+
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.0.0", note = "This is now the default")]
+    UnifiedHelp,
 
     /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting

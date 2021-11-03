@@ -27,9 +27,11 @@ bitflags! {
         const HIDDEN_SHORT_H   = 1 << 18;
         const HIDDEN_LONG_H    = 1 << 19;
         const MULTIPLE_VALS    = 1 << 20;
+        const MULTIPLE         = Self::MULTIPLE_OCC.bits | Self::MULTIPLE_VALS.bits;
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
         const UTF8_NONE        = 1 << 22;
+        const NO_OP            = 0;
     }
 }
 
@@ -48,7 +50,9 @@ impl_settings! { ArgSettings, ArgFlags,
     Required("required") => Flags::REQUIRED,
     MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
+    Multiple("multiple") => Flags::MULTIPLE,
     ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
+    EmptyValues("emptyvalues") => Flags::NO_OP,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -59,6 +63,7 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
     Last("last") => Flags::LAST,
     IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    CaseInsensitive("ignorecase") => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
     HideEnv("hideenv") => Flags::HIDE_ENV,
     #[cfg(feature = "env")]
@@ -85,8 +90,22 @@ pub enum ArgSettings {
     MultipleValues,
     /// Allows an arg to appear multiple times
     MultipleOccurrences,
+    /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
+    /// [`ArgSettings::MultipleValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
+    )]
+    Multiple,
     /// Forbids an arg from accepting empty values such as `""`
     ForbidEmptyValues,
+    /// Deprecated, this is now the default, see [`ArgSettings::ForbidEmptyValues`] for the
+    /// opposite.
+    #[deprecated(
+        since = "3.0.0",
+        note = "This is now the default see [`ArgSettings::ForbidEmptyValues`] for the opposite."
+    )]
+    EmptyValues,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)
@@ -111,6 +130,9 @@ pub enum ArgSettings {
     HideDefaultValue,
     /// Possible values become case insensitive
     IgnoreCase,
+    /// Deprecated, see [`ArgSettings::IgnoreCase`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
+    CaseInsensitive,
     /// Hides environment variable arguments from the help message
     #[cfg(feature = "env")]
     HideEnv,
