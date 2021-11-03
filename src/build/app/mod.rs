@@ -27,7 +27,7 @@ use crate::{
     build::{arg::ArgProvider, Arg, ArgGroup, ArgSettings},
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
-    parse::{ArgMatcher, ArgMatches, Input, Parser},
+    parse::{ArgMatcher, ArgMatches, Input, Parser, ValueType},
     util::{color::ColorChoice, Id, Key},
     Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
 };
@@ -2922,6 +2922,7 @@ impl<'help> App<'help> {
             if let Some(v) = val {
                 if matcher
                     .get(arg)
+                    .filter(|ma| !matches!(ma.ty, ValueType::DefaultValue))
                     .map(|ma| ma.contains_val(v))
                     .unwrap_or(false)
                 {
@@ -2929,8 +2930,10 @@ impl<'help> App<'help> {
                 } else {
                     None
                 }
-            } else {
+            } else if !matcher.is_default_value(arg) {
                 Some(req_arg.clone())
+            } else {
+                None
             }
         };
 

@@ -402,8 +402,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                for r in &g.requires {
-                    self.p.required.insert(r.clone());
+                if !matcher.is_default_value(&g.id) {
+                    for r in &g.requires {
+                        self.p.required.insert(r.clone());
+                    }
                 }
             }
         }
