@@ -295,29 +295,6 @@ fn group_in_conflicts_with() {
 }
 
 #[test]
-fn group_conflicts_with_default_value() {
-    let result = App::new("conflict")
-        .arg(
-            Arg::new("opt")
-                .long("opt")
-                .default_value("default")
-                .group("one"),
-        )
-        .arg(Arg::new("flag").long("flag").group("one"))
-        .try_get_matches_from(vec!["myprog", "--flag"]);
-
-    assert!(
-        result.is_ok(),
-        "arg group count should ignore default_value: {:?}",
-        result.unwrap_err()
-    );
-    let m = result.unwrap();
-
-    assert_eq!(m.value_of("opt"), Some("default"));
-    assert!(m.is_present("flag"));
-}
-
-#[test]
 fn group_conflicts_with_default_arg() {
     let result = App::new("conflict")
         .arg(Arg::new("opt").long("opt").default_value("default"))
