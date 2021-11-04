@@ -413,6 +413,14 @@ impl Attrs {
 
                 MethodCall(name, args) => self.push_method(name, quote!(#(#args),*)),
 
+                ModifyFn(name, method_path) => self.push_method(name.clone(), match self.ty {
+                    Some(ref t) => quote!(#method_path::<#t>),
+                    None => abort!(
+                        name,
+                        "#[clap(modify_fn(..))] can be used only on field level",
+                    ),
+                }),
+
                 RenameAll(_, casing_lit) => {
                     self.casing = CasingStyle::from_lit(casing_lit);
                 }

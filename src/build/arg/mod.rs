@@ -4929,6 +4929,27 @@ impl<'help> Arg<'help> {
     pub(crate) fn is_multiple(&self) -> bool {
         self.is_set(ArgSettings::MultipleValues) | self.is_set(ArgSettings::MultipleOccurrences)
     }
+
+    #[inline]
+    /// Allows adding free functions to a chain
+    ///
+    /// ```
+    /// # use clap::{Arg, ValueHint};
+    /// let func = |a| a;
+    ///
+    /// // Instead of this
+    /// let mut arg = Arg::new("test");
+    /// arg = func(arg);
+    ///
+    /// // You can do this
+    /// let arg = Arg::new("test").modify_fn(func);
+    /// ```
+    pub fn modify_fn<F>(self, mod_fn: F) -> Self
+    where
+        F: Fn(Self) -> Self
+    {
+        (mod_fn)(self)
+    }
 }
 
 #[cfg(feature = "yaml")]

@@ -30,7 +30,7 @@ pub use crate::{
     },
     parse::errors::{Error, ErrorKind, Result},
     parse::{ArgMatches, Indices, OsValues, Values},
-    util::color::ColorChoice,
+    util::{color::ColorChoice, modify_fn::default_value_t},
 };
 
 pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcommand};

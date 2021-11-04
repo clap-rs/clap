@@ -6,7 +6,7 @@ use syn::{
     self, parenthesized,
     parse::{Parse, ParseBuffer, ParseStream},
     punctuated::Punctuated,
-    Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
+    Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token, Path,
 };
 
 #[allow(clippy::large_enum_variant)]
@@ -45,6 +45,9 @@ pub enum ClapAttr {
 
     // ident(arbitrary_expr,*)
     MethodCall(Ident, Vec<Expr>),
+
+    // ident(path)
+    ModifyFn(Ident, Path),
 }
 
 impl Parse for ClapAttr {
@@ -163,6 +166,13 @@ impl Parse for ClapAttr {
                             note = raw_method_suggestion(nested);
                         );
                     }
+                },
+
+                "modify_fn" => match nested.parse::<Path>() {
+                    Ok(method_path) => Ok(ModifyFn(name, method_path)),
+                    Err(_) => abort!(name,
+                        "`#[clap(method_t(...))` must contain one identifier"
+                    ),
                 },
 
                 _ => {

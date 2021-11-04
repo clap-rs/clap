@@ -5,6 +5,7 @@ mod graph;
 mod id;
 #[cfg(feature = "env")]
 mod str_to_bool;
+pub(crate) mod modify_fn;
 
 pub use self::fnv::Key;
 
