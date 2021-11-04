@@ -30,7 +30,7 @@ mod subcommands {
         /// foo
         Foo {
             /// foo
-            bars: Vec<String>,
+            bars: String,
         },
     }
 }

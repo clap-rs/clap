@@ -63,7 +63,7 @@ fn issue_324() {
     #[clap(version = my_version())]
     struct Opt {
         #[clap(subcommand)]
-        _cmd: Option<SubCommand>,
+        _cmd: SubCommand,
     }
 
     #[derive(Subcommand)]

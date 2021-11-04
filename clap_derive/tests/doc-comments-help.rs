@@ -108,7 +108,7 @@ fn top_long_doc_comment_both_help_long_help() {
         /// Or something else
         Foo {
             #[clap(about = "foo")]
-            bars: Vec<String>,
+            bars: String,
         },
     }
 

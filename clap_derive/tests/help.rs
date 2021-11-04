@@ -6,10 +6,10 @@ fn arg_help_heading_applied() {
     struct CliOptions {
         #[clap(long)]
         #[clap(help_heading = Some("HEADING A"))]
-        should_be_in_section_a: Option<u32>,
+        should_be_in_section_a: u32,
 
         #[clap(long)]
-        no_section: Option<u32>,
+        no_section: u32,
     }
 
     let app = CliOptions::into_app();
@@ -34,10 +34,10 @@ fn app_help_heading_applied() {
     struct CliOptions {
         #[clap(long)]
         #[clap(help_heading = Some("HEADING A"))]
-        should_be_in_section_a: Option<u32>,
+        should_be_in_section_a: u32,
 
         #[clap(long)]
-        should_be_in_default_section: Option<u32>,
+        should_be_in_default_section: u32,
     }
 
     let app = CliOptions::into_app();
@@ -72,21 +72,21 @@ fn app_help_heading_flattened() {
         sub_a: SubA,
 
         #[clap(long)]
-        should_be_in_default_section: Option<u32>,
+        should_be_in_default_section: u32,
     }
 
     #[derive(Debug, Clone, Args)]
     #[clap(help_heading = "HEADING A")]
     struct OptionsA {
         #[clap(long)]
-        should_be_in_section_a: Option<u32>,
+        should_be_in_section_a: u32,
     }
 
     #[derive(Debug, Clone, Args)]
     #[clap(help_heading = "HEADING B")]
     struct OptionsB {
         #[clap(long)]
-        should_be_in_section_b: Option<u32>,
+        should_be_in_section_b: u32,
     }
 
     #[derive(Debug, Clone, Subcommand)]
@@ -98,20 +98,20 @@ fn app_help_heading_flattened() {
         SubAOne,
         #[clap(help_heading = "SUB A")]
         SubATwo {
-            should_be_in_sub_a: Option<u32>,
+            should_be_in_sub_a: u32,
         },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubB {
         #[clap(help_heading = "SUB B")]
-        SubBOne { should_be_in_sub_b: Option<u32> },
+        SubBOne { should_be_in_sub_b: u32 },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubC {
         #[clap(help_heading = "SUB C")]
-        SubCOne { should_be_in_sub_c: Option<u32> },
+        SubCOne { should_be_in_sub_c: u32 },
     }
 
     let app = CliOptions::into_app();
@@ -172,7 +172,7 @@ fn flatten_field_with_help_heading() {
     #[derive(Debug, Clone, Args)]
     struct OptionsA {
         #[clap(long)]
-        should_be_in_section_a: Option<u32>,
+        should_be_in_section_a: u32,
     }
 
     let app = CliOptions::into_app();
