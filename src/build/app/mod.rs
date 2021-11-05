@@ -1808,45 +1808,6 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows one to mutate all arguments after they've been added to an [`App`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    ///
-    /// let mut app = App::new("foo")
-    ///     .arg(Arg::new("foo")
-    ///         .short('x'))
-    ///     .arg(Arg::new("bar")
-    ///         .short('y'))
-    ///     .mut_args(|a| (a.get_name() == "foo").then(|| a.short('f')));
-    ///
-    /// let res = app.try_get_matches_from_mut(vec!["foo", "-x"]);
-    ///
-    /// // Since we changed `foo`'s short to "f" this should err as there
-    /// // is no `-x` anymore, only `-f`
-    ///
-    /// assert!(res.is_err());
-    ///
-    /// let res = app.try_get_matches_from_mut(vec!["foo", "-f"]);
-    /// assert!(res.is_ok());
-    /// ```
-    pub fn mut_args<F>(mut self, f: F) -> Self
-    where
-        F: Fn(Arg<'help>) -> Option<Arg<'help>>,
-    {
-        for a in self.args.args_mut() {
-            if let Some(arg) = f(a.clone()) {
-                *a = arg;
-                if a.provider == ArgProvider::Generated {
-                    a.provider = ArgProvider::GeneratedMutated;
-                }
-            }
-        }
-        self
-    }
-
     /// Custom error message for post-parsing validation
     ///
     /// # Examples
