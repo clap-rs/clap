@@ -43,21 +43,6 @@ fn required_option() {
 }
 
 #[test]
-fn optional_option() {
-    #[derive(Parser, PartialEq, Debug)]
-    struct Opt {
-        #[clap(short)]
-        arg: Option<i32>,
-    }
-    assert_eq!(
-        Opt { arg: Some(42) },
-        Opt::try_parse_from(&["test", "-a42"]).unwrap()
-    );
-    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
-    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
-}
-
-#[test]
 fn option_with_default() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
@@ -88,41 +73,6 @@ fn option_with_raw_default() {
 }
 
 #[test]
-fn options() {
-    #[derive(Parser, PartialEq, Debug)]
-    struct Opt {
-        #[clap(short, long, multiple_occurrences(true))]
-        arg: Vec<i32>,
-    }
-    assert_eq!(
-        Opt { arg: vec![24] },
-        Opt::try_parse_from(&["test", "-a24"]).unwrap()
-    );
-    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
-    assert_eq!(
-        Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "-a24", "--arg", "42"]).unwrap()
-    );
-}
-
-#[test]
-fn default_value() {
-    #[derive(Parser, PartialEq, Debug)]
-    struct Opt {
-        #[clap(short, default_value = "test")]
-        arg: String,
-    }
-    assert_eq!(
-        Opt { arg: "test".into() },
-        Opt::try_parse_from(&["test"]).unwrap()
-    );
-    assert_eq!(
-        Opt { arg: "foo".into() },
-        Opt::try_parse_from(&["test", "-afoo"]).unwrap()
-    );
-}
-
-#[test]
 fn option_from_str() {
     #[derive(Debug, PartialEq)]
     struct A;
@@ -147,7 +97,81 @@ fn option_from_str() {
 }
 
 #[test]
-fn optional_argument_for_optional_option() {
+fn option_type_is_optional() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
+        arg: Option<i32>,
+    }
+    assert_eq!(
+        Opt { arg: Some(42) },
+        Opt::try_parse_from(&["test", "-a42"]).unwrap()
+    );
+    assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
+    assert!(Opt::try_parse_from(&["test", "-a42", "-a24"]).is_err());
+}
+
+#[test]
+fn required_with_option_type() {
+    #[derive(Debug, PartialEq, Eq, Parser)]
+    #[clap(setting(clap::AppSettings::SubcommandsNegateReqs))]
+    struct Opt {
+        #[clap(required = true)]
+        req_str: Option<String>,
+
+        #[clap(subcommand)]
+        cmd: Option<SubCommands>,
+    }
+
+    #[derive(Debug, PartialEq, Eq, Subcommand)]
+    enum SubCommands {
+        ExSub {
+            #[clap(short, long, parse(from_occurrences))]
+            verbose: u8,
+        },
+    }
+
+    assert_eq!(
+        Opt {
+            req_str: Some(("arg").into()),
+            cmd: None,
+        },
+        Opt::try_parse_from(&["test", "arg"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            req_str: None,
+            cmd: Some(SubCommands::ExSub { verbose: 1 }),
+        },
+        Opt::try_parse_from(&["test", "ex-sub", "-v"]).unwrap()
+    );
+
+    assert!(Opt::try_parse_from(&["test"]).is_err());
+}
+
+#[test]
+fn ignore_qualified_option_type() {
+    fn parser(s: &str) -> Option<String> {
+        Some(s.to_string())
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(parse(from_str = parser))]
+        arg: ::std::option::Option<String>,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: Some("success".into())
+        },
+        Opt::try_parse_from(&["test", "success"]).unwrap()
+    );
+}
+
+#[test]
+fn option_option_type_is_optional_value() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, multiple_occurrences(true))]
@@ -169,7 +193,7 @@ fn optional_argument_for_optional_option() {
 }
 
 #[test]
-fn option_option_help() {
+fn option_option_type_help() {
     #[derive(Parser, Debug)]
     struct Opt {
         #[clap(long, value_name = "val")]
@@ -181,7 +205,7 @@ fn option_option_help() {
 }
 
 #[test]
-fn two_option_options() {
+fn two_option_option_types() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short)]
@@ -235,10 +259,48 @@ fn two_option_options() {
 }
 
 #[test]
-fn optional_vec() {
+fn vec_type_is_multiple_values() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, multiple_occurrences(true))]
+        #[clap(short, long)]
+        arg: Vec<i32>,
+    }
+    assert_eq!(
+        Opt { arg: vec![24] },
+        Opt::try_parse_from(&["test", "-a24"]).unwrap()
+    );
+    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
+    assert_eq!(
+        Opt { arg: vec![24, 42] },
+        Opt::try_parse_from(&["test", "-a", "24", "42"]).unwrap()
+    );
+}
+
+#[test]
+fn ignore_qualified_vec_type() {
+    fn parser(s: &str) -> Vec<String> {
+        vec![s.to_string()]
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(parse(from_str = parser))]
+        arg: ::std::vec::Vec<String>,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: vec!["success".into()]
+        },
+        Opt::try_parse_from(&["test", "success"]).unwrap()
+    );
+}
+
+#[test]
+fn option_vec_type() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[clap(short)]
         arg: Option<Vec<i32>>,
     }
     assert_eq!(
@@ -250,35 +312,7 @@ fn optional_vec() {
         Opt {
             arg: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a1", "-a2"]).unwrap()
-    );
-
-    assert_eq!(
-        Opt {
-            arg: Some(vec![1, 2])
-        },
-        Opt::try_parse_from(&["test", "-a1", "-a2", "-a"]).unwrap()
-    );
-
-    assert_eq!(
-        Opt {
-            arg: Some(vec![1, 2])
-        },
-        Opt::try_parse_from(&["test", "-a1", "-a", "-a2"]).unwrap()
-    );
-
-    assert_eq!(
-        Opt {
-            arg: Some(vec![1, 2])
-        },
         Opt::try_parse_from(&["test", "-a", "1", "2"]).unwrap()
-    );
-
-    assert_eq!(
-        Opt {
-            arg: Some(vec![1, 2, 3])
-        },
-        Opt::try_parse_from(&["test", "-a", "1", "2", "-a", "3"]).unwrap()
     );
 
     assert_eq!(
@@ -286,22 +320,17 @@ fn optional_vec() {
         Opt::try_parse_from(&["test", "-a"]).unwrap()
     );
 
-    assert_eq!(
-        Opt { arg: Some(vec![]) },
-        Opt::try_parse_from(&["test", "-a", "-a"]).unwrap()
-    );
-
     assert_eq!(Opt { arg: None }, Opt::try_parse_from(&["test"]).unwrap());
 }
 
 #[test]
-fn two_optional_vecs() {
+fn two_option_vec_types() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(short, multiple_occurrences(true))]
+        #[clap(short)]
         arg: Option<Vec<i32>>,
 
-        #[clap(short, multiple_occurrences(true))]
+        #[clap(short)]
         b: Option<Vec<i32>>,
     }
 
@@ -316,9 +345,9 @@ fn two_optional_vecs() {
     assert_eq!(
         Opt {
             arg: Some(vec![1]),
-            b: Some(vec![])
+            b: Some(vec![1])
         },
-        Opt::try_parse_from(&["test", "-a", "-b", "-a1"]).unwrap()
+        Opt::try_parse_from(&["test", "-a", "1", "-b", "1"]).unwrap()
     );
 
     assert_eq!(
@@ -326,50 +355,11 @@ fn two_optional_vecs() {
             arg: Some(vec![1, 2]),
             b: Some(vec![1, 2])
         },
-        Opt::try_parse_from(&["test", "-a1", "-a2", "-b1", "-b2"]).unwrap()
+        Opt::try_parse_from(&["test", "-a", "1", "2", "-b", "1", "2"]).unwrap()
     );
 
     assert_eq!(
         Opt { arg: None, b: None },
         Opt::try_parse_from(&["test"]).unwrap()
     );
-}
-
-#[test]
-fn required_option_type() {
-    #[derive(Debug, PartialEq, Eq, Parser)]
-    #[clap(setting(clap::AppSettings::SubcommandsNegateReqs))]
-    struct Opt {
-        #[clap(required = true)]
-        req_str: Option<String>,
-
-        #[clap(subcommand)]
-        cmd: Option<SubCommands>,
-    }
-
-    #[derive(Debug, PartialEq, Eq, Subcommand)]
-    enum SubCommands {
-        ExSub {
-            #[clap(short, long, parse(from_occurrences))]
-            verbose: u8,
-        },
-    }
-
-    assert_eq!(
-        Opt {
-            req_str: Some(("arg").into()),
-            cmd: None,
-        },
-        Opt::try_parse_from(&["test", "arg"]).unwrap()
-    );
-
-    assert_eq!(
-        Opt {
-            req_str: None,
-            cmd: Some(SubCommands::ExSub { verbose: 1 }),
-        },
-        Opt::try_parse_from(&["test", "ex-sub", "-v"]).unwrap()
-    );
-
-    assert!(Opt::try_parse_from(&["test"]).is_err());
 }

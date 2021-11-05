@@ -15,7 +15,7 @@
 use clap::Parser;
 
 #[test]
-fn unique_flag() {
+fn bool_type_is_flag() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
@@ -41,7 +41,7 @@ fn unique_flag() {
 }
 
 #[test]
-fn multiple_flag() {
+fn from_occurrences() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long, parse(from_occurrences))]
@@ -74,12 +74,12 @@ fn multiple_flag() {
     assert!(Opt::try_parse_from(&["test", "-a", "foo"]).is_err());
 }
 
-fn parse_from_flag(b: bool) -> std::sync::atomic::AtomicBool {
-    std::sync::atomic::AtomicBool::new(b)
-}
-
 #[test]
-fn non_bool_flags() {
+fn non_bool_type_flag() {
+    fn parse_from_flag(b: bool) -> std::sync::atomic::AtomicBool {
+        std::sync::atomic::AtomicBool::new(b)
+    }
+
     #[derive(Parser, Debug)]
     struct Opt {
         #[clap(short, long, parse(from_flag = parse_from_flag))]
@@ -106,7 +106,7 @@ fn non_bool_flags() {
 }
 
 #[test]
-fn combined_flags() {
+fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short, long)]
@@ -156,5 +156,34 @@ fn combined_flags() {
             bob: 4
         },
         Opt::try_parse_from(&["test", "-bb", "-a", "-bb"]).unwrap()
+    );
+}
+
+#[test]
+fn ignore_qualified_bool_type() {
+    mod inner {
+        #[allow(non_camel_case_types)]
+        #[derive(PartialEq, Debug)]
+        pub struct bool(pub String);
+
+        impl std::str::FromStr for self::bool {
+            type Err = String;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                Ok(self::bool(s.into()))
+            }
+        }
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        arg: inner::bool,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: inner::bool("success".into())
+        },
+        Opt::try_parse_from(&["test", "success"]).unwrap()
     );
 }

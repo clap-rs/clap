@@ -19,16 +19,11 @@ fn basic() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(short = 'a', long = "arg")]
-        arg: Vec<i32>,
+        arg: i32,
     }
     assert_eq!(
-        Opt { arg: vec![24] },
+        Opt { arg: 24 },
         Opt::try_parse_from(&["test", "-a24"]).unwrap()
-    );
-    assert_eq!(Opt { arg: vec![] }, Opt::try_parse_from(&["test"]).unwrap());
-    assert_eq!(
-        Opt { arg: vec![24, 42] },
-        Opt::try_parse_from(&["test", "--arg", "24", "42"]).unwrap()
     );
 }
 

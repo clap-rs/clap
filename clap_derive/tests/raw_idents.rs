@@ -4,14 +4,21 @@ use clap::Parser;
 fn raw_idents() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        #[clap(short, long, multiple_occurrences(true))]
-        r#type: Vec<String>,
+        #[clap(short, long)]
+        r#type: String,
     }
 
     assert_eq!(
         Opt {
-            r#type: vec!["long".into(), "short".into()]
+            r#type: "long".into()
         },
-        Opt::try_parse_from(&["test", "--type", "long", "-t", "short"]).unwrap()
+        Opt::try_parse_from(&["test", "--type", "long"]).unwrap()
+    );
+
+    assert_eq!(
+        Opt {
+            r#type: "short".into()
+        },
+        Opt::try_parse_from(&["test", "-t", "short"]).unwrap()
     );
 }

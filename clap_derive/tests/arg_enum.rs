@@ -297,7 +297,41 @@ fn multiple_alias() {
 }
 
 #[test]
-fn option() {
+fn skip_variant() {
+    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[allow(dead_code)] // silence warning about `Baz` being unused
+    enum ArgChoice {
+        Foo,
+        Bar,
+        #[clap(skip)]
+        Baz,
+    }
+
+    assert_eq!(
+        ArgChoice::value_variants()
+            .iter()
+            .map(ArgEnum::to_possible_value)
+            .map(Option::unwrap)
+            .collect::<Vec<_>>(),
+        vec![PossibleValue::new("foo"), PossibleValue::new("bar")]
+    );
+    assert!(ArgChoice::from_str("foo", true).is_ok());
+    assert!(ArgChoice::from_str("bar", true).is_ok());
+    assert!(ArgChoice::from_str("baz", true).is_err());
+}
+
+#[test]
+fn from_str_invalid() {
+    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+    }
+
+    assert!(ArgChoice::from_str("bar", true).is_err());
+}
+
+#[test]
+fn option_type() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -327,7 +361,7 @@ fn option() {
 }
 
 #[test]
-fn option_option() {
+fn option_option_type() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -361,7 +395,7 @@ fn option_option() {
 }
 
 #[test]
-fn vector() {
+fn vec_type() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -391,7 +425,7 @@ fn vector() {
 }
 
 #[test]
-fn option_vector() {
+fn option_vec_type() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -422,38 +456,4 @@ fn option_vector() {
         Opt::try_parse_from(&["", "-a", "foo", "bar"]).unwrap()
     );
     assert!(Opt::try_parse_from(&["", "-a", "fOo"]).is_err());
-}
-
-#[test]
-fn skip_variant() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
-    #[allow(dead_code)] // silence warning about `Baz` being unused
-    enum ArgChoice {
-        Foo,
-        Bar,
-        #[clap(skip)]
-        Baz,
-    }
-
-    assert_eq!(
-        ArgChoice::value_variants()
-            .iter()
-            .map(ArgEnum::to_possible_value)
-            .map(Option::unwrap)
-            .collect::<Vec<_>>(),
-        vec![PossibleValue::new("foo"), PossibleValue::new("bar")]
-    );
-    assert!(ArgChoice::from_str("foo", true).is_ok());
-    assert!(ArgChoice::from_str("bar", true).is_ok());
-    assert!(ArgChoice::from_str("baz", true).is_err());
-}
-
-#[test]
-fn from_str_invalid() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
-    enum ArgChoice {
-        Foo,
-    }
-
-    assert!(ArgChoice::from_str("bar", true).is_err());
 }
