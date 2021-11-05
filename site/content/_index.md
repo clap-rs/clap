@@ -40,7 +40,7 @@ Hello John!
 Hello John!
 ```
 
-The program also has automatically generated help message:
+The program also has an automatically generated help message:
 
 ```
 hello
