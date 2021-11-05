@@ -213,7 +213,7 @@ fn app_not_hash() {
 #[should_panic = "YAML file must be a hash"]
 fn arg_file_not_hash() {
     let yml = load_yaml!("fixtures/not_hash.yaml");
-    Arg::from(yml);
+    let _ = Arg::from(yml);
 }
 
 #[test]
@@ -241,7 +241,7 @@ fn subcommand_name_not_string() {
 #[should_panic = "Arg name must be a string"]
 fn arg_name_not_string() {
     let yml = load_yaml!("fixtures/name_not_string.yaml");
-    Arg::from(yml);
+    let _ = Arg::from(yml);
 }
 
 #[test]
@@ -255,7 +255,7 @@ fn app_field_not_string() {
 #[should_panic = "Arg fields must be strings"]
 fn arg_field_not_string() {
     let yml = load_yaml!("fixtures/arg_field_not_string.yaml");
-    Arg::from(yml);
+    let _ = Arg::from(yml);
 }
 
 #[test]
