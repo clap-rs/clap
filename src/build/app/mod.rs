@@ -1824,7 +1824,7 @@ impl<'help> App<'help> {
     ///
     /// let res = app.try_get_matches_from_mut(vec!["foo", "-x"]);
     ///
-    /// // Since we changed `foo`'s short to "f" this should err as there
+    /// // Since we changed `bar`'s short to "f" this should err as there
     /// // is no `-x` anymore, only `-f`
     ///
     /// assert!(res.is_err());
