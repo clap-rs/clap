@@ -1,24 +1,6 @@
 use clap::App;
 
 fn main() {
-    // You can use some convenience methods provided by clap to get typed values, so long as the
-    // type you're converting into implements std::str::FromStr
-    //
-    // This works for both single, and multiple values (multiple values returns a Vec<T>)
-    //
-    // There are also two ways in which to get types, those where failures cause the program to exit
-    // with an error and usage string, and those which return a Result<T,String> or Result<Vec<T>,String>
-    // respectively. Both methods support single and multiple values.
-    //
-    // The method which returns a Result allows you decide what to do upon a failure, exit, provide a
-    // default value, etc. You have control. But it also means you have to write the code or boiler plate
-    // to handle those instances.
-    //
-    // That is why the second method exists, so you can simply get a T or Vec<T> back, or be sure the
-    // program will exit gracefully. The catch is, the second method should *only* be used on required
-    // arguments, because if the argument isn't found, it exits. Just FYI ;)
-    //
-    // The following example shows both methods.
     let matches = App::new("myapp")
         // Create two arguments, a required positional which accepts multiple values
         // and an optional '-l value'

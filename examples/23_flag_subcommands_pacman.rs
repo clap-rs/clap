@@ -1,23 +1,3 @@
-// This feature allows users of the app to pass subcommands in the fashion of short or long flags.
-// You may be familiar with it if you ever used [`pacman`](https://wiki.archlinux.org/index.php/pacman).
-// Some made up examples of what flag subcommands are:
-//
-// ```shell
-// $ pacman -S
-//           ^--- short flag subcommand.
-// $ pacman --sync
-//           ^--- long flag subcommand.
-// $ pacman -Ss
-//           ^--- short flag subcommand followed by a short flag
-//                   (users can "stack" short subcommands with short flags or with other short flag subcommands)
-// $ pacman -S -s
-//           ^--- same as above
-// $ pacman -S --sync
-//           ^--- short flag subcommand followed by a long flag
-// ```
-// NOTE: Keep in mind that subcommands, flags, and long flags are *case sensitive*: `-Q` and `-q` are different flags/subcommands. For example, you can have both `-Q` subcommand and `-q` flag, and they will be properly disambiguated.
-// Let's make a quick program to illustrate.
-
 use clap::{App, AppSettings, Arg};
 
 fn main() {

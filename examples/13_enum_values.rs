@@ -1,6 +1,3 @@
-// In the following example we will create an enum with 4 values, assign a positional argument
-// that accepts only one of those values, and use clap to parse the argument.
-//
 // Start with bringing the trait into scope.
 use std::str::FromStr;
 

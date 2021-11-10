@@ -1,12 +1,3 @@
-//! Example of a `busybox-style` multicall program
-//!
-//! See the documentation for clap::AppSettings::Multicall for rationale.
-//!
-//! This example omits every command except true and false,
-//! which are the most trivial to implement,
-//! but includes the `--install` option as an example of why it can be useful
-//! for the main program to take arguments that aren't applet subcommands.
-
 use std::process::exit;
 
 use clap::{App, AppSettings, Arg};

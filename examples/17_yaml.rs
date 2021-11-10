@@ -1,17 +1,3 @@
-// In order to use YAML to define your CLI you must compile clap with the "yaml" feature because
-// it's **not** included by default.
-//
-// In order to do this, ensure your Cargo.toml looks like one of the following:
-//
-// [dependencies.clap]
-// features = ["yaml"]
-//
-// __OR__
-//
-// [dependencies]
-// clap = { features = ["yaml"] }
-
-// Using yaml requires calling a clap macro `load_yaml!()`.
 // Note: If you're using clap as a dependency and don't have a feature for your users called
 // "yaml", you'll need to remove the #[cfg(feature = "yaml")] conditional compilation attribute
 #[cfg(feature = "yaml")]
