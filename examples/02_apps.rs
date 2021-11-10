@@ -1,8 +1,6 @@
 use clap::App;
 
 fn main() {
-    // Apps describe the top level application
-    //
     // You create an App and set various options on that App using the "builder pattern"
     //
     // The options (version(), author(), about()) aren't mandatory, but recommended. There is
