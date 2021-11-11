@@ -4,7 +4,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 // Internal
 use crate::{
     build::{App, Arg, ArgSettings},
-    parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
+    parse::{ArgMatches, ArgPredicate, MatchedArg, SubCommand, ValueType},
     util::Id,
 };
 
@@ -124,6 +124,10 @@ impl ArgMatcher {
 
     pub(crate) fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
         self.0.args.iter()
+    }
+
+    pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
+        self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 
     pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ci: bool) {
