@@ -4,7 +4,7 @@ use crate::{
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
-        ArgMatcher, MatchedArg, ParseState, Parser,
+        ArgMatcher, ArgPredicate, MatchedArg, ParseState, Parser,
     },
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
@@ -279,7 +279,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .app
                             .unroll_args_in_group(&g.id)
                             .iter()
-                            .filter(|&a| matcher.contains_explicit_val(a, None))
+                            .filter(|&a| matcher.check_explicit(a, ArgPredicate::IsPresent))
                             .count()
                             > 1
                     };
@@ -287,11 +287,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     let conf_with_arg = || {
                         g.conflicts
                             .iter()
-                            .any(|x| matcher.contains_explicit_val(x, None))
+                            .any(|x| matcher.check_explicit(x, ArgPredicate::IsPresent))
                     };
 
                     let arg_conf_with_gr = || {
-                        matcher.contains_explicit_val(&g.id, None)
+                        matcher.check_explicit(&g.id, ArgPredicate::IsPresent)
                             && matcher
                                 .arg_names()
                                 .filter_map(|x| self.p.app.find(x))
@@ -347,7 +347,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 debug!("Validator::gather_conflicts:iter: id={:?}", name);
                 // if arg is "present" only because it got default value
                 // it doesn't conflict with anything and should be skipped
-                let skip = !matcher.contains_explicit_val(name, None);
+                let skip = !matcher.check_explicit(name, ArgPredicate::IsPresent);
                 if skip {
                     debug!("Validator::gather_conflicts:iter: This is not an explicit value, skipping.",);
                 }
@@ -410,7 +410,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                if matcher.contains_explicit_val(&g.id, None) {
+                if matcher.check_explicit(&g.id, ArgPredicate::IsPresent) {
                     for r in &g.requires {
                         self.p.required.insert(r.clone());
                     }
@@ -572,7 +572,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         // Validate the conditionally required args
         for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
-                if matcher.contains_explicit_val(other, Some(*val)) && !matcher.contains(&a.id) {
+                if matcher.check_explicit(other, ArgPredicate::Equals(*val))
+                    && !matcher.contains(&a.id)
+                {
                     return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
             }
@@ -580,7 +582,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             let match_all = a
                 .r_ifs_all
                 .iter()
-                .all(|(other, val)| matcher.contains_explicit_val(other, Some(*val)));
+                .all(|(other, val)| matcher.check_explicit(other, ArgPredicate::Equals(*val)));
 
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
@@ -636,7 +638,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        let exists = |id| matcher.contains_explicit_val(id, None);
+        let exists = |id| matcher.check_explicit(id, ArgPredicate::IsPresent);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
             && !a.r_unless.iter().any(exists)
