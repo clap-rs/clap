@@ -1216,3 +1216,16 @@ fn no_auto_version_mut_arg() {
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
 }
+
+#[test]
+#[cfg(feature = "color")]
+fn color_is_global() {
+    let mut app = App::new("myprog")
+        .color(clap::ColorChoice::Never)
+        .subcommand(App::new("foo"));
+    app._build_all();
+    assert_eq!(app.get_color(), clap::ColorChoice::Never);
+
+    let sub = app.get_subcommands().collect::<Vec<_>>()[0];
+    assert_eq!(sub.get_color(), clap::ColorChoice::Never);
+}

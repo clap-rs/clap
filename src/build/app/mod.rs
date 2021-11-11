@@ -1045,9 +1045,9 @@ impl<'help> App<'help> {
     pub fn color(self, color: ColorChoice) -> Self {
         #[allow(deprecated)]
         match color {
-            ColorChoice::Auto => self.setting(AppSettings::ColorAuto),
-            ColorChoice::Always => self.setting(AppSettings::ColorAlways),
-            ColorChoice::Never => self.setting(AppSettings::ColorNever),
+            ColorChoice::Auto => self.global_setting(AppSettings::ColorAuto),
+            ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
+            ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
         }
     }
 
