@@ -29,6 +29,7 @@ fn main() {
 
     match matches.subcommand_name() {
         Some("test") => println!("The 'test' subcommand was used"),
+        None => {}
         _ => unreachable!(),
     }
 }
