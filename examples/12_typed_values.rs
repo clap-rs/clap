@@ -31,7 +31,7 @@ fn main() {
     //
     // Using other methods such as unwrap_or_else(|e| println!("{}",e))
     // are possible too.
-    let len: u32 = matches.value_of_t("len").unwrap_or(10);
+    let len: u32 = matches.value_of_t("l").unwrap_or(10);
 
     println!("len ({}) + 2 = {}", len, len + 2);
 

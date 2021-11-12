@@ -18,19 +18,19 @@ fn main() {
         .get_matches();
 
     // You can check if a subcommand was used like normal
-    if matches.is_present("add") {
+    if matches.is_present("ls") {
         println!("'myapp add' was run.");
     }
 
     // You can get the independent subcommand matches (which function exactly like App matches)
-    if let Some(matches) = matches.subcommand_matches("add") {
+    if let Some(matches) = matches.subcommand_matches("ls") {
         // Safe to use unwrap() because of the required() option
         println!("Adding file: {}", matches.value_of("input").unwrap());
     }
 
     // You can also match on a subcommand's name
     match matches.subcommand_name() {
-        Some("add") => println!("'myapp add' was used"),
+        Some("ls") => println!("'myapp add' was used"),
         None => println!("No subcommand was used"),
         _ => println!("Some other subcommand was used"),
     }

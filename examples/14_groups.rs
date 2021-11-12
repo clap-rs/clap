@@ -56,7 +56,7 @@ fn main() {
     let mut patch = 3;
 
     // See if --set-ver was used to set the version manually
-    let version = if let Some(ver) = matches.value_of("ver") {
+    let version = if let Some(ver) = matches.value_of("set-ver") {
         ver.to_string()
     } else {
         // Increment the one requested (in a real program, we'd reset the lower numbers)
@@ -80,7 +80,7 @@ fn main() {
     if matches.is_present("config") {
         let input = matches
             .value_of("INPUT_FILE")
-            .unwrap_or_else(|| matches.value_of("SPEC_IN").unwrap());
+            .unwrap_or_else(|| matches.value_of("spec-in").unwrap());
         println!(
             "Doing work using input {} and config {}",
             input,
