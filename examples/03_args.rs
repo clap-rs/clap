@@ -75,9 +75,13 @@ fn main() {
         println!("A config file was passed in: {}", config);
     }
 
-    // Let's print the <INPUT> file the user passed in. We can use .unwrap() here because the arg is
-    // required, and parsing would have failed if the user forgot it
-    println!("Using input file: {}", matches.value_of("input").unwrap());
+    // Let's print the <INPUT> file the user passed in.
+    println!(
+        "Using input file: {}",
+        matches
+            .value_of("input")
+            .expect("'input' is required and parsing will fail if its missing")
+    );
 
     // We could continue checking for and using arguments in this manner, such as "license",
     // "output", and "interface". Keep in mind that "output" and "interface" are optional, so you

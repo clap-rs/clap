@@ -22,7 +22,10 @@ fn main() {
         .get_matches();
 
     // Note, it's safe to call unwrap() because the arg is required
-    match matches.value_of("MODE").unwrap() {
+    match matches
+        .value_of("MODE")
+        .expect("'MODE' is required and parsing will fail if its missing")
+    {
         "fast" => {
             println!("Hare");
         }

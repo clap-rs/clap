@@ -24,9 +24,9 @@ fn main() {
         )
         .get_matches();
 
-    // It's safe to call unwrap because the value will either be what the user input at runtime
-    // or "input.txt"
-    let input = matches.value_of("INPUT").unwrap();
+    let input = matches
+        .value_of("INPUT")
+        .expect("'INPUT' is default and parsing will ensure there always is a value");
 
     // Using Option::unwrap_or we get the same effect, but without the added help text injection
     let config_file = matches.value_of("CONFIG").unwrap_or("config.json");

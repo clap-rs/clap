@@ -39,8 +39,9 @@ fn main() {
     match matches.subcommand() {
         Some(("add", sub_matches)) => println!(
             "'myapp add' was used, input is: {}",
-            // Safe to use unwrap() because of the required() option
-            sub_matches.value_of("input").unwrap()
+            sub_matches
+                .value_of("input")
+                .expect("'input' is required and parsing will fail if its missing")
         ),
         None => println!("No subcommand was used"),
         _ => println!("Some other subcommand was used"),
