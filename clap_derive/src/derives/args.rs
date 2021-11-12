@@ -74,7 +74,8 @@ pub fn gen_for_struct(
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::Args for #struct_name {
@@ -114,7 +115,8 @@ pub fn gen_from_arg_matches_for_struct(
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::FromArgMatches for #struct_name {

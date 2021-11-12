@@ -63,7 +63,8 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::Subcommand for #enum_name {
@@ -102,7 +103,8 @@ fn gen_from_arg_matches_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::FromArgMatches for #name {
