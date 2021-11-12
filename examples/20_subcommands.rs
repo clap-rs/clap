@@ -85,11 +85,6 @@ fn main() {
 
     // At this point, the matches we have point to git. Keep this in mind...
 
-    // You can check if one of git's subcommands was used
-    if matches.is_present("clone") {
-        println!("'git clone' was run.");
-    }
-
     // You can see which subcommand was used
     if let Some(subcommand) = matches.subcommand_name() {
         println!("'git {}' was used", subcommand);
