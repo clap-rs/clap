@@ -33,9 +33,9 @@ fn main() {
         unimplemented!("Make hardlinks to the executable here");
     }
 
-    exit(match matches.subcommand_name() {
-        Some("true") => 0,
-        Some("false") => 1,
-        _ => 127,
-    })
+    match matches.subcommand_name() {
+        Some("true") => exit(0),
+        Some("false") => exit(1),
+        _ => unreachable!("parser should ensure only valid subcommand names are used"),
+    }
 }
