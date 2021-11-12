@@ -941,7 +941,16 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false)
+        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
+        match &mut err.message {
+            Message::Raw(_) => {
+                unreachable!("`value_validation_with_color` only deals in formatted errors")
+            }
+            Message::Formatted(c) => {
+                c.none("\n");
+            }
+        }
+        err
     }
 
     fn value_validation_with_color(
