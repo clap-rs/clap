@@ -35,7 +35,6 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .license("MIT OR Apache-2.0")
         .arg(
             Arg::new("config")
                 .short('c')

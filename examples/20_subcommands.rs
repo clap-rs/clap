@@ -49,7 +49,6 @@ fn main() {
         .subcommand(
             App::new("clone")
                 .about("clones repos")
-                .license("MIT OR Apache-2.0")
                 .arg(Arg::new("repo").about("The repo to clone").required(true)),
         )
         .subcommand(
