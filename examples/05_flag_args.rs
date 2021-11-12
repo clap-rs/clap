@@ -30,7 +30,7 @@ fn main() {
                                            // and an exclusive(true)
         )
         .arg("-c, --config=[FILE] 'sets a custom config file'")
-        .arg("<output> 'sets an output file'")
+        .arg("[output] 'sets an output file'")
         .get_matches();
 
     // We can find out whether or not awesome was used
