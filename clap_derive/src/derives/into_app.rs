@@ -67,7 +67,8 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::IntoApp for #struct_name {
@@ -109,7 +110,8 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
             clippy::perf,
             clippy::deprecated,
             clippy::nursery,
-            clippy::cargo
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
         impl clap::IntoApp for #enum_name {
