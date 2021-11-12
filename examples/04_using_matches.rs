@@ -50,11 +50,11 @@ fn main() {
         println!("Using config file: {}", file);
     }
 
-    // Because "input" is required we can safely call unwrap() because had the user NOT
-    // specified a value, clap would have explained the error the user, and exited.
     println!(
         "Doing real work with file: {}",
-        matches.value_of("input").unwrap()
+        matches
+            .value_of("input")
+            .expect("'input' is required and parsing will fail if its missing")
     );
 
     // Continued program logic goes here...
