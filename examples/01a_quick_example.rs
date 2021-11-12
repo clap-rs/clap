@@ -34,7 +34,7 @@ fn main() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .arg("-c, --config=[FILE] 'Sets a custom config file'")
-        .arg("<output> 'Sets an optional output file'")
+        .arg("[output] 'Sets an optional output file'")
         .arg("-d..., --debug... 'Turn debugging information on'")
         .subcommand(
             App::new("test")
