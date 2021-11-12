@@ -20,10 +20,6 @@ fn main() {
                 // also use this other 'config' arg too"
                 // Can also specify a list using
                 // requires_all(Vec<&str>)
-                .conflicts_with("output") // Opposite of requires(), says "if the
-                // user uses -a, they CANNOT use 'output'"
-                // also has a conflicts_with_all(Vec<&str>)
-                // and an exclusive(true)
                 .required(true), // By default this argument MUST be present
                                  // NOTE: mutual exclusions take precedence over
                                  // required arguments
@@ -33,7 +29,6 @@ fn main() {
         // requires "config"
         // Note, we also do not need to specify requires("input")
         // because requires lists are automatically two-way
-        .arg(Arg::new("output").about("the output file to use").index(3))
         .get_matches();
 
     // We can find out whether or not "input" or "config" were used
