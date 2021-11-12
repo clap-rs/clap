@@ -35,11 +35,6 @@ fn main() {
         )
         .get_matches();
 
-    // You can check if a subcommand was used like normal
-    if matches.is_present("add") {
-        println!("'myapp add' was run.");
-    }
-
     // You can get the independent subcommand matches (which function exactly like App matches)
     if let Some(matches) = matches.subcommand_matches("add") {
         // Safe to use unwrap() because of the required() option
