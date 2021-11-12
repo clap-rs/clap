@@ -24,10 +24,10 @@ fn main() {
     // Note, it's safe to call unwrap() because the arg is required
     match matches.value_of("MODE").unwrap() {
         "fast" => {
-            // Do fast things...
+            println!("Hare");
         }
         "slow" => {
-            // Do slow things...
+            println!("Tortoise");
         }
         _ => unreachable!(),
     }
