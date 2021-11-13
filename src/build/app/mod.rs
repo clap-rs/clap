@@ -3124,8 +3124,42 @@ impl<'help> App<'help> {
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(&self, arg: &Id, matcher: &ArgMatcher) -> Vec<Id> {
-        let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| -> Option<Id> {
+    pub(crate) fn unroll_requirements_for_arg<F>(&self, func: F, arg: &Id) -> Vec<Id>
+    where
+        F: Fn(&(Option<&str>, Id)) -> Option<Id>,
+    {
+        let mut processed = vec![];
+        let mut r_vec = vec![arg];
+        let mut args = vec![];
+
+        while let Some(a) = r_vec.pop() {
+            if processed.contains(&a) {
+                continue;
+            }
+
+            processed.push(a);
+
+            if let Some(arg) = self.find(a) {
+                for r in arg.requires.iter().filter_map(&func) {
+                    if let Some(req) = self.find(&r) {
+                        if !req.requires.is_empty() {
+                            r_vec.push(&req.id)
+                        }
+                    }
+                    args.push(r);
+                }
+            }
+        }
+
+        args
+    }
+
+    pub(crate) fn unroll_requirements_for_arg_during_validation(
+        &self,
+        arg: &Id,
+        matcher: &ArgMatcher,
+    ) -> Vec<Id> {
+        let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| {
             let predicate = if let Some(val) = val {
                 ArgPredicate::Equals(*val)
             } else {
@@ -3139,30 +3173,19 @@ impl<'help> App<'help> {
             }
         };
 
-        let mut processed = vec![];
-        let mut r_vec = vec![arg];
-        let mut args = vec![];
+        self.unroll_requirements_for_arg(requires_if_or_not, arg)
+    }
 
-        while let Some(a) = r_vec.pop() {
-            if processed.contains(&a) {
-                continue;
+    pub(crate) fn unroll_requirements_for_arg_during_usage(&self, arg: &Id) -> Vec<Id> {
+        let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| {
+            if val.is_none() {
+                Some(req_arg.clone())
+            } else {
+                None
             }
+        };
 
-            processed.push(a);
-
-            if let Some(arg) = self.find(a) {
-                for r in arg.requires.iter().filter_map(requires_if_or_not) {
-                    if let Some(req) = self.find(&r) {
-                        if !req.requires.is_empty() {
-                            r_vec.push(&req.id)
-                        }
-                    }
-                    args.push(r);
-                }
-            }
-        }
-
-        args
+        self.unroll_requirements_for_arg(requires_if_or_not, arg)
     }
 
     /// Find a flag subcommand name by short flag or an alias

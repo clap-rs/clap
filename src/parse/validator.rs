@@ -405,7 +405,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         for name in matcher.arg_names() {
             debug!("Validator::gather_requirements:iter:{:?}", name);
             if let Some(arg) = self.p.app.find(name) {
-                for req in self.p.app.unroll_requirements_for_arg(&arg.id, matcher) {
+                for req in self
+                    .p
+                    .app
+                    .unroll_requirements_for_arg_during_validation(&arg.id, matcher)
+                {
                     self.p.required.insert(req);
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
