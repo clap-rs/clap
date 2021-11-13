@@ -314,6 +314,28 @@ impl<'help> App<'help> {
         self.settings.is_set(s) || self.g_settings.is_set(s)
     }
 
+    /// Should we color the output?
+    #[inline]
+    pub fn get_color(&self) -> ColorChoice {
+        debug!("App::color: Color setting...");
+
+        if cfg!(feature = "color") {
+            #[allow(deprecated)]
+            if self.is_set(AppSettings::ColorNever) {
+                debug!("Never");
+                ColorChoice::Never
+            } else if self.is_set(AppSettings::ColorAlways) {
+                debug!("Always");
+                ColorChoice::Always
+            } else {
+                debug!("Auto");
+                ColorChoice::Auto
+            }
+        } else {
+            ColorChoice::Never
+        }
+    }
+
     /// Returns `true` if this `App` has subcommands.
     #[inline]
     pub fn has_subcommands(&self) -> bool {
@@ -1001,9 +1023,9 @@ impl<'help> App<'help> {
     pub fn color(self, color: ColorChoice) -> Self {
         #[allow(deprecated)]
         match color {
-            ColorChoice::Auto => self.setting(AppSettings::ColorAuto),
-            ColorChoice::Always => self.setting(AppSettings::ColorAlways),
-            ColorChoice::Never => self.setting(AppSettings::ColorNever),
+            ColorChoice::Auto => self.global_setting(AppSettings::ColorAuto),
+            ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
+            ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
         }
     }
 
@@ -2757,24 +2779,6 @@ impl<'help> App<'help> {
 
     pub(crate) fn find(&self, arg_id: &Id) -> Option<&Arg<'help>> {
         self.args.args().find(|a| a.id == *arg_id)
-    }
-
-    #[inline]
-    // Should we color the output?
-    pub(crate) fn get_color(&self) -> ColorChoice {
-        debug!("App::color: Color setting...");
-
-        #[allow(deprecated)]
-        if self.is_set(AppSettings::ColorNever) {
-            debug!("Never");
-            ColorChoice::Never
-        } else if self.is_set(AppSettings::ColorAlways) {
-            debug!("Always");
-            ColorChoice::Always
-        } else {
-            debug!("Auto");
-            ColorChoice::Auto
-        }
     }
 
     #[inline]
