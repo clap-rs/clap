@@ -22,7 +22,7 @@ use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{
     self, punctuated::Punctuated, token::Comma, Attribute, Data, DataEnum, DataStruct, DeriveInput,
-    Field, Fields, Ident,
+    Field, Fields, Generics, Ident,
 };
 
 pub fn derive_parser(input: &DeriveInput) -> TokenStream {
@@ -34,18 +34,23 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
             ..
         }) => {
             dummies::parser_struct(ident);
-            gen_for_struct(ident, &fields.named, &input.attrs)
+            gen_for_struct(ident, &input.generics, &fields.named, &input.attrs)
         }
         Data::Struct(DataStruct {
             fields: Fields::Unit,
             ..
         }) => {
             dummies::parser_struct(ident);
-            gen_for_struct(ident, &Punctuated::<Field, Comma>::new(), &input.attrs)
+            gen_for_struct(
+                ident,
+                &input.generics,
+                &Punctuated::<Field, Comma>::new(),
+                &input.attrs,
+            )
         }
         Data::Enum(ref e) => {
             dummies::parser_enum(ident);
-            gen_for_enum(ident, &input.attrs, e)
+            gen_for_enum(ident, &input.generics, &input.attrs, e)
         }
         _ => abort_call_site!("`#[derive(Parser)]` only supports non-tuple structs and enums"),
     }
@@ -53,26 +58,36 @@ pub fn derive_parser(input: &DeriveInput) -> TokenStream {
 
 fn gen_for_struct(
     name: &Ident,
+    generics: &Generics,
     fields: &Punctuated<Field, Comma>,
     attrs: &[Attribute],
 ) -> TokenStream {
-    let into_app = into_app::gen_for_struct(name, attrs);
-    let args = args::gen_for_struct(name, fields, attrs);
+    let into_app = into_app::gen_for_struct(name, generics, attrs);
+    let args = args::gen_for_struct(name, generics, fields, attrs);
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
-        impl clap::Parser for #name {}
+        impl #impl_generics clap::Parser for #name #ty_generics #where_clause {}
 
         #into_app
         #args
     }
 }
 
-fn gen_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let into_app = into_app::gen_for_enum(name, attrs);
-    let subcommand = subcommand::gen_for_enum(name, attrs, e);
+fn gen_for_enum(
+    name: &Ident,
+    generics: &Generics,
+    attrs: &[Attribute],
+    e: &DataEnum,
+) -> TokenStream {
+    let into_app = into_app::gen_for_enum(name, generics, attrs);
+    let subcommand = subcommand::gen_for_enum(name, generics, attrs, e);
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
-        impl clap::Parser for #name {}
+        impl #impl_generics clap::Parser for #name #ty_generics #where_clause {}
 
         #into_app
         #subcommand

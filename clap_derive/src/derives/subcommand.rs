@@ -23,7 +23,7 @@ use proc_macro_error::{abort, abort_call_site};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
     punctuated::Punctuated, spanned::Spanned, Attribute, Data, DataEnum, DeriveInput,
-    FieldsUnnamed, Token, Variant,
+    FieldsUnnamed, Generics, Token, Variant,
 };
 
 pub fn derive_subcommand(input: &DeriveInput) -> TokenStream {
@@ -32,13 +32,18 @@ pub fn derive_subcommand(input: &DeriveInput) -> TokenStream {
     dummies::subcommand(ident);
 
     match input.data {
-        Data::Enum(ref e) => gen_for_enum(ident, &input.attrs, e),
+        Data::Enum(ref e) => gen_for_enum(ident, &input.generics, &input.attrs, e),
         _ => abort_call_site!("`#[derive(Subcommand)]` only supports enums"),
     }
 }
 
-pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
-    let from_arg_matches = gen_from_arg_matches_for_enum(enum_name, attrs, e);
+pub fn gen_for_enum(
+    enum_name: &Ident,
+    generics: &Generics,
+    attrs: &[Attribute],
+    e: &DataEnum,
+) -> TokenStream {
+    let from_arg_matches = gen_from_arg_matches_for_enum(enum_name, generics, attrs, e);
 
     let attrs = Attrs::from_struct(
         Span::call_site(),
@@ -50,6 +55,8 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
     let augmentation = gen_augment(&e.variants, &attrs, false);
     let augmentation_update = gen_augment(&e.variants, &attrs, true);
     let has_subcommand = gen_has_subcommand(&e.variants, &attrs);
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
         #from_arg_matches
@@ -67,7 +74,7 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::Subcommand for #enum_name {
+        impl #impl_generics clap::Subcommand for #enum_name #ty_generics #where_clause {
             fn augment_subcommands <'b>(__clap_app: clap::App<'b>) -> clap::App<'b> {
                 #augmentation
             }
@@ -81,7 +88,12 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute], e: &DataEnum) -> Tok
     }
 }
 
-fn gen_from_arg_matches_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum) -> TokenStream {
+fn gen_from_arg_matches_for_enum(
+    name: &Ident,
+    generics: &Generics,
+    attrs: &[Attribute],
+    e: &DataEnum,
+) -> TokenStream {
     let attrs = Attrs::from_struct(
         Span::call_site(),
         attrs,
@@ -92,6 +104,8 @@ fn gen_from_arg_matches_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum
 
     let from_arg_matches = gen_from_arg_matches(name, &e.variants, &attrs);
     let update_from_arg_matches = gen_update_from_arg_matches(name, &e.variants, &attrs);
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
@@ -107,7 +121,7 @@ fn gen_from_arg_matches_for_enum(name: &Ident, attrs: &[Attribute], e: &DataEnum
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::FromArgMatches for #name {
+        impl #impl_generics clap::FromArgMatches for #name #ty_generics #where_clause {
             #from_arg_matches
             #update_from_arg_matches
         }
