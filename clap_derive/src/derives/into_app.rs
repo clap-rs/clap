@@ -17,7 +17,7 @@ use std::env;
 use proc_macro2::{Span, TokenStream};
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::{Attribute, Data, DataStruct, DeriveInput, Fields, Ident};
+use syn::{Attribute, Data, DataStruct, DeriveInput, Fields, Generics, Ident};
 
 use crate::{
     attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
@@ -34,17 +34,21 @@ pub fn derive_into_app(input: &DeriveInput) -> TokenStream {
         Data::Struct(DataStruct {
             fields: Fields::Named(_),
             ..
-        }) => gen_for_struct(ident, &input.attrs),
+        }) => gen_for_struct(ident, &input.generics, &input.attrs),
         Data::Struct(DataStruct {
             fields: Fields::Unit,
             ..
-        }) => gen_for_struct(ident, &input.attrs),
-        Data::Enum(_) => gen_for_enum(ident, &input.attrs),
+        }) => gen_for_struct(ident, &input.generics, &input.attrs),
+        Data::Enum(_) => gen_for_enum(ident, &input.generics, &input.attrs),
         _ => abort_call_site!("`#[derive(IntoApp)]` only supports non-tuple structs and enums"),
     }
 }
 
-pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
+pub fn gen_for_struct(
+    struct_name: &Ident,
+    generics: &Generics,
+    attrs: &[Attribute],
+) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     let attrs = Attrs::from_struct(
@@ -56,6 +60,8 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
     );
     let name = attrs.cased_name();
     let app_var = Ident::new("__clap_app", Span::call_site());
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let tokens = quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -71,15 +77,15 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::IntoApp for #struct_name {
+        impl #impl_generics clap::IntoApp for #struct_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::App<'b> {
                 let #app_var = clap::App::new(#name);
-                <#struct_name as clap::Args>::augment_args(#app_var)
+                <Self as clap::Args>::augment_args(#app_var)
             }
 
             fn into_app_for_update<'b>() -> clap::App<'b> {
                 let #app_var = clap::App::new(#name);
-                <#struct_name as clap::Args>::augment_args_for_update(#app_var)
+                <Self as clap::Args>::augment_args_for_update(#app_var)
             }
         }
     };
@@ -87,7 +93,7 @@ pub fn gen_for_struct(struct_name: &Ident, attrs: &[Attribute]) -> TokenStream {
     tokens
 }
 
-pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
+pub fn gen_for_enum(enum_name: &Ident, generics: &Generics, attrs: &[Attribute]) -> TokenStream {
     let app_name = env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
     let attrs = Attrs::from_struct(
@@ -99,6 +105,8 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
     );
     let name = attrs.cased_name();
     let app_var = Ident::new("__clap_app", Span::call_site());
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
         #[allow(dead_code, unreachable_code, unused_variables)]
@@ -114,16 +122,16 @@ pub fn gen_for_enum(enum_name: &Ident, attrs: &[Attribute]) -> TokenStream {
             clippy::suspicious_else_formatting,
         )]
         #[deny(clippy::correctness)]
-        impl clap::IntoApp for #enum_name {
+        impl #impl_generics clap::IntoApp for #enum_name #ty_generics #where_clause {
             fn into_app<'b>() -> clap::App<'b> {
                 let #app_var = clap::App::new(#name)
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp);
-                <#enum_name as clap::Subcommand>::augment_subcommands(#app_var)
+                <Self as clap::Subcommand>::augment_subcommands(#app_var)
             }
 
             fn into_app_for_update<'b>() -> clap::App<'b> {
                 let #app_var = clap::App::new(#name);
-                <#enum_name as clap::Subcommand>::augment_subcommands_for_update(#app_var)
+                <Self as clap::Subcommand>::augment_subcommands_for_update(#app_var)
             }
         }
     }
