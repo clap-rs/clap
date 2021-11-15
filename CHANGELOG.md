@@ -347,7 +347,7 @@ Added `std`, `cargo`, `derive` features.
   * `AppSettings::HelpRequired`
   * `AppSettings::NoAutoHelp`
   * `AppSettings::NoAutoVersion`
-  * `ArgSettings::SubcommandPrecedenceOverArg`
+  * `AppSettings::SubcommandPrecedenceOverArg`
 
 #### Enhancements
 
