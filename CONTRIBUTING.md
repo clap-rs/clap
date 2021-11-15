@@ -6,45 +6,27 @@ Another really great way to help is if you find an interesting, or helpful way i
 
 ### Testing Code
 
-To test with all features both enabled and disabled, you can run these commands:
+To test with all features both enabled and disabled, you can run this command:
 
 ```sh
 $ cargo test --features "wrap_help yaml regex unstable-replace"
 ```
 
-Alternatively, if you have [`just`](https://github.com/casey/just) installed you can run the prebuilt recipes. *Not* using `just` is perfectly fine as well, it simply bundles commands automatically.
-
-For example, to test the code, as above simply run:
-
-```sh
-$ just run-tests
-```
-
-From here on, I will list the appropriate `cargo` command as well as the `just` command.
-
 Sometimes it's helpful to only run a subset of the tests, which can be done via:
 
 ```sh
 $ cargo test --test <test_name>
-
-# Or
-
-$ just run-test <test_name>
 ```
 
 ### Linting Code
 
 During the CI process `clap` runs against many different lints using [`clippy`](https://github.com/rust-lang/rust-clippy).
 
-In order to check the code for lints and to format it run either:
+In order to check the code for lints and to format it run:
 
 ```sh
 $ cargo clippy --features "wrap_help yaml regex unstable-replace" -- -D warnings
 $ cargo fmt -- --check
-
-# Or
-
-$ just lint
 ```
 
 ### Debugging Code
@@ -56,9 +38,6 @@ $ cargo test --features debug
 
 # Or for individual tests
 $ cargo test --test <test_name> --features debug
-
-# The corresponding just command for individual debugging tests is:
-$ just debug <test_name>
 ```
 
 ### Tests and Documentation
