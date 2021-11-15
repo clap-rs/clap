@@ -64,3 +64,76 @@ fn stateful_validator() {
 
     assert!(state);
 }
+
+#[test]
+fn validator_all() {
+    App::new("test")
+        .arg(
+            Arg::new("test")
+                .short('d')
+                .takes_value(true)
+                .multiple_values(true)
+                .validator_all(|vals| {
+                    if vals.len() % 3 == 0 {
+                        Ok(())
+                    } else {
+                        Err("not % 3!")
+                    }
+                }),
+        )
+        .try_get_matches_from(&["app", "-d", "f", "f", "f"])
+        .unwrap();
+}
+
+#[test]
+fn validator_all_and_validator() {
+    let app = App::new("test").arg(
+        Arg::new("test")
+            .short('d')
+            .takes_value(true)
+            .multiple_values(true)
+            .validator_all(|vals| {
+                if vals.len() % 3 == 0 {
+                    Ok(())
+                } else {
+                    Err("not % 3!")
+                }
+            })
+            .validator(|val| val.parse::<u32>().map_err(|e| e.to_string())),
+    );
+
+    app.clone()
+        .try_get_matches_from(&["app", "-d", "10", "0", "10"])
+        .unwrap();
+    assert!(app
+        .try_get_matches_from(&["app", "-d", "a", "0", "10"])
+        .is_err());
+}
+
+#[test]
+fn validator_all_os_error() {
+    let res = App::new("test")
+        .arg(
+            Arg::new("test")
+                .short('d')
+                .takes_value(true)
+                .multiple_values(true)
+                .validator_all_os(|vals| {
+                    if vals.len() % 3 == 0 {
+                        Ok(())
+                    } else {
+                        Err(format!("not % 3 == 0, == {}!", vals.len() % 3))
+                    }
+                }),
+        )
+        .try_get_matches_from(&["app", "-d", "f", "f", "f", "f"]);
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+
+    eprintln!("{}", err.to_string());
+
+    assert!(err
+        .to_string()
+        .contains("Invalid values for '-d <test>...': not % 3 == 0, == 1!"));
+}

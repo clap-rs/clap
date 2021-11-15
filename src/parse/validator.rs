@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 // Internal
 use crate::{
     build::{arg::PossibleValue, AppSettings as AS, Arg, ArgSettings},
@@ -86,6 +88,43 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         ma: &MatchedArg,
         matcher: &ArgMatcher,
     ) -> ClapResult<()> {
+        if let Some(ref vtor) = arg.validator_all {
+            debug!("Validator::validate_arg_values: checking validator_all...");
+            let mut vtor = vtor.lock().unwrap();
+            let vals = ma
+                .vals_flatten()
+                .map(|s| s.to_string_lossy())
+                .collect::<Vec<_>>();
+            if let Err(e) = vtor(&vals.iter().map(|s| s.borrow()).collect::<Vec<_>>()) {
+                debug!("error");
+                return Err(Error::value_validation(
+                    self.p.app,
+                    arg.to_string(),
+                    String::new(),
+                    e,
+                    true,
+                ));
+            } else {
+                debug!("good");
+            }
+        }
+        if let Some(ref vtor) = arg.validator_all_os {
+            debug!("Validator::validate_arg_values: checking validator_all_os...");
+            let mut vtor = vtor.lock().unwrap();
+            let vals = ma.vals_flatten().map(|s| s.as_os_str()).collect::<Vec<_>>();
+            if let Err(e) = vtor(vals.as_slice()) {
+                debug!("error");
+                return Err(Error::value_validation(
+                    self.p.app,
+                    arg.to_string(),
+                    String::new(),
+                    e,
+                    true,
+                ));
+            } else {
+                debug!("good");
+            }
+        }
         debug!("Validator::validate_arg_values: arg={:?}", arg.name);
         for val in ma.vals_flatten() {
             if !arg.is_set(ArgSettings::AllowInvalidUtf8) && val.to_str().is_none() {
@@ -152,6 +191,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         arg.to_string(),
                         val.to_string_lossy().into_owned(),
                         e,
+                        false,
                     ));
                 } else {
                     debug!("good");
@@ -167,6 +207,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         arg.to_string(),
                         val.to_string_lossy().into(),
                         e,
+                        false,
                     ));
                 } else {
                     debug!("good");

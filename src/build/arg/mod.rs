@@ -45,6 +45,9 @@ pub use self::regex::RegexRef;
 
 type Validator<'a> = dyn FnMut(&str) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 type ValidatorOs<'a> = dyn FnMut(&OsStr) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
+type ValidatorAll<'a> = dyn FnMut(&[&str]) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
+type ValidatorAllOs<'a> =
+    dyn FnMut(&[&OsStr]) -> Result<(), Box<dyn Error + Send + Sync>> + Send + 'a;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum ArgProvider {
@@ -110,6 +113,8 @@ pub struct Arg<'help> {
     pub(crate) min_vals: Option<usize>,
     pub(crate) validator: Option<Arc<Mutex<Validator<'help>>>>,
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
+    pub(crate) validator_all: Option<Arc<Mutex<ValidatorAll<'help>>>>,
+    pub(crate) validator_all_os: Option<Arc<Mutex<ValidatorAllOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
     pub(crate) default_vals_ifs: Vec<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
@@ -2342,6 +2347,30 @@ impl<'help> Arg<'help> {
         E: Into<Box<dyn Error + Send + Sync + 'static>>,
     {
         self.validator_os = Some(Arc::new(Mutex::new(move |s: &OsStr| {
+            f(s).map(|_| ()).map_err(|e| e.into())
+        })));
+        self
+    }
+
+    /// Works identically to `validator` but is passed all the values sent.
+    pub fn validator_all<F, O, E>(mut self, mut f: F) -> Self
+    where
+        F: FnMut(&[&str]) -> Result<O, E> + Send + 'help,
+        E: Into<Box<dyn Error + Send + Sync + 'static>>,
+    {
+        self.validator_all = Some(Arc::new(Mutex::new(move |s: &[&str]| {
+            f(s).map(|_| ()).map_err(|e| e.into())
+        })));
+        self
+    }
+
+    /// Works identically to `validator_all` but is passed all the values sent as `OsString`'s.
+    pub fn validator_all_os<F, O, E>(mut self, mut f: F) -> Self
+    where
+        F: FnMut(&[&OsStr]) -> Result<O, E> + Send + 'help,
+        E: Into<Box<dyn Error + Send + Sync + 'static>>,
+    {
+        self.validator_all_os = Some(Arc::new(Mutex::new(move |s: &[&OsStr]| {
             f(s).map(|_| ()).map_err(|e| e.into())
         })));
         self

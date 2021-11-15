@@ -919,6 +919,7 @@ impl Error {
         arg: String,
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
+        multiple: bool,
     ) -> Self {
         let mut err = Self::value_validation_with_color(
             arg,
@@ -926,6 +927,7 @@ impl Error {
             err,
             app.get_color(),
             app.settings.is_set(AppSettings::WaitOnError),
+            multiple,
         );
         match &mut err.message {
             Message::Raw(_) => {
@@ -941,7 +943,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false)
+        Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false, false)
     }
 
     fn value_validation_with_color(
@@ -950,10 +952,15 @@ impl Error {
         err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
         wait_on_exit: bool,
+        multiple: bool,
     ) -> Self {
         let mut c = Colorizer::new(true, color);
 
         start_error(&mut c, "Invalid value");
+
+        if multiple {
+            c.none("s");
+        }
 
         c.none(" for '");
         c.warning(arg.clone());
