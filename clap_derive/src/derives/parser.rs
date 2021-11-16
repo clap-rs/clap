@@ -84,8 +84,10 @@ fn gen_for_enum(
     let into_app = into_app::gen_for_enum(name, generics, attrs);
     let subcommand = subcommand::gen_for_enum(name, generics, attrs, e);
 
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
     quote! {
-        impl clap::Parser for #name {}
+        impl #impl_generics clap::Parser for #name #ty_generics #where_clause {}
 
         #into_app
         #subcommand
