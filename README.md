@@ -47,11 +47,11 @@ We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.5` 
 
 ## About
 
-`clap` is used to parse *and validate* the string of command line arguments provided by a user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *applications* functionality, and less on the parsing and validating of arguments.
+`clap` is used to parse *and validate* the string of command line arguments provided by a user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *application's* functionality, and less on the parsing and validating of arguments.
 
 `clap` provides many things 'for free' (with no configuration) including the traditional version and help switches (or flags) along with associated messages. If you are using subcommands, `clap` will also auto-generate a `help` subcommand and separate associated help messages.
 
-Once `clap` parses the user provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them with a friendly message and exits gracefully (or returns a `Result` type and allows you to perform any clean up prior to exit). Because of this, you can make reasonable assumptions in your code about the validity of the arguments prior to your applications main execution.
+Once `clap` parses the user-provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them with a friendly message and exits gracefully (or returns a `Result` type and allows you to perform any clean up prior to exit). Because of this, you can make reasonable assumptions in your code about the validity of the arguments prior to your applications main execution.
 
 ## FAQ
 
@@ -65,10 +65,10 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 
 * Generate a CLI simply by defining a struct!
 * **Auto-generated Help, Version, and Usage information**
-  - Can optionally be fully, or partially overridden if you want a custom help, version, or usage statements
+  - Can optionally be fully, or partially overridden if you want custom help, version, or usage statements
 * **Auto-generated completion scripts (Bash, Zsh, Fish, Fig, Elvish and PowerShell)**
   - Using [`clap_generate`](https://github.com/clap-rs/clap/tree/master/clap_generate)
-  - Even works through many multiple levels of subcommands
+  - Even works through multiple levels of subcommands
   - Works with options which only accept certain values
   - Works with subcommand aliases
 * **Flags / Switches** (i.e. bool fields)
@@ -79,7 +79,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
   - Supports Specific Value Sets (See below)
   - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-  - Can set custom validations on values to extend the argument parsing capability to truly custom domains
+  - Can set custom validations on values to extend the argument-parsing capability to truly custom domains
 * **Option Arguments** (i.e. those that take values)
   - Both short and long versions supported (i.e. `-o value`, `-ovalue`, `-o=value` and `--option value` or `--option=value` respectively)
   - Supports multiple values (i.e. `-o <val1> -o <val2>` or `-o <val1> <val2>`)
@@ -87,7 +87,7 @@ Below are a few of the features which `clap` supports, full descriptions and usa
   - Supports Specific Value Sets (See below)
   - Supports named values so that the usage/help info appears as `-o <FILE> <INTERFACE>` etc. for when you require specific multiple values
   - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-  - Can set custom validations on values to extend the argument parsing capability to truly custom domains
+  - Can set custom validations on values to extend the argument-parsing capability to truly custom domains
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
   - Support their own sub-arguments, and sub-sub-commands independent of the parent
   - Get their own auto-generated Help, Version, and Usage independent of parent
