@@ -511,13 +511,17 @@ For more information try --help
 #[cfg(feature = "unstable-multicall")]
 #[test]
 fn busybox_like_multicall() {
+    fn applet_commands() -> [App<'static>; 2] {
+        [App::new("true"), App::new("false")]
+    }
     let app = App::new("busybox")
         .setting(AppSettings::Multicall)
-        .subcommand(App::new("true"))
-        .subcommand(App::new("false"));
+        .subcommand(App::new("busybox").subcommands(applet_commands()))
+        .subcommands(applet_commands());
 
     let m = app.clone().get_matches_from(&["busybox", "true"]);
-    assert_eq!(m.subcommand_name(), Some("true"));
+    assert_eq!(m.subcommand_name(), Some("busybox"));
+    assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
 
     let m = app.clone().get_matches_from(&["true"]);
     assert_eq!(m.subcommand_name(), Some("true"));

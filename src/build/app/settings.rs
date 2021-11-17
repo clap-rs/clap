@@ -390,10 +390,7 @@ pub enum AppSettings {
     /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
     AllowExternalSubcommands,
 
-    /// Parse the bin name (`argv[0]`) as a subcommand
-    ///
-    /// This adds a small performance penalty to startup
-    /// as it requires comparing the bin name against every subcommand name.
+    /// Strip directory path from argv\[0\] and use as an argument.
     ///
     /// A "multicall" executable is a single executable
     /// that contains a variety of applets,
@@ -411,10 +408,37 @@ pub enum AppSettings {
     ///
     /// # Examples
     ///
-    /// Multicall applets are defined as subcommands
-    /// to an app which has the Multicall setting enabled.
+    /// `hostname` is an example of a multicall executable.
+    /// Both `hostname` and `dnsdomainname` are provided by the same executable
+    /// and which behaviour to use is based on the executable file name.
     ///
-    /// Busybox is a common example of a "multicall" executable
+    /// This is desirable when the executable has a primary purpose
+    /// but there is other related functionality that would be convenient to provide
+    /// and it is convenient for the code to implement it to be in the same executable.
+    ///
+    /// The name of the app is essentially unused
+    /// and may be the same as the name of a subcommand.
+    ///
+    /// The names of the immediate subcommands of the App
+    /// are matched against the basename of the first argument,
+    /// which is conventionally the path of the executable.
+    ///
+    /// This does not allow the subcommand to be passed as the first non-path argument.
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings, ErrorKind};
+    /// let mut app = App::new("hostname")
+    ///     .setting(AppSettings::Multicall)
+    ///     .subcommand(App::new("hostname"))
+    ///     .subcommand(App::new("dnsdomainname"));
+    /// let m = app.try_get_matches_from_mut(&["/usr/bin/hostname", "dnsdomainname"]);
+    /// assert!(m.is_err());
+    /// assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// let m = app.get_matches_from(&["/usr/bin/dnsdomainname"]);
+    /// assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
+    /// ```
+    ///
+    /// Busybox is another common example of a multicall executable
     /// with a subcommmand for each applet that can be run directly,
     /// e.g. with the `cat` applet being run by running `busybox cat`,
     /// or with `cat` as a link to the `busybox` binary.
@@ -424,52 +448,41 @@ pub enum AppSettings {
     /// e.g. to test the applet without installing it
     /// or there may already be a command of that name installed.
     ///
+    /// To make an applet usable as both a multicall link and a subcommand
+    /// the subcommands must be defined both in the top-level App
+    /// and as subcommands of the "main" applet.
+    ///
     /// ```rust
     /// # use clap::{App, AppSettings};
+    /// fn applet_commands() -> [App<'static>; 2] {
+    ///     [App::new("true"), App::new("false")]
+    /// }
     /// let mut app = App::new("busybox")
     ///     .setting(AppSettings::Multicall)
-    ///     .subcommand(App::new("true"))
-    ///     .subcommand(App::new("false"));
+    ///     .subcommand(
+    ///         App::new("busybox")
+    ///             .subcommand_value_name("APPLET")
+    ///             .subcommand_help_heading("APPLETS")
+    ///             .subcommands(applet_commands()),
+    ///     )
+    ///     .subcommands(applet_commands());
     /// // When called from the executable's canonical name
     /// // its applets can be matched as subcommands.
-    /// let m = app.try_get_matches_from_mut(&["busybox", "true"]).unwrap();
-    /// assert_eq!(m.subcommand_name(), Some("true"));
+    /// let m = app.try_get_matches_from_mut(&["/usr/bin/busybox", "true"]).unwrap();
+    /// assert_eq!(m.subcommand_name(), Some("busybox"));
+    /// assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
     /// // When called from a link named after an applet that applet is matched.
-    /// let m = app.get_matches_from(&["true"]);
+    /// let m = app.get_matches_from(&["/usr/bin/true"]);
     /// assert_eq!(m.subcommand_name(), Some("true"));
     /// ```
     ///
-    /// `hostname` is another example of a multicall executable.
-    /// It differs from busybox by not supporting running applets via subcommand
-    /// and is instead only runnable via links.
+    /// **NOTE:** Applets are slightly semantically different from subcommands,
+    /// so it's recommended to use [`App::subcommand_help_heading`] and
+    /// [`App::subcommand_value_name`] to change the descriptive text as above.
     ///
-    /// This is desirable when the executable has a primary purpose
-    /// rather than being a collection of varied applets,
-    /// so it is appropriate to name the executable after its purpose,
-    /// but there is other related functionality that would be convenient to provide
-    /// and it is convenient for the code to implement it to be in the same executable.
-    ///
-    /// This behaviour can be opted-into
-    /// by naming a subcommand with the same as the program
-    /// as applet names take priority.
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings, ErrorKind};
-    /// let mut app = App::new("hostname")
-    ///     .setting(AppSettings::Multicall)
-    ///     .subcommand(App::new("hostname"))
-    ///     .subcommand(App::new("dnsdomainname"));
-    /// let m = app.try_get_matches_from_mut(&["hostname", "dnsdomainname"]);
-    /// assert!(m.is_err());
-    /// assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
-    /// let m = app.get_matches_from(&["hostname"]);
-    /// assert_eq!(m.subcommand_name(), Some("hostname"));
-    /// ```
-    ///
-    /// [`subcommands`]: crate::App::subcommand()
-    /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     /// [`NoBinaryName`]: crate::AppSettings::NoBinaryName
-    /// [`try_get_matches_from_mut`]: crate::App::try_get_matches_from_mut()
+    /// [`App::subcommand_value_name`]: crate::App::subcommand_value_name
+    /// [`App::subcommand_help_heading`]: crate::App::subcommand_help_heading
     #[cfg(feature = "unstable-multicall")]
     Multicall,
 

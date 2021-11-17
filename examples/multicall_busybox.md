@@ -29,13 +29,13 @@ $ busybox
 busybox 
 
 USAGE:
-    busybox[EXE] [OPTIONS] [SUBCOMMAND]
+    busybox[EXE] [OPTIONS] [APPLET]
 
 OPTIONS:
     -h, --help                 Print help information
         --install <install>    Install hardlinks for all subcommands in path
 
-SUBCOMMANDS:
+APPLETS:
     false    does nothing unsuccessfully
     help     Print this message or the help of the given subcommand(s)
     true     does nothing successfully
