@@ -163,10 +163,10 @@ impl_settings! { AppSettings, AppFlags,
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum AppSettings {
-    /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite.
+    /// Deprecated, this is now the default, see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8] for the opposite.
     #[deprecated(
         since = "3.0.0",
-        note = "This is now the default see [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] and [`ArgSettings::AllowInvalidUtf8ForExternalSubcommands`] for the opposite."
+        note = "This is now the default see `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8` for the opposite."
     )]
     StrictUtf8,
 
@@ -515,15 +515,15 @@ pub enum AppSettings {
     #[deprecated(since = "3.0.0", note = "This is now the default")]
     ColoredHelp,
 
-    /// Deprecated, see [`App::color`]
+    /// Deprecated, see [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAuto,
 
-    /// Deprecated, see [`App::color`]
+    /// Deprecated, see [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAlways,
 
-    /// Deprecated, see [`App::color`]
+    /// Deprecated, see [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorNever,
 
@@ -637,7 +637,7 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     DeriveDisplayOrder,
 
-    /// Parse the bin name (argv[0]) as a subcommand
+    /// Parse the bin name (`argv[0]`) as a subcommand
     ///
     /// This adds a small performance penalty to startup
     /// as it requires comparing the bin name against every subcommand name.

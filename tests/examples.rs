@@ -37,13 +37,13 @@ fn examples_are_functional() {
                 #[cfg(not(feature = "unstable-multicall"))]
                 continue;
                 #[allow(unreachable_code)]
-                "busybox".into()
+                "busybox"
             }
             Some("24b_multicall_hostname.rs") => {
                 #[cfg(not(feature = "unstable-multicall"))]
                 continue;
                 #[allow(unreachable_code)]
-                "hostname".into()
+                "hostname"
             }
             _ => path
                 .file_stem()

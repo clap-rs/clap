@@ -1,175 +1,181 @@
 name: CI
 on:
+  pull_request:
+    paths:
+    - '**'
+    - '!/*.md'
+    - '!/docs/**'
+    - "!/LICENSE-*"
   push:
-    branches: [staging, trying]
+    branches:
+    - master
+    paths:
+    - '**'
+    - '!/*.md'
+    - '!/docs/**'
+    - "!/LICENSE-*"
+  schedule:
+  - cron: '3 3 3 * *'
 jobs:
   ci:
     name: CI
-    needs: [test, wasm]
+    needs: [smoke, test, check, docs, rustfmt, clippy]
     runs-on: ubuntu-latest
     steps:
       - name: Done
         run: exit 0
+  smoke:
+    name: Quick Check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Default features
+      run: make check-default
   test:
-    name: Tests
+    name: Test
+    needs: smoke
+    strategy:
+      matrix:
+        build: [linux, windows, mac, minimal, default]
+        include:
+        - build: linux
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "stable"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "stable"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+  check:
+    name: Check
+    needs: smoke
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        rust: [1.54.0, stable, beta]
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        target:
-          - i686-pc-windows-msvc
-          - x86_64-pc-windows-msvc
-          - i686-pc-windows-gnu
-          - x86_64-pc-windows-gnu
-          - x86_64-unknown-linux-gnu
-          - i686-unknown-linux-gnu
-          - x86_64-apple-darwin
-        features:
-          - none
-          - all
-          - release
-        exclude:
-          - features: release
+        build: [msrv, wasm, wasm-wasi, debug, release]
+        include:
+          - build: msrv
+            rust: 1.54.0  # MSRV
+            target: x86_64-unknown-linux-gnu
+            features: full
+          - build: wasm
             rust: stable
-          - features: release
-            rust: beta
-          - os: windows-latest
-            target: x86_64-apple-darwin
-          - os: windows-latest
+            target: wasm32-unknown-unknown
+            features: wasm
+          - build: wasm-wasi
+            rust: stable
+            target: wasm32-wasi
+            features: wasm
+          - build: debug
+            rust: stable
             target: x86_64-unknown-linux-gnu
-          - os: windows-latest
-            target: i686-unknown-linux-gnu
-          - os: macos-latest
-            target: i686-pc-windows-msvc
-          - os: macos-latest
-            target: x86_64-pc-windows-msvc
-          - os: macos-latest
-            target: i686-pc-windows-gnu
-          - os: macos-latest
-            target: x86_64-pc-windows-gnu
-          - os: macos-latest
+            features: debug
+          - build: release
+            rust: stable
             target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            target: i686-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: i686-pc-windows-msvc
-          - os: ubuntu-latest
-            target: x86_64-pc-windows-msvc
-          - os: ubuntu-latest
-            target: i686-pc-windows-gnu
-          - os: ubuntu-latest
-            target: x86_64-pc-windows-gnu
-          - os: ubuntu-latest
-            target: x86_64-apple-darwin
-    runs-on: ${{ matrix.os }}
+            features: release
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install linker
-        if: matrix.target == 'i686-pc-windows-gnu'
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x86
-      - name: Install linker
-        if: matrix.target == 'x86_64-pc-windows-gnu'
-        uses: egor-tensin/setup-mingw@v2
-      - name: Install linker
-        if: matrix.target == 'i686-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install gcc-multilib
-      - name: Test almost no features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --no-default-features --features "std cargo" -p clap:3.0.0-beta.5
-      - name: Test all features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
-      - name: Check debug
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: check
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
-      - name: Test release
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'release'
-        with:
-          command: test
-          args: --target ${{ matrix.target }} --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
-  nightly:
-    name: Nightly Tests
-    strategy:
-      fail-fast: false
-      matrix:
-        features:
-          - none
-          - all
-          - release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Test almost no features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'none'
-        with:
-          command: test
-          args: --no-default-features --features "std cargo" -p clap:3.0.0-beta.5
-      - name: Test all features
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped"
-      - name: Check debug
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'all'
-        with:
-          command: check
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped debug"
-      - name: Test release
-        uses: actions-rs/cargo@v1
-        if: matrix.features == 'release'
-        with:
-          command: test
-          args: --features "wrap_help yaml regex unstable-replace unstable-multicall unstable-grouped" --release
-  wasm:
-    name: Wasm Check
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [wasm32-unknown-unknown, wasm32-wasi]
-    steps:
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.54.0
-          target: ${{ matrix.target }}
-          override: true
+      - uses: Swatinem/rust-cache@v1
       - name: Checkout
         uses: actions/checkout@v2
       - name: Check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --target ${{ matrix.target }} --features "yaml regex unstable-replace unstable-multicall unstable-grouped"
+        run: make check-${{ matrix.features }}
+  docs:
+    name: Docs
+    needs: smoke
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Check documentation
+      env:
+        RUSTDOCFLAGS: -D warnings
+      run: cargo doc --workspace --all-features --no-deps --document-private-items
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        # Not MSRV because its harder to jump between versions and people are
+        # more likely to have stable
+        toolchain: stable
+        profile: minimal
+        override: true
+        components: rustfmt
+    - uses: Swatinem/rust-cache@v1
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: 1.54.0  # MSRV
+        profile: minimal
+        override: true
+        components: clippy
+    - uses: Swatinem/rust-cache@v1
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --workspace --all-features --all-targets -- -D warnings

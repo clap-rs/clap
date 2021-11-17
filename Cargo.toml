@@ -136,11 +136,4 @@ members = [
 	"clap_derive",
 	"clap_generate",
 	"clap_generate_fig",
-	"clap_up",
-]
-default-members = [
-	".",
-	"clap_derive",
-	"clap_generate",
-	"clap_generate_fig",
 ]

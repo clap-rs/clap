@@ -2754,7 +2754,7 @@ impl<'help> App<'help> {
 }
 
 /// A workaround:
-/// https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999
+/// <https://github.com/rust-lang/rust/issues/34511#issuecomment-373423999>
 pub(crate) trait Captures<'a> {}
 impl<'a, T> Captures<'a> for T {}
 

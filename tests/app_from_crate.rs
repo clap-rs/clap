@@ -1,3 +1,5 @@
+#![cfg(feature = "cargo")]
+
 use clap::{app_from_crate, ErrorKind};
 
 static EVERYTHING: &str = "clap {{version}}
