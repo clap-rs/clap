@@ -1,3 +1,5 @@
+#![cfg(feature = "cargo")]
+
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, ErrorKind};
 
 static DESCRIPTION_ONLY: &str = "prog 1
