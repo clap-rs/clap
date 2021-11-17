@@ -239,7 +239,7 @@ fn alias() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP")]
-        TOTP,
+        Totp,
     }
 
     #[derive(Parser, PartialEq, Debug)]
@@ -250,13 +250,13 @@ fn alias() {
 
     assert_eq!(
         Opt {
-            arg: ArgChoice::TOTP
+            arg: ArgChoice::Totp
         },
         Opt::try_parse_from(&["", "totp"]).unwrap()
     );
     assert_eq!(
         Opt {
-            arg: ArgChoice::TOTP
+            arg: ArgChoice::Totp
         },
         Opt::try_parse_from(&["", "TOTP"]).unwrap()
     );
@@ -267,7 +267,7 @@ fn multiple_alias() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP", alias = "t")]
-        TOTP,
+        Totp,
     }
 
     #[derive(Parser, PartialEq, Debug)]
@@ -278,19 +278,19 @@ fn multiple_alias() {
 
     assert_eq!(
         Opt {
-            arg: ArgChoice::TOTP
+            arg: ArgChoice::Totp
         },
         Opt::try_parse_from(&["", "totp"]).unwrap()
     );
     assert_eq!(
         Opt {
-            arg: ArgChoice::TOTP
+            arg: ArgChoice::Totp
         },
         Opt::try_parse_from(&["", "TOTP"]).unwrap()
     );
     assert_eq!(
         Opt {
-            arg: ArgChoice::TOTP
+            arg: ArgChoice::Totp
         },
         Opt::try_parse_from(&["", "t"]).unwrap()
     );

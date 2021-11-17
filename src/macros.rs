@@ -617,8 +617,6 @@ macro_rules! wlnerr {
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => ({
-        // The `print!` line will make clippy complain about duplicates.
-        #[allow(clippy::branches_sharing_code)]
         print!("[{:>w$}] \t", module_path!(), w = 28);
         println!($($arg)*);
     })
@@ -629,7 +627,7 @@ macro_rules! debug {
     ($($arg:tt)*) => {};
 }
 
-/// Deprecated, see [`ArgMatches::value_of_t`]
+/// Deprecated, see [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
 macro_rules! value_t {
@@ -641,7 +639,7 @@ macro_rules! value_t {
     };
 }
 
-/// Deprecated, see [`ArgMatches::value_of_t_or_exit`]
+/// Deprecated, see [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
 #[deprecated(
     since = "3.0.0",
@@ -656,7 +654,7 @@ macro_rules! value_t_or_exit {
     };
 }
 
-/// Deprecated, see [`ArgMatches::values_of_t`]
+/// Deprecated, see [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
 macro_rules! values_t {
@@ -668,7 +666,7 @@ macro_rules! values_t {
     };
 }
 
-/// Deprecated, see [`ArgMatches::values_of_t_or_exit`]
+/// Deprecated, see [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
 #[deprecated(
     since = "3.0.0",

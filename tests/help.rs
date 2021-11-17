@@ -2608,7 +2608,7 @@ fn disabled_help_flag() {
     let res = App::new("foo")
         .subcommand(App::new("sub"))
         .setting(AppSettings::DisableHelpFlag)
-        .try_get_matches_from("foo a".split(" "));
+        .try_get_matches_from("foo a".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::UnrecognizedSubcommand);
@@ -2621,7 +2621,7 @@ fn disabled_help_flag_and_subcommand() {
         .subcommand(App::new("sub"))
         .setting(AppSettings::DisableHelpFlag)
         .setting(AppSettings::DisableHelpSubcommand)
-        .try_get_matches_from("foo help".split(" "));
+        .try_get_matches_from("foo help".split(' '));
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::UnrecognizedSubcommand);

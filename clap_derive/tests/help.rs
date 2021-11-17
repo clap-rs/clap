@@ -60,6 +60,9 @@ fn app_help_heading_applied() {
 
 #[test]
 fn app_help_heading_flattened() {
+    // Used to help track the cause in tests
+    #![allow(clippy::enum_variant_names)]
+
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
         #[clap(flatten)]

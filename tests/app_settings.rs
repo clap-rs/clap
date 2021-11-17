@@ -1162,17 +1162,17 @@ fn no_auto_help() {
         .setting(AppSettings::NoAutoHelp)
         .subcommand(App::new("foo"));
 
-    let result = app.clone().try_get_matches_from("myprog --help".split(" "));
+    let result = app.clone().try_get_matches_from("myprog --help".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("help"));
 
-    let result = app.clone().try_get_matches_from("myprog -h".split(" "));
+    let result = app.clone().try_get_matches_from("myprog -h".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("help"));
 
-    let result = app.clone().try_get_matches_from("myprog help".split(" "));
+    let result = app.clone().try_get_matches_from("myprog help".split(' '));
 
     assert!(result.is_ok());
     assert_eq!(result.unwrap().subcommand_name(), Some("help"));
@@ -1186,12 +1186,12 @@ fn no_auto_version() {
 
     let result = app
         .clone()
-        .try_get_matches_from("myprog --version".split(" "));
+        .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
@@ -1206,12 +1206,12 @@ fn no_auto_version_mut_arg() {
 
     let result = app
         .clone()
-        .try_get_matches_from("myprog --version".split(" "));
+        .try_get_matches_from("myprog --version".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
 
-    let result = app.clone().try_get_matches_from("myprog -V".split(" "));
+    let result = app.clone().try_get_matches_from("myprog -V".split(' '));
 
     assert!(result.is_ok());
     assert!(result.unwrap().is_present("version"));
