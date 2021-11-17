@@ -1,7 +1,7 @@
 name: CI-PR
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
 concurrency:
   group: ci-pr-${{ github.ref }}
   cancel-in-progress: true

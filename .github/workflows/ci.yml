@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [staging, trying]
+    branches: [main]
 jobs:
   ci:
     name: CI

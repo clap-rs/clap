@@ -1,9 +1,9 @@
 name: Lint
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
   push:
-    branches: [staging, trying]
+    branches: [main]
 concurrency:
   group: lint-${{ github.ref }}
   cancel-in-progress: true
