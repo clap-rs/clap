@@ -5,7 +5,8 @@ use std::{
     slice::Iter,
 };
 
-use crate::{parse::ArgPredicate, util::eq_ignore_case, INTERNAL_ERROR_MSG};
+use crate::util::eq_ignore_case;
+use crate::INTERNAL_ERROR_MSG;
 
 // TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -124,22 +125,15 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == ValueType::DefaultValue {
-            return false;
-        }
-
-        match predicate {
-            ArgPredicate::Equals(val) => self.vals_flatten().any(|v| {
-                if self.case_insensitive {
-                    // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
-                    v.to_str().map_or(false, |v| eq_ignore_case(v, val))
-                } else {
-                    OsString::as_os_str(v) == OsStr::new(val)
-                }
-            }),
-            ArgPredicate::IsPresent => true,
-        }
+    pub(crate) fn contains_val(&self, val: &str) -> bool {
+        self.vals_flatten().any(|v| {
+            if self.case_insensitive {
+                // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
+                v.to_str().map_or(false, |v| eq_ignore_case(v, val))
+            } else {
+                OsString::as_os_str(v) == OsStr::new(val)
+            }
+        })
     }
 
     pub(crate) fn set_ty(&mut self, ty: ValueType) {
