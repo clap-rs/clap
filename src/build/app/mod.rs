@@ -821,7 +821,7 @@ impl<'help> App<'help> {
     ///            Does awesome things\n\
     ///            (C) me@mail.com\n\n\
     ///
-    ///            USAGE: myapp <opts> <comamnd>\n\n\
+    ///            USAGE: myapp <opts> <command>\n\n\
     ///
     ///            Options:\n\
     ///            -h, --help       Display this message\n\
@@ -829,7 +829,7 @@ impl<'help> App<'help> {
     ///            -s <stuff>       Do something with stuff\n\
     ///            -v               Be verbose\n\n\
     ///
-    ///            Commmands:\n\
+    ///            Commands:\n\
     ///            help             Print this message\n\
     ///            work             Do some work")
     /// # ;
@@ -2490,7 +2490,7 @@ impl<'help> App<'help> {
 
                 // Remove generated help and version args in the subcommand
                 //
-                // Don't remove if those args are futher mutated
+                // Don't remove if those args are further mutated
                 if is_generated {
                     let generated_pos = sc
                         .args
@@ -2743,7 +2743,7 @@ impl<'help> App<'help> {
                     // Print val_name for positional arguments. e.g. <file_name>
                     x.name_no_brackets().to_string()
                 } else {
-                    // Print useage string for flags arguments, e.g. <--help>
+                    // Print usage string for flags arguments, e.g. <--help>
                     x.to_string()
                 }
             })

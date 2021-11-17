@@ -107,7 +107,7 @@ impl<'help> PossibleValue<'help> {
 
 impl<'help> PossibleValue<'help> {
     /// Creates a new instance of [`PossibleValue`] using a string name. The name will be used to
-    /// decide wether this value was provided by the user to an argument.
+    /// decide whether this value was provided by the user to an argument.
     ///
     /// **NOTE:** In case it is not [hidden] it will also be shown in help messages for arguments
     /// that use it as a [possible value] and have not hidden them through [`Arg::hide_possible_values(true)`].

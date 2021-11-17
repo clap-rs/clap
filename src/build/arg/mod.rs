@@ -4367,7 +4367,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     ///
-    /// Although `MultipleVlaues` has been specified, we cannot use the argument more than once.
+    /// Although `MultipleValues` has been specified, we cannot use the argument more than once.
     ///
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind, ArgSettings};
@@ -5120,7 +5120,7 @@ where
             }
         }
     } else if let Some(num_vals) = arg.num_vals {
-        // If number_of_values is sepcified, display the value multiple times.
+        // If number_of_values is specified, display the value multiple times.
         let arg_name = format!("<{}>", arg.name);
         let mut it = iter::repeat(&arg_name).take(num_vals).peekable();
         while let Some(arg_name) = it.next() {

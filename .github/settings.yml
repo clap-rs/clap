@@ -1,0 +1,48 @@
+# These settings are synced to GitHub by https://probot.github.io/apps/settings/
+
+repository:
+  description: A full featured, fast Command Line Argument Parser for Rust
+  homepage: docs.rs/clap
+  topics: rust cli command-line argparse clap
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  has_downloads: true
+  default_branch: main
+
+  allow_squash_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: true
+
+  # Manual: allow_auto_merge: true, see https://github.com/probot/settings/issues/402
+  delete_branch_on_merge: true
+
+labels:
+  # Type
+  - name: bug
+    color: '#b60205'
+    description: Not as expected
+  - name: enhancement
+    color: '#1d76db'
+    description: Improve the expected
+  # Flavor
+  - name: question
+    color: "#cc317c"
+    description: Uncertainty is involved
+  - name: breaking-change
+    color: "#e99695"
+  - name: good first issue
+    color: '#c2e0c6'
+    description: Help wanted!
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews: null
+      required_conversation_resolution: true
+      required_status_checks:
+        # Required. Require branches to be up to date before merging.
+        strict: false
+        contexts: ["CI", "Lint Commits", "Spell Check with Typos"]
+      enforce_admins: false
+      restrictions: null

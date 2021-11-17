@@ -1,21 +1,22 @@
+[workspace]
+members = [
+	"clap_derive",
+	"clap_generate",
+	"clap_generate_fig",
+]
+
 [package]
 name = "clap"
 version = "3.0.0-beta.5"
-edition = "2018"
+description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 authors = [
 	"Kevin K. <kbknapp@gmail.com>",
 	"Clap Maintainers"
 ]
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
-description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"
+categories = ["command-line-interface"]
 keywords = [
 	"argument",
 	"cli",
@@ -23,9 +24,51 @@ keywords = [
 	"parser",
 	"parse"
 ]
-categories = ["command-line-interface"]
+edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
+
+[package.metadata.docs.rs]
+features = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"]
+
+[features]
+default = [
+	"std",
+	"derive",
+	"cargo",
+	"color",
+	"env",
+	"suggestions",
+	"unicode",
+]
+debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
+
+# Used in default
+std = ["indexmap/std"] # support for no_std in a backwards-compatible way
+derive = ["clap_derive", "lazy_static"]
+cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+color = ["atty", "termcolor"]
+env = [] # Use environment variables during arg parsing
+suggestions = ["strsim"]
+unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
+
+# Optional
+wrap_help = ["terminal_size", "textwrap/terminal_size"]
+yaml = ["yaml-rust"]
+
+# In-work features
+unstable-replace = []
+unstable-multicall = []
+unstable-grouped = []
 
 [lib]
 bench = false
@@ -90,36 +133,6 @@ path = "examples/24a_multicall_busybox.rs"
 name = "hostname"
 path = "examples/24b_multicall_hostname.rs"
 
-[features]
-default = [
-	"std",
-	"derive",
-	"cargo",
-	"color",
-	"env",
-	"suggestions",
-	"unicode",
-]
-debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
-
-# Used in default
-std = ["indexmap/std"] # support for no_std in a backwards-compatible way
-derive = ["clap_derive", "lazy_static"]
-cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
-color = ["atty", "termcolor"]
-env = [] # Use environment variables during arg parsing
-suggestions = ["strsim"]
-unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
-
-# Optional
-wrap_help = ["terminal_size", "textwrap/terminal_size"]
-yaml = ["yaml-rust"]
-
-# In-work features
-unstable-replace = []
-unstable-multicall = []
-unstable-grouped = []
-
 [profile.test]
 opt-level = 1
 
@@ -127,13 +140,3 @@ opt-level = 1
 lto = true
 codegen-units = 1
 
-[package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"]
-targets = ["x86_64-unknown-linux-gnu"]
-
-[workspace]
-members = [
-	"clap_derive",
-	"clap_generate",
-	"clap_generate_fig",
-]

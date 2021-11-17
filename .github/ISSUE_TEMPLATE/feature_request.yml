@@ -4,35 +4,22 @@ labels: 'T: new feature'
 body:
   - type: checkboxes
     attributes:
-      label: Please complete the following tasks
       options:
         - label: I have searched the [discussions](https://github.com/clap-rs/clap/discussions)
-          required: true
         - label: I have searched the existing issues
-          required: true
   - type: input
     attributes:
-      label: Clap Version
+      label: Version
       description: Can be found in Cargo.lock or Cargo.toml of your project (i.e. `grep clap Cargo.lock`). PLEASE DO NOT PUT "latest" HERE, use precise version. Put `master` (or other branch) if you're using the repo directly.
-    validations:
-      required: true
   - type: textarea
     attributes:
-      label: Describe your use case
-      description: Describe the problem you're trying to solve. This is not mandatory and we *do* consider features without a specific use case, but real problems have priority.
-    validations:
-      required: true
+      label: Use Case
+      description: Describe the problem you're trying to solve.
   - type: textarea
     attributes:
-      label: Describe the solution you'd like
-      description: Please explain what the wanted solution should look like. You are **strongly encouraged** to attach a snippet of (pseudo)code.
-    validations:
-      required: true
+      label: Requirements
+      description: Describe what is needed to satisfy your use case.
   - type: textarea
     attributes:
-      label: Alternatives, if applicable
-      description: A clear and concise description of any alternative solutions or features you've managed to come up with.
-  - type: textarea
-    attributes:
-      label: Additional Context
-      description: Add any other context about the feature request here.
+      label: Possible Solutions
+      description: A clear and concise description of any solutions or features you've managed to come up with.
