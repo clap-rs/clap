@@ -1039,7 +1039,7 @@ mod test {
 
     #[test]
     fn display_width_handles_non_ascii() {
-        // Popular Danish tounge-twister, the name of a fruit dessert.
+        // Popular Danish tongue-twister, the name of a fruit dessert.
         let text = "rødgrød med fløde";
         assert_eq!(display_width(text), 17);
         // Note that the string width is smaller than the string
