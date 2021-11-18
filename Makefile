@@ -19,10 +19,10 @@ _FEATURES_debug = ${_FEATURES_full} --features debug
 _FEATURES_release = ${_FEATURES_full} --release
 
 check-%:
-	cargo check --all-targets ${ARGS} ${_FEATURES_${@:check-%=%}}
+	cargo check ${_FEATURES_${@:check-%=%}} --all-targets ${ARGS}
 
 build-%:
-	cargo test --no-run ${ARGS} ${_FEATURES_${@:build-%=%}}
+	cargo test ${_FEATURES_${@:build-%=%}} --no-run ${ARGS}
 
 test-%:
-	cargo test ${ARGS} ${_FEATURES_${@:test-%=%}}
+	cargo test ${_FEATURES_${@:test-%=%}} ${ARGS}
