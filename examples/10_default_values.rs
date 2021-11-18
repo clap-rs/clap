@@ -11,28 +11,22 @@ fn main() {
         .about("does awesome things")
         .arg(
             Arg::new("INPUT")
-                .about("The input file to use") // Note, we don't need to specify
-                // anything like, "Defaults to..."
-                // because clap will automatically
-                // generate that for us, and place
-                // it in the help text
+                .about("The input file to use")
                 .default_value("input.txt")
                 .index(1),
         )
         // Next we'll use the Option::unwrap_or method on this "CONFIG" option
         .arg(
             Arg::new("CONFIG")
-                // Note that we have to manually include some verbage to the user
-                // telling them what the default will be.
-                .about("The config file to use (default is \"config.json\")")
+                .about("The config file to use")
                 .short('c')
                 .takes_value(true),
         )
         .get_matches();
 
-    // It's safe to call unwrap because the value will either be what the user input at runtime
-    // or "input.txt"
-    let input = matches.value_of("INPUT").unwrap();
+    let input = matches
+        .value_of("INPUT")
+        .expect("'INPUT' is default and parsing will ensure there always is a value");
 
     // Using Option::unwrap_or we get the same effect, but without the added help text injection
     let config_file = matches.value_of("CONFIG").unwrap_or("config.json");

@@ -5,7 +5,7 @@ fn main() {
     // far less verbose that shown in 01b_QuickExample.rs, but is more readable. The downside is you cannot set
     // the more advanced configuration options using this method (well...actually you can, you'll see ;) )
     //
-    // The example below is functionally identical to the 01b_quick_example.rs and 01c_quick_example.rs
+    // The example below is functionally identical to the 01b_quick_example.rs
     //
     // Create an application with 5 possible arguments (2 auto generated) and 2 subcommands (1 auto generated)
     //    - A config file
@@ -34,7 +34,7 @@ fn main() {
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .arg("-c, --config=[FILE] 'Sets a custom config file'")
-        .arg("<output> 'Sets an optional output file'")
+        .arg("[output] 'Sets an optional output file'")
         .arg("-d..., --debug... 'Turn debugging information on'")
         .subcommand(
             App::new("test")

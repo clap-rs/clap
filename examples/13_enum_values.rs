@@ -42,7 +42,9 @@ fn main() {
         .get_matches();
 
     // Note that you don't have to specify the type since rustc can infer it for you
-    let t = m.value_of_t("type").unwrap_or_else(|e| e.exit());
+    let t = m
+        .value_of_t("type")
+        .expect("'type' is required and parsing will fail if its missing");
 
     // Now we can use our enum like normal.
     match t {

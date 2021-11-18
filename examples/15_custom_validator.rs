@@ -17,8 +17,12 @@ fn main() {
         )
         .get_matches();
 
-    // Here we can call .unwrap() because the argument is required.
-    println!("The .PNG file is: {}", matches.value_of("input").unwrap());
+    println!(
+        "The .PNG file is: {}",
+        matches
+            .value_of("input")
+            .expect("'input' is required and parsing will fail if its missing")
+    );
 }
 
 fn is_png(val: &str) -> Result<(), String> {

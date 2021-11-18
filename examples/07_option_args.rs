@@ -34,7 +34,7 @@ fn main() {
                                            // and an exclusive(true)
         )
         .arg("-c, --config=[FILE] 'the config file to use'")
-        .arg("<output> 'the output file to use'")
+        .arg("[output] 'the output file to use'")
         .get_matches();
 
     // We can find out whether or not "input" was used
