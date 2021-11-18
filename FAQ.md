@@ -73,14 +73,12 @@ To build an `App` there are three:
 
 * Derive Macros
 * Builder Pattern
-* Yaml
 
 To build an `Arg` there are four:
 
 * Derive Macros
 * Builder Pattern
 * Usage Strings
-* Yaml
 
 ### Why is there a default subcommand of help?
 

@@ -1,4 +1,5 @@
 #![cfg(feature = "yaml")]
+#![allow(deprecated)]
 
 use clap::{load_yaml, App, Arg, ErrorKind, ValueHint};
 

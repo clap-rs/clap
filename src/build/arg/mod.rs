@@ -349,16 +349,12 @@ impl<'help> Arg<'help> {
         Self::new(n)
     }
 
-    /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// use clap::{Arg, load_yaml};
-    /// let yaml = load_yaml!("arg.yaml");
-    /// let arg = Arg::from(yaml);
-    /// ```
+    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
     #[cfg(feature = "yaml")]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.

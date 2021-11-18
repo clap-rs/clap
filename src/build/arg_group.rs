@@ -114,9 +114,12 @@ impl<'help> ArgGroup<'help> {
         Self::new(n)
     }
 
-    /// Deprecated, see [`ArgGroup::from`]
+    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::from`")]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    )]
     pub fn from_yaml(yaml: &'help Yaml) -> Self {
         Self::from(yaml)
     }
@@ -436,9 +439,10 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
     }
 }
 
+/// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
 #[cfg(feature = "yaml")]
 impl<'help> From<&'help Yaml> for ArgGroup<'help> {
-    /// TODO
+    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
     fn from(y: &'help Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.

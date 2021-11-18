@@ -77,9 +77,14 @@ impl SubCommand {
         App::new(name)
     }
 
-    /// TODO
+    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
     #[cfg(feature = "yaml")]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    )]
     pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
+        #![allow(deprecated)]
         App::from_yaml(yaml)
     }
 }

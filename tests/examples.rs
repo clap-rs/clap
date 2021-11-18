@@ -5,14 +5,7 @@ use std::fs;
 use std::process::{Command, Output};
 
 fn run_example<S: AsRef<str>>(name: S, args: &[&str]) -> Output {
-    let mut all_args = vec![
-        "run",
-        "--example",
-        name.as_ref(),
-        "--features",
-        "yaml",
-        "--",
-    ];
+    let mut all_args = vec!["run", "--example", name.as_ref(), "--"];
     all_args.extend_from_slice(args);
 
     Command::new(env!("CARGO"))

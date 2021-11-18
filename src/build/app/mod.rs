@@ -398,9 +398,14 @@ impl<'help> App<'help> {
         )
     }
 
-    /// TODO
+    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
     #[cfg(feature = "yaml")]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
+        #![allow(deprecated)]
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.
         let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
