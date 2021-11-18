@@ -6,4 +6,4 @@ args:
     - filter:
         index: 1
         validator_regex: ["^*\\.[a-z]+$", expected extension pattern]
-        about: file extension pattern
+        help: file extension pattern

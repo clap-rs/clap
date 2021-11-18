@@ -347,7 +347,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
     if let Some(values) = &arg.get_possible_values() {
         if values
             .iter()
-            .any(|value| !value.is_hidden() && value.get_about().is_some())
+            .any(|value| !value.is_hidden() && value.get_help().is_some())
         {
             Some(format!(
                 "(({}))",
@@ -358,9 +358,9 @@ fn value_completion(arg: &Arg) -> Option<String> {
                             None
                         } else {
                             Some(format!(
-                                r#"{name}\:"{about}""#,
+                                r#"{name}\:"{tooltip}""#,
                                 name = escape_value(value.get_name()),
-                                about = value.get_about().map(escape_help).unwrap_or_default()
+                                tooltip = value.get_help().map(escape_help).unwrap_or_default()
                             ))
                         }
                     })
@@ -429,7 +429,7 @@ fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
     for o in p.get_opts() {
         debug!("write_opts_of:iter: o={}", o.get_name());
 
-        let help = o.get_about().map_or(String::new(), escape_help);
+        let help = o.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, o, p_global);
 
         let multiple = if o.is_set(ArgSettings::MultipleOccurrences) {
@@ -532,7 +532,7 @@ fn write_flags_of(p: &App, p_global: Option<&App>) -> String {
     for f in utils::flags(p) {
         debug!("write_flags_of:iter: f={}", f.get_name());
 
-        let help = f.get_about().map_or(String::new(), escape_help);
+        let help = f.get_help().map_or(String::new(), escape_help);
         let conflicts = arg_conflicts(p, &f, p_global);
 
         let multiple = if f.is_set(ArgSettings::MultipleOccurrences) {
@@ -628,7 +628,7 @@ fn write_positionals_of(p: &App) -> String {
             cardinality = cardinality,
             name = arg.get_name(),
             help = arg
-                .get_about()
+                .get_help()
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace("[", "\\[")
                 .replace("]", "\\]")

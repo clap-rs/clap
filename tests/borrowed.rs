@@ -2,11 +2,11 @@ use clap::{App, Arg};
 
 #[test]
 fn borrowed_args() {
-    let arg = Arg::new("some").short('s').long("some").about("other help");
+    let arg = Arg::new("some").short('s').long("some").help("other help");
     let arg2 = Arg::new("some2")
         .short('S')
         .long("some-thing")
-        .about("other help");
+        .help("other help");
     let result = App::new("sub_command_negate")
         .arg(Arg::new("test").index(1))
         .arg(&arg)

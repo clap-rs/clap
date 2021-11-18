@@ -36,17 +36,17 @@ fn app_example3<'c>() -> App<'c> {
     App::new("MyApp")
         .arg(
             Arg::new("debug")
-                .about("turn on debugging information")
+                .help("turn on debugging information")
                 .short('d'),
         )
         .args(&[
             Arg::new("config")
-                .about("sets the config file to use")
+                .help("sets the config file to use")
                 .setting(ArgSettings::TakesValue)
                 .short('c')
                 .long("config"),
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .index(1)
                 .setting(ArgSettings::Required),
         ])
@@ -62,19 +62,19 @@ fn app_example4<'c>() -> App<'c> {
         .author("Kevin K. <kbknapp@gmail.com>")
         .arg(
             Arg::new("debug")
-                .about("turn on debugging information")
+                .help("turn on debugging information")
                 .short('d')
                 .long("debug"),
         )
         .arg(
             Arg::new("config")
-                .about("sets the config file to use")
+                .help("sets the config file to use")
                 .short('c')
                 .long("config"),
         )
         .arg(
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .index(1)
                 .setting(ArgSettings::Required),
         )
@@ -83,7 +83,7 @@ fn app_example4<'c>() -> App<'c> {
 fn app_example5<'c>() -> App<'c> {
     App::new("MyApp").arg(
         Arg::new("awesome")
-            .about("turns up the awesome")
+            .help("turns up the awesome")
             .short('a')
             .long("awesome")
             .setting(ArgSettings::MultipleOccurrences)
@@ -96,13 +96,13 @@ fn app_example6<'c>() -> App<'c> {
     App::new("MyApp")
         .arg(
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .index(1)
                 .requires("config")
                 .conflicts_with("output")
                 .setting(ArgSettings::Required),
         )
-        .arg(Arg::new("config").about("the config file to use").index(2))
+        .arg(Arg::new("config").help("the config file to use").index(2))
 }
 
 fn app_example7<'c>() -> App<'c> {
@@ -111,7 +111,7 @@ fn app_example7<'c>() -> App<'c> {
         .arg(Arg::new("output"))
         .arg(
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .setting(ArgSettings::MultipleOccurrences)
@@ -129,7 +129,7 @@ fn app_example8<'c>() -> App<'c> {
         .arg(Arg::new("output"))
         .arg(
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .setting(ArgSettings::MultipleOccurrences)
@@ -144,7 +144,7 @@ fn app_example8<'c>() -> App<'c> {
 fn app_example10<'c>() -> App<'c> {
     App::new("myapp").about("does awesome things").arg(
         Arg::new("CONFIG")
-            .about("The config file to use (default is \"config.json\")")
+            .help("The config file to use (default is \"config.json\")")
             .short('c')
             .setting(ArgSettings::TakesValue),
     )

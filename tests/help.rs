@@ -680,13 +680,13 @@ fn req_last_arg_usage() {
         .version("1.0")
         .arg(
             Arg::new("FIRST")
-                .about("First")
+                .help("First")
                 .multiple_values(true)
                 .required(true),
         )
         .arg(
             Arg::new("SECOND")
-                .about("Second")
+                .help("Second")
                 .multiple_values(true)
                 .required(true)
                 .last(true),
@@ -706,33 +706,33 @@ fn args_with_last_usage() {
         .setting(AppSettings::TrailingVarArg)
         .arg(
             Arg::new("verbose")
-                .about("Prints out more stuff.")
+                .help("Prints out more stuff.")
                 .short('v')
                 .long("verbose")
                 .setting(ArgSettings::MultipleOccurrences),
         )
         .arg(
             Arg::new("timeout")
-                .about("Timeout in seconds.")
+                .help("Timeout in seconds.")
                 .short('t')
                 .long("timeout")
                 .value_name("SECONDS"),
         )
         .arg(
             Arg::new("frequency")
-                .about("The sampling frequency.")
+                .help("The sampling frequency.")
                 .short('f')
                 .long("frequency")
                 .value_name("HERTZ"),
         )
         .arg(
             Arg::new("binary path")
-                .about("The path of the binary to be profiled. for a binary.")
+                .help("The path of the binary to be profiled. for a binary.")
                 .value_name("BINFILE"),
         )
         .arg(
             Arg::new("pass through args")
-                .about("Any arguments you wish to pass to the being profiled.")
+                .help("Any arguments you wish to pass to the being profiled.")
                 .setting(ArgSettings::TakesValue)
                 .setting(ArgSettings::MultipleValues)
                 .setting(ArgSettings::Last)
@@ -898,22 +898,22 @@ OPTIONS:
             Arg::new("all")
                 .short('a')
                 .long("all")
-                .about("Also do versioning for private crates (will not be published)"),
+                .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(
             Arg::new("exact")
                 .long("exact")
-                .about("Specify inter dependency version numbers exactly with `=`"),
+                .help("Specify inter dependency version numbers exactly with `=`"),
         )
         .arg(
             Arg::new("no_git_commit")
                 .long("no-git-commit")
-                .about("Do not commit version changes"),
+                .help("Do not commit version changes"),
         )
         .arg(
             Arg::new("no_git_push")
                 .long("no-git-push")
-                .about("Do not push generated commit and tags to git remote"),
+                .help("Do not push generated commit and tags to git remote"),
         );
     assert!(utils::compare_output(
         app,
@@ -947,22 +947,22 @@ OPTIONS:
             Arg::new("all")
                 .short('a')
                 .long("all")
-                .about("Also do versioning for private crates (will not be published)"),
+                .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(
             Arg::new("exact")
                 .long("exact")
-                .about("Specify inter dependency version numbers exactly with `=`"),
+                .help("Specify inter dependency version numbers exactly with `=`"),
         )
         .arg(
             Arg::new("no_git_commit")
                 .long("no-git-commit")
-                .about("Do not commit version changes"),
+                .help("Do not commit version changes"),
         )
         .arg(
             Arg::new("no_git_push")
                 .long("no-git-push")
-                .about("Do not push generated commit and tags to git remote"),
+                .help("Do not push generated commit and tags to git remote"),
         );
     assert!(utils::compare_output(
         app,
@@ -990,7 +990,7 @@ fn issue_626_unicode_cutoff() {
             .short('c')
             .long("cafe")
             .value_name("FILE")
-            .about(
+            .help(
                 "A coffeehouse, coffee shop, or café is an establishment \
                  which primarily serves hot coffee, related coffee beverages \
                  (e.g., café latte, cappuccino, espresso), tea, and other hot \
@@ -1018,7 +1018,7 @@ fn hide_possible_vals() {
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(["fast", "slow"])
-                .about("Some vals")
+                .help("Some vals")
                 .takes_value(true),
         )
         .arg(
@@ -1028,7 +1028,7 @@ fn hide_possible_vals() {
                 .value_name("FILE")
                 .hide_possible_values(true)
                 .possible_values(["fast", "slow"])
-                .about("A coffeehouse, coffee shop, or café.")
+                .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
     assert!(utils::compare_output(
@@ -1050,7 +1050,7 @@ fn hide_single_possible_val() {
                 .value_name("VAL")
                 .possible_values(["fast", "slow"])
                 .possible_value(PossibleValue::new("secret speed").hidden(true))
-                .about("Some vals")
+                .help("Some vals")
                 .takes_value(true),
         )
         .arg(
@@ -1058,7 +1058,7 @@ fn hide_single_possible_val() {
                 .short('c')
                 .long("cafe")
                 .value_name("FILE")
-                .about("A coffeehouse, coffee shop, or café.")
+                .help("A coffeehouse, coffee shop, or café.")
                 .takes_value(true),
         );
     assert!(utils::compare_output(
@@ -1078,7 +1078,7 @@ fn issue_626_panic() {
            .short('c')
            .long("cafe")
            .value_name("FILE")
-           .about("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
+           .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
            d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
            Le café est souvent une contribution majeure aux exportations des régions productrices.")
            .takes_value(true));
@@ -1100,7 +1100,7 @@ fn issue_626_variable_panic() {
                .short('c')
                .long("cafe")
                .value_name("FILE")
-               .about("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
+               .help("La culture du café est très développée dans de nombreux pays à climat chaud d'Amérique, \
                d'Afrique et d'Asie, dans des plantations qui sont cultivées pour les marchés d'exportation. \
                Le café est souvent une contribution majeure aux exportations des régions productrices.")
                .takes_value(true))
@@ -1124,7 +1124,7 @@ fn wrapping_newline_chars() {
     let app = App::new("ctest")
         .version("0.1")
         .term_width(60)
-        .arg(Arg::new("mode").about(
+        .arg(Arg::new("mode").help(
             "x, max, maximum   20 characters, contains symbols.\n\
              l, long           Copy-friendly, 14 characters, contains symbols.\n\
              m, med, medium    Copy-friendly, 8 characters, contains symbols.\n",
@@ -1142,7 +1142,7 @@ fn old_newline_chars() {
     let app = App::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
-            .about("Some help with some wrapping\n(Defaults to something)"),
+            .help("Some help with some wrapping\n(Defaults to something)"),
     );
     assert!(utils::compare_output(
         app,
@@ -1161,7 +1161,7 @@ fn issue_688_hidden_pos_vals() {
 			.term_width(120)
 			.setting(AppSettings::HidePossibleValuesInHelp)
 			.arg(Arg::new("filter")
-				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.possible_values(filter_values)
@@ -1177,7 +1177,7 @@ fn issue_688_hidden_pos_vals() {
             .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
-				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear).")
 				.long("filter")
 				.possible_values(filter_values)
@@ -1193,7 +1193,7 @@ fn issue_688_hidden_pos_vals() {
             .version("0.1")
 			.term_width(120)
 			.arg(Arg::new("filter")
-				.about("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
+				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")
 				.long("filter")
 				.takes_value(true));
@@ -1211,30 +1211,30 @@ fn issue_702_multiple_values() {
         .version("1.0")
         .author("foo")
         .about("bar")
-        .arg(Arg::new("arg1").about("some option"))
+        .arg(Arg::new("arg1").help("some option"))
         .arg(
             Arg::new("arg2")
                 .takes_value(true)
                 .multiple_values(true)
-                .about("some option"),
+                .help("some option"),
         )
         .arg(
             Arg::new("some")
-                .about("some option")
+                .help("some option")
                 .short('s')
                 .long("some")
                 .takes_value(true),
         )
         .arg(
             Arg::new("other")
-                .about("some other option")
+                .help("some other option")
                 .short('o')
                 .long("other")
                 .takes_value(true),
         )
         .arg(
             Arg::new("label")
-                .about("a label")
+                .help("a label")
                 .short('l')
                 .long("label")
                 .multiple_values(true)
@@ -1252,7 +1252,7 @@ fn long_about() {
         .long_about(
             "something really really long, with\nmultiple lines of text\nthat should be displayed",
         )
-        .arg(Arg::new("arg1").about("some option"));
+        .arg(Arg::new("arg1").help("some option"));
     assert!(utils::compare_output(
         app,
         "myapp --help",
@@ -1267,7 +1267,7 @@ fn issue_760() {
         .version("0.1")
         .arg(
             Arg::new("option")
-                .about("tests options")
+                .help("tests options")
                 .short('o')
                 .long("option")
                 .takes_value(true)
@@ -1276,7 +1276,7 @@ fn issue_760() {
         )
         .arg(
             Arg::new("opt")
-                .about("tests options")
+                .help("tests options")
                 .short('O')
                 .long("opt")
                 .takes_value(true),
@@ -1362,7 +1362,7 @@ fn sc_negates_reqs() {
         .version("1.0")
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg("-o, --opt <FILE> 'tests options'")
-        .arg(Arg::new("PATH").about("help"))
+        .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(utils::compare_output(
         app,
@@ -1394,7 +1394,7 @@ fn args_negate_sc() {
         .setting(AppSettings::ArgsNegateSubcommands)
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
-        .arg(Arg::new("PATH").about("help"))
+        .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(utils::compare_output(
         app,
@@ -1410,7 +1410,7 @@ fn issue_1046_hidden_scs() {
         .version("1.0")
         .arg("-f, --flag 'testing flags'")
         .arg("-o, --opt [FILE] 'tests options'")
-        .arg(Arg::new("PATH").about("some"))
+        .arg(Arg::new("PATH").help("some"))
         .subcommand(App::new("test").setting(AppSettings::Hidden));
     assert!(utils::compare_output(
         app,
@@ -1504,7 +1504,7 @@ OPTIONS:
 fn override_help_about() {
     let app = App::new("test")
         .version("0.1")
-        .mut_arg("help", |h| h.about("Print help information"));
+        .mut_arg("help", |h| h.help("Print help information"));
 
     assert!(utils::compare_output(
         app.clone(),
@@ -1546,14 +1546,14 @@ fn arg_short_conflict_with_help_mut_arg() {
 fn last_arg_mult_usage() {
     let app = App::new("last")
         .version("0.1")
-        .arg(Arg::new("TARGET").required(true).about("some"))
-        .arg(Arg::new("CORPUS").about("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
                 .multiple_values(true)
                 .last(true)
-                .about("some"),
+                .help("some"),
         );
     assert!(utils::compare_output(app, "last --help", LAST_ARG, false));
 }
@@ -1562,15 +1562,15 @@ fn last_arg_mult_usage() {
 fn last_arg_mult_usage_req() {
     let app = App::new("last")
         .version("0.1")
-        .arg(Arg::new("TARGET").required(true).about("some"))
-        .arg(Arg::new("CORPUS").about("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
                 .multiple_values(true)
                 .last(true)
                 .required(true)
-                .about("some"),
+                .help("some"),
         );
     assert!(utils::compare_output(
         app,
@@ -1585,15 +1585,15 @@ fn last_arg_mult_usage_req_with_sc() {
     let app = App::new("last")
         .version("0.1")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg(Arg::new("TARGET").required(true).about("some"))
-        .arg(Arg::new("CORPUS").about("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
                 .multiple_values(true)
                 .last(true)
                 .required(true)
-                .about("some"),
+                .help("some"),
         )
         .subcommand(App::new("test").about("some"));
     assert!(utils::compare_output(
@@ -1609,14 +1609,14 @@ fn last_arg_mult_usage_with_sc() {
     let app = App::new("last")
         .version("0.1")
         .setting(AppSettings::ArgsNegateSubcommands)
-        .arg(Arg::new("TARGET").required(true).about("some"))
-        .arg(Arg::new("CORPUS").about("some"))
+        .arg(Arg::new("TARGET").required(true).help("some"))
+        .arg(Arg::new("CORPUS").help("some"))
         .arg(
             Arg::new("ARGS")
                 .takes_value(true)
                 .multiple_values(true)
                 .last(true)
-                .about("some"),
+                .help("some"),
         )
         .subcommand(App::new("test").about("some"));
     assert!(utils::compare_output(
@@ -1631,7 +1631,7 @@ fn last_arg_mult_usage_with_sc() {
 fn hidden_default_val() {
     let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
-            .about("Pass an argument to the program. [default: default-argument]")
+            .help("Pass an argument to the program. [default: default-argument]")
             .long("arg")
             .default_value("default-argument")
             .hide_default_value(true),
@@ -1645,7 +1645,7 @@ fn hidden_default_val() {
 
     let app2 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
-            .about("Pass an argument to the program.")
+            .help("Pass an argument to the program.")
             .long("arg")
             .default_value("default-argument"),
     );
@@ -1661,7 +1661,7 @@ fn hidden_default_val() {
 fn escaped_whitespace_values() {
     let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
-            .about("Pass an argument to the program.")
+            .help("Pass an argument to the program.")
             .long("arg")
             .default_value("\n")
             .possible_values(["normal", " ", "\n", "\t", "other"]),
@@ -1677,9 +1677,9 @@ fn escaped_whitespace_values() {
 fn issue_1112_setup() -> App<'static> {
     App::new("test")
         .version("1.3")
-        .arg(Arg::new("help1").long("help").short('h').about("some help"))
+        .arg(Arg::new("help1").long("help").short('h').help("some help"))
         .subcommand(
-            App::new("foo").arg(Arg::new("help1").long("help").short('h').about("some help")),
+            App::new("foo").arg(Arg::new("help1").long("help").short('h').help("some help")),
         )
 }
 
@@ -1763,7 +1763,7 @@ fn custom_headers_headers() {
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
-                .about("Do not use system proxy settings"),
+                .help("Do not use system proxy settings"),
         )
         .args(&[Arg::new("port").long("port")]);
 
@@ -1820,7 +1820,7 @@ fn multiple_custom_help_headers() {
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
-                .about("Do not use system proxy settings"),
+                .help("Do not use system proxy settings"),
         )
         .help_heading(Some("SPECIAL"))
         .arg(
@@ -1840,7 +1840,7 @@ fn multiple_custom_help_headers() {
             Arg::new("server-addr")
                 .short('a')
                 .long("server-addr")
-                .about("Set server address")
+                .help("Set server address")
                 .help_heading(Some("NETWORKING")),
         )
         .arg(
@@ -1849,7 +1849,7 @@ fn multiple_custom_help_headers() {
                 .short('s')
                 .value_name("SPEED")
                 .possible_values(["fast", "slow"])
-                .about("How fast?")
+                .help("How fast?")
                 .takes_value(true),
         );
 
@@ -1892,7 +1892,7 @@ fn custom_help_headers_hidden_args() {
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
-                .about("Do not use system proxy settings")
+                .help("Do not use system proxy settings")
                 .hidden_short_help(true),
         )
         .help_heading(Some("SPECIAL"))
@@ -1908,7 +1908,7 @@ fn custom_help_headers_hidden_args() {
             Arg::new("server-addr")
                 .short('a')
                 .long("server-addr")
-                .about("Set server address")
+                .help("Set server address")
                 .help_heading(Some("NETWORKING"))
                 .hidden_short_help(true),
         );
@@ -2041,7 +2041,7 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
         .arg(Arg::new("foo"))
-        .arg(Arg::new("bar").about("It does bar stuff"))
+        .arg(Arg::new("bar").help("It does bar stuff"))
         .get_matches_from(empty_args());
 }
 
@@ -2049,10 +2049,10 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
 fn help_required_locally_but_not_given_for_subcommand() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
-        .arg(Arg::new("foo").about("It does foo stuff"))
+        .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
-                .arg(Arg::new("create").about("creates bar"))
+                .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
         .get_matches_from(empty_args());
@@ -2064,10 +2064,10 @@ fn help_required_locally_but_not_given_for_subcommand() {
 fn help_required_globally_but_not_given_for_subcommand() {
     App::new("myapp")
         .global_setting(AppSettings::HelpRequired)
-        .arg(Arg::new("foo").about("It does foo stuff"))
+        .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
-                .arg(Arg::new("create").about("creates bar"))
+                .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
         .get_matches_from(empty_args());
@@ -2077,11 +2077,11 @@ fn help_required_globally_but_not_given_for_subcommand() {
 fn help_required_and_given_for_subcommand() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
-        .arg(Arg::new("foo").about("It does foo stuff"))
+        .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
-                .arg(Arg::new("create").about("creates bar"))
-                .arg(Arg::new("delete").about("deletes bar")),
+                .arg(Arg::new("create").help("creates bar"))
+                .arg(Arg::new("delete").help("deletes bar")),
         )
         .get_matches_from(empty_args());
 }
@@ -2090,7 +2090,7 @@ fn help_required_and_given_for_subcommand() {
 fn help_required_and_given() {
     App::new("myapp")
         .setting(AppSettings::HelpRequired)
-        .arg(Arg::new("foo").about("It does foo stuff"))
+        .arg(Arg::new("foo").help("It does foo stuff"))
         .get_matches_from(empty_args());
 }
 
@@ -2103,7 +2103,7 @@ fn help_required_and_no_args() {
 
 #[test]
 fn issue_1642_long_help_spacing() {
-    let app = App::new("prog").arg(Arg::new("cfg").long("config").long_about(
+    let app = App::new("prog").arg(Arg::new("cfg").long("config").long_help(
         "The config file used by the myprog must be in JSON format
 with only valid keys and may not contain other nonsense
 that cannot be read by this program. Obviously I'm going on
@@ -2148,13 +2148,13 @@ ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
 
 OPTIONS:
-    -h, --help    Print custom help about text
+    -h, --help    Print custom help text
 ";
 
 #[test]
 fn help_subcmd_help() {
     let app = App::new("myapp")
-        .mut_arg("help", |h| h.about("Print custom help about text"))
+        .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
@@ -2176,13 +2176,13 @@ ARGS:
     <SUBCOMMAND>...    The subcommand whose help message to display
 
 OPTIONS:
-    -h, --help    Print custom help about text
+    -h, --help    Print custom help text
 ";
 
 #[test]
 fn subcmd_help_subcmd_help() {
     let app = App::new("myapp")
-        .mut_arg("help", |h| h.about("Print custom help about text"))
+        .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
@@ -2199,7 +2199,7 @@ USAGE:
     myapp subcmd multi
 
 OPTIONS:
-    -h, --help       Print custom help about text
+    -h, --help       Print custom help text
     -V, --version    Print version information
 ";
 
@@ -2209,14 +2209,14 @@ USAGE:
     myapp subcmd multi
 
 OPTIONS:
-    -h, --help       Print custom help about text from multi
+    -h, --help       Print custom help text from multi
     -V, --version    Print version information
 ";
 
 #[test]
 fn help_about_multi_subcmd() {
     let app = App::new("myapp")
-        .mut_arg("help", |h| h.about("Print custom help about text"))
+        .mut_arg("help", |h| h.help("Print custom help text"))
         .subcommand(App::new("subcmd").subcommand(App::new("multi").version("1.0")));
 
     assert!(utils::compare_output(
@@ -2242,12 +2242,14 @@ fn help_about_multi_subcmd() {
 #[test]
 fn help_about_multi_subcmd_override() {
     let app = App::new("myapp")
-        .mut_arg("help", |h| h.about("Print custom help about text"))
-        .subcommand(App::new("subcmd").subcommand(
-            App::new("multi").version("1.0").mut_arg("help", |h| {
-                h.about("Print custom help about text from multi")
-            }),
-        ));
+        .mut_arg("help", |h| h.help("Print custom help text"))
+        .subcommand(
+            App::new("subcmd").subcommand(
+                App::new("multi")
+                    .version("1.0")
+                    .mut_arg("help", |h| h.help("Print custom help text from multi")),
+            ),
+        );
 
     assert!(utils::compare_output(
         app.clone(),
@@ -2360,9 +2362,9 @@ NETWORKING:
 fn custom_heading_pos() {
     let app = App::new("test")
         .version("1.4")
-        .arg(Arg::new("gear").about("Which gear"))
+        .arg(Arg::new("gear").help("Which gear"))
         .help_heading(Some("NETWORKING"))
-        .arg(Arg::new("speed").about("How fast"));
+        .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(
         app,
@@ -2414,7 +2416,7 @@ fn only_custom_heading_pos_no_args() {
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hidden(true))
         .help_heading(Some("NETWORKING"))
-        .arg(Arg::new("speed").about("How fast"));
+        .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(
         app,

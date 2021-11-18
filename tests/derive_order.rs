@@ -87,16 +87,16 @@ OPTIONS:
 #[test]
 fn no_derive_order() {
     let app = App::new("test").version("1.2").args(&[
-        Arg::new("flag_b").long("flag_b").about("first flag"),
+        Arg::new("flag_b").long("flag_b").help("first flag"),
         Arg::new("option_b")
             .long("option_b")
             .takes_value(true)
-            .about("first option"),
-        Arg::new("flag_a").long("flag_a").about("second flag"),
+            .help("first option"),
+        Arg::new("flag_a").long("flag_a").help("second flag"),
         Arg::new("option_a")
             .long("option_a")
             .takes_value(true)
-            .about("second option"),
+            .help("second option"),
     ]);
 
     assert!(utils::compare_output(
@@ -113,16 +113,16 @@ fn derive_order() {
         .setting(AppSettings::DeriveDisplayOrder)
         .version("1.2")
         .args(&[
-            Arg::new("flag_b").long("flag_b").about("first flag"),
+            Arg::new("flag_b").long("flag_b").help("first flag"),
             Arg::new("option_b")
                 .long("option_b")
                 .takes_value(true)
-                .about("first option"),
-            Arg::new("flag_a").long("flag_a").about("second flag"),
+                .help("first option"),
+            Arg::new("flag_a").long("flag_a").help("second flag"),
             Arg::new("option_a")
                 .long("option_a")
                 .takes_value(true)
-                .about("second option"),
+                .help("second option"),
         ]);
 
     assert!(utils::compare_output(
@@ -139,16 +139,16 @@ fn derive_order_subcommand_propagate() {
         .global_setting(AppSettings::DeriveDisplayOrder)
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::new("flag_b").long("flag_b").about("first flag"),
+                Arg::new("flag_b").long("flag_b").help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
-                    .about("first option"),
-                Arg::new("flag_a").long("flag_a").about("second flag"),
+                    .help("first option"),
+                Arg::new("flag_a").long("flag_a").help("second flag"),
                 Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
-                    .about("second option"),
+                    .help("second option"),
             ]),
         );
 
@@ -166,19 +166,19 @@ fn derive_order_subcommand_propagate_with_explicit_display_order() {
         .global_setting(AppSettings::DeriveDisplayOrder)
         .subcommand(
             App::new("sub").version("1.2").args(&[
-                Arg::new("flag_b").long("flag_b").about("first flag"),
+                Arg::new("flag_b").long("flag_b").help("first flag"),
                 Arg::new("option_b")
                     .long("option_b")
                     .takes_value(true)
-                    .about("first option"),
+                    .help("first option"),
                 Arg::new("flag_a")
                     .long("flag_a")
-                    .about("second flag")
+                    .help("second flag")
                     .display_order(0),
                 Arg::new("option_a")
                     .long("option_a")
                     .takes_value(true)
-                    .about("second option"),
+                    .help("second option"),
             ]),
         );
 
@@ -199,9 +199,9 @@ fn prefer_user_help_with_derive_order() {
             Arg::new("help")
                 .long("help")
                 .short('h')
-                .about("Print help message"),
-            Arg::new("flag_b").long("flag_b").about("first flag"),
-            Arg::new("flag_a").long("flag_a").about("second flag"),
+                .help("Print help message"),
+            Arg::new("flag_b").long("flag_b").help("first flag"),
+            Arg::new("flag_a").long("flag_a").help("second flag"),
         ]);
 
     assert!(utils::compare_output(
@@ -221,9 +221,9 @@ fn prefer_user_help_in_subcommand_with_derive_order() {
                 Arg::new("help")
                     .long("help")
                     .short('h')
-                    .about("Print help message"),
-                Arg::new("flag_b").long("flag_b").about("first flag"),
-                Arg::new("flag_a").long("flag_a").about("second flag"),
+                    .help("Print help message"),
+                Arg::new("flag_b").long("flag_b").help("first flag"),
+                Arg::new("flag_a").long("flag_a").help("second flag"),
             ]),
         );
 

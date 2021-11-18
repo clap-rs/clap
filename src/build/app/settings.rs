@@ -778,7 +778,7 @@ pub enum AppSettings {
     /// App::new("myprog")
     ///     .setting(AppSettings::HelpRequired)
     ///     .arg(
-    ///         Arg::new("foo").about("It does foo stuff")
+    ///         Arg::new("foo").help("It does foo stuff")
     ///         // As required via AppSettings::HelpRequired, a help message was supplied
     ///      )
     /// #    .get_matches();
@@ -987,8 +987,8 @@ pub enum AppSettings {
     ///     .setting(AppSettings::UseLongFormatForHelpSubcommand)
     ///     .subcommand(App::new("test")
     ///         .arg(Arg::new("foo")
-    ///             .about("short form about message")
-    ///             .long_about("long form about message")
+    ///             .help("short form about message")
+    ///             .long_help("long form about message")
     ///         )
     ///     )
     ///     .get_matches();

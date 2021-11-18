@@ -105,7 +105,7 @@ fn hide_env() {
             .value_name("FILE")
             .hide_env(true)
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café.")
+            .help("A coffeehouse, coffee shop, or café.")
             .takes_value(true),
     );
 
@@ -122,7 +122,7 @@ fn show_env() {
             .long("cafe")
             .value_name("FILE")
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café.")
+            .help("A coffeehouse, coffee shop, or café.")
             .takes_value(true),
     );
 
@@ -140,7 +140,7 @@ fn hide_env_vals() {
             .value_name("FILE")
             .hide_env_values(true)
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café.")
+            .help("A coffeehouse, coffee shop, or café.")
             .takes_value(true),
     );
 
@@ -162,7 +162,7 @@ fn show_env_vals() {
             .long("cafe")
             .value_name("FILE")
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café.")
+            .help("A coffeehouse, coffee shop, or café.")
             .takes_value(true),
     );
 
@@ -184,7 +184,7 @@ fn hide_env_flag() {
             .long("cafe")
             .hide_env(true)
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café."),
+            .help("A coffeehouse, coffee shop, or café."),
     );
 
     assert!(utils::compare_output(
@@ -204,7 +204,7 @@ fn show_env_flag() {
             .short('c')
             .long("cafe")
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café."),
+            .help("A coffeehouse, coffee shop, or café."),
     );
 
     assert!(utils::compare_output(
@@ -225,7 +225,7 @@ fn hide_env_vals_flag() {
             .long("cafe")
             .hide_env_values(true)
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café."),
+            .help("A coffeehouse, coffee shop, or café."),
     );
 
     assert!(utils::compare_output(
@@ -245,7 +245,7 @@ fn show_env_vals_flag() {
             .short('c')
             .long("cafe")
             .env("ENVVAR")
-            .about("A coffeehouse, coffee shop, or café."),
+            .help("A coffeehouse, coffee shop, or café."),
     );
 
     assert!(utils::compare_output(

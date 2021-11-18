@@ -38,7 +38,7 @@ fn main() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search locally installed packages for matching strings")
+                        .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .takes_value(true)
                         .multiple_values(true),
@@ -48,7 +48,7 @@ fn main() {
                         .long("info")
                         .short('i')
                         .conflicts_with("search")
-                        .about("view package information")
+                        .help("view package information")
                         .takes_value(true)
                         .multiple_values(true),
                 ),
@@ -68,18 +68,18 @@ fn main() {
                         .conflicts_with("info")
                         .takes_value(true)
                         .multiple_values(true)
-                        .about("search remote repositories for matching strings"),
+                        .help("search remote repositories for matching strings"),
                 )
                 .arg(
                     Arg::new("info")
                         .long("info")
                         .conflicts_with("search")
                         .short('i')
-                        .about("view package information"),
+                        .help("view package information"),
                 )
                 .arg(
                     Arg::new("package")
-                        .about("packages")
+                        .help("packages")
                         .required_unless_present("search")
                         .takes_value(true)
                         .multiple_values(true),

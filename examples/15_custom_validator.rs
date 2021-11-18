@@ -9,7 +9,7 @@ fn main() {
         // Application logic goes here...
         .arg(
             Arg::new("input")
-                .about("the input file to use")
+                .help("the input file to use")
                 .index(1)
                 .required(true)
                 // You can pass in a closure, or a function

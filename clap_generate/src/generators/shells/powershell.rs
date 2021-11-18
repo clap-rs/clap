@@ -88,7 +88,7 @@ fn generate_inner<'help>(
 
     for option in p.get_opts() {
         if let Some(shorts) = option.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_about(), shorts[0]);
+            let tooltip = get_tooltip(option.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(
@@ -102,7 +102,7 @@ fn generate_inner<'help>(
         }
 
         if let Some(longs) = option.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(option.get_about(), longs[0]);
+            let tooltip = get_tooltip(option.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(
@@ -118,7 +118,7 @@ fn generate_inner<'help>(
 
     for flag in utils::flags(p) {
         if let Some(shorts) = flag.get_short_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_about(), shorts[0]);
+            let tooltip = get_tooltip(flag.get_help(), shorts[0]);
             for short in shorts {
                 completions.push_str(&preamble);
                 completions.push_str(
@@ -132,7 +132,7 @@ fn generate_inner<'help>(
         }
 
         if let Some(longs) = flag.get_long_and_visible_aliases() {
-            let tooltip = get_tooltip(flag.get_about(), longs[0]);
+            let tooltip = get_tooltip(flag.get_help(), longs[0]);
             for long in longs {
                 completions.push_str(&preamble);
                 completions.push_str(

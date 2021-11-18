@@ -457,9 +457,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.val(arg, next_line_help, longest)?;
 
         let about = if self.use_long {
-            arg.long_about.unwrap_or_else(|| arg.about.unwrap_or(""))
+            arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
         } else {
-            arg.about.unwrap_or_else(|| arg.long_about.unwrap_or(""))
+            arg.help.unwrap_or_else(|| arg.long_help.unwrap_or(""))
         };
 
         self.help(
@@ -488,7 +488,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             true
         } else {
             // force_next_line
-            let h = arg.about.unwrap_or("");
+            let h = arg.help.unwrap_or("");
             let h_w = display_width(h) + display_width(spec_vals);
             let taken = longest + 12;
             self.term_w >= taken
@@ -605,7 +605,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             spec_vals.push(format!("[possible values: {}]", pvs));
         }
         let connector = if self.use_long { "\n" } else { " " };
-        let prefix = if !spec_vals.is_empty() && !a.get_about().unwrap_or("").is_empty() {
+        let prefix = if !spec_vals.is_empty() && !a.get_help().unwrap_or("").is_empty() {
             if self.use_long {
                 "\n\n"
             } else {

@@ -11,14 +11,14 @@ fn main() {
         .about("does awesome things")
         .arg(
             Arg::new("INPUT")
-                .about("The input file to use")
+                .help("The input file to use")
                 .default_value("input.txt")
                 .index(1),
         )
         // Next we'll use the Option::unwrap_or method on this "CONFIG" option
         .arg(
             Arg::new("CONFIG")
-                .about("The config file to use")
+                .help("The config file to use")
                 .short('c')
                 .takes_value(true),
         )

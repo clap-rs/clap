@@ -15,7 +15,7 @@ fn main() {
         // you want for your individual case.
         .arg(
             Arg::new("awesome")
-                .about("turns up the awesome") // Displayed when showing help info
+                .help("turns up the awesome") // Displayed when showing help info
                 .short('a') // Trigger this arg with "-a"
                 .long("awesome") // Trigger this arg with "--awesome"
                 .multiple_occurrences(true) // This flag should allow multiple

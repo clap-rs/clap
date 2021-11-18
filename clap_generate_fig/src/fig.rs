@@ -144,7 +144,7 @@ fn gen_options(app: &App, indent: usize) -> String {
             ));
         }
 
-        if let Some(data) = option.get_about() {
+        if let Some(data) = option.get_help() {
             buffer.push_str(&format!(
                 "{:indent$}description: \"{}\",\n",
                 "",
@@ -194,7 +194,7 @@ fn gen_options(app: &App, indent: usize) -> String {
             ));
         }
 
-        if let Some(data) = flag.get_about() {
+        if let Some(data) = flag.get_help() {
             buffer.push_str(&format!(
                 "{:indent$}description: \"{}\",\n",
                 "",
@@ -257,11 +257,11 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
                 indent = indent + 4,
             ));
 
-            if let Some(about) = value.get_about() {
+            if let Some(help) = value.get_help() {
                 buffer.push_str(&format!(
                     "{:indent$}description: \"{}\",\n",
                     "",
-                    escape_string(about),
+                    escape_string(help),
                     indent = indent + 4
                 ));
             }

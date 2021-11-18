@@ -385,14 +385,14 @@ impl<'help> App<'help> {
         .arg(
             Arg::new("help")
                 .long("help")
-                .about("Print help information")
+                .help("Print help information")
                 .global(true)
                 .generated(),
         )
         .arg(
             Arg::new("version")
                 .long("version")
-                .about("Print version information")
+                .help("Print version information")
                 .global(true)
                 .generated(),
         )
@@ -646,7 +646,7 @@ impl<'help> App<'help> {
     ///             Arg::new("search")
     ///                 .short('s')
     ///                 .long("search")
-    ///                 .about("search remote repositories for matching strings"),
+    ///                 .help("search remote repositories for matching strings"),
     ///         ),
     ///     )
     ///     .get_matches_from(vec!["pacman", "-Ss"]);
@@ -681,7 +681,7 @@ impl<'help> App<'help> {
     ///             Arg::new("search")
     ///                 .short('s')
     ///                 .long("search")
-    ///                 .about("search remote repositories for matching strings"),
+    ///                 .help("search remote repositories for matching strings"),
     ///         ),
     ///     )
     ///     .get_matches_from(vec!["pacman", "--sync", "--search"]);
@@ -1108,7 +1108,7 @@ impl<'help> App<'help> {
     ///     .arg(
     ///         Arg::new("debug")
     ///            .short('d')
-    ///            .about("turns on debugging mode")
+    ///            .help("turns on debugging mode")
     ///     )
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
     ///     // verbose Arg::from()
@@ -1154,7 +1154,7 @@ impl<'help> App<'help> {
     /// App::new("myprog")
     ///     .args(&[
     ///         Arg::from("[debug] -d 'turns on debugging info'"),
-    ///         Arg::new("input").index(1).about("the input file to use")
+    ///         Arg::new("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
     /// ```
@@ -1273,7 +1273,7 @@ impl<'help> App<'help> {
     ///     .subcommand(App::new("test")
     ///         .aliases(&["do-stuff", "do-tests", "tests"]))
     ///         .arg(Arg::new("input")
-    ///             .about("the file to add")
+    ///             .help("the file to add")
     ///             .index(1)
     ///             .required(false))
     ///     .get_matches_from(vec!["myprog", "do-tests"]);
@@ -1298,7 +1298,7 @@ impl<'help> App<'help> {
     ///     .subcommand(App::new("test").short_flag('t')
     ///         .short_flag_aliases(&['a', 'b', 'c']))
     ///         .arg(Arg::new("input")
-    ///             .about("the file to add")
+    ///             .help("the file to add")
     ///             .index(1)
     ///             .required(false))
     ///     .get_matches_from(vec!["myprog", "-a"]);
@@ -1325,7 +1325,7 @@ impl<'help> App<'help> {
     ///             .subcommand(App::new("test").long_flag("test")
     ///                 .long_flag_aliases(&["testing", "testall", "test_all"]))
     ///                 .arg(Arg::new("input")
-    ///                             .about("the file to add")
+    ///                             .help("the file to add")
     ///                             .index(1)
     ///                             .required(false))
     ///             .get_matches_from(vec!["myprog", "--testing"]);
@@ -1836,8 +1836,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     /// [`BufWriter`]: std::io::BufWriter
-    /// [`-h` (short)]: Arg::about()
-    /// [`--help` (long)]: Arg::long_about()
+    /// [`-h` (short)]: Arg::help()
+    /// [`--help` (long)]: Arg::long_help()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
@@ -1863,8 +1863,8 @@ impl<'help> App<'help> {
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
     /// [`BufWriter`]: std::io::BufWriter
-    /// [`-h` (short)]: Arg::about()
-    /// [`--help` (long)]: Arg::long_about()
+    /// [`-h` (short)]: Arg::help()
+    /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
@@ -1891,8 +1891,8 @@ impl<'help> App<'help> {
     /// app.write_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: std::io::Write
-    /// [`-h` (short)]: Arg::about()
-    /// [`--help` (long)]: Arg::long_about()
+    /// [`-h` (short)]: Arg::help()
+    /// [`--help` (long)]: Arg::long_help()
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
@@ -1917,8 +1917,8 @@ impl<'help> App<'help> {
     /// app.write_long_help(&mut out).expect("failed to write to stdout");
     /// ```
     /// [`io::Write`]: std::io::Write
-    /// [`-h` (short)]: Arg::about()
-    /// [`--help` (long)]: Arg::long_about()
+    /// [`-h` (short)]: Arg::help()
+    /// [`--help` (long)]: Arg::long_help()
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
@@ -2443,7 +2443,7 @@ impl<'help> App<'help> {
             let args_missing_help: Vec<String> = self
                 .args
                 .args()
-                .filter(|arg| arg.about.is_none() && arg.long_about.is_none())
+                .filter(|arg| arg.help.is_none() && arg.long_help.is_none())
                 .map(|arg| String::from(arg.name))
                 .collect();
 

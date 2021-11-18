@@ -824,7 +824,7 @@ fn require_eq() {
             .required(true)
             .require_equals(true)
             .value_name("FILE")
-            .about("some"),
+            .help("some"),
     );
     assert!(utils::compare_output(
         app,
@@ -845,7 +845,7 @@ fn require_eq_filtered() {
                 .required(true)
                 .require_equals(true)
                 .value_name("FILE")
-                .about("some"),
+                .help("some"),
         )
         .arg(
             Arg::new("foo")
@@ -854,7 +854,7 @@ fn require_eq_filtered() {
                 .required(true)
                 .require_equals(true)
                 .value_name("FILE")
-                .about("some other arg"),
+                .help("some other arg"),
         );
     assert!(utils::compare_output(
         app,
@@ -875,7 +875,7 @@ fn require_eq_filtered_group() {
                 .required(true)
                 .require_equals(true)
                 .value_name("FILE")
-                .about("some"),
+                .help("some"),
         )
         .arg(
             Arg::new("foo")
@@ -884,7 +884,7 @@ fn require_eq_filtered_group() {
                 .required(true)
                 .require_equals(true)
                 .value_name("FILE")
-                .about("some other arg"),
+                .help("some other arg"),
         )
         .arg(
             Arg::new("g1")
@@ -1010,7 +1010,7 @@ fn issue_1643_args_mutually_require_each_other() {
     let app = App::new("test")
         .arg(
             Arg::new("relation_id")
-                .about("The relation id to get the data from")
+                .help("The relation id to get the data from")
                 .long("relation-id")
                 .short('r')
                 .takes_value(true)
@@ -1018,7 +1018,7 @@ fn issue_1643_args_mutually_require_each_other() {
         )
         .arg(
             Arg::new("remote_unit_name")
-                .about("The name of the remote unit to get data from")
+                .help("The name of the remote unit to get data from")
                 .long("remote-unit")
                 .short('u')
                 .takes_value(true)

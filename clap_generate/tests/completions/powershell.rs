@@ -12,11 +12,11 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
         .arg(
             Arg::new("file")
                 .value_hint(ValueHint::FilePath)
-                .about("some input file"),
+                .help("some input file"),
         )
         .arg(
             Arg::new("config")
-                .about("some config file")
+                .help("some config file")
                 .short('c')
                 .visible_short_alias('C')
                 .long("config")
@@ -27,7 +27,7 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
-                    .about("the case to test"),
+                    .help("the case to test"),
             ),
         )
 }
@@ -105,7 +105,7 @@ fn build_app_special_commands() -> App<'static> {
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
-                    .about("the other case to test"),
+                    .help("the other case to test"),
             ),
         )
         .subcommand(App::new("some-cmd-with-hyphens").alias("hyphen"))
@@ -198,7 +198,7 @@ fn build_app_with_aliases() -> App<'static> {
                 .visible_short_alias('F')
                 .long("flag")
                 .visible_alias("flg")
-                .about("cmd flag"),
+                .help("cmd flag"),
         )
         .arg(
             Arg::new("option")
@@ -206,7 +206,7 @@ fn build_app_with_aliases() -> App<'static> {
                 .visible_short_alias('O')
                 .long("option")
                 .visible_alias("opt")
-                .about("cmd option")
+                .help("cmd option")
                 .takes_value(true),
         )
         .arg(Arg::new("positional"))

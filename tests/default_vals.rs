@@ -617,7 +617,7 @@ fn with_value_delimiter() {
     let app = App::new("multiple_values").arg(
         Arg::new("option")
             .long("option")
-            .about("multiple options")
+            .help("multiple options")
             .value_delimiter(';')
             .default_value("first;second"),
     );

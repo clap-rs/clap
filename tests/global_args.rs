@@ -8,7 +8,7 @@ fn issue_1076() {
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
-                .about("Specifies something needed by the subcommands")
+                .help("Specifies something needed by the subcommands")
                 .global(true)
                 .takes_value(true)
                 .default_value("default_value"),
@@ -16,7 +16,7 @@ fn issue_1076() {
         .arg(
             Arg::new("GLOBAL_FLAG")
                 .long("global-flag")
-                .about("Specifies something needed by the subcommands")
+                .help("Specifies something needed by the subcommands")
                 .global(true)
                 .takes_value(true),
         )

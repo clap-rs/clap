@@ -88,7 +88,7 @@ USAGE:
 
 ARGS:
     <foo>
-            long form about message
+            long form help message
 
 OPTIONS:
     -h, --help
@@ -114,7 +114,7 @@ USAGE:
 
 ARGS:
     <foo>
-            long form about message
+            long form help message
 
 OPTIONS:
     -h, --help
@@ -268,7 +268,7 @@ fn arg_required_else_help_error_message() {
         .version("1.0")
         .arg(
             Arg::new("info")
-                .about("Provides more info")
+                .help("Provides more info")
                 .short('i')
                 .long("info"),
         );
@@ -634,9 +634,9 @@ fn dont_collapse_args() {
         .version("v1.4.8")
         .setting(AppSettings::DontCollapseArgsInUsage)
         .args(&[
-            Arg::new("arg1").about("some"),
-            Arg::new("arg2").about("some"),
-            Arg::new("arg3").about("some"),
+            Arg::new("arg1").help("some"),
+            Arg::new("arg2").help("some"),
+            Arg::new("arg3").help("some"),
         ]);
     assert!(utils::compare_output(
         app,
@@ -655,7 +655,7 @@ fn require_eq() {
             .required(true)
             .require_equals(true)
             .value_name("FILE")
-            .about("some"),
+            .help("some"),
     );
     assert!(utils::compare_output(
         app,
@@ -1126,8 +1126,8 @@ fn single_arg_help_with_long_format_setting() {
         .subcommand(App::new("test"))
         .arg(
             Arg::new("foo")
-                .about("short form about message")
-                .long_about("long form about message"),
+                .help("short form help message")
+                .long_help("long form help message"),
         );
     assert!(utils::compare_output(
         m,
@@ -1144,8 +1144,8 @@ fn use_long_format_for_help_subcommand_with_setting() {
         .subcommand(
             App::new("test").arg(
                 Arg::new("foo")
-                    .about("short form about message")
-                    .long_about("long form about message"),
+                    .help("short form help message")
+                    .long_help("long form help message"),
             ),
         );
     assert!(utils::compare_output(
@@ -1201,7 +1201,7 @@ fn no_auto_version() {
 fn no_auto_version_mut_arg() {
     let app = App::new("myprog")
         .version("3.0")
-        .mut_arg("version", |v| v.about("custom about"))
+        .mut_arg("version", |v| v.help("custom help"))
         .setting(AppSettings::NoAutoVersion);
 
     let result = app

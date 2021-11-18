@@ -7,7 +7,7 @@ fn get_app() -> App<'static> {
         .arg(
             Arg::new("GLOBAL_ARG")
                 .long("global-arg")
-                .about("Specifies something needed by the subcommands")
+                .help("Specifies something needed by the subcommands")
                 .global(true)
                 .setting(ArgSettings::TakesValue)
                 .default_value("default_value"),
@@ -15,7 +15,7 @@ fn get_app() -> App<'static> {
         .arg(
             Arg::new("GLOBAL_FLAG")
                 .long("global-flag")
-                .about("Specifies something needed by the subcommands")
+                .help("Specifies something needed by the subcommands")
                 .global(true)
                 .setting(ArgSettings::MultipleOccurrences),
         )
