@@ -49,7 +49,7 @@ pub enum ErrorKind {
     /// ```rust
     /// # use clap::{App, Arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::from("--flag 'some flag'"))
+    ///     .arg(Arg::from_usage("--flag 'some flag'"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);

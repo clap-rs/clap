@@ -77,10 +77,9 @@ impl SubCommand {
         App::new(name)
     }
 
-    /// Deprecated, see [`App::from`]
+    /// TODO
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::from`)")]
     pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
-        App::from(yaml)
+        App::from_yaml(yaml)
     }
 }

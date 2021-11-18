@@ -2,7 +2,7 @@ use super::{settings::ArgSettings, Arg};
 
 #[test]
 fn short_flag_misspell() {
-    let a = Arg::from("-f1, --flag 'some flag'");
+    let a = Arg::from_usage("-f1, --flag 'some flag'");
     assert_eq!(a.name, "flag");
     assert_eq!(a.short.unwrap(), 'f');
     assert_eq!(a.long.unwrap(), "flag");
@@ -14,7 +14,7 @@ fn short_flag_misspell() {
 
 #[test]
 fn short_flag_name_missing() {
-    let a = Arg::from("-f 'some flag'");
+    let a = Arg::from_usage("-f 'some flag'");
     assert_eq!(a.name, "f");
     assert_eq!(a.short.unwrap(), 'f');
     assert!(a.long.is_none());

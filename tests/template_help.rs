@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::App;
+use clap::{App, Arg};
 
 static EXAMPLE1_TMPL_S: &str = "{bin} {version}
 {author}
@@ -149,12 +149,18 @@ fn get_app() -> App<'static> {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg("-c, --config=[FILE] 'Sets a custom config file'")
-        .arg("<output>            'Sets an optional output file'")
-        .arg("-d...               'Turn debugging information on'")
+        .arg(Arg::from_usage(
+            "-c, --config=[FILE] 'Sets a custom config file'",
+        ))
+        .arg(Arg::from_usage(
+            "<output>            'Sets an optional output file'",
+        ))
+        .arg(Arg::from_usage(
+            "-d...               'Turn debugging information on'",
+        ))
         .subcommand(
             App::new("test")
                 .about("does testing things")
-                .arg("-l, --list 'lists test values'"),
+                .arg(Arg::from_usage("-l, --list 'lists test values'")),
         )
 }

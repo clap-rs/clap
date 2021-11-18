@@ -49,17 +49,17 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
 #[test]
 fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
     let m = App::new("opts")
-        .arg(Arg::from("--global-flag").global(true))
+        .arg(Arg::from_usage("--global-flag").global(true))
         .arg(
-            Arg::from("--global-str <global-str>")
+            Arg::from_usage("--global-str <global-str>")
                 .required(false)
                 .global(true),
         )
         .subcommand(
             App::new("test")
-                .arg(Arg::from("--sub-flag").global(true))
+                .arg(Arg::from_usage("--sub-flag").global(true))
                 .arg(
-                    Arg::from("--sub-str <sub-str>")
+                    Arg::from_usage("--sub-str <sub-str>")
                         .required(false)
                         .global(true),
                 )

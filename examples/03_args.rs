@@ -50,10 +50,12 @@ fn main() {
         //
         //
         // One "Flag" using a usage string
-        .arg("--license 'display the license file'")
+        .arg(Arg::from_usage("--license 'display the license file'"))
         // Two args, one "Positional", and one "Option" using a usage string
-        .arg("[output] 'Supply an output file to use'")
-        .arg("-i, --int=[IFACE] 'Set an interface to use'")
+        .arg(Arg::from_usage("[output] 'Supply an output file to use'"))
+        .arg(Arg::from_usage(
+            "-i, --int=[IFACE] 'Set an interface to use'",
+        ))
         .get_matches();
 
     // Here are some examples of using the arguments defined above. Keep in mind that this is only

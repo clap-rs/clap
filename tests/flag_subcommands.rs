@@ -274,14 +274,14 @@ fn flag_subcommand_multiple() {
             App::new("some")
                 .short_flag('S')
                 .long_flag("some")
-                .arg(Arg::from("-f, --flag 'some flag'"))
-                .arg(Arg::from("-p, --print 'print something'"))
+                .arg(Arg::from_usage("-f, --flag 'some flag'"))
+                .arg(Arg::from_usage("-p, --print 'print something'"))
                 .subcommand(
                     App::new("result")
                         .short_flag('R')
                         .long_flag("result")
-                        .arg(Arg::from("-f, --flag 'some flag'"))
-                        .arg(Arg::from("-p, --print 'print something'")),
+                        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+                        .arg(Arg::from_usage("-p, --print 'print something'")),
                 ),
         )
         .get_matches_from(vec!["myprog", "-SfpRfp"]);

@@ -29,8 +29,8 @@ For more information try --help
 #[test]
 fn flag_conflict() {
     let result = App::new("flag_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("other"))
-        .arg(Arg::from("-o, --other 'some flag'"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with("other"))
+        .arg(Arg::from_usage("-o, --other 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-f", "-o"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -40,8 +40,8 @@ fn flag_conflict() {
 #[test]
 fn flag_conflict_2() {
     let result = App::new("flag_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("other"))
-        .arg(Arg::from("-o, --other 'some flag'"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with("other"))
+        .arg(Arg::from_usage("-o, --other 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -51,8 +51,8 @@ fn flag_conflict_2() {
 #[test]
 fn flag_conflict_with_all() {
     let result = App::new("flag_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with_all(&["other"]))
-        .arg(Arg::from("-o, --other 'some flag'"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with_all(&["other"]))
+        .arg(Arg::from_usage("-o, --other 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -62,8 +62,8 @@ fn flag_conflict_with_all() {
 #[test]
 fn flag_conflict_with_everything() {
     let result = App::new("flag_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").exclusive(true))
-        .arg(Arg::from("-o, --other 'some flag'"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").exclusive(true))
+        .arg(Arg::from_usage("-o, --other 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -73,10 +73,10 @@ fn flag_conflict_with_everything() {
 #[test]
 fn group_conflict() {
     let result = App::new("group_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with("gr"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(Arg::from("--some 'some arg'"))
-        .arg(Arg::from("--other 'other arg'"))
+        .arg(Arg::from_usage("--some 'some arg'"))
+        .arg(Arg::from_usage("--other 'other arg'"))
         .try_get_matches_from(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -86,10 +86,10 @@ fn group_conflict() {
 #[test]
 fn group_conflict_2() {
     let result = App::new("group_conflict")
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("gr"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with("gr"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(Arg::from("--some 'some arg'"))
-        .arg(Arg::from("--other 'other arg'"))
+        .arg(Arg::from_usage("--some 'some arg'"))
+        .arg(Arg::from_usage("--other 'other arg'"))
         .try_get_matches_from(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -238,8 +238,8 @@ fn conflicts_with_invalid_arg() {
 #[test]
 fn conflict_with_unused_default() {
     let result = App::new("conflict")
-        .arg(Arg::from("-o, --opt=[opt] 'some opt'").default_value("default"))
-        .arg(Arg::from("-f, --flag 'some flag'").conflicts_with("opt"))
+        .arg(Arg::from_usage("-o, --opt=[opt] 'some opt'").default_value("default"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'").conflicts_with("opt"))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
     assert!(result.is_ok());
@@ -253,11 +253,11 @@ fn conflict_with_unused_default() {
 fn conflicts_with_alongside_default() {
     let result = App::new("conflict")
         .arg(
-            Arg::from("-o, --opt=[opt] 'some opt'")
+            Arg::from_usage("-o, --opt=[opt] 'some opt'")
                 .default_value("default")
                 .conflicts_with("flag"),
         )
-        .arg(Arg::from("-f, --flag 'some flag'"))
+        .arg(Arg::from_usage("-f, --flag 'some flag'"))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
     assert!(

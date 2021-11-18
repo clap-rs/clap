@@ -78,7 +78,7 @@ impl Default for ArgProvider {
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
-/// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
+/// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
@@ -349,17 +349,277 @@ impl<'help> Arg<'help> {
         Self::new(n)
     }
 
-    /// Deprecated, see [`Arg::from`]
+    /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use clap::{Arg, load_yaml};
+    /// let yaml = load_yaml!("arg.yaml");
+    /// let arg = Arg::from(yaml);
+    /// ```
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::from`")]
     pub fn from_yaml(y: &'help Yaml) -> Self {
-        Self::from(y)
+        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
+        // We WANT this to panic on error...so expect() is good.
+        let (name_yaml, yaml) = yaml_file_hash
+            .iter()
+            .next()
+            .expect("There must be one arg in the YAML file");
+        let name_str = name_yaml.as_str().expect("Arg name must be a string");
+        let mut a = Arg::new(name_str);
+
+        let mut has_metadata = false;
+
+        for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
+            a = match k.as_str().expect("Arg fields must be strings") {
+                "_has_metadata" => {
+                    has_metadata = true;
+                    a
+                }
+                "short" => yaml_to_char!(a, v, short),
+                "long" => yaml_to_str!(a, v, long),
+                "alias" => yaml_to_str!(a, v, alias),
+                "aliases" => yaml_vec_or_str!(a, v, alias),
+                "short_alias" => yaml_to_str!(a, v, alias),
+                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
+                "help" => yaml_to_str!(a, v, help),
+                "long_help" => yaml_to_str!(a, v, long_help),
+                "required" => yaml_to_bool!(a, v, required),
+                "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
+                "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
+                "required_if_eq_all" => yaml_array_tuple2!(a, v, required_if_eq_all),
+                "takes_value" => yaml_to_bool!(a, v, takes_value),
+                "index" => yaml_to_usize!(a, v, index),
+                "global" => yaml_to_bool!(a, v, global),
+                "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
+                "multiple_values" => yaml_to_bool!(a, v, multiple_values),
+                "hidden" => yaml_to_bool!(a, v, hidden),
+                "hidden_long_help" => yaml_to_bool!(a, v, hidden_long_help),
+                "hidden_short_help" => yaml_to_bool!(a, v, hidden_short_help),
+                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
+                "group" => yaml_to_str!(a, v, group),
+                "number_of_values" => yaml_to_usize!(a, v, number_of_values),
+                "max_values" => yaml_to_usize!(a, v, max_values),
+                "min_values" => yaml_to_usize!(a, v, min_values),
+                "value_name" => yaml_to_str!(a, v, value_name),
+                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
+                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
+                "raw" => yaml_to_bool!(a, v, raw),
+                "require_equals" => yaml_to_bool!(a, v, require_equals),
+                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
+                "value_terminator" => yaml_to_str!(a, v, value_terminator),
+                "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
+                "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
+                "display_order" => yaml_to_usize!(a, v, display_order),
+                "default_value" => yaml_to_str!(a, v, default_value),
+                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
+                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
+                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
+                #[cfg(feature = "env")]
+                "env" => yaml_to_str!(a, v, env),
+                "value_names" => yaml_vec_or_str!(a, v, value_name),
+                "groups" => yaml_vec_or_str!(a, v, group),
+                "requires" => yaml_vec_or_str!(a, v, requires),
+                "requires_if" => yaml_tuple2!(a, v, requires_if),
+                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
+                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
+                "exclusive" => yaml_to_bool!(a, v, exclusive),
+                "last" => yaml_to_bool!(a, v, last),
+                "help_heading" => yaml_to_str!(a, v, help_heading),
+                "value_hint" => yaml_str_parse!(a, v, value_hint),
+                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
+                #[cfg(feature = "env")]
+                "hide_env" => yaml_to_bool!(a, v, hide_env),
+                #[cfg(feature = "env")]
+                "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
+                "hide_possible_values" => yaml_to_bool!(a, v, hide_possible_values),
+                "overrides_with" => yaml_to_str!(a, v, overrides_with),
+                "overrides_with_all" => yaml_vec_or_str!(a, v, overrides_with),
+                "possible_value" => yaml_to_str!(a, v, possible_value),
+                "possible_values" => yaml_vec_or_str!(a, v, possible_value),
+                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
+                "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
+                "required_unless_present_all" => yaml_vec!(a, v, required_unless_present_all),
+                "visible_alias" => yaml_to_str!(a, v, visible_alias),
+                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
+                "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
+                "visible_short_aliases" => yaml_to_chars!(a, v, visible_short_aliases),
+                #[cfg(feature = "regex")]
+                "validator_regex" => {
+                    if let Some(vec) = v.as_vec() {
+                        debug_assert_eq!(2, vec.len());
+                        let regex = yaml_str!(vec[0]);
+
+                        match Regex::new(regex) {
+                            Err(e) => panic!(
+                                "Failed to convert \"{}\" into regular expression: {}",
+                                regex, e
+                            ),
+                            Ok(regex) => a.validator_regex(regex, yaml_str!(vec[1])),
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value to vector")
+                    }
+                }
+                "setting" | "settings" => {
+                    yaml_to_setting!(
+                        a,
+                        v,
+                        setting,
+                        ArgSettings,
+                        "ArgSetting",
+                        format!("arg '{}'", name_str)
+                    )
+                }
+                s => {
+                    if !has_metadata {
+                        panic!(
+                            "Unknown setting '{}' in YAML file for arg '{}'",
+                            s, name_str
+                        )
+                    }
+                    continue;
+                }
+            }
+        }
+
+        a
     }
 
-    /// Deprecated, see [`Arg::from`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::from`")]
+    /// Creates a new instance of [`Arg`] from a usage string. Allows creation of basic settings
+    /// for the [`Arg`]. The syntax is flexible, but there are some rules to follow.
+    ///
+    /// **NOTE**: Not all settings may be set using the usage string method. Some properties are
+    /// only available via the builder pattern.
+    ///
+    /// **NOTE**: Only ASCII values are officially supported in [`Arg::from_usage`] strings. Some
+    /// UTF-8 codepoints may work just fine, but this is not guaranteed.
+    ///
+    /// # Syntax
+    ///
+    /// Usage strings typically following the form:
+    ///
+    /// ```notrust
+    /// [explicit name] [short] [long] [value names] [help string]
+    /// ```
+    ///
+    /// This is not a hard rule as the attributes can appear in other orders. There are also
+    /// several additional sigils which denote additional settings. Below are the details of each
+    /// portion of the string.
+    ///
+    /// ### Explicit Name
+    ///
+    /// This is an optional field, if it's omitted the argument will use one of the additional
+    /// fields as the name using the following priority order:
+    ///
+    ///  * Explicit Name (This always takes precedence when present)
+    ///  * Long
+    ///  * Short
+    ///  * Value Name
+    ///
+    /// `clap` determines explicit names as the first string of characters between either `[]` or
+    /// `<>` where `[]` has the dual notation of meaning the argument is optional, and `<>` meaning
+    /// the argument is required.
+    ///
+    /// Explicit names may be followed by:
+    ///  * The multiple denotation `...`
+    ///
+    /// Example explicit names as follows (`ename` for an optional argument, and `rname` for a
+    /// required argument):
+    ///
+    /// ```notrust
+    /// [ename] -s, --long 'some flag'
+    /// <rname> -r, --longer 'some other flag'
+    /// ```
+    ///
+    /// ### Short
+    ///
+    /// This is set by placing a single character after a leading `-`.
+    ///
+    /// Shorts may be followed by
+    ///  * The multiple denotation `...`
+    ///  * An optional comma `,` which is cosmetic only
+    ///  * Value notation
+    ///
+    /// Example shorts are as follows (`-s`, and `-r`):
+    ///
+    /// ```notrust
+    /// -s, --long 'some flag'
+    /// <rname> -r [val], --longer 'some option'
+    /// ```
+    ///
+    /// ### Long
+    ///
+    /// This is set by placing a word (no spaces) after a leading `--`.
+    ///
+    /// Shorts may be followed by
+    ///  * The multiple denotation `...`
+    ///  * Value notation
+    ///
+    /// Example longs are as follows (`--some`, and `--rapid`):
+    ///
+    /// ```notrust
+    /// -s, --some 'some flag'
+    /// --rapid=[FILE] 'some option'
+    /// ```
+    ///
+    /// ### Values (Value Notation)
+    ///
+    /// This is set by placing a word(s) between `[]` or `<>` optionally after `=` (although this
+    /// is cosmetic only and does not affect functionality). If an explicit name has **not** been
+    /// set, using `<>` will denote a required argument, and `[]` will denote an optional argument
+    ///
+    /// Values may be followed by
+    ///  * The multiple denotation `...`
+    ///  * More Value notation
+    ///
+    /// More than one value will also implicitly set the arguments number of values, i.e. having
+    /// two values, `--option [val1] [val2]` specifies that in order for option to be satisified it
+    /// must receive exactly two values
+    ///
+    /// Example values are as follows (`FILE`, and `SPEED`):
+    ///
+    /// ```notrust
+    /// -s, --some [FILE] 'some option'
+    /// --rapid=<SPEED>... 'some required multiple option'
+    /// ```
+    ///
+    /// ### Help String
+    ///
+    /// The help string is denoted between a pair of single quotes `''` and may contain any
+    /// characters.
+    ///
+    /// Example help strings are as follows:
+    ///
+    /// ```notrust
+    /// -s, --some [FILE] 'some option'
+    /// --rapid=<SPEED>... 'some required multiple option'
+    /// ```
+    ///
+    /// ### Additional Sigils
+    ///
+    /// Multiple notation `...` (three consecutive dots/periods) specifies that this argument may
+    /// be used multiple times. Do not confuse multiple occurrences (`...`) with multiple values.
+    /// `--option val1 val2` is a single occurrence with multiple values. `--flag --flag` is
+    /// multiple occurrences (and then you can obviously have instances of both as well)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// App::new("prog")
+    ///     .args(&[
+    ///         Arg::from_usage("--config <FILE> 'a required file for the configuration and no short'"),
+    ///         Arg::from_usage("-d, --debug... 'turns on debugging information and allows multiples'"),
+    ///         Arg::from_usage("[input] 'an optional input file to use'")
+    /// ])
+    /// # ;
+    /// ```
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
     pub fn from_usage(u: &'help str) -> Self {
-        Self::from(u)
+        UsageParser::from_usage(u).parse()
     }
 
     pub(crate) fn generated(mut self) -> Self {
@@ -1182,10 +1442,10 @@ impl<'help> Arg<'help> {
     /// ```rust # use clap::{App, Arg};
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from("-f, --flag 'some flag'")
+    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
     ///         .conflicts_with("debug"))
-    ///     .arg(Arg::from("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from("-c, --color 'third flag'")
+    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with("flag"))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -1207,7 +1467,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from("--flag  'some flag'").overrides_with("flag"))
+    ///             .arg(Arg::from_usage("--flag  'some flag'").overrides_with("flag"))
     ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
@@ -1220,7 +1480,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from("--flag...  'some flag'").overrides_with("flag"))
+    ///             .arg(Arg::from_usage("--flag...  'some flag'").overrides_with("flag"))
     ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 4);
@@ -1233,7 +1493,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from("--opt [val] 'some option'").overrides_with("opt"))
+    ///             .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
@@ -1264,7 +1524,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from("[opt]... --opt [val]... 'some option'")
+    ///             .arg(Arg::from_usage("[opt]... --opt [val]... 'some option'")
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
@@ -1288,10 +1548,10 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from("-f, --flag 'some flag'")
+    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
     ///         .conflicts_with("color"))
-    ///     .arg(Arg::from("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from("-c, --color 'third flag'")
+    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
+    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
     ///         .overrides_with_all(&["flag", "debug"]))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -4905,156 +5165,9 @@ impl<'help> Arg<'help> {
     }
 }
 
-#[cfg(feature = "yaml")]
-impl<'help> From<&'help Yaml> for Arg<'help> {
-    /// Creates a new instance of [`Arg`] from a .yaml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// use clap::{Arg, load_yaml};
-    /// let yaml = load_yaml!("arg.yaml");
-    /// let arg = Arg::from(yaml);
-    /// ```
-    #[allow(clippy::cognitive_complexity)]
-    fn from(y: &'help Yaml) -> Self {
-        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
-        // We WANT this to panic on error...so expect() is good.
-        let (name_yaml, yaml) = yaml_file_hash
-            .iter()
-            .next()
-            .expect("There must be one arg in the YAML file");
-        let name_str = name_yaml.as_str().expect("Arg name must be a string");
-        let mut a = Arg::new(name_str);
-
-        let mut has_metadata = false;
-
-        for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
-            a = match k.as_str().expect("Arg fields must be strings") {
-                "_has_metadata" => {
-                    has_metadata = true;
-                    a
-                }
-                "short" => yaml_to_char!(a, v, short),
-                "long" => yaml_to_str!(a, v, long),
-                "alias" => yaml_to_str!(a, v, alias),
-                "aliases" => yaml_vec_or_str!(a, v, alias),
-                "short_alias" => yaml_to_str!(a, v, alias),
-                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
-                "help" => yaml_to_str!(a, v, help),
-                "long_help" => yaml_to_str!(a, v, long_help),
-                "required" => yaml_to_bool!(a, v, required),
-                "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
-                "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
-                "required_if_eq_all" => yaml_array_tuple2!(a, v, required_if_eq_all),
-                "takes_value" => yaml_to_bool!(a, v, takes_value),
-                "index" => yaml_to_usize!(a, v, index),
-                "global" => yaml_to_bool!(a, v, global),
-                "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
-                "multiple_values" => yaml_to_bool!(a, v, multiple_values),
-                "hidden" => yaml_to_bool!(a, v, hidden),
-                "hidden_long_help" => yaml_to_bool!(a, v, hidden_long_help),
-                "hidden_short_help" => yaml_to_bool!(a, v, hidden_short_help),
-                "next_line_help" => yaml_to_bool!(a, v, next_line_help),
-                "group" => yaml_to_str!(a, v, group),
-                "number_of_values" => yaml_to_usize!(a, v, number_of_values),
-                "max_values" => yaml_to_usize!(a, v, max_values),
-                "min_values" => yaml_to_usize!(a, v, min_values),
-                "value_name" => yaml_to_str!(a, v, value_name),
-                "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
-                "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
-                "raw" => yaml_to_bool!(a, v, raw),
-                "require_equals" => yaml_to_bool!(a, v, require_equals),
-                "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
-                "value_terminator" => yaml_to_str!(a, v, value_terminator),
-                "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
-                "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "default_value" => yaml_to_str!(a, v, default_value),
-                "default_value_if" => yaml_tuple3!(a, v, default_value_if),
-                "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
-                #[cfg(feature = "env")]
-                "env" => yaml_to_str!(a, v, env),
-                "value_names" => yaml_vec_or_str!(a, v, value_name),
-                "groups" => yaml_vec_or_str!(a, v, group),
-                "requires" => yaml_vec_or_str!(a, v, requires),
-                "requires_if" => yaml_tuple2!(a, v, requires_if),
-                "requires_ifs" => yaml_tuple2!(a, v, requires_if),
-                "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
-                "exclusive" => yaml_to_bool!(a, v, exclusive),
-                "last" => yaml_to_bool!(a, v, last),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
-                "value_hint" => yaml_str_parse!(a, v, value_hint),
-                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
-                #[cfg(feature = "env")]
-                "hide_env" => yaml_to_bool!(a, v, hide_env),
-                #[cfg(feature = "env")]
-                "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
-                "hide_possible_values" => yaml_to_bool!(a, v, hide_possible_values),
-                "overrides_with" => yaml_to_str!(a, v, overrides_with),
-                "overrides_with_all" => yaml_vec_or_str!(a, v, overrides_with),
-                "possible_value" => yaml_to_str!(a, v, possible_value),
-                "possible_values" => yaml_vec_or_str!(a, v, possible_value),
-                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
-                "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
-                "required_unless_present_all" => yaml_vec!(a, v, required_unless_present_all),
-                "visible_alias" => yaml_to_str!(a, v, visible_alias),
-                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
-                "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
-                "visible_short_aliases" => yaml_to_chars!(a, v, visible_short_aliases),
-                #[cfg(feature = "regex")]
-                "validator_regex" => {
-                    if let Some(vec) = v.as_vec() {
-                        debug_assert_eq!(2, vec.len());
-                        let regex = yaml_str!(vec[0]);
-
-                        match Regex::new(regex) {
-                            Err(e) => panic!(
-                                "Failed to convert \"{}\" into regular expression: {}",
-                                regex, e
-                            ),
-                            Ok(regex) => a.validator_regex(regex, yaml_str!(vec[1])),
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value to vector")
-                    }
-                }
-                "setting" | "settings" => {
-                    yaml_to_setting!(
-                        a,
-                        v,
-                        setting,
-                        ArgSettings,
-                        "ArgSetting",
-                        format!("arg '{}'", name_str)
-                    )
-                }
-                s => {
-                    if !has_metadata {
-                        panic!(
-                            "Unknown setting '{}' in YAML file for arg '{}'",
-                            s, name_str
-                        )
-                    }
-                    continue;
-                }
-            }
-        }
-
-        a
-    }
-}
-
 impl<'help> From<&'_ Arg<'help>> for Arg<'help> {
     fn from(a: &Arg<'help>) -> Self {
         a.clone()
-    }
-}
-
-impl<'help> From<&'help str> for Arg<'help> {
-    fn from(s: &'help str) -> Self {
-        UsageParser::from_usage(s).parse()
     }
 }
 

@@ -36,12 +36,12 @@ use yaml_rust::Yaml;
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
-/// # use clap::{App, ArgGroup, ErrorKind};
+/// # use clap::{App, Arg, ArgGroup, ErrorKind};
 /// let result = App::new("app")
-///     .arg("--set-ver [ver] 'set the version manually'")
-///     .arg("--major         'auto increase major'")
-///     .arg("--minor         'auto increase minor'")
-///     .arg("--patch         'auto increase patch'")
+///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
+///     .arg(Arg::from_usage("--major         'auto increase major'"))
+///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
+///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
@@ -54,12 +54,12 @@ use yaml_rust::Yaml;
 /// This next example shows a passing parse of the same scenario
 ///
 /// ```rust
-/// # use clap::{App, ArgGroup};
+/// # use clap::{App, Arg, ArgGroup};
 /// let result = App::new("app")
-///     .arg("--set-ver [ver] 'set the version manually'")
-///     .arg("--major         'auto increase major'")
-///     .arg("--minor         'auto increase minor'")
-///     .arg("--patch         'auto increase patch'")
+///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
+///     .arg(Arg::from_usage("--major         'auto increase major'"))
+///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
+///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))
@@ -438,15 +438,7 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
 
 #[cfg(feature = "yaml")]
 impl<'help> From<&'help Yaml> for ArgGroup<'help> {
-    /// Creates a new instance of `ArgGroup` from a .yaml (YAML) file.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// # use clap::{ArgGroup, load_yaml};
-    /// let yaml = load_yaml!("group.yaml");
-    /// let ag = ArgGroup::from(yaml);
-    /// ```
+    /// TODO
     fn from(y: &'help Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.

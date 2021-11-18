@@ -29,8 +29,10 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        .arg("-c, --config=[FILE] 'sets a custom config file'")
-        .arg("[output] 'sets an output file'")
+        .arg(Arg::from_usage(
+            "-c, --config=[FILE] 'sets a custom config file'",
+        ))
+        .arg(Arg::from_usage("[output] 'sets an output file'"))
         .get_matches();
 
     // We can find out whether or not awesome was used

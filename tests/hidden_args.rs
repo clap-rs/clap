@@ -25,9 +25,9 @@ fn hidden_args() {
         .about("tests stuff")
         .version("1.4")
         .args(&[
-            Arg::from("-f, --flag 'some flag'").hidden(true),
-            Arg::from("-F, --flag2 'some other flag'"),
-            Arg::from("--option [opt] 'some option'"),
+            Arg::from_usage("-f, --flag 'some flag'").hidden(true),
+            Arg::from_usage("-F, --flag2 'some other flag'"),
+            Arg::from_usage("--option [opt] 'some option'"),
             Arg::new("DUMMY").hidden(true),
         ]);
     assert!(utils::compare_output(
@@ -285,7 +285,7 @@ fn hidden_opt_args_only() {
         .after_help("After help")
         .mut_arg("help", |a| a.hidden(true))
         .mut_arg("version", |a| a.hidden(true))
-        .args(&[Arg::from("--option [opt] 'some option'").hidden(true)]);
+        .args(&[Arg::from_usage("--option [opt] 'some option'").hidden(true)]);
 
     assert!(utils::compare_output(
         app,

@@ -26,10 +26,10 @@ fn main() {
     // Create application like normal
     let matches = App::new("myapp")
         // Add the version arguments
-        .arg("--set-ver [ver] 'set version manually'")
-        .arg("--major         'auto inc major'")
-        .arg("--minor         'auto inc minor'")
-        .arg("--patch         'auto inc patch'")
+        .arg(Arg::from_usage("--set-ver [ver] 'set version manually'"))
+        .arg(Arg::from_usage("--major         'auto inc major'"))
+        .arg(Arg::from_usage("--minor         'auto inc minor'"))
+        .arg(Arg::from_usage("--patch         'auto inc patch'"))
         // Create a group, make it required, and add the above arguments
         .group(
             ArgGroup::new("vers")
@@ -38,8 +38,8 @@ fn main() {
         )
         // Arguments can also be added to a group individually, these two arguments
         // are part of the "input" group which is not required
-        .arg(Arg::from("[INPUT_FILE] 'some regular input'").group("input"))
-        .arg(Arg::from("--spec-in [SPEC_IN] 'some special input argument'").group("input"))
+        .arg(Arg::from_usage("[INPUT_FILE] 'some regular input'").group("input"))
+        .arg(Arg::from_usage("--spec-in [SPEC_IN] 'some special input argument'").group("input"))
         // Now let's assume we have a -c [config] argument which requires one of
         // (but **not** both) the "input" arguments
         .arg(

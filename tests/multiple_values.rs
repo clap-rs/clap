@@ -1273,7 +1273,7 @@ fn value_names_building_num_vals() {
 #[test]
 fn value_names_building_num_vals_from_usage() {
     let m = App::new("test")
-        .arg(Arg::from("--pos <who> <what> <why>"))
+        .arg(Arg::from_usage("--pos <who> <what> <why>"))
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
     assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);

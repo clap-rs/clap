@@ -183,7 +183,7 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg> 'some arg'")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
@@ -226,7 +226,7 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg> 'some arg'")
+    ///     .arg(Arg::from_usage("<arg> 'some arg'")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
@@ -311,7 +311,7 @@ impl ArgMatches {
     /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg>... 'some arg'")
+    ///     .arg(Arg::from_usage("<arg>... 'some arg'")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi"
@@ -348,7 +348,7 @@ impl ArgMatches {
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from("<arg>... 'some arg'")
+    ///     .arg(Arg::from_usage("<arg>... 'some arg'")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                                 // "Hi"
@@ -392,10 +392,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// # use clap::{App, Arg};
     /// let matches = App::new("myapp")
-    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .arg(Arg::from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'"))
     ///               .get_matches_from(&["test", "12"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -443,10 +442,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// # use clap::{App, Arg};
     /// let matches = App::new("myapp")
-    ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
+    ///               .arg(Arg::from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'"))
     ///               .get_matches_from(&["test", "12"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -481,10 +479,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// # use clap::{App, Arg};
     /// let matches = App::new("myapp")
-    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .arg(Arg::from_usage("[length]... 'A sequence of integers because integers are neat!'"))
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -534,10 +531,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
-    /// # use clap::App;
+    /// # use clap::{App, Arg};
     /// let matches = App::new("myapp")
-    ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
+    ///               .arg(Arg::from_usage("[length]... 'A sequence of integers because integers are neat!'"))
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -1108,7 +1104,7 @@ impl<'a> Default for GroupedValues<'a> {
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
 ///
 /// let m = App::new("utf8")
-///     .arg(Arg::from("<arg> 'some arg'")
+///     .arg(Arg::from_usage("<arg> 'some arg'")
 ///         .allow_invalid_utf8(true))
 ///     .get_matches_from(vec![OsString::from("myprog"),
 ///                             // "Hi {0xe9}!"

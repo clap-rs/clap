@@ -1,4 +1,4 @@
-use clap::{App, AppSettings};
+use clap::{App, AppSettings, Arg};
 
 fn main() {
     // You can use AppSettings to change the application level behavior of clap. .setting() function
@@ -11,7 +11,7 @@ fn main() {
     let matches = App::new("myapp")
         .setting(AppSettings::SubcommandsNegateReqs)
         // Negates requirement of parent command.
-        .arg("<input> 'input file to use'")
+        .arg(Arg::from_usage("<input> 'input file to use'"))
         // Required positional argument called input.  This
         // will be only required if subcommand is not present.
         .subcommand(App::new("test").about("does some testing"))

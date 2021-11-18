@@ -82,7 +82,7 @@ fn opt_default() {
     // assert no change to usual argument handling when adding default_missing_value()
     let r = App::new("app")
         .arg(
-            Arg::from("-o [opt] 'some opt'")
+            Arg::from_usage("-o [opt] 'some opt'")
                 .default_value("default")
                 .default_missing_value("default_missing"),
         )
@@ -98,7 +98,7 @@ fn opt_default_user_override() {
     // assert no change to usual argument handling when adding default_missing_value()
     let r = App::new("app")
         .arg(
-            Arg::from("-o [opt] 'some opt'")
+            Arg::from_usage("-o [opt] 'some opt'")
                 .default_value("default")
                 .default_missing_value("default_missing"),
         )

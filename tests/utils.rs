@@ -59,31 +59,37 @@ pub fn complex_app() -> App<'static> {
         .version("v1.4.8")
         .about("tests clap library")
         .author("Kevin K. <kbknapp@gmail.com>")
-        .arg("[option]... -o --option=[opt]... 'tests options'")
-        .arg("[positional] 'tests positionals'")
-        .arg(Arg::from("-f --flag... 'tests flags'").global(true))
+        .arg(Arg::from_usage(
+            "[option]... -o --option=[opt]... 'tests options'",
+        ))
+        .arg(Arg::from_usage("[positional] 'tests positionals'"))
+        .arg(Arg::from_usage("-f --flag... 'tests flags'").global(true))
         .args(&[
-            Arg::from("[flag2] -F 'tests flags with exclusions'")
+            Arg::from_usage("[flag2] -F 'tests flags with exclusions'")
                 .conflicts_with("flag")
                 .requires("long-option-2"),
-            Arg::from("--long-option-2 [option2] 'tests long options with exclusions'")
+            Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'")
                 .conflicts_with("option")
                 .requires("positional2"),
-            Arg::from("[positional2] 'tests positionals with exclusions'"),
-            Arg::from("-O --option3 [option3] 'specific vals'").possible_values(opt3_vals),
-            Arg::from("[positional3]... 'tests specific values'").possible_values(pos3_vals),
-            Arg::from("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
-            Arg::from("--multvalsmo... [one] [two] 'Tests multiple values, and mult occs'"),
-            Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-            Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
+            Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
+            Arg::from_usage("-O --option3 [option3] 'specific vals'").possible_values(opt3_vals),
+            Arg::from_usage("[positional3]... 'tests specific values'").possible_values(pos3_vals),
+            Arg::from_usage("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
+            Arg::from_usage("--multvalsmo... [one] [two] 'Tests multiple values, and mult occs'"),
+            Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
+            Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
         ])
         .subcommand(
             App::new("subcmd")
                 .about("tests subcommands")
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")
-                .arg("[option]... -o --option [scoption]... 'tests options'")
-                .arg("-s --subcmdarg [subcmdarg] 'tests other args'")
-                .arg("[scpositional] 'tests positionals'"),
+                .arg(Arg::from_usage(
+                    "[option]... -o --option [scoption]... 'tests options'",
+                ))
+                .arg(Arg::from_usage(
+                    "-s --subcmdarg [subcmdarg] 'tests other args'",
+                ))
+                .arg(Arg::from_usage("[scpositional] 'tests positionals'")),
         )
 }

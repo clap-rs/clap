@@ -398,11 +398,104 @@ impl<'help> App<'help> {
         )
     }
 
-    /// Deprecated, see [`App::from`]
+    /// TODO
     #[cfg(feature = "yaml")]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::from`")]
-    pub fn from_yaml(yaml: &'help Yaml) -> Self {
-        Self::from(yaml)
+    pub fn from_yaml(y: &'help Yaml) -> Self {
+        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
+        // We WANT this to panic on error...so expect() is good.
+        let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
+            (App::new(name), yaml_file_hash, "app".into())
+        } else {
+            let (name_yaml, value_yaml) = yaml_file_hash
+                .iter()
+                .next()
+                .expect("There must be one subcommand in the YAML file");
+            let name_str = name_yaml
+                .as_str()
+                .expect("Subcommand name must be a string");
+
+            (
+                App::new(name_str),
+                value_yaml.as_hash().expect("Subcommand must be a hash"),
+                format!("subcommand '{}'", name_str),
+            )
+        };
+
+        let mut has_metadata = false;
+
+        for (k, v) in yaml {
+            a = match k.as_str().expect("App fields must be strings") {
+                "_has_metadata" => {
+                    has_metadata = true;
+                    a
+                }
+                "bin_name" => yaml_to_str!(a, v, bin_name),
+                "version" => yaml_to_str!(a, v, version),
+                "long_version" => yaml_to_str!(a, v, long_version),
+                "author" => yaml_to_str!(a, v, author),
+                "about" => yaml_to_str!(a, v, about),
+                "before_help" => yaml_to_str!(a, v, before_help),
+                "before_long_help" => yaml_to_str!(a, v, before_long_help),
+                "after_help" => yaml_to_str!(a, v, after_help),
+                "after_long_help" => yaml_to_str!(a, v, after_long_help),
+                "help_heading" => yaml_to_str!(a, v, help_heading),
+                "help_template" => yaml_to_str!(a, v, help_template),
+                "override_help" => yaml_to_str!(a, v, override_help),
+                "override_usage" => yaml_to_str!(a, v, override_usage),
+                "alias" => yaml_to_str!(a, v, alias),
+                "aliases" => yaml_vec_or_str!(a, v, alias),
+                "visible_alias" => yaml_to_str!(a, v, visible_alias),
+                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
+                "display_order" => yaml_to_usize!(a, v, display_order),
+                "term_width" => yaml_to_usize!(a, v, term_width),
+                "max_term_width" => yaml_to_usize!(a, v, max_term_width),
+                "args" => {
+                    if let Some(vec) = v.as_vec() {
+                        for arg_yaml in vec {
+                            a = a.arg(Arg::from_yaml(arg_yaml));
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
+                    }
+                    a
+                }
+                "subcommands" => {
+                    if let Some(vec) = v.as_vec() {
+                        for sc_yaml in vec {
+                            a = a.subcommand(App::from_yaml(sc_yaml));
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
+                    }
+                    a
+                }
+                "groups" => {
+                    if let Some(vec) = v.as_vec() {
+                        for ag_yaml in vec {
+                            a = a.group(ArgGroup::from(ag_yaml));
+                        }
+                    } else {
+                        panic!("Failed to convert YAML value {:?} to a vec", v);
+                    }
+                    a
+                }
+                "setting" | "settings" => {
+                    yaml_to_setting!(a, v, setting, AppSettings, "AppSetting", err)
+                }
+                "global_setting" | "global_settings" => {
+                    yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
+                }
+                "name" => continue,
+                s => {
+                    if !has_metadata {
+                        panic!("Unknown setting '{}' in YAML file for {}", s, err)
+                    }
+                    continue;
+                }
+            }
+        }
+
+        a
     }
 
     /// Sets a string of author(s) that will be displayed to the user when they
@@ -1113,7 +1206,7 @@ impl<'help> App<'help> {
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
     ///     // verbose Arg::from()
     ///     .arg(
-    ///         Arg::from("-c --config=[CONFIG] 'Optionally sets a config file to use'")
+    ///         Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a config file to use'")
     ///     )
     /// # ;
     /// ```
@@ -1153,7 +1246,7 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .args(&[
-    ///         Arg::from("[debug] -d 'turns on debugging info'"),
+    ///         Arg::from_usage("[debug] -d 'turns on debugging info'"),
     ///         Arg::new("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
@@ -1174,10 +1267,58 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, see [`App::arg`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::arg`")]
+    /// A convenience method for adding a single [argument] from a usage type string. The string
+    /// used follows the same rules and syntax as [`Arg::from_usage`]
+    ///
+    /// **NOTE:** The downside to using this method is that you can not set any additional
+    /// properties of the [`Arg`] other than what [`Arg::from_usage`] supports.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
+    /// # ;
+    /// ```
+    /// [argument]: ./struct.Arg.html
+    /// [`Arg`]: ./struct.Arg.html
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
-        self.arg(usage)
+        self.arg(Arg::from_usage(usage))
+    }
+
+    /// Adds multiple [arguments] at once from a usage string, one per line. See
+    /// [`Arg::from_usage`] for details on the syntax and rules supported.
+    ///
+    /// **NOTE:** Like [`App::arg_from_usage`] the downside is you only set properties for the
+    /// [`Arg`]s which [`Arg::from_usage`] supports.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .args_from_usage(
+    ///         "-c --config=[FILE] 'Sets a configuration file to use'
+    ///          [debug]... -d 'Sets the debugging level'
+    ///          <FILE> 'The input file to use'"
+    ///     )
+    /// # ;
+    /// ```
+    /// [arguments]: ./struct.Arg.html
+    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
+    /// [`App::arg_from_usage`]: ./struct.App.html#method.arg_from_usage
+    /// [`Arg`]: ./struct.Arg.html
+    pub fn args_from_usage(mut self, usage: &'help str) -> Self {
+        for line in usage.lines() {
+            let l = line.trim();
+            if l.is_empty() {
+                continue;
+            }
+            self = self.arg(Arg::from_usage(l));
+        }
+        self
     }
 
     /// If this `App` instance is a subcommand, this method adds an alias, which
@@ -1615,12 +1756,12 @@ impl<'help> App<'help> {
     /// of the arguments from the specified group is present at runtime.
     ///
     /// ```no_run
-    /// # use clap::{App, ArgGroup};
+    /// # use clap::{App, Arg, ArgGroup};
     /// App::new("app")
-    ///     .arg("--set-ver [ver] 'set the version manually'")
-    ///     .arg("--major 'auto increase major'")
-    ///     .arg("--minor 'auto increase minor'")
-    ///     .arg("--patch 'auto increase patch'")
+    ///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
+    ///     .arg(Arg::from_usage("--major 'auto increase major'"))
+    ///     .arg(Arg::from_usage("--minor 'auto increase minor'"))
+    ///     .arg(Arg::from_usage("--patch 'auto increase patch'"))
     ///     .group(ArgGroup::new("vers")
     ///          .args(&["set-ver", "major", "minor","patch"])
     ///          .required(true))
@@ -1637,14 +1778,14 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, ArgGroup};
+    /// # use clap::{App, Arg, ArgGroup};
     /// App::new("app")
-    ///     .arg("--set-ver [ver] 'set the version manually'")
-    ///     .arg("--major         'auto increase major'")
-    ///     .arg("--minor         'auto increase minor'")
-    ///     .arg("--patch         'auto increase patch'")
-    ///     .arg("-c [FILE]       'a config file'")
-    ///     .arg("-i [IFACE]      'an interface'")
+    ///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
+    ///     .arg(Arg::from_usage("--major         'auto increase major'"))
+    ///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
+    ///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
+    ///     .arg(Arg::from_usage("-c [FILE]       'a config file'"))
+    ///     .arg(Arg::from_usage("-i [IFACE]      'an interface'"))
     ///     .groups(&[
     ///         ArgGroup::new("vers")
     ///             .args(&["set-ver", "major", "minor","patch"])
@@ -1673,11 +1814,11 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, };
+    /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .subcommand(App::new("config")
     ///         .about("Controls configuration features")
-    ///         .arg("<config> 'Required configuration file to use'"))
+    ///         .arg(Arg::from_usage("<config> 'Required configuration file to use'")))
     /// # ;
     /// ```
     #[inline]
@@ -2962,108 +3103,6 @@ impl<'help> Index<&'_ Id> for App<'help> {
 
     fn index(&self, key: &Id) -> &Self::Output {
         self.find(key).expect(INTERNAL_ERROR_MSG)
-    }
-}
-
-#[cfg(feature = "yaml")]
-impl<'help> From<&'help Yaml> for App<'help> {
-    #[allow(clippy::cognitive_complexity)]
-    fn from(y: &'help Yaml) -> Self {
-        let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
-        // We WANT this to panic on error...so expect() is good.
-        let (mut a, yaml, err) = if let Some(name) = y["name"].as_str() {
-            (App::new(name), yaml_file_hash, "app".into())
-        } else {
-            let (name_yaml, value_yaml) = yaml_file_hash
-                .iter()
-                .next()
-                .expect("There must be one subcommand in the YAML file");
-            let name_str = name_yaml
-                .as_str()
-                .expect("Subcommand name must be a string");
-
-            (
-                App::new(name_str),
-                value_yaml.as_hash().expect("Subcommand must be a hash"),
-                format!("subcommand '{}'", name_str),
-            )
-        };
-
-        let mut has_metadata = false;
-
-        for (k, v) in yaml {
-            a = match k.as_str().expect("App fields must be strings") {
-                "_has_metadata" => {
-                    has_metadata = true;
-                    a
-                }
-                "bin_name" => yaml_to_str!(a, v, bin_name),
-                "version" => yaml_to_str!(a, v, version),
-                "long_version" => yaml_to_str!(a, v, long_version),
-                "author" => yaml_to_str!(a, v, author),
-                "about" => yaml_to_str!(a, v, about),
-                "before_help" => yaml_to_str!(a, v, before_help),
-                "before_long_help" => yaml_to_str!(a, v, before_long_help),
-                "after_help" => yaml_to_str!(a, v, after_help),
-                "after_long_help" => yaml_to_str!(a, v, after_long_help),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
-                "help_template" => yaml_to_str!(a, v, help_template),
-                "override_help" => yaml_to_str!(a, v, override_help),
-                "override_usage" => yaml_to_str!(a, v, override_usage),
-                "alias" => yaml_to_str!(a, v, alias),
-                "aliases" => yaml_vec_or_str!(a, v, alias),
-                "visible_alias" => yaml_to_str!(a, v, visible_alias),
-                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
-                "display_order" => yaml_to_usize!(a, v, display_order),
-                "term_width" => yaml_to_usize!(a, v, term_width),
-                "max_term_width" => yaml_to_usize!(a, v, max_term_width),
-                "args" => {
-                    if let Some(vec) = v.as_vec() {
-                        for arg_yaml in vec {
-                            a = a.arg(Arg::from(arg_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "subcommands" => {
-                    if let Some(vec) = v.as_vec() {
-                        for sc_yaml in vec {
-                            a = a.subcommand(App::from(sc_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "groups" => {
-                    if let Some(vec) = v.as_vec() {
-                        for ag_yaml in vec {
-                            a = a.group(ArgGroup::from(ag_yaml));
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value {:?} to a vec", v);
-                    }
-                    a
-                }
-                "setting" | "settings" => {
-                    yaml_to_setting!(a, v, setting, AppSettings, "AppSetting", err)
-                }
-                "global_setting" | "global_settings" => {
-                    yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
-                }
-                "name" => continue,
-                s => {
-                    if !has_metadata {
-                        panic!("Unknown setting '{}' in YAML file for {}", s, err)
-                    }
-                    continue;
-                }
-            }
-        }
-
-        a
     }
 }
 

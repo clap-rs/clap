@@ -7,9 +7,9 @@ macro_rules! create_app {
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .arg("-f --flag         'tests flags'")
-            .arg("-o --option=[opt] 'tests options'")
-            .arg("[positional]      'tests positional'")
+            .arg(Arg::from_usage("-f --flag         'tests flags'"))
+            .arg(Arg::from_usage("-o --option=[opt] 'tests options'"))
+            .arg(Arg::from_usage("[positional]      'tests positional'"))
     }};
 }
 
@@ -19,14 +19,14 @@ pub fn build_simple(c: &mut Criterion) {
 
 pub fn build_with_flag(c: &mut Criterion) {
     c.bench_function("build_with_flag", |b| {
-        b.iter(|| App::new("claptests").arg(Arg::from("-s, --some 'something'")))
+        b.iter(|| App::new("claptests").arg(Arg::from_usage("-s, --some 'something'")))
     });
 }
 
 pub fn build_with_flag_ref(c: &mut Criterion) {
     c.bench_function("build_with_flag_ref", |b| {
         b.iter(|| {
-            let arg = Arg::from("-s, --some 'something'");
+            let arg = Arg::from_usage("-s, --some 'something'");
             App::new("claptests").arg(&arg)
         })
     });
@@ -34,14 +34,14 @@ pub fn build_with_flag_ref(c: &mut Criterion) {
 
 pub fn build_with_opt(c: &mut Criterion) {
     c.bench_function("build_with_opt", |b| {
-        b.iter(|| App::new("claptests").arg(Arg::from("-s, --some <FILE> 'something'")))
+        b.iter(|| App::new("claptests").arg(Arg::from_usage("-s, --some <FILE> 'something'")))
     });
 }
 
 pub fn build_with_opt_ref(c: &mut Criterion) {
     c.bench_function("build_with_opt_ref", |b| {
         b.iter(|| {
-            let arg = Arg::from("-s, --some <FILE> 'something'");
+            let arg = Arg::from_usage("-s, --some <FILE> 'something'");
             App::new("claptests").arg(&arg)
         })
     });

@@ -252,7 +252,7 @@ For more information try --help
 ";
 
     let app = App::new("dym")
-        .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));
+        .subcommand(App::new("subcmd").arg(Arg::from_usage("-s --subcmdarg [subcmdarg] 'tests'")));
 
     assert!(utils::compare_output(
         app,
@@ -277,7 +277,7 @@ For more information try --help
 ";
 
     let app = App::new("dym")
-        .subcommand(App::new("subcmd").arg(Arg::from("-s --subcmdarg [subcmdarg] 'tests'")));
+        .subcommand(App::new("subcmd").arg(Arg::from_usage("-s --subcmdarg [subcmdarg] 'tests'")));
 
     assert!(utils::compare_output(
         app,
@@ -344,7 +344,7 @@ fn replace() {
 #[test]
 fn issue_1031_args_with_same_name() {
     let res = App::new("prog")
-        .arg(Arg::from("--ui-path=<PATH>"))
+        .arg(Arg::from_usage("--ui-path=<PATH>"))
         .subcommand(App::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "signer"]);
 
@@ -356,7 +356,7 @@ fn issue_1031_args_with_same_name() {
 #[test]
 fn issue_1031_args_with_same_name_no_more_vals() {
     let res = App::new("prog")
-        .arg(Arg::from("--ui-path=<PATH>"))
+        .arg(Arg::from_usage("--ui-path=<PATH>"))
         .subcommand(App::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "value", "signer"]);
 
