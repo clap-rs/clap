@@ -19,29 +19,13 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [smoke, test, check, docs, rustfmt, clippy]
+    needs: [test, check, docs, rustfmt, clippy]
     runs-on: ubuntu-latest
     steps:
       - name: Done
         run: exit 0
-  smoke:
-    name: Quick Check
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        override: true
-    - uses: Swatinem/rust-cache@v1
-    - name: Default features
-      run: make check-default
   test:
     name: Test
-    needs: smoke
     strategy:
       matrix:
         build: [linux, windows, mac, minimal, default]
@@ -84,7 +68,6 @@ jobs:
       run: make test-${{matrix.features}}
   check:
     name: Check
-    needs: smoke
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -127,7 +110,6 @@ jobs:
         run: make check-${{ matrix.features }}
   docs:
     name: Docs
-    needs: smoke
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
