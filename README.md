@@ -222,24 +222,24 @@ fn main() {
             .short('c')
             .long("config")
             .value_name("FILE")
-            .about("Sets a custom config file")
+            .help("Sets a custom config file")
             .takes_value(true))
         .arg(Arg::new("INPUT")
-            .about("Sets the input file to use")
+            .help("Sets the input file to use")
             .required(true)
             .index(1))
         .arg(Arg::new("v")
             .short('v')
             .multiple_occurrences(true)
             .takes_value(true)
-            .about("Sets the level of verbosity"))
+            .help("Sets the level of verbosity"))
         .subcommand(App::new("test")
             .about("controls testing features")
             .version("1.3")
             .author("Someone E. <someone_else@other.com>")
             .arg(Arg::new("debug")
                 .short('d')
-                .about("print debug information verbosely")))
+                .help("print debug information verbosely")))
         .get_matches();
 
     // You can check the value provided by positional arguments, or option arguments
@@ -321,16 +321,16 @@ args:
         short: c
         long: config
         value_name: FILE
-        about: Sets a custom config file
+        help: Sets a custom config file
         takes_value: true
     - INPUT:
-        about: Sets the input file to use
+        help: Sets the input file to use
         required: true
         index: 1
     - verbose:
         short: v
         multiple_occurrences: true
-        about: Sets the level of verbosity
+        help: Sets the level of verbosity
 subcommands:
     - test:
         about: controls testing features
@@ -340,7 +340,7 @@ subcommands:
             - debug:
                 short: d
                 long: debug
-                about: Print debug information
+                help: Print debug information
 ```
 
 Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:

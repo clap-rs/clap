@@ -13,20 +13,20 @@ args:
     # The name of this argument, is 'opt' which will be used to access the value
     # later in your Rust code
     - opt:
-        about: example option argument from yaml
+        help: example option argument from yaml
         short: o
         long: option
         multiple_occurrences: true
         takes_value: true
     - pos:
-        about: example positional argument from yaml
+        help: example positional argument from yaml
         index: 1
         # A list of possible values can be defined as a list
         possible_values:
             - fast
             - slow
     - flag:
-        about: demo flag argument
+        help: demo flag argument
         short: F
         multiple_occurrences: true
         takes_value: true
@@ -39,13 +39,13 @@ args:
             - pos
     - mode:
         long: mode
-        about: shows an option with specific values
+        help: shows an option with specific values
         # possible_values can also be defined in this list format
         possible_values: [ vi, emacs ]
         takes_value: true
     - mvals:
         long: mult-vals
-        about: demos an option which has two named values
+        help: demos an option which has two named values
         # value names can be described in a list, where the help will be shown
         # --mult-vals <one> <two>
         value_names:
@@ -54,12 +54,12 @@ args:
     - minvals:
         long: min-vals
         multiple_values: true
-        about: you must supply at least two values to satisfy me
+        help: you must supply at least two values to satisfy me
         min_values: 2
     - maxvals:
         long: max-vals
         multiple_values: true
-        about: you can only supply a max of 3 values for me!
+        help: you can only supply a max of 3 values for me!
         max_values: 3
 
 # All subcommands must be listed in the 'subcommand:' object, where the key to
@@ -77,10 +77,10 @@ subcommands:
             - scopt:
                 short: B
                 multiple_occurrences: true
-                about: example subcommand option
+                help: example subcommand option
                 takes_value: true
             - scpos1:
-                about: example subcommand positional
+                help: example subcommand positional
                 index: 1
 
 # ArgGroups are supported as well, and must be specified in the 'groups:'

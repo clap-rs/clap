@@ -40,12 +40,12 @@ fn main() {
                 .short('c')
                 .long("config")
                 .value_name("FILE")
-                .about("Sets a custom config file")
+                .help("Sets a custom config file")
                 .takes_value(true),
         )
         .arg(
             Arg::new("output")
-                .about("Sets an optional output file")
+                .help("Sets an optional output file")
                 .index(1),
         )
         .arg(
@@ -53,12 +53,12 @@ fn main() {
                 .short('d')
                 .long("debug")
                 .multiple_occurrences(true)
-                .about("Turn debugging information on"),
+                .help("Turn debugging information on"),
         )
         .subcommand(
             App::new("test")
                 .about("does testing things")
-                .arg(Arg::new("list").short('l').about("lists test values")),
+                .arg(Arg::new("list").short('l').help("lists test values")),
         )
         .get_matches();
 

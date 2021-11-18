@@ -35,22 +35,22 @@ For more information try --help
                 .short('a')
                 .long("all")
                 .required(true)
-                .about("Also do versioning for private crates (will not be published)"),
+                .help("Also do versioning for private crates (will not be published)"),
         )
         .arg(
             Arg::new("exact")
                 .long("exact")
-                .about("Specify inter dependency version numbers exactly with `=`"),
+                .help("Specify inter dependency version numbers exactly with `=`"),
         )
         .arg(
             Arg::new("no_git_commit")
                 .long("no-git-commit")
-                .about("Do not commit version changes"),
+                .help("Do not commit version changes"),
         )
         .arg(
             Arg::new("no_git_push")
                 .long("no-git-push")
-                .about("Do not push generated commit and tags to git remote"),
+                .help("Do not push generated commit and tags to git remote"),
         );
     let mut app = app;
     let expected_kind = ErrorKind::InvalidValue;

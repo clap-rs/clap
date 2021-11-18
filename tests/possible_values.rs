@@ -66,7 +66,7 @@ fn possible_value_arg_value() {
             Arg::new("arg_value").index(1).possible_value(
                 PossibleValue::new("test123")
                     .hidden(false)
-                    .about("It's just a test"),
+                    .help("It's just a test"),
             ),
         )
         .try_get_matches_from(vec!["myprog", "test123"]);

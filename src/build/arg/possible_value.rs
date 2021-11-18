@@ -7,7 +7,7 @@ use crate::util::eq_ignore_case;
 /// This is used for specifying [possible values] of [Args].
 ///
 /// **NOTE:** This struct is likely not needed for most usecases as it is only required to
-/// [hide] single values from help messages and shell completions or to attach [about] to possible values.
+/// [hide] single values from help messages and shell completions or to attach [help] to possible values.
 ///
 /// # Examples
 ///
@@ -17,17 +17,17 @@ use crate::util::eq_ignore_case;
 ///       .takes_value(true)
 ///       .value_name("FILE")
 ///       .possible_value(PossibleValue::new("fast"))
-///       .possible_value(PossibleValue::new("slow").about("slower than fast"))
+///       .possible_value(PossibleValue::new("slow").help("slower than fast"))
 ///       .possible_value(PossibleValue::new("secret speed").hidden(true));
 /// ```
 /// [Args]: crate::Arg
 /// [possible values]: crate::Arg::possible_value()
 /// [hide]: PossibleValue::hidden()
-/// [about]: PossibleValue::about()
+/// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct PossibleValue<'help> {
     pub(crate) name: &'help str,
-    pub(crate) about: Option<&'help str>,
+    pub(crate) help: Option<&'help str>,
     pub(crate) aliases: Vec<&'help str>, // (name, visible)
     pub(crate) hidden: bool,
 }
@@ -54,8 +54,8 @@ impl<'help> PossibleValue<'help> {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_about(&self) -> Option<&str> {
-        self.about
+    pub fn get_help(&self) -> Option<&str> {
+        self.help
     }
 
     /// Should the value be hidden from help messages and completion
@@ -137,12 +137,12 @@ impl<'help> PossibleValue<'help> {
     /// ```rust
     /// # use clap::PossibleValue;
     /// PossibleValue::new("slow")
-    ///     .about("not fast")
+    ///     .help("not fast")
     /// # ;
     /// ```
     #[inline]
-    pub fn about(mut self, about: &'help str) -> Self {
-        self.about = Some(about);
+    pub fn help(mut self, help: &'help str) -> Self {
+        self.help = Some(help);
         self
     }
 

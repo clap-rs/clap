@@ -17,7 +17,7 @@ fn main() {
         .arg(
             Arg::new("install")
                 .long("install")
-                .about("Install hardlinks for all subcommands in path")
+                .help("Install hardlinks for all subcommands in path")
                 .exclusive(true)
                 .takes_value(true)
                 .default_missing_value("/usr/local/bin")

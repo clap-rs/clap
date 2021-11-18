@@ -159,7 +159,7 @@ OPTIONS:
 #[test]
 fn version_about_multi_subcmd() {
     let app = with_subcommand()
-        .mut_arg("version", |a| a.about("Print custom version about text"))
+        .mut_arg("version", |a| a.help("Print custom version about text"))
         .global_setting(AppSettings::PropagateVersion);
 
     assert!(utils::compare_output(

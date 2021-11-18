@@ -76,7 +76,7 @@ impl Default for ArgProvider {
 ///       .long("config")
 ///       .takes_value(true)
 ///       .value_name("FILE")
-///       .about("Provides a config file to myprog");
+///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
 /// let input = Arg::from("-i, --input=[FILE] 'Provides an input file to the program'");
 /// ```
@@ -86,8 +86,8 @@ pub struct Arg<'help> {
     pub(crate) id: Id,
     pub(crate) provider: ArgProvider,
     pub(crate) name: &'help str,
-    pub(crate) about: Option<&'help str>,
-    pub(crate) long_about: Option<&'help str>,
+    pub(crate) help: Option<&'help str>,
+    pub(crate) long_help: Option<&'help str>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
@@ -134,8 +134,8 @@ impl<'help> Arg<'help> {
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_about(&self) -> Option<&'help str> {
-        self.about
+    pub fn get_help(&self) -> Option<&'help str> {
+        self.help
     }
 
     /// Get the long help specified for this argument, if any
@@ -144,13 +144,13 @@ impl<'help> Arg<'help> {
     ///
     /// ```rust
     /// # use clap::Arg;
-    /// let arg = Arg::new("foo").long_about("long about");
-    /// assert_eq!(Some("long about"), arg.get_long_about());
+    /// let arg = Arg::new("foo").long_help("long help");
+    /// assert_eq!(Some("long help"), arg.get_long_help());
     /// ```
     ///
     #[inline]
-    pub fn get_long_about(&self) -> Option<&'help str> {
-        self.long_about
+    pub fn get_long_help(&self) -> Option<&'help str> {
+        self.long_help
     }
 
     /// Get the help heading specified for this argument, if any
@@ -514,7 +514,7 @@ impl<'help> Arg<'help> {
     ///             .arg(Arg::new("test")
     ///                     .long("test")
     ///                     .aliases(&["do-stuff", "do-tests", "tests"])
-    ///                     .about("the file to add")
+    ///                     .help("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
     ///                 "prog", "--do-tests"
@@ -539,7 +539,7 @@ impl<'help> Arg<'help> {
     ///             .arg(Arg::new("test")
     ///                     .short('t')
     ///                     .short_aliases(&['e', 's'])
-    ///                     .about("the file to add")
+    ///                     .help("the file to add")
     ///                     .required(false))
     ///             .get_matches_from(vec![
     ///                 "prog", "-s"
@@ -655,10 +655,10 @@ impl<'help> Arg<'help> {
     /// the help information with `-h`. Typically, this is a short (one line) description of the
     /// arg.
     ///
-    /// **NOTE:** If only `Arg::about` is provided, and not [`Arg::long_about`] but the user requests
+    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
     /// `--help` clap will still display the contents of `help` appropriately
     ///
-    /// **NOTE:** Only `Arg::about` is used in completion script generation in order to be concise
+    /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -669,11 +669,11 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("config")
-    ///     .about("The config file used by the myprog")
+    ///     .help("The config file used by the myprog")
     /// # ;
     /// ```
     ///
-    /// Setting `about` displays a short message to the side of the argument when the user passes
+    /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
     ///
     /// ```rust
@@ -681,7 +681,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -700,27 +700,21 @@ impl<'help> Arg<'help> {
     /// -h, --help       Print help information
     /// -V, --version    Print version information
     /// ```
-    /// [`Arg::long_about`]: Arg::long_about()
+    /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
-    pub fn about(mut self, h: &'help str) -> Self {
-        self.about = Some(h);
+    pub fn help(mut self, h: &'help str) -> Self {
+        self.help = Some(h);
         self
-    }
-
-    /// Deprecated, see [`Arg::about`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::about`")]
-    pub fn help(self, h: &'help str) -> Self {
-        self.about(h)
     }
 
     /// Sets the long help text of the argument that will be displayed to the user when they print
     /// the help information with `--help`. Typically this a more detailed (multi-line) message
     /// that describes the arg.
     ///
-    /// **NOTE:** If only `long_about` is provided, and not [`Arg::about`] but the user requests `-h`
-    /// clap will still display the contents of `long_about` appropriately
+    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
+    /// clap will still display the contents of `long_help` appropriately
     ///
-    /// **NOTE:** Only [`Arg::about`] is used in completion script generation in order to be concise
+    /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
     ///
     /// # Examples
     ///
@@ -731,7 +725,7 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("config")
-    ///     .long_about(
+    ///     .long_help(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -747,7 +741,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .long_about(
+    ///         .long_help(
     /// "The config file used by the myprog must be in JSON format
     /// with only valid keys and may not contain other nonsense
     /// that cannot be read by this program. Obviously I'm going on
@@ -778,17 +772,11 @@ impl<'help> Arg<'help> {
     ///     -V, --version
     ///             Print version information
     /// ```
-    /// [`Arg::about`]: Arg::about()
+    /// [`Arg::help`]: Arg::help()
     #[inline]
-    pub fn long_about(mut self, h: &'help str) -> Self {
-        self.long_about = Some(h);
+    pub fn long_help(mut self, h: &'help str) -> Self {
+        self.long_help = Some(h);
         self
-    }
-
-    /// Deprecated, see [`Arg::long_about`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::long_about`")]
-    pub fn long_help(self, h: &'help str) -> Self {
-        self.long_about(h)
     }
 
     /// Set this arg as [required] as long as the specified argument is not present at runtime.
@@ -1978,7 +1966,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("mode").takes_value(true).possible_values([
     ///     PossibleValue::new("fast"),
     /// // value with a help text
-    ///     PossibleValue::new("slow").about("not that fast"),
+    ///     PossibleValue::new("slow").help("not that fast"),
     /// // value that is hidden from completion and help text
     ///     PossibleValue::new("medium").hidden(true),
     /// ])
@@ -2053,7 +2041,7 @@ impl<'help> Arg<'help> {
     /// Arg::new("mode").takes_value(true)
     ///     .possible_value(PossibleValue::new("fast"))
     /// // value with a help text
-    ///     .possible_value(PossibleValue::new("slow").about("not that fast"))
+    ///     .possible_value(PossibleValue::new("slow").help("not that fast"))
     /// // value that is hidden from completion and help text
     ///     .possible_value(PossibleValue::new("medium").hidden(true))
     /// # ;
@@ -2710,7 +2698,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("config")
     ///         .long("config")
     ///         .value_name("FILE")
-    ///         .about("Some help text"))
+    ///         .help("Some help text"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -2864,7 +2852,7 @@ impl<'help> Arg<'help> {
     ///                 .min_values(0)
     ///                 .require_equals(true)
     ///                 .default_missing_value("always")
-    ///                 .about("Specify WHEN to colorize output.")
+    ///                 .help("Specify WHEN to colorize output.")
     ///             )
     ///    }};
     /// }
@@ -3363,7 +3351,7 @@ impl<'help> Arg<'help> {
     ///         .long("long-option")
     ///         .short('o')
     ///         .takes_value(true)
-    ///         .about("Some help and text"))
+    ///         .help("Some help and text"))
     ///     .arg(Arg::new("b")
     ///         .long("other-option")
     ///         .short('O')
@@ -3372,7 +3360,7 @@ impl<'help> Arg<'help> {
     ///                             // all we have to do is give it a value lower than 999.
     ///                             // Any other args with a value of 1 will be displayed
     ///                             // alphabetically with this one...then 2 values, then 3, etc.
-    ///         .about("I should be first!"))
+    ///         .help("I should be first!"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -3949,7 +3937,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .setting(ArgSettings::Hidden)
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -4188,7 +4176,7 @@ impl<'help> Arg<'help> {
     ///         .setting(ArgSettings::TakesValue)
     ///         .setting(ArgSettings::NextLineHelp)
     ///         .value_names(&["value1", "value2"])
-    ///         .about("Some really long help and complex\n\
+    ///         .help("Some really long help and complex\n\
     ///                help that makes more sense to be\n\
     ///                on a line after the option"))
     ///     .get_matches_from(vec![
@@ -4589,7 +4577,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .hidden_short_help(true)
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
     ///     ]);
@@ -4616,7 +4604,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .hidden_short_help(true)
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -4667,7 +4655,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .hidden_long_help(true)
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
     ///     ]);
@@ -4694,7 +4682,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
     ///         .hidden_long_help(true)
-    ///         .about("Some help text describing the --config arg"))
+    ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
     ///     ]);
@@ -4955,8 +4943,8 @@ impl<'help> From<&'help Yaml> for Arg<'help> {
                 "aliases" => yaml_vec_or_str!(a, v, alias),
                 "short_alias" => yaml_to_str!(a, v, alias),
                 "short_aliases" => yaml_to_chars!(a, v, short_aliases),
-                "about" => yaml_to_str!(a, v, about),
-                "long_about" => yaml_to_str!(a, v, long_about),
+                "help" => yaml_to_str!(a, v, help),
+                "long_help" => yaml_to_str!(a, v, long_help),
                 "required" => yaml_to_bool!(a, v, required),
                 "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
                 "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
@@ -5193,8 +5181,8 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("id", &self.id)
             .field("provider", &self.provider)
             .field("name", &self.name)
-            .field("about", &self.about)
-            .field("long_about", &self.long_about)
+            .field("help", &self.help)
+            .field("long_help", &self.long_help)
             .field("blacklist", &self.blacklist)
             .field("settings", &self.settings)
             .field("overrides", &self.overrides)

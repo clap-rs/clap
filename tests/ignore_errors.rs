@@ -76,14 +76,14 @@ fn subcommand() {
                         .short('t')
                         .long("test")
                         .takes_value(true)
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .arg(
                     Arg::new("stuff")
                         .short('x')
                         .long("stuff")
                         .takes_value(true)
-                        .about("stuf value"),
+                        .help("stuf value"),
                 ),
         )
         .arg(Arg::new("other").long("other"));

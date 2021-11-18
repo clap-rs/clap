@@ -48,11 +48,11 @@ use std::ffi::OsString;
 ///     .about("My super CLI")
 ///     .arg(Arg::new("verbose")
 ///         .long("verbose")
-///         .about("More verbose output"))
+///         .help("More verbose output"))
 ///     .arg(Arg::new("name")
 ///         .long("name")
 ///         .short('n')
-///         .about("An optional name")
+///         .help("An optional name")
 ///         .takes_value(true));
 ///
 /// struct Context {

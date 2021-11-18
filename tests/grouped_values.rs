@@ -114,7 +114,7 @@ fn grouped_value_positional_arg() {
     let m = App::new("multiple_values")
         .arg(
             Arg::new("pos")
-                .about("multiple positionals")
+                .help("multiple positionals")
                 .takes_value(true)
                 .multiple_values(true),
         )
@@ -131,10 +131,10 @@ fn grouped_value_positional_arg() {
 #[test]
 fn grouped_value_multiple_positional_arg() {
     let m = App::new("multiple_values")
-        .arg(Arg::new("pos1").about("multiple positionals"))
+        .arg(Arg::new("pos1").help("multiple positionals"))
         .arg(
             Arg::new("pos2")
-                .about("multiple positionals")
+                .help("multiple positionals")
                 .takes_value(true)
                 .multiple_values(true),
         )
@@ -151,10 +151,10 @@ fn grouped_value_multiple_positional_arg() {
 #[test]
 fn grouped_value_multiple_positional_arg_last_multiple() {
     let m = App::new("multiple_values")
-        .arg(Arg::new("pos1").about("multiple positionals"))
+        .arg(Arg::new("pos1").help("multiple positionals"))
         .arg(
             Arg::new("pos2")
-                .about("multiple positionals")
+                .help("multiple positionals")
                 .takes_value(true)
                 .multiple_values(true)
                 .last(true),

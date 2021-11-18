@@ -591,7 +591,7 @@ impl Attrs {
             env_casing,
         );
         res.push_attrs(&variant.attrs);
-        res.push_doc_comment(&variant.attrs, "about");
+        res.push_doc_comment(&variant.attrs, "help");
 
         if res.has_custom_parser {
             abort!(
@@ -626,7 +626,7 @@ impl Attrs {
             env_casing,
         );
         res.push_attrs(&field.attrs);
-        res.push_doc_comment(&field.attrs, "about");
+        res.push_doc_comment(&field.attrs, "help");
 
         match &*res.kind {
             Kind::Flatten => {
@@ -794,10 +794,10 @@ impl Attrs {
     }
 
     /// generate methods on top of a field
-    pub fn field_methods(&self, supports_long_about: bool) -> proc_macro2::TokenStream {
+    pub fn field_methods(&self, supports_long_help: bool) -> proc_macro2::TokenStream {
         let methods = &self.methods;
         let help_heading = self.help_heading.as_ref().into_iter();
-        match supports_long_about {
+        match supports_long_help {
             true => {
                 let doc_comment = &self.doc_comment;
                 quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
@@ -806,7 +806,7 @@ impl Attrs {
                 let doc_comment = self
                     .doc_comment
                     .iter()
-                    .filter(|mth| mth.name != "long_about");
+                    .filter(|mth| mth.name != "long_help");
                 quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
             }
         }
@@ -864,7 +864,7 @@ impl Attrs {
     pub fn has_explicit_methods(&self) -> bool {
         self.methods
             .iter()
-            .any(|m| m.name != "about" && m.name != "long_about")
+            .any(|m| m.name != "help" && m.name != "long_help")
     }
 }
 

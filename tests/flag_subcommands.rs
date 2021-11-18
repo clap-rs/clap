@@ -10,7 +10,7 @@ fn flag_subcommand_normal() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .about("testing testing"),
+                    .help("testing testing"),
             ),
         )
         .get_matches_from(vec!["myprog", "some", "--test"]);
@@ -30,7 +30,7 @@ fn flag_subcommand_normal_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .alias("result"),
         )
@@ -48,7 +48,7 @@ fn flag_subcommand_short() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .about("testing testing"),
+                    .help("testing testing"),
             ),
         )
         .get_matches_from(vec!["myprog", "-S", "--test"]);
@@ -65,7 +65,7 @@ fn flag_subcommand_short_with_args() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .about("testing testing"),
+                    .help("testing testing"),
             ),
         )
         .get_matches_from(vec!["myprog", "-St"]);
@@ -84,7 +84,7 @@ fn flag_subcommand_short_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .short_flag_alias('M')
                 .short_flag_alias('B'),
@@ -120,7 +120,7 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .about("testing testing"),
+                    .help("testing testing"),
             )
             .visible_short_flag_aliases(&['M', 'B'])
             .short_flag_alias('C'),
@@ -148,7 +148,7 @@ fn flag_subcommand_short_with_aliases() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .short_flag_aliases(&['M', 'B']),
         )
@@ -169,7 +169,7 @@ fn flag_subcommand_short_with_alias_hyphen() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .short_flag_alias('-'),
         )
@@ -187,7 +187,7 @@ fn flag_subcommand_short_with_aliases_hyphen() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .short_flag_aliases(&['-', '-', '-']),
         )
@@ -218,7 +218,7 @@ fn flag_subcommand_long() {
                 Arg::new("test")
                     .short('t')
                     .long("test")
-                    .about("testing testing"),
+                    .help("testing testing"),
             ),
         )
         .get_matches_from(vec!["myprog", "--some", "--test"]);
@@ -237,7 +237,7 @@ fn flag_subcommand_long_with_alias() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .long_flag_alias("result"),
         )
@@ -257,7 +257,7 @@ fn flag_subcommand_long_with_aliases() {
                     Arg::new("test")
                         .short('t')
                         .long("test")
-                        .about("testing testing"),
+                        .help("testing testing"),
                 )
                 .long_flag_aliases(&["result", "someall"]),
         )
@@ -455,7 +455,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search locally installed packages for matching strings")
+                        .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .takes_value(true)
                         .multiple_values(true),
@@ -465,7 +465,7 @@ fn flag_subcommand_long_short_normal_usage_string() {
                         .long("info")
                         .short('i')
                         .conflicts_with("search")
-                        .about("view package information")
+                        .help("view package information")
                         .takes_value(true)
                         .multiple_values(true),
                 ),
@@ -509,7 +509,7 @@ fn flag_subcommand_long_normal_usage_string() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search locally installed packages for matching strings")
+                        .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .takes_value(true)
                         .multiple_values(true),
@@ -519,7 +519,7 @@ fn flag_subcommand_long_normal_usage_string() {
                         .long("info")
                         .short('i')
                         .conflicts_with("search")
-                        .about("view package information")
+                        .help("view package information")
                         .takes_value(true)
                         .multiple_values(true),
                 ),
@@ -563,7 +563,7 @@ fn flag_subcommand_short_normal_usage_string() {
                     Arg::new("search")
                         .short('s')
                         .long("search")
-                        .about("search locally installed packages for matching strings")
+                        .help("search locally installed packages for matching strings")
                         .conflicts_with("info")
                         .takes_value(true)
                         .multiple_values(true),
@@ -573,7 +573,7 @@ fn flag_subcommand_short_normal_usage_string() {
                         .long("info")
                         .short('i')
                         .conflicts_with("search")
-                        .about("view package information")
+                        .help("view package information")
                         .takes_value(true)
                         .multiple_values(true),
                 ),

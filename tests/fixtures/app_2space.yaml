@@ -8,4 +8,4 @@ args:
     long: option
     takes_value: true
     multiple_values: true
-    about: tests options
+    help: tests options

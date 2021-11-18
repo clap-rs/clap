@@ -88,11 +88,11 @@ fn hidden_short_args() {
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .about("Some help text describing the --config arg"),
+                .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
-                .about("This text should be visible"),
+                .help("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -115,11 +115,11 @@ fn hidden_short_args_long_help() {
                 .short('c')
                 .long("config")
                 .hidden_short_help(true)
-                .about("Some help text describing the --config arg"),
+                .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
-                .about("This text should be visible"),
+                .help("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -161,11 +161,11 @@ fn hidden_long_args() {
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .about("Some help text describing the --config arg"),
+                .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
-                .about("This text should be visible"),
+                .help("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -203,11 +203,11 @@ fn hidden_long_args_short_help() {
                 .short('c')
                 .long("config")
                 .hidden_long_help(true)
-                .about("Some help text describing the --config arg"),
+                .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
                 .long("visible")
-                .about("This text should be visible"),
+                .help("This text should be visible"),
         ]);
 
     assert!(utils::compare_output(
@@ -234,8 +234,8 @@ OPTIONS:
 #[test]
 fn hidden_pos_args() {
     let app = App::new("test").version("1.4").args(&[
-        Arg::new("pos").about("some pos").hidden(true),
-        Arg::new("another").about("another pos"),
+        Arg::new("pos").help("some pos").hidden(true),
+        Arg::new("another").help("another pos"),
     ]);
 
     assert!(utils::compare_output(
@@ -310,7 +310,7 @@ fn hidden_pos_args_only() {
         .after_help("After help")
         .mut_arg("help", |a| a.hidden(true))
         .mut_arg("version", |a| a.hidden(true))
-        .args(&[Arg::new("pos").about("some pos").hidden(true)]);
+        .args(&[Arg::new("pos").help("some pos").hidden(true)]);
 
     assert!(utils::compare_output(
         app,
