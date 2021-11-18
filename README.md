@@ -133,7 +133,7 @@ clap = "3.0.0-beta.5"
 The first example shows the simplest way to use `clap`, by defining a struct. If you're familiar with the `structopt` crate you're in luck, it's the same! (In fact it's the exact same code running under the covers!)
 
 ```rust,ignore
-// (Full example with detailed comments in examples/01d_quick_example.rs)
+// (Full example with detailed comments in clap_derive/examples/example.rs)
 //
 // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
 // simplest method of use, but sacrifices some flexibility.
@@ -141,8 +141,10 @@ use clap::{AppSettings, Parser};
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
+///
+/// The version and author are parsed from the Cargo.toml unless specified.
 #[derive(Parser)]
-#[clap(version = "1.0", author = "Kevin K. <kbknapp@gmail.com>")]
+#[clap(version, author)]
 struct Opts {
     /// Sets a custom config file. Could have been an Option<T> with no default too
     #[clap(short, long, default_value = "default.conf")]
@@ -211,12 +213,12 @@ This second method shows a method using the 'Builder Pattern' which allows more 
 //
 // This example demonstrates clap's "builder pattern" method of creating arguments
 // which the most flexible, but also most verbose.
-use clap::{Arg, App};
+use clap::{App, Arg, crate_version, crate_authors};
 
 fn main() {
     let matches = App::new("My Super Program")
-        .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
+        .version(crate_version!())
+        .author(crate_authors!())
         .about("Does awesome things")
         .arg(Arg::new("config")
             .short('c')
@@ -283,12 +285,12 @@ The next example shows a far less verbose method, but sacrifices some of the adv
 //
 // This example demonstrates clap's "usage strings" method of creating arguments
 // which is less verbose
-use clap::App;
+use clap::{App, crate_version, crate_authors};
 
 fn main() {
     let matches = App::new("myapp")
-        .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
+        .version(crate_version!())
+        .author(crate_authors!())
         .about("Does awesome things")
         .arg("-c, --config=[FILE] 'Sets a custom config file'")
         .arg("<INPUT>              'Sets the input file to use'")
