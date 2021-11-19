@@ -623,6 +623,17 @@ impl<'help> Arg<'help> {
         self
     }
 
+    /// Set the identifier used for referencing this argument in the clap API.
+    ///
+    /// **NOTE:** This will shown to the user in usage/help if no [`value_name`](Arg::value_name]
+    /// is provided.
+    pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
+        let name = n.into();
+        self.id = Id::from(&*name);
+        self.name = name;
+        self
+    }
+
     /// Sets the short version of the argument without the preceding `-`.
     ///
     /// By default `clap` automatically assigns `V` and `h` to the auto-generated `version` and
