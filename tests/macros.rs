@@ -517,3 +517,185 @@ fn validator() {
     assert_eq!(matches.value_of_t::<u16>("func1").ok(), Some(34));
     assert_eq!(matches.value_of_t::<u16>("func2").ok(), Some(56));
 }
+
+mod arg {
+    #[test]
+    fn name_explicit() {
+        let arg = clap::arg!(foo: --bar <NUM>);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_long(), Some("bar"));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+    }
+
+    #[test]
+    fn name_from_long() {
+        let arg = clap::arg!(--bar <NUM>);
+        assert_eq!(arg.get_name(), "bar");
+        assert_eq!(arg.get_long(), Some("bar"));
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+    }
+
+    #[test]
+    fn name_from_value() {
+        let arg = clap::arg!(<NUM>);
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_long(), None);
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+    }
+
+    #[test]
+    #[should_panic]
+    fn name_none_fails() {
+        clap::arg!("Help");
+    }
+
+    #[test]
+    #[should_panic]
+    fn short_only_fails() {
+        clap::arg!(-b);
+    }
+
+    #[test]
+    fn short() {
+        let arg = clap::arg!(foo: -b);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -'b');
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b ...);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b "How to use it");
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), Some("How to use it"));
+    }
+
+    #[test]
+    fn short_and_long() {
+        let arg = clap::arg!(foo: -b --hello);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_long(), Some("hello"));
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -'b' --hello);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_long(), Some("hello"));
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b --hello ...);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_long(), Some("hello"));
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: -b --hello "How to use it");
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_long(), Some("hello"));
+        assert_eq!(arg.get_short(), Some('b'));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), Some("How to use it"));
+    }
+
+    #[test]
+    fn positional() {
+        let arg = clap::arg!(<NUM>);
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!([NUM]);
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(!arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(<NUM>);
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(foo: <NUM>);
+        assert_eq!(arg.get_name(), "foo");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(<NUM> ...);
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), None);
+
+        let arg = clap::arg!(<NUM> "How to use it");
+        assert_eq!(arg.get_name(), "NUM");
+        assert_eq!(arg.get_value_names(), Some(vec!["NUM"].as_slice()));
+        assert!(!arg.is_set(clap::ArgSettings::MultipleOccurrences));
+        assert!(arg.is_set(clap::ArgSettings::Required));
+        assert_eq!(arg.get_help(), Some("How to use it"));
+    }
+}
+
+mod arg_impl {
+    #[test]
+    fn string_ident() {
+        let expected = "one";
+        let actual = clap::arg_impl! { @string one };
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn string_literal() {
+        let expected = "one";
+        let actual = clap::arg_impl! { @string "one" };
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn char_ident() {
+        let expected = 'o';
+        let actual = clap::arg_impl! { @char o };
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn char_literal() {
+        let expected = 'o';
+        let actual = clap::arg_impl! { @char 'o' };
+        assert_eq!(actual, expected);
+    }
+}
