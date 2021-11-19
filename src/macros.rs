@@ -263,7 +263,7 @@ macro_rules! app_from_crate {
 /// [`Arg::conflicts_with`]: crate::Arg::conflicts_with()
 #[deprecated(
     since = "3.0.0",
-    note = "Replaced with `App` builder API (with `From::from` for parsing usage) or `Parser` derive API (Issue #2835)"
+    note = "Replaced with `App` builder API (with `From::from` for parsing usage) or `Parser` derive API (Issue clap-rs/clap#2835)"
 )]
 #[macro_export]
 macro_rules! clap_app {
