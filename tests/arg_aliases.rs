@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 
@@ -167,7 +167,7 @@ fn invisible_arg_aliases_help_output() {
                     .takes_value(true)
                     .aliases(&["invisible", "als1", "more"]),
             )
-            .arg(Arg::from_usage("-f, --flag").aliases(&["unseeable", "flg1", "anyway"])),
+            .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
     );
     assert!(utils::compare_output(
         app,

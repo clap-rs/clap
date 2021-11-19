@@ -5,7 +5,7 @@
 use std::str::FromStr;
 
 // Add clap like normal
-use clap::{App, Arg};
+use clap::{arg, App};
 
 // Define your enum
 enum Vals {
@@ -35,7 +35,7 @@ fn main() {
     let m = App::new("myapp")
         // Use a single positional argument that is required
         .arg(
-            Arg::from_usage("<type> 'The type to use'")
+            arg!(<type> "The type to use")
                 // Define the list of possible values
                 .possible_values(["Foo", "Bar", "Baz", "Qux"]),
         )

@@ -36,12 +36,12 @@ use yaml_rust::Yaml;
 /// the arguments from the specified group is present at runtime.
 ///
 /// ```rust
-/// # use clap::{App, Arg, ArgGroup, ErrorKind};
+/// # use clap::{App, arg, ArgGroup, ErrorKind};
 /// let result = App::new("app")
-///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
-///     .arg(Arg::from_usage("--major         'auto increase major'"))
-///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
-///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
+///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+///     .arg(arg!(--major           "auto increase major"))
+///     .arg(arg!(--minor           "auto increase minor"))
+///     .arg(arg!(--patch           "auto increase patch"))
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor", "patch"])
 ///          .required(true))
@@ -54,12 +54,12 @@ use yaml_rust::Yaml;
 /// This next example shows a passing parse of the same scenario
 ///
 /// ```rust
-/// # use clap::{App, Arg, ArgGroup};
+/// # use clap::{App, arg, ArgGroup};
 /// let result = App::new("app")
-///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
-///     .arg(Arg::from_usage("--major         'auto increase major'"))
-///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
-///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
+///     .arg(arg!(--"set-ver" <ver> "set the version manually").required(false))
+///     .arg(arg!(--major           "auto increase major"))
+///     .arg(arg!(--minor           "auto increase minor"))
+///     .arg(arg!(--patch           "auto increase patch"))
 ///     .group(ArgGroup::new("vers")
 ///          .args(&["set-ver", "major", "minor","patch"])
 ///          .required(true))

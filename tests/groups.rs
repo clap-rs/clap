@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgGroup, ErrorKind};
+use clap::{arg, App, Arg, ArgGroup, ErrorKind};
 
 static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
     <base|--delete>
@@ -32,8 +32,8 @@ For more information try --help
 #[test]
 fn required_group_missing_arg() {
     let result = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage(" -c, --color 'some other flag'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!( -c --color "some other flag"))
         .group(ArgGroup::new("req").args(&["flag", "color"]).required(true))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
@@ -46,8 +46,8 @@ fn required_group_missing_arg() {
 #[should_panic = "Argument group 'req' contains non-existent argument"]
 fn non_existing_arg() {
     let _ = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color 'some other flag'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color "some other flag"))
         .group(ArgGroup::new("req").args(&["flg", "color"]).required(true))
         .try_get_matches_from(vec![""]);
 }
@@ -57,8 +57,8 @@ fn non_existing_arg() {
 #[should_panic = "Argument group name must be unique\n\n\t'req' is already in use"]
 fn unique_group_name() {
     let _ = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color 'some other flag'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color "some other flag"))
         .group(ArgGroup::new("req").args(&["flag"]).required(true))
         .group(ArgGroup::new("req").args(&["color"]).required(true))
         .try_get_matches_from(vec![""]);
@@ -86,8 +86,8 @@ fn arg_group_new_of_arg_name() {
 #[test]
 fn group_single_value() {
     let res = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color [color] 'some option'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue"]);
     assert!(res.is_ok());
@@ -100,8 +100,8 @@ fn group_single_value() {
 #[test]
 fn group_single_flag() {
     let res = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color [color] 'some option'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(res.is_ok());
@@ -114,8 +114,8 @@ fn group_single_flag() {
 #[test]
 fn group_empty() {
     let res = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color [color] 'some option'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec![""]);
     assert!(res.is_ok());
@@ -128,8 +128,8 @@ fn group_empty() {
 #[test]
 fn group_reqired_flags_empty() {
     let result = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color 'some option'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color "some option"))
         .group(ArgGroup::new("grp").required(true).args(&["flag", "color"]))
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
@@ -140,8 +140,8 @@ fn group_reqired_flags_empty() {
 #[test]
 fn group_multi_value_single_arg() {
     let res = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color [color]... 'some option'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color <color> "some option").multiple_values(true))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue", "red", "green"]);
     assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
@@ -157,7 +157,7 @@ fn group_multi_value_single_arg() {
 #[test]
 fn empty_group() {
     let r = App::new("empty_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("vers").required(true))
         .try_get_matches_from(vec!["empty_prog"]);
     assert!(r.is_err());
@@ -168,9 +168,9 @@ fn empty_group() {
 #[test]
 fn req_group_usage_string() {
     let app = App::new("req_group")
-        .arg(Arg::from_usage("[base] 'Base commit'"))
-        .arg(Arg::from_usage(
-            "-d, --delete 'Remove the base commit information'",
+        .arg(arg!([base] "Base commit"))
+        .arg(arg!(
+            -d --delete "Remove the base commit information"
         ))
         .group(
             ArgGroup::new("base_or_delete")
@@ -189,9 +189,9 @@ fn req_group_usage_string() {
 #[test]
 fn req_group_with_conflict_usage_string() {
     let app = App::new("req_group")
-        .arg(Arg::from_usage("[base] 'Base commit'").conflicts_with("delete"))
-        .arg(Arg::from_usage(
-            "-d, --delete 'Remove the base commit information'",
+        .arg(arg!([base] "Base commit").conflicts_with("delete"))
+        .arg(arg!(
+            -d --delete "Remove the base commit information"
         ))
         .group(
             ArgGroup::new("base_or_delete")
@@ -210,9 +210,9 @@ fn req_group_with_conflict_usage_string() {
 #[test]
 fn req_group_with_conflict_usage_string_only_options() {
     let app = App::new("req_group")
-        .arg(Arg::from_usage("<all> -a --all 'All'").conflicts_with("delete"))
-        .arg(Arg::from_usage(
-            "<delete> -d, --delete 'Remove the base commit information'",
+        .arg(arg!(-a --all "All").conflicts_with("delete"))
+        .arg(arg!(
+            -d --delete "Remove the base commit information"
         ))
         .group(
             ArgGroup::new("all_or_delete")
@@ -230,8 +230,8 @@ fn req_group_with_conflict_usage_string_only_options() {
 #[test]
 fn required_group_multiple_args() {
     let result = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color 'some other flag'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color "some other flag"))
         .group(
             ArgGroup::new("req")
                 .args(&["flag", "color"])
@@ -248,8 +248,8 @@ fn required_group_multiple_args() {
 #[test]
 fn group_multiple_args_error() {
     let result = App::new("group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-        .arg(Arg::from_usage("-c, --color 'some other flag'"))
+        .arg(arg!(-f --flag "some flag"))
+        .arg(arg!(-c --color "some other flag"))
         .group(ArgGroup::new("req").args(&["flag", "color"]))
         .try_get_matches_from(vec!["group", "-f", "-c"]);
     assert!(result.is_err());

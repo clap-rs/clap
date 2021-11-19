@@ -1,12 +1,10 @@
-use clap::{App, AppSettings, Arg};
+use clap::{arg, App, AppSettings, Arg};
 
 #[test]
 fn single_short_arg_without_value() {
-    let app = App::new("app")
-        .setting(AppSettings::IgnoreErrors)
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'",
-        ));
+    let app = App::new("app").setting(AppSettings::IgnoreErrors).arg(arg!(
+        -c --config [FILE] "Sets a custom config file"
+    ));
 
     let r = app.try_get_matches_from(vec!["app", "-c" /* missing: , "config file" */]);
 
@@ -17,11 +15,9 @@ fn single_short_arg_without_value() {
 
 #[test]
 fn single_long_arg_without_value() {
-    let app = App::new("app")
-        .setting(AppSettings::IgnoreErrors)
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'",
-        ));
+    let app = App::new("app").setting(AppSettings::IgnoreErrors).arg(arg!(
+        -c --config [FILE] "Sets a custom config file"
+    ));
 
     let r = app.try_get_matches_from(vec!["app", "--config" /* missing: , "config file" */]);
 
@@ -34,13 +30,13 @@ fn single_long_arg_without_value() {
 fn multiple_args_and_final_arg_without_value() {
     let app = App::new("app")
         .setting(AppSettings::IgnoreErrors)
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'",
+        .arg(arg!(
+            -c --config [FILE] "Sets a custom config file"
         ))
-        .arg(Arg::from_usage(
-            "-x, --stuff=[FILE] 'Sets a custom stuff file'",
+        .arg(arg!(
+            -x --stuff [FILE] "Sets a custom stuff file"
         ))
-        .arg(Arg::from_usage("-f 'Flag'"));
+        .arg(arg!(f: -f "Flag"));
 
     let r = app.try_get_matches_from(vec![
         "app", "-c", "file", "-f", "-x", /* missing: , "some stuff" */
@@ -57,13 +53,13 @@ fn multiple_args_and_final_arg_without_value() {
 fn multiple_args_and_intermittent_arg_without_value() {
     let app = App::new("app")
         .setting(AppSettings::IgnoreErrors)
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'Sets a custom config file'",
+        .arg(arg!(
+            -c --config[FILE] "Sets a custom config file"
         ))
-        .arg(Arg::from_usage(
-            "-x, --stuff=[FILE] 'Sets a custom stuff file'",
+        .arg(arg!(
+            -x --stuff[FILE] "Sets a custom stuff file"
         ))
-        .arg(Arg::from_usage("-f 'Flag'"));
+        .arg(arg!(f: -f "Flag"));
 
     let r = app.try_get_matches_from(vec![
         "app", "-x", /* missing: ,"some stuff" */

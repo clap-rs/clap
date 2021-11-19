@@ -1,10 +1,51 @@
-use clap::{App, AppSettings, Arg, ArgSettings};
+use clap::{arg, App, AppSettings, Arg, ArgSettings};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 static OPT3_VALS: [&str; 2] = ["fast", "slow"];
 static POS3_VALS: [&str; 2] = ["vi", "emacs"];
 
 macro_rules! create_app {
+    () => {{
+        App::new("claptests")
+            .version("0.1")
+            .about("tests clap library")
+            .author("Kevin K. <kbknapp@gmail.com>")
+            .arg(arg!(-o --option <opt> ... "tests options").required(false))
+            .arg(arg!([positional] "tests positionals"))
+            .arg(arg!(-f --flag ... "tests flags").global(true))
+            .args(&[
+                arg!(flag2: -F "tests flags with exclusions")
+                    .conflicts_with("flag")
+                    .requires("option2"),
+                arg!(option2: --"long-option-2" <option2> "tests long options with exclusions")
+                    .required(false)
+                    .conflicts_with("option")
+                    .requires("positional2"),
+                arg!([positional2] "tests positionals with exclusions"),
+                arg!(-O --Option <option3> "tests options with specific value sets")
+                .required(false)
+                    .possible_values(OPT3_VALS),
+                arg!([positional3] ... "tests positionals with specific values")
+                    .possible_values(POS3_VALS),
+                arg!(--multvals "Tests multiple values not mult occs").required(false).value_names(&["one", "two"]),
+                arg!(
+                    --multvalsmo "Tests multiple values, not mult occs"
+                ).multiple_values(true).required(false).value_names(&["one", "two"]),
+                arg!(--minvals2 <minvals> ... "Tests 2 min vals").min_values(2).multiple_values(true).required(false),
+                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").max_values(3).multiple_values(true).required(false),
+            ])
+            .subcommand(
+                App::new("subcmd")
+                    .about("tests subcommands")
+                    .version("0.1")
+                    .author("Kevin K. <kbknapp@gmail.com>")
+                    .arg(arg!(-o --option <scoption> ... "tests options").required(false))
+                    .arg(arg!([scpositional] "tests positionals"))
+            )
+    }};
+}
+
+macro_rules! create_app_from_usage {
     () => {{
         App::new("claptests")
             .version("0.1")
@@ -46,7 +87,7 @@ macro_rules! create_app {
 }
 
 pub fn build_from_usage(c: &mut Criterion) {
-    c.bench_function("build_from_usage", |b| b.iter(|| create_app!()));
+    c.bench_function("build_from_usage", |b| b.iter(|| create_app_from_usage!()));
 }
 
 pub fn build_from_builder(c: &mut Criterion) {

@@ -1199,7 +1199,7 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg, Arg};
     /// App::new("myprog")
     ///     // Adding a single "flag" argument with a short and help text, using Arg::new()
     ///     .arg(
@@ -1210,7 +1210,7 @@ impl<'help> App<'help> {
     ///     // Adding a single "option" argument with a short, a long, and help text using the less
     ///     // verbose Arg::from()
     ///     .arg(
-    ///         Arg::from_usage("-c --config=[CONFIG] 'Optionally sets a config file to use'")
+    ///         arg!(-c --config <CONFIG> "Optionally sets a config file to use")
     ///     )
     /// # ;
     /// ```
@@ -1247,10 +1247,10 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg, Arg};
     /// App::new("myprog")
     ///     .args(&[
-    ///         Arg::from_usage("[debug] -d 'turns on debugging info'"),
+    ///         arg!("[debug] -d 'turns on debugging info'"),
     ///         Arg::new("input").index(1).help("the input file to use")
     ///     ])
     /// # ;
@@ -1760,12 +1760,12 @@ impl<'help> App<'help> {
     /// of the arguments from the specified group is present at runtime.
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, ArgGroup};
+    /// # use clap::{App, arg, ArgGroup};
     /// App::new("app")
-    ///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
-    ///     .arg(Arg::from_usage("--major 'auto increase major'"))
-    ///     .arg(Arg::from_usage("--minor 'auto increase minor'"))
-    ///     .arg(Arg::from_usage("--patch 'auto increase patch'"))
+    ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
+    ///     .arg(arg!("--major 'auto increase major'"))
+    ///     .arg(arg!("--minor 'auto increase minor'"))
+    ///     .arg(arg!("--patch 'auto increase patch'"))
     ///     .group(ArgGroup::new("vers")
     ///          .args(&["set-ver", "major", "minor","patch"])
     ///          .required(true))
@@ -1782,14 +1782,14 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg, ArgGroup};
+    /// # use clap::{App, arg, ArgGroup};
     /// App::new("app")
-    ///     .arg(Arg::from_usage("--set-ver [ver] 'set the version manually'"))
-    ///     .arg(Arg::from_usage("--major         'auto increase major'"))
-    ///     .arg(Arg::from_usage("--minor         'auto increase minor'"))
-    ///     .arg(Arg::from_usage("--patch         'auto increase patch'"))
-    ///     .arg(Arg::from_usage("-c [FILE]       'a config file'"))
-    ///     .arg(Arg::from_usage("-i [IFACE]      'an interface'"))
+    ///     .arg(arg!("--set-ver [ver] 'set the version manually'"))
+    ///     .arg(arg!("--major         'auto increase major'"))
+    ///     .arg(arg!("--minor         'auto increase minor'"))
+    ///     .arg(arg!("--patch         'auto increase patch'"))
+    ///     .arg(arg!("-c [FILE]       'a config file'"))
+    ///     .arg(arg!("-i [IFACE]      'an interface'"))
     ///     .groups(&[
     ///         ArgGroup::new("vers")
     ///             .args(&["set-ver", "major", "minor","patch"])
@@ -1818,11 +1818,11 @@ impl<'help> App<'help> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// App::new("myprog")
     ///     .subcommand(App::new("config")
     ///         .about("Controls configuration features")
-    ///         .arg(Arg::from_usage("<config> 'Required configuration file to use'")))
+    ///         .arg(arg!("<config> 'Required configuration file to use'")))
     /// # ;
     /// ```
     #[inline]

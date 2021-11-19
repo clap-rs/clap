@@ -819,12 +819,12 @@ pub enum AppSettings {
     /// avoided in many cases.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let app = App::new("app")
     ///   .setting(AppSettings::IgnoreErrors)
-    ///   .arg(Arg::from_usage("-c, --config=[FILE] 'Sets a custom config file'"))
-    ///   .arg(Arg::from_usage("-x, --stuff=[FILE] 'Sets a custom stuff file'"))
-    ///   .arg(Arg::from_usage("-f 'Flag'"));
+    ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
+    ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
+    ///   .arg(arg!(f: -f "Flag"));
     ///
     /// let r = app.try_get_matches_from(vec!["app", "-c", "file", "-f", "-x"]);
     ///
@@ -883,10 +883,10 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::NoBinaryName)
-    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["command", "set"]);
     ///
     /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
@@ -1028,10 +1028,10 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
-    ///     .arg(Arg::from_usage("<cmd>... 'commands to run'"))
+    ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();

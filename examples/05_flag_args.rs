@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 fn main() {
     // Of the three argument types, flags are the most simple. Flags are simple switches which can
@@ -29,10 +29,13 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'sets a custom config file'",
-        ))
-        .arg(Arg::from_usage("[output] 'sets an output file'"))
+        .arg(
+            arg!(
+                -c --config <FILE> "sets a custom config file"
+            )
+            .required(false),
+        )
+        .arg(arg!([output] "sets an output file"))
         .get_matches();
 
     // We can find out whether or not awesome was used

@@ -178,12 +178,12 @@ impl ArgMatches {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'")
+    ///     .arg(arg!(<arg> "some arg")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
@@ -221,12 +221,12 @@ impl ArgMatches {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg> 'some arg'")
+    ///     .arg(arg!(<arg> "some arg")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi {0xe9}!"
@@ -306,12 +306,12 @@ impl ArgMatches {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// use std::ffi::OsString;
     /// use std::os::unix::ffi::OsStringExt;
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg>... 'some arg'")
+    ///     .arg(arg!(<arg> ... "some arg")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                             // "Hi"
@@ -343,12 +343,12 @@ impl ArgMatches {
     ///
     #[cfg_attr(not(unix), doc = " ```ignore")]
     #[cfg_attr(unix, doc = " ```")]
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// use std::ffi::{OsStr,OsString};
     /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
     ///
     /// let m = App::new("utf8")
-    ///     .arg(Arg::from_usage("<arg>... 'some arg'")
+    ///     .arg(arg!(<arg> ... "some arg")
     ///         .allow_invalid_utf8(true))
     ///     .get_matches_from(vec![OsString::from("myprog"),
     ///                                 // "Hi"
@@ -392,9 +392,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let matches = App::new("myapp")
-    ///               .arg(Arg::from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'"))
+    ///               .arg(arg!([length] "Set the length to use as a pos whole num i.e. 20"))
     ///               .get_matches_from(&["test", "12"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -442,9 +442,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let matches = App::new("myapp")
-    ///               .arg(Arg::from_usage("[length] 'Set the length to use as a pos whole num, i.e. 20'"))
+    ///               .arg(arg!([length] "Set the length to use as a pos whole num i.e. 20"))
     ///               .get_matches_from(&["test", "12"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -479,9 +479,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let matches = App::new("myapp")
-    ///               .arg(Arg::from_usage("[length]... 'A sequence of integers because integers are neat!'"))
+    ///               .arg(arg!([length] ... "A sequence of integers because integers are neat!"))
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -531,9 +531,9 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let matches = App::new("myapp")
-    ///               .arg(Arg::from_usage("[length]... 'A sequence of integers because integers are neat!'"))
+    ///               .arg(arg!([length] ... "A sequence of integers because integers are neat!"))
     ///               .get_matches_from(&["test", "12", "77", "40"]);
     ///
     /// // Specify the type explicitly (or use turbofish)
@@ -1099,12 +1099,12 @@ impl<'a> Default for GroupedValues<'a> {
 ///
 #[cfg_attr(not(unix), doc = " ```ignore")]
 #[cfg_attr(unix, doc = " ```")]
-/// # use clap::{App, Arg};
+/// # use clap::{App, arg};
 /// use std::ffi::OsString;
 /// use std::os::unix::ffi::{OsStrExt,OsStringExt};
 ///
 /// let m = App::new("utf8")
-///     .arg(Arg::from_usage("<arg> 'some arg'")
+///     .arg(arg!(<arg> "some arg")
 ///         .allow_invalid_utf8(true))
 ///     .get_matches_from(vec![OsString::from("myprog"),
 ///                             // "Hi {0xe9}!"

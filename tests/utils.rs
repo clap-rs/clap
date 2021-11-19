@@ -5,7 +5,7 @@ use std::str;
 
 use regex::Regex;
 
-use clap::{App, Arg, ArgGroup};
+use clap::{arg, App, Arg, ArgGroup};
 
 pub fn compare<S, S2>(l: S, r: S2) -> bool
 where
@@ -59,37 +59,53 @@ pub fn complex_app() -> App<'static> {
         .version("v1.4.8")
         .about("tests clap library")
         .author("Kevin K. <kbknapp@gmail.com>")
-        .arg(Arg::from_usage(
-            "[option] -o --option=[opt]... 'tests options'",
-        ))
-        .arg(Arg::from_usage("[positional] 'tests positionals'"))
-        .arg(Arg::from_usage("-f --flag... 'tests flags'").global(true))
+        .arg(
+            arg!(
+                -o --option <opt> "tests options"
+            )
+            .required(false)
+            .multiple_values(true)
+            .multiple_occurrences(true),
+        )
+        .arg(arg!([positional] "tests positionals"))
+        .arg(arg!(-f --flag ... "tests flags").global(true))
         .args(&[
-            Arg::from_usage("[flag2] -F 'tests flags with exclusions'")
+            arg!(flag2: -F "tests flags with exclusions")
                 .conflicts_with("flag")
                 .requires("long-option-2"),
-            Arg::from_usage("--long-option-2 [option2] 'tests long options with exclusions'")
+            arg!(--"long-option-2" <option2> "tests long options with exclusions")
+                .required(false)
                 .conflicts_with("option")
                 .requires("positional2"),
-            Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-            Arg::from_usage("-O --option3 [option3] 'specific vals'").possible_values(opt3_vals),
-            Arg::from_usage("[positional3]... 'tests specific values'").possible_values(pos3_vals),
-            Arg::from_usage("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
-            Arg::from_usage("--multvalsmo... [one] [two] 'Tests multiple values, and mult occs'"),
-            Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-            Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
+            arg!([positional2] "tests positionals with exclusions"),
+            arg!(-O --option3 <option3> "specific vals")
+                .required(false)
+                .possible_values(opt3_vals),
+            arg!([positional3] ... "tests specific values").possible_values(pos3_vals),
+            arg!(--multvals "Tests multiple values, not mult occs")
+                .value_names(&["one", "two"])
+                .required(false),
+            arg!(--multvalsmo ... "Tests multiple values, and mult occs")
+                .value_names(&["one", "two"])
+                .required(false),
+            arg!(--minvals2 <minvals> "Tests 2 min vals")
+                .required(false)
+                .min_values(2),
+            arg!(--maxvals3 <maxvals> "Tests 3 max vals")
+                .required(false)
+                .max_values(3),
         ])
         .subcommand(
             App::new("subcmd")
                 .about("tests subcommands")
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")
-                .arg(Arg::from_usage(
-                    "[option] -o --option [scoption]... 'tests options'",
-                ))
-                .arg(Arg::from_usage(
-                    "-s --subcmdarg [subcmdarg] 'tests other args'",
-                ))
-                .arg(Arg::from_usage("[scpositional] 'tests positionals'")),
+                .arg(
+                    arg!(-o --option <scoption> "tests options")
+                        .required(false)
+                        .multiple_values(true),
+                )
+                .arg(arg!(-s --subcmdarg <subcmdarg> "tests other args").required(false))
+                .arg(arg!([scpositional] "tests positionals")),
         )
 }

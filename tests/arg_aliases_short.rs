@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
 
@@ -163,7 +163,7 @@ fn invisible_short_arg_aliases_help_output() {
                     .takes_value(true)
                     .short_aliases(&['a', 'b', 'c']),
             )
-            .arg(Arg::from_usage("-f, --flag").short_aliases(&['x', 'y', 'z'])),
+            .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
     );
     assert!(utils::compare_output(
         app,

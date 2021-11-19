@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgGroup, ErrorKind};
+use clap::{arg, App, Arg, ArgGroup, ErrorKind};
 
 static REQUIRE_EQUALS: &str = "error: The following required arguments were not provided:
     --opt=<FILE>
@@ -52,8 +52,8 @@ For more information try --help
 #[test]
 fn flag_required() {
     let result = App::new("flag_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("color"))
-        .arg(Arg::from_usage("-c, --color 'third flag'"))
+        .arg(arg!(-f --flag "some flag").requires("color"))
+        .arg(arg!(-c --color "third flag"))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -63,8 +63,8 @@ fn flag_required() {
 #[test]
 fn flag_required_2() {
     let m = App::new("flag_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("color"))
-        .arg(Arg::from_usage("-c, --color 'third flag'"))
+        .arg(arg!(-f --flag "some flag").requires("color"))
+        .arg(arg!(-c --color "third flag"))
         .get_matches_from(vec!["", "-f", "-c"]);
     assert!(m.is_present("color"));
     assert!(m.is_present("flag"));
@@ -73,8 +73,8 @@ fn flag_required_2() {
 #[test]
 fn option_required() {
     let result = App::new("option_required")
-        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("c"))
-        .arg(Arg::from_usage("-c [color] 'third flag'"))
+        .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
+        .arg(arg!(c: -c <color> "third flag").required(false))
         .try_get_matches_from(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -84,8 +84,8 @@ fn option_required() {
 #[test]
 fn option_required_2() {
     let m = App::new("option_required")
-        .arg(Arg::from_usage("-f [flag] 'some flag'").requires("c"))
-        .arg(Arg::from_usage("-c [color] 'third flag'"))
+        .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
+        .arg(arg!(c: -c <color> "third flag").required(false))
         .get_matches_from(vec!["", "-f", "val", "-c", "other_val"]);
     assert!(m.is_present("c"));
     assert_eq!(m.value_of("c").unwrap(), "other_val");
@@ -115,10 +115,10 @@ fn positional_required_2() {
 #[test]
 fn group_required() {
     let result = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -128,10 +128,10 @@ fn group_required() {
 #[test]
 fn group_required_2() {
     let m = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .get_matches_from(vec!["", "-f", "--some"]);
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
@@ -141,10 +141,10 @@ fn group_required_2() {
 #[test]
 fn group_required_3() {
     let m = App::new("group_required")
-        .arg(Arg::from_usage("-f, --flag 'some flag'"))
+        .arg(arg!(-f --flag "some flag"))
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .get_matches_from(vec!["", "-f", "--other"]);
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
@@ -154,10 +154,10 @@ fn group_required_3() {
 #[test]
 fn arg_require_group() {
     let result = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
@@ -167,10 +167,10 @@ fn arg_require_group() {
 #[test]
 fn arg_require_group_2() {
     let res = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f", "--some"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -182,10 +182,10 @@ fn arg_require_group_2() {
 #[test]
 fn arg_require_group_3() {
     let res = App::new("arg_require_group")
-        .arg(Arg::from_usage("-f, --flag 'some flag'").requires("gr"))
+        .arg(arg!(-f --flag "some flag").requires("gr"))
         .group(ArgGroup::new("gr").arg("some").arg("other"))
-        .arg(Arg::from_usage("--some 'some arg'"))
-        .arg(Arg::from_usage("--other 'other arg'"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f", "--other"]);
     assert!(res.is_ok());
     let m = res.unwrap();
@@ -199,22 +199,25 @@ fn arg_require_group_3() {
 #[test]
 fn issue_753() {
     let m = App::new("test")
-        .arg(Arg::from_usage(
-            "-l, --list 'List available interfaces (and stop there)'",
+        .arg(arg!(
+            -l --list "List available interfaces (and stop there)"
         ))
         .arg(
-            Arg::from_usage(
-                "-i, --iface=[INTERFACE] 'Ethernet interface for fetching NTP packets'",
+            arg!(
+                -i --iface <INTERFACE> "Ethernet interface for fetching NTP packets"
             )
+            .required(false)
             .required_unless_present("list"),
         )
         .arg(
-            Arg::from_usage("-f, --file=[TESTFILE] 'Fetch NTP packets from pcap file'")
+            arg!(-f --file <TESTFILE> "Fetch NTP packets from pcap file")
+                .required(false)
                 .conflicts_with("iface")
                 .required_unless_present("list"),
         )
         .arg(
-            Arg::from_usage("-s, --server=[SERVER_IP] 'NTP server IP address'")
+            arg!(-s --server <SERVER_IP> "NTP server IP address")
+                .required(false)
                 .required_unless_present("list"),
         )
         .try_get_matches_from(vec!["test", "--list"]);
@@ -927,19 +930,20 @@ For more information try --help
 fn issue_1158_app() -> App<'static> {
     App::new("example")
         .arg(
-            Arg::from_usage("-c, --config [FILE] 'Custom config file.'")
+            arg!(-c --config <FILE> "Custom config file.")
+                .required(false)
                 .required_unless_present("ID")
                 .conflicts_with("ID"),
         )
         .arg(
-            Arg::from_usage("[ID] 'ID'")
+            arg!([ID] "ID")
                 .required_unless_present("config")
                 .conflicts_with("config")
                 .requires_all(&["x", "y", "z"]),
         )
-        .arg(Arg::from_usage("-x [X] 'X'"))
-        .arg(Arg::from_usage("-y [Y] 'Y'"))
-        .arg(Arg::from_usage("-z [Z] 'Z'"))
+        .arg(arg!(x: -x <X> "X").required(false))
+        .arg(arg!(y: -y <Y> "Y").required(false))
+        .arg(arg!(z: -z <Z> "Z").required(false))
 }
 
 #[test]

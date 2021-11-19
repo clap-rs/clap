@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{arg, App, AppSettings, Arg, ErrorKind};
 
 #[test]
 fn flag_subcommand_normal() {
@@ -274,14 +274,14 @@ fn flag_subcommand_multiple() {
             App::new("some")
                 .short_flag('S')
                 .long_flag("some")
-                .arg(Arg::from_usage("-f, --flag 'some flag'"))
-                .arg(Arg::from_usage("-p, --print 'print something'"))
+                .arg(arg!(-f --flag "some flag"))
+                .arg(arg!(-p --print "print something"))
                 .subcommand(
                     App::new("result")
                         .short_flag('R')
                         .long_flag("result")
-                        .arg(Arg::from_usage("-f, --flag 'some flag'"))
-                        .arg(Arg::from_usage("-p, --print 'print something'")),
+                        .arg(arg!(-f --flag "some flag"))
+                        .arg(arg!(-p --print "print something")),
                 ),
         )
         .get_matches_from(vec!["myprog", "-SfpRfp"]);

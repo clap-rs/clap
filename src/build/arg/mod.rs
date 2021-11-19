@@ -69,7 +69,7 @@ impl Default for ArgProvider {
 /// # Examples
 ///
 /// ```rust
-/// # use clap::Arg;
+/// # use clap::{Arg, arg};
 /// // Using the traditional builder pattern and setting each option manually
 /// let cfg = Arg::new("config")
 ///       .short('c')
@@ -78,7 +78,7 @@ impl Default for ArgProvider {
 ///       .value_name("FILE")
 ///       .help("Provides a config file to myprog");
 /// // Using a usage string (setting a similar argument to the one above)
-/// let input = Arg::from_usage("-i, --input=[FILE] 'Provides an input file to the program'");
+/// let input = arg!(-i --input <FILE> "Provides an input file to the program");
 /// ```
 #[allow(missing_debug_implementations)]
 #[derive(Default, Clone)]
@@ -1446,12 +1446,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust # use clap::{App, Arg};
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(arg!(-f --flag "some flag")
     ///         .conflicts_with("debug"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(arg!(-d --debug "other flag"))
+    ///     .arg(arg!(-c --color "third flag")
     ///         .overrides_with("flag"))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);
@@ -1471,9 +1471,9 @@ impl<'help> Arg<'help> {
     /// preventing a "Unexpected multiple usage" error):
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--flag  'some flag'").overrides_with("flag"))
+    ///             .arg(arg!(--flag  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["posix", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 1);
@@ -1484,9 +1484,9 @@ impl<'help> Arg<'help> {
     /// if it's a flag and it already accepts multiple occurrences.
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--flag...  'some flag'").overrides_with("flag"))
+    ///             .arg(arg!(--flag ...  "some flag").overrides_with("flag"))
     ///             .get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
     /// assert!(m.is_present("flag"));
     /// assert_eq!(m.occurrences_of("flag"), 4);
@@ -1497,9 +1497,9 @@ impl<'help> Arg<'help> {
     /// occurrence happened.
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val] 'some option'").overrides_with("opt"))
+    ///             .arg(arg!(--opt <val> "some option").overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt=some", "--opt=other"]);
     /// assert!(m.is_present("opt"));
     /// assert_eq!(m.occurrences_of("opt"), 1);
@@ -1528,9 +1528,10 @@ impl<'help> Arg<'help> {
     /// will ignore the "override self" setting.
     ///
     /// ```
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
+    ///             .arg(arg!(--opt <val> ... "some option")
+    ///                 .multiple_values(true)
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));
@@ -1552,12 +1553,12 @@ impl<'help> Arg<'help> {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg};
+    /// # use clap::{App, arg};
     /// let m = App::new("prog")
-    ///     .arg(Arg::from_usage("-f, --flag 'some flag'")
+    ///     .arg(arg!(-f --flag "some flag")
     ///         .conflicts_with("color"))
-    ///     .arg(Arg::from_usage("-d, --debug 'other flag'"))
-    ///     .arg(Arg::from_usage("-c, --color 'third flag'")
+    ///     .arg(arg!(-d --debug "other flag"))
+    ///     .arg(arg!(-c --color "third flag")
     ///         .overrides_with_all(&["flag", "debug"]))
     ///     .get_matches_from(vec![
     ///         "prog", "-f", "-d", "-c"]);

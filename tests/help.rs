@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind, PossibleValue};
+use clap::{arg, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -666,7 +666,7 @@ fn help_subcommand() {
         .subcommand(
             App::new("test")
                 .about("tests things")
-                .arg(Arg::from_usage("-v --verbose 'with verbosity'")),
+                .arg(arg!(-v --verbose "with verbosity")),
         )
         .try_get_matches_from(vec!["myprog", "help"]);
 
@@ -832,12 +832,17 @@ fn multi_level_sc_help() {
                 .about("tests subcommands")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .version("0.1")
-                .arg(Arg::from_usage(
-                    "-f, --flag                    'tests flags'",
+                .arg(arg!(
+                    -f --flag                    "tests flags"
                 ))
-                .arg(Arg::from_usage(
-                    "-o, --option [scoption]...    'tests options'",
-                )),
+                .arg(
+                    arg!(
+                        -o --option <scoption>    "tests options"
+                    )
+                    .required(false)
+                    .multiple_values(true)
+                    .multiple_occurrences(true),
+                ),
         ),
     );
     assert!(utils::compare_output(
@@ -1365,7 +1370,7 @@ fn sc_negates_reqs() {
     let app = App::new("prog")
         .version("1.0")
         .setting(AppSettings::SubcommandsNegateReqs)
-        .arg(Arg::from_usage("-o, --opt <FILE> 'tests options'"))
+        .arg(arg!(-o --opt <FILE> "tests options"))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(utils::compare_output(
@@ -1380,8 +1385,8 @@ fn sc_negates_reqs() {
 fn hidden_args() {
     let app = App::new("prog")
         .version("1.0")
-        .arg(Arg::from_usage("-f, --flag 'testing flags'"))
-        .arg(Arg::from_usage("-o, --opt [FILE] 'tests options'"))
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("pos").hidden(true));
     assert!(utils::compare_output(
         app,
@@ -1396,8 +1401,8 @@ fn args_negate_sc() {
     let app = App::new("prog")
         .version("1.0")
         .setting(AppSettings::ArgsNegateSubcommands)
-        .arg(Arg::from_usage("-f, --flag 'testing flags'"))
-        .arg(Arg::from_usage("-o, --opt [FILE] 'tests options'"))
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("help"))
         .subcommand(App::new("test"));
     assert!(utils::compare_output(
@@ -1412,8 +1417,8 @@ fn args_negate_sc() {
 fn issue_1046_hidden_scs() {
     let app = App::new("prog")
         .version("1.0")
-        .arg(Arg::from_usage("-f, --flag 'testing flags'"))
-        .arg(Arg::from_usage("-o, --opt [FILE] 'tests options'"))
+        .arg(arg!(-f --flag "testing flags"))
+        .arg(arg!(-o --opt <FILE> "tests options").required(false))
         .arg(Arg::new("PATH").help("some"))
         .subcommand(App::new("test").setting(AppSettings::Hidden));
     assert!(utils::compare_output(
@@ -1734,7 +1739,9 @@ fn issue_1052_require_delim_help() {
         .about("tests stuff")
         .version("1.3")
         .arg(
-            Arg::from_usage("-f, --fake <some> <val> 'some help'")
+            arg!(-f --fake "some help")
+                .required(true)
+                .value_names(&["some", "val"])
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -1756,7 +1763,9 @@ fn custom_headers_headers() {
         .about("does stuff")
         .version("1.4")
         .arg(
-            Arg::from_usage("-f, --fake <some> <val> 'some help'")
+            arg!(-f --fake "some help")
+                .required(true)
+                .value_names(&["some", "val"])
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -1813,7 +1822,9 @@ fn multiple_custom_help_headers() {
         .about("does stuff")
         .version("1.4")
         .arg(
-            Arg::from_usage("-f, --fake <some> <val> 'some help'")
+            arg!(-f --fake "some help")
+                .required(true)
+                .value_names(&["some", "val"])
                 .takes_value(true)
                 .use_delimiter(true)
                 .require_delimiter(true)
@@ -1828,18 +1839,16 @@ fn multiple_custom_help_headers() {
         )
         .help_heading(Some("SPECIAL"))
         .arg(
-            Arg::from_usage(
-                "-b, --birthday-song <song> 'Change which song is played for birthdays'",
-            )
-            .help_heading(Some("OVERRIDE SPECIAL")),
+            arg!(-b --"birthday-song" <song> "Change which song is played for birthdays")
+                .help_heading(Some("OVERRIDE SPECIAL")),
         )
         .arg(
-            Arg::from_usage("--style <style> 'Choose musical style to play the song'")
+            arg!(--style <style> "Choose musical style to play the song")
                 .required(false)
                 .help_heading(None),
         )
-        .arg(Arg::from_usage(
-            "-v --birthday-song-volume <volume> 'Change the volume of the birthday song'",
+        .arg(arg!(
+            -v --"birthday-song-volume" <volume> "Change the volume of the birthday song"
         ))
         .help_heading(None)
         .arg(
@@ -1903,11 +1912,11 @@ fn custom_help_headers_hidden_args() {
         )
         .help_heading(Some("SPECIAL"))
         .arg(
-            Arg::from_usage("-b, --song <song> 'Change which song is played for birthdays'")
+            arg!(-b --song <song> "Change which song is played for birthdays")
                 .help_heading(Some("OVERRIDE SPECIAL")),
         )
-        .arg(Arg::from_usage(
-            "-v --song-volume <volume> 'Change the volume of the birthday song'",
+        .arg(arg!(
+            -v --"song-volume" <volume> "Change the volume of the birthday song"
         ))
         .help_heading(None)
         .arg(
@@ -2396,7 +2405,7 @@ fn only_custom_heading_opts_no_args() {
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hidden(true))
         .help_heading(Some("NETWORKING"))
-        .arg(Arg::from_usage("-s, --speed [SPEED] 'How fast'"));
+        .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
     assert!(utils::compare_output(
         app,

@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 fn main() {
     // Option arguments are those that take an additional value, such as "-c value". In clap they
@@ -33,10 +33,13 @@ fn main() {
                                            // also has a conflicts_with_all(Vec<&str>)
                                            // and an exclusive(true)
         )
-        .arg(Arg::from_usage(
-            "-c, --config=[FILE] 'the config file to use'",
-        ))
-        .arg(Arg::from_usage("[output] 'the output file to use'"))
+        .arg(
+            arg!(
+                -c --config <FILE> "the config file to use"
+            )
+            .required(false),
+        )
+        .arg(arg!([output] "the output file to use"))
         .get_matches();
 
     // We can find out whether or not "input" was used
