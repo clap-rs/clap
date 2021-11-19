@@ -175,95 +175,10 @@ macro_rules! app_from_crate {
     };
 }
 
-/// Build `App`, `Arg` and `Group` with Usage-string like input
-/// but without the associated parsing runtime cost.
-///
-/// `clap_app!` also supports several shorthand syntaxes.
-///
-/// # Examples
-///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # fn main() {
-/// let matches = clap_app!(myapp =>
-///     (version: "1.0")
-///     (author: "Kevin K. <kbknapp@gmail.com>")
-///     (about: "Does awesome things")
-///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
-///     (@arg INPUT: +required "Sets the input file to use")
-///     (@arg debug: -d ... "Sets the level of debugging information")
-///     (@group difficulty: +required !multiple
-///         (@arg hard: -h --hard "Sets hard mode")
-///         (@arg normal: -n --normal "Sets normal mode")
-///         (@arg easy: -e --easy "Sets easy mode")
-///     )
-///     (@subcommand test =>
-///         (about: "controls testing features")
-///         (version: "1.3")
-///         (author: "Someone E. <someone_else@other.com>")
-///         (@arg verbose: -v --verbose "Print test information verbosely")
-///     )
-/// )
-/// .get_matches();
-/// # }
-/// ```
-///
-/// # Shorthand Syntax for Args
-///
-/// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
-/// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
-/// * Three dots (`...`) sets [`Arg::multiple_values(true)`] and [`Arg::multiple_occurrences(true)`]
-/// * Angled brackets after either a short or long will set [`Arg::value_name`] and
-/// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
-/// `Arg::required(true)`
-/// * Square brackets after either a short or long will set [`Arg::value_name`] and
-/// `Arg::required(false)` such as `--config [FILE]` = `Arg::value_name("FILE")` and
-/// `Arg::required(false)`
-/// * There are short hand syntaxes for Arg methods that accept booleans
-///   * A plus sign will set that method to `true` such as `+required` = `Arg::required(true)`
-///   * An exclamation will set that method to `false` such as `!required` = `Arg::required(false)`
-/// * A `#{min, max}` will set [`Arg::min_values(min)`] and [`Arg::max_values(max)`]
-/// * An asterisk (`*`) will set `Arg::required(true)`
-/// * Curly brackets around a `fn` will set [`Arg::validator`] as in `{fn}` = `Arg::validator(fn)`
-/// * An Arg method that accepts a string followed by square brackets will set that method such as
-/// `conflicts_with[FOO]` will set `Arg::conflicts_with("FOO")` (note the lack of quotes around
-/// `FOO` in the macro)
-/// * An Arg method that takes a string and can be set multiple times (such as
-/// [`Arg::conflicts_with`]) followed by square brackets and a list of values separated by spaces
-/// will set that method such as `conflicts_with[FOO BAR BAZ]` will set
-/// `Arg::conflicts_with("FOO")`, `Arg::conflicts_with("BAR")`, and `Arg::conflicts_with("BAZ")`
-/// (note the lack of quotes around the values in the macro)
-///
-/// # Shorthand Syntax for Groups
-/// * Some shorthand syntaxes for `Arg` are also available for `ArgGroup`:
-///   * For methods accepting a boolean: `+required` and `!multiple`, etc.
-///   * For methods accepting strings: `conflicts_with[FOO]` and `conflicts_with[FOO BAR BAZ]`, etc.
-///   * `*` for `ArgGroup::required`
-///   * `...` for `ArgGroup::multiple`
-///
-/// # Alternative form for non-ident values
-///
-/// Certain places that normally accept an `ident` also optionally accept an alternative of `("expr enclosed by parens")`
-/// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
-/// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`
-///
-/// Or it can be even simpler by using the literal directly
-/// * `(@arg "something-else": --"something-else")`
-/// * `(@subcommand "something-else" => ...)`
-///
-/// [`Arg::short`]: crate::Arg::short()
-/// [`Arg::long`]: crate::Arg::long()
-/// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
-/// [`Arg::multiple_occurrences(true)`]: crate::Arg::multiple_occurrences()
-/// [`Arg::value_name`]: crate::Arg::value_name()
-/// [`Arg::min_values(min)`]: crate::Arg::min_values()
-/// [`Arg::max_values(max)`]: crate::Arg::max_values()
-/// [`Arg::validator`]: crate::Arg::validator()
-/// [`Arg::conflicts_with`]: crate::Arg::conflicts_with()
+/// Deprecated, see `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)
 #[deprecated(
     since = "3.0.0",
-    note = "Replaced with `App` builder API (with `From::from` for parsing usage) or `Parser` derive API (Issue clap-rs/clap#2835)"
+    note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
 )]
 #[macro_export]
 macro_rules! clap_app {
