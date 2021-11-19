@@ -213,8 +213,7 @@ macro_rules! app_from_crate {
 ///
 /// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
 /// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
-/// * Three dots (`...`) sets [`Arg::multiple_values(true)`]
-/// * Three dots (`...`) sets [`Arg::multiple_occurrences(true)`]
+/// * Three dots (`...`) sets [`Arg::multiple_values(true)`] and [`Arg::multiple_occurrences(true)`]
 /// * Angled brackets after either a short or long will set [`Arg::value_name`] and
 /// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
 /// `Arg::required(true)`
