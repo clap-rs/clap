@@ -173,11 +173,12 @@ impl<'help> UsageParser<'help> {
             self.pos += 1;
             if dot_counter == 3 {
                 debug!("UsageParser::multiple: setting multiple");
-                if arg.is_set(ArgSettings::TakesValue) {
-                    // This is after `--name=value`, so requesting multiple value
-                    arg.settings.set(ArgSettings::MultipleValues);
-                }
                 arg.settings.set(ArgSettings::MultipleOccurrences);
+                if arg.is_set(ArgSettings::TakesValue) {
+                    arg.settings.set(ArgSettings::MultipleValues);
+                    arg.settings.set(ArgSettings::UseValueDelimiter);
+                    arg.val_delim.get_or_insert(',');
+                }
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
                 break;
@@ -410,7 +411,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -438,7 +439,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -452,7 +453,7 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -550,7 +551,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -578,7 +579,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -592,7 +593,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -620,7 +621,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -690,7 +691,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -718,7 +719,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -732,7 +733,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -760,7 +761,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -844,7 +845,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -872,7 +873,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -956,7 +957,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -984,7 +985,7 @@ mod test {
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1012,7 +1013,7 @@ mod test {
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1026,7 +1027,7 @@ mod test {
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
