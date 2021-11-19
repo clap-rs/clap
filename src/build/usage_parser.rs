@@ -44,10 +44,7 @@ impl<'help> UsageParser<'help> {
 
     pub(crate) fn parse(mut self) -> Arg<'help> {
         debug!("UsageParser::parse");
-        let mut arg = Arg {
-            disp_ord: 999,
-            ..Default::default()
-        };
+        let mut arg = Arg::default();
         loop {
             debug!("UsageParser::parse:iter: pos={}", self.pos);
             self.stop_at(token);

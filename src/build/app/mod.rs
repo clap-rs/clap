@@ -83,7 +83,7 @@ pub struct App<'help> {
     pub(crate) usage_str: Option<&'help str>,
     pub(crate) usage: Option<String>,
     pub(crate) help_str: Option<&'help str>,
-    pub(crate) disp_ord: usize,
+    pub(crate) disp_ord: Option<usize>,
     pub(crate) term_w: Option<usize>,
     pub(crate) max_w: Option<usize>,
     pub(crate) template: Option<&'help str>,
@@ -379,7 +379,6 @@ impl<'help> App<'help> {
         App {
             id: Id::from(&*name),
             name,
-            disp_ord: 999,
             ..Default::default()
         }
         .arg(
@@ -1906,7 +1905,7 @@ impl<'help> App<'help> {
     /// ```
     #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
-        self.disp_ord = ord;
+        self.disp_ord = Some(ord);
         self
     }
 
@@ -2800,19 +2799,19 @@ impl<'help> App<'help> {
                 .args
                 .args_mut()
                 .filter(|a| !a.is_positional())
-                .filter(|a| a.disp_ord == 999)
+                .filter(|a| a.get_display_order() == 999)
                 .filter(|a| a.provider != ArgProvider::Generated)
                 .enumerate()
             {
-                a.disp_ord = i;
+                a.disp_ord = Some(i);
             }
             for (i, mut sc) in &mut self
                 .subcommands
                 .iter_mut()
                 .enumerate()
-                .filter(|&(_, ref sc)| sc.disp_ord == 999)
+                .filter(|&(_, ref sc)| sc.get_display_order() == 999)
             {
-                sc.disp_ord = i;
+                sc.disp_ord = Some(i);
             }
         }
         for sc in &mut self.subcommands {
@@ -3100,6 +3099,10 @@ impl<'help> App<'help> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
             .map(|sc| sc.get_name())
+    }
+
+    pub(crate) fn get_display_order(&self) -> usize {
+        self.disp_ord.unwrap_or(999)
     }
 }
 

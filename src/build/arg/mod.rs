@@ -101,7 +101,7 @@ pub struct Arg<'help> {
     pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
-    pub(crate) disp_ord: usize,
+    pub(crate) disp_ord: Option<usize>,
     pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
@@ -338,7 +338,6 @@ impl<'help> Arg<'help> {
         Arg {
             id: Id::from(&*name),
             name,
-            disp_ord: 999,
             ..Default::default()
         }
     }
@@ -3649,7 +3648,7 @@ impl<'help> Arg<'help> {
     /// [index]: Arg::index()
     #[inline]
     pub fn display_order(mut self, ord: usize) -> Self {
-        self.disp_ord = ord;
+        self.disp_ord = Some(ord);
         self
     }
 
@@ -5169,6 +5168,10 @@ impl<'help> Arg<'help> {
     /// Either multiple values or occurrences
     pub(crate) fn is_multiple(&self) -> bool {
         self.is_set(ArgSettings::MultipleValues) | self.is_set(ArgSettings::MultipleOccurrences)
+    }
+
+    pub(crate) fn get_display_order(&self) -> usize {
+        self.disp_ord.unwrap_or(999)
     }
 }
 

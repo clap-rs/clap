@@ -210,7 +210,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 longest = longest.max(display_width(arg.to_string().as_str()));
                 debug!("Help::write_args: New Longest...{}", longest);
             }
-            let btm = ord_m.entry(arg.disp_ord).or_insert_with(BTreeMap::new);
+            let btm = ord_m
+                .entry(arg.get_display_order())
+                .or_insert_with(BTreeMap::new);
 
             // Formatting key like this to ensure that:
             // 1. Argument has long flags are printed just after short flags.
@@ -844,7 +846,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let btm = ord_m
-                .entry(subcommand.disp_ord)
+                .entry(subcommand.get_display_order())
                 .or_insert_with(BTreeMap::new);
             let mut sc_str = String::new();
             sc_str.push_str(
