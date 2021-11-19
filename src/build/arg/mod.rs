@@ -1520,7 +1520,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// # use clap::{App, Arg};
     /// let m = App::new("posix")
-    ///             .arg(Arg::from_usage("[opt]... --opt [val]... 'some option'")
+    ///             .arg(Arg::from_usage("--opt [val]... 'some option'")
     ///                 .overrides_with("opt"))
     ///             .get_matches_from(vec!["", "--opt", "first", "over", "--opt", "other", "val"]);
     /// assert!(m.is_present("opt"));

@@ -60,7 +60,7 @@ pub fn complex_app() -> App<'static> {
         .about("tests clap library")
         .author("Kevin K. <kbknapp@gmail.com>")
         .arg(Arg::from_usage(
-            "[option]... -o --option=[opt]... 'tests options'",
+            "[option] -o --option=[opt]... 'tests options'",
         ))
         .arg(Arg::from_usage("[positional] 'tests positionals'"))
         .arg(Arg::from_usage("-f --flag... 'tests flags'").global(true))
@@ -85,7 +85,7 @@ pub fn complex_app() -> App<'static> {
                 .version("0.1")
                 .author("Kevin K. <kbknapp@gmail.com>")
                 .arg(Arg::from_usage(
-                    "[option]... -o --option [scoption]... 'tests options'",
+                    "[option] -o --option [scoption]... 'tests options'",
                 ))
                 .arg(Arg::from_usage(
                     "-s --subcmdarg [subcmdarg] 'tests other args'",

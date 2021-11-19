@@ -176,10 +176,8 @@ impl<'help> UsageParser<'help> {
                 if arg.is_set(ArgSettings::TakesValue) {
                     // This is after `--name=value`, so requesting multiple value
                     arg.settings.set(ArgSettings::MultipleValues);
-                } else {
-                    // This is after `[name]` (or a flag), so requesting multiple occurrences
-                    arg.settings.set(ArgSettings::MultipleOccurrences);
                 }
+                arg.settings.set(ArgSettings::MultipleOccurrences);
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
                 break;
@@ -482,24 +480,10 @@ mod test {
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
         assert_eq!(a.help.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
-    }
-
-    #[test]
-    fn create_option_usage10() {
-        let a = Arg::from_usage("[option]... -o [opt]... 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert!(a.long.is_none());
-        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
+        assert!(a.is_set(ArgSettings::Required));
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
     }
 
