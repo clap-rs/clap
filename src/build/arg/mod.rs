@@ -579,7 +579,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Allows adding a [`Arg`] alias that functions exactly like those defined with
-    /// [`Arg::alias`], except that they are visible inside the help message.
+    /// [`Arg::short_alias`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -596,7 +596,6 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
-    /// [`App::alias`]: Arg::short_alias()
     pub fn visible_short_alias(mut self, name: char) -> Self {
         assert!(name != '-', "short alias name cannot be `-`");
 
@@ -627,7 +626,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
-    /// with [`Arg::aliases`], except that they are visible inside the help message.
+    /// with [`Arg::short_aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -642,7 +641,6 @@ impl<'help> Arg<'help> {
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
-    /// [`App::aliases`]: Arg::short_aliases()
     pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
         for n in names {
             assert!(n != &'-', "short alias name cannot be `-`");
