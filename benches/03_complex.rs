@@ -17,9 +17,11 @@ macro_rules! create_app {
                 Arg::from("[flag2] -F 'tests flags with exclusions'")
                     .conflicts_with("flag")
                     .requires("option2"),
-                Arg::from("--long-option-2 [option2] 'tests long options with exclusions'")
-                    .conflicts_with("option")
-                    .requires("positional2"),
+                Arg::from(
+                    "[option2] --long-option-2 [option2] 'tests long options with exclusions'",
+                )
+                .conflicts_with("option")
+                .requires("positional2"),
                 Arg::from("[positional2] 'tests positionals with exclusions'"),
                 Arg::from("-O --Option [option3] 'tests options with specific value sets'")
                     .possible_values(OPT3_VALS),
