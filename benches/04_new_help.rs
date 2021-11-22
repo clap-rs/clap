@@ -47,7 +47,6 @@ fn app_example3<'c>() -> App<'c> {
                 .long("config"),
             Arg::new("input")
                 .help("the input file to use")
-                .index(1)
                 .setting(ArgSettings::Required),
         ])
         .arg("--license 'display the license file'")
@@ -86,9 +85,7 @@ fn app_example5<'c>() -> App<'c> {
             .help("turns up the awesome")
             .short('a')
             .long("awesome")
-            .setting(ArgSettings::MultipleOccurrences)
-            .requires("config")
-            .conflicts_with("output"),
+            .setting(ArgSettings::MultipleOccurrences),
     )
 }
 
@@ -99,7 +96,6 @@ fn app_example6<'c>() -> App<'c> {
                 .help("the input file to use")
                 .index(1)
                 .requires("config")
-                .conflicts_with("output")
                 .setting(ArgSettings::Required),
         )
         .arg(Arg::new("config").help("the config file to use").index(2))
