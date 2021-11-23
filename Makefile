@@ -22,7 +22,7 @@ check-%:
 	cargo check ${_FEATURES_${@:check-%=%}} --all-targets ${ARGS}
 
 build-%:
-	cargo test ${_FEATURES_${@:build-%=%}} --no-run ${ARGS}
+	cargo test ${_FEATURES_${@:build-%=%}} --all-targets --no-run ${ARGS}
 
 test-%:
-	cargo test ${_FEATURES_${@:test-%=%}} ${ARGS}
+	cargo test ${_FEATURES_${@:test-%=%}} --all-targets ${ARGS}
