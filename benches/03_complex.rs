@@ -45,51 +45,6 @@ macro_rules! create_app {
     }};
 }
 
-macro_rules! create_app_from_usage {
-    () => {{
-        App::new("claptests")
-            .version("0.1")
-            .about("tests clap library")
-            .author("Kevin K. <kbknapp@gmail.com>")
-            .arg(Arg::from_usage("-o --option=[opt]... 'tests options'"))
-            .arg(Arg::from_usage("[positional] 'tests positionals'"))
-            .arg(Arg::from_usage("-f --flag... 'tests flags'").global(true))
-            .args(&[
-                Arg::from_usage("[flag2] -F 'tests flags with exclusions'")
-                    .conflicts_with("flag")
-                    .requires("option2"),
-                Arg::from_usage(
-                    "[option2] --long-option-2 [option2] 'tests long options with exclusions'",
-                )
-                .conflicts_with("option")
-                .requires("positional2"),
-                Arg::from_usage("[positional2] 'tests positionals with exclusions'"),
-                Arg::from_usage("-O --Option [option3] 'tests options with specific value sets'")
-                    .possible_values(OPT3_VALS),
-                Arg::from_usage("[positional3]... 'tests positionals with specific values'")
-                    .possible_values(POS3_VALS),
-                Arg::from_usage("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
-                Arg::from_usage(
-                    "--multvalsmo... [one] [two] 'Tests multiple values, not mult occs'",
-                ),
-                Arg::from_usage("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-                Arg::from_usage("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
-            ])
-            .subcommand(
-                App::new("subcmd")
-                    .about("tests subcommands")
-                    .version("0.1")
-                    .author("Kevin K. <kbknapp@gmail.com>")
-                    .arg(Arg::from_usage("-o --option [scoption]... 'tests options'"))
-                    .arg(Arg::from_usage("[scpositional] 'tests positionals'")),
-            )
-    }};
-}
-
-pub fn build_from_usage(c: &mut Criterion) {
-    c.bench_function("build_from_usage", |b| b.iter(|| create_app_from_usage!()));
-}
-
 pub fn build_from_builder(c: &mut Criterion) {
     c.bench_function("build_from_builder", |b| {
         b.iter(|| {
@@ -334,7 +289,6 @@ pub fn parse_complex_with_sc_complex(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    build_from_usage,
     build_from_builder,
     parse_complex,
     parse_complex_with_flag,

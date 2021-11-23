@@ -436,21 +436,6 @@ fn did_you_mean() {
 }
 
 #[test]
-fn issue_665() {
-    // Verify fix for "arg_from_usage(): required values not being enforced when followed by another option"
-    let res = App::new("tester")
-        .arg(Arg::from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'"))
-        .arg(
-            Arg::from_usage("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
-                .setting(ArgSettings::ForbidEmptyValues)
-        )
-        .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
-
-    assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
-}
-
-#[test]
 fn issue_1047_min_zero_vals_default_val() {
     let m = App::new("foo")
         .arg(

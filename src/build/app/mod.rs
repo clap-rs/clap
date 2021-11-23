@@ -1271,50 +1271,17 @@ impl<'help> App<'help> {
         self
     }
 
-    /// A convenience method for adding a single [argument] from a usage type string. The string
-    /// used follows the same rules and syntax as [`Arg::from_usage`]
-    ///
-    /// **NOTE:** The downside to using this method is that you can not set any additional
-    /// properties of the [`Arg`] other than what [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .arg_from_usage("-c --config=<FILE> 'Sets a configuration file to use'")
-    /// # ;
-    /// ```
-    /// [argument]: ./struct.Arg.html
-    /// [`Arg`]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
+    /// Deprecated in Issue #8, see [`arg!`][crate::arg!].
+    #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
+        #![allow(deprecated)]
         self.arg(Arg::from_usage(usage))
     }
 
-    /// Adds multiple [arguments] at once from a usage string, one per line. See
-    /// [`Arg::from_usage`] for details on the syntax and rules supported.
-    ///
-    /// **NOTE:** Like [`App::arg_from_usage`] the downside is you only set properties for the
-    /// [`Arg`]s which [`Arg::from_usage`] supports.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg};
-    /// App::new("myprog")
-    ///     .args_from_usage(
-    ///         "-c --config=[FILE] 'Sets a configuration file to use'
-    ///          [debug]... -d 'Sets the debugging level'
-    ///          <FILE> 'The input file to use'"
-    ///     )
-    /// # ;
-    /// ```
-    /// [arguments]: ./struct.Arg.html
-    /// [`Arg::from_usage`]: ./struct.Arg.html#method.from_usage
-    /// [`App::arg_from_usage`]: ./struct.App.html#method.arg_from_usage
-    /// [`Arg`]: ./struct.Arg.html
+    /// Deprecated in Issue #8, see [`arg!`][crate::arg!].
+    #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
+        #![allow(deprecated)]
         for line in usage.lines() {
             let l = line.trim();
             if l.is_empty() {

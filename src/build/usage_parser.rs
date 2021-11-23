@@ -241,6 +241,8 @@ fn default_value_end(b: u8) -> bool {
 
 #[cfg(test)]
 mod test {
+    #![allow(deprecated)]
+
     use crate::build::{Arg, ArgSettings};
 
     #[allow(clippy::cognitive_complexity)]
@@ -1238,5 +1240,37 @@ mod test {
         assert_eq!(a.long, Some("ôpt"));
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"üñíčöĐ€"]);
         assert_eq!(a.help, Some("hælp"));
+    }
+
+    #[test]
+    fn value_names_building_num_vals_from_usage() {
+        use crate::App;
+        let m = App::new("test")
+            .arg(Arg::from_usage("--pos <who> <what> <why>"))
+            .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
+
+        assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+        let m = m.unwrap();
+
+        assert_eq!(
+            m.values_of("pos").unwrap().collect::<Vec<_>>(),
+            ["val1", "val2", "val3"]
+        );
+    }
+
+    #[test]
+    fn issue_665() {
+        use crate::{App, ErrorKind};
+        // Verify fix for "arg_from_usage(): required values not being enforced when followed by another option"
+        let res = App::new("tester")
+        .arg(Arg::from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'"))
+        .arg(
+            Arg::from_usage("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
+                .setting(ArgSettings::ForbidEmptyValues)
+        )
+        .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
+
+        assert!(res.is_err());
+        assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     }
 }
