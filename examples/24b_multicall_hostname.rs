@@ -6,7 +6,6 @@ fn main() {
         .subcommand(App::new("hostname").about("show hostname part of FQDN"))
         .subcommand(App::new("dnsdomainname").about("show domain name part of FQDN"));
 
-    #[cfg(feature = "unstable-multicall")]
     let app = app.setting(AppSettings::Multicall);
 
     match app.get_matches().subcommand_name() {
