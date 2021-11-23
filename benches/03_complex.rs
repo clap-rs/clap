@@ -1,4 +1,4 @@
-use clap::{App, AppSettings, Arg, ArgSettings};
+use clap::{arg, App, AppSettings, Arg, ArgSettings};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 static OPT3_VALS: [&str; 2] = ["fast", "slow"];
@@ -10,41 +10,39 @@ macro_rules! create_app {
             .version("0.1")
             .about("tests clap library")
             .author("Kevin K. <kbknapp@gmail.com>")
-            .arg("-o --option=[opt]... 'tests options'")
-            .arg("[positional] 'tests positionals'")
-            .arg(Arg::from("-f --flag... 'tests flags'").global(true))
+            .arg(arg!(-o --option <opt> ... "tests options").required(false))
+            .arg(arg!([positional] "tests positionals"))
+            .arg(arg!(-f --flag ... "tests flags").global(true))
             .args(&[
-                Arg::from("[flag2] -F 'tests flags with exclusions'")
+                arg!(flag2: -F "tests flags with exclusions")
                     .conflicts_with("flag")
                     .requires("option2"),
-                Arg::from(
-                    "[option2] --long-option-2 [option2] 'tests long options with exclusions'",
-                )
-                .conflicts_with("option")
-                .requires("positional2"),
-                Arg::from("[positional2] 'tests positionals with exclusions'"),
-                Arg::from("-O --Option [option3] 'tests options with specific value sets'")
+                arg!(option2: --"long-option-2" <option2> "tests long options with exclusions")
+                    .required(false)
+                    .conflicts_with("option")
+                    .requires("positional2"),
+                arg!([positional2] "tests positionals with exclusions"),
+                arg!(-O --Option <option3> "tests options with specific value sets")
+                .required(false)
                     .possible_values(OPT3_VALS),
-                Arg::from("[positional3]... 'tests positionals with specific values'")
+                arg!([positional3] ... "tests positionals with specific values")
                     .possible_values(POS3_VALS),
-                Arg::from("--multvals [one] [two] 'Tests multiple values, not mult occs'"),
-                Arg::from("--multvalsmo... [one] [two] 'Tests multiple values, not mult occs'"),
-                Arg::from("--minvals2 [minvals]... 'Tests 2 min vals'").min_values(2),
-                Arg::from("--maxvals3 [maxvals]... 'Tests 3 max vals'").max_values(3),
+                arg!(--multvals "Tests multiple values not mult occs").required(false).value_names(&["one", "two"]),
+                arg!(
+                    --multvalsmo "Tests multiple values, not mult occs"
+                ).multiple_values(true).required(false).value_names(&["one", "two"]),
+                arg!(--minvals2 <minvals> ... "Tests 2 min vals").min_values(2).multiple_values(true).required(false),
+                arg!(--maxvals3 <maxvals> ... "Tests 3 max vals").max_values(3).multiple_values(true).required(false),
             ])
             .subcommand(
                 App::new("subcmd")
                     .about("tests subcommands")
                     .version("0.1")
                     .author("Kevin K. <kbknapp@gmail.com>")
-                    .arg("-o --option [scoption]... 'tests options'")
-                    .arg("[scpositional] 'tests positionals'"),
+                    .arg(arg!(-o --option <scoption> ... "tests options").required(false))
+                    .arg(arg!([scpositional] "tests positionals"))
             )
     }};
-}
-
-pub fn build_from_usage(c: &mut Criterion) {
-    c.bench_function("build_from_usage", |b| b.iter(|| create_app!()));
 }
 
 pub fn build_from_builder(c: &mut Criterion) {
@@ -291,7 +289,6 @@ pub fn parse_complex_with_sc_complex(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    build_from_usage,
     build_from_builder,
     parse_complex,
     parse_complex_with_flag,

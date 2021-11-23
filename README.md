@@ -27,8 +27,7 @@ We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.5` 
 4. [Quick Example](#quick-example)
       1. [Using Derive Macros](#using-derive-macros)
       2. [Using Builder Pattern](#using-builder-pattern)
-      3. [Using YAML](#using-yaml)
-      4. [Running it](#running-it)
+      3. [Running it](#running-it)
 5. [Try it!](#try-it)
    1. [Pre-Built Test](#pre-built-test)
    2. [Build Your Own Binary](#build-your-own-binary)
@@ -92,7 +91,6 @@ Below are a few of the features which `clap` supports, full descriptions and usa
 * **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
   - Support their own sub-arguments, and sub-sub-commands independent of the parent
   - Get their own auto-generated Help, Version, and Usage independent of parent
-* **Support for building CLIs from YAML** - This keeps your Rust source nice and tidy and makes supporting localized translation very simple!
 * **Requirement Rules**: Arguments can define the following types of requirement rules
   - Can be required by default
   - Can be required only if certain arguments are present
@@ -283,90 +281,24 @@ The next example shows a far less verbose method, but sacrifices some of the adv
 //
 // This example demonstrates clap's "usage strings" method of creating arguments
 // which is less verbose
-use clap::App;
+use clap::{App, arg};
 
 fn main() {
     let matches = App::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg("-c, --config=[FILE] 'Sets a custom config file'")
-        .arg("<INPUT>              'Sets the input file to use'")
-        .arg("-v...                'Sets the level of verbosity'")
+        .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
+        .arg(arg!(<INPUT>            "Sets the input file to use"))
+        .arg(arg!(-v --verbose ...   "Sets the level of verbosity"))
         .subcommand(App::new("test")
             .about("controls testing features")
             .version("1.3")
             .author("Someone E. <someone_else@other.com>")
-            .arg("-d, --debug 'Print debug information'"))
+            .arg(arg!(-d --debug "Print debug information")))
         .get_matches();
 
     // Same as previous example...
-}
-```
-
-#### Using YAML
-
-This third method shows how you can use a YAML file to build your CLI and keep your Rust source tidy
-or support multiple localized translations by having different YAML files for each localization.
-
-First, create the `cli.yaml` file to hold your CLI options, but it could be called anything we like:
-
-```yaml
-name: myapp
-version: "1.0"
-author: Kevin K. <kbknapp@gmail.com>
-about: Does awesome things
-args:
-    - config:
-        short: c
-        long: config
-        value_name: FILE
-        help: Sets a custom config file
-        takes_value: true
-    - INPUT:
-        help: Sets the input file to use
-        required: true
-        index: 1
-    - verbose:
-        short: v
-        multiple_occurrences: true
-        help: Sets the level of verbosity
-subcommands:
-    - test:
-        about: controls testing features
-        version: "1.3"
-        author: Someone E. <someone_else@other.com>
-        args:
-            - debug:
-                short: d
-                long: debug
-                help: Print debug information
-```
-
-Since this feature requires additional dependencies that not everyone may want, it is *not* compiled in by default and we need to enable a feature flag in Cargo.toml:
-
-Simply add the `yaml` feature flag to your `Cargo.toml`.
-
-```toml
-[dependencies]
-clap = { version = "3.0.0-beta.5", features = ["yaml"] }
-```
-
-Finally we create our `main.rs` file just like we would have with the previous two examples:
-
-```rust,ignore
-// (Full example with detailed comments in examples/17_yaml.rs)
-//
-// This example demonstrates clap's building from YAML style of creating arguments which is far
-// more clean, but takes a very small performance hit compared to the other two methods.
-use clap::{App, load_yaml};
-
-fn main() {
-    // The YAML file is found relative to the current file, similar to how modules are found
-    let yaml = load_yaml!("cli.yaml");
-    let matches = App::from(yaml).get_matches();
-
-    // Same as previous examples...
 }
 ```
 

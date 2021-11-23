@@ -1,4 +1,4 @@
-use clap::App;
+use clap::{arg, App};
 
 fn main() {
     // You can use some convenience methods provided by clap to get typed values, so long as the
@@ -22,8 +22,15 @@ fn main() {
     let matches = App::new("myapp")
         // Create two arguments, a required positional which accepts multiple values
         // and an optional '-l value'
-        .arg("<seq>... 'A sequence of whole positive numbers, i.e. 20 25 30'")
-        .arg("-l [len] 'A length to use, defaults to 10 when omitted'")
+        .arg(arg!(
+            <seq> ... "A sequence of whole positive numbers, i.e. 20 25 30"
+        ))
+        .arg(
+            arg!(
+                l: -l <len> "A length to use, defaults to 10 when omitted"
+            )
+            .required(false),
+        )
         .get_matches();
 
     // This code loops through all the values provided to "seq" and adds 2

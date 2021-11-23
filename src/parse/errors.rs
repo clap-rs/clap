@@ -47,9 +47,9 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{App, arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::from("--flag 'some flag'"))
+    ///     .arg(arg!(--flag "some flag"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
@@ -1106,7 +1106,7 @@ impl Error {
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
-    /// Deprecated, see [`App::error`]
+    /// Deprecated, replaced with [`App::error`]
     ///
     /// [`App::error`]: crate::App::error
     #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]

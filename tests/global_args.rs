@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 #[test]
 fn issue_1076() {
@@ -49,20 +49,12 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
 #[test]
 fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
     let m = App::new("opts")
-        .arg(Arg::from("--global-flag").global(true))
-        .arg(
-            Arg::from("--global-str <global-str>")
-                .required(false)
-                .global(true),
-        )
+        .arg(arg!(--"global-flag").global(true))
+        .arg(arg!(--"global-str" <str>).required(false).global(true))
         .subcommand(
             App::new("test")
-                .arg(Arg::from("--sub-flag").global(true))
-                .arg(
-                    Arg::from("--sub-str <sub-str>")
-                        .required(false)
-                        .global(true),
-                )
+                .arg(arg!(--"sub-flag").global(true))
+                .arg(arg!(--"sub-str" <str>).required(false).global(true))
                 .subcommand(App::new("test")),
         )
         .get_matches_from(&[

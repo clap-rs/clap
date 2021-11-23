@@ -519,11 +519,11 @@ pub enum AppSettings {
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAuto,
 
-    /// Deprecated, see [`App::color`][crate::App::color]
+    /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAlways,
 
-    /// Deprecated, see [`App::color`][crate::App::color]
+    /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorNever,
 
@@ -574,7 +574,7 @@ pub enum AppSettings {
     /// ```
     DisableHelpFlag,
 
-    /// Deprecated, see [`AppSettings::DisableHelpFlag`]
+    /// Deprecated, replaced with [`AppSettings::DisableHelpFlag`]
     #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
     DisableHelpFlags,
 
@@ -615,7 +615,7 @@ pub enum AppSettings {
     /// ```
     DisableVersionFlag,
 
-    /// Deprecated, see [`AppSettings::DisableVersionFlag`]
+    /// Deprecated, replaced with [`AppSettings::DisableVersionFlag`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `AppSettings::DisableVersionFlag`"
@@ -743,7 +743,7 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     PropagateVersion,
 
-    /// Deprecated, see [`AppSettings::PropagateVersion`]
+    /// Deprecated, replaced with [`AppSettings::PropagateVersion`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `AppSettings::PropagateVersion`"
@@ -819,12 +819,12 @@ pub enum AppSettings {
     /// avoided in many cases.
     ///
     /// ```rust
-    /// # use clap::{App, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let app = App::new("app")
     ///   .setting(AppSettings::IgnoreErrors)
-    ///   .arg("-c, --config=[FILE] 'Sets a custom config file'")
-    ///   .arg("-x, --stuff=[FILE] 'Sets a custom stuff file'")
-    ///   .arg("-f 'Flag'");
+    ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
+    ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
+    ///   .arg(arg!(f: -f "Flag"));
     ///
     /// let r = app.try_get_matches_from(vec!["app", "-c", "file", "-f", "-x"]);
     ///
@@ -883,10 +883,10 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::NoBinaryName)
-    ///     .arg(Arg::from("<cmd>... 'commands to run'"))
+    ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["command", "set"]);
     ///
     /// let cmds: Vec<&str> = m.values_of("cmd").unwrap().collect();
@@ -1028,10 +1028,10 @@ pub enum AppSettings {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, AppSettings};
+    /// # use clap::{App, arg, AppSettings};
     /// let m = App::new("myprog")
     ///     .setting(AppSettings::TrailingVarArg)
-    ///     .arg(Arg::from("<cmd>... 'commands to run'"))
+    ///     .arg(arg!(<cmd> ... "commands to run"))
     ///     .get_matches_from(vec!["myprog", "arg1", "-r", "val1"]);
     ///
     /// let trail: Vec<&str> = m.values_of("cmd").unwrap().collect();

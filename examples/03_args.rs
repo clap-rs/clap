@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 fn main() {
     // Args describe a possible valid argument which may be supplied by the user at runtime. There
@@ -9,9 +9,8 @@ fn main() {
     // methods describing various settings for the individual arguments. Or by supplying a "usage"
     // string. Both methods have their pros and cons.
     //
-    // Arguments can be added to applications in two manners, one at a time with the arg(), and
-    // arg() method, or multiple arguments at once via a Vec<Arg> inside the args() method,
-    // or a single &str describing multiple Args (one per line) supplied to args_from_usage().
+    // Arguments can be added to applications in two manners, one at a time with the arg()
+    // method, or multiple arguments at once via a `&[Arg]` inside the args() method.
     //
     // There are various options which can be set for a given argument, some apply to any of the
     // three types of arguments, some only apply one or two of the types. *NOTE* if you set
@@ -50,10 +49,15 @@ fn main() {
         //
         //
         // One "Flag" using a usage string
-        .arg("--license 'display the license file'")
-        // Two args, one "Positional", and one "Option" using a usage string
-        .arg("[output] 'Supply an output file to use'")
-        .arg("-i, --int=[IFACE] 'Set an interface to use'")
+        .arg(arg!(--license "display the license file"))
+        // Two args one Positional and one Option using a usage string
+        .arg(arg!([output] "Supply an output file to use"))
+        .arg(
+            arg!(
+                -i --int <IFACE> "Set an interface to use"
+            )
+            .required(false),
+        )
         .get_matches();
 
     // Here are some examples of using the arguments defined above. Keep in mind that this is only

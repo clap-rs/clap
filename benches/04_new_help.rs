@@ -1,5 +1,5 @@
 use clap::App;
-use clap::{Arg, ArgSettings};
+use clap::{arg, Arg, ArgSettings};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::io::Cursor;
 
@@ -15,13 +15,18 @@ fn app_example1<'c>() -> App<'c> {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg("-c, --config=[FILE] 'Sets a custom config file'")
-        .arg("<output> 'Sets an optional output file'")
-        .arg("-d... 'Turn debugging information on'")
+        .arg(
+            arg!(
+                -c --config <FILE> "Sets a custom config file"
+            )
+            .required(false),
+        )
+        .arg(arg!(<output> "Sets an optional output file"))
+        .arg(arg!(d: -d ... "Turn debugging information on"))
         .subcommand(
             App::new("test")
                 .about("does testing things")
-                .arg("-l, --list 'lists test values'"),
+                .arg(arg!(-l --list "lists test values")),
         )
 }
 
@@ -49,9 +54,14 @@ fn app_example3<'c>() -> App<'c> {
                 .help("the input file to use")
                 .setting(ArgSettings::Required),
         ])
-        .arg("--license 'display the license file'")
-        .arg("[output] 'Supply an output file to use'")
-        .arg("-i, --int=[IFACE] 'Set an interface to use'")
+        .arg(arg!(--license "display the license file"))
+        .arg(arg!([output] "Supply an output file to use"))
+        .arg(
+            arg!(
+                -i --int <IFACE> "Set an interface to use"
+            )
+            .required(false),
+        )
 }
 
 fn app_example4<'c>() -> App<'c> {

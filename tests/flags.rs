@@ -1,5 +1,5 @@
 mod utils;
-use clap::{App, Arg};
+use clap::{arg, App, Arg};
 
 const USE_FLAG_AS_ARGUMENT: &str =
     "error: Found argument '--another-flag' which wasn't expected, or isn't valid in this context
@@ -16,8 +16,8 @@ For more information try --help
 fn flag_using_short() {
     let m = App::new("flag")
         .args(&[
-            Arg::from("-f, --flag 'some flag'"),
-            Arg::from("-c, --color 'some other flag'"),
+            arg!(-f --flag "some flag"),
+            arg!(-c --color "some other flag"),
         ])
         .get_matches_from(vec!["", "-f", "-c"]);
     assert!(m.is_present("flag"));
@@ -27,7 +27,7 @@ fn flag_using_short() {
 #[test]
 fn lots_o_flags_sep() {
     let r = App::new("opts")
-        .arg(Arg::from("-o... 'some flag'"))
+        .arg(arg!(o: -o ... "some flag"))
         .try_get_matches_from(vec![
             "", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
@@ -61,7 +61,7 @@ fn lots_o_flags_sep() {
 #[test]
 fn lots_o_flags_combined() {
     let r = App::new("opts")
-        .arg(Arg::from("-o... 'some flag'"))
+        .arg(arg!(o: -o ... "some flag"))
         .try_get_matches_from(vec![
             "",
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
@@ -79,10 +79,7 @@ fn lots_o_flags_combined() {
 #[test]
 fn flag_using_long() {
     let m = App::new("flag")
-        .args(&[
-            Arg::from("--flag 'some flag'"),
-            Arg::from("--color 'some other flag'"),
-        ])
+        .args(&[arg!(--flag "some flag"), arg!(--color "some other flag")])
         .get_matches_from(vec!["", "--flag", "--color"]);
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
@@ -103,8 +100,8 @@ fn flag_using_long_with_literals() {
 fn flag_using_mixed() {
     let m = App::new("flag")
         .args(&[
-            Arg::from("-f, --flag 'some flag'"),
-            Arg::from("-c, --color 'some other flag'"),
+            arg!(-f --flag "some flag"),
+            arg!(-c --color "some other flag"),
         ])
         .get_matches_from(vec!["", "-f", "--color"]);
     assert!(m.is_present("flag"));
@@ -112,8 +109,8 @@ fn flag_using_mixed() {
 
     let m = App::new("flag")
         .args(&[
-            Arg::from("-f, --flag 'some flag'"),
-            Arg::from("-c, --color 'some other flag'"),
+            arg!(-f --flag "some flag"),
+            arg!(-c --color "some other flag"),
         ])
         .get_matches_from(vec!["", "--flag", "-c"]);
     assert!(m.is_present("flag"));
@@ -124,9 +121,9 @@ fn flag_using_mixed() {
 fn multiple_flags_in_single() {
     let m = App::new("multe_flags")
         .args(&[
-            Arg::from("-f, --flag 'some flag'"),
-            Arg::from("-c, --color 'some other flag'"),
-            Arg::from("-d, --debug 'another other flag'"),
+            arg!(-f --flag "some flag"),
+            arg!(-c --color "some other flag"),
+            arg!(-d --debug "another other flag"),
         ])
         .get_matches_from(vec!["", "-fcd"]);
     assert!(m.is_present("flag"));

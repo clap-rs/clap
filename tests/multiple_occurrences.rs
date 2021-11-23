@@ -1,13 +1,10 @@
-use clap::{App, Arg, ArgSettings, ErrorKind};
+use clap::{arg, App, Arg, ArgSettings, ErrorKind};
 
 #[test]
 fn multiple_occurrences_of_flags_long() {
     let m = App::new("mo_flags_long")
-        .arg(
-            Arg::from("--multflag 'allowed multiple flag'")
-                .setting(ArgSettings::MultipleOccurrences),
-        )
-        .arg(Arg::from("--flag 'disallowed multiple flag'"))
+        .arg(arg!(--multflag "allowed multiple flag").setting(ArgSettings::MultipleOccurrences))
+        .arg(arg!(--flag "disallowed multiple flag"))
         .get_matches_from(vec!["", "--multflag", "--flag", "--multflag"]);
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 2);
@@ -18,11 +15,8 @@ fn multiple_occurrences_of_flags_long() {
 #[test]
 fn multiple_occurrences_of_flags_short() {
     let m = App::new("mo_flags_short")
-        .arg(
-            Arg::from("-m --multflag 'allowed multiple flag'")
-                .setting(ArgSettings::MultipleOccurrences),
-        )
-        .arg(Arg::from("-f --flag 'disallowed multiple flag'"))
+        .arg(arg!(-m --multflag "allowed multiple flag").setting(ArgSettings::MultipleOccurrences))
+        .arg(arg!(-f --flag "disallowed multiple flag"))
         .get_matches_from(vec!["", "-m", "-f", "-m"]);
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 2);
@@ -33,15 +27,12 @@ fn multiple_occurrences_of_flags_short() {
 #[test]
 fn multiple_occurrences_of_flags_mixed() {
     let m = App::new("mo_flags_mixed")
+        .arg(arg!(-m --multflag1 "allowed multiple flag").setting(ArgSettings::MultipleOccurrences))
         .arg(
-            Arg::from("-m, --multflag1 'allowed multiple flag'")
+            arg!(-n --multflag2 "another allowed multiple flag")
                 .setting(ArgSettings::MultipleOccurrences),
         )
-        .arg(
-            Arg::from("-n, --multflag2 'another allowed multiple flag'")
-                .setting(ArgSettings::MultipleOccurrences),
-        )
-        .arg(Arg::from("-f, --flag 'disallowed multiple flag'"))
+        .arg(arg!(-f --flag "disallowed multiple flag"))
         .get_matches_from(vec![
             "",
             "-m",
@@ -98,10 +89,7 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .chain(vec!["-m"; 1024].into_iter())
         .collect();
     let m = App::new("mo_flags_large_qty")
-        .arg(
-            Arg::from("-m --multflag 'allowed multiple flag'")
-                .setting(ArgSettings::MultipleOccurrences),
-        )
+        .arg(arg!(-m --multflag "allowed multiple flag").setting(ArgSettings::MultipleOccurrences))
         .get_matches_from(args);
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 1024);
