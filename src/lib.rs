@@ -37,6 +37,10 @@ pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcomma
 
 #[cfg(feature = "yaml")]
 #[doc(hidden)]
+#[deprecated(
+    since = "3.0.0",
+    note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+)]
 pub use yaml_rust::YamlLoader;
 
 #[cfg(feature = "derive")]
@@ -66,18 +70,20 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
                                   report at https://github.com/clap-rs/clap/issues";
 const INVALID_UTF8: &str = "unexpected invalid UTF-8 code point";
 
-/// Deprecated, see [`App`]
+/// Deprecated, replaced with [`App`]
+#[deprecated(since = "3.0.0", note = "Replaced with `App`")]
 #[derive(Debug, Copy, Clone)]
 pub struct SubCommand {}
 
+#[allow(deprecated)]
 impl SubCommand {
-    /// Deprecated, see [`App::new`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::new`)")]
+    /// Deprecated, replaced with [`App::new`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::new`")]
     pub fn with_name<'help>(name: &str) -> App<'help> {
         App::new(name)
     }
 
-    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",

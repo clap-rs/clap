@@ -519,11 +519,11 @@ pub enum AppSettings {
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAuto,
 
-    /// Deprecated, see [`App::color`][crate::App::color]
+    /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorAlways,
 
-    /// Deprecated, see [`App::color`][crate::App::color]
+    /// Deprecated, replaced with [`App::color`][crate::App::color]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorNever,
 
@@ -574,7 +574,7 @@ pub enum AppSettings {
     /// ```
     DisableHelpFlag,
 
-    /// Deprecated, see [`AppSettings::DisableHelpFlag`]
+    /// Deprecated, replaced with [`AppSettings::DisableHelpFlag`]
     #[deprecated(since = "3.0.0", note = "Replaced with `AppSettings::DisableHelpFlag`")]
     DisableHelpFlags,
 
@@ -615,7 +615,7 @@ pub enum AppSettings {
     /// ```
     DisableVersionFlag,
 
-    /// Deprecated, see [`AppSettings::DisableVersionFlag`]
+    /// Deprecated, replaced with [`AppSettings::DisableVersionFlag`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `AppSettings::DisableVersionFlag`"
@@ -743,7 +743,7 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     PropagateVersion,
 
-    /// Deprecated, see [`AppSettings::PropagateVersion`]
+    /// Deprecated, replaced with [`AppSettings::PropagateVersion`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `AppSettings::PropagateVersion`"

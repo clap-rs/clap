@@ -1106,7 +1106,7 @@ impl Error {
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
-    /// Deprecated, see [`App::error`]
+    /// Deprecated, replaced with [`App::error`]
     ///
     /// [`App::error`]: crate::App::error
     #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]

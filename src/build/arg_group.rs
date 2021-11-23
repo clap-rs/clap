@@ -108,17 +108,17 @@ impl<'help> ArgGroup<'help> {
         ArgGroup::default().name(n)
     }
 
-    /// Deprecated, see [`ArgGroup::new`]
+    /// Deprecated, replaced with [`ArgGroup::new`]
     #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
     }
 
-    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
     )]
     pub fn from_yaml(yaml: &'help Yaml) -> Self {
         Self::from(yaml)
@@ -439,10 +439,10 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
     }
 }
 
-/// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+/// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
 #[cfg(feature = "yaml")]
 impl<'help> From<&'help Yaml> for ArgGroup<'help> {
-    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     fn from(y: &'help Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.

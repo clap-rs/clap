@@ -397,11 +397,11 @@ impl<'help> App<'help> {
         )
     }
 
-    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
     )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         #![allow(deprecated)]
@@ -890,7 +890,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, see [`App::override_usage`]
+    /// Deprecated, replaced with [`App::override_usage`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")]
     pub fn usage<S: Into<&'help str>>(self, usage: S) -> Self {
         self.override_usage(usage)
@@ -936,7 +936,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, see [`App::override_help`]
+    /// Deprecated, replaced with [`App::override_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")]
     pub fn help<S: Into<&'help str>>(self, help: S) -> Self {
         self.override_help(help)
@@ -990,7 +990,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, see [`App::help_template`]
+    /// Deprecated, replaced with [`App::help_template`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")]
     pub fn template<S: Into<&'help str>>(self, s: S) -> Self {
         self.help_template(s)
@@ -1158,7 +1158,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated, see [`App::term_width`]
+    /// Deprecated, replaced with [`App::term_width`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")]
     pub fn set_term_width(self, width: usize) -> Self {
         self.term_width(width)
@@ -1271,14 +1271,14 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Deprecated in Issue #8, see [`arg!`][crate::arg!].
+    /// Deprecated in [Issue #8](https://github.com/epage/clapng/issues/8), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         self.arg(Arg::from_usage(usage))
     }
 
-    /// Deprecated in Issue #8, see [`arg!`][crate::arg!].
+    /// Deprecated in [Issue #8](https://github.com/epage/clapng/issues/8), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
         #![allow(deprecated)]
@@ -2178,7 +2178,7 @@ impl<'help> App<'help> {
         self.try_get_matches_from(&mut env::args_os())
     }
 
-    /// Deprecated, see [`App::try_get_matches`]
+    /// Deprecated, replaced with [`App::try_get_matches`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches`")]
     pub fn get_matches_safe(self) -> ClapResult<ArgMatches> {
         self.try_get_matches()
@@ -2254,7 +2254,7 @@ impl<'help> App<'help> {
         self.try_get_matches_from_mut(itr)
     }
 
-    /// Deprecated, see [`App::try_get_matches_from`]
+    /// Deprecated, replaced with [`App::try_get_matches_from`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::try_get_matches_from`")]
     pub fn get_matches_from_safe<I, T>(self, itr: I) -> ClapResult<ArgMatches>
     where
@@ -2363,7 +2363,7 @@ impl<'help> App<'help> {
         self._do_parse(&mut it)
     }
 
-    /// Deprecated, see [`App::try_get_matches_from_mut`]
+    /// Deprecated, replaced with [`App::try_get_matches_from_mut`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `App::try_get_matches_from_mut`"

@@ -1,29 +1,9 @@
-/// A convenience macro for loading the YAML file at compile time (relative to the current file,
-/// like modules work). That YAML object can then be passed to this function.
-///
-/// # Panics
-///
-/// The YAML file must be properly formatted or this function will panic!(). A good way to
-/// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
-/// without error, you needn't worry because the YAML is properly formatted.
-///
-/// # Examples
-///
-/// The following example shows how to load a properly formatted YAML file to build an instance
-/// of an `App` struct.
-///
-/// ```ignore
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
-/// # fn main() {
-/// let yaml = load_yaml!("app.yaml");
-/// let app = App::from(yaml);
-///
-/// // continued logic goes here, such as `app.get_matches()` etc.
-/// # }
-/// ```
+/// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
 #[cfg(feature = "yaml")]
+#[deprecated(
+    since = "3.0.0",
+    note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+)]
 #[macro_export]
 macro_rules! load_yaml {
     ($yaml:expr) => {
@@ -402,21 +382,21 @@ macro_rules! arg_impl {
 ///  2. Long
 ///  3. Value Name
 ///
-/// See [`Arg::name`][clap::Arg::name].
+/// See [`Arg::name`][crate::Arg::name].
 ///
 /// ### Short
 ///
 /// A short flag is a `-` followed by either a bare-character or quoted character, like `-f` or
 /// `-'f'`.
 ///
-/// See [`Arg::short`][clap::Arg::sort].
+/// See [`Arg::short`][crate::Arg::short].
 ///
 /// ### Long
 ///
 /// A long flag is a `--` followed by either a bare-word or a string, like `--foo` or
 /// `--"foo"`.
 ///
-/// See [`Arg::long`][clap::Arg::long].
+/// See [`Arg::long`][crate::Arg::long].
 ///
 /// ### Values (Value Notation)
 ///
@@ -426,14 +406,14 @@ macro_rules! arg_impl {
 ///   - Named argument: optional value
 /// - `<>` like `<FOO>`: required
 ///
-/// See [`Arg::value_name`][clap::Arg::value_name].
+/// See [`Arg::value_name`][crate::Arg::value_name].
 ///
 /// ### `...`
 ///
 /// `...` (three consecutive dots/periods) specifies that this argument may occur multiple
 /// times (not to be confused with multiple values per occurrence).
 ///
-/// See [`Arg::multiple_occurrences`][clap::Arg::multiple_occurrences].
+/// See [`Arg::multiple_occurrences`][crate::Arg::multiple_occurrences].
 ///
 /// ### Help String
 ///
@@ -469,7 +449,7 @@ macro_rules! arg {
     }};
 }
 
-/// Deprecated, see `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)
+/// Deprecated, replaced with [`clap::Parser`][crate::Parser] and [`clap::arg!`][crate::arg] (Issue clap-rs/clap#2835)
 #[deprecated(
     since = "3.0.0",
     note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
@@ -835,7 +815,7 @@ macro_rules! debug {
     ($($arg:tt)*) => {};
 }
 
-/// Deprecated, see [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
+/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
 macro_rules! value_t {
@@ -847,7 +827,7 @@ macro_rules! value_t {
     };
 }
 
-/// Deprecated, see [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
 #[deprecated(
     since = "3.0.0",
@@ -862,7 +842,7 @@ macro_rules! value_t_or_exit {
     };
 }
 
-/// Deprecated, see [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
+/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
 #[macro_export]
 #[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
 macro_rules! values_t {
@@ -874,7 +854,7 @@ macro_rules! values_t {
     };
 }
 
-/// Deprecated, see [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
 #[macro_export]
 #[deprecated(
     since = "3.0.0",

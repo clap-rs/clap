@@ -130,7 +130,7 @@ pub enum ArgSettings {
     HideDefaultValue,
     /// Possible values become case insensitive
     IgnoreCase,
-    /// Deprecated, see [`ArgSettings::IgnoreCase`]
+    /// Deprecated, replaced with [`ArgSettings::IgnoreCase`]
     #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
     CaseInsensitive,
     /// Hides environment variable arguments from the help message

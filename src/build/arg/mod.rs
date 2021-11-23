@@ -342,17 +342,17 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, see [`Arg::new`]
+    /// Deprecated, replaced with [`Arg::new`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::new`")]
     pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
         Self::new(n)
     }
 
-    /// Deprecated in Issue #9, maybe clap::Parser would fit your use case?
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
     )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
@@ -482,7 +482,7 @@ impl<'help> Arg<'help> {
         a
     }
 
-    /// Deprecated in Issue #8, see [`arg!`][crate::arg!].
+    /// Deprecated in [Issue #8](https://github.com/epage/clapng/issues/8), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn from_usage(u: &'help str) -> Self {
         UsageParser::from_usage(u).parse()
@@ -495,7 +495,7 @@ impl<'help> Arg<'help> {
 
     /// Set the identifier used for referencing this argument in the clap API.
     ///
-    /// **NOTE:** This will shown to the user in usage/help if no [`value_name`](Arg::value_name]
+    /// **NOTE:** This will shown to the user in usage/help if no [`value_name`][Arg::value_name]
     /// is provided.
     pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
         let name = n.into();
@@ -971,7 +971,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::required_unless_present`]
+    /// Deprecated, replaced with [`Arg::required_unless_present`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")]
     pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
         self.required_unless_present(arg_id)
@@ -1051,7 +1051,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::required_unless_present_all`]
+    /// Deprecated, replaced with [`Arg::required_unless_present_all`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_all`"
@@ -1140,7 +1140,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::required_unless_present_any`]
+    /// Deprecated, replaced with [`Arg::required_unless_present_any`]
     #[deprecated(
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_any`"
@@ -1721,7 +1721,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::required_if_eq`]
+    /// Deprecated, replaced with [`Arg::required_if_eq`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")]
     pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
         self.required_if_eq(arg_id, val)
@@ -1813,7 +1813,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::required_if_eq_any`]
+    /// Deprecated, replaced with [`Arg::required_if_eq_any`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")]
     pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
         self.required_if_eq_any(ifs)
@@ -4407,7 +4407,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, see [`Arg::forbid_empty_values`]
+    /// Deprecated, replaced with [`Arg::forbid_empty_values`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
     pub fn empty_values(self, empty: bool) -> Self {
         self.forbid_empty_values(!empty)
@@ -4652,7 +4652,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Deprecated, see [`Arg::multiple_occurrences`] (most likely what you want) and
+    /// Deprecated, replaced with [`Arg::multiple_occurrences`] (most likely what you want) and
     /// [`Arg::multiple_values`]
     #[deprecated(
         since = "3.0.0",
@@ -4883,7 +4883,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::setting`]
+    /// Deprecated, replaced with [`Arg::setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")]
     pub fn set(self, s: ArgSettings) -> Self {
         self.setting(s)
@@ -4918,7 +4918,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Deprecated, see [`Arg::unset_setting`]
+    /// Deprecated, replaced with [`Arg::unset_setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")]
     pub fn unset(self, s: ArgSettings) -> Self {
         self.unset_setting(s)
