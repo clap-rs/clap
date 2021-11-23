@@ -1,12 +1,6 @@
 use clap::{App, Arg};
 
 fn main() {
-    // There are two ways in which to get a default value, one is to use clap's Arg::default_value
-    // method, and the other is to use Rust's built in Option::unwrap_or method.
-    //
-    // I'll demo both here.
-    //
-    // First, we'll use clap's Arg::default_value with an "INPUT" file.
     let matches = App::new("myapp")
         .about("does awesome things")
         .arg(

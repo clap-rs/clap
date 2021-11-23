@@ -1,10 +1,6 @@
 use clap::{arg, App, Arg};
 
 fn main() {
-    // Args describe a possible valid argument which may be supplied by the user at runtime. There
-    // are three different types of arguments (flags, options, and positional) as well as a fourth
-    // special type of argument, called Subcommands (which will be discussed separately).
-    //
     // Args are described in the same manner as Apps using the "builder pattern" with multiple
     // methods describing various settings for the individual arguments. Or by supplying a "usage"
     // string. Both methods have their pros and cons.
@@ -16,12 +12,6 @@ fn main() {
     // three types of arguments, some only apply one or two of the types. *NOTE* if you set
     // incompatible options on a single argument, clap will panic! at runtime. This is by design,
     // so that you know right away an error was made by the developer, not the end user.
-    //
-    // # Help and Version
-    // clap automatically generates a help and version flag for you, unless you specify your
-    // own. By default help uses "-h" and "--help", and version uses "-V" and "--version". You can
-    // safely override "-V" and "-h" to your own arguments, and "--help" and "--version" will still
-    // be automatically generated for you.
     let matches = App::new("MyApp")
         // All application settings go here...
         // A simple "Flag" argument example (i.e. "-d") using the builder pattern

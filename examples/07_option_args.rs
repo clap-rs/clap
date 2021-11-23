@@ -1,11 +1,6 @@
 use clap::{arg, App, Arg};
 
 fn main() {
-    // Option arguments are those that take an additional value, such as "-c value". In clap they
-    // support three types of specification, those with short() as "-o some", or those with long()
-    // as "--option value" or "--option=value"
-    //
-    // Options also support a multiple setting, which is discussed in the example below.
     let matches = App::new("MyApp")
         // Regular App configuration goes here...
         // Assume we have an application that accepts an input file via the "-i file"

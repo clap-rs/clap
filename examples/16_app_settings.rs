@@ -1,13 +1,6 @@
 use clap::{arg, App, AppSettings};
 
 fn main() {
-    // You can use AppSettings to change the application level behavior of clap. .setting() function
-    // of App struct takes AppSettings enum as argument. You can learn more about AppSettings in the
-    // documentation, which also has examples on each setting.
-    //
-    // This example will only show usage of one AppSettings setting. See documentation for more
-    // information.
-
     let matches = App::new("myapp")
         .setting(AppSettings::SubcommandsNegateReqs)
         // Negates requirement of parent command.

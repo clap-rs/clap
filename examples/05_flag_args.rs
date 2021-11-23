@@ -1,11 +1,6 @@
 use clap::{arg, App, Arg};
 
 fn main() {
-    // Of the three argument types, flags are the most simple. Flags are simple switches which can
-    // be either "on" or "off"
-    //
-    // clap also supports multiple occurrences of flags, the common example is "verbosity" where a
-    // user could want a little information with "-v" or tons of information with "-v -v" or "-vv"
     let matches = App::new("MyApp")
         // Regular App configuration goes here...
         // We'll add a flag that represents an awesome meter...

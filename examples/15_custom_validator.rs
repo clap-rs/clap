@@ -1,10 +1,6 @@
 use clap::{App, Arg};
 
 fn main() {
-    // You can define a function (or a closure) to use as a validator to argument values. The
-    // function must accept a `&str` and return `Result<(), String>` where `Err(String)` is the
-    // message displayed to the user.
-
     let matches = App::new("myapp")
         // Application logic goes here...
         .arg(

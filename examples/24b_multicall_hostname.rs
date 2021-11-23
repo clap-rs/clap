@@ -1,9 +1,3 @@
-//! Example of a `hostname-style` multicall program
-//!
-//! See the documentation for clap::AppSettings::Multicall for rationale.
-//!
-//! This example omits the implementation of displaying address config
-
 use clap::{App, AppSettings};
 
 fn main() {
