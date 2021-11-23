@@ -4,7 +4,7 @@
 # - Easy to debug: show the command being run
 # - Leverage CI features: Only run individual steps so we can use features like reporting elapsed time per step
 
-ARGS?=
+ARGS?=--workspace
 TOOLCHAIN_TARGET ?=
 ifneq (${TOOLCHAIN_TARGET},)
   ARGS+=--target ${TOOLCHAIN_TARGET}
