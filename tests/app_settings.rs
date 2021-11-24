@@ -539,7 +539,7 @@ fn delim_values_trailingvararg_with_delim() {
 #[test]
 fn leading_hyphen_short() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .setting(AppSettings::AllowHyphenValues)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "-bar", "-o"]);
@@ -553,7 +553,7 @@ fn leading_hyphen_short() {
 #[test]
 fn leading_hyphen_long() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .setting(AppSettings::AllowHyphenValues)
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--bar", "-o"]);
@@ -567,7 +567,7 @@ fn leading_hyphen_long() {
 #[test]
 fn leading_hyphen_opt() {
     let res = App::new("leadhy")
-        .setting(AppSettings::AllowLeadingHyphen)
+        .setting(AppSettings::AllowHyphenValues)
         .arg(Arg::new("some").takes_value(true).long("opt"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
@@ -606,7 +606,7 @@ fn allow_negative_numbers_fail() {
 fn leading_double_hyphen_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
-        .setting(AppSettings::AllowLeadingHyphen)
+        .setting(AppSettings::AllowHyphenValues)
         .arg(arg!([opt] ... "some pos"))
         .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
     assert!(m.is_present("opt"));
@@ -823,7 +823,7 @@ fn missing_positional_hyphen_req_error() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen)
+        .global_setting(AppSettings::AllowHyphenValues)
         .arg(arg!(--"some-argument"))
         .try_get_matches_from(vec!["prog", "hello"]);
 
@@ -834,7 +834,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen)
+        .global_setting(AppSettings::AllowHyphenValues)
         .arg(arg!(--"some-argument"))
         .try_get_matches_from(vec!["prog", "--hello"]);
 
@@ -845,7 +845,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
 #[test]
 fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
     let res = App::new("prog")
-        .global_setting(AppSettings::AllowLeadingHyphen)
+        .global_setting(AppSettings::AllowHyphenValues)
         .arg(arg!(--"some-argument" <val>))
         .try_get_matches_from(vec!["prog", "-hello"]);
 
