@@ -43,28 +43,24 @@ features = ["doc"]
 [features]
 default = [
 	"std",
-	"derive",
-	"cargo",
 	"color",
-	"env",
 	"suggestions",
-	"unicode",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
 doc = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
-derive = ["clap_derive", "lazy_static"]
-cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 color = ["atty", "termcolor"]
-env = [] # Use environment variables during arg parsing
 suggestions = ["strsim"]
-unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
 
 # Optional
+derive = ["clap_derive", "lazy_static"]
+cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["terminal_size", "textwrap/terminal_size"]
 yaml = ["yaml-rust"]
+env = [] # Use environment variables during arg parsing
+unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
 
 # In-work features
 unstable-replace = []

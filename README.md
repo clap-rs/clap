@@ -371,12 +371,8 @@ Disabling optional features can decrease the binary size of `clap` and decrease 
 #### Features enabled by default
 
 * **std**: _Not Currently Used._ Placeholder for supporting `no_std` environments in a backwards compatible manner.
-* **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above. (builds dependency `clap_derive`)
-* **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
 * **color**: Turns on colored error messages. (builds dependency `atty`, `termcolor`)
-* **env**: Turns on the usage of environment variables during parsing.
 * **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
-* **unicode**: Turns on support for unicode characters in arguments and help messages. (builds dependency `textwrap`, `unicase`)
 
 To disable these, add this to your `Cargo.toml`:
 
@@ -395,14 +391,17 @@ version = "3.0.0-beta.5"
 default-features = false
 
 # Cherry-pick the features you'd like to use
-features = ["std", "suggestions", "color"]
+features = ["std", "suggestions"]
 ```
 
 #### Opt-in features
 
+* **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above. (builds dependency `clap_derive`)
+* **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
+* **env**: Turns on the usage of environment variables during parsing.
 * **regex**: Enables regex validators. (builds dependency `regex`)
+* **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages. (builds dependency `textwrap`, `unicase`)
 * **wrap_help**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
-* **yaml**: Enables building CLIs from YAML documents. (builds dependency `yaml-rust`)
 
 #### Experimental features
 
