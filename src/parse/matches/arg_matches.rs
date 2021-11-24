@@ -392,7 +392,6 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
     ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -443,7 +442,6 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
     ///               .arg("[length] 'Set the length to use as a pos whole num, i.e. 20'")
@@ -481,7 +479,6 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
     ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
@@ -534,7 +531,6 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```
-    /// # extern crate clap;
     /// # use clap::App;
     /// let matches = App::new("myapp")
     ///               .arg("[length]... 'A sequence of integers because integers are neat!'")
