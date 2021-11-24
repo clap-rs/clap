@@ -1180,9 +1180,6 @@ impl<'help> Arg<'help> {
     /// (i.e. if A conflicts with B, defining A.conflicts_with(B) is sufficient. You do not need
     /// need to also do B.conflicts_with(A))
     ///
-    /// **NOTE:** This option does not exist when using a YAML configuration file. Using [`Arg::conflicts_with`]
-    /// followed by an array of strings will achieve the equivalent effect.
-    ///
     /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///
     /// # Examples
@@ -1231,13 +1228,6 @@ impl<'help> Arg<'help> {
     /// Arg::new("config")
     ///     .exclusive(true)
     /// # ;
-    /// ```
-    ///
-    /// If using YAML the above example should be laid out as follows
-    ///
-    /// ```yaml
-    /// - config
-    ///     exclusive: true
     /// ```
     ///
     /// Setting an exclusive argument and having any other arguments present at runtime
@@ -1491,13 +1481,6 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// requires_if:
-    ///     - [val, arg]
-    /// ```
-    ///
     /// Setting `Arg::requires_if(val, arg)` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument is anything other than
     /// `val`, the other argument isn't required.
@@ -1559,14 +1542,6 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// requires_if:
-    ///     - [val, arg]
-    ///     - [val2, arg2]
-    /// ```
-    ///
     /// Setting `Arg::requires_ifs(&["val", "arg"])` requires that the `arg` be used at runtime if the
     /// defining argument's value is equal to `val`. If the defining argument's value is anything other
     /// than `val`, `arg` isn't required.
@@ -1611,13 +1586,6 @@ impl<'help> Arg<'help> {
     /// Arg::new("config")
     ///     .required_if_eq("other_arg", "value")
     /// # ;
-    /// ```
-    ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// required_if_eq:
-    ///     - [arg, val]
     /// ```
     ///
     /// ```rust
@@ -1715,14 +1683,6 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// required_if_eq:
-    ///     - [arg, val]
-    ///     - [arg2, val2]
-    /// ```
-    ///
     /// Setting `Arg::required_if_eq_any(&[(arg, val)])` makes this arg required if any of the `arg`s
     /// are used at runtime and it's corresponding value is equal to `val`. If the `arg`'s value is
     /// anything other than `val`, this argument isn't required.
@@ -1806,14 +1766,6 @@ impl<'help> Arg<'help> {
     ///         ("option", "spec")
     ///     ])
     /// # ;
-    /// ```
-    ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// required_if_eq_all:
-    ///     - [arg, val]
-    ///     - [arg2, val2]
     /// ```
     ///
     /// Setting `Arg::required_if_eq_all(&[(arg, val)])` makes this arg required if all of the `arg`s
@@ -2511,11 +2463,6 @@ impl<'help> Arg<'help> {
     /// assert!(res.is_err());
     /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
     /// ```
-    ///
-    /// If using YAML then a single vector with two entries should be provided:
-    /// ```yaml
-    /// validator_regex: [remove-all-files, needs the exact phrase 'remove-all-files' to continue]
-    /// ```
     #[cfg(feature = "regex")]
     pub fn validator_regex(
         self,
@@ -3101,14 +3048,6 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("other"), Some("default"));
     /// ```
     ///
-    /// If using YAML the values should be laid out as follows (`None` can be represented
-    /// as `null` in YAML)
-    ///
-    /// ```yaml
-    /// default_value_if:
-    ///     - [arg, val, default]
-    /// ```
-    ///
     /// Next we run the same test, but without providing `--flag`.
     ///
     /// ```rust
@@ -3237,14 +3176,6 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert_eq!(m.value_of("other"), Some("chan"));
-    /// ```
-    ///
-    /// If using YAML the values should be laid out as follows
-    ///
-    /// ```yaml
-    /// default_value_if:
-    ///     - [arg, val, default]
-    ///     - [arg2, null, default2]
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
