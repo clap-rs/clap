@@ -38,6 +38,12 @@ impl Colorizer {
     }
 
     #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn hint(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), Style::Hint));
+    }
+
+    #[inline]
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Default));
     }
@@ -75,6 +81,9 @@ impl Colorizer {
                 Style::Error => {
                     color.set_fg(Some(termcolor::Color::Red));
                     color.set_bold(true);
+                }
+                Style::Hint => {
+                    color.set_dimmed(true);
                 }
                 Style::Default => {}
             }
@@ -119,6 +128,7 @@ pub enum Style {
     Good,
     Warning,
     Error,
+    Hint,
     Default,
 }
 
@@ -130,8 +140,6 @@ impl Default for Style {
 
 #[cfg(feature = "color")]
 fn is_a_tty(stderr: bool) -> bool {
-    debug!("is_a_tty: stderr={:?}", stderr);
-
     let stream = if stderr {
         atty::Stream::Stderr
     } else {

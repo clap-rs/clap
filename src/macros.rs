@@ -805,8 +805,13 @@ macro_rules! wlnerr {
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => ({
-        print!("[{:>w$}] \t", module_path!(), w = 28);
-        println!($($arg)*);
+        let prefix = format!("[{:>w$}] \t", module_path!(), w = 28);
+        let body = format!($($arg)*);
+        let mut color = $crate::output::fmt::Colorizer::new(true, $crate::ColorChoice::Auto);
+        color.hint(prefix);
+        color.hint(body);
+        color.none("\n");
+        let _ = color.print();
     })
 }
 
