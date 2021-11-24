@@ -60,6 +60,7 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
     HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
     AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
+    AllowLeadingHyphen("allowleadinghypyhen") => Flags::ALLOW_TAC_VALS,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
     Last("last") => Flags::LAST,
     IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
@@ -121,6 +122,12 @@ pub enum ArgSettings {
     HidePossibleValues,
     /// Allows values that start with a hyphen
     AllowHyphenValues,
+    /// Deprecated, replaced with [`ArgSettings::AllowHyphenValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `ArgSettings::AllowHyphenValues`"
+    )]
+    AllowLeadingHyphen,
     /// Requires that an equals be used to provide a value to an option such as `--option=value`
     RequireEquals,
     /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
