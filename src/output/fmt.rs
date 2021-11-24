@@ -1,28 +1,15 @@
-use crate::util::color::{Color, ColorChoice};
+use crate::util::color::ColorChoice;
 
 use std::{
     fmt::{self, Display, Formatter},
     io::{self, Write},
 };
 
-#[cfg(feature = "color")]
-fn is_a_tty(stderr: bool) -> bool {
-    debug!("is_a_tty: stderr={:?}", stderr);
-
-    let stream = if stderr {
-        atty::Stream::Stderr
-    } else {
-        atty::Stream::Stdout
-    };
-
-    atty::is(stream)
-}
-
 #[derive(Clone, Debug)]
 pub(crate) struct Colorizer {
     use_stderr: bool,
     color_when: ColorChoice,
-    pieces: Vec<(String, Option<Color>)>,
+    pieces: Vec<(String, Style)>,
 }
 
 impl Colorizer {
@@ -37,22 +24,28 @@ impl Colorizer {
 
     #[inline]
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
-        self.pieces.push((msg.into(), Some(Color::Green)));
+        self.pieces.push((msg.into(), Style::Good));
     }
 
     #[inline]
     pub(crate) fn warning(&mut self, msg: impl Into<String>) {
-        self.pieces.push((msg.into(), Some(Color::Yellow)));
+        self.pieces.push((msg.into(), Style::Warning));
     }
 
     #[inline]
     pub(crate) fn error(&mut self, msg: impl Into<String>) {
-        self.pieces.push((msg.into(), Some(Color::Red)));
+        self.pieces.push((msg.into(), Style::Error));
+    }
+
+    #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn hint(&mut self, msg: impl Into<String>) {
+        self.pieces.push((msg.into(), Style::Hint));
     }
 
     #[inline]
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
-        self.pieces.push((msg.into(), None));
+        self.pieces.push((msg.into(), Style::Default));
     }
 }
 
@@ -78,9 +71,21 @@ impl Colorizer {
 
         for piece in &self.pieces {
             let mut color = ColorSpec::new();
-            color.set_fg(piece.1);
-            if piece.1 == Some(Color::Red) {
-                color.set_bold(true);
+            match piece.1 {
+                Style::Good => {
+                    color.set_fg(Some(termcolor::Color::Green));
+                }
+                Style::Warning => {
+                    color.set_fg(Some(termcolor::Color::Yellow));
+                }
+                Style::Error => {
+                    color.set_fg(Some(termcolor::Color::Red));
+                    color.set_bold(true);
+                }
+                Style::Hint => {
+                    color.set_dimmed(true);
+                }
+                Style::Default => {}
             }
 
             buffer.set_color(&color)?;
@@ -116,4 +121,30 @@ impl Display for Colorizer {
 
         Ok(())
     }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Style {
+    Good,
+    Warning,
+    Error,
+    Hint,
+    Default,
+}
+
+impl Default for Style {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+#[cfg(feature = "color")]
+fn is_a_tty(stderr: bool) -> bool {
+    let stream = if stderr {
+        atty::Stream::Stderr
+    } else {
+        atty::Stream::Stdout
+    };
+
+    atty::is(stream)
 }
