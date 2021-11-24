@@ -317,9 +317,10 @@ impl<'help> Arg<'help> {
 }
 
 impl<'help> Arg<'help> {
-    /// Creates a new instance of [`Arg`] using a unique string name. The name will be used to get
-    /// information about whether or not the argument was used at runtime, get values, set
-    /// relationships with other args, etc..
+    /// Create a new [`Arg`] with a unique name.
+    ///
+    /// The name is used to check whether or not the argument was used at
+    /// runtime, get values, set relationships with other args, etc..
     ///
     /// **NOTE:** In the case of arguments that take values (i.e. [`Arg::takes_value(true)`])
     /// and positional arguments (i.e. those without a preceding `-` or `--`) the name will also
@@ -495,8 +496,7 @@ impl<'help> Arg<'help> {
 
     /// Set the identifier used for referencing this argument in the clap API.
     ///
-    /// **NOTE:** This will shown to the user in usage/help if no [`value_name`][Arg::value_name]
-    /// is provided.
+    /// See [`Arg::new`] for more details.
     pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
         let name = n.into();
         self.id = Id::from(&*name);
@@ -506,24 +506,15 @@ impl<'help> Arg<'help> {
 
     /// Sets the short version of the argument without the preceding `-`.
     ///
-    /// By default `clap` automatically assigns `V` and `h` to the auto-generated `version` and
-    /// `help` arguments respectively. You may use the uppercase `V` or lowercase `h` for your own
-    /// arguments, in which case `clap` simply will not assign those to the auto-generated
+    /// By default `V` and `h` are used by the auto-generated `version` and `help` arguments,
+    /// respectively. You may use the uppercase `V` or lowercase `h` for your own arguments, in
+    /// which case `clap` simply will not assign those to the auto-generated
     /// `version` or `help` arguments.
     ///
     /// # Examples
     ///
-    /// To set [`short`] use a single valid UTF-8 character. If you supply a leading `-` such as
-    /// `-c`, the `-` will be stripped.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::new("config")
-    ///     .short('c')
-    /// # ;
-    /// ```
-    ///
-    /// Setting [`short`] allows using the argument via a single hyphen (`-`) such as `-c`
+    /// When calling `short`, use a single valid UTF-8 character which will allow using the
+    /// argument via a single hyphen (`-`) such as `-c`:
     ///
     /// ```rust
     /// # use clap::{App, Arg};
@@ -536,7 +527,6 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(m.is_present("config"));
     /// ```
-    /// [`short`]: Arg::short()
     #[inline]
     pub fn short(mut self, s: char) -> Self {
         assert!(s != '-', "short option name cannot be `-`");
@@ -547,25 +537,18 @@ impl<'help> Arg<'help> {
 
     /// Sets the long version of the argument without the preceding `--`.
     ///
-    /// By default `clap` automatically assigns `version` and `help` to the auto-generated
-    /// `version` and `help` arguments respectively. You may use the word `version` or `help` for
-    /// the long form of your own arguments, in which case `clap` simply will not assign those to
-    /// the auto-generated `version` or `help` arguments.
+    /// By default `version` and `help` are used by the auto-generated `version` and `help`
+    /// arguments, respectively. You may use the word `version` or `help` for the long form of your
+    /// own arguments, in which case `clap` simply will not assign those to the auto-generated
+    /// `version` or `help` arguments.
     ///
     /// **NOTE:** Any leading `-` characters will be stripped
     ///
     /// # Examples
     ///
-    /// To set `long` use a word containing valid UTF-8 codepoints. If you supply a double leading
+    /// To set `long` use a word containing valid UTF-8. If you supply a double leading
     /// `--` such as `--config` they will be stripped. Hyphens in the middle of the word, however,
-    /// will *not* be stripped (i.e. `config-file` is allowed)
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::new("cfg")
-    ///     .long("config")
-    /// # ;
-    /// ```
+    /// will *not* be stripped (i.e. `config-file` is allowed).
     ///
     /// Setting `long` allows using the argument via a double hyphen (`--`) such as `--config`
     ///
@@ -586,10 +569,10 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
-    /// than creating multiple hidden arguments as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add an alias, which functions as a hidden long flag.
+    ///
+    /// This is more efficient, and easier than creating multiple hidden arguments as one only
+    /// needs to check for the existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -611,10 +594,10 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
-    /// than creating multiple hidden arguments as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add an alias, which functions as a hidden short flag.
+    ///
+    /// This is more efficient, and easier than creating multiple hidden arguments as one only
+    /// needs to check for the existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -638,10 +621,10 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add aliases, which function as hidden long flags.
+    ///
+    /// This is more efficient, and easier than creating multiple hidden subcommands as one only
+    /// needs to check for the existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -663,10 +646,10 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding [`Arg`] aliases, which function as "hidden" arguments that
-    /// automatically dispatch as if this argument was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add aliases, which functions as a hidden short flag.
+    ///
+    /// This is more efficient, and easier than creating multiple hidden subcommands as one only
+    /// needs to check for the existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -691,8 +674,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
-    /// [`Arg::alias`], except that they are visible inside the help message.
+    /// Add an alias, which functions as a visible long flag.
+    ///
+    /// Like [`Arg::alias`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -715,8 +699,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding a [`Arg`] alias that functions exactly like those defined with
-    /// [`Arg::short_alias`], except that they are visible inside the help message.
+    /// Add an alias, which functions as a visible short flag.
+    ///
+    /// Like [`Arg::short_alias`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -740,8 +725,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
-    /// with [`Arg::aliases`], except that they are visible inside the help message.
+    /// Add aliases, which function as visible long flags.
+    ///
+    /// Like [`Arg::aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -762,8 +748,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows adding multiple [`Arg`] aliases that functions exactly like those defined
-    /// with [`Arg::short_aliases`], except that they are visible inside the help message.
+    /// Add aliases, which function as visible short flags.
+    ///
+    /// Like [`Arg::short_aliases`], except that they are visible inside the help message.
     ///
     /// # Examples
     ///
@@ -786,12 +773,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets the short help text of the argument that will be displayed to the user when they print
-    /// the help information with `-h`. Typically, this is a short (one line) description of the
-    /// arg.
+    /// Sets the description of the argument for short help (`-h`).
     ///
-    /// **NOTE:** If only `Arg::help` is provided, and not [`Arg::long_help`] but the user requests
-    /// `--help` clap will still display the contents of `help` appropriately
+    /// Typically, this is a short (one line) description of the arg.
+    ///
+    /// If [`Arg::long_help`] is not specified, this message will be displayed for `--help`.
     ///
     /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
     ///
@@ -800,13 +786,6 @@ impl<'help> Arg<'help> {
     /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
     /// include a newline in the help text and have the following text be properly aligned with all
     /// the other help text.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::new("config")
-    ///     .help("The config file used by the myprog")
-    /// # ;
-    /// ```
     ///
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
@@ -842,12 +821,12 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets the long help text of the argument that will be displayed to the user when they print
-    /// the help information with `--help`. Typically this a more detailed (multi-line) message
+    /// Sets the description of the argument for long help (`--help`).
+    ///
+    /// Typically this a more detailed (multi-line) message
     /// that describes the arg.
     ///
-    /// **NOTE:** If only `long_help` is provided, and not [`Arg::help`] but the user requests `-h`
-    /// clap will still display the contents of `long_help` appropriately
+    /// If [`Arg::help`] is not specified, this message will be displayed for `-h`.
     ///
     /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
     ///
@@ -856,17 +835,6 @@ impl<'help> Arg<'help> {
     /// Any valid UTF-8 is allowed in the help text. The one exception is when one wishes to
     /// include a newline in the help text and have the following text be properly aligned with all
     /// the other help text.
-    ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::new("config")
-    ///     .long_help(
-    /// "The config file used by the myprog must be in JSON format
-    /// with only valid keys and may not contain other nonsense
-    /// that cannot be read by this program. Obviously I'm going on
-    /// and on, so I'll stop now.")
-    /// # ;
-    /// ```
     ///
     /// Setting `help` displays a short message to the side of the argument when the user passes
     /// `-h` or `--help` (by default).
@@ -1153,8 +1121,7 @@ impl<'help> Arg<'help> {
         self.required_unless_present_any(names)
     }
 
-    /// Sets a conflicting argument by name. I.e. when using this argument,
-    /// the following argument can't be present and vice versa.
+    /// This argument is mutually exclusive with the specified argument.
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
@@ -1202,8 +1169,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// The same as [`Arg::conflicts_with`] but allows specifying multiple two-way conflicts per
-    /// argument.
+    /// This argument is mutually exclusive with the specified arguments.
+    ///
+    /// See [`Arg::conflicts_with`].
     ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
@@ -1254,8 +1222,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Set an exclusive argument by name. An exclusive argument conflict with every other flag
-    /// and must be always passed alone.
+    /// This argument must be passed alone; it conflicts with all other arguments.
     ///
     /// # Examples
     ///
@@ -1296,12 +1263,13 @@ impl<'help> Arg<'help> {
     /// ```
     #[inline]
     pub fn exclusive(mut self, exclusive: bool) -> Self {
-        // FIXME: This should be an ArgSetting, not bool
         self.exclusive = exclusive;
         self
     }
 
-    /// Sets an overridable argument by name. I.e. this argument and the following argument
+    /// Sets an overridable argument.
+    ///
+    /// i.e. this argument and the following argument
     /// will override each other in POSIX style (whichever argument was specified at runtime
     /// **last** "wins")
     ///
@@ -1414,9 +1382,10 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets multiple mutually overridable arguments by name. I.e. this argument and the following
-    /// argument will override each other in POSIX style (whichever argument was specified at
-    /// runtime **last** "wins")
+    /// Sets multiple mutually overridable arguments by name.
+    ///
+    /// i.e. this argument and the following argument will override each other in POSIX style
+    /// (whichever argument was specified at runtime **last** "wins")
     ///
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
@@ -1446,8 +1415,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets an argument by name that is required when this one is present I.e. when
-    /// using this argument, the following argument *must* be present.
+    /// Sets an argument that is required when this one is present
+    ///
+    /// i.e. when using this argument, the following argument *must* be present.
     ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
     ///
@@ -1506,7 +1476,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Require another argument if this arg was present on runtime, and its value equals to `val`.
+    /// Require another argument if this arg was present at runtime and its value equals to `val`.
     ///
     /// This method takes `value, another_arg` pair. At runtime, clap will check
     /// if this arg (`self`) is present and its value equals to `val`.
@@ -1573,8 +1543,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows multiple conditional requirements. The requirement will only become valid if this arg's value
-    /// equals `val`.
+    /// Allows multiple conditional requirements.
+    ///
+    /// The requirement will only become valid if this arg's value equals `val`.
     ///
     /// # Examples
     ///
@@ -1630,8 +1601,8 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows specifying that this argument is [required] only if the specified
-    /// `arg` is present at runtime and its value equals `val`.
+    /// This argument is [required] only if the specified `arg` is present at runtime and its value
+    /// equals `val`.
     ///
     /// # Examples
     ///
@@ -1727,9 +1698,10 @@ impl<'help> Arg<'help> {
         self.required_if_eq(arg_id, val)
     }
 
-    /// Allows specifying that this argument is [required] based on multiple conditions. The
-    /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
-    /// if one of the specified `arg`'s value equals its corresponding `val`.
+    /// Specify this argument is [required] based on multiple conditions.
+    ///
+    /// The conditions are set up in a `(arg, val)` style tuple. The requirement will only become
+    /// valid if one of the specified `arg`'s value equals its corresponding `val`.
     ///
     /// # Examples
     ///
@@ -1819,9 +1791,10 @@ impl<'help> Arg<'help> {
         self.required_if_eq_any(ifs)
     }
 
-    /// Allows specifying that this argument is [required] based on multiple conditions. The
-    /// conditions are set up in a `(arg, val)` style tuple. The requirement will only become valid
-    /// if every one of the specified `arg`'s value equals its corresponding `val`.
+    /// Specify this argument is [required] based on multiple conditions.
+    ///
+    /// The conditions are set up in a `(arg, val)` style tuple. The requirement will only become
+    /// valid if every one of the specified `arg`'s value equals its corresponding `val`.
     ///
     /// # Examples
     ///
@@ -1903,8 +1876,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets multiple arguments by names that are required when this one is present I.e. when
-    /// using this argument, the following arguments *must* be present.
+    /// Require these arguments names when this one is presen
+    ///
+    /// i.e. when using this argument, the following arguments *must* be present.
     ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
     /// by default.
@@ -1974,21 +1948,21 @@ impl<'help> Arg<'help> {
     /// **NOTE:** The index refers to position according to **other positional argument**. It does
     /// not define position in the argument list as a whole.
     ///
-    /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
-    /// with [`Arg::short`] or [`Arg::long`].
-    ///
     /// **NOTE:** You can optionally leave off the `index` method, and the index will be
     /// assigned in order of evaluation. Utilizing the `index` method allows for setting
     /// indexes out of order
+    ///
+    /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
+    /// with [`Arg::short`] or [`Arg::long`].
     ///
     /// **NOTE:** When utilized with [`Arg::multiple_values(true)`], only the **last** positional argument
     /// may be defined as multiple (i.e. with the highest index)
     ///
     /// # Panics
     ///
-    /// Although not in this method directly, [`App`] will [`panic!`] if indexes are skipped (such
-    /// as defining `index(1)` and `index(3)` but not `index(2)`, or a positional argument is
-    /// defined as multiple and is not the highest index
+    /// [`App`] will [`panic!`] if indexes are skipped (such as defining `index(1)` and `index(3)`
+    /// but not `index(2)`, or a positional argument is defined as multiple and is not the highest
+    /// index
     ///
     /// # Examples
     ///
@@ -2025,7 +1999,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies a value that *stops* parsing multiple values of a give argument. By default when
+    /// Sentinel to **stop** parsing multiple values of a give argument.
+    ///
+    /// By default when
     /// one sets [`multiple_values(true)`] on an argument, clap will continue parsing values for that
     /// argument until it reaches another valid argument, or one of the other more specific settings
     /// for multiple values is used (such as [`min_values`], [`max_values`] or
@@ -2078,13 +2054,17 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies a list of possible values for this argument. At runtime, `clap` verifies that
+    /// Possible values for this argument.
+    ///
+    /// At runtime, `clap` verifies that
     /// only one of the specified values was used, or fails with an error message.
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
     /// **NOTE:** You can use both strings directly or use [`PossibleValue`] if you want more control
     /// over single possible values.
+    ///
+    /// See also [hide_possible_values][Arg::hide_possible_values].
     ///
     /// # Examples
     ///
@@ -2151,8 +2131,10 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies a possible value for this argument, one at a time. At runtime, `clap` verifies
-    /// that only one of the specified values was used, or fails with error message.
+    /// Add a possible value for this argument.
+    ///
+    /// At runtime, `clap` verifies that only one of the specified values was used, or fails with
+    /// error message.
     ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
     ///
@@ -2227,7 +2209,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies the name of the [`ArgGroup`] the argument belongs to.
+    /// The name of the [`ArgGroup`] the argument belongs to.
     ///
     /// # Examples
     ///
@@ -2263,7 +2245,7 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies the names of multiple [`ArgGroup`]'s the argument belongs to.
+    /// The names of [`ArgGroup`]'s the argument belongs to.
     ///
     /// # Examples
     ///
@@ -2300,7 +2282,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies how many values are required to satisfy this argument. For example, if you had a
+    /// The number of values allowed for this argument.
+    ///
+    /// For example, if you had a
     /// `-f <file>` argument where you wanted exactly 3 'files' you would set
     /// `.number_of_values(3)`, and this argument wouldn't be satisfied unless the user provided
     /// 3 and only 3 values.
@@ -2343,7 +2327,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
-    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
+    /// The argument's values can be invalid UTF-8 and should *not* be treated as an error.
     ///
     /// **NOTE:** Using argument values with invalid UTF-8 code points requires using
     /// [`ArgMatches::value_of_os`], [`ArgMatches::values_of_os`], [`ArgMatches::value_of_lossy`],
@@ -2383,7 +2367,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Allows one to perform a custom validation on the argument value. You provide a closure
+    /// Perform a custom validation on the argument value.
+    ///
+    /// You provide a closure
     /// which accepts a [`String`] value, and return a [`Result`] where the [`Err(String)`] is a
     /// message displayed to the user.
     ///
@@ -2430,8 +2416,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Works identically to Validator but is intended to be used with values that could
-    /// contain non UTF-8 formatted strings.
+    /// Perform a custom validation on the argument value.
+    ///
+    /// See [validator][Arg::validator].
     ///
     /// # Examples
     ///
@@ -2545,7 +2532,9 @@ impl<'help> Arg<'help> {
         })
     }
 
-    /// Specifies the *maximum* number of occurrences for this argument. For example, if you had a
+    /// The *maximum* number of occurrences for this argument.
+    ///
+    /// For example, if you had a
     /// `-v` flag and you wanted up to 3 levels of verbosity you would set `.max_occurrences(3)`, and
     /// this argument would be satisfied if the user provided it once or twice or thrice.
     ///
@@ -2602,7 +2591,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies the *maximum* number of values are for this argument. For example, if you had a
+    /// The *maximum* number of values are for this argument.
+    ///
+    /// For example, if you had a
     /// `-f <file>` argument where you wanted up to 3 'files' you would set `.max_values(3)`, and
     /// this argument would be satisfied if the user provided, 1, 2, or 3 values.
     ///
@@ -2663,7 +2654,9 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
-    /// Specifies the *minimum* number of values for this argument. For example, if you had a
+    /// The *minimum* number of values for this argument.
+    ///
+    /// For example, if you had a
     /// `-f <file>` argument where you wanted at least 2 'files' you would set
     /// `.min_values(2)`, and this argument would be satisfied if the user provided, 2 or more
     /// values.
@@ -2725,7 +2718,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true).multiple_values(true)
     }
 
-    /// Specifies the separator to use when values are clumped together, defaults to `,` (comma).
+    /// Separator between the arguments values, defaults to `,` (comma).
     ///
     /// **NOTE:** implicitly sets [`Arg::use_delimiter(true)`]
     ///
@@ -2754,10 +2747,12 @@ impl<'help> Arg<'help> {
         self.takes_value(true).use_delimiter(true)
     }
 
-    /// Specify multiple names for values of option arguments. These names are cosmetic only, used
-    /// for help and usage strings only. The names are **not** used to access arguments. The values
-    /// of the arguments are accessed in numeric order (i.e. if you specify two names `one` and
-    /// `two` `one` will be the first matched value, `two` will be the second).
+    /// Placeholders for the argument's values in the help message / usage.
+    ///
+    /// These names are cosmetic only, used for help and usage strings only. The names are **not**
+    /// used to access arguments. The values of the arguments are accessed in numeric order (i.e.
+    /// if you specify two names `one` and `two` `one` will be the first matched value, `two` will
+    /// be the second).
     ///
     /// This setting can be very helpful when describing the type of input the user should be
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
@@ -2810,8 +2805,9 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies the name for value of [option] or [positional] arguments inside of help
-    /// documentation. This name is cosmetic only, the name is **not** used to access arguments.
+    /// Placeholder for the argument's value in the help message / usage.
+    ///
+    /// This name is cosmetic only; the name is **not** used to access arguments.
     /// This setting can be very helpful when describing the type of input the user should be
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
@@ -2860,7 +2856,7 @@ impl<'help> Arg<'help> {
         self.value_names(&[name])
     }
 
-    /// Specifies the value of the argument when *not* specified at runtime.
+    /// Value for the argument when not present.
     ///
     /// **NOTE:** If the user *does not* use this argument at runtime, [`ArgMatches::occurrences_of`]
     /// will return `0` even though the [`ArgMatches::value_of`] will return the default specified.
@@ -2928,8 +2924,9 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[OsStr::new(val)])
     }
 
-    /// Provides a default value in the exact same manner as [`Arg::default_value`]
-    /// only using [`OsStr`]s instead.
+    /// Value for the argument when not present.
+    ///
+    /// See [`Arg::default_value`].
     ///
     /// [`Arg::default_value`]: Arg::default_value()
     /// [`OsStr`]: std::ffi::OsStr
@@ -2938,7 +2935,9 @@ impl<'help> Arg<'help> {
         self.default_values_os(&[val])
     }
 
-    /// Like [`Arg::default_value`] but for args taking multiple values
+    /// Value for the argument when not present.
+    ///
+    /// See [`Arg::default_value`].
     ///
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
@@ -2947,8 +2946,9 @@ impl<'help> Arg<'help> {
         self.default_values_os(&vals_vec[..])
     }
 
-    /// Provides default values in the exact same manner as [`Arg::default_values`]
-    /// only using [`OsStr`]s instead.
+    /// Value for the argument when not present.
+    ///
+    /// See [`Arg::default_values`].
     ///
     /// [`Arg::default_values`]: Arg::default_values()
     /// [`OsStr`]: std::ffi::OsStr
@@ -2958,8 +2958,7 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies a value for the argument when the argument is supplied and a value is required
-    /// but the value is *not* specified at runtime.
+    /// Value for the argument when the flag is present but no value is specified.
     ///
     /// This configuration option is often used to give the user a shortcut and allow them to
     /// efficiently specify an option argument without requiring an explicitly value. The `--color`
@@ -3035,8 +3034,9 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&[OsStr::new(val)])
     }
 
-    /// Provides a default value in the exact same manner as [`Arg::default_missing_value`]
-    /// only using [`OsStr`]s instead.
+    /// Value for the argument when the flag is present but no value is specified.
+    ///
+    /// See [`Arg::default_missing_value`].
     ///
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     /// [`OsStr`]: std::ffi::OsStr
@@ -3045,7 +3045,9 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&[val])
     }
 
-    /// Like [`Arg::default_missing_value`] but for args taking multiple values
+    /// Value for the argument when the flag is present but no value is specified.
+    ///
+    /// See [`Arg::default_missing_value`].
     ///
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     #[inline]
@@ -3054,8 +3056,9 @@ impl<'help> Arg<'help> {
         self.default_missing_values_os(&vals_vec[..])
     }
 
-    /// Provides default values in the exact same manner as [`Arg::default_missing_values`]
-    /// only using [`OsStr`]s instead.
+    /// Value for the argument when the flag is present but no value is specified.
+    ///
+    /// See [`Arg::default_missing_values`].
     ///
     /// [`Arg::default_missing_values`]: Arg::default_missing_values()
     /// [`OsStr`]: std::ffi::OsStr
@@ -3065,9 +3068,10 @@ impl<'help> Arg<'help> {
         self.takes_value(true)
     }
 
-    /// Specifies the value of the argument if `arg` has been used at runtime. If `val` is set to
-    /// `None`, `arg` only needs to be present. If `val` is set to `"some-val"` then `arg` must be
-    /// present at runtime **and** have the value `val`.
+    /// Specifies the value of the argument if `arg` has been used at runtime.
+    ///
+    /// If `val` is set to `None`, `arg` only needs to be present. If `val` is set to `"some-val"`
+    /// then `arg` must be present at runtime **and** have the value `val`.
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
@@ -3204,6 +3208,7 @@ impl<'help> Arg<'help> {
     }
 
     /// Specifies multiple values and conditions in the same manner as [`Arg::default_value_if`].
+    ///
     /// The method takes a slice of tuples in the `(arg, Option<val>, default)` format.
     ///
     /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
@@ -3312,8 +3317,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
-    /// from the environment, if available. If it is not present in the environment, then default
+    /// Read from `name` environment variable when argument is not present.
+    ///
+    /// If it is not present in the environment, then default
     /// rules will apply.
     ///
     /// If user sets the argument in the environment:
@@ -3455,9 +3461,9 @@ impl<'help> Arg<'help> {
         self.env_os(OsStr::new(name))
     }
 
-    /// Specifies that if the value is not passed in as an argument, that it should be retrieved
-    /// from the environment if available in the exact same manner as [`Arg::env`] only using
-    /// [`OsStr`]s instead.
+    /// Read from `name` environment variable when argument is not present.
+    ///
+    /// See [`Arg::env`].
     #[cfg(feature = "env")]
     #[inline]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
@@ -3465,11 +3471,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Allows custom ordering of args within the help message. Args with a lower value will be
-    /// displayed first in the help message. This is helpful when one would like to emphasise
-    /// frequently used args, or prioritize those towards the top of the list. Duplicate values
-    /// **are** allowed. Args with duplicate display orders will be displayed in alphabetical
-    /// order.
+    /// Allows custom ordering of args within the help message.
+    ///
+    /// Args with a lower value will be displayed first in the help message. This is helpful when
+    /// one would like to emphasise frequently used args, or prioritize those towards the top of
+    /// the list. Args with duplicate display orders will be displayed in alphabetical order.
     ///
     /// **NOTE:** The default is 999 for all arguments.
     ///
@@ -3524,9 +3530,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies that this arg is the last, or final, positional argument (i.e. has the highest
+    /// This arg is the last, or final, positional argument (i.e. has the highest
     /// index) and is *only* able to be accessed via the `--` syntax (i.e. `$ prog args --
-    /// last_arg`). Even, if no other arguments are left to parse, if the user omits the `--` syntax
+    /// last_arg`).
+    ///
+    /// Even, if no other arguments are left to parse, if the user omits the `--` syntax
     /// they will receive an [`UnknownArgument`] error. Setting an argument to `.last(true)` also
     /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
     /// the `--` syntax is otherwise not possible.
@@ -3606,11 +3614,10 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument is required by default. Required by default means it is
-    /// required, when no other conflicting rules or overrides have been evaluated. Conflicting
-    /// rules take precedence over being required.
+    /// Specifies that the argument must be present.
     ///
-    /// **NOTE:** The default is `false`.
+    /// Required by default means it is required, when no other conflicting rules or overrides have
+    /// been evaluated. Conflicting rules take precedence over being required.
     ///
     /// **Pro tip:** Flags (i.e. not positional, or arguments that take values) shouldn't be
     /// required by default. This is because if a flag were to be required, it should simply be
@@ -3674,9 +3681,9 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** values for arguments may be specified in any of the following methods
     ///
-    /// * Using a space such as `-o value` or `--option value`
-    /// * Using an equals and no space such as `-o=value` or `--option=value`
-    /// * Use a short and no space such as `-ovalue`
+    /// - Using a space such as `-o value` or `--option value`
+    /// - Using an equals and no space such as `-o=value` or `--option=value`
+    /// - Use a short and no space such as `-ovalue`
     ///
     /// **NOTE:** By default, args which allow [multiple values] are delimited by commas, meaning
     /// `--option=val1,val2,val3` is three values for the `--option` argument. If you wish to
@@ -3785,8 +3792,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Requires that options use the `--option=val` syntax (i.e. an equals between the option and
-    /// associated value) **Default:** `false`
+    /// Requires that options use the `--option=val` syntax
+    ///
+    /// i.e. an equals between the option and associated value.
     ///
     /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
     ///
@@ -3893,10 +3901,11 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Specifies that *multiple values* may only be set using the delimiter. This means if an
-    /// option is encountered, and no delimiter is found, it is assumed that no additional values
-    /// for that option follow. This is unlike the default, where it is generally assumed that
-    /// more values will follow regardless of whether or not a delimiter is used.
+    /// Specifies that *multiple values* may only be set using the delimiter.
+    ///
+    /// This means if an option is encountered, and no delimiter is found, it is assumed that no
+    /// additional values for that option follow. This is unlike the default, where it is generally
+    /// assumed that more values will follow regardless of whether or not a delimiter is used.
     ///
     /// **NOTE:** The default is `false`.
     ///
@@ -3977,13 +3986,15 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies if the possible values of an argument should be displayed in the help text or
-    /// not. Defaults to `false` (i.e. show possible values)
+    /// Do not display the [possible values][Arg::possible_values] in the help message.
     ///
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
     ///
     /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
+    ///
+    /// To set this for all arguments, see
+    /// [`AppSettings::HidePossibleValuesInHelp`][crate::AppSettings::HidePossibleValuesInHelp].
     ///
     /// # Examples
     ///
@@ -4015,7 +4026,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the default value of an argument should not be displayed in the help text.
+    /// Do not display the default value of the argument in the help message.
     ///
     /// This is useful when default behavior of an arg is explained elsewhere in the help text.
     ///
@@ -4053,7 +4064,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Hides an argument from help message output.
+    /// Do not display the argument in help message.
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
@@ -4100,9 +4111,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// When used with [`Arg::possible_values`] it allows the argument
-    /// value to pass validation even if the case differs from that of
-    /// the specified `possible_value`.
+    /// Match values against [`Arg::possible_values`] without matching case.
     ///
     /// When other arguments are conditionally required based on the
     /// value of a case-insensitive argument, the equality check done
@@ -4111,6 +4120,8 @@ impl<'help> Arg<'help> {
     ///
     ///
     /// **NOTE:** Setting this requires [`ArgSettings::TakesValue`]
+    ///
+    /// **NOTE:** To do unicode case folding, enable the `unicode` feature flag.
     ///
     /// # Examples
     ///
@@ -4159,7 +4170,9 @@ impl<'help> Arg<'help> {
     }
 
     /// Specifies that an argument should allow grouping of multiple values via a
-    /// delimiter. I.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
+    /// delimiter.
+    ///
+    /// i.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
     /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
     /// value delimiter for all arguments that accept values (options and positional arguments)
     ///
@@ -4219,7 +4232,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that environment variable arguments should not be displayed in the help text.
+    /// Do not display in help the environment variable name.
     ///
     /// This is useful when the variable option is explained elsewhere in the help text.
     ///
@@ -4256,8 +4269,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that any values inside the associated ENV variables of an argument should not be
-    /// displayed in the help text.
+    /// Do not display in help any values inside the associated ENV variables for the argument.
     ///
     /// This is useful when ENV vars contain sensitive values.
     ///
@@ -4294,8 +4306,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// When set to `true` the help string will be displayed on the line after the argument and
-    /// indented once. This can be helpful for arguments with very long or complex help messages.
+    /// Render the [help][Arg::help] on the line after the argument.
+    ///
+    /// This can be helpful for arguments with very long or complex help messages.
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
     ///
     /// **NOTE:** To apply this setting to all arguments consider using
@@ -4345,8 +4358,9 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Don't allow an argument to accept explicitly empty values. An empty value
-    /// must be specified at the command line with an explicit `""`, `''`, or
+    /// Don't allow an argument to accept explicitly empty values.
+    ///
+    /// An empty value must be specified at the command line with an explicit `""`, `''`, or
     /// `--option=`
     ///
     /// **NOTE:** By default empty values are allowed.
@@ -4413,8 +4427,9 @@ impl<'help> Arg<'help> {
         self.forbid_empty_values(!empty)
     }
 
-    /// Specifies that the argument may have an unknown number of multiple values. Without any other
-    /// settings, this argument may appear only *once*.
+    /// Specifies that the argument may have an unknown number of values
+    ///
+    /// Without any other settings, this argument may appear only *once*.
     ///
     /// For example, `--opt val1 val2` is allowed, but `--opt val1 val2 --opt val3` is not.
     ///
@@ -4428,9 +4443,12 @@ impl<'help> Arg<'help> {
     /// positional arguments are *also* expected as `clap` will continue parsing *values* until one
     /// of the following happens:
     ///
-    /// * It reaches the [maximum number of values]
-    /// * It reaches a [specific number of values]
-    /// * It finds another flag or option (i.e. something that starts with a `-`)
+    /// - It reaches the [maximum number of values]
+    /// - It reaches a [specific number of values]
+    /// - It finds another flag or option (i.e. something that starts with a `-`)
+    /// - It reaches a [value terminator][Arg::value_terminator] is reached
+    ///
+    /// Alternatively, [require a delimiter between values][Arg::require_delimiter].
     ///
     /// **WARNING:**
     ///
@@ -4593,10 +4611,12 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Specifies that the argument may appear more than once. For flags, this results
-    /// in the number of occurrences of the flag being recorded. For example `-ddd` or `-d -d -d`
-    /// would count as three occurrences. For options or arguments that take a value, this
-    /// *does not* affect how many values they can accept. (i.e. only one at a time is allowed)
+    /// Specifies that the argument may appear more than once.
+    ///
+    /// For flags, this results in the number of occurrences of the flag being recorded. For
+    /// example `-ddd` or `-d -d -d` would count as three occurrences. For options or arguments
+    /// that take a value, this *does not* affect how many values they can accept. (i.e. only one
+    /// at a time is allowed)
     ///
     /// For example, `--opt val1 --opt val2` is allowed, but `--opt val1 val2` is not.
     ///
@@ -4662,10 +4682,12 @@ impl<'help> Arg<'help> {
         self.multiple_occurrences(multi).multiple_values(multi)
     }
 
-    /// Indicates that all parameters passed after this should not be parsed
-    /// individually, but rather passed in their entirety. It is worth noting
-    /// that setting this requires all values to come after a `--` to indicate they
-    /// should all be captured. For example:
+    /// Consume all following arguments.
+    ///
+    /// Do not be parse them individually, but rather pass them in entirety.
+    ///
+    /// It is worth noting that setting this requires all values to come after a `--` to indicate
+    /// they should all be captured. For example:
     ///
     /// ```text
     /// --foo something -- -v -v -v -b -b -b --baz -q -u -x
@@ -4676,7 +4698,7 @@ impl<'help> Arg<'help> {
     /// may be more appropriate.
     ///
     /// **NOTE:** Implicitly sets [`Arg::takes_value(true)`] [`Arg::multiple_values(true)`],
-    /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`
+    /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`.
     ///
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
@@ -4690,7 +4712,7 @@ impl<'help> Arg<'help> {
             .last(raw)
     }
 
-    /// Hides an argument from short help message output.
+    /// Hides an argument from short help (`-h`).
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
@@ -4768,7 +4790,7 @@ impl<'help> Arg<'help> {
         }
     }
 
-    /// Hides an argument from long help message output.
+    /// Hides an argument from long help (`--help`).
     ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
     ///
@@ -4846,15 +4868,15 @@ impl<'help> Arg<'help> {
         }
     }
 
-    // @TODO @docs @v3-beta: write better docs as ArgSettings is now critical
-    /// Checks if one of the [`ArgSettings`] is set for the argument
+    /// Check if the [`ArgSettings`] variant is currently set on the argument.
     ///
+    /// [`ArgSettings`]: crate::ArgSettings
     #[inline]
     pub fn is_set(&self, s: ArgSettings) -> bool {
         self.settings.is_set(s)
     }
 
-    /// Enables a single setting for the current (this `Arg` instance) argument.
+    /// Apply a setting to the argument.
     ///
     /// See [`ArgSettings`] for a full list of possibilities and examples.
     ///
@@ -4889,7 +4911,7 @@ impl<'help> Arg<'help> {
         self.setting(s)
     }
 
-    /// Disables a single setting for the current (this `Arg` instance) argument.
+    /// Remove a setting from the argument.
     ///
     /// See [`ArgSettings`] for a full list of possibilities and examples.
     ///
@@ -4924,7 +4946,9 @@ impl<'help> Arg<'help> {
         self.unset_setting(s)
     }
 
-    /// Set a custom heading for this arg to be printed under
+    /// Override the [current] help section.
+    ///
+    /// [current]: crate::App::help_heading
     #[inline]
     pub fn help_heading<O>(mut self, heading: O) -> Self
     where
@@ -4934,9 +4958,9 @@ impl<'help> Arg<'help> {
         self
     }
 
-    /// Sets a hint about the type of the value for shell completions
+    /// Provide the shell a hint about how to complete this argument.
     ///
-    /// Currently this is only supported by the zsh completions generator.
+    /// See [`ValueHint`][crate::ValueHint] for more information.
     ///
     /// **NOTE:** implicitly sets [`Arg::takes_value(true)`].
     ///

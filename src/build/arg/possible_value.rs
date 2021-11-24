@@ -2,7 +2,7 @@ use std::iter;
 
 use crate::util::eq_ignore_case;
 
-/// The representation of a possible value of an argument.
+/// A possible value of an argument.
 ///
 /// This is used for specifying [possible values] of [Args].
 ///
@@ -74,6 +74,7 @@ impl<'help> PossibleValue<'help> {
     }
 
     /// Returns all valid values of the argument value.
+    ///
     /// Namely the name and all aliases.
     pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
         iter::once(&self.name).chain(&self.aliases).copied()
@@ -106,8 +107,9 @@ impl<'help> PossibleValue<'help> {
 }
 
 impl<'help> PossibleValue<'help> {
-    /// Creates a new instance of [`PossibleValue`] using a string name. The name will be used to
-    /// decide whether this value was provided by the user to an argument.
+    /// Create a [`PossibleValue`] with its name.
+    ///
+    /// The name will be used to decide whether this value was provided by the user to an argument.
     ///
     /// **NOTE:** In case it is not [hidden] it will also be shown in help messages for arguments
     /// that use it as a [possible value] and have not hidden them through [`Arg::hide_possible_values(true)`].
@@ -129,8 +131,10 @@ impl<'help> PossibleValue<'help> {
         }
     }
 
-    /// Sets the help text of the value that will be displayed to the user when completing the
-    /// value in a compatible shell. Typically, this is a short description of the value.
+    /// Sets the help description of the value.
+    ///
+    /// This is typically displayed in completions (where supported) and should be a short, one-line
+    /// description.
     ///
     /// # Examples
     ///
@@ -146,7 +150,7 @@ impl<'help> PossibleValue<'help> {
         self
     }
 
-    /// Hides this value from help text and shell completions.
+    /// Hides this value from help and shell completions.
     ///
     /// This is an alternative to hiding through [`Arg::hide_possible_values(true)`], if you only
     /// want to hide some values.
@@ -166,9 +170,7 @@ impl<'help> PossibleValue<'help> {
         self
     }
 
-    /// Sets an alias for this argument value.
-    ///
-    /// The alias will be hidden from completion and help texts.
+    /// Sets a *hidden* alias for this argument value.
     ///
     /// # Examples
     ///
@@ -183,9 +185,7 @@ impl<'help> PossibleValue<'help> {
         self
     }
 
-    /// Sets multiple aliases for this argument value.
-    ///
-    /// The aliases will be hidden from completion and help texts.
+    /// Sets multiple *hidden* aliases for this argument value.
     ///
     /// # Examples
     ///

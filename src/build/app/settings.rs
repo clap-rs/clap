@@ -214,12 +214,14 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     AllowInvalidUtf8ForExternalSubcommands,
 
-    /// Specifies that leading hyphens are allowed in all argument *values*, such as negative numbers
-    /// like `-10`. (which would otherwise be parsed as another flag or option)
+    /// Specifies that leading hyphens are allowed in all argument *values* (e.g. `-10`).
+    ///
+    /// Otherwise they will be parsed as another flag or option.  See also
+    /// [`AppSettings::AllowNegativeNumbers`].
     ///
     /// **NOTE:** Use this setting with caution as it silences certain circumstances which would
     /// otherwise be an error (such as accidentally forgetting to specify a value for leading
-    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`]
+    /// option). It is preferred to set this on a per argument basis, via [`Arg::allow_hyphen_values`].
     ///
     /// # Examples
     ///
@@ -246,15 +248,18 @@ pub enum AppSettings {
     )]
     AllowLeadingHyphen,
 
-    /// Specifies that all arguments override themselves. This is the equivalent to saying the `foo`
-    /// arg using [`Arg::overrides_with("foo")`] for all defined arguments.
+    /// Specifies that all arguments override themselves.
+    ///
+    /// This is the equivalent to saying the `foo` arg using [`Arg::overrides_with("foo")`] for all
+    /// defined arguments.
     ///
     /// [`Arg::overrides_with("foo")`]: crate::Arg::overrides_with()
     AllArgsOverrideSelf,
 
-    /// Allows negative numbers to pass as values. This is similar to
-    /// [`AppSettings::AllowHyphenValues`] except that it only allows numbers, all
-    /// other undefined leading hyphens will fail to parse.
+    /// Allows negative numbers to pass as values.
+    ///
+    /// This is similar to [`AppSettings::AllowHyphenValues`] except that it only allows numbers,
+    /// all other undefined leading hyphens will fail to parse.
     ///
     /// # Examples
     ///
@@ -381,9 +386,7 @@ pub enum AppSettings {
     /// [required]: crate::Arg::required()
     AllowMissingPositional,
 
-    /// Specifies that an unexpected positional argument,
-    /// which would otherwise cause a [`ErrorKind::UnknownArgument`] error,
-    /// should instead be treated as a [`subcommand`] within the [`ArgMatches`] struct.
+    /// Assume unexpected positional arguments are a [`subcommand`].
     ///
     /// **NOTE:** Use this setting with caution,
     /// as a truly unexpected argument (i.e. one that is *NOT* an external subcommand)
@@ -418,8 +421,9 @@ pub enum AppSettings {
     /// [`ErrorKind::UnknownArgument`]: crate::ErrorKind::UnknownArgument
     AllowExternalSubcommands,
 
-    /// Specifies that use of a valid argument negates [`subcommands`] being
-    /// used after. By default `clap` allows arguments between subcommands such
+    /// Specifies that use of an argument prevents the use of [`subcommands`].
+    ///
+    /// By default `clap` allows arguments between subcommands such
     /// as `<cmd> [cmd_args] <subcmd> [subcmd_args] <subsubcmd> [subsubcmd_args]`.
     ///
     /// This setting disables that functionality and says that arguments can
@@ -441,8 +445,7 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     ArgsNegateSubcommands,
 
-    /// Specifies that the help text should be displayed (and then exit gracefully),
-    /// if no arguments are present at runtime (i.e. an empty run such as, `$ myprog`.
+    /// Exit gracefully if no arguments are present (e.g. `$ myprog`).
     ///
     /// **NOTE:** [`subcommands`] count as arguments
     ///
@@ -461,8 +464,7 @@ pub enum AppSettings {
     /// [`Arg::default_value`]: crate::Arg::default_value()
     ArgRequiredElseHelp,
 
-    /// Instructs the parser to stop when encountering a subcommand instead of greedily consuming
-    /// args.
+    /// Prevent subcommands from being consumed as an arguments value.
     ///
     /// By default, if an option taking multiple values is followed by a subcommand, the
     /// subcommand will be parsed as another value.
@@ -536,7 +538,7 @@ pub enum AppSettings {
     #[deprecated(since = "3.0.0", note = "Replaced with `App::color`")]
     ColorNever,
 
-    /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string
+    /// Disables the automatic collapsing of positional args into `[ARGS]` inside the usage string.
     ///
     /// # Examples
     ///
@@ -634,6 +636,8 @@ pub enum AppSettings {
     /// Displays the arguments and [`subcommands`] in the help message in the order that they were
     /// declared in, and not alphabetically which is the default.
     ///
+    /// To override the declaration order, see [`Arg::display_order`] and [`App::display_order`].
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -644,6 +648,8 @@ pub enum AppSettings {
     /// ```
     ///
     /// [`subcommands`]: crate::App::subcommand()
+    /// [`Arg::display_order`]: crate::Arg::display_order
+    /// [`App::display_order`]: crate::App::display_order
     DeriveDisplayOrder,
 
     /// Parse the bin name (`argv[0]`) as a subcommand
@@ -775,10 +781,14 @@ pub enum AppSettings {
     Hidden,
 
     /// Tells `clap` *not* to print possible values when displaying help information.
+    ///
     /// This can be useful if there are many values, or they are explained elsewhere.
+    ///
+    /// To set this per argument, see
+    /// [`Arg::hide_possible_values`][crate::Arg::hide_possible_values].
     HidePossibleValuesInHelp,
 
-    /// Tells `clap` to panic if help strings are omitted
+    /// Panic if help descriptions are omitted.
     ///
     /// # Examples
     ///
@@ -809,23 +819,10 @@ pub enum AppSettings {
     ///```
     HelpExpected,
 
-    /// Try not to fail on parse errors like missing option values.
+    /// Try not to fail on parse errors, like missing option values.
     ///
     /// **Note:** Make sure you apply it as `global_setting` if you want this setting
     /// to be propagated to subcommands and sub-subcommands!
-    ///
-    /// Issue: [#1880 Partial / Pre Parsing a
-    /// CLI](https://github.com/clap-rs/clap/issues/1880)
-    ///
-    /// This is the basis for:
-    ///
-    /// * [Changing app settings based on
-    ///   flags](https://github.com/clap-rs/clap/issues/1880#issuecomment-637779787)
-    /// * [#1232 Dynamic completion
-    ///   support](https://github.com/clap-rs/clap/issues/1232)
-    ///
-    /// Support is not complete: Errors are still possible but they can be
-    /// avoided in many cases.
     ///
     /// ```rust
     /// # use clap::{App, arg, AppSettings};
@@ -845,8 +842,10 @@ pub enum AppSettings {
     /// ```
     IgnoreErrors,
 
-    /// Tries to match unknown args to partial [`subcommands`] or their [aliases]. For example, to
-    /// match a subcommand named `test`, one could use `t`, `te`, `tes`, and `test`.
+    /// Allow partial matches of [subcommand] names and their [aliases].
+    ///
+    /// For example, to match a subcommand named `test`, one could use `t`, `te`, `tes`, and
+    /// `test`.
     ///
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match `te`
     /// to `test` there could not also be a subcommand or alias `temp` because both start with `te`
@@ -870,22 +869,25 @@ pub enum AppSettings {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     ///
-    /// [`subcommands`]: crate::App::subcommand()
+    /// [subcommand]: crate::App::subcommand()
     /// [positional/free arguments]: crate::Arg::index()
-    /// [aliases]: crate::App::alias()
+    /// [aliases]: crate::App::aliases()
     InferSubcommands,
 
-    /// Tries to match unknown args to partial long arguments or their [aliases]. For example, to
-    /// match an argument named `--test`, one could use `--t`, `--te`, `--tes`, and `--test`.
+    /// Allow partial matches of long arguments or their [aliases].
+    ///
+    /// For example, to match an argument named `--test`, one could use `--t`, `--te`, `--tes`, and
+    /// `--test`.
     ///
     /// **NOTE:** The match *must not* be ambiguous at all in order to succeed. i.e. to match
     /// `--te` to `--test` there could not also be another argument or alias `--temp` because both
     /// start with `--te`
     ///
-    /// [aliases]: crate::App::alias()
+    /// [aliases]: crate::App::aliases()
     InferLongArgs,
 
     /// Specifies that the parser should not assume the first argument passed is the binary name.
+    ///
     /// This is normally the case when using a "daemon" style mode, or an interactive CLI where
     /// one would not normally type the binary or program name for each command.
     ///
@@ -917,6 +919,7 @@ pub enum AppSettings {
     NextLineHelp,
 
     /// Allows [`subcommands`] to override all requirements of the parent command.
+    ///
     /// For example, if you had a subcommand or top level application with a required argument
     /// that is only required as long as there is no subcommand present,
     /// using this setting would allow you to set those arguments to [`Arg::required(true)`]
@@ -962,8 +965,8 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     SubcommandsNegateReqs,
 
-    /// Specifies that the help text should be displayed (before exiting gracefully) if no
-    /// [`subcommands`] are present at runtime (i.e. an empty run such as `$ myprog`).
+    /// Display help if no [`subcommands`] are present at runtime and exit gracefully (i.e. an
+    /// empty run such as `$ myprog`).
     ///
     /// **NOTE:** This should *not* be used with [`AppSettings::SubcommandRequired`] as they do
     /// nearly same thing; this prints the help text, and the other prints an error.
@@ -983,7 +986,7 @@ pub enum AppSettings {
     /// [`subcommands`]: crate::App::subcommand()
     SubcommandRequiredElseHelp,
 
-    /// Specifies that the help subcommand should print the [long format] help message.
+    /// Specifies that the help subcommand should print the long help message (`--help`).
     ///
     /// **NOTE:** This setting is useless if [`AppSettings::DisableHelpSubcommand`] or [`AppSettings::NoAutoHelp`] is set,
     /// or if the app contains no subcommands at all.
@@ -1005,8 +1008,7 @@ pub enum AppSettings {
     /// [long format]: crate::App::long_about
     UseLongFormatForHelpSubcommand,
 
-    /// Allows specifying that if no [`subcommand`] is present at runtime,
-    /// error and exit gracefully.
+    /// If no [`subcommand`] is present at runtime, error and exit gracefully.
     ///
     /// # Examples
     ///
@@ -1053,7 +1055,7 @@ pub enum AppSettings {
     #[deprecated(since = "3.0.0", note = "This is now the default")]
     UnifiedHelp,
 
-    /// Will display a message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
+    /// Display the message "Press \[ENTER\]/\[RETURN\] to continue..." and wait for user before
     /// exiting
     ///
     /// This is most useful when writing an application which is run from a GUI shortcut, or on
@@ -1069,9 +1071,10 @@ pub enum AppSettings {
     /// ```
     WaitOnError,
 
-    /// Tells clap to treat the auto-generated `-h, --help` flags just like any other flag, and
-    /// *not* print the help message. This allows one to handle printing of the help message
-    /// manually.
+    /// Treat the auto-generated `-h, --help` flags like any other flag, and *not* print the help
+    /// message.
+    ///
+    /// This allows one to handle printing of the help message manually.
     ///
     /// ```rust
     /// # use clap::{App, AppSettings};
@@ -1089,9 +1092,10 @@ pub enum AppSettings {
     /// ```
     NoAutoHelp,
 
-    /// Tells clap to treat the auto-generated `-V, --version` flags just like any other flag, and
-    /// *not* print the version message. This allows one to handle printing of the version message
-    /// manually.
+    /// Treat the auto-generated `-V, --version` flags like any other flag, and
+    /// *not* print the version message.
+    ///
+    /// This allows one to handle printing of the version message manually.
     ///
     /// ```rust
     /// # use clap::{App, AppSettings};
@@ -1110,12 +1114,12 @@ pub enum AppSettings {
     /// ```
     NoAutoVersion,
 
-    #[doc(hidden)]
     /// If the app is already built, used for caching.
+    #[doc(hidden)]
     Built,
 
-    #[doc(hidden)]
     /// If the app's bin name is already built, used for caching.
+    #[doc(hidden)]
     BinNameBuilt,
 }
 

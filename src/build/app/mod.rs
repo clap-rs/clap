@@ -32,16 +32,17 @@ use crate::{
     Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
 };
 
-/// Represents a command line interface which is made up of all possible
-/// command line arguments and subcommands. Interface arguments and settings are
-/// configured using the "builder pattern." Once all configuration is complete,
+/// Build a command-line interface.
+///
+/// This includes defining arguments, subcommands, parser behavior, and help output.
+/// Once all configuration is complete,
 /// the [`App::get_matches`] family of methods starts the runtime-parsing
 /// process. These methods then return information about the user supplied
 /// arguments (or lack thereof).
 ///
-/// **NOTE:** There aren't any mandatory "options" that one must set. The "options" may
-/// also appear in any order (so long as one of the [`App::get_matches`] methods is the last method
-/// called).
+/// When deriving a [`Parser`][crate::Parser], you can use
+/// [`IntoApp::into_app`][crate::IntoApp::into_app] to access the
+/// `App`.
 ///
 /// # Examples
 ///
@@ -304,8 +305,9 @@ impl<'help> App<'help> {
         }
     }
 
-    /// Returns `true` if the given [`AppSettings`] variant is currently set in
-    /// this `App` (checks both [local] and [global settings]).
+    /// Check if the given [`AppSettings`] variant is currently set on the `App`.
+    ///
+    /// This checks both [local] and [global settings].
     ///
     /// [local]: App::setting()
     /// [global settings]: App::global_setting()
@@ -355,16 +357,11 @@ impl<'help> App<'help> {
 }
 
 impl<'help> App<'help> {
-    /// Creates a new instance of an `App` requiring a `name`.
+    /// Creates a new instance of an `App`.
     ///
     /// It is common, but not required, to use binary name as the `name`. This
     /// name will only be displayed to the user when they request to print
     /// version or help and usage information.
-    ///
-    /// An `App` represents a command line interface (CLI) which is made up of
-    /// all possible command line arguments and subcommands. "Subcommands" are
-    /// sub-CLIs with their own arguments, settings, and even subcommands
-    /// forming a sort of hierarchy.
     ///
     /// # Examples
     ///
@@ -502,14 +499,11 @@ impl<'help> App<'help> {
         a
     }
 
-    /// Sets a string of author(s) that will be displayed to the user when they
-    /// request the help message.
+    /// Sets the author(s) for the help message.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_authors!`] to
     /// automatically set your application's author(s) to the same thing as your
     /// crate at compile time.
-    ///
-    /// See the [`examples/`] directory for more information.
     ///
     /// # Examples
     ///
@@ -520,21 +514,15 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
-    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
     pub fn author<S: Into<&'help str>>(mut self, author: S) -> Self {
         self.author = Some(author.into());
         self
     }
 
-    /// Overrides the runtime-determined name of the binary. This should only be
-    /// used when absolutely necessary, such as when the binary name for your
-    /// application is misleading, or perhaps *not* how the user should invoke
-    /// your program.
+    /// Overrides the runtime-determined name of the binary for help and error messages.
     ///
-    /// Normally, the binary name is used in help and error messages. `clap`
-    /// automatically determines the binary name at runtime, however by manually
-    /// setting the binary name, one can effectively override what will be
-    /// displayed in the help or error messages.
+    /// This should only be used when absolutely necessary, such as when the binary name for your
+    /// application is misleading, or perhaps *not* how the user should invoke your program.
     ///
     /// **Pro-tip:** When building things such as third party `cargo`
     /// subcommands, this setting **should** be used!
@@ -556,17 +544,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Sets a string describing what the program does. This will be displayed
-    /// when the user requests the short format help message (`-h`).
+    /// Sets the program's description for the short help (`-h`).
     ///
-    /// `clap` can display two different help messages, a [long format] and a
-    /// [short format] depending on whether the user used `-h` (short) or
-    /// `--help` (long). This method sets the message during the short format
-    /// (`-h`) message. However, if no long format message is configured, this
-    /// message will be displayed for *both* the long format, or short format
-    /// help message.
+    /// If [`App::long_about`] is not specified, this message will be displayed for `--help`.
     ///
-    /// **NOTE:** Only [`App::about`] (short format) is used in completion
+    /// **NOTE:** Only `App::about` (short format) is used in completion
     /// script generation in order to be concise.
     ///
     /// # Examples
@@ -577,25 +559,14 @@ impl<'help> App<'help> {
     ///     .about("Does really amazing things for great people")
     /// # ;
     /// ```
-    /// [long format]: App::long_about()
-    /// [short format]: App::about()
-    /// [`App::about`]: App::about()
     pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.about = Some(about.into());
         self
     }
 
-    /// Sets a long format string describing what the program does. This will be
-    /// displayed when the user requests the long format help message (`--help`).
+    /// Sets the program's description for the long help (`--help`).
     ///
-    /// ## Advanced
-    ///
-    /// `clap` can display two different help messages, a [long format] and a
-    /// [short format] depending on whether the user used `-h` (short) or
-    /// `--help` (long). This method sets the message during the long format
-    /// (`--help`) message. However, if no short format message is configured,
-    /// this message will be displayed for *both* the long format, or short
-    /// format help message.
+    /// If [`App::about`] is not specified, this message will be displayed for `-h`.
     ///
     /// **NOTE:** Only [`App::about`] (short format) is used in completion
     /// script generation in order to be concise.
@@ -611,20 +582,15 @@ impl<'help> App<'help> {
     ///  a few lines of text, but that's ok!")
     /// # ;
     /// ```
-    /// [long format]: App::long_about()
-    /// [short format]: App::about()
     /// [`App::about`]: App::about()
     pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
         self.long_about = Some(about.into());
         self
     }
 
-    /// (Re)Sets the program's name. This will be displayed when displaying help
-    /// or version messages.
+    /// (Re)Sets the program's name.
     ///
-    /// **Pro-tip:** This function is particularly useful when configuring a
-    /// program via `App::from(yaml)` in conjunction with the [`crate_name!`]
-    /// macro to derive the program's name from its `Cargo.toml`.
+    /// See [`App::new`] for more details.
     ///
     /// # Examples
     ///
@@ -636,18 +602,17 @@ impl<'help> App<'help> {
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
-    ///
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
         self.name = name.into();
         self
     }
 
-    /// Adds additional help information to be displayed at the end of the
-    /// auto-generated help. This is often used to describe how to use the
-    /// arguments, caveats to be noted, or license and contact information.
+    /// Free-form help text for after auto-generated short help (`-h`).
     ///
-    /// **NOTE:** If only `after_long_help` is provided, and not [`App::after_help`] but the user requests
-    /// `-h` clap will still display the contents of `after_help` appropriately.
+    /// This is often used to describe how to use the arguments, caveats to be noted, or license
+    /// and contact information.
+    ///
+    /// If [`App::after_long_help`] is not specified, this message will be displayed for `--help`.
     ///
     /// # Examples
     ///
@@ -658,19 +623,17 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     ///
-    /// [`App::after_help`]: App::after_help()
     pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_help = Some(help.into());
         self
     }
 
-    /// Adds additional help information to be displayed in addition to auto-generated help. This
-    /// information is displayed **after** the auto-generated help information and is meant to be
-    /// more verbose than `after_help`. This is often used to describe how to use the arguments, or
-    /// caveats to be noted in man pages.
+    /// Free-form help text for after auto-generated long help (`--help`).
     ///
-    /// **NOTE:** If only `after_help` is provided, and not [`App::after_long_help`] but the user
-    /// requests `--help`, clap will still display the contents of `after_help` appropriately.
+    /// This is often used to describe how to use the arguments, caveats to be noted, or license
+    /// and contact information.
+    ///
+    /// If [`App::after_help`] is not specified, this message will be displayed for `-h`.
     ///
     /// # Examples
     ///
@@ -681,18 +644,16 @@ impl<'help> App<'help> {
     ///                      like, for real, be careful with this!")
     /// # ;
     /// ```
-    /// [`App::after_long_help`]: App::after_long_help()
     pub fn after_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_long_help = Some(help.into());
         self
     }
 
-    /// Adds additional help information to be displayed prior to the
-    /// auto-generated help. This is often used for header, copyright, or
-    /// license information.
+    /// Free-form help text for before auto-generated short help (`-h`).
     ///
-    /// **NOTE:** If only `before_long_help` is provided, and not [`App::before_help`] but the user
-    /// requests `-h` clap will still display the contents of `before_long_help` appropriately.
+    /// This is often used for header, copyright, or license information.
+    ///
+    /// If [`App::before_long_help`] is not specified, this message will be displayed for `--help`.
     ///
     /// # Examples
     ///
@@ -702,18 +663,16 @@ impl<'help> App<'help> {
     ///     .before_help("Some info I'd like to appear before the help info")
     /// # ;
     /// ```
-    /// [`App::before_help`]: App::before_help()
     pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
         self
     }
 
-    /// Adds additional help information to be displayed prior to the
-    /// auto-generated help. This is often used for header, copyright, or
-    /// license information.
+    /// Free-form help text for before auto-generated long help (`--help`).
     ///
-    /// **NOTE:** If only `before_help` is provided, and not [`App::before_long_help`] but the user
-    /// requests `--help`, clap will still display the contents of `before_help` appropriately.
+    /// This is often used for header, copyright, or license information.
+    ///
+    /// If [`App::before_help`] is not specified, this message will be displayed for `-h`.
     ///
     /// # Examples
     ///
@@ -723,15 +682,14 @@ impl<'help> App<'help> {
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
     /// # ;
     /// ```
-    /// [`App::before_long_help`]: App::before_long_help()
     pub fn before_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_long_help = Some(help.into());
         self
     }
 
-    /// Allows the subcommand to be used as if it were an [`Arg::short`].
-    ///
     /// Sets the short version of the subcommand flag without the preceding `-`.
+    ///
+    /// Allows the subcommand to be used as if it were an [`Arg::short`].
     ///
     /// # Examples
     ///
@@ -758,9 +716,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows the subcommand to be used as if it were an [`Arg::long`].
-    ///
     /// Sets the long version of the subcommand flag without the preceding `--`.
+    ///
+    /// Allows the subcommand to be used as if it were an [`Arg::long`].
     ///
     /// **NOTE:** Any leading `-` characters will be stripped.
     ///
@@ -794,20 +752,13 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Sets a string of the version number to be displayed when displaying the
-    /// short format version message (`-V`) or the help message.
+    /// Sets the version for the short version (`-V`) and help messages.
+    ///
+    /// If [`App::long_version`] is not specified, this message will be displayed for `--version`.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to
     /// automatically set your application's version to the same thing as your
-    /// crate at compile time. See the [`examples/`] directory for more
-    /// information.
-    ///
-    /// `clap` can display two different version messages, a [long format] and a
-    /// [short format] depending on whether the user used `-V` (short) or
-    /// `--version` (long). This method sets the message during the short format
-    /// (`-V`). However, if no long format message is configured, this
-    /// message will be displayed for *both* the long format, or short format
-    /// version message.
+    /// crate at compile time.
     ///
     /// # Examples
     ///
@@ -818,31 +769,18 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`examples/`]: https://github.com/clap-rs/clap/tree/master/examples
-    /// [`App::long_version`]: App::long_version()
     pub fn version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.version = Some(ver.into());
         self
     }
 
-    /// Sets a string of the version number to be displayed when the user
-    /// requests the long format version message (`--version`) or the help
-    /// message.
+    /// Sets the version for the long version (`--version`) and help messages.
     ///
-    /// This is often used to display things such as commit ID, or compile time
-    /// configured options.
+    /// If [`App::version`] is not specified, this message will be displayed for `-V`.
     ///
     /// **Pro-tip:** Use `clap`s convenience macro [`crate_version!`] to
     /// automatically set your application's version to the same thing as your
-    /// crate at compile time. See the [`examples/`] directory for more
-    /// information.
-    ///
-    /// `clap` can display two different version messages, a [long format] and a
-    /// [short format] depending on whether the user used `-V` (short) or
-    /// `--version` (long). This method sets the message during the long format
-    /// (`--version`). However, if no short format message is configured, this
-    /// message will be displayed for *both* the long format, or short format
-    /// version message.
+    /// crate at compile time.
     ///
     /// # Examples
     ///
@@ -858,23 +796,16 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
-    /// [`examples/`]: https://github.com/kbknapp/clap-rs/tree/master/examples
-    /// [`App::version`]: App::version()
     pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.long_version = Some(ver.into());
         self
     }
 
-    /// Overrides the `clap` generated usage string.
+    /// Overrides the `clap` generated usage string for help and error messages.
     ///
-    /// This will be displayed to the user when errors are found in argument parsing.
-    ///
-    /// **CAUTION:** Using this setting disables `clap`s "context-aware" usage
+    /// **NOTE:** Using this setting disables `clap`s "context-aware" usage
     /// strings. After this setting is set, this will be *the only* usage string
     /// displayed to the user!
-    ///
-    /// **NOTE:** This will not replace the entire help message, *only* the portion
-    /// showing the usage.
     ///
     /// # Examples
     ///
@@ -896,13 +827,9 @@ impl<'help> App<'help> {
         self.override_usage(usage)
     }
 
-    /// Overrides the `clap` generated help message. This should only be used
-    /// when the auto-generated message does not suffice.
+    /// Overrides the `clap` generated help message (both `-h` and `--help`).
     ///
-    /// This will be displayed to the user when they use `--help` or `-h`.
-    ///
-    /// **NOTE:** This replaces the **entire** help message, so nothing will be
-    /// auto-generated.
+    /// This should only be used when the auto-generated message does not suffice.
     ///
     /// **NOTE:** This **only** replaces the help message for the current
     /// command, meaning if you are using subcommands, those help messages will
@@ -996,7 +923,9 @@ impl<'help> App<'help> {
         self.help_template(s)
     }
 
-    /// Enables a single settings for the current (this `App` instance) command or subcommand.
+    /// Apply a setting for the current command or subcommand.
+    ///
+    /// See [`App::global_setting`] to apply a setting to this command and all subcommands.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
@@ -1009,7 +938,7 @@ impl<'help> App<'help> {
     ///     .setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    ///
+    /// or
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
@@ -1025,7 +954,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Disables a single setting for the current (this `App` instance) command or subcommand.
+    /// Remove a setting for the current command or subcommand.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
     ///
@@ -1038,7 +967,7 @@ impl<'help> App<'help> {
     ///     .unset_setting(AppSettings::WaitOnError)
     /// # ;
     /// ```
-    ///
+    /// or
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
@@ -1054,12 +983,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Enables a single setting that is propagated **down** through all child
-    /// subcommands.
+    /// Apply a setting for the current command and all subcommands.
+    ///
+    /// See [`App::setting`] to apply a setting only to this command.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE**: The setting is *only* propagated *down* and not up through parent commands.
     ///
     /// # Examples
     ///
@@ -1076,13 +1004,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Disables a global setting, and stops propagating down to child
-    /// subcommands.
+    /// Remove a setting and stop propagating down to subcommands.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
-    ///
-    /// **NOTE:** The setting being unset will be unset from both local and
-    /// [global] settings.
     ///
     /// # Examples
     ///
@@ -1100,7 +1024,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Sets the behaviour of colored output during runtime.
+    /// Sets when to color output.
     ///
     /// **NOTE:** This choice is propagated to all child subcommands.
     ///
@@ -1126,23 +1050,14 @@ impl<'help> App<'help> {
         }
     }
 
-    /// Sets the terminal width at which to wrap help messages. Defaults to
-    /// `100`. Using `0` will ignore terminal widths and use source formatting.
+    /// Sets the terminal width at which to wrap help messages.
     ///
-    /// `clap` automatically tries to determine the terminal width on Unix,
-    /// Linux, OSX and Windows if the `wrap_help` cargo "feature" has been enabled
-    /// at compile time. If the terminal width cannot be determined, `clap`
-    /// fall back to `100`.
+    /// Using `0` will ignore terminal widths and use source formatting.
+    ///
+    /// Defaults to current terminal width when `wrap_help` feature flag is enabled.  If the flag
+    /// is disabled or it cannot be determined, the default is 100.
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
-    ///
-    /// **NOTE:** This setting must be set **before** any subcommands are added!
-    ///
-    /// # Platform Specific
-    ///
-    /// Only Unix, Linux, OSX and Windows support automatic determination of
-    /// terminal width. Even on those platforms, this setting is useful if for
-    /// any reason the terminal width cannot be determined.
     ///
     /// # Examples
     ///
@@ -1164,21 +1079,14 @@ impl<'help> App<'help> {
         self.term_width(width)
     }
 
-    /// Sets the maximum terminal width at which to wrap help messages. Using `0`
-    /// will ignore terminal widths and use source formatting.
+    /// Sets the maximum terminal width at which to wrap help messages.
     ///
-    /// `clap` automatically tries to determine the terminal width on Unix,
-    /// Linux, OSX and Windows if the `wrap_help` cargo "feature" has been
-    /// enabled at compile time, but one might want to limit the size to some
-    /// maximum (e.g. when the terminal is running fullscreen).
+    /// This only applies when setting the current terminal width.  See [`App::term_width`] for
+    /// more details.
+    ///
+    /// Using `0` will ignore terminal widths and use source formatting.
     ///
     /// **NOTE:** This setting applies globally and *not* on a per-command basis.
-    ///
-    /// **NOTE:** This setting must be set **before** any subcommands are added!
-    ///
-    /// # Platform Specific
-    ///
-    /// Only Unix, Linux, OSX and Windows support automatic determination of terminal width.
     ///
     /// # Examples
     ///
@@ -1292,11 +1200,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// If this `App` instance is a subcommand, this method adds an alias, which
-    /// allows this subcommand to be accessed via *either* the original name, or
-    /// this given alias. This is more efficient and easier than creating
-    /// multiple hidden subcommands as one only needs to check for the existence
-    /// of this command, and not all aliased variants.
+    /// Sets a hidden alias to this subcommand.
+    ///
+    /// This allows the subcommand to be accessed via *either* the original name, or this given
+    /// alias. This is more efficient and easier than creating multiple hidden subcommands as one
+    /// only needs to check for the existence of this command, and not all aliased variants.
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
     /// message. If you're looking for aliases that will be displayed in the help
@@ -1322,10 +1230,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding an alias, which function as "hidden" short flag subcommands that
-    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add an alias, which functions as  "hidden" short flag subcommand
+    ///
+    /// This will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -1343,10 +1252,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding an alias, which function as "hidden" long flag subcommands that
-    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add an alias, which functions as a "hidden" long flag subcommand.
+    ///
+    /// This will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -1363,11 +1273,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// If this `App` instance is a subcommand, this method adds a multiple
-    /// aliases, which allows this subcommand to be accessed via *either* the
-    /// original name or any of the given aliases. This is more efficient, and
-    /// easier than creating multiple hidden subcommands as one only needs to
-    /// check for the existence of this command and not all aliased variants.
+    /// Sets multiple hidden aliases to this subcommand.
+    ///
+    /// This allows the subcommand to be accessed via *either* the original name or any of the
+    /// given aliases. This is more efficient, and easier than creating multiple hidden subcommands
+    /// as one only needs to check for the existence of this command and not all aliased variants.
     ///
     /// **NOTE:** Aliases defined with this method are *hidden* from the help
     /// message. If looking for aliases that will be displayed in the help
@@ -1397,10 +1307,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding aliases, which function as "hidden" short flag subcommands that
-    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add aliases, which function as "hidden" short flag subcommands.
+    ///
+    /// These will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -1424,10 +1335,11 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding aliases, which function as "hidden" long flag subcommands that
-    /// automatically dispatch as if this subcommand was used. This is more efficient, and easier
-    /// than creating multiple hidden subcommands as one only needs to check for the existence of
-    /// this command, and not all variants.
+    /// Add aliases, which function as "hidden" long flag subcommands.
+    ///
+    /// These will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
     ///
     /// # Examples
     ///
@@ -1450,8 +1362,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// If this `App` instance is a subcommand, this method adds a visible
-    /// alias, which allows this subcommand to be accessed via *either* the
+    /// Sets a visible alias to this subcommand.
+    ///
+    /// This allows the subcommand to be accessed via *either* the
     /// original name or the given alias. This is more efficient and easier
     /// than creating hidden subcommands as one only needs to check for
     /// the existence of this command and not all aliased variants.
@@ -1481,8 +1394,13 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding an alias that functions exactly like those defined with
-    /// [`App::short_flag_alias`], except that they are visible inside the help message.
+    /// Add an alias, which functions as  "visible" short flag subcommand
+    ///
+    /// This will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
+    ///
+    /// See also [`App::short_flag_alias`].
     ///
     /// # Examples
     ///
@@ -1501,8 +1419,13 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding an alias that functions exactly like those defined with
-    /// [`App::long_flag_alias`], except that they are visible inside the help message.
+    /// Add an alias, which functions as a "visible" long flag subcommand.
+    ///
+    /// This will automatically dispatch as if this subcommand was used. This is more efficient,
+    /// and easier than creating multiple hidden subcommands as one only needs to check for the
+    /// existence of this command, and not all variants.
+    ///
+    /// See also [`App::long_flag_alias`].
     ///
     /// # Examples
     ///
@@ -1520,8 +1443,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// If this `App` instance is a subcommand, this method adds multiple visible
-    /// aliases, which allows this subcommand to be accessed via *either* the
+    /// Sets multiple visible aliases to this subcommand.
+    ///
+    /// This allows the subcommand to be accessed via *either* the
     /// original name or any of the given aliases. This is more efficient and easier
     /// than creating multiple hidden subcommands as one only needs to check for
     /// the existence of this command and not all aliased variants.
@@ -1551,8 +1475,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding multiple short flag aliases that functions exactly like those defined
-    /// with [`App::short_flag_aliases`], except that they are visible inside the help message.
+    /// Add aliases, which function as *visible* short flag subcommands.
+    ///
+    /// See [`App::short_flag_aliases`].
     ///
     /// # Examples
     ///
@@ -1573,8 +1498,9 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows adding multiple long flag aliases that functions exactly like those defined
-    /// with [`App::long_flag_aliases`], except that they are visible inside the help message.
+    /// Add aliases, which function as *visible* long flag subcommands.
+    ///
+    /// See [`App::long_flag_aliases`].
     ///
     /// # Examples
     ///
@@ -1605,8 +1531,6 @@ impl<'help> App<'help> {
     /// This can be used to create "shortcuts" for subcommands, or if a
     /// particular argument has the semantic meaning of several other specific
     /// arguments and values.
-    ///
-    /// Some examples may help to clear this up.
     ///
     /// # Examples
     ///
@@ -1706,20 +1630,19 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Adds an [`ArgGroup`] to the application. [`ArgGroup`]s are a family of related arguments.
+    /// Adds an [`ArgGroup`] to the application.
+    ///
+    /// [`ArgGroup`]s are a family of related arguments.
     /// By placing them in a logical group, you can build easier requirement and exclusion rules.
-    /// For instance, you can make an entire [`ArgGroup`] required, meaning that one (and *only*
-    /// one) argument from that group must be present at runtime.
     ///
-    /// You can also do things such as name an [`ArgGroup`] as a conflict to another argument.
-    /// Meaning any of the arguments that belong to that group will cause a failure if present with
-    /// the conflicting argument.
-    ///
-    /// Another added benefit of [`ArgGroup`]s is that you can extract a value from a group instead
-    /// of determining exactly which argument was used.
-    ///
-    /// Finally, using [`ArgGroup`]s to ensure exclusion between arguments is another very common
-    /// use.
+    /// Example use cases:
+    /// - Make an entire [`ArgGroup`] required, meaning that one (and *only*
+    ///   one) argument from that group must be present at runtime.
+    /// - Name an [`ArgGroup`] as a conflict to another argument.
+    ///   Meaning any of the arguments that belong to that group will cause a failure if present with
+    ///   the conflicting argument.
+    /// - Ensure exclusion between arguments.
+    /// - Extract a value from a group instead of determining exactly which argument was used.
     ///
     /// # Examples
     ///
@@ -1777,10 +1700,15 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Adds a subcommand to the list of valid possibilities. Subcommands are effectively
-    /// sub-[`App`]s, because they can contain their own arguments, subcommands, version, usage,
-    /// etc. They also function just like [`App`]s, in that they get their own auto generated help,
-    /// version, and usage.
+    /// Adds a subcommand to the list of valid possibilities.
+    ///
+    /// Subcommands are effectively sub-[`App`]s, because they can contain their own arguments,
+    /// subcommands, version, usage, etc. They also function just like [`App`]s, in that they get
+    /// their own auto generated help, version, and usage.
+    ///
+    /// A subcommand's [`App::name`] will be used for:
+    /// - The argument the user passes in
+    /// - Programmatically looking up the subcommand
     ///
     /// # Examples
     ///
@@ -1798,8 +1726,7 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Adds multiple subcommands to the list of valid possibilities by iterating over an
-    /// [`IntoIterator`] of [`App`]s.
+    /// Adds multiple subcommands to the list of valid possibilities.
     ///
     /// # Examples
     ///
@@ -1824,11 +1751,13 @@ impl<'help> App<'help> {
         self
     }
 
-    /// Allows custom ordering of subcommands within the help message. Subcommands with a lower
-    /// value will be displayed first in the help message. This is helpful when one would like to
-    /// emphasize frequently used subcommands, or prioritize those towards the top of the list.
-    /// Duplicate values **are** allowed. Subcommands with duplicate display orders will be
-    /// displayed in alphabetical order.
+    /// Set the placement of this subcommand within the help.
+    ///
+    /// Subcommands with a lower value will be displayed first in the help message.  Subcommands
+    /// with duplicate display orders will be displayed in alphabetical order.
+    ///
+    /// This is helpful when one would like to emphasize frequently used subcommands, or prioritize
+    /// those towards the top of the list.
     ///
     /// **NOTE:** The default is 999 for all subcommands.
     ///
@@ -1877,6 +1806,8 @@ impl<'help> App<'help> {
     }
 
     /// Allows one to mutate an [`Arg`] after it's been added to an [`App`].
+    ///
+    /// This can be useful for modifying the auto-generated help or version arguments.
     ///
     /// # Examples
     ///
@@ -1933,11 +1864,9 @@ impl<'help> App<'help> {
         Error::raw(kind, message).format(self)
     }
 
-    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
-    /// method as if someone ran `-h` to request the help message.
+    /// Prints the short help message (`-h`) to [`io::stdout()`].
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
+    /// See also [`App::print_long_help`].
     ///
     /// # Examples
     ///
@@ -1947,9 +1876,6 @@ impl<'help> App<'help> {
     /// app.print_help();
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
-    /// [`BufWriter`]: std::io::BufWriter
-    /// [`-h` (short)]: Arg::help()
-    /// [`--help` (long)]: Arg::long_help()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
@@ -1960,11 +1886,9 @@ impl<'help> App<'help> {
         c.print()
     }
 
-    /// Prints the full help message to [`io::stdout()`] using a [`BufWriter`] using the same
-    /// method as if someone ran `--help` to request the help message.
+    /// Prints the long help message (`--help`) to [`io::stdout()`].
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
+    /// See also [`App::print_help`].
     ///
     /// # Examples
     ///
@@ -1987,11 +1911,9 @@ impl<'help> App<'help> {
         c.print()
     }
 
-    /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
-    /// the user ran `-h`.
+    /// Writes the short help message (`-h`) to a [`io::Write`] object.
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
+    /// See also [`App::write_long_help`].
     ///
     /// # Examples
     ///
@@ -2013,11 +1935,9 @@ impl<'help> App<'help> {
         w.flush()
     }
 
-    /// Writes the full help message to the user to a [`io::Write`] object in the same method as if
-    /// the user ran `--help`.
+    /// Writes the long help message (`--help`) to a [`io::Write`] object.
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" help messages
-    /// depending on if the user ran [`-h` (short)] or [`--help` (long)].
+    /// See also [`App::write_help`].
     ///
     /// # Examples
     ///
@@ -2039,10 +1959,9 @@ impl<'help> App<'help> {
         w.flush()
     }
 
-    /// Returns the version message rendered as if the user ran `-V`.
+    /// Version message rendered as if the user ran `-V`.
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
-    /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
+    /// See also [`App::render_long_version`].
     ///
     /// ### Coloring
     ///
@@ -2064,10 +1983,9 @@ impl<'help> App<'help> {
         self._render_version(false)
     }
 
-    /// Returns the version message rendered as if the user ran `--version`.
+    /// Version message rendered as if the user ran `--version`.
     ///
-    /// **NOTE:** clap has the ability to distinguish between "short" and "long" version messages
-    /// depending on if the user ran [`-V` (short)] or [`--version` (long)].
+    /// See also [`App::render_version`].
     ///
     /// ### Coloring
     ///
@@ -2089,7 +2007,7 @@ impl<'help> App<'help> {
         self._render_version(true)
     }
 
-    /// Returns the usage statement
+    /// Usage statement
     ///
     /// ### Examples
     ///
@@ -2109,10 +2027,11 @@ impl<'help> App<'help> {
         Usage::new(&parser).create_usage_with_title(&[])
     }
 
-    /// Starts the parsing process, upon a failed parse an error will be displayed to the user and
-    /// the process will exit with the appropriate error code. By default this method gets all user
-    /// provided arguments from [`env::args_os`] in order to allow for invalid UTF-8 code points,
-    /// which are legal on many platforms.
+    /// Parse [`env::args_os`], exiting on failure.
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2129,7 +2048,13 @@ impl<'help> App<'help> {
         self.get_matches_from(&mut env::args_os())
     }
 
-    /// Starts the parsing process, just like [`App::get_matches`] but doesn't consume the `App`.
+    /// Parse [`env::args_os`], exiting on failure.
+    ///
+    /// Like [`App::get_matches`] but doesn't consume the `App`.
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2147,13 +2072,16 @@ impl<'help> App<'help> {
             .unwrap_or_else(|e| e.exit())
     }
 
-    /// Starts the parsing process. This method will return a [`clap::Result`] type instead of exiting
-    /// the process on failed parse. By default this method gets matches from [`env::args_os`].
+    /// Parse [`env::args_os`], returning a [`clap::Result`] on failure.
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a
     /// [`ErrorKind::DisplayHelp`] or [`ErrorKind::DisplayVersion`] respectively. You must call
     /// [`Error::exit`] or perform a [`std::process::exit`].
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2184,12 +2112,14 @@ impl<'help> App<'help> {
         self.try_get_matches()
     }
 
-    /// Starts the parsing process. Like [`App::get_matches`] this method does not return a [`clap::Result`]
-    /// and will automatically exit with an error message. This method, however, lets you specify
-    /// what iterator to use when performing matches, such as a [`Vec`] of your making.
+    /// Parse the specified arguments, exiting on failure.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
     /// [`AppSettings::NoBinaryName`] is used.
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2215,8 +2145,7 @@ impl<'help> App<'help> {
         })
     }
 
-    /// Starts the parsing process. A combination of [`App::get_matches_from`], and
-    /// [`App::try_get_matches`].
+    /// Parse the specified arguments, returning a [`clap::Result`] on failure.
     ///
     /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
     /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::DisplayHelp`]
@@ -2225,6 +2154,10 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
     /// [`AppSettings::NoBinaryName`] is used.
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2246,6 +2179,7 @@ impl<'help> App<'help> {
     /// [`kind`]: crate::Error
     /// [`ErrorKind::DisplayHelp`]: crate::ErrorKind::DisplayHelp
     /// [`ErrorKind::DisplayVersion`]: crate::ErrorKind::DisplayVersion
+    /// [`clap::Result`]: Result
     pub fn try_get_matches_from<I, T>(mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
@@ -2264,12 +2198,21 @@ impl<'help> App<'help> {
         self.try_get_matches_from(itr)
     }
 
-    /// Starts the parsing process without consuming the [`App`] struct `self`. This is normally not
-    /// the desired functionality, instead prefer [`App::try_get_matches_from`] which *does*
-    /// consume `self`.
+    /// Parse the specified arguments, returning a [`clap::Result`] on failure.
+    ///
+    /// Like [`App::try_get_matches_from`] but doesn't consume the `App`.
+    ///
+    /// **NOTE:** This method WILL NOT exit when `--help` or `--version` (or short versions) are
+    /// used. It will return a [`clap::Error`], where the [`kind`] is a [`ErrorKind::DisplayHelp`]
+    /// or [`ErrorKind::DisplayVersion`] respectively. You must call [`Error::exit`] or
+    /// perform a [`std::process::exit`] yourself.
     ///
     /// **NOTE:** The first argument will be parsed as the binary name unless
     /// [`AppSettings::NoBinaryName`] is used.
+    ///
+    /// # Panics
+    ///
+    /// If contradictory arguments or settings exist.
     ///
     /// # Examples
     ///
@@ -2283,6 +2226,9 @@ impl<'help> App<'help> {
     ///     .unwrap_or_else(|e| e.exit());
     /// ```
     /// [`App::try_get_matches_from`]: App::try_get_matches_from()
+    /// [`clap::Result`]: Result
+    /// [`clap::Error`]: crate::Error
+    /// [`kind`]: crate::Error
     pub fn try_get_matches_from_mut<I, T>(&mut self, itr: I) -> ClapResult<ArgMatches>
     where
         I: IntoIterator<Item = T>,
@@ -2377,6 +2323,7 @@ impl<'help> App<'help> {
     }
 
     /// Sets the placeholder text used for subcommands when printing usage and help.
+    ///
     /// By default, this is "SUBCOMMAND" with a heading of "SUBCOMMANDS".
     ///
     /// # Examples
