@@ -77,6 +77,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::NO_OP,
     AllowInvalidUtf8ForExternalSubcommands("allowinvalidutf8forexternalsubcommands")
         => Flags::SC_UTF8_NONE,
+    AllowHyphenValues("allowhyphenvalues")
+        => Flags::LEADING_HYPHEN,
     AllowLeadingHyphen("allowleadinghyphen")
         => Flags::LEADING_HYPHEN,
     AllowNegativeNumbers("allownegativenumbers")
@@ -225,7 +227,7 @@ pub enum AppSettings {
     /// # use clap::{Arg, App, AppSettings};
     /// // Imagine you needed to represent negative numbers as well, such as -10
     /// let m = App::new("nums")
-    ///     .setting(AppSettings::AllowLeadingHyphen)
+    ///     .setting(AppSettings::AllowHyphenValues)
     ///     .arg(Arg::new("neg"))
     ///     .get_matches_from(vec![
     ///         "nums", "-20"
@@ -235,6 +237,13 @@ pub enum AppSettings {
     /// # ;
     /// ```
     /// [`Arg::allow_hyphen_values`]: crate::Arg::allow_hyphen_values()
+    AllowHyphenValues,
+
+    /// Deprecated, replaced with [`AppSettings::AllowHyphenValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `AppSettings::AllowHyphenValues`"
+    )]
     AllowLeadingHyphen,
 
     /// Specifies that all arguments override themselves. This is the equivalent to saying the `foo`
@@ -244,7 +253,7 @@ pub enum AppSettings {
     AllArgsOverrideSelf,
 
     /// Allows negative numbers to pass as values. This is similar to
-    /// [`AppSettings::AllowLeadingHyphen`] except that it only allows numbers, all
+    /// [`AppSettings::AllowHyphenValues`] except that it only allows numbers, all
     /// other undefined leading hyphens will fail to parse.
     ///
     /// # Examples
@@ -1146,8 +1155,8 @@ mod test {
             AppSettings::AllowInvalidUtf8ForExternalSubcommands
         );
         assert_eq!(
-            "allowleadinghyphen".parse::<AppSettings>().unwrap(),
-            AppSettings::AllowLeadingHyphen
+            "allowhyphenvalues".parse::<AppSettings>().unwrap(),
+            AppSettings::AllowHyphenValues
         );
         assert_eq!(
             "allownegativenumbers".parse::<AppSettings>().unwrap(),

@@ -547,7 +547,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else if let Some(short_arg) = arg_os.strip_prefix("-") {
                     // Arg looks like a short flag, and not a possible number
 
-                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // Try to parse short args like normal, if AllowHyphenValues or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
                     let parse_result = self.parse_short_arg(
@@ -949,7 +949,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             next, current_positional.name
         );
 
-        if self.is_set(AS::AllowLeadingHyphen)
+        if self.is_set(AS::AllowHyphenValues)
             || self.app[&current_positional.id].is_set(ArgSettings::AllowHyphenValues)
             || (self.is_set(AS::AllowNegativeNumbers) && next.to_str_lossy().parse::<f64>().is_ok())
         {
@@ -1235,7 +1235,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
             ParseResult::FlagSubCommand(sc_name.to_string())
-        } else if self.is_set(AS::AllowLeadingHyphen) {
+        } else if self.is_set(AS::AllowHyphenValues) {
             ParseResult::MaybeHyphenValue
         } else {
             ParseResult::NoMatchingArg {
@@ -1258,7 +1258,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let arg = short_arg.to_str_lossy();
 
         if (self.is_set(AS::AllowNegativeNumbers) && arg.parse::<f64>().is_ok())
-            || (self.is_set(AS::AllowLeadingHyphen)
+            || (self.is_set(AS::AllowHyphenValues)
                 && arg.chars().any(|c| !self.app.contains_short(c)))
             || matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
                 if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
