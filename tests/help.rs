@@ -2031,30 +2031,30 @@ fn issue_1487() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_but_not_given() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo"))
         .get_matches_from(empty_args());
 }
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_but_not_given_settings_after_args() {
     App::new("myapp")
         .arg(Arg::new("foo"))
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .get_matches_from(empty_args());
 }
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_but_not_given_for_one_of_two_arguments() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar").help("It does bar stuff"))
         .get_matches_from(empty_args());
@@ -2063,7 +2063,7 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
 #[test]
 fn help_required_locally_but_not_given_for_subcommand() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2075,10 +2075,10 @@ fn help_required_locally_but_not_given_for_subcommand() {
 
 #[cfg(debug_assertions)]
 #[test]
-#[should_panic = "AppSettings::HelpRequired is enabled for the App"]
+#[should_panic = "AppSettings::HelpExpected is enabled for the App"]
 fn help_required_globally_but_not_given_for_subcommand() {
     App::new("myapp")
-        .global_setting(AppSettings::HelpRequired)
+        .global_setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2091,7 +2091,7 @@ fn help_required_globally_but_not_given_for_subcommand() {
 #[test]
 fn help_required_and_given_for_subcommand() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .subcommand(
             App::new("bar")
@@ -2104,7 +2104,7 @@ fn help_required_and_given_for_subcommand() {
 #[test]
 fn help_required_and_given() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo").help("It does foo stuff"))
         .get_matches_from(empty_args());
 }
@@ -2112,7 +2112,7 @@ fn help_required_and_given() {
 #[test]
 fn help_required_and_no_args() {
     App::new("myapp")
-        .setting(AppSettings::HelpRequired)
+        .setting(AppSettings::HelpExpected)
         .get_matches_from(empty_args());
 }
 

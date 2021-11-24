@@ -115,7 +115,7 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::PROPAGATE_VERSION,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
-    HelpRequired("helprequired")
+    HelpExpected("helpexpected")
         => Flags::HELP_REQUIRED,
     Hidden("hidden")
         => Flags::HIDDEN,
@@ -785,10 +785,10 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::HelpRequired)
+    ///     .setting(AppSettings::HelpExpected)
     ///     .arg(
     ///         Arg::new("foo").help("It does foo stuff")
-    ///         // As required via AppSettings::HelpRequired, a help message was supplied
+    ///         // As required via AppSettings::HelpExpected, a help message was supplied
     ///      )
     /// #    .get_matches();
     /// ```
@@ -798,16 +798,16 @@ pub enum AppSettings {
     /// ```rust,no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myapp")
-    ///     .setting(AppSettings::HelpRequired)
+    ///     .setting(AppSettings::HelpExpected)
     ///     .arg(
     ///         Arg::new("foo")
     ///         // Someone forgot to put .about("...") here
-    ///         // Since the setting AppSettings::HelpRequired is activated, this will lead to
+    ///         // Since the setting AppSettings::HelpExpected is activated, this will lead to
     ///         // a panic (if you are in debug mode)
     ///     )
     /// #   .get_matches();
     ///```
-    HelpRequired,
+    HelpExpected,
 
     /// Try not to fail on parse errors like missing option values.
     ///
@@ -1195,8 +1195,8 @@ mod test {
             AppSettings::HidePossibleValuesInHelp
         );
         assert_eq!(
-            "helprequired".parse::<AppSettings>().unwrap(),
-            AppSettings::HelpRequired
+            "helpexpected".parse::<AppSettings>().unwrap(),
+            AppSettings::HelpExpected
         );
         assert_eq!(
             "nobinaryname".parse::<AppSettings>().unwrap(),

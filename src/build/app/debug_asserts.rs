@@ -297,7 +297,7 @@ pub(crate) fn assert_app(app: &App) {
         );
     }
 
-    app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpRequired));
+    app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpExpected));
     assert_app_flags(app);
 }
 

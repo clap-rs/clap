@@ -2551,7 +2551,7 @@ impl<'help> App<'help> {
     }
 
     fn _panic_on_missing_help(&self, help_required_globally: bool) {
-        if self.is_set(AppSettings::HelpRequired) || help_required_globally {
+        if self.is_set(AppSettings::HelpExpected) || help_required_globally {
             let args_missing_help: Vec<String> = self
                 .args
                 .args()
@@ -2560,7 +2560,7 @@ impl<'help> App<'help> {
                 .collect();
 
             assert!(args_missing_help.is_empty(),
-                    "AppSettings::HelpRequired is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
+                    "AppSettings::HelpExpected is enabled for the App {}, but at least one of its arguments does not have either `help` or `long_help` set. List of such arguments: {}",
                     self.name,
                     args_missing_help.join(", ")
                 );
