@@ -131,10 +131,16 @@ trycmd = { version = "0.8.0", default-features = false, features = ["color-auto"
 [[example]]
 name = "busybox"
 path = "examples/24a_multicall_busybox.rs"
+required-features = ["unstable-multicall"]
 
 [[example]]
 name = "hostname"
 path = "examples/24b_multicall_hostname.rs"
+required-features = ["unstable-multicall"]
+
+[[example]]
+name = "09_cargo_metadata"
+required-features = ["cargo"]
 
 [profile.test]
 opt-level = 1

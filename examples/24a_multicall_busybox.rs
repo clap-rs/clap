@@ -17,7 +17,6 @@ fn main() {
         .subcommand(App::new("true").about("does nothing successfully"))
         .subcommand(App::new("false").about("does nothing unsuccessfully"));
 
-    #[cfg(feature = "unstable-multicall")]
     let app = app.setting(AppSettings::Multicall);
     let matches = app.get_matches();
     if matches.occurrences_of("install") > 0 {

@@ -4,7 +4,7 @@ See the documentation for clap::AppSettings::Multicall for rationale.
 
 This example omits every command except true and false,
 which are the most trivial to implement,
-```bash
+```bash,ignore
 $ busybox true
 ? 0
 $ busybox false
@@ -14,14 +14,14 @@ $ busybox false
 
 But includes the `--install` option as an example of why it can be useful
 for the main program to take arguments that aren't applet subcommands.
-```bash
+```bash,ignore
 $ busybox --install
 ? failed
 ...
 ```
 
 Though users must pass something:
-```bash
+```bash,ignore
 $ busybox
 ? failed
 busybox 
