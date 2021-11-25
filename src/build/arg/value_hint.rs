@@ -1,6 +1,8 @@
 use std::str::FromStr;
 
-/// Provides hints about argument types for shell command completion.
+/// Provide shell with hint on how to complete an argument.
+///
+/// See [Arg::value_hint][crate::Arg::value_hint] to set this on an argument.
 ///
 /// See the `clap_generate` crate for completion script generation.
 ///

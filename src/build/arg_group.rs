@@ -4,8 +4,9 @@ use crate::util::{Id, Key};
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
-/// `ArgGroup`s are a family of related [arguments] and way for you to express, "Any of these
-/// arguments". By placing arguments in a logical group, you can create easier requirement and
+/// Family of related [arguments].
+///
+/// By placing arguments in a logical group, you can create easier requirement and
 /// exclusion rules instead of having to list each argument individually, or when you want a rule
 /// to apply "any but not all" arguments.
 ///
@@ -71,6 +72,7 @@ use yaml_rust::Yaml;
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
 /// [`ArgGroup::multiple(true)`]: ArgGroup::multiple()
+///
 /// [`ArgGroup::multiple(false)`]: ArgGroup::multiple()
 /// [arguments]: crate::Arg
 /// [conflict]: crate::Arg::conflicts_with()
@@ -94,8 +96,10 @@ impl<'help> ArgGroup<'help> {
         }
     }
 
-    /// Creates a new instance of `ArgGroup` using a unique string name. The name will be used to
-    /// get values from the group or refer to the group inside of conflict and requirement rules.
+    /// Create a `ArgGroup` using a unique name.
+    ///
+    /// The name will be used to get values from the group or refer to the group inside of conflict
+    /// and requirement rules.
     ///
     /// # Examples
     ///
@@ -239,10 +243,10 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Sets the group as required or not. A required group will be displayed in the usage string
-    /// of the application in the format `<arg|arg2|arg3>`. A required `ArgGroup` simply states
-    /// that one argument from this group *must* be present at runtime (unless
-    /// conflicting with another argument).
+    /// Require an argument from the group to be present when parsing.
+    ///
+    /// This is unless conflicting with another argument.  A required group will be displayed in
+    /// the usage string of the application in the format `<arg|arg2|arg3>`.
     ///
     /// **NOTE:** This setting only applies to the current [`App`] / [`Subcommand`]s, and not
     /// globally.
@@ -280,12 +284,13 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Sets the requirement rules of this group. This is not to be confused with a
-    /// [required group]. Requirement rules function just like [argument requirement rules], you
-    /// can name other arguments or groups that must be present when any one of the arguments from
-    /// this group is used.
+    /// Specify an argument or group that must be present when this group is.
     ///
-    /// **NOTE:** The name provided may be an argument, or group name
+    /// This is not to be confused with a [required group]. Requirement rules function just like
+    /// [argument requirement rules], you can name other arguments or groups that must be present
+    /// when any one of the arguments from this group is used.
+    ///
+    /// **NOTE:** The name provided may be an argument or group name
     ///
     /// # Examples
     ///
@@ -315,12 +320,13 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Sets the requirement rules of this group. This is not to be confused with a
-    /// [required group]. Requirement rules function just like [argument requirement rules], you
-    /// can name other arguments or groups that must be present when one of the arguments from this
-    /// group is used.
+    /// Specify arguments or groups that must be present when this group is.
     ///
-    /// **NOTE:** The names provided may be an argument, or group name
+    /// This is not to be confused with a [required group]. Requirement rules function just like
+    /// [argument requirement rules], you can name other arguments or groups that must be present
+    /// when one of the arguments from this group is used.
+    ///
+    /// **NOTE:** The names provided may be an argument or group name
     ///
     /// # Examples
     ///
@@ -354,9 +360,11 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Sets the exclusion rules of this group. Exclusion (aka conflict) rules function just like
-    /// [argument exclusion rules], you can name other arguments or groups that must *not* be
-    /// present when one of the arguments from this group are used.
+    /// Specify an argument or group that must **not** be present when this group is.
+    ///
+    /// Exclusion (aka conflict) rules function just like [argument exclusion rules], you can name
+    /// other arguments or groups that must *not* be present when one of the arguments from this
+    /// group are used.
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
@@ -386,9 +394,10 @@ impl<'help> ArgGroup<'help> {
         self
     }
 
-    /// Sets the exclusion rules of this group. Exclusion rules function just like
-    /// [argument exclusion rules], you can name other arguments or groups that must *not* be
-    /// present when one of the arguments from this group are used.
+    /// Specify arguments or groups that must **not** be present when this group is.
+    ///
+    /// Exclusion rules function just like [argument exclusion rules], you can name other arguments
+    /// or groups that must *not* be present when one of the arguments from this group are used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
     ///

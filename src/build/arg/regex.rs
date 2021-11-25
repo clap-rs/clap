@@ -5,9 +5,7 @@ use std::borrow::Cow;
 
 /// Contains either a regular expression or a set of them or a reference to one.
 ///
-/// Essentially a [`Cow`] wrapper with custom convenience traits.
-///
-/// [`Cow`]: std::borrow::Cow
+/// See [Arg::validator_regex(][crate::Arg::validator_regex] to set this on an argument.
 #[derive(Debug, Clone)]
 pub enum RegexRef<'a> {
     /// Used if the underlying is a regex set

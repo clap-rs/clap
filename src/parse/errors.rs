@@ -490,8 +490,9 @@ impl Error {
 
     /// Create an unformatted error
     ///
-    /// Prefer [`App::error`] for generating errors.  This is for you need to pass the error up to
-    /// a place that has access to the `App` at which point you can call [`Error::format]
+    /// This is for you need to pass the error up to
+    /// a place that has access to the `App` at which point you can call [`Error::format].
+    /// Prefer [`App::error`] for generating errors.
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
@@ -507,7 +508,7 @@ impl Error {
         self
     }
 
-    /// Should the message be written to `stdout` or not
+    /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
         !matches!(
@@ -516,8 +517,9 @@ impl Error {
         )
     }
 
-    /// Prints the error and exits. Depending on the error kind, this
-    /// either prints to `stderr` and exits with a status of `1`
+    /// Prints the error and exits.
+    ///
+    /// Depending on the error kind, this either prints to `stderr` and exits with a status of `1`
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
