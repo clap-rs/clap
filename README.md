@@ -202,6 +202,8 @@ fn main() {
 }
 ```
 
+See the [clap_derive][] docs for a full explanation of what you can pass to `clap::Parser`.
+
 #### Using Builder Pattern
 
 This second method shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
@@ -562,5 +564,6 @@ There are several excellent crates which can be used with `clap`, I recommend ch
 
 * [`assert_cmd`](https://github.com/assert-rs/assert_cmd) - This crate allows you test your CLIs in a very intuitive and functional way!
 
+[clap_derive]: https://docs.rs/clap_derive
 [docs]: https://docs.rs/clap
 [examples]: https://github.com/clap-rs/clap/tree/master/examples
