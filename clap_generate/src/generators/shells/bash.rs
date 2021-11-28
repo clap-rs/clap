@@ -33,7 +33,7 @@ impl Generator for Bash {
     for i in ${{COMP_WORDS[@]}}
     do
         case \"${{i}}\" in
-            {name})
+            \"$1\")
                 cmd=\"{cmd}\"
                 ;;{subcmds}
             *)
