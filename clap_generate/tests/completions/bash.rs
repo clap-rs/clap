@@ -42,7 +42,7 @@ static BASH: &str = r#"_myapp() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            myapp)
+            "$1")
                 cmd="myapp"
                 ;;
             help)
@@ -139,7 +139,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            my_app)
+            "$1")
                 cmd="my_app"
                 ;;
             help)
@@ -285,7 +285,7 @@ static BASH_ALIASES: &str = r#"_cmd() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            cmd)
+            "$1")
                 cmd="cmd"
                 ;;
             *)
