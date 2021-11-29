@@ -238,8 +238,8 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [`Arg`]: crate::Arg
     #[inline]
-    pub fn multiple(mut self, m: bool) -> Self {
-        self.multiple = m;
+    pub fn multiple(mut self, yes: bool) -> Self {
+        self.multiple = yes;
         self
     }
 
@@ -279,8 +279,8 @@ impl<'help> ArgGroup<'help> {
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
     /// [`App`]: crate::App
     #[inline]
-    pub fn required(mut self, r: bool) -> Self {
-        self.required = r;
+    pub fn required(mut self, yes: bool) -> Self {
+        self.required = yes;
         self
     }
 

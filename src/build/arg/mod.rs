@@ -1252,8 +1252,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     #[inline]
-    pub fn exclusive(mut self, exclusive: bool) -> Self {
-        self.exclusive = exclusive;
+    pub fn exclusive(mut self, yes: bool) -> Self {
+        self.exclusive = yes;
         self
     }
 
@@ -2311,8 +2311,8 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
     /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
     #[inline]
-    pub fn allow_invalid_utf8(self, tv: bool) -> Self {
-        if tv {
+    pub fn allow_invalid_utf8(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::AllowInvalidUtf8)
         } else {
             self.unset_setting(ArgSettings::AllowInvalidUtf8)
@@ -3537,8 +3537,8 @@ impl<'help> Arg<'help> {
     /// [index]: Arg::index()
     /// [`UnknownArgument`]: crate::ErrorKind::UnknownArgument
     #[inline]
-    pub fn last(self, l: bool) -> Self {
-        if l {
+    pub fn last(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::Last)
         } else {
             self.unset_setting(ArgSettings::Last)
@@ -3599,8 +3599,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     #[inline]
-    pub fn required(self, r: bool) -> Self {
-        if r {
+    pub fn required(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::Required)
         } else {
             self.unset_setting(ArgSettings::Required)
@@ -3639,8 +3639,8 @@ impl<'help> Arg<'help> {
     /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     /// [multiple values]: Arg::multiple_values
     #[inline]
-    pub fn takes_value(self, tv: bool) -> Self {
-        if tv {
+    pub fn takes_value(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::TakesValue)
         } else {
             self.unset_setting(ArgSettings::TakesValue)
@@ -3698,8 +3698,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
     #[inline]
-    pub fn allow_hyphen_values(self, a: bool) -> Self {
-        if a {
+    pub fn allow_hyphen_values(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::AllowHyphenValues)
         } else {
             self.unset_setting(ArgSettings::AllowHyphenValues)
@@ -3749,8 +3749,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
     /// ```
     #[inline]
-    pub fn require_equals(self, r: bool) -> Self {
-        if r {
+    pub fn require_equals(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::RequireEquals)
         } else {
             self.unset_setting(ArgSettings::RequireEquals)
@@ -3791,8 +3791,8 @@ impl<'help> Arg<'help> {
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
-    pub fn global(mut self, g: bool) -> Self {
-        self.global = g;
+    pub fn global(mut self, yes: bool) -> Self {
+        self.global = yes;
         self
     }
 
@@ -3873,8 +3873,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     #[inline]
-    pub fn require_delimiter(self, d: bool) -> Self {
-        if d {
+    pub fn require_delimiter(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::RequireDelimiter)
         } else {
             self.unset_setting(ArgSettings::RequireDelimiter)
@@ -3905,8 +3905,8 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
     /// the help text would be omitted.
     #[inline]
-    pub fn hide_possible_values(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_possible_values(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HidePossibleValues)
         } else {
             self.unset_setting(ArgSettings::HidePossibleValues)
@@ -3935,8 +3935,8 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
     #[inline]
-    pub fn hide_default_value(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_default_value(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HideDefaultValue)
         } else {
             self.unset_setting(ArgSettings::HideDefaultValue)
@@ -3976,8 +3976,8 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hide(self, h: bool) -> Self {
-        if h {
+    pub fn hide(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::Hidden)
         } else {
             self.unset_setting(ArgSettings::Hidden)
@@ -3987,8 +3987,8 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")]
     #[inline]
-    pub fn hidden(self, h: bool) -> Self {
-        self.hide(h)
+    pub fn hidden(self, yes: bool) -> Self {
+        self.hide(yes)
     }
 
     /// Match values against [`Arg::possible_values`] without matching case.
@@ -4040,8 +4040,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
-    pub fn ignore_case(self, ci: bool) -> Self {
-        if ci {
+    pub fn ignore_case(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::IgnoreCase)
         } else {
             self.unset_setting(ArgSettings::IgnoreCase)
@@ -4051,8 +4051,8 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::ignore_case`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")]
     #[inline]
-    pub fn case_insensitive(self, ci: bool) -> Self {
-        self.ignore_case(ci)
+    pub fn case_insensitive(self, yes: bool) -> Self {
+        self.ignore_case(yes)
     }
 
     /// Specifies that an argument should allow grouping of multiple values via a
@@ -4105,8 +4105,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
-    pub fn use_delimiter(mut self, d: bool) -> Self {
-        if d {
+    pub fn use_delimiter(mut self, yes: bool) -> Self {
+        if yes {
             if self.val_delim.is_none() {
                 self.val_delim = Some(',');
             }
@@ -4138,8 +4138,8 @@ impl<'help> Arg<'help> {
     /// text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
-    pub fn hide_env(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_env(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HideEnv)
         } else {
             self.unset_setting(ArgSettings::HideEnv)
@@ -4167,8 +4167,8 @@ impl<'help> Arg<'help> {
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
-    pub fn hide_env_values(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_env_values(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HideEnvValues)
         } else {
             self.unset_setting(ArgSettings::HideEnvValues)
@@ -4219,8 +4219,8 @@ impl<'help> Arg<'help> {
     ///         on a line after the option
     /// ```
     #[inline]
-    pub fn next_line_help(self, nlh: bool) -> Self {
-        if nlh {
+    pub fn next_line_help(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::NextLineHelp)
         } else {
             self.unset_setting(ArgSettings::NextLineHelp)
@@ -4273,8 +4273,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     #[inline]
-    pub fn forbid_empty_values(self, empty: bool) -> Self {
-        if empty {
+    pub fn forbid_empty_values(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::ForbidEmptyValues)
         } else {
             self.unset_setting(ArgSettings::ForbidEmptyValues)
@@ -4283,8 +4283,8 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::forbid_empty_values`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
-    pub fn empty_values(self, empty: bool) -> Self {
-        self.forbid_empty_values(!empty)
+    pub fn empty_values(self, yes: bool) -> Self {
+        self.forbid_empty_values(!yes)
     }
 
     /// Specifies that the argument may have an unknown number of values
@@ -4453,8 +4453,8 @@ impl<'help> Arg<'help> {
     /// [maximum]: Arg::max_values()
     /// [specific]: Arg::number_of_values()
     #[inline]
-    pub fn multiple_values(self, multi: bool) -> Self {
-        if multi {
+    pub fn multiple_values(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::MultipleValues)
         } else {
             self.unset_setting(ArgSettings::MultipleValues)
@@ -4507,8 +4507,8 @@ impl<'help> Arg<'help> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     #[inline]
-    pub fn multiple_occurrences(self, multi: bool) -> Self {
-        if multi {
+    pub fn multiple_occurrences(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::MultipleOccurrences)
         } else {
             self.unset_setting(ArgSettings::MultipleOccurrences)
@@ -4521,8 +4521,8 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
     )]
-    pub fn multiple(self, multi: bool) -> Self {
-        self.multiple_occurrences(multi).multiple_values(multi)
+    pub fn multiple(self, yes: bool) -> Self {
+        self.multiple_occurrences(yes).multiple_values(yes)
     }
 
     /// Consume all following arguments.
@@ -4548,11 +4548,11 @@ impl<'help> Arg<'help> {
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
-    pub fn raw(self, raw: bool) -> Self {
-        self.takes_value(raw)
-            .multiple_values(raw)
-            .allow_hyphen_values(raw)
-            .last(raw)
+    pub fn raw(self, yes: bool) -> Self {
+        self.takes_value(yes)
+            .multiple_values(yes)
+            .allow_hyphen_values(yes)
+            .last(yes)
     }
 
     /// Hides an argument from short help (`-h`).
@@ -4625,8 +4625,8 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hide_short_help(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_short_help(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HiddenShortHelp)
         } else {
             self.unset_setting(ArgSettings::HiddenShortHelp)
@@ -4636,8 +4636,8 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide_short_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")]
     #[inline]
-    pub fn hidden_short_help(self, h: bool) -> Self {
-        self.hide_short_help(h)
+    pub fn hidden_short_help(self, yes: bool) -> Self {
+        self.hide_short_help(yes)
     }
 
     /// Hides an argument from long help (`--help`).
@@ -4704,8 +4704,8 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hide_long_help(self, hide: bool) -> Self {
-        if hide {
+    pub fn hide_long_help(self, yes: bool) -> Self {
+        if yes {
             self.setting(ArgSettings::HiddenLongHelp)
         } else {
             self.unset_setting(ArgSettings::HiddenLongHelp)
@@ -4715,8 +4715,8 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide_long_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")]
     #[inline]
-    pub fn hidden_long_help(self, h: bool) -> Self {
-        self.hide_long_help(h)
+    pub fn hidden_long_help(self, yes: bool) -> Self {
+        self.hide_long_help(yes)
     }
 
     /// Check if the [`ArgSettings`] variant is currently set on the argument.
