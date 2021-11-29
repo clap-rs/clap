@@ -837,8 +837,8 @@ impl Attrs {
         self.is_enum
     }
 
-    pub fn case_insensitive(&self) -> TokenStream {
-        let method = self.find_method("case_insensitive");
+    pub fn ignore_case(&self) -> TokenStream {
+        let method = self.find_method("ignore_case");
 
         if let Some(method) = method {
             method.args.clone()

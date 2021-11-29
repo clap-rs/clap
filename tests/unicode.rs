@@ -1,7 +1,7 @@
 #![cfg(feature = "unicode")]
 
 #[test]
-fn possible_values_case_insensitive() {
+fn possible_values_ignore_case() {
     let m = clap::App::new("pv")
         .arg(
             clap::Arg::new("option")
@@ -9,7 +9,7 @@ fn possible_values_case_insensitive() {
                 .long("--option")
                 .takes_value(true)
                 .possible_value("ä")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "Ä"]);
 

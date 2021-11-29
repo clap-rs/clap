@@ -10,7 +10,7 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Opt {
-    #[clap(raw(case_insensitive = "true"))]
+    #[clap(raw(ignore_case = "true"))]
     s: String,
 }
 

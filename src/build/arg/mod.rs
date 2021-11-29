@@ -434,7 +434,7 @@ impl<'help> Arg<'help> {
                 "overrides_with_all" => yaml_vec_or_str!(a, v, overrides_with),
                 "possible_value" => yaml_to_str!(a, v, possible_value),
                 "possible_values" => yaml_vec_or_str!(a, v, possible_value),
-                "case_insensitive" => yaml_to_bool!(a, v, case_insensitive),
+                "ignore_case" => yaml_to_bool!(a, v, ignore_case),
                 "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
                 "required_unless_present_all" => yaml_vec!(a, v, required_unless_present_all),
                 "visible_alias" => yaml_to_str!(a, v, visible_alias),
@@ -1642,7 +1642,7 @@ impl<'help> Arg<'help> {
     ///         .long("config"))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .case_insensitive(true)
+    ///         .ignore_case(true)
     ///         .takes_value(true))
     ///     .try_get_matches_from(vec![
     ///         "prog", "--other", "SPECIAL"
@@ -4004,7 +4004,7 @@ impl<'help> Arg<'help> {
     ///     .arg(Arg::new("option")
     ///         .long("--option")
     ///         .takes_value(true)
-    ///         .case_insensitive(true)
+    ///         .ignore_case(true)
     ///         .possible_value("test123"))
     ///     .get_matches_from(vec![
     ///         "pv", "--option", "TeSt123",
@@ -4022,7 +4022,7 @@ impl<'help> Arg<'help> {
     ///         .short('o')
     ///         .long("--option")
     ///         .takes_value(true)
-    ///         .case_insensitive(true)
+    ///         .ignore_case(true)
     ///         .multiple_values(true)
     ///         .possible_values(&["test123", "test321"]))
     ///     .get_matches_from(vec![
@@ -4033,12 +4033,19 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
-    pub fn case_insensitive(self, ci: bool) -> Self {
+    pub fn ignore_case(self, ci: bool) -> Self {
         if ci {
             self.setting(ArgSettings::IgnoreCase)
         } else {
             self.unset_setting(ArgSettings::IgnoreCase)
         }
+    }
+
+    /// Deprecated, replaced with [`Arg::ignore_case`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")]
+    #[inline]
+    pub fn case_insensitive(self, ci: bool) -> Self {
+        self.ignore_case(ci)
     }
 
     /// Specifies that an argument should allow grouping of multiple values via a

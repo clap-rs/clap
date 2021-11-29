@@ -115,11 +115,11 @@ args:
         long: exclusive
         help: Tests 3 exclusive
         exclusive: true
-    - case_insensitive:
+    - ignore_case:
         index: 4
-        help: Test case_insensitive
+        help: Test ignore case
         possible_values: [test123, test321]
-        case_insensitive: true
+        ignore_case: true
     - value_hint:
         long: value-hint
         help: Test value_hint

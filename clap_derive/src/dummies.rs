@@ -79,7 +79,7 @@ pub fn arg_enum(name: &Ident) {
             fn value_variants<'a>() -> &'a [Self]{
                 unimplemented!()
             }
-            fn from_str(_input: &str, _case_insensitive: bool) -> Result<Self, String> {
+            fn from_str(_input: &str, _ignore_case: bool) -> Result<Self, String> {
                 unimplemented!()
             }
             fn to_possible_value<'a>(&self) -> Option<clap::PossibleValue<'a>>{
