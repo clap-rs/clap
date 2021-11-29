@@ -65,7 +65,7 @@ fn possible_value_arg_value() {
         .arg(
             Arg::new("arg_value").index(1).possible_value(
                 PossibleValue::new("test123")
-                    .hidden(false)
+                    .hide(false)
                     .help("It's just a test"),
             ),
         )
@@ -243,7 +243,7 @@ fn possible_values_hidden_output() {
                 .short('O')
                 .possible_values(["slow", "fast"])
                 .possible_value(PossibleValue::new("ludicrous speed"))
-                .possible_value(PossibleValue::new("forbidden speed").hidden(true))
+                .possible_value(PossibleValue::new("forbidden speed").hide(true))
         ),
         "clap-test -O slo",
         PV_ERROR,
@@ -275,7 +275,7 @@ fn alias() {
                 .takes_value(true)
                 .possible_value(PossibleValue::new("test123").alias("123"))
                 .possible_value("test321")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "123"]);
 
@@ -293,7 +293,7 @@ fn aliases() {
                 .takes_value(true)
                 .possible_value(PossibleValue::new("test123").aliases(["1", "2", "3"]))
                 .possible_value("test321")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "2"]);
 
@@ -302,7 +302,7 @@ fn aliases() {
 }
 
 #[test]
-fn case_insensitive() {
+fn ignore_case() {
     let m = App::new("pv")
         .arg(
             Arg::new("option")
@@ -311,7 +311,7 @@ fn case_insensitive() {
                 .takes_value(true)
                 .possible_value("test123")
                 .possible_value("test321")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
 
@@ -324,7 +324,7 @@ fn case_insensitive() {
 }
 
 #[test]
-fn case_insensitive_fail() {
+fn ignore_case_fail() {
     let m = App::new("pv")
         .arg(
             Arg::new("option")
@@ -341,7 +341,7 @@ fn case_insensitive_fail() {
 }
 
 #[test]
-fn case_insensitive_multiple() {
+fn ignore_case_multiple() {
     let m = App::new("pv")
         .arg(
             Arg::new("option")
@@ -351,7 +351,7 @@ fn case_insensitive_multiple() {
                 .possible_value("test123")
                 .possible_value("test321")
                 .multiple_values(true)
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123", "teST123", "tESt321"]);
 
@@ -363,7 +363,7 @@ fn case_insensitive_multiple() {
 }
 
 #[test]
-fn case_insensitive_multiple_fail() {
+fn ignore_case_multiple_fail() {
     let m = App::new("pv")
         .arg(
             Arg::new("option")

@@ -186,7 +186,7 @@ fn casing_propagation_is_overridden() {
 }
 
 #[test]
-fn case_insensitive() {
+fn ignore_case() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -194,7 +194,7 @@ fn case_insensitive() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, case_insensitive(true))]
+        #[clap(arg_enum, ignore_case(true))]
         arg: ArgChoice,
     }
 
@@ -213,7 +213,7 @@ fn case_insensitive() {
 }
 
 #[test]
-fn case_insensitive_set_to_false() {
+fn ignore_case_set_to_false() {
     #[derive(ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
@@ -221,7 +221,7 @@ fn case_insensitive_set_to_false() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, case_insensitive(false))]
+        #[clap(arg_enum, ignore_case(false))]
         arg: ArgChoice,
     }
 
@@ -244,7 +244,7 @@ fn alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, case_insensitive(false))]
+        #[clap(arg_enum, ignore_case(false))]
         arg: ArgChoice,
     }
 
@@ -272,7 +272,7 @@ fn multiple_alias() {
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
-        #[clap(arg_enum, case_insensitive(false))]
+        #[clap(arg_enum, ignore_case(false))]
         arg: ArgChoice,
     }
 

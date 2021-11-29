@@ -19,16 +19,16 @@ OPTIONS:
 ";
 
 #[test]
-fn hidden_args() {
+fn hide_args() {
     let app = App::new("test")
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.4")
         .args(&[
-            arg!(-f --flag "some flag").hidden(true),
+            arg!(-f --flag "some flag").hide(true),
             arg!(-F --flag2 "some other flag"),
             arg!(--option <opt> "some option").required(false),
-            Arg::new("DUMMY").hidden(true),
+            Arg::new("DUMMY").hide(true),
         ]);
     assert!(utils::compare_output(
         app,
@@ -76,9 +76,9 @@ OPTIONS:
             Print version information
 ";
 
-/// Ensure hidden with short option
+/// Ensure hide with short option
 #[test]
-fn hidden_short_args() {
+fn hide_short_args() {
     let app = App::new("test")
         .about("hides short args")
         .author("Steve P.")
@@ -87,7 +87,7 @@ fn hidden_short_args() {
             Arg::new("cfg")
                 .short('c')
                 .long("config")
-                .hidden_short_help(true)
+                .hide_short_help(true)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
@@ -105,7 +105,7 @@ fn hidden_short_args() {
 
 /// Ensure visible with opposite option
 #[test]
-fn hidden_short_args_long_help() {
+fn hide_short_args_long_help() {
     let app = App::new("test")
         .about("hides short args")
         .author("Steve P.")
@@ -114,7 +114,7 @@ fn hidden_short_args_long_help() {
             Arg::new("cfg")
                 .short('c')
                 .long("config")
-                .hidden_short_help(true)
+                .hide_short_help(true)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
@@ -151,7 +151,7 @@ OPTIONS:
 ";
 
 #[test]
-fn hidden_long_args() {
+fn hide_long_args() {
     let app = App::new("test")
         .about("hides long args")
         .author("Steve P.")
@@ -160,7 +160,7 @@ fn hidden_long_args() {
             Arg::new("cfg")
                 .short('c')
                 .long("config")
-                .hidden_long_help(true)
+                .hide_long_help(true)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
@@ -193,7 +193,7 @@ OPTIONS:
 ";
 
 #[test]
-fn hidden_long_args_short_help() {
+fn hide_long_args_short_help() {
     let app = App::new("test")
         .about("hides long args")
         .author("Steve P.")
@@ -202,7 +202,7 @@ fn hidden_long_args_short_help() {
             Arg::new("cfg")
                 .short('c')
                 .long("config")
-                .hidden_long_help(true)
+                .hide_long_help(true)
                 .help("Some help text describing the --config arg"),
             Arg::new("visible")
                 .short('v')
@@ -232,9 +232,9 @@ OPTIONS:
 ";
 
 #[test]
-fn hidden_pos_args() {
+fn hide_pos_args() {
     let app = App::new("test").version("1.4").args(&[
-        Arg::new("pos").help("some pos").hidden(true),
+        Arg::new("pos").help("some pos").hide(true),
         Arg::new("another").help("another pos"),
     ]);
 
@@ -257,7 +257,7 @@ OPTIONS:
 ";
 
 #[test]
-fn hidden_subcmds() {
+fn hide_subcmds() {
     let app = App::new("test")
         .version("1.4")
         .subcommand(App::new("sub").setting(AppSettings::Hidden));
@@ -279,16 +279,16 @@ After help
 ";
 
 #[test]
-fn hidden_opt_args_only() {
+fn hide_opt_args_only() {
     let app = App::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hidden(true))
-        .mut_arg("version", |a| a.hidden(true))
+        .mut_arg("help", |a| a.hide(true))
+        .mut_arg("version", |a| a.hide(true))
         .arg(
             arg!(--option <opt> "some option")
                 .required(false)
-                .hidden(true),
+                .hide(true),
         );
 
     assert!(utils::compare_output(
@@ -308,13 +308,13 @@ After help
 ";
 
 #[test]
-fn hidden_pos_args_only() {
+fn hide_pos_args_only() {
     let app = App::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hidden(true))
-        .mut_arg("version", |a| a.hidden(true))
-        .args(&[Arg::new("pos").help("some pos").hidden(true)]);
+        .mut_arg("help", |a| a.hide(true))
+        .mut_arg("version", |a| a.hide(true))
+        .args(&[Arg::new("pos").help("some pos").hide(true)]);
 
     assert!(utils::compare_output(
         app,
@@ -333,12 +333,12 @@ After help
 ";
 
 #[test]
-fn hidden_subcmds_only() {
+fn hide_subcmds_only() {
     let app = App::new("test")
         .version("1.4")
         .after_help("After help")
-        .mut_arg("help", |a| a.hidden(true))
-        .mut_arg("version", |a| a.hidden(true))
+        .mut_arg("help", |a| a.hide(true))
+        .mut_arg("version", |a| a.hide(true))
         .subcommand(App::new("sub").setting(AppSettings::Hidden));
 
     assert!(utils::compare_output(

@@ -558,7 +558,7 @@ fn gen_parsers(
         FromFlag => (quote!(), quote!(), func.clone()),
     };
     if attrs.is_enum() {
-        let ci = attrs.case_insensitive();
+        let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
             |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #name, err)))

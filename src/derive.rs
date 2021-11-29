@@ -313,13 +313,13 @@ pub trait ArgEnum: Sized + Clone {
     fn value_variants<'a>() -> &'a [Self];
 
     /// Parse an argument into `Self`.
-    fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String> {
+    fn from_str(input: &str, ignore_case: bool) -> Result<Self, String> {
         Self::value_variants()
             .iter()
             .find(|v| {
                 v.to_possible_value()
                     .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
-                    .matches(input, case_insensitive)
+                    .matches(input, ignore_case)
             })
             .cloned()
             .ok_or_else(|| format!("Invalid variant: {}", input))

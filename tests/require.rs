@@ -543,7 +543,7 @@ fn required_if_val_present_fail() {
 }
 
 #[test]
-fn required_if_val_present_case_insensitive_pass() {
+fn required_if_val_present_ignore_case_pass() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
@@ -555,7 +555,7 @@ fn required_if_val_present_case_insensitive_pass() {
             Arg::new("extra")
                 .takes_value(true)
                 .long("extra")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["ri", "--extra", "vaL", "--config", "my.cfg"]);
 
@@ -563,7 +563,7 @@ fn required_if_val_present_case_insensitive_pass() {
 }
 
 #[test]
-fn required_if_val_present_case_insensitive_fail() {
+fn required_if_val_present_ignore_case_fail() {
     let res = App::new("ri")
         .arg(
             Arg::new("cfg")
@@ -575,7 +575,7 @@ fn required_if_val_present_case_insensitive_fail() {
             Arg::new("extra")
                 .takes_value(true)
                 .long("extra")
-                .case_insensitive(true),
+                .ignore_case(true),
         )
         .try_get_matches_from(vec!["ri", "--extra", "vaL"]);
 

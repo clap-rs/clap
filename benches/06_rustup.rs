@@ -55,7 +55,7 @@ fn build_cli() -> App<'static> {
                     Arg::new("no-self-update")
                         .help("Don't perform self update when running the `rustup` command")
                         .long("no-self-update")
-                        .hidden(true),
+                        .hide(true),
                 ),
         )
         .subcommand(
