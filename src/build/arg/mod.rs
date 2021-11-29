@@ -3889,7 +3889,7 @@ impl<'help> Arg<'help> {
     /// **NOTE:** Setting this requires [`Arg::takes_value`]
     ///
     /// To set this for all arguments, see
-    /// [`AppSettings::HidePossibleValuesInHelp`][crate::AppSettings::HidePossibleValuesInHelp].
+    /// [`AppSettings::HidePossibleValues`][crate::AppSettings::HidePossibleValues].
     ///
     /// # Examples
     ///

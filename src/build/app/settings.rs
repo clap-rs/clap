@@ -113,6 +113,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::PROPAGATE_VERSION,
     GlobalVersion("propagateversion")
         => Flags::PROPAGATE_VERSION,
+    HidePossibleValues("hidepossiblevalues")
+        => Flags::NO_POS_VALUES,
     HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
         => Flags::NO_POS_VALUES,
     HelpExpected("helpexpected")
@@ -786,6 +788,12 @@ pub enum AppSettings {
     ///
     /// To set this per argument, see
     /// [`Arg::hide_possible_values`][crate::Arg::hide_possible_values].
+    HidePossibleValues,
+    /// Deprecated, replaced with [`AppSettings::HidePossibleValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with AppSettings::HidePossibleValues"
+    )]
     HidePossibleValuesInHelp,
 
     /// Panic if help descriptions are omitted.
@@ -1195,8 +1203,8 @@ mod test {
             AppSettings::Hidden
         );
         assert_eq!(
-            "hidepossiblevaluesinhelp".parse::<AppSettings>().unwrap(),
-            AppSettings::HidePossibleValuesInHelp
+            "hidepossiblevalues".parse::<AppSettings>().unwrap(),
+            AppSettings::HidePossibleValues
         );
         assert_eq!(
             "helpexpected".parse::<AppSettings>().unwrap(),

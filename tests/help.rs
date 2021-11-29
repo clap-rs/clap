@@ -1168,7 +1168,7 @@ fn issue_688_hidden_pos_vals() {
     let app1 = App::new("ctest")
             .version("0.1")
 			.term_width(120)
-			.setting(AppSettings::HidePossibleValuesInHelp)
+			.setting(AppSettings::HidePossibleValues)
 			.arg(Arg::new("filter")
 				.help("Sets the filter, or sampling method, to use for interpolation when resizing the particle \
                 images. The default is Linear (Bilinear). [possible values: Nearest, Linear, Cubic, Gaussian, Lanczos3]")

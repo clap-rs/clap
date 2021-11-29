@@ -428,7 +428,7 @@ fn skip_possible_values() {
         .author("Kevin K.")
         .about("tests stuff")
         .version("1.3")
-        .setting(AppSettings::HidePossibleValuesInHelp)
+        .setting(AppSettings::HidePossibleValues)
         .args(&[
             arg!(-o --opt <opt> "some option")
                 .required(false)

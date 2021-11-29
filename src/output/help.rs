@@ -82,7 +82,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             ),
         };
         let next_line_help = parser.is_set(AppSettings::NextLineHelp);
-        let hide_pv = parser.is_set(AppSettings::HidePossibleValuesInHelp);
+        let hide_pv = parser.is_set(AppSettings::HidePossibleValues);
 
         Help {
             writer,
