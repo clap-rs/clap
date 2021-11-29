@@ -935,14 +935,14 @@ impl<'help> App<'help> {
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
     ///     .setting(AppSettings::SubcommandRequired)
-    ///     .setting(AppSettings::WaitOnError)
+    ///     .setting(AppSettings::AllowLeadingHyphen)
     /// # ;
     /// ```
     /// or
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::SubcommandRequired | AppSettings::WaitOnError)
+    ///     .setting(AppSettings::SubcommandRequired | AppSettings::AllowLeadingHyphen)
     /// # ;
     /// ```
     #[inline]
@@ -964,14 +964,14 @@ impl<'help> App<'help> {
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
     ///     .unset_setting(AppSettings::SubcommandRequired)
-    ///     .unset_setting(AppSettings::WaitOnError)
+    ///     .setting(AppSettings::AllowLeadingHyphen)
     /// # ;
     /// ```
     /// or
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .unset_setting(AppSettings::SubcommandRequired | AppSettings::WaitOnError)
+    ///     .unset_setting(AppSettings::SubcommandRequired | AppSettings::AllowLeadingHyphen)
     /// # ;
     /// ```
     #[inline]
@@ -994,7 +994,7 @@ impl<'help> App<'help> {
     /// ```no_run
     /// # use clap::{App, AppSettings};
     /// App::new("myprog")
-    ///     .global_setting(AppSettings::SubcommandRequired)
+    ///     .global_setting(AppSettings::AllowNegativeNumbers)
     /// # ;
     /// ```
     #[inline]

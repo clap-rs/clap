@@ -268,7 +268,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// let res = App::new("myprog")
-    ///     .setting(AppSettings::AllowNegativeNumbers)
+    ///     .global_setting(AppSettings::AllowNegativeNumbers)
     ///     .arg(Arg::new("num"))
     ///     .try_get_matches_from(vec![
     ///         "myprog", "-20"
@@ -547,7 +547,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::DontCollapseArgsInUsage)
+    ///     .global_setting(AppSettings::DontCollapseArgsInUsage)
     ///     .get_matches();
     /// ```
     DontCollapseArgsInUsage,
@@ -645,7 +645,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::DeriveDisplayOrder)
+    ///     .global_setting(AppSettings::DeriveDisplayOrder)
     ///     .get_matches();
     /// ```
     ///
@@ -750,7 +750,7 @@ pub enum AppSettings {
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
     ///     .version("v1.1")
-    ///     .setting(AppSettings::PropagateVersion)
+    ///     .global_setting(AppSettings::PropagateVersion)
     ///     .subcommand(App::new("test"))
     ///     .get_matches();
     /// // running `$ myprog test --version` will display
@@ -803,7 +803,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::HelpExpected)
+    ///     .global_setting(AppSettings::HelpExpected)
     ///     .arg(
     ///         Arg::new("foo").help("It does foo stuff")
     ///         // As required via AppSettings::HelpExpected, a help message was supplied
@@ -816,7 +816,7 @@ pub enum AppSettings {
     /// ```rust,no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myapp")
-    ///     .setting(AppSettings::HelpExpected)
+    ///     .global_setting(AppSettings::HelpExpected)
     ///     .arg(
     ///         Arg::new("foo")
     ///         // Someone forgot to put .about("...") here
@@ -835,7 +835,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, arg, AppSettings};
     /// let app = App::new("app")
-    ///   .setting(AppSettings::IgnoreErrors)
+    ///   .global_setting(AppSettings::IgnoreErrors)
     ///   .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
     ///   .arg(arg!(-x --stuff <FILE> "Sets a custom stuff file").required(false))
     ///   .arg(arg!(f: -f "Flag"));
@@ -869,7 +869,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// let m = App::new("prog")
-    ///     .setting(AppSettings::InferSubcommands)
+    ///     .global_setting(AppSettings::InferSubcommands)
     ///     .subcommand(App::new("test"))
     ///     .get_matches_from(vec![
     ///         "prog", "te"
@@ -921,7 +921,7 @@ pub enum AppSettings {
     /// ```no_run
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::NextLineHelp)
+    ///     .global_setting(AppSettings::NextLineHelp)
     ///     .get_matches();
     /// ```
     NextLineHelp,
@@ -1004,7 +1004,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::UseLongFormatForHelpSubcommand)
+    ///     .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
     ///     .subcommand(App::new("test")
     ///         .arg(Arg::new("foo")
     ///             .help("short form about message")
@@ -1075,7 +1075,7 @@ pub enum AppSettings {
     /// ```rust
     /// # use clap::{App, Arg, AppSettings};
     /// App::new("myprog")
-    ///     .setting(AppSettings::WaitOnError);
+    ///     .global_setting(AppSettings::WaitOnError);
     /// ```
     WaitOnError,
 

@@ -4,7 +4,7 @@ use clap::{AppSettings, Parser};
 
 #[derive(Parser, Debug)]
 // https://docs.rs/clap/2/clap/enum.AppSettings.html#variant.InferSubcommands
-#[clap(setting = AppSettings::InferSubcommands)]
+#[clap(global_setting = AppSettings::InferSubcommands)]
 enum Opt {
     // https://docs.rs/clap/2/clap/struct.App.html#method.alias
     #[clap(alias = "foobar")]
