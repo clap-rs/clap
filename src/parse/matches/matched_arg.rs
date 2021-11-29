@@ -24,7 +24,8 @@ pub(crate) struct MatchedArg {
     pub(crate) ty: ValueType,
     indices: Vec<usize>,
     vals: Vec<Vec<OsString>>,
-    case_insensitive: bool,
+    ignore_case: bool,
+    invalid_utf8_allowed: Option<bool>,
 }
 
 impl Default for MatchedArg {
@@ -40,7 +41,8 @@ impl MatchedArg {
             ty: ValueType::Unknown,
             indices: Vec::new(),
             vals: Vec::new(),
-            case_insensitive: false,
+            ignore_case: false,
+            invalid_utf8_allowed: None,
         }
     }
 
@@ -127,7 +129,7 @@ impl MatchedArg {
 
     pub(crate) fn contains_val(&self, val: &str) -> bool {
         self.vals_flatten().any(|v| {
-            if self.case_insensitive {
+            if self.ignore_case {
                 // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
                 v.to_str().map_or(false, |v| eq_ignore_case(v, val))
             } else {
@@ -140,8 +142,16 @@ impl MatchedArg {
         self.ty = ty;
     }
 
-    pub(crate) fn set_case_insensitive(&mut self, ci: bool) {
-        self.case_insensitive = ci;
+    pub(crate) fn set_ignore_case(&mut self, yes: bool) {
+        self.ignore_case = yes;
+    }
+
+    pub(crate) fn invalid_utf8_allowed(&mut self, yes: bool) {
+        self.invalid_utf8_allowed = Some(yes);
+    }
+
+    pub(crate) fn is_invalid_utf8_allowed(&self) -> Option<bool> {
+        self.invalid_utf8_allowed
     }
 }
 

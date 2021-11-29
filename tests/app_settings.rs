@@ -884,6 +884,7 @@ fn allow_ext_sc_when_sc_required() {
     let res = App::new("clap-test")
         .version("v1.4.8")
         .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .try_get_matches_from(vec!["clap-test", "external-cmd", "foo"]);
 
@@ -903,6 +904,7 @@ fn external_subcommand_looks_like_built_in() {
     let res = App::new("cargo")
         .version("1.26.0")
         .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
         .subcommand(App::new("install"))
         .try_get_matches_from(vec!["cargo", "install-update", "foo"]);
     assert!(res.is_ok());

@@ -706,9 +706,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::new(self.app);
 
                 while let Some((v, _)) = it.next() {
-                    if !self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands)
-                        && v.to_str().is_none()
-                    {
+                    let allow_invalid_utf8 =
+                        self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands);
+                    if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
                             Usage::new(self).create_usage_with_title(&[]),
@@ -720,6 +720,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         ValueType::CommandLine,
                         false,
                     );
+                    sc_m.get_mut(&Id::empty_hash())
+                        .expect("just inserted")
+                        .invalid_utf8_allowed(allow_invalid_utf8);
                 }
 
                 matcher.subcommand(SubCommand {
@@ -1803,10 +1806,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
     fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
-        matcher.inc_occurrence_of(&arg.id, arg.is_set(ArgSettings::IgnoreCase));
+        matcher.inc_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {
-            matcher.inc_occurrence_of(&group, false);
+            matcher.inc_occurrence_of_group(&group);
         }
     }
 }

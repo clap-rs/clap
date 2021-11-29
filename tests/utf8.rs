@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{arg, App, AppSettings, Arg, ErrorKind};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 
@@ -386,4 +386,97 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
             OsString::from("--another_normal"),
         ]
     );
+}
+
+#[test]
+fn allow_validated_utf8_value_of() {
+    let a = App::new("test").arg(arg!(--name <NAME>));
+    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
+    let _ = m.value_of("name");
+}
+
+#[test]
+#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups"]
+fn panic_validated_utf8_value_of_os() {
+    let a = App::new("test").arg(arg!(--name <NAME>));
+    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
+    let _ = m.value_of_os("name");
+}
+
+#[test]
+fn ignore_validated_utf8_with_defaults() {
+    // For now, we don't check the correct call is used with defaults (due to pain of piping it
+    // through the code) but we need to make sure we don't erroneously panic.
+    let a = App::new("test").arg(arg!(--value <VALUE>).required(false).default_value("foo"));
+    let m = a.try_get_matches_from(["test"]).unwrap();
+    let _ = m.value_of("value");
+    let _ = m.value_of_os("value");
+}
+
+#[test]
+fn allow_invalid_utf8_value_of_os() {
+    let a = App::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
+    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
+    let _ = m.value_of_os("name");
+}
+
+#[test]
+#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8`"]
+fn panic_invalid_utf8_value_of() {
+    let a = App::new("test").arg(arg!(--name <NAME>).allow_invalid_utf8(true));
+    let m = a.try_get_matches_from(["test", "--name", "me"]).unwrap();
+    let _ = m.value_of("name");
+}
+
+#[test]
+fn ignore_invalid_utf8_with_defaults() {
+    // For now, we don't check the correct call is used with defaults (due to pain of piping it
+    // through the code) but we need to make sure we don't erroneously panic.
+    let a = App::new("test").arg(
+        arg!(--value <VALUE>)
+            .required(false)
+            .default_value("foo")
+            .allow_invalid_utf8(true),
+    );
+    let m = a.try_get_matches_from(["test"]).unwrap();
+    let _ = m.value_of("value");
+    let _ = m.value_of_os("value");
+}
+
+#[test]
+fn allow_validated_utf8_external_subcommand_values_of() {
+    let a = App::new("test").setting(AppSettings::AllowExternalSubcommands);
+    let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
+    let (_ext, args) = m.subcommand().unwrap();
+    let _ = args.values_of("");
+}
+
+#[test]
+#[should_panic = "Must use `Arg::allow_invalid_utf8` with `_os` lookups"]
+fn panic_validated_utf8_external_subcommand_values_of_os() {
+    let a = App::new("test").setting(AppSettings::AllowExternalSubcommands);
+    let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
+    let (_ext, args) = m.subcommand().unwrap();
+    let _ = args.values_of_os("");
+}
+
+#[test]
+fn allow_invalid_utf8_external_subcommand_values_of_os() {
+    let a = App::new("test")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+    let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
+    let (_ext, args) = m.subcommand().unwrap();
+    let _ = args.values_of_os("");
+}
+
+#[test]
+#[should_panic = "Must use `_os` lookups with `Arg::allow_invalid_utf8`"]
+fn panic_invalid_utf8_external_subcommand_values_of() {
+    let a = App::new("test")
+        .setting(AppSettings::AllowExternalSubcommands)
+        .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands);
+    let m = a.try_get_matches_from(vec!["test", "cmd", "arg"]).unwrap();
+    let (_ext, args) = m.subcommand().unwrap();
+    let _ = args.values_of("");
 }
