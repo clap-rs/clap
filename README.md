@@ -135,7 +135,7 @@ The first example shows the simplest way to use `clap`, by defining a struct. If
 //
 // This example demonstrates clap's full 'custom derive' style of creating arguments which is the
 // simplest method of use, but sacrifices some flexibility.
-use clap::{AppSettings, Parser};
+use clap::Parser;
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
