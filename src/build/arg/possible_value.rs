@@ -18,18 +18,18 @@ use crate::util::eq_ignore_case;
 ///       .value_name("FILE")
 ///       .possible_value(PossibleValue::new("fast"))
 ///       .possible_value(PossibleValue::new("slow").help("slower than fast"))
-///       .possible_value(PossibleValue::new("secret speed").hidden(true));
+///       .possible_value(PossibleValue::new("secret speed").hide(true));
 /// ```
 /// [Args]: crate::Arg
 /// [possible values]: crate::Arg::possible_value()
-/// [hide]: PossibleValue::hidden()
+/// [hide]: PossibleValue::hide()
 /// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct PossibleValue<'help> {
     pub(crate) name: &'help str,
     pub(crate) help: Option<&'help str>,
     pub(crate) aliases: Vec<&'help str>, // (name, visible)
-    pub(crate) hidden: bool,
+    pub(crate) hide: bool,
 }
 
 impl<'help> From<&'help str> for PossibleValue<'help> {
@@ -61,12 +61,12 @@ impl<'help> PossibleValue<'help> {
     /// Should the value be hidden from help messages and completion
     #[inline]
     pub fn is_hidden(&self) -> bool {
-        self.hidden
+        self.hide
     }
 
     /// Get the name if argument value is not hidden, `None` otherwise
     pub fn get_visible_name(&self) -> Option<&str> {
-        if self.hidden {
+        if self.hide {
             None
         } else {
             Some(self.name)
@@ -121,7 +121,7 @@ impl<'help> PossibleValue<'help> {
     /// PossibleValue::new("fast")
     /// # ;
     /// ```
-    /// [hidden]: PossibleValue::hidden
+    /// [hidden]: PossibleValue::hide
     /// [possible value]: crate::Arg::possible_values
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     pub fn new(name: &'help str) -> Self {
@@ -160,13 +160,13 @@ impl<'help> PossibleValue<'help> {
     /// ```rust
     /// # use clap::PossibleValue;
     /// PossibleValue::new("secret")
-    ///     .hidden(true)
+    ///     .hide(true)
     /// # ;
     /// ```
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     #[inline]
-    pub fn hidden(mut self, yes: bool) -> Self {
-        self.hidden = yes;
+    pub fn hide(mut self, yes: bool) -> Self {
+        self.hide = yes;
         self
     }
 

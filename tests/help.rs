@@ -1058,7 +1058,7 @@ fn hide_single_possible_val() {
                 .long("pos")
                 .value_name("VAL")
                 .possible_values(["fast", "slow"])
-                .possible_value(PossibleValue::new("secret speed").hidden(true))
+                .possible_value(PossibleValue::new("secret speed").hide(true))
                 .help("Some vals")
                 .takes_value(true),
         )
@@ -1162,7 +1162,7 @@ fn old_newline_chars() {
 }
 
 #[test]
-fn issue_688_hidden_pos_vals() {
+fn issue_688_hide_pos_vals() {
     let filter_values = ["Nearest", "Linear", "Cubic", "Gaussian", "Lanczos3"];
 
     let app1 = App::new("ctest")
@@ -1382,12 +1382,12 @@ fn sc_negates_reqs() {
 }
 
 #[test]
-fn hidden_args() {
+fn hide_args() {
     let app = App::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
         .arg(arg!(-o --opt <FILE> "tests options").required(false))
-        .arg(Arg::new("pos").hidden(true));
+        .arg(Arg::new("pos").hide(true));
     assert!(utils::compare_output(
         app,
         "prog --help",
@@ -1414,7 +1414,7 @@ fn args_negate_sc() {
 }
 
 #[test]
-fn issue_1046_hidden_scs() {
+fn issue_1046_hide_scs() {
     let app = App::new("prog")
         .version("1.0")
         .arg(arg!(-f --flag "testing flags"))
@@ -1637,7 +1637,7 @@ fn last_arg_mult_usage_with_sc() {
 }
 
 #[test]
-fn hidden_default_val() {
+fn hide_default_val() {
     let app1 = App::new("default").version("0.1").term_width(120).arg(
         Arg::new("argument")
             .help("Pass an argument to the program. [default: default-argument]")
@@ -1897,7 +1897,7 @@ SPECIAL:
 ";
 
 #[test]
-fn custom_help_headers_hidden_args() {
+fn custom_help_headers_hide_args() {
     let app = App::new("blorp")
         .author("Will M.")
         .about("does stuff")
@@ -1908,7 +1908,7 @@ fn custom_help_headers_hidden_args() {
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings")
-                .hidden_short_help(true),
+                .hide_short_help(true),
         )
         .help_heading(Some("SPECIAL"))
         .arg(
@@ -1925,7 +1925,7 @@ fn custom_help_headers_hidden_args() {
                 .long("server-addr")
                 .help("Set server address")
                 .help_heading(Some("NETWORKING"))
-                .hidden_short_help(true),
+                .hide_short_help(true),
         );
 
     assert!(utils::compare_output(
@@ -2003,7 +2003,7 @@ fn issue_1364_no_short_options() {
             Arg::new("baz")
                 .short('z')
                 .value_name("BAZ")
-                .hidden_short_help(true),
+                .hide_short_help(true),
         )
         .arg(
             Arg::new("files")
@@ -2403,7 +2403,7 @@ fn only_custom_heading_opts_no_args() {
     let app = App::new("test")
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
-        .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("help", |a| a.hide(true))
         .help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
@@ -2429,7 +2429,7 @@ fn only_custom_heading_pos_no_args() {
     let app = App::new("test")
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
-        .mut_arg("help", |a| a.hidden(true))
+        .mut_arg("help", |a| a.hide(true))
         .help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 

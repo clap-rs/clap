@@ -390,9 +390,9 @@ impl<'help> Arg<'help> {
                 "global" => yaml_to_bool!(a, v, global),
                 "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
                 "multiple_values" => yaml_to_bool!(a, v, multiple_values),
-                "hidden" => yaml_to_bool!(a, v, hidden),
-                "hidden_long_help" => yaml_to_bool!(a, v, hidden_long_help),
-                "hidden_short_help" => yaml_to_bool!(a, v, hidden_short_help),
+                "hide" => yaml_to_bool!(a, v, hide),
+                "hide_long_help" => yaml_to_bool!(a, v, hide_long_help),
+                "hide_short_help" => yaml_to_bool!(a, v, hide_short_help),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
                 "group" => yaml_to_str!(a, v, group),
                 "number_of_values" => yaml_to_usize!(a, v, number_of_values),
@@ -3976,12 +3976,19 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hidden(self, h: bool) -> Self {
+    pub fn hide(self, h: bool) -> Self {
         if h {
             self.setting(ArgSettings::Hidden)
         } else {
             self.unset_setting(ArgSettings::Hidden)
         }
+    }
+
+    /// Deprecated, replaced with [`Arg::hide`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")]
+    #[inline]
+    pub fn hidden(self, h: bool) -> Self {
+        self.hide(h)
     }
 
     /// Match values against [`Arg::possible_values`] without matching case.
@@ -4560,17 +4567,17 @@ impl<'help> Arg<'help> {
     /// ```rust
     /// # use clap::{App, Arg};
     /// Arg::new("debug")
-    ///     .hidden_short_help(true);
+    ///     .hide_short_help(true);
     /// ```
     ///
-    /// Setting `hidden_short_help(true)` will hide the argument when displaying short help text
+    /// Setting `hide_short_help(true)` will hide the argument when displaying short help text
     ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .hidden_short_help(true)
+    ///         .hide_short_help(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
@@ -4597,7 +4604,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .hidden_short_help(true)
+    ///         .hide_short_help(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
@@ -4618,12 +4625,19 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hidden_short_help(self, hide: bool) -> Self {
+    pub fn hide_short_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenShortHelp)
         } else {
             self.unset_setting(ArgSettings::HiddenShortHelp)
         }
+    }
+
+    /// Deprecated, replaced with [`Arg::hide_short_help`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")]
+    #[inline]
+    pub fn hidden_short_help(self, h: bool) -> Self {
+        self.hide_short_help(h)
     }
 
     /// Hides an argument from long help (`--help`).
@@ -4635,20 +4649,14 @@ impl<'help> Arg<'help> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// # use clap::{App, Arg};
-    /// Arg::new("debug")
-    ///     .hidden_long_help(true)
-    /// # ;
-    /// ```
-    /// Setting `hidden_long_help(true)` will hide the argument when displaying long help text
+    /// Setting `hide_long_help(true)` will hide the argument when displaying long help text
     ///
     /// ```rust
     /// # use clap::{App, Arg};
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .hidden_long_help(true)
+    ///         .hide_long_help(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"
@@ -4675,7 +4683,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .hidden_long_help(true)
+    ///         .hide_long_help(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "-h"
@@ -4696,12 +4704,19 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
-    pub fn hidden_long_help(self, hide: bool) -> Self {
+    pub fn hide_long_help(self, hide: bool) -> Self {
         if hide {
             self.setting(ArgSettings::HiddenLongHelp)
         } else {
             self.unset_setting(ArgSettings::HiddenLongHelp)
         }
+    }
+
+    /// Deprecated, replaced with [`Arg::hide_long_help`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")]
+    #[inline]
+    pub fn hidden_long_help(self, h: bool) -> Self {
+        self.hide_long_help(h)
     }
 
     /// Check if the [`ArgSettings`] variant is currently set on the argument.
