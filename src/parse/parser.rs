@@ -706,9 +706,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::new(self.app);
 
                 while let Some((v, _)) = it.next() {
-                    if !self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands)
-                        && v.to_str().is_none()
-                    {
+                    let allow_invalid_utf8 =
+                        self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands);
+                    if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
                             Usage::new(self).create_usage_with_title(&[]),
@@ -720,6 +720,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         ValueType::CommandLine,
                         false,
                     );
+                    sc_m.get_mut(&Id::empty_hash())
+                        .expect("just inserted")
+                        .invalid_utf8_allowed(allow_invalid_utf8);
                 }
 
                 matcher.subcommand(SubCommand {

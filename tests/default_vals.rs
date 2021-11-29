@@ -539,6 +539,7 @@ fn multiple_defaults() {
             Arg::new("files")
                 .long("files")
                 .number_of_values(2)
+                .allow_invalid_utf8(true)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec![""]);
@@ -555,6 +556,7 @@ fn multiple_defaults_override() {
             Arg::new("files")
                 .long("files")
                 .number_of_values(2)
+                .allow_invalid_utf8(true)
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);

@@ -161,6 +161,7 @@ impl ArgMatches {
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_utf8_validation(arg);
         let v = arg.first()?;
         Some(v.to_str().expect(INVALID_UTF8))
     }
@@ -208,6 +209,7 @@ impl ArgMatches {
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_no_utf8_validation(arg);
         let v = arg.first()?;
         Some(v.to_string_lossy())
     }
@@ -256,6 +258,7 @@ impl ArgMatches {
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_no_utf8_validation(arg);
         let v = arg.first()?;
         Some(v.as_os_str())
     }
@@ -292,6 +295,7 @@ impl ArgMatches {
     /// [`Iterator`]: std::iter::Iterator
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_utf8_validation(arg);
         fn to_str_slice(o: &OsString) -> &str {
             o.to_str().expect(INVALID_UTF8)
         }
@@ -305,6 +309,7 @@ impl ArgMatches {
     #[cfg(feature = "unstable-grouped")]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_utf8_validation(arg);
         let v = GroupedValues {
             iter: arg
                 .vals()
@@ -351,6 +356,7 @@ impl ArgMatches {
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_no_utf8_validation(arg);
         let v = arg
             .vals_flatten()
             .map(|v| v.to_string_lossy().into_owned())
@@ -402,6 +408,7 @@ impl ArgMatches {
     /// [`String`]: std::string::String
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         let arg = self.get_arg(&Id::from(id))?;
+        assert_no_utf8_validation(arg);
         fn to_str_slice(o: &OsString) -> &OsStr {
             o
         }
@@ -1228,6 +1235,24 @@ impl<'a> Default for Indices<'a> {
             iter: EMPTY[..].iter().cloned(),
         }
     }
+}
+
+#[track_caller]
+#[inline]
+fn assert_utf8_validation(arg: &MatchedArg) {
+    debug_assert!(
+        matches!(arg.is_invalid_utf8_allowed(), None | Some(false)),
+        "Must use `_os` lookups with `Arg::allow_invalid_utf8`"
+    );
+}
+
+#[track_caller]
+#[inline]
+fn assert_no_utf8_validation(arg: &MatchedArg) {
+    debug_assert!(
+        matches!(arg.is_invalid_utf8_allowed(), None | Some(true)),
+        "Must use `Arg::allow_invalid_utf8` with `_os` lookups"
+    );
 }
 
 #[cfg(test)]
