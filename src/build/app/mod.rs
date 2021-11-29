@@ -95,7 +95,7 @@ pub struct App<'help> {
     pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
     pub(crate) groups: Vec<ArgGroup<'help>>,
     pub(crate) current_help_heading: Option<&'help str>,
-    pub(crate) subcommand_placeholder: Option<&'help str>,
+    pub(crate) subcommand_value_name: Option<&'help str>,
     pub(crate) subcommand_heading: Option<&'help str>,
 }
 
@@ -1137,7 +1137,7 @@ impl<'help> App<'help> {
     /// This is useful if the default `OPTIONS` or `ARGS` headings are
     /// not specific enough for one's use case.
     ///
-    /// For subcommands, see [`App::subcommand_placeholder`]
+    /// For subcommands, see [`App::subcommand_help_heading`]
     ///
     /// [`App::arg`]: App::arg()
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
@@ -2322,9 +2322,11 @@ impl<'help> App<'help> {
         self.try_get_matches_from_mut(itr)
     }
 
-    /// Sets the placeholder text used for subcommands when printing usage and help.
+    /// Sets the value name used for subcommands when printing usage and help.
     ///
-    /// By default, this is "SUBCOMMAND" with a heading of "SUBCOMMANDS".
+    /// By default, this is "SUBCOMMAND".
+    ///
+    /// See also [`App::subcommand_help_heading`]
     ///
     /// # Examples
     ///
@@ -2353,13 +2355,13 @@ impl<'help> App<'help> {
     ///     sub1
     /// ```
     ///
-    /// but usage of `subcommand_placeholder`
+    /// but usage of `subcommand_value_name`
     ///
     /// ```no_run
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .subcommand(App::new("sub1"))
-    ///     .subcommand_placeholder("THING", "THINGS")
+    ///     .subcommand_value_name("THING")
     ///     .print_help()
     /// # ;
     /// ```
@@ -2376,16 +2378,82 @@ impl<'help> App<'help> {
     ///     -h, --help       Print help information
     ///     -V, --version    Print version information
     ///
+    /// SUBCOMMANDS:
+    ///     help    Print this message or the help of the given subcommand(s)
+    ///     sub1
+    /// ```
+    pub fn subcommand_value_name<S>(mut self, value_name: S) -> Self
+    where
+        S: Into<&'help str>,
+    {
+        self.subcommand_value_name = Some(value_name.into());
+        self
+    }
+
+    /// Sets the help heading used for subcommands when printing usage and help.
+    ///
+    /// By default, this is "SUBCOMMANDS".
+    ///
+    /// See also [`App::subcommand_value_name`]
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .subcommand(App::new("sub1"))
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// USAGE:
+    ///     myprog [SUBCOMMAND]
+    ///
+    /// OPTIONS:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
+    ///
+    /// SUBCOMMANDS:
+    ///     help    Print this message or the help of the given subcommand(s)
+    ///     sub1
+    /// ```
+    ///
+    /// but usage of `subcommand_help_heading`
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .subcommand(App::new("sub1"))
+    ///     .subcommand_help_heading("THINGS")
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// USAGE:
+    ///     myprog [SUBCOMMAND]
+    ///
+    /// OPTIONS:
+    ///     -h, --help       Print help information
+    ///     -V, --version    Print version information
+    ///
     /// THINGS:
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
-    pub fn subcommand_placeholder<S, T>(mut self, placeholder: S, heading: T) -> Self
+    pub fn subcommand_help_heading<T>(mut self, heading: T) -> Self
     where
-        S: Into<&'help str>,
         T: Into<&'help str>,
     {
-        self.subcommand_placeholder = Some(placeholder.into());
         self.subcommand_heading = Some(heading.into());
         self
     }

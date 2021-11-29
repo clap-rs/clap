@@ -423,7 +423,8 @@ fn issue_1722_not_emit_error_when_arg_follows_similar_to_a_subcommand() {
 fn subcommand_placeholder_test() {
     let mut app = App::new("myprog")
         .subcommand(App::new("subcommand"))
-        .subcommand_placeholder("TEST_PLACEHOLDER", "TEST_HEADER");
+        .subcommand_value_name("TEST_PLACEHOLDER")
+        .subcommand_help_heading("TEST_HEADER");
 
     assert_eq!(&app.render_usage(), "USAGE:\n    myprog [TEST_PLACEHOLDER]");
 
