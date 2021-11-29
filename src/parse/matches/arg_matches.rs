@@ -160,12 +160,9 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        if let Some(arg) = self.get_arg(&Id::from(id)) {
-            if let Some(v) = arg.first() {
-                return Some(v.to_str().expect(INVALID_UTF8));
-            }
-        }
-        None
+        let arg = self.get_arg(&Id::from(id))?;
+        let v = arg.first()?;
+        Some(v.to_str().expect(INVALID_UTF8))
     }
 
     /// Gets the lossy value of a specific option or positional argument.
@@ -210,12 +207,9 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        if let Some(arg) = self.get_arg(&Id::from(id)) {
-            if let Some(v) = arg.first() {
-                return Some(v.to_string_lossy());
-            }
-        }
-        None
+        let arg = self.get_arg(&Id::from(id))?;
+        let v = arg.first()?;
+        Some(v.to_string_lossy())
     }
 
     /// Get the `OsStr` value of a specific option or positional argument.
@@ -261,8 +255,9 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
-        self.get_arg(&Id::from(id))
-            .and_then(|arg| arg.first().map(OsString::as_os_str))
+        let arg = self.get_arg(&Id::from(id))?;
+        let v = arg.first()?;
+        Some(v.as_os_str())
     }
 
     /// Get an [`Iterator`] over [values] of a specific option or positional argument.
@@ -296,33 +291,26 @@ impl ArgMatches {
     /// [values]: Values
     /// [`Iterator`]: std::iter::Iterator
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
-        self.get_arg(&Id::from(id)).map(|arg| {
-            fn to_str_slice(o: &OsString) -> &str {
-                o.to_str().expect(INVALID_UTF8)
-            }
-
-            Values {
-                iter: arg.vals_flatten().map(to_str_slice),
-            }
-        })
+        let arg = self.get_arg(&Id::from(id))?;
+        fn to_str_slice(o: &OsString) -> &str {
+            o.to_str().expect(INVALID_UTF8)
+        }
+        let v = Values {
+            iter: arg.vals_flatten().map(to_str_slice),
+        };
+        Some(v)
     }
 
     /// Placeholder documentation.
     #[cfg(feature = "unstable-grouped")]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
-        #[allow(clippy::type_complexity)]
-        let arg_values: for<'a> fn(
-            &'a MatchedArg,
-        ) -> Map<
-            Iter<'a, Vec<OsString>>,
-            fn(&Vec<OsString>) -> Vec<&str>,
-        > = |arg| {
-            arg.vals()
-                .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect())
+        let arg = self.get_arg(&Id::from(id))?;
+        let v = GroupedValues {
+            iter: arg
+                .vals()
+                .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect()),
         };
-        self.get_arg(&Id::from(id))
-            .map(arg_values)
-            .map(|iter| GroupedValues { iter })
+        Some(v)
     }
 
     /// Get the lossy values of a specific option or positional argument.
@@ -362,11 +350,12 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        self.get_arg(&Id::from(id)).map(|arg| {
-            arg.vals_flatten()
-                .map(|v| v.to_string_lossy().into_owned())
-                .collect()
-        })
+        let arg = self.get_arg(&Id::from(id))?;
+        let v = arg
+            .vals_flatten()
+            .map(|v| v.to_string_lossy().into_owned())
+            .collect();
+        Some(v)
     }
 
     /// Get an [`Iterator`] over [`OsStr`] [values] of a specific option or positional argument.
@@ -412,13 +401,14 @@ impl ArgMatches {
     /// [values]: OsValues
     /// [`String`]: std::string::String
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
+        let arg = self.get_arg(&Id::from(id))?;
         fn to_str_slice(o: &OsString) -> &OsStr {
             o
         }
-
-        self.get_arg(&Id::from(id)).map(|arg| OsValues {
+        let v = OsValues {
             iter: arg.vals_flatten().map(to_str_slice),
-        })
+        };
+        Some(v)
     }
 
     /// Parse the value (with [`FromStr`]) of a specific option or positional argument.
@@ -463,18 +453,17 @@ impl ArgMatches {
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
-        if let Some(v) = self.value_of(name) {
-            v.parse::<R>().map_err(|e| {
-                let message = format!(
-                    "The argument '{}' isn't a valid value for '{}': {}",
-                    v, name, e
-                );
+        let v = self
+            .value_of(name)
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
+        v.parse::<R>().map_err(|e| {
+            let message = format!(
+                "The argument '{}' isn't a valid value for '{}': {}",
+                v, name, e
+            );
 
-                Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
-            })
-        } else {
-            Err(Error::argument_not_found_auto(name.to_string()))
-        }
+            Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
+        })
     }
 
     /// Parse the value (with [`FromStr`]) of a specific option or positional argument.
@@ -554,22 +543,17 @@ impl ArgMatches {
         R: FromStr,
         <R as FromStr>::Err: Display,
     {
-        if let Some(vals) = self.values_of(name) {
-            vals.map(|v| {
-                v.parse::<R>().map_err(|e| {
-                    let message = format!("The argument '{}' isn't a valid value: {}", v, e);
+        let v = self
+            .values_of(name)
+            .ok_or_else(|| Error::argument_not_found_auto(name.to_string()))?;
+        v.map(|v| {
+            v.parse::<R>().map_err(|e| {
+                let message = format!("The argument '{}' isn't a valid value: {}", v, e);
 
-                    Error::value_validation_without_app(
-                        name.to_string(),
-                        v.to_string(),
-                        message.into(),
-                    )
-                })
+                Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
             })
-            .collect()
-        } else {
-            Err(Error::argument_not_found_auto(name.to_string()))
-        }
+        })
+        .collect()
     }
 
     /// Parse the values (with [`FromStr`]) of a specific option or positional argument.
@@ -825,12 +809,9 @@ impl ArgMatches {
     /// ```
     /// [delimiter]: crate::Arg::value_delimiter()
     pub fn index_of<T: Key>(&self, id: T) -> Option<usize> {
-        if let Some(arg) = self.get_arg(&Id::from(id)) {
-            if let Some(i) = arg.get_index(0) {
-                return Some(i);
-            }
-        }
-        None
+        let arg = self.get_arg(&Id::from(id))?;
+        let i = arg.get_index(0)?;
+        Some(i)
     }
 
     /// All indices an argument appeared at when parsing.
@@ -910,9 +891,11 @@ impl ArgMatches {
     /// [`ArgMatches::index_of`]: ArgMatches::index_of()
     /// [delimiter]: Arg::value_delimiter()
     pub fn indices_of<T: Key>(&self, id: T) -> Option<Indices<'_>> {
-        self.get_arg(&Id::from(id)).map(|arg| Indices {
+        let arg = self.get_arg(&Id::from(id))?;
+        let i = Indices {
             iter: arg.indices(),
-        })
+        };
+        Some(i)
     }
 
     /// The `ArgMatches` for the current [subcommand].
