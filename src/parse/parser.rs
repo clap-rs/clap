@@ -922,8 +922,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if cmd == OsStr::new("help") {
                     let pb = Arg::new("subcommand")
                         .index(1)
-                        .setting(ArgSettings::TakesValue)
-                        .setting(ArgSettings::MultipleOccurrences)
+                        .takes_value(true)
+                        .multiple_occurrences(true)
                         .value_name("SUBCOMMAND")
                         .help("The subcommand whose help message to display");
                     sc = sc.arg(pb);

@@ -3,7 +3,7 @@ mod utils;
 use std::io::Write;
 use std::str;
 
-use clap::{App, Arg, ArgSettings};
+use clap::{App, Arg};
 
 static SCF2OP: &str = "flag present 2 times
 option NOT present
@@ -401,6 +401,6 @@ fn mut_arg_all() {
         .collect::<Vec<_>>();
 
     for arg_name in arg_names {
-        app = app.mut_arg(arg_name, |arg| arg.setting(ArgSettings::HidePossibleValues));
+        app = app.mut_arg(arg_name, |arg| arg.hide_possible_values(true));
     }
 }

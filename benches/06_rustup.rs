@@ -2,7 +2,7 @@
 //
 // CLI used is from rustup 408ed84f0e50511ed44a405dd91365e5da588790
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgSettings};
+use clap::{App, AppSettings, Arg, ArgGroup};
 use criterion::{criterion_group, criterion_main, Criterion};
 
 pub fn build_rustup(c: &mut Criterion) {
@@ -44,25 +44,25 @@ fn build_cli() -> App<'static> {
                 .about("Update Rust toolchains")
                 .after_help(TOOLCHAIN_INSTALL_HELP)
                 .setting(AppSettings::Hidden) // synonym for 'toolchain install'
-                .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                .arg(Arg::new("toolchain").required(true)),
         )
         .subcommand(
             App::new("update")
                 .about("Update Rust toolchains")
                 .after_help(UPDATE_HELP)
-                .arg(Arg::new("toolchain").setting(ArgSettings::Required))
+                .arg(Arg::new("toolchain").required(true))
                 .arg(
                     Arg::new("no-self-update")
                         .help("Don't perform self update when running the `rustup` command")
                         .long("no-self-update")
-                        .setting(ArgSettings::Hidden),
+                        .hidden(true),
                 ),
         )
         .subcommand(
             App::new("default")
                 .about("Set the default toolchain")
                 .after_help(DEFAULT_HELP)
-                .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                .arg(Arg::new("toolchain").required(true)),
         )
         .subcommand(
             App::new("toolchain")
@@ -74,33 +74,33 @@ fn build_cli() -> App<'static> {
                 .subcommand(
                     App::new("install")
                         .about("Install or update a given toolchain")
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("uninstall")
                         .about("Uninstall a toolchain")
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("link")
                         .about("Create a custom toolchain by symlinking to a directory")
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required))
-                        .arg(Arg::new("path").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true))
+                        .arg(Arg::new("path").required(true)),
                 )
                 .subcommand(
                     App::new("update")
                         .setting(AppSettings::Hidden) // synonym for 'install'
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("add")
                         .setting(AppSettings::Hidden) // synonym for 'install'
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("remove")
                         .setting(AppSettings::Hidden) // synonym for 'uninstall'
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 ),
         )
         .subcommand(
@@ -111,51 +111,31 @@ fn build_cli() -> App<'static> {
                 .subcommand(
                     App::new("list")
                         .about("List installed and available targets")
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("add")
                         .about("Add a target to a Rust toolchain")
-                        .arg(Arg::new("target").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("target").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("remove")
                         .about("Remove a target  from a Rust toolchain")
-                        .arg(Arg::new("target").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("target").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("install")
                         .setting(AppSettings::Hidden) // synonym for 'add'
-                        .arg(Arg::new("target").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("target").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("uninstall")
                         .setting(AppSettings::Hidden) // synonym for 'remove'
-                        .arg(Arg::new("target").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("target").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 ),
         )
         .subcommand(
@@ -166,41 +146,21 @@ fn build_cli() -> App<'static> {
                 .subcommand(
                     App::new("list")
                         .about("List installed and available components")
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
                 )
                 .subcommand(
                     App::new("add")
                         .about("Add a component to a Rust toolchain")
-                        .arg(Arg::new("component").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        )
-                        .arg(
-                            Arg::new("target")
-                                .long("target")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("component").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true))
+                        .arg(Arg::new("target").long("target").takes_value(true)),
                 )
                 .subcommand(
                     App::new("remove")
                         .about("Remove a component from a Rust toolchain")
-                        .arg(Arg::new("component").setting(ArgSettings::Required))
-                        .arg(
-                            Arg::new("toolchain")
-                                .long("toolchain")
-                                .setting(ArgSettings::TakesValue),
-                        )
-                        .arg(
-                            Arg::new("target")
-                                .long("target")
-                                .setting(ArgSettings::TakesValue),
-                        ),
+                        .arg(Arg::new("component").required(true))
+                        .arg(Arg::new("toolchain").long("toolchain").takes_value(true))
+                        .arg(Arg::new("target").long("target").takes_value(true)),
                 ),
         )
         .subcommand(
@@ -213,7 +173,7 @@ fn build_cli() -> App<'static> {
                 .subcommand(
                     App::new("set")
                         .about("Set the override toolchain for a directory")
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("unset")
@@ -222,7 +182,7 @@ fn build_cli() -> App<'static> {
                         .arg(
                             Arg::new("path")
                                 .long("path")
-                                .setting(ArgSettings::TakesValue)
+                                .takes_value(true)
                                 .help("Path to the directory"),
                         )
                         .arg(
@@ -234,17 +194,13 @@ fn build_cli() -> App<'static> {
                 .subcommand(
                     App::new("add")
                         .setting(AppSettings::Hidden) // synonym for 'set'
-                        .arg(Arg::new("toolchain").setting(ArgSettings::Required)),
+                        .arg(Arg::new("toolchain").required(true)),
                 )
                 .subcommand(
                     App::new("remove")
                         .setting(AppSettings::Hidden) // synonym for 'unset'
                         .about("Remove the override toolchain for a directory")
-                        .arg(
-                            Arg::new("path")
-                                .long("path")
-                                .setting(ArgSettings::TakesValue),
-                        )
+                        .arg(Arg::new("path").long("path").takes_value(true))
                         .arg(
                             Arg::new("nonexistent")
                                 .long("nonexistent")
@@ -257,19 +213,19 @@ fn build_cli() -> App<'static> {
                 .about("Run a command with an environment configured for a given toolchain")
                 .after_help(RUN_HELP)
                 .setting(AppSettings::TrailingVarArg)
-                .arg(Arg::new("toolchain").setting(ArgSettings::Required))
+                .arg(Arg::new("toolchain").required(true))
                 .arg(
                     Arg::new("command")
-                        .setting(ArgSettings::Required)
-                        .setting(ArgSettings::TakesValue)
-                        .setting(ArgSettings::MultipleValues)
-                        .setting(ArgSettings::MultipleOccurrences),
+                        .required(true)
+                        .takes_value(true)
+                        .multiple_values(true)
+                        .multiple_occurrences(true),
                 ),
         )
         .subcommand(
             App::new("which")
                 .about("Display which binary will be run for a given command")
-                .arg(Arg::new("command").setting(ArgSettings::Required)),
+                .arg(Arg::new("command").required(true)),
         )
         .subcommand(
             App::new("doc")
@@ -290,12 +246,8 @@ fn build_cli() -> App<'static> {
         .subcommand(
             App::new("man")
                 .about("View the man page for a given command")
-                .arg(Arg::new("command").setting(ArgSettings::Required))
-                .arg(
-                    Arg::new("toolchain")
-                        .long("toolchain")
-                        .setting(ArgSettings::TakesValue),
-                ),
+                .arg(Arg::new("command").required(true))
+                .arg(Arg::new("toolchain").long("toolchain").takes_value(true)),
         )
         .subcommand(
             App::new("self")
@@ -322,7 +274,7 @@ fn build_cli() -> App<'static> {
             App::new("set").about("Alter rustup settings").subcommand(
                 App::new("default-host")
                     .about("The triple used to identify toolchains when not specified")
-                    .arg(Arg::new("host_triple").setting(ArgSettings::Required)),
+                    .arg(Arg::new("host_triple").required(true)),
             ),
         )
 }

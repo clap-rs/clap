@@ -1,7 +1,7 @@
 //! How to use environment variable fallback an how it
 //! interacts with `default_value`.
 
-use clap::{ArgSettings, Parser};
+use clap::Parser;
 
 /// Example for allowing to specify options via environment variables.
 #[derive(Parser, Debug)]
@@ -22,7 +22,7 @@ struct Opt {
     // If an environment variable contains a sensitive value, it can be hidden
     // from the help screen with a special setting.
     /// Secret token
-    #[clap(long, env = "SECRET_TOKEN", setting = ArgSettings::HideEnvValues)]
+    #[clap(long, env = "SECRET_TOKEN", hide_env_values = true)]
     token: String,
 }
 

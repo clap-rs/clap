@@ -1,5 +1,5 @@
 use clap::App;
-use clap::{arg, Arg, ArgSettings};
+use clap::{arg, Arg};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::io::Cursor;
 
@@ -47,12 +47,12 @@ fn app_example3<'c>() -> App<'c> {
         .args(&[
             Arg::new("config")
                 .help("sets the config file to use")
-                .setting(ArgSettings::TakesValue)
+                .takes_value(true)
                 .short('c')
                 .long("config"),
             Arg::new("input")
                 .help("the input file to use")
-                .setting(ArgSettings::Required),
+                .required(true),
         ])
         .arg(arg!(--license "display the license file"))
         .arg(arg!([output] "Supply an output file to use"))
@@ -85,7 +85,7 @@ fn app_example4<'c>() -> App<'c> {
             Arg::new("input")
                 .help("the input file to use")
                 .index(1)
-                .setting(ArgSettings::Required),
+                .required(true),
         )
 }
 
@@ -95,7 +95,7 @@ fn app_example5<'c>() -> App<'c> {
             .help("turns up the awesome")
             .short('a')
             .long("awesome")
-            .setting(ArgSettings::MultipleOccurrences),
+            .multiple_occurrences(true),
     )
 }
 
@@ -106,7 +106,7 @@ fn app_example6<'c>() -> App<'c> {
                 .help("the input file to use")
                 .index(1)
                 .requires("config")
-                .setting(ArgSettings::Required),
+                .required(true),
         )
         .arg(Arg::new("config").help("the config file to use").index(2))
 }
@@ -118,10 +118,10 @@ fn app_example7<'c>() -> App<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::Required)
+                .takes_value(true)
+                .multiple_values(true)
+                .multiple_occurrences(true)
+                .required(true)
                 .short('i')
                 .long("input")
                 .requires("config")
@@ -136,10 +136,10 @@ fn app_example8<'c>() -> App<'c> {
         .arg(
             Arg::new("input")
                 .help("the input file to use")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::Required)
+                .takes_value(true)
+                .multiple_values(true)
+                .multiple_occurrences(true)
+                .required(true)
                 .short('i')
                 .long("input")
                 .requires("config")
@@ -152,7 +152,7 @@ fn app_example10<'c>() -> App<'c> {
         Arg::new("CONFIG")
             .help("The config file to use (default is \"config.json\")")
             .short('c')
-            .setting(ArgSettings::TakesValue),
+            .takes_value(true),
     )
 }
 

@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{arg, App, AppSettings, Arg, ArgGroup, ArgSettings, ErrorKind, PossibleValue};
+use clap::{arg, App, AppSettings, Arg, ArgGroup, ErrorKind, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 
@@ -709,7 +709,7 @@ fn args_with_last_usage() {
                 .help("Prints out more stuff.")
                 .short('v')
                 .long("verbose")
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
         .arg(
             Arg::new("timeout")
@@ -733,9 +733,9 @@ fn args_with_last_usage() {
         .arg(
             Arg::new("pass through args")
                 .help("Any arguments you wish to pass to the being profiled.")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::Last)
+                .takes_value(true)
+                .multiple_values(true)
+                .last(true)
                 .value_name("ARGS"),
         );
     assert!(utils::compare_output(
