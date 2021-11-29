@@ -126,11 +126,19 @@ impl ArgMatcher {
         self.0.args.iter()
     }
 
-    pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ignore_case: bool) {
-        debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
-        let ma = self.entry(arg).or_insert(MatchedArg::new());
+    pub(crate) fn inc_occurrence_of_arg(&mut self, arg: &Arg) {
+        let id = &arg.id;
+        debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.set_ty(ValueType::CommandLine);
-        ma.set_ignore_case(ignore_case);
+        ma.set_ignore_case(arg.is_set(ArgSettings::IgnoreCase));
+        ma.occurs += 1;
+    }
+
+    pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
+        debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new());
+        ma.set_ty(ValueType::CommandLine);
         ma.occurs += 1;
     }
 
