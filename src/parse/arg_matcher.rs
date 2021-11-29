@@ -126,11 +126,11 @@ impl ArgMatcher {
         self.0.args.iter()
     }
 
-    pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ci: bool) {
+    pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ignore_case: bool) {
         debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
         let ma = self.entry(arg).or_insert(MatchedArg::new());
         ma.set_ty(ValueType::CommandLine);
-        ma.set_case_insensitive(ci);
+        ma.set_ignore_case(ignore_case);
         ma.occurs += 1;
     }
 
