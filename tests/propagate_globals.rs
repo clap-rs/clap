@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgMatches, ArgSettings};
+use clap::{App, Arg, ArgMatches};
 
 fn get_app() -> App<'static> {
     App::new("myprog")
@@ -9,7 +9,7 @@ fn get_app() -> App<'static> {
                 .long("global-arg")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .setting(ArgSettings::TakesValue)
+                .takes_value(true)
                 .default_value("default_value"),
         )
         .arg(
@@ -17,7 +17,7 @@ fn get_app() -> App<'static> {
                 .long("global-flag")
                 .help("Specifies something needed by the subcommands")
                 .global(true)
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
         .subcommand(App::new("outer").subcommand(App::new("inner")))
 }

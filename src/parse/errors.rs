@@ -115,11 +115,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("color")
-    ///          .setting(ArgSettings::TakesValue)
-    ///          .setting(ArgSettings::ForbidEmptyValues)
+    ///          .takes_value(true)
+    ///          .forbid_empty_values(true)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());
@@ -131,11 +131,11 @@ pub enum ErrorKind {
     /// sign to provide values.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("color")
-    ///          .setting(ArgSettings::TakesValue)
-    ///          .setting(ArgSettings::RequireEquals)
+    ///          .takes_value(true)
+    ///          .require_equals(true)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color", "red"]);
     /// assert!(res.is_err());
@@ -315,7 +315,7 @@ pub enum ErrorKind {
     /// Occurs when the user provides a value containing invalid UTF-8.
     ///
     /// To allow arbitrary data
-    /// - Set [`ArgSettings::AllowInvalidUtf8`] for argument values
+    /// - Set [`Arg::allow_invalid_utf8`] for argument values
     /// - Set [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] for external-subcommand
     ///   values
     ///
@@ -341,7 +341,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     ///
-    /// [`ArgSettings::AllowInvalidUtf8`]: crate::ArgSettings::AllowInvalidUtf8
+    /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
     /// [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`]: crate::AppSettings::AllowInvalidUtf8ForExternalSubcommands
     InvalidUtf8,
 

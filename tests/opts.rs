@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{arg, App, AppSettings, Arg, ArgMatches, ArgSettings, ErrorKind};
+use clap::{arg, App, AppSettings, Arg, ArgMatches, ErrorKind};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =
@@ -35,9 +35,9 @@ fn require_equals_fail() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::ForbidEmptyValues)
-                .setting(ArgSettings::TakesValue)
+                .require_equals(true)
+                .forbid_empty_values(true)
+                .takes_value(true)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config", "file.conf"]);
@@ -57,8 +57,8 @@ For more information try --help
 ";
     let app = App::new("prog").arg(
         Arg::new("cfg")
-            .setting(ArgSettings::RequireEquals)
-            .setting(ArgSettings::TakesValue)
+            .require_equals(true)
+            .takes_value(true)
             .long("config"),
     );
     assert!(utils::compare_output(
@@ -74,8 +74,8 @@ fn require_equals_min_values_zero() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::RequireEquals)
+                .takes_value(true)
+                .require_equals(true)
                 .min_values(0)
                 .long("config"),
         )
@@ -92,8 +92,8 @@ fn double_hyphen_as_value() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::AllowHyphenValues)
+                .takes_value(true)
+                .allow_hyphen_values(true)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config", "--"]);
@@ -106,9 +106,9 @@ fn require_equals_no_empty_values_fail() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::RequireEquals)
-                .setting(ArgSettings::ForbidEmptyValues)
+                .takes_value(true)
+                .require_equals(true)
+                .forbid_empty_values(true)
                 .long("config"),
         )
         .arg(Arg::new("some"))
@@ -122,8 +122,8 @@ fn require_equals_empty_vals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::RequireEquals)
+                .takes_value(true)
+                .require_equals(true)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config="]);
@@ -135,8 +135,8 @@ fn require_equals_pass() {
     let res = App::new("prog")
         .arg(
             Arg::new("cfg")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::RequireEquals)
+                .takes_value(true)
+                .require_equals(true)
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config=file.conf"]);
@@ -305,7 +305,7 @@ fn multiple_vals_pos_arg_delim() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .setting(ArgSettings::UseValueDelimiter),
+                .use_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
@@ -322,8 +322,8 @@ fn require_delims_no_delim() {
     let r = App::new("mvae")
         .arg(
             arg!(o: -o [opt] ... "some opt")
-                .setting(ArgSettings::UseValueDelimiter)
-                .setting(ArgSettings::RequireDelimiter),
+                .use_delimiter(true)
+                .require_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["mvae", "-o", "1", "2", "some"]);
@@ -338,8 +338,8 @@ fn require_delims() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .setting(ArgSettings::UseValueDelimiter)
-                .setting(ArgSettings::RequireDelimiter),
+                .use_delimiter(true)
+                .require_delimiter(true),
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
@@ -357,7 +357,7 @@ fn leading_hyphen_pass() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .setting(ArgSettings::AllowHyphenValues),
+                .allow_hyphen_values(true),
         )
         .try_get_matches_from(vec!["", "-o", "-2", "3"]);
     assert!(r.is_ok());
@@ -382,7 +382,7 @@ fn leading_hyphen_with_flag_after() {
         .arg(
             arg!(o: -o <opt> "some opt")
                 .multiple_values(true)
-                .setting(ArgSettings::AllowHyphenValues),
+                .allow_hyphen_values(true),
         )
         .arg(arg!(f: -f "some flag"))
         .try_get_matches_from(vec!["", "-o", "-2", "-f"]);
@@ -396,7 +396,7 @@ fn leading_hyphen_with_flag_after() {
 #[test]
 fn leading_hyphen_with_flag_before() {
     let r = App::new("mvae")
-        .arg(arg!(o: -o [opt] ... "some opt").setting(ArgSettings::AllowHyphenValues))
+        .arg(arg!(o: -o [opt] ... "some opt").allow_hyphen_values(true))
         .arg(arg!(f: -f "some flag"))
         .try_get_matches_from(vec!["", "-f", "-o", "-2"]);
     assert!(r.is_ok());
@@ -412,8 +412,8 @@ fn leading_hyphen_with_only_pos_follows() {
         .arg(
             arg!(o: -o [opt] ... "some opt")
                 .number_of_values(1)
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::AllowHyphenValues),
+                .takes_value(true)
+                .allow_hyphen_values(true),
         )
         .arg(arg!([arg] "some arg"))
         .try_get_matches_from(vec!["", "-o", "-2", "--", "val"]);
@@ -442,8 +442,8 @@ fn issue_1047_min_zero_vals_default_val() {
             Arg::new("del")
                 .short('d')
                 .long("del")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::RequireEquals)
+                .takes_value(true)
+                .require_equals(true)
                 .min_values(0)
                 .default_missing_value("default"),
         )

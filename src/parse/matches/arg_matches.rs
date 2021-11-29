@@ -139,7 +139,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -177,7 +177,7 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
-    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// *NOTE:* Prefer [`ArgMatches::values_of_lossy`] if getting a value for an option or positional
     /// argument that allows multiples as `ArgMatches::value_of_lossy` will only return the *first*
@@ -228,7 +228,7 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
-    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// *NOTE:* Prefer [`ArgMatches::values_of_os`] if getting a value for an option or positional
     /// argument that allows multiples as `ArgMatches::value_of_os` will only return the *first*
@@ -274,7 +274,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -334,7 +334,7 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
-    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// # Panics
     ///
@@ -379,7 +379,7 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
-    /// *NOTE:* Recommend having set [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// *NOTE:* Recommend having set [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// # Panics
     ///
@@ -433,7 +433,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -484,7 +484,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -527,7 +527,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -579,7 +579,7 @@ impl ArgMatches {
     /// # Panics
     ///
     /// If the value is invalid UTF-8.  See
-    /// [`ArgSettings::AllowInvalidUtf8`][crate::ArgSettings::AllowInvalidUtf8].
+    /// [`Arg::allow_invalid_utf8`][crate::Arg::allow_invalid_utf8].
     ///
     /// If `id` is is not a valid argument or group name.
     ///
@@ -657,7 +657,7 @@ impl ArgMatches {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
+    /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .arg(Arg::new("debug")
     ///         .short('d')
@@ -672,11 +672,11 @@ impl ArgMatches {
     /// This next example shows that counts actual uses of the argument, not just `-`'s
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ArgSettings};
+    /// # use clap::{App, Arg};
     /// let m = App::new("myprog")
     ///     .arg(Arg::new("debug")
     ///         .short('d')
-    ///         .setting(ArgSettings::MultipleOccurrences))
+    ///         .multiple_occurrences(true))
     ///     .arg(Arg::new("flag")
     ///         .short('f'))
     ///     .get_matches_from(vec![

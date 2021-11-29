@@ -1,6 +1,6 @@
 mod utils;
 
-use clap::{App, Arg, ArgSettings, ErrorKind};
+use clap::{App, Arg, ErrorKind};
 
 #[test]
 fn empty_values() {
@@ -55,7 +55,7 @@ fn no_empty_values_with_equals() {
             Arg::new("config")
                 .long("config")
                 .takes_value(true)
-                .setting(ArgSettings::ForbidEmptyValues),
+                .forbid_empty_values(true),
         )
         .try_get_matches_from(&["config", "--config="]);
     assert!(m.is_err());
@@ -66,7 +66,7 @@ fn no_empty_values_with_equals() {
             Arg::new("config")
                 .short('c')
                 .takes_value(true)
-                .setting(ArgSettings::ForbidEmptyValues),
+                .forbid_empty_values(true),
         )
         .try_get_matches_from(&["config", "-c="]);
     assert!(m.is_err());
@@ -80,7 +80,7 @@ fn no_empty_values_without_equals() {
             Arg::new("config")
                 .long("config")
                 .takes_value(true)
-                .setting(ArgSettings::ForbidEmptyValues),
+                .forbid_empty_values(true),
         )
         .try_get_matches_from(&["config", "--config"]);
     assert!(m.is_err());
@@ -91,7 +91,7 @@ fn no_empty_values_without_equals() {
             Arg::new("config")
                 .short('c')
                 .takes_value(true)
-                .setting(ArgSettings::ForbidEmptyValues),
+                .forbid_empty_values(true),
         )
         .try_get_matches_from(&["config", "-c"]);
     assert!(m.is_err());
@@ -104,8 +104,8 @@ fn no_empty_values_without_equals_but_requires_equals() {
         Arg::new("config")
             .long("config")
             .takes_value(true)
-            .setting(ArgSettings::ForbidEmptyValues)
-            .setting(ArgSettings::RequireEquals),
+            .forbid_empty_values(true)
+            .require_equals(true),
     );
     let m = app.clone().try_get_matches_from(&["config", "--config"]);
     // Should error on no equals rather than empty value.
