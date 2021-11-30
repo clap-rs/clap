@@ -1,3 +1,5 @@
+*Jump to [source](demo.rs)*
+
 Used to validate README.md's content
 ```bash
 $ demo --help

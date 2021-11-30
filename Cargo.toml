@@ -123,24 +123,177 @@ criterion = "0.3.2"
 trybuild = "1.0"
 rustversion = "1"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.8.0", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.8.2", default-features = false, features = ["color-auto", "diff", "examples"] }
+
+[[example]]
+name = "demo"
+required-features = ["derive"]
+
+[[example]]
+name = "escaped_positional"
+required-features = ["cargo"]
+
+[[example]]
+name = "escaped_positional_derive"
+required-features = ["derive"]
+
+[[example]]
+name = "git_derive"
+required-features = ["derive"]
 
 [[example]]
 name = "busybox"
-path = "examples/24a_multicall_busybox.rs"
+path = "examples/multicall_busybox.rs"
 required-features = ["unstable-multicall"]
 
 [[example]]
 name = "hostname"
-path = "examples/24b_multicall_hostname.rs"
+path = "examples/multicall_hostname.rs"
 required-features = ["unstable-multicall"]
 
 [[example]]
-name = "09_cargo_metadata"
+name = "01_quick"
+path = "examples/tutorial_builder/01_quick.rs"
 required-features = ["cargo"]
 
 [[example]]
-name = "demo"
+name = "02_apps"
+path = "examples/tutorial_builder/02_apps.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "02_crate"
+path = "examples/tutorial_builder/02_crate.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "02_app_settings"
+path = "examples/tutorial_builder/02_app_settings.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_01_flag_bool"
+path = "examples/tutorial_builder/03_01_flag_bool.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_01_flag_count"
+path = "examples/tutorial_builder/03_01_flag_count.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_02_option"
+path = "examples/tutorial_builder/03_02_option.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_03_positional"
+path = "examples/tutorial_builder/03_03_positional.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_04_subcommands"
+path = "examples/tutorial_builder/03_04_subcommands.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_05_default_values"
+path = "examples/tutorial_builder/03_05_default_values.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_01_possible"
+path = "examples/tutorial_builder/04_01_possible.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_01_enum"
+path = "examples/tutorial_builder/04_01_enum.rs"
+required-features = ["cargo", "derive"]
+
+[[example]]
+name = "04_02_validate"
+path = "examples/tutorial_builder/04_02_validate.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_03_relations"
+path = "examples/tutorial_builder/04_03_relations.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_04_custom"
+path = "examples/tutorial_builder/04_04_custom.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "01_quick_derive"
+path = "examples/tutorial_derive/01_quick.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_apps_derive"
+path = "examples/tutorial_derive/02_apps.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_crate_derive"
+path = "examples/tutorial_derive/02_crate.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_app_settings_derive"
+path = "examples/tutorial_derive/02_app_settings.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_01_flag_bool_derive"
+path = "examples/tutorial_derive/03_01_flag_bool.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_01_flag_count_derive"
+path = "examples/tutorial_derive/03_01_flag_count.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_02_option_derive"
+path = "examples/tutorial_derive/03_02_option.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_03_positional_derive"
+path = "examples/tutorial_derive/03_03_positional.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_04_subcommands_derive"
+path = "examples/tutorial_derive/03_04_subcommands.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_05_default_values_derive"
+path = "examples/tutorial_derive/03_05_default_values.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_01_enum_derive"
+path = "examples/tutorial_derive/04_01_enum.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_02_validate_derive"
+path = "examples/tutorial_derive/04_02_validate.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_03_relations_derive"
+path = "examples/tutorial_derive/04_03_relations.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_04_custom_derive"
+path = "examples/tutorial_derive/04_04_custom.rs"
 required-features = ["derive"]
 
 [profile.test]
