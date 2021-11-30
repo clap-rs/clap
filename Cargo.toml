@@ -138,6 +138,10 @@ required-features = ["unstable-multicall"]
 name = "09_cargo_metadata"
 required-features = ["cargo"]
 
+[[example]]
+name = "demo"
+required-features = ["derive"]
+
 [profile.test]
 opt-level = 1
 
