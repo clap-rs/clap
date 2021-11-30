@@ -366,7 +366,7 @@
 //!  * **Red** Color: **NOT** included by default (must use cargo `features` to enable)
 //!  * **Blue** Color: Dev dependency, only used while developing.
 //!
-//! ![clap dependencies](https://github.com/clap-rs/clap/blob/v2.33.1/clap_dep_graph.png)
+//! ![clap dependencies](https://github.com/clap-rs/clap/blob/v2.34.0/clap_dep_graph.png)
 //!
 //! ### More Information
 //!
@@ -391,7 +391,7 @@
 //! `clap`. You can either add it to the [examples/] directory, or file an issue and tell
 //! me. I'm all about giving credit where credit is due :)
 //!
-//! Please read [CONTRIBUTING.md](https://github.com/clap-rs/clap/blob/v2.33.1/.github/CONTRIBUTING.md) before you start contributing.
+//! Please read [CONTRIBUTING.md](https://github.com/clap-rs/clap/blob/v2.34.0/.github/CONTRIBUTING.md) before you start contributing.
 //!
 //!
 //! ### Testing Code
@@ -512,12 +512,12 @@
 //! `clap` is licensed under the MIT license. Please read the [LICENSE-MIT][license] file in
 //! this repository for more information.
 //!
-//! [examples/]: https://github.com/clap-rs/clap/tree/v2.33.1/examples
+//! [examples/]: https://github.com/clap-rs/clap/tree/v2.34.0/examples
 //! [video tutorials]: https://www.youtube.com/playlist?list=PLza5oFLQGTl2Z5T8g1pRkIynR3E0_pc7U
-//! [license]: https://github.com/clap-rs/clap/blob/v2.33.1/LICENSE-MIT
+//! [license]: https://github.com/clap-rs/clap/blob/v2.34.0/LICENSE-MIT
 
 #![crate_type = "lib"]
-#![doc(html_root_url = "https://docs.rs/clap/2.33.4")]
+#![doc(html_root_url = "https://docs.rs/clap/2.34.0")]
 #![deny(
     missing_docs,
     missing_debug_implementations,

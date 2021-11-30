@@ -1,3 +1,8 @@
+<a name="v2.34.0"></a>
+## v2.34.0 (2021-11-30)
+
+- Updates to Rust 2018 edition and bumps the MSRV to Rust 1.46
+
 <a name="v2.33.4"></a>
 ### v2.33.4 (2021-11-29)
 
