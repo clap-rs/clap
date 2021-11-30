@@ -30,7 +30,7 @@
 //! fn build_cli() -> App<'static> {
 //!     App::new("example")
 //!          .arg(Arg::new("file")
-//!              .about("some input file")
+//!              .help("some input file")
 //!                 .value_hint(ValueHint::AnyPath),
 //!         )
 //!        .arg(
@@ -104,13 +104,13 @@ pub use shell::Shell;
 ///     App::new("compl")
 ///         .about("Tests completions")
 ///         .arg(Arg::new("file")
-///             .about("some input file"))
+///             .help("some input file"))
 ///         .subcommand(App::new("test")
 ///             .about("tests things")
 ///             .arg(Arg::new("case")
 ///                 .long("case")
 ///                 .takes_value(true)
-///                 .about("the case to test")))
+///                 .help("the case to test")))
 /// }
 /// ```
 ///

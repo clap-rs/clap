@@ -26,3 +26,4 @@ build-%:
 
 test-%:
 	cargo test ${_FEATURES_${@:test-%=%}} --all-targets ${ARGS}
+	cargo test ${_FEATURES_${@:test-%=%}} --doc ${ARGS}
