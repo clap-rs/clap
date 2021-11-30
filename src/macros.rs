@@ -144,7 +144,7 @@ macro_rules! app_from_crate {
     () => {
         $crate::App::new($crate::crate_name!())
             .version($crate::crate_version!())
-            .author($crate::crate_authors!())
+            .author($crate::crate_authors!(", "))
             .about($crate::crate_description!())
     };
     ($sep:expr) => {
