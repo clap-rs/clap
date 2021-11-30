@@ -35,7 +35,6 @@ clap = { path = "../", version = "=3.0.0-beta.5", default-features = false, feat
 
 [dev-dependencies]
 pretty_assertions = "1.0"
-version-sync = "0.9"
 clap = { path = "../", version = "=3.0.0-beta.5", default-features = false, features = ["std", "derive"] }
 
 [features]

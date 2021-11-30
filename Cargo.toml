@@ -119,8 +119,9 @@ backtrace = { version = "0.3", optional = true }
 [dev-dependencies]
 regex = "1.0"
 lazy_static = "1"
-version-sync = "0.9"
 criterion = "0.3.2"
+trybuild = "1.0"
+rustversion = "1"
 # Cutting out `filesystem` feature
 trycmd = { version = "0.8.0", default-features = false, features = ["color-auto", "diff", "examples"] }
 

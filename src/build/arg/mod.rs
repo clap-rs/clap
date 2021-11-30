@@ -2036,7 +2036,7 @@ impl<'help> Arg<'help> {
     /// // value with a help text
     ///     PossibleValue::new("slow").help("not that fast"),
     /// // value that is hidden from completion and help text
-    ///     PossibleValue::new("medium").hidden(true),
+    ///     PossibleValue::new("medium").hide(true),
     /// ])
     /// # ;
     /// ```
@@ -2113,7 +2113,7 @@ impl<'help> Arg<'help> {
     /// // value with a help text
     ///     .possible_value(PossibleValue::new("slow").help("not that fast"))
     /// // value that is hidden from completion and help text
-    ///     .possible_value(PossibleValue::new("medium").hidden(true))
+    ///     .possible_value(PossibleValue::new("medium").hide(true))
     /// # ;
     /// ```
     ///
@@ -3956,7 +3956,7 @@ impl<'help> Arg<'help> {
     /// let m = App::new("prog")
     ///     .arg(Arg::new("cfg")
     ///         .long("config")
-    ///         .hidden(true)
+    ///         .hide(true)
     ///         .help("Some help text describing the --config arg"))
     ///     .get_matches_from(vec![
     ///         "prog", "--help"

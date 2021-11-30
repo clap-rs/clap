@@ -1,27 +1,6 @@
-mod utils;
-
 // We intentionally don't import `clap_app!` here; not having it in scope protects against the
 // class of errors where the macro refers to itself as `clap_app!` instead of `$crate::clap_app!`
 use clap::ErrorKind;
-
-static LITERALS: &str = "clap-tests 0.1
-
-USAGE:
-    clap-tests [OPTIONS] [SUBCOMMAND]
-
-OPTIONS:
-    -4, --4                      Sets priority to 4
-    -5, --5                      Sets priority to 5
-    -6, --6                      Sets priority to 6
-    -h, --help                   Print help information
-    -t, --task-num <task-num>    Task number [possible values: all, 0, 1, 2]
-    -V, --version                Print version information
-
-SUBCOMMANDS:
-    0             Set everything to zero priority
-    help          Print this message or the help of the given subcommand(s)
-    view-tasks    View all tasks
-";
 
 #[test]
 fn basic() {
@@ -441,7 +420,7 @@ fn group_macro_multiple_invocations() {
 #[test]
 fn literals() {
     #![allow(deprecated)]
-    let app = clap::clap_app!("clap-tests" =>
+    clap::clap_app!("clap-tests" =>
         (version: "0.1")
         (@arg "task-num": -"t-n" --"task-num" +takes_value possible_value["all" 0 1 2]
             "Task number")
@@ -455,13 +434,6 @@ fn literals() {
         (@subcommand 0 =>
             (about: "Set everything to zero priority"))
     );
-
-    assert!(utils::compare_output(
-        app,
-        "clap-tests --help",
-        LITERALS,
-        false
-    ));
 }
 
 #[test]
