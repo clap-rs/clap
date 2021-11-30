@@ -1,6 +1,8 @@
 <!-- omit in TOC -->
 # clap
 
+> **Command Line Argument Parser for Rust**
+
 [![Crates.io](https://img.shields.io/crates/v/clap?style=flat-square)](https://crates.io/crates/clap)
 [![Crates.io](https://img.shields.io/crates/d/clap?style=flat-square)](https://crates.io/crates/clap)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/master/LICENSE-APACHE)
@@ -9,489 +11,122 @@
 [![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/master?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=master)
 [![Contributors](https://img.shields.io/github/contributors/clap-rs/clap?style=flat-square)](https://github.com/clap-rs/clap/graphs/contributors)
 
-Command Line Argument Parser for Rust
-
-It is a simple-to-use, efficient, and full-featured library for parsing command line arguments and subcommands when writing command line, console or terminal applications.
-
-* [Documentation][docs]
-* [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
-* [Website](https://clap.rs/)
-
-We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.5` prerelease out but we do not give any guarantees that its API is stable. We do not have a changelog yet which will be written down after we are sure about the API stability. We recommend users to not update to the prerelease version yet and to wait for the official `3.0`.
-
-> If you're looking for the readme & examples for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
+Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 1. [About](#about)
-2. [FAQ](#faq)
-3. [Features](#features)
-4. [Quick Example](#quick-example)
-      1. [Using Derive Macros](#using-derive-macros)
-      2. [Using Builder Pattern](#using-builder-pattern)
-      3. [Running it](#running-it)
-5. [Try it!](#try-it)
-   1. [Pre-Built Test](#pre-built-test)
-   2. [Build Your Own Binary](#build-your-own-binary)
-6. [Usage](#usage)
-   1. [Optional Dependencies / Features](#optional-dependencies--features)
-      1. [Features enabled by default](#features-enabled-by-default)
-      2. [Opt-in features](#opt-in-features)
-      3. [Experimental features](#experimental-features)
-   2. [More Information](#more-information)
-7. [Sponsors](#sponsors)
-8. [Contributing](#contributing)
-   1. [Compatibility Policy](#compatibility-policy)
-      1. [Minimum Supported Version of Rust (MSRV)](#minimum-supported-version-of-rust-msrv)
-      2. [Breaking Changes](#breaking-changes)
-9. [License](#license)
-10. [Related Crates](#related-crates)
+5. [API Reference](https://docs.rs/clap)
+    - [Feature Flags](#feature-flags)
+2. [CHANGELOG](https://github.com/clap-rs/clap/blob/master/docs/CHANGELOG.md)
+2. [FAQ](https://github.com/clap-rs/clap/blob/master/docs/FAQ.md)
+3. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
+8. [Contributing](https://github.com/clap-rs/clap/blob/master/CONTRIBUTING.md)
 
 ## About
 
-`clap` is used to parse *and validate* the string of command line arguments provided by a user at runtime. You provide the list of valid possibilities, and `clap` handles the rest. This means you focus on your *application's* functionality, and less on the parsing and validating of arguments.
+Create your command-line parser, with all of the bells and whistles, declaratively or procedurally.
 
-`clap` provides many things 'for free' (with no configuration) including the traditional version and help switches (or flags) along with associated messages. If you are using subcommands, `clap` will also auto-generate a `help` subcommand and separate associated help messages.
+### Example
 
-Once `clap` parses the user-provided string of arguments, it returns the matches along with any applicable values. If the user made an error or typo, `clap` informs them with a friendly message and exits gracefully (or returns a `Result` type and allows you to perform any clean up prior to exit). Because of this, you can make reasonable assumptions in your code about the validity of the arguments prior to your applications main execution.
-
-## FAQ
-
-[How does `clap` compare to structopt?](https://github.com/clap-rs/clap/blob/master/FAQ.md#how-does-clap-compare-to-structopt)
-
-For a full FAQ, see [this](https://github.com/clap-rs/clap/blob/master/FAQ.md)
-
-## Features
-
-Below are a few of the features which `clap` supports, full descriptions and usage can be found in the [documentation][docs] and [examples][examples] directory
-
-* Generate a CLI simply by defining a struct!
-* **Auto-generated Help, Version, and Usage information**
-  - Can optionally be fully, or partially overridden if you want custom help, version, or usage statements
-* **Auto-generated completion scripts (Bash, Zsh, Fish, Fig, Elvish and PowerShell)**
-  - Using [`clap_generate`](https://github.com/clap-rs/clap/tree/master/clap_generate)
-  - Even works through multiple levels of subcommands
-  - Works with options which only accept certain values
-  - Works with subcommand aliases
-* **Flags / Switches** (i.e. bool fields)
-  - Both short and long versions supported (i.e. `-f` and `--flag` respectively)
-  - Supports combining short versions (i.e. `-fBgoZ` is the same as `-f -B -g -o -Z`)
-  - Supports multiple occurrences (i.e. `-vvv` or `-v -v -v`)
-* **Positional Arguments** (i.e. those which are based off an index from the program name)
-  - Supports multiple values (i.e. `myprog <file>...` such as `myprog file1.txt file2.txt` being two values for the same "file" argument)
-  - Supports Specific Value Sets (See below)
-  - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-  - Can set custom validations on values to extend the argument-parsing capability to truly custom domains
-* **Option Arguments** (i.e. those that take values)
-  - Both short and long versions supported (i.e. `-o value`, `-ovalue`, `-o=value` and `--option value` or `--option=value` respectively)
-  - Supports multiple values (i.e. `-o <val1> -o <val2>` or `-o <val1> <val2>`)
-  - Supports delimited values (i.e. `-o=val1,val2,val3`, can also change the delimiter)
-  - Supports Specific Value Sets (See below)
-  - Supports named values so that the usage/help info appears as `-o <FILE> <INTERFACE>` etc. for when you require specific multiple values
-  - Can set value parameters (such as the minimum number of values, the maximum number of values, or the exact number of values)
-  - Can set custom validations on values to extend the argument-parsing capability to truly custom domains
-* **Sub-Commands** (i.e. `git add <file>` where `add` is a sub-command of `git`)
-  - Support their own sub-arguments, and sub-sub-commands independent of the parent
-  - Get their own auto-generated Help, Version, and Usage independent of parent
-* **Requirement Rules**: Arguments can define the following types of requirement rules
-  - Can be required by default
-  - Can be required only if certain arguments are present
-  - Can require other arguments to be present
-  - Can be required only if certain values of other arguments are used
-* **Confliction Rules**: Arguments can optionally define the following types of exclusion rules
-  - Can be disallowed when certain arguments are present
-  - Can disallow use of other arguments when present
-* **Groups**: Arguments can be made part of a group
-  - Fully compatible with other relational rules (requirements, conflicts, and overrides) which allows things like requiring the use of any arg in a group, or denying the use of an entire group conditionally
-* **Specific Value Sets**: Positional or Option Arguments can define a specific set of allowed values (i.e. imagine a `--mode` option which may *only* have one of two values `fast` or `slow` such as `--mode fast` or `--mode slow`)
-* **Default Values**
-  - Also supports conditional default values (i.e. a default which only applies if specific arguments are used, or specific values of those arguments)
-* **Automatic Version from Cargo.toml**: `clap` is fully compatible with Rust's `env!()` macro for automatically setting the version of your application to the version in your Cargo.toml. See [09_auto_version example](examples/09_auto_version.rs) for how to do this (Thanks to [jhelwig](https://github.com/jhelwig) for pointing this out)
-* **Typed Values**: You can use several convenience macros provided by `clap` to get typed values (i.e. `i32`, `u8`, etc.) from positional or option arguments so long as the type you request implements `std::str::FromStr` See the [12_typed_values example](examples/12_typed_values.rs). You can also use `clap`s `arg_enum!` macro to create an enum with variants that automatically implement `std::str::FromStr`. See [13_enum_values example](examples/13_enum_values.rs) for details
-* **Suggestions**: Suggests corrections when the user enters a typo. For example, if you defined a `--myoption` argument, and the user mistakenly typed `--moyption` (notice `y` and `o` transposed), they would receive a `Did you mean '--myoption'?` error and exit gracefully. This also works for subcommands and flags. (Thanks to [Byron](https://github.com/Byron) for the implementation) (This feature can optionally be disabled, see 'Optional Dependencies / Features')
-* **Colorized Errors (Non Windows OS only)**: Error message are printed in colored text (this feature can optionally be disabled, see 'Optional Dependencies / Features').
-* **Global Arguments**: Arguments can optionally be defined once, and be available to all child subcommands. These values will also be propagated up/down throughout all subcommands.
-* **Custom Validations**: You can define a function to use as a validator of argument values. Imagine defining a function to validate IP addresses, or fail parsing upon error. This means your application logic can be solely focused on *using* values.
-* **POSIX Compatible Conflicts/Overrides** - In POSIX args can be conflicting, but not fail parsing because whichever arg comes *last* "wins" so to speak. This allows things such as aliases (i.e. `alias ls='ls -l'` but then using `ls -C` in your terminal which ends up passing `ls -l -C` as the final arguments. Since `-l` and `-C` aren't compatible, this effectively runs `ls -C` in `clap` if you choose...`clap` also supports hard conflicts that fail parsing). (Thanks to [Vinatorul](https://github.com/Vinatorul)!)
-* Supports the Unix `--` meaning, only positional arguments follow
-
-## Quick Example
-
-The following examples show a quick example of some of the very basic functionality of `clap`. For more advanced usage, such as requirements, conflicts, groups, multiple values and occurrences see the [documentation][docs], [examples][examples] directory of this repository.
-
- **NOTE:** All of these examples are functionally the same, but show different styles in which to use `clap`. These different styles are purely a matter of personal preference.
-
-Add `clap` to your `Cargo.toml`
-
-```toml
-[dependencies]
-clap = "3.0.0-beta.5"
-```
-
-#### Using Derive Macros
-
-The first example shows the simplest way to use `clap`, by defining a struct. If you're familiar with the `structopt` crate you're in luck, it's the same! (In fact it's the exact same code running under the covers!)
-
+<!-- Copied from examples/demo.{rs,md} -->
 ```rust,no_run
-// (Full example with detailed comments in examples/01d_quick_example.rs)
-//
-// This example demonstrates clap's full 'custom derive' style of creating arguments which is the
-// simplest method of use, but sacrifices some flexibility.
 use clap::Parser;
 
-/// This doc string acts as a help message when the user runs '--help'
-/// as do all doc strings on fields
 #[derive(Parser)]
-#[clap(version = "1.0", author = "Kevin K. <kbknapp@gmail.com>")]
-struct Opts {
+#[clap(about, version, author)] // Pull these from `Cargo.toml`
+struct Cli {
     /// Sets a custom config file. Could have been an Option<T> with no default too
-    #[clap(short, long, default_value = "default.conf")]
-    config: String,
+    #[clap(short, long, default_value = "default.toml", value_name = "PATH")]
+    config: std::path::PathBuf,
     /// Some input. Because this isn't an Option<T> it's required to be used
     input: String,
     /// A level of verbosity, and can be used multiple times
     #[clap(short, long, parse(from_occurrences))]
     verbose: i32,
-    #[clap(subcommand)]
-    subcmd: SubCommand,
-}
-
-#[derive(Parser)]
-enum SubCommand {
-    #[clap(version = "1.3", author = "Someone E. <someone_else@other.com>")]
-    Test(Test),
-}
-
-/// A subcommand for controlling testing
-#[derive(Parser)]
-struct Test {
-    /// Print debug info
-    #[clap(short)]
-    debug: bool
 }
 
 fn main() {
-    let opts: Opts = Opts::parse();
+    let args = Cli::parse();
 
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
-    println!("Value for config: {}", opts.config);
-    println!("Using input file: {}", opts.input);
+    println!("Value for config: {}", args.config.display());
+    println!("Using input file: {}", args.input);
 
     // Vary the output based on how many times the user used the "verbose" flag
     // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match opts.verbose {
+    match args.verbose {
         0 => println!("No verbose info"),
         1 => println!("Some verbose info"),
         2 => println!("Tons of verbose info"),
         _ => println!("Don't be ridiculous"),
     }
 
-    // You can handle information about subcommands by requesting their matches by name
-    // (as below), requesting just the name used, or both at the same time
-    match opts.subcmd {
-        SubCommand::Test(t) => {
-            if t.debug {
-                println!("Printing debug info...");
-            } else {
-                println!("Printing normally...");
-            }
-        }
-    }
-
     // more program logic goes here...
 }
 ```
-
-#### Using Builder Pattern
-
-This second method shows a method using the 'Builder Pattern' which allows more advanced configuration options (not shown in this small example), or even dynamically generating arguments when desired. The downside is it's more verbose.
-
-```rust,no_run
-// (Full example with detailed comments in examples/01b_quick_example.rs)
-//
-// This example demonstrates clap's "builder pattern" method of creating arguments
-// which the most flexible, but also most verbose.
-use clap::{Arg, App};
-
-fn main() {
-    let matches = App::new("My Super Program")
-        .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
-        .about("Does awesome things")
-        .arg(Arg::new("config")
-            .short('c')
-            .long("config")
-            .value_name("FILE")
-            .help("Sets a custom config file")
-            .takes_value(true))
-        .arg(Arg::new("INPUT")
-            .help("Sets the input file to use")
-            .required(true)
-            .index(1))
-        .arg(Arg::new("v")
-            .short('v')
-            .multiple_occurrences(true)
-            .takes_value(true)
-            .help("Sets the level of verbosity"))
-        .subcommand(App::new("test")
-            .about("controls testing features")
-            .version("1.3")
-            .author("Someone E. <someone_else@other.com>")
-            .arg(Arg::new("debug")
-                .short('d')
-                .help("print debug information verbosely")))
-        .get_matches();
-
-    // You can check the value provided by positional arguments, or option arguments
-    if let Some(i) = matches.value_of("INPUT") {
-        println!("Value for input: {}", i);
-    }
-
-    if let Some(c) = matches.value_of("config") {
-        println!("Value for config: {}", c);
-    }
-
-    // You can see how many times a particular flag or argument occurred
-    // Note, only flags can have multiple occurrences
-    match matches.occurrences_of("v") {
-        0 => println!("Verbose mode is off"),
-        1 => println!("Verbose mode is kind of on"),
-        2 => println!("Verbose mode is on"),
-        _ => println!("Don't be crazy"),
-    }
-
-    // You can check for the existence of subcommands, and if found use their
-    // matches just as you would the top level app
-    if let Some(ref matches) = matches.subcommand_matches("test") {
-        // "$ myapp test" was run
-        if matches.is_present("debug") {
-            // "$ myapp test -d" was run
-            println!("Printing debug info...");
-        } else {
-            println!("Printing normally...");
-        }
-    }
-
-    // Continued program logic goes here...
-}
-```
-
-The next example shows a far less verbose method, but sacrifices some of the advanced configuration options (not shown in this small example). This method also takes a *very* minor runtime penalty.
-
-```rust,no_run
-// (Full example with detailed comments in examples/01a_quick_example.rs)
-//
-// This example demonstrates clap's "usage strings" method of creating arguments
-// which is less verbose
-use clap::{App, arg};
-
-fn main() {
-    let matches = App::new("myapp")
-        .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
-        .about("Does awesome things")
-        .arg(arg!(-c --config <FILE> "Sets a custom config file").required(false))
-        .arg(arg!(<INPUT>            "Sets the input file to use"))
-        .arg(arg!(-v --verbose ...   "Sets the level of verbosity"))
-        .subcommand(App::new("test")
-            .about("controls testing features")
-            .version("1.3")
-            .author("Someone E. <someone_else@other.com>")
-            .arg(arg!(-d --debug "Print debug information")))
-        .get_matches();
-
-    // Same as previous example...
-}
-```
-
-#### Running it
-
-If you were to compile any of the above programs and run them with the flag `--help` or `-h` (or `help` subcommand, since we defined `test` as a subcommand) the following would be output (except the first example where the help message sort of explains the Rust code).
-
 ```bash
-$ myprog --help
-My Super Program 1.0
-Kevin K. <kbknapp@gmail.com>
-Does awesome things
+$ demo --help
+clap [..]
 
-ARGS:
-    INPUT    The input file to use
+Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
+A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    MyApp [OPTIONS] <INPUT> [SUBCOMMAND]
+    demo[EXE] [OPTIONS] <INPUT>
+
+ARGS:
+    <INPUT>    Some input. Because this isn't an Option<T> it's required to be used
 
 OPTIONS:
-    -c, --config <FILE>    Sets a custom config file
+    -c, --config <PATH>    Sets a custom config file. Could have been an Option<T> with no default
+                           too [default: default.toml]
     -h, --help             Print help information
-    -v                     Sets the level of verbosity
+    -v, --verbose          A level of verbosity, and can be used multiple times
     -V, --version          Print version information
-
-SUBCOMMANDS:
-    help    Print this message or the help of the given subcommand(s)
-    test    Controls testing features
 ```
+*(version number and `.exe` extension on windows replaced by placeholders)*
 
-**NOTE:** You could also run `myapp test --help` or `myapp help test` to see the help message for the `test` subcommand.
+### Aspirations
 
-## Try it!
+- Out of the box, users get a polished CLI experience
+  - Including common argument behavior, help generation, suggested fixes for users, colored output, [shell completions](https://github.com/clap-rs/clap/tree/master/clap_generate), etc
+- Flexible enough to port your existing CLI interface
+  - However, we won't necessarily streamline support for each use case
+- Reasonable parse performance
+- We will support the last two minor Rust releases (MSRV)
+- We follow semver and will wait about 6 months between major breaking changes
 
-### Pre-Built Test
+While these aspirations can be at odds with fast build times and low binary
+size, we will still strive to keep these reasonable.  Check out the
+[argparse-benchmarks](https://github.com/rust-cli/argparse-benchmarks-rs) for
+CLI parsers optimized for other use cases.
 
-To try out the pre-built [examples][examples], use the following steps:
+### Related Projects
 
-* Clone the repository `$ git clone https://github.com/clap-rs/clap && cd clap/`
-* Compile the example `$ cargo build --example <EXAMPLE>`
-* Run the help info `$ ./target/debug/examples/<EXAMPLE> --help`
-* Play with the arguments!
-* You can also do a onetime run via `$ cargo run --example <EXAMPLE> -- [args to example]`
+- [Command-line Apps for Rust](https://rust-cli.github.io/book/index.html) book
+- [`trycmd`](https://github.com/epage/trycmd):  Snapshot testing
+  - Or for more control, [`assert_cmd`](https://github.com/assert-rs/assert_cmd) and [`assert_fs`](https://github.com/assert-rs/assert_fs)
 
-### Build Your Own Binary
+## Feature Flags
 
-To test out `clap`'s default auto-generated help/version follow these steps:
-* Create a new cargo project `$ cargo new fake --bin && cd fake`
-* Write your program as described in the quick example section.
-* Build your program `$ cargo build --release`
-* Run with help or version `$ ./target/release/fake --help` or `$ ./target/release/fake --version`
-
-## Usage
-
-For full usage, add `clap` as a dependency in your `Cargo.toml` to use from crates.io:
-
-```toml
-[dependencies]
-clap = "3.0.0-beta.5"
-```
-
-Define a list of valid arguments for your program (see the [documentation][docs] or [examples][examples] directory of this repo)
-
-Then run `cargo build` or `cargo update && cargo build` for your project.
-
-### Optional Dependencies / Features
-
-Disabling optional features can decrease the binary size of `clap` and decrease the compile time. If binary size or compile times are extremely important to you, it is a good idea to disable the feautres that you are not using.
-
-#### Features enabled by default
+### Default Features
 
 * **std**: _Not Currently Used._ Placeholder for supporting `no_std` environments in a backwards compatible manner.
-* **color**: Turns on colored error messages. (builds dependency `atty`, `termcolor`)
-* **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos. (builds dependency `strsim`)
+* **color**: Turns on colored error messages.
+* **suggestions**: Turns on the `Did you mean '--myoption'?` feature for when users make typos.
 
-To disable these, add this to your `Cargo.toml`:
+#### Optional features
 
-```toml
-[dependencies.clap]
-version = "3.0.0-beta.5"
-default-features = false
-features = ["std"]
-```
-
-You can also selectively enable only the features you'd like to include, by adding:
-
-```toml
-[dependencies.clap]
-version = "3.0.0-beta.5"
-default-features = false
-
-# Cherry-pick the features you'd like to use
-features = ["std", "suggestions"]
-```
-
-#### Opt-in features
-
-* **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above. (builds dependency `clap_derive`)
+* **derive**: Enables the custom derive (i.e. `#[derive(Parser)]`). Without this you must use one of the other methods of creating a `clap` CLI listed above.
 * **cargo**: Turns on macros that read values from `CARGO_*` environment variables.
 * **env**: Turns on the usage of environment variables during parsing.
-* **regex**: Enables regex validators. (builds dependency `regex`)
-* **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages. (builds dependency `textwrap`, `unicase`)
-* **wrap_help**: Turns on the help text wrapping feature, based on the terminal size. (builds dependency `term-size`)
+* **regex**: Enables regex validators.
+* **unicode**: Turns on support for unicode characters (including emoji) in arguments and help messages.
+* **wrap_help**: Turns on the help text wrapping feature, based on the terminal size.
 
 #### Experimental features
 
-These features are opt-in. But be wary that they can contain breaking changes between minor releases.
+**Warning:** These may contain breaking changes between minor releases.
 
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
 * **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
-
-### More Information
-
-You can find complete documentation on the [docs.rs][docs] for this project.
-
-You can also find usage examples in the [examples][examples] directory of this repo.
-
-## Sponsors
-
-<!-- omit in TOC -->
-### Gold
-
-[![](https://opencollective.com/clap/tiers/gold.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
-
-<!-- omit in TOC -->
-### Silver
-
-[![](https://opencollective.com/clap/tiers/silver.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
-
-<!-- omit in TOC -->
-### Bronze
-
-[![](https://opencollective.com/clap/tiers/bronze.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
-
-<!-- omit in TOC -->
-### Backer
-
-[![](https://opencollective.com/clap/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
-
-## Contributing
-
-Details on how to contribute can be found in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
-
-### Compatibility Policy
-
-Because `clap` takes SemVer and compatibility seriously, this is the official policy regarding breaking changes and minimum required versions of Rust.
-
-`clap` will pin the minimum required version of Rust to the CI builds. Bumping the minimum version of Rust is considered a minor breaking change, meaning *at a minimum* the minor version of `clap` will be bumped.
-
-In order to keep from being surprised of breaking changes, it is **highly** recommended to use the `~major.minor.patch` style in your `Cargo.toml` only if you wish to target a version of Rust that is *older* than current stable minus two releases:
-
-```toml
-[dependencies]
-clap = "~3.0.0-beta.5"
-```
-
-This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.
-
-#### Minimum Supported Version of Rust (MSRV)
-
-The following is a list of the minimum required version of Rust to compile `clap` by our `MAJOR.MINOR` version number:
-
-|  clap  |  MSRV  |
-| :----: | :----: |
-| >=3.0  | 1.54.0 |
-| >=2.21 | 1.24.0 |
-| >=2.2  | 1.12.0 |
-| >=2.1  | 1.6.0  |
-| >=1.5  | 1.4.0  |
-| >=1.4  | 1.2.0  |
-| >=1.2  | 1.1.0  |
-| >=1.0  | 1.0.0  |
-
-#### Breaking Changes
-
-`clap` takes a similar policy to Rust and will bump the major version number upon breaking changes with only the following exceptions:
-
- * The breaking change is to fix a security concern
- * The breaking change is to be fixing a bug (i.e. relying on a bug as a feature)
- * The breaking change is a feature isn't used in the wild, or all users of said feature have given approval *prior* to the change
-
-## License
-
-`clap` is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
-
-See the [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) files in this repository for more information.
-
-## Related Crates
-
-There are several excellent crates which can be used with `clap`, I recommend checking them all out! If you've got a crate that would be a good fit to be used with `clap` open an issue and let me know, I'd love to add it!
-
-* [`assert_cmd`](https://github.com/assert-rs/assert_cmd) - This crate allows you test your CLIs in a very intuitive and functional way!
-
-[docs]: https://docs.rs/clap
-[examples]: https://github.com/clap-rs/clap/tree/master/examples
