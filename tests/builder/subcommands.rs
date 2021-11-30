@@ -1,4 +1,4 @@
-mod utils;
+use crate::utils;
 
 use clap::{arg, App, AppSettings, Arg, ErrorKind};
 

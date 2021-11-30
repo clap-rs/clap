@@ -1,5 +1,3 @@
-mod utils;
-
 use clap::{Arg, ArgSettings};
 
 #[test]

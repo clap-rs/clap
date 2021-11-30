@@ -1,4 +1,4 @@
-mod utils;
+use crate::utils;
 
 use std::io::Write;
 use std::str;

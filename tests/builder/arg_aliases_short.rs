@@ -1,4 +1,4 @@
-mod utils;
+use crate::utils;
 
 use clap::{arg, App, Arg};
 
@@ -10,9 +10,9 @@ USAGE:
     ct test [OPTIONS]
 
 OPTIONS:
-    -f, --flag         [aliases: v_flg, flag2, flg3]
+    -f, --flag         [aliases: flag1] [short aliases: a, b, 🦆]
     -h, --help         Print help information
-    -o, --opt <opt>    [aliases: visible]
+    -o, --opt <opt>    [short aliases: v]
     -V, --version      Print version information
 ";
 
@@ -31,16 +31,16 @@ OPTIONS:
 ";
 
 #[test]
-fn single_alias_of_option() {
+fn single_short_alias_of_option() {
     let a = App::new("single_alias")
         .arg(
             Arg::new("alias")
                 .long("alias")
                 .takes_value(true)
-                .help("single alias")
-                .alias("new-opt"),
+                .help("single short alias")
+                .short_alias('a'),
         )
-        .try_get_matches_from(vec!["", "--new-opt", "cool"]);
+        .try_get_matches_from(vec!["", "-a", "cool"]);
     assert!(a.is_ok());
     let a = a.unwrap();
     assert!(a.is_present("alias"));
@@ -48,13 +48,13 @@ fn single_alias_of_option() {
 }
 
 #[test]
-fn multiple_aliases_of_option() {
+fn multiple_short_aliases_of_option() {
     let a = App::new("multiple_aliases").arg(
         Arg::new("aliases")
             .long("aliases")
             .takes_value(true)
             .help("multiple aliases")
-            .aliases(&["alias1", "alias2", "alias3"]),
+            .short_aliases(&['1', '2', '3']),
     );
     let long = a
         .clone()
@@ -62,21 +62,15 @@ fn multiple_aliases_of_option() {
     assert!(long.is_ok());
     let long = long.unwrap();
 
-    let als1 = a
-        .clone()
-        .try_get_matches_from(vec!["", "--alias1", "value"]);
+    let als1 = a.clone().try_get_matches_from(vec!["", "-1", "value"]);
     assert!(als1.is_ok());
     let als1 = als1.unwrap();
 
-    let als2 = a
-        .clone()
-        .try_get_matches_from(vec!["", "--alias2", "value"]);
+    let als2 = a.clone().try_get_matches_from(vec!["", "-2", "value"]);
     assert!(als2.is_ok());
     let als2 = als2.unwrap();
 
-    let als3 = a
-        .clone()
-        .try_get_matches_from(vec!["", "--alias3", "value"]);
+    let als3 = a.clone().try_get_matches_from(vec!["", "-3", "value"]);
     assert!(als3.is_ok());
     let als3 = als3.unwrap();
 
@@ -91,49 +85,47 @@ fn multiple_aliases_of_option() {
 }
 
 #[test]
-fn single_alias_of_flag() {
+fn single_short_alias_of_flag() {
     let a = App::new("test")
-        .arg(Arg::new("flag").long("flag").alias("alias"))
-        .try_get_matches_from(vec!["", "--alias"]);
+        .arg(Arg::new("flag").long("flag").short_alias('f'))
+        .try_get_matches_from(vec!["", "-f"]);
     assert!(a.is_ok());
     let a = a.unwrap();
     assert!(a.is_present("flag"));
 }
 
 #[test]
-fn multiple_aliases_of_flag() {
-    let a = App::new("test").arg(Arg::new("flag").long("flag").aliases(&[
-        "invisible",
-        "set",
-        "of",
-        "cool",
-        "aliases",
-    ]));
+fn multiple_short_aliases_of_flag() {
+    let a = App::new("test").arg(
+        Arg::new("flag")
+            .long("flag")
+            .short_aliases(&['a', 'b', 'c', 'd', 'e']),
+    );
 
     let flag = a.clone().try_get_matches_from(vec!["", "--flag"]);
     assert!(flag.is_ok());
     let flag = flag.unwrap();
 
-    let inv = a.clone().try_get_matches_from(vec!["", "--invisible"]);
-    assert!(inv.is_ok());
-    let inv = inv.unwrap();
+    let als1 = a.clone().try_get_matches_from(vec!["", "-a"]);
+    assert!(als1.is_ok());
+    let als1 = als1.unwrap();
 
-    let cool = a.clone().try_get_matches_from(vec!["", "--cool"]);
-    assert!(cool.is_ok());
-    let cool = cool.unwrap();
+    let als2 = a.clone().try_get_matches_from(vec!["", "-b"]);
+    assert!(als2.is_ok());
+    let als2 = als2.unwrap();
 
-    let als = a.clone().try_get_matches_from(vec!["", "--aliases"]);
-    assert!(als.is_ok());
-    let als = als.unwrap();
+    let als3 = a.clone().try_get_matches_from(vec!["", "-c"]);
+    assert!(als3.is_ok());
+    let als3 = als3.unwrap();
 
     assert!(flag.is_present("flag"));
-    assert!(inv.is_present("flag"));
-    assert!(cool.is_present("flag"));
-    assert!(als.is_present("flag"));
+    assert!(als1.is_present("flag"));
+    assert!(als2.is_present("flag"));
+    assert!(als3.is_present("flag"));
 }
 
 #[test]
-fn alias_on_a_subcommand_option() {
+fn short_alias_on_a_subcommand_option() {
     let m = App::new("test")
         .subcommand(
             App::new("some").arg(
@@ -141,12 +133,16 @@ fn alias_on_a_subcommand_option() {
                     .short('t')
                     .long("test")
                     .takes_value(true)
-                    .alias("opt")
+                    .short_alias('o')
                     .help("testing testing"),
             ),
         )
-        .arg(Arg::new("other").long("other").aliases(&["o1", "o2", "o3"]))
-        .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
+        .arg(
+            Arg::new("other")
+                .long("other")
+                .short_aliases(&['1', '2', '3']),
+        )
+        .get_matches_from(vec!["test", "some", "-o", "awesome"]);
 
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();
@@ -155,7 +151,7 @@ fn alias_on_a_subcommand_option() {
 }
 
 #[test]
-fn invisible_arg_aliases_help_output() {
+fn invisible_short_arg_aliases_help_output() {
     let app = App::new("ct").author("Salim Afiune").subcommand(
         App::new("test")
             .about("Some help")
@@ -165,9 +161,9 @@ fn invisible_arg_aliases_help_output() {
                     .long("opt")
                     .short('o')
                     .takes_value(true)
-                    .aliases(&["invisible", "als1", "more"]),
+                    .short_aliases(&['a', 'b', 'c']),
             )
-            .arg(arg!(-f - -flag).aliases(&["unseeable", "flg1", "anyway"])),
+            .arg(arg!(-f - -flag).short_aliases(&['x', 'y', 'z'])),
     );
     assert!(utils::compare_output(
         app,
@@ -178,7 +174,7 @@ fn invisible_arg_aliases_help_output() {
 }
 
 #[test]
-fn visible_arg_aliases_help_output() {
+fn visible_short_arg_aliases_help_output() {
     let app = App::new("ct").author("Salim Afiune").subcommand(
         App::new("test")
             .about("Some help")
@@ -188,14 +184,15 @@ fn visible_arg_aliases_help_output() {
                     .long("opt")
                     .short('o')
                     .takes_value(true)
-                    .alias("invisible")
-                    .visible_alias("visible"),
+                    .short_alias('i')
+                    .visible_short_alias('v'),
             )
             .arg(
                 Arg::new("flg")
                     .long("flag")
                     .short('f')
-                    .visible_aliases(&["v_flg", "flag2", "flg3"]),
+                    .visible_alias("flag1")
+                    .visible_short_aliases(&['a', 'b', '🦆']),
             ),
     );
     assert!(utils::compare_output(

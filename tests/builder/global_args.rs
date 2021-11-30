@@ -1,5 +1,3 @@
-mod utils;
-
 use clap::{arg, App, Arg};
 
 #[test]

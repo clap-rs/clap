@@ -1,5 +1,3 @@
-mod utils;
-
 use clap::{App, Arg, ArgMatches};
 
 fn get_app() -> App<'static> {

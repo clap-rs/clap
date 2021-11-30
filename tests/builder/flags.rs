@@ -1,4 +1,4 @@
-mod utils;
+use crate::utils;
 use clap::{arg, App, Arg};
 
 const USE_FLAG_AS_ARGUMENT: &str =

@@ -4,7 +4,7 @@ use std::env;
 
 use clap::{App, Arg};
 
-mod utils;
+use crate::utils;
 
 static HIDE_ENV: &str = "ctest 0.1
 
