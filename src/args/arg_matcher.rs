@@ -1,14 +1,16 @@
 // Std
-use std::collections::hash_map::{Entry, Iter};
-use std::collections::HashMap;
-use std::ffi::OsStr;
-use std::mem;
-use std::ops::Deref;
+use std::{
+    collections::{
+        hash_map::{Entry, Iter},
+        HashMap,
+    },
+    ffi::OsStr,
+    mem,
+    ops::Deref,
+};
 
 // Internal
-use args::settings::ArgSettings;
-use args::AnyArg;
-use args::{ArgMatches, MatchedArg, SubCommand};
+use crate::args::{settings::ArgSettings, AnyArg, ArgMatches, MatchedArg, SubCommand};
 
 #[doc(hidden)]
 #[allow(missing_debug_implementations)]
@@ -142,7 +144,7 @@ impl<'a> ArgMatcher<'a> {
             mem::swap(&mut am.0, &mut sc.matches);
         }
 
-        for (name, matched_arg) in vals_map.into_iter() {
+        for (name, matched_arg) in vals_map.iter_mut() {
             self.0.args.insert(name, matched_arg.clone());
         }
     }
@@ -251,7 +253,7 @@ impl<'a> ArgMatcher<'a> {
                 };
             } else if let Some(num) = o.max_vals() {
                 debugln!("ArgMatcher::needs_more_vals: max_vals...{}", num);
-                return !((ma.vals.len() as u64) > num);
+                return (ma.vals.len() as u64) <= num;
             } else if o.min_vals().is_some() {
                 debugln!("ArgMatcher::needs_more_vals: min_vals...true");
                 return true;
@@ -262,6 +264,9 @@ impl<'a> ArgMatcher<'a> {
     }
 }
 
+// Not changing to From just to not deal with possible breaking changes on v2 since v3 is coming
+// in the future anyways
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::from_over_into))]
 impl<'a> Into<ArgMatches<'a>> for ArgMatcher<'a> {
     fn into(self) -> ArgMatches<'a> {
         self.0

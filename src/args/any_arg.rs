@@ -1,12 +1,16 @@
 // Std
-use std::ffi::{OsStr, OsString};
-use std::fmt as std_fmt;
-use std::rc::Rc;
+use std::{
+    ffi::{OsStr, OsString},
+    fmt as std_fmt,
+    rc::Rc,
+};
 
 // Internal
-use args::settings::ArgSettings;
-use map::{self, VecMap};
-use INTERNAL_ERROR_MSG;
+use crate::{
+    args::settings::ArgSettings,
+    map::{self, VecMap},
+    INTERNAL_ERROR_MSG,
+};
 
 #[doc(hidden)]
 pub trait AnyArg<'n, 'e>: std_fmt::Display {
@@ -16,14 +20,16 @@ pub trait AnyArg<'n, 'e>: std_fmt::Display {
     fn requires(&self) -> Option<&[(Option<&'e str>, &'n str)]>;
     fn blacklist(&self) -> Option<&[&'e str]>;
     fn required_unless(&self) -> Option<&[&'e str]>;
-    fn is_set(&self, ArgSettings) -> bool;
-    fn set(&mut self, ArgSettings);
+    fn is_set(&self, setting: ArgSettings) -> bool;
+    fn set(&mut self, setting: ArgSettings);
     fn has_switch(&self) -> bool;
     fn max_vals(&self) -> Option<u64>;
     fn min_vals(&self) -> Option<u64>;
     fn num_vals(&self) -> Option<u64>;
     fn possible_vals(&self) -> Option<&[&'e str]>;
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>>;
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> Result<(), OsString>>>;
     fn short(&self) -> Option<char>;
     fn long(&self) -> Option<&'e str>;
@@ -69,7 +75,7 @@ where
         (*self).is_set(a)
     }
     fn set(&mut self, _: ArgSettings) {
-        panic!(INTERNAL_ERROR_MSG)
+        panic!("{}", INTERNAL_ERROR_MSG)
     }
     fn has_switch(&self) -> bool {
         (*self).has_switch()
@@ -86,9 +92,11 @@ where
     fn possible_vals(&self) -> Option<&[&'e str]> {
         (*self).possible_vals()
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> Result<(), String>>> {
         (*self).validator()
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> Result<(), OsString>>> {
         (*self).validator_os()
     }

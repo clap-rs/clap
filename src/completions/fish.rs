@@ -2,7 +2,7 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
+use crate::app::parser::Parser;
 
 pub struct FishGen<'a, 'b>
 where
@@ -13,7 +13,7 @@ where
 
 impl<'a, 'b> FishGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        FishGen { p: p }
+        FishGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
@@ -66,7 +66,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buff
             template.push_str(format!(" -r -f -a \"{}\"", data.join(" ")).as_str());
         }
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     for flag in comp_gen.p.flags() {
@@ -81,7 +81,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buff
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     for subcommand in &comp_gen.p.subcommands {
@@ -92,7 +92,7 @@ fn gen_fish_inner(root_command: &str, comp_gen: &FishGen, subcommand: &str, buff
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str())
         }
         buffer.push_str(template.as_str());
-        buffer.push_str("\n");
+        buffer.push('\n');
     }
 
     // generate options of subcommands

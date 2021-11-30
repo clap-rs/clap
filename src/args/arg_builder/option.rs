@@ -1,14 +1,18 @@
 // Std
-use std::ffi::{OsStr, OsString};
-use std::fmt::{Display, Formatter, Result};
-use std::mem;
-use std::rc::Rc;
-use std::result::Result as StdResult;
+use std::{
+    ffi::{OsStr, OsString},
+    fmt::{Display, Formatter, Result},
+    mem,
+    rc::Rc,
+    result::Result as StdResult,
+};
 
 // Internal
-use args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued};
-use map::{self, VecMap};
-use INTERNAL_ERROR_MSG;
+use crate::{
+    args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched, Valued},
+    map::{self, VecMap},
+    INTERNAL_ERROR_MSG,
+};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -45,9 +49,9 @@ impl<'n, 'e> From<Arg<'n, 'e>> for OptBuilder<'n, 'e> {
     fn from(mut a: Arg<'n, 'e>) -> Self {
         a.v.fill_in();
         OptBuilder {
-            b: mem::replace(&mut a.b, Base::default()),
-            s: mem::replace(&mut a.s, Switched::default()),
-            v: mem::replace(&mut a.v, Valued::default()),
+            b: mem::take(&mut a.b),
+            s: mem::take(&mut a.s),
+            v: mem::take(&mut a.v),
         }
     }
 }
@@ -153,9 +157,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for OptBuilder<'n, 'e> {
     fn possible_vals(&self) -> Option<&[&'e str]> {
         self.v.possible_vals.as_ref().map(|o| &o[..])
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
         self.v.validator_os.as_ref()
     }
@@ -227,8 +233,7 @@ impl<'n, 'e> PartialEq for OptBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use super::OptBuilder;
-    use args::settings::ArgSettings;
-    use map::VecMap;
+    use crate::{args::settings::ArgSettings, map::VecMap};
 
     #[test]
     fn optbuilder_display1() {

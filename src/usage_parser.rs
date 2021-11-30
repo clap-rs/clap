@@ -1,8 +1,9 @@
 // Internal
-use args::settings::ArgSettings;
-use args::Arg;
-use map::VecMap;
-use INTERNAL_ERROR_MSG;
+use crate::{
+    args::{settings::ArgSettings, Arg},
+    map::VecMap,
+    INTERNAL_ERROR_MSG,
+};
 
 #[derive(PartialEq, Debug)]
 enum UsageToken {
@@ -29,7 +30,7 @@ impl<'a> UsageParser<'a> {
     fn new(usage: &'a str) -> Self {
         debugln!("UsageParser::new: usage={:?}", usage);
         UsageParser {
-            usage: usage,
+            usage,
             pos: 0,
             start: 0,
             prev: UsageToken::Unknown,
@@ -61,10 +62,8 @@ impl<'a> UsageParser<'a> {
         }
         debug_assert!(
             !arg.b.name.is_empty(),
-            format!(
-                "No name found for Arg when parsing usage string: {}",
-                self.usage
-            )
+            "No name found for Arg when parsing usage string: {}",
+            self.usage
         );
         arg.v.num_vals = match arg.v.val_names {
             Some(ref v) if v.len() >= 2 => Some(v.len() as u64),
@@ -157,7 +156,7 @@ impl<'a> UsageParser<'a> {
     fn short(&mut self, arg: &mut Arg<'a, 'a>) {
         debugln!("UsageParser::short;");
         let start = &self.usage[self.pos..];
-        let short = start.chars().nth(0).expect(INTERNAL_ERROR_MSG);
+        let short = start.chars().next().expect(INTERNAL_ERROR_MSG);
         debugln!("UsageParser::short: setting short...{}", short);
         arg.s.short = Some(short);
         if arg.b.name.is_empty() {
@@ -232,8 +231,7 @@ fn help_start(b: u8) -> bool {
 
 #[cfg(test)]
 mod test {
-    use args::Arg;
-    use args::ArgSettings;
+    use crate::args::{Arg, ArgSettings};
 
     #[test]
     fn create_flag_usage() {

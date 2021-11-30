@@ -1,16 +1,19 @@
 // Std
-use std::borrow::Cow;
-use std::ffi::{OsStr, OsString};
-use std::fmt::{Display, Formatter, Result};
-use std::mem;
-use std::rc::Rc;
-use std::result::Result as StdResult;
+use std::{
+    borrow::Cow,
+    ffi::{OsStr, OsString},
+    fmt::{Display, Formatter, Result},
+    mem,
+    rc::Rc,
+    result::Result as StdResult,
+};
 
 // Internal
-use args::{AnyArg, ArgSettings, Base, DispOrder, Valued};
-use map::{self, VecMap};
-use Arg;
-use INTERNAL_ERROR_MSG;
+use crate::{
+    args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Valued},
+    map::{self, VecMap},
+    INTERNAL_ERROR_MSG,
+};
 
 #[allow(missing_debug_implementations)]
 #[doc(hidden)]
@@ -56,8 +59,8 @@ impl<'n, 'e> PosBuilder<'n, 'e> {
             a.b.settings.set(ArgSettings::Multiple);
         }
         PosBuilder {
-            b: mem::replace(&mut a.b, Base::default()),
-            v: mem::replace(&mut a.v, Valued::default()),
+            b: mem::take(&mut a.b),
+            v: mem::take(&mut a.v),
             index: idx,
         }
     }
@@ -174,9 +177,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for PosBuilder<'n, 'e> {
     fn possible_vals(&self) -> Option<&[&'e str]> {
         self.v.possible_vals.as_ref().map(|o| &o[..])
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         self.v.validator.as_ref()
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
         self.v.validator_os.as_ref()
     }
@@ -236,8 +241,7 @@ impl<'n, 'e> PartialEq for PosBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use super::PosBuilder;
-    use args::settings::ArgSettings;
-    use map::VecMap;
+    use crate::{args::settings::ArgSettings, map::VecMap};
 
     #[test]
     fn display_mult() {

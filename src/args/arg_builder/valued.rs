@@ -1,9 +1,9 @@
-use std::ffi::{OsStr, OsString};
-use std::rc::Rc;
+use std::{
+    ffi::{OsStr, OsString},
+    rc::Rc,
+};
 
-use map::VecMap;
-
-use Arg;
+use crate::{map::VecMap, Arg};
 
 #[allow(missing_debug_implementations)]
 #[derive(Clone)]
@@ -16,10 +16,13 @@ where
     pub num_vals: Option<u64>,
     pub max_vals: Option<u64>,
     pub min_vals: Option<u64>,
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     pub validator: Option<Rc<Fn(String) -> Result<(), String>>>,
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     pub validator_os: Option<Rc<Fn(&OsStr) -> Result<(), OsString>>>,
     pub val_delim: Option<char>,
     pub default_val: Option<&'b OsStr>,
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     pub default_vals_ifs: Option<VecMap<(&'a str, Option<&'b OsStr>, &'b OsStr)>>,
     pub env: Option<(&'a OsStr, Option<OsString>)>,
     pub terminator: Option<&'b str>,

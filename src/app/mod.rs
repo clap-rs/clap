@@ -6,27 +6,30 @@ mod usage;
 mod validator;
 
 // Std
-use std::env;
-use std::ffi::{OsStr, OsString};
-use std::fmt;
-use std::io::{self, BufRead, BufWriter, Write};
-use std::path::Path;
-use std::process;
-use std::rc::Rc;
 use std::result::Result as StdResult;
+use std::{
+    env,
+    ffi::{OsStr, OsString},
+    fmt,
+    io::{self, BufRead, BufWriter, Write},
+    path::Path,
+    process,
+    rc::Rc,
+};
 
 // Third Party
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
 // Internal
-pub use self::settings::AppSettings;
-use app::help::Help;
-use app::parser::Parser;
-use args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings};
-use completions::Shell;
-use errors::Result as ClapResult;
-use map::{self, VecMap};
+use crate::errors::Result as ClapResult;
+use crate::{
+    app::{help::Help, parser::Parser},
+    args::{AnyArg, Arg, ArgGroup, ArgMatcher, ArgMatches, ArgSettings},
+    completions::Shell,
+    map::{self, VecMap},
+};
+pub use settings::AppSettings;
 
 /// Used to create a representation of a command line program and all possible command line
 /// arguments. Application settings are set using the "builder pattern" with the
@@ -90,7 +93,7 @@ impl<'a, 'b> App<'a, 'b> {
 
     /// Get the name of the binary
     pub fn get_bin_name(&self) -> Option<&str> {
-        self.p.meta.bin_name.as_ref().map(|s| s.as_str())
+        self.p.meta.bin_name.as_deref()
     }
 
     /// Creates a new instance of an application requiring a name, but uses the [`crate_authors!`]
@@ -1640,7 +1643,7 @@ impl<'a, 'b> App<'a, 'b> {
             return Err(e);
         }
 
-        let global_arg_vec: Vec<&str> = (&self).p.global_args.iter().map(|ga| ga.b.name).collect();
+        let global_arg_vec: Vec<&str> = self.p.global_args.iter().map(|ga| ga.b.name).collect();
         matcher.propagate_globals(&global_arg_vec);
 
         Ok(matcher.into())
@@ -1650,7 +1653,7 @@ impl<'a, 'b> App<'a, 'b> {
 #[cfg(feature = "yaml")]
 impl<'a> From<&'a Yaml> for App<'a, 'a> {
     fn from(mut yaml: &'a Yaml) -> Self {
-        use args::SubCommand;
+        use crate::args::SubCommand;
         // We WANT this to panic on error...so expect() is good.
         let mut is_sc = None;
         let mut a = if let Some(name) = yaml["name"].as_str() {
@@ -1841,9 +1844,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for App<'n, 'e> {
     fn possible_vals(&self) -> Option<&[&'e str]> {
         None
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         None
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
         None
     }

@@ -1,4 +1,4 @@
-use args::{Arg, ArgFlags, ArgSettings};
+use crate::args::{Arg, ArgFlags, ArgSettings};
 
 #[derive(Debug, Clone, Default)]
 pub struct Base<'a, 'b>
@@ -19,7 +19,7 @@ where
 impl<'n, 'e> Base<'n, 'e> {
     pub fn new(name: &'n str) -> Self {
         Base {
-            name: name,
+            name,
             ..Default::default()
         }
     }

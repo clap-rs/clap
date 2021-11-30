@@ -2,9 +2,11 @@
 use std::io::Write;
 
 // Internal
-use app::parser::Parser;
-use args::OptBuilder;
-use completions;
+use crate::{
+    app::parser::Parser,
+    args::{AnyArg, OptBuilder},
+    completions,
+};
 
 pub struct BashGen<'a, 'b>
 where
@@ -15,7 +17,7 @@ where
 
 impl<'a, 'b> BashGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        BashGen { p: p }
+        BashGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
@@ -123,7 +125,7 @@ complete -F _{name} -o bashdefault -o default {name}
                 subcmd_dets,
                 subcmd = sc.replace("-", "__"),
                 sc_opts = self.all_options_for_path(&*sc),
-                level = sc.split("__").map(|_| 1).fold(0, |acc, n| acc + n),
+                level = sc.split("__").count(),
                 opts_details = self.option_details_for_path(&*sc)
             );
         }
@@ -170,7 +172,6 @@ complete -F _{name} -o bashdefault -o default {name}
 
     fn vals_for(&self, o: &OptBuilder) -> String {
         debugln!("BashGen::vals_for: o={}", o.b.name);
-        use args::AnyArg;
         if let Some(vals) = o.possible_vals() {
             format!(r#"$(compgen -W "{}" -- "${{cur}}")"#, vals.join(" "))
         } else {

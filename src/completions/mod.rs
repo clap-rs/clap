@@ -11,13 +11,13 @@ mod zsh;
 use std::io::Write;
 
 // Internal
-use self::bash::BashGen;
-use self::elvish::ElvishGen;
-use self::fish::FishGen;
-use self::powershell::PowerShellGen;
-pub use self::shell::Shell;
-use self::zsh::ZshGen;
-use app::parser::Parser;
+pub use crate::completions::shell::Shell;
+use crate::{
+    app::parser::Parser,
+    completions::{
+        bash::BashGen, elvish::ElvishGen, fish::FishGen, powershell::PowerShellGen, zsh::ZshGen,
+    },
+};
 
 pub struct ComplGen<'a, 'b>
 where
@@ -28,7 +28,7 @@ where
 
 impl<'a, 'b> ComplGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
-        ComplGen { p: p }
+        ComplGen { p }
     }
 
     pub fn generate<W: Write>(&self, for_shell: Shell, buf: &mut W) {

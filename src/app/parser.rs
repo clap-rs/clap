@@ -1,43 +1,39 @@
 // Std
-#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
-use osstringext::OsStrExt3;
-use std::cell::Cell;
-use std::ffi::{OsStr, OsString};
-use std::fmt::Display;
-use std::fs::File;
-use std::io::{self, BufWriter, Write};
-use std::iter::Peekable;
-#[cfg(all(
-    feature = "debug",
-    not(any(target_os = "windows", target_arch = "wasm32"))
-))]
+#[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
-use std::path::PathBuf;
-use std::slice::Iter;
+use std::{
+    cell::Cell,
+    ffi::{OsStr, OsString},
+    fmt::Display,
+    fs::File,
+    io::{self, BufWriter, Write},
+    iter::Peekable,
+    path::PathBuf,
+    slice::Iter,
+};
 
 // Internal
-use app::help::Help;
-use app::meta::AppMeta;
-use app::settings::AppFlags;
-use app::settings::AppSettings as AS;
-use app::usage;
-use app::validator::Validator;
-use app::App;
-use args::settings::ArgSettings;
-use args::{
-    AnyArg, Arg, ArgGroup, ArgMatcher, Base, FlagBuilder, OptBuilder, PosBuilder, Switched,
+#[cfg(all(feature = "debug", any(target_os = "windows", target_arch = "wasm32")))]
+use crate::osstringext::OsStrExt3;
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+use crate::osstringext::OsStrExt3;
+use crate::{
+    app::{
+        help::Help, meta::AppMeta, settings::AppFlags, settings::AppSettings as AS, usage,
+        validator::Validator, App,
+    },
+    args::{
+        settings::ArgSettings, AnyArg, Arg, ArgGroup, ArgMatcher, Base, FlagBuilder, OptBuilder,
+        PosBuilder, Switched,
+    },
+    completions::{ComplGen, Shell},
+    errors::Result as ClapResult,
+    errors::{Error, ErrorKind},
+    fmt::ColorWhen,
+    map::{self, VecMap},
+    osstringext::OsStrExt2,
+    suggestions, SubCommand, INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
-use completions::ComplGen;
-use completions::Shell;
-use errors::Result as ClapResult;
-use errors::{Error, ErrorKind};
-use fmt::ColorWhen;
-use map::{self, VecMap};
-use osstringext::OsStrExt2;
-use suggestions;
-use SubCommand;
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[doc(hidden)]
@@ -95,7 +91,7 @@ where
         let c = s
             .trim_left_matches(|c| c == '-')
             .chars()
-            .nth(0)
+            .next()
             .unwrap_or('h');
         self.help_short = Some(c);
     }
@@ -104,7 +100,7 @@ where
         let c = s
             .trim_left_matches(|c| c == '-')
             .chars()
-            .nth(0)
+            .next()
             .unwrap_or('V');
         self.version_short = Some(c);
     }
@@ -180,7 +176,8 @@ where
     fn debug_asserts(&self, a: &Arg) -> bool {
         assert!(
             !arg_names!(self).any(|name| name == a.b.name),
-            format!("Non-unique argument name: {} is already in use", a.b.name)
+            "Non-unique argument name: {} is already in use",
+            a.b.name
         );
         if let Some(l) = a.s.long {
             assert!(
@@ -425,7 +422,6 @@ where
         }
     }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     pub fn derive_display_order(&mut self) {
         if self.is_set(AS::DeriveDisplayOrder) {
             let unified = self.is_set(AS::UnifiedHelpMessage);
@@ -463,7 +459,6 @@ where
         self.required.iter()
     }
 
-    #[cfg_attr(feature = "lints", allow(needless_borrow))]
     #[inline]
     pub fn has_args(&self) -> bool {
         !(self.flags.is_empty() && self.opts.is_empty() && self.positionals.is_empty())
@@ -540,7 +535,6 @@ where
         self.settings.unset(s)
     }
 
-    #[cfg_attr(feature = "lints", allow(block_in_if_condition_stmt))]
     pub fn verify_positionals(&self) -> bool {
         // Because you must wait until all arguments have been supplied, this is the first chance
         // to make assertions on positional argument indexes
@@ -602,10 +596,10 @@ where
             );
         }
 
+        let mut found = false;
         if self.is_set(AS::AllowMissingPositional) {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required.
-            let mut found = false;
             let mut foundx2 = false;
             for p in self.positionals.values().rev() {
                 if foundx2 && !p.b.settings.is_set(ArgSettings::Required) {
@@ -637,7 +631,6 @@ where
         } else {
             // Check that if a required positional argument is found, all positions with a lower
             // index are also required
-            let mut found = false;
             for p in self.positionals.values().rev() {
                 if found {
                     assert!(
@@ -690,10 +683,6 @@ where
 
     // Checks if the arg matches a subcommand name, or any of it's aliases (if defined)
     fn possible_subcommand(&self, arg_os: &OsStr) -> (bool, Option<&str>) {
-        #[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-        use osstringext::OsStrExt3;
-        #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
-        use std::os::unix::ffi::OsStrExt;
         debugln!("Parser::possible_subcommand: arg={:?}", arg_os);
         fn starts(h: &str, n: &OsStr) -> bool {
             let n_bytes = n.as_bytes();
@@ -866,7 +855,7 @@ where
         } else if arg_os.starts_with(b"-") {
             debugln!("Parser::is_new_arg: - found");
             // a singe '-' by itself is a value and typically means "stdin" on unix systems
-            !(arg_os.len() == 1)
+            arg_os.len() != 1
         } else {
             debugln!("Parser::is_new_arg: probably value");
             false
@@ -879,7 +868,10 @@ where
     }
 
     // The actual parsing function
-    #[cfg_attr(feature = "lints", allow(while_let_on_iterator, collapsible_if))]
+    #[cfg_attr(
+        feature = "cargo-clippy",
+        allow(clippy::while_let_on_iterator, clippy::nonminimal_bool)
+    )]
     pub fn get_matches_with<I, T>(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1011,19 +1003,17 @@ where
                             _ => (),
                         }
                     }
-                } else {
-                    if let ParseResult::Opt(name) = needs_val_of {
-                        // Check to see if parsing a value from a previous arg
-                        let arg = self
-                            .opts
-                            .iter()
-                            .find(|o| o.b.name == name)
-                            .expect(INTERNAL_ERROR_MSG);
-                        // get the OptBuilder so we can check the settings
-                        needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
-                        // get the next value from the iterator
-                        continue;
-                    }
+                } else if let ParseResult::Opt(name) = needs_val_of {
+                    // Check to see if parsing a value from a previous arg
+                    let arg = self
+                        .opts
+                        .iter()
+                        .find(|o| o.b.name == name)
+                        .expect(INTERNAL_ERROR_MSG);
+                    // get the OptBuilder so we can check the settings
+                    needs_val_of = self.add_val_to_arg(arg, &arg_os, matcher)?;
+                    // get the next value from the iterator
+                    continue;
                 }
             }
 
@@ -1122,7 +1112,7 @@ where
                 matcher.inc_occurrence_of(p.b.name);
                 let _ = self
                     .groups_for_arg(p.b.name)
-                    .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+                    .map(|vec| matcher.inc_occurrences_of(&*vec));
 
                 self.settings.set(AS::ValidArgFound);
                 // Only increment the positional counter if it doesn't allow multiples
@@ -1147,6 +1137,8 @@ where
 
                 // Collect the external subcommand args
                 let mut sc_m = ArgMatcher::new();
+                // Due to borrow rules, this has to be a while let...
+                #[cfg_attr(feature = "cargo-clippy", allow(clippy::while_let_on_iterator))]
                 while let Some(v) = it.next() {
                     let a = v.into();
                     if a.to_str().is_none() && !self.is_set(AS::StrictUtf8) {
@@ -1345,7 +1337,7 @@ where
                 write!(&mut mid_string, " {}", s).expect(INTERNAL_ERROR_MSG);
             }
         }
-        mid_string.push_str(" ");
+        mid_string.push(' ');
         if let Some(ref mut sc) = self
             .subcommands
             .iter_mut()
@@ -1462,7 +1454,7 @@ where
             }
         }
 
-        args.iter().map(|s| *s).collect()
+        args.iter().copied().collect()
     }
 
     pub fn create_help_and_version(&mut self) {
@@ -1677,7 +1669,7 @@ where
 
         debugln!("Parser::parse_long_arg: Didn't match anything");
 
-        let args_rest: Vec<_> = it.map(|x| x.clone().into()).collect();
+        let args_rest: Vec<_> = it.map(|x| x.into()).collect();
         let args_rest2: Vec<_> = args_rest
             .iter()
             .map(|x| x.to_str().expect(INVALID_UTF8))
@@ -1686,7 +1678,6 @@ where
             .map(|_| ParseResult::NotFound)
     }
 
-    #[cfg_attr(feature = "lints", allow(len_zero))]
     fn parse_short_arg(
         &mut self,
         matcher: &mut ArgMatcher<'a>,
@@ -1736,7 +1727,7 @@ where
                     p[1].as_bytes()
                 );
                 let i = p[0].as_bytes().len() + 1;
-                let val = if p[1].as_bytes().len() > 0 {
+                let val = if !p[1].as_bytes().is_empty() {
                     debugln!(
                         "Parser::parse_short_arg:iter:{}: val={:?} (bytes), val={:?} (ascii)",
                         c,
@@ -1800,7 +1791,7 @@ where
         if let Some(fv) = val {
             has_eq = fv.starts_with(&[b'=']) || had_eq;
             let v = fv.trim_left_matches(b'=');
-            if !empty_vals && (v.len() == 0 || (needs_eq && !has_eq)) {
+            if !empty_vals && (v.is_empty() || (needs_eq && !has_eq)) {
                 sdebugln!("Found Empty - Error");
                 return Err(Error::empty_value(
                     opt,
@@ -1828,8 +1819,9 @@ where
 
         matcher.inc_occurrence_of(opt.b.name);
         // Increment or create the group "args"
-        self.groups_for_arg(opt.b.name)
-            .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        if let Some(vec) = self.groups_for_arg(opt.b.name) {
+            matcher.inc_occurrences_of(&*vec);
+        }
 
         let needs_delim = opt.is_set(ArgSettings::RequireDelimiter);
         let mult = opt.is_set(ArgSettings::Multiple);
@@ -1934,8 +1926,9 @@ where
         matcher.add_index_to(flag.b.name, self.cur_idx.get());
 
         // Increment or create the group "args"
-        self.groups_for_arg(flag.b.name)
-            .and_then(|vec| Some(matcher.inc_occurrences_of(&*vec)));
+        if let Some(vec) = self.groups_for_arg(flag.b.name) {
+            matcher.inc_occurrences_of(&*vec);
+        }
 
         Ok(ParseResult::Flag)
     }
@@ -1948,17 +1941,19 @@ where
     ) -> ClapResult<()> {
         // Didn't match a flag or option
         let suffix =
-            suggestions::did_you_mean_flag_suffix(arg, &args_rest, longs!(self), &self.subcommands);
+            suggestions::did_you_mean_flag_suffix(arg, args_rest, longs!(self), &self.subcommands);
 
         // Add the arg to the matches to build a proper usage string
         if let Some(name) = suffix.1 {
             if let Some(opt) = find_opt_by_long!(self, name) {
-                self.groups_for_arg(&*opt.b.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*opt.b.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
                 matcher.insert(&*opt.b.name);
             } else if let Some(flg) = find_flag_by_long!(self, name) {
-                self.groups_for_arg(&*flg.b.name)
-                    .and_then(|grps| Some(matcher.inc_occurrences_of(&*grps)));
+                if let Some(grps) = self.groups_for_arg(&*flg.b.name) {
+                    matcher.inc_occurrences_of(&*grps);
+                }
                 matcher.insert(&*flg.b.name);
             }
         }
@@ -2183,7 +2178,7 @@ where
         self.meta
             .bin_name
             .as_ref()
-            .and_then(|name| Some(value == name))
+            .map(|name| value == name)
             .unwrap_or(false)
     }
 
@@ -2192,13 +2187,13 @@ where
         self.meta
             .aliases
             .as_ref()
-            .and_then(|aliases| {
+            .map(|aliases| {
                 for alias in aliases {
                     if alias.0 == value {
-                        return Some(true);
+                        return true;
                     }
                 }
-                Some(false)
+                false
             })
             .unwrap_or(false)
     }

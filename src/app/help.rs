@@ -1,26 +1,29 @@
 // Std
-use std::borrow::Cow;
-use std::cmp;
-use std::collections::BTreeMap;
-use std::fmt::Display;
-use std::io::{self, Cursor, Read, Write};
-use std::usize;
-
-// Internal
-use app::parser::Parser;
-use app::usage;
-use app::{App, AppSettings};
-use args::{AnyArg, ArgSettings, DispOrder};
-use errors::{Error, Result as ClapResult};
-use fmt::{Colorizer, ColorizerOption, Format};
-use map::VecMap;
-use INTERNAL_ERROR_MSG;
+use std::{
+    borrow::Cow,
+    cmp,
+    collections::BTreeMap,
+    fmt::Display,
+    io::{self, Cursor, Read, Write},
+    usize,
+};
 
 // Third Party
 #[cfg(feature = "wrap_help")]
 use term_size;
+#[cfg(feature = "wrap_help")]
 use textwrap;
 use unicode_width::UnicodeWidthStr;
+
+// Internal
+use crate::{
+    app::{parser::Parser, usage, App, AppSettings},
+    args::{AnyArg, ArgSettings, DispOrder},
+    errors::{Error, Result as ClapResult},
+    fmt::{Colorizer, ColorizerOption, Format},
+    map::VecMap,
+    INTERNAL_ERROR_MSG,
+};
 
 #[cfg(not(feature = "wrap_help"))]
 mod term_size {
@@ -33,7 +36,7 @@ fn str_width(s: &str) -> usize {
     UnicodeWidthStr::width(s)
 }
 
-const TAB: &'static str = "    ";
+const TAB: &str = "    ";
 
 // These are just convenient traits to make the code easier to read.
 trait ArgWithDisplay<'b, 'c>: AnyArg<'b, 'c> + Display {}
@@ -96,7 +99,7 @@ pub struct Help<'a> {
 // Public Functions
 impl<'a> Help<'a> {
     /// Create a new `Help` instance.
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub fn new(
         w: &'a mut Write,
         next_line_help: bool,
@@ -110,8 +113,8 @@ impl<'a> Help<'a> {
         debugln!("Help::new;");
         Help {
             writer: w,
-            next_line_help: next_line_help,
-            hide_pv: hide_pv,
+            next_line_help,
+            hide_pv,
             term_w: match term_w {
                 Some(width) => {
                     if width == 0 {
@@ -128,11 +131,11 @@ impl<'a> Help<'a> {
                     },
                 ),
             },
-            color: color,
-            cizer: cizer,
+            color,
+            cizer,
             longest: 0,
             force_next_line: false,
-            use_long: use_long,
+            use_long,
         }
     }
 
@@ -492,7 +495,7 @@ impl<'a> Help<'a> {
             write!(self.writer, "{}", part)?;
         }
         for part in help.lines().skip(1) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
             if nlh || self.force_next_line {
                 write!(self.writer, "{}{}{}", TAB, TAB, TAB)?;
             } else if arg.has_switch() {
@@ -503,7 +506,7 @@ impl<'a> Help<'a> {
             write!(self.writer, "{}", part)?;
         }
         if !help.contains('\n') && (nlh || self.force_next_line) {
-            write!(self.writer, "\n")?;
+            writeln!(self.writer)?;
         }
         Ok(())
     }
@@ -590,8 +593,6 @@ fn should_show_arg(use_long: bool, arg: &ArgWithOrder) -> bool {
 impl<'a> Help<'a> {
     /// Writes help for all arguments (options, flags, args, subcommands)
     /// including titles of a Parser Object to the wrapped stream.
-    #[cfg_attr(feature = "lints", allow(useless_let_if_seq))]
-    #[cfg_attr(feature = "cargo-clippy", allow(useless_let_if_seq))]
     pub fn write_all_args(&mut self, parser: &Parser) -> ClapResult<()> {
         debugln!("Help::write_all_args;");
         let flags = parser.has_flags();

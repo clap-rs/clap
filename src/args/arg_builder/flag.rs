@@ -1,15 +1,18 @@
 // Std
-use std::convert::From;
-use std::ffi::{OsStr, OsString};
-use std::fmt::{Display, Formatter, Result};
-use std::mem;
-use std::rc::Rc;
-use std::result::Result as StdResult;
+use std::{
+    convert::From,
+    ffi::{OsStr, OsString},
+    fmt::{Display, Formatter, Result},
+    mem,
+    rc::Rc,
+    result::Result as StdResult,
+};
 
 // Internal
-use args::{AnyArg, ArgSettings, Base, DispOrder, Switched};
-use map::{self, VecMap};
-use Arg;
+use crate::{
+    args::{AnyArg, Arg, ArgSettings, Base, DispOrder, Switched},
+    map::{self, VecMap},
+};
 
 #[derive(Default, Clone, Debug)]
 #[doc(hidden)]
@@ -42,8 +45,8 @@ impl<'a, 'b, 'z> From<&'z Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
 impl<'a, 'b> From<Arg<'a, 'b>> for FlagBuilder<'a, 'b> {
     fn from(mut a: Arg<'a, 'b>) -> Self {
         FlagBuilder {
-            b: mem::replace(&mut a.b, Base::default()),
-            s: mem::replace(&mut a.s, Switched::default()),
+            b: mem::take(&mut a.b),
+            s: mem::take(&mut a.s),
         }
     }
 }
@@ -100,9 +103,11 @@ impl<'n, 'e> AnyArg<'n, 'e> for FlagBuilder<'n, 'e> {
     fn possible_vals(&self) -> Option<&[&'e str]> {
         None
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator(&self) -> Option<&Rc<Fn(String) -> StdResult<(), String>>> {
         None
     }
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
     fn validator_os(&self) -> Option<&Rc<Fn(&OsStr) -> StdResult<(), OsString>>> {
         None
     }
@@ -171,7 +176,7 @@ impl<'n, 'e> PartialEq for FlagBuilder<'n, 'e> {
 #[cfg(test)]
 mod test {
     use super::FlagBuilder;
-    use args::settings::ArgSettings;
+    use crate::args::settings::ArgSettings;
 
     #[test]
     fn flagbuilder_display() {

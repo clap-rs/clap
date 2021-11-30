@@ -2,11 +2,11 @@
 use std::collections::{BTreeMap, VecDeque};
 
 // Internal
-use app::parser::Parser;
-use app::settings::AppSettings as AS;
-use args::settings::ArgSettings;
-use args::{AnyArg, ArgMatcher, PosBuilder};
-use INTERNAL_ERROR_MSG;
+use crate::{
+    app::{parser::Parser, settings::AppSettings as AS},
+    args::{settings::ArgSettings, AnyArg, ArgMatcher, PosBuilder},
+    INTERNAL_ERROR_MSG,
+};
 
 // Creates a usage string for display. This happens just after all arguments were parsed, but before
 // any subcommands have been parsed (so as to give subcommands their own usage recursively)
@@ -36,7 +36,7 @@ pub fn create_error_usage<'a, 'b>(
                 true // flags can't be required, so they're always true
             }
         })
-        .map(|&n| n)
+        .copied()
         .collect();
     if let Some(r) = extra {
         args.push(r);
@@ -67,7 +67,7 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     usage.push_str(&*name);
     let req_string = if incl_reqs {
         let mut reqs: Vec<&str> = p.required().map(|r| &**r).collect();
-        reqs.sort();
+        reqs.sort_unstable();
         reqs.dedup();
         get_required_usage_from(p, &reqs, None, None, false)
             .iter()
@@ -134,10 +134,10 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
                 usage.push_str(" [-- <");
             }
             usage.push_str(&*pos.name_no_brackets());
-            usage.push_str(">");
+            usage.push('>');
             usage.push_str(pos.multiple_str());
             if !req {
-                usage.push_str("]");
+                usage.push(']');
             }
         }
     }
@@ -145,15 +145,13 @@ pub fn create_help_usage(p: &Parser, incl_reqs: bool) -> String {
     // incl_reqs is only false when this function is called recursively
     if p.has_visible_subcommands() && incl_reqs || p.is_set(AS::AllowExternalSubcommands) {
         if p.is_set(AS::SubcommandsNegateReqs) || p.is_set(AS::ArgsNegateSubcommands) {
+            usage.push_str("\n    ");
             if !p.is_set(AS::ArgsNegateSubcommands) {
-                usage.push_str("\n    ");
                 usage.push_str(&*create_help_usage(p, false));
-                usage.push_str(" <SUBCOMMAND>");
             } else {
-                usage.push_str("\n    ");
                 usage.push_str(&*name);
-                usage.push_str(" <SUBCOMMAND>");
             }
+            usage.push_str(" <SUBCOMMAND>");
         } else if p.is_set(AS::SubcommandRequired) || p.is_set(AS::SubcommandRequiredElseHelp) {
             usage.push_str(" <SUBCOMMAND>");
         } else {
@@ -415,7 +413,7 @@ pub fn get_required_usage_from<'a, 'b>(
         }
     }
     desc_reqs.extend_from_slice(reqs);
-    desc_reqs.sort();
+    desc_reqs.sort_unstable();
     desc_reqs.dedup();
     debugln!(
         "usage::get_required_usage_from: final desc_reqs={:?}",

@@ -1,4 +1,4 @@
-use Arg;
+use crate::Arg;
 
 #[derive(Debug)]
 pub struct Switched<'b> {

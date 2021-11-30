@@ -1,20 +1,26 @@
-#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
-use osstringext::OsStrExt3;
 #[cfg(feature = "yaml")]
 use std::collections::BTreeMap;
-use std::env;
-use std::ffi::{OsStr, OsString};
 #[cfg(not(any(target_os = "windows", target_arch = "wasm32")))]
 use std::os::unix::ffi::OsStrExt;
-use std::rc::Rc;
+use std::{
+    env,
+    ffi::{OsStr, OsString},
+    rc::Rc,
+};
 
-use map::VecMap;
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
-use args::arg_builder::{Base, Switched, Valued};
-use args::settings::ArgSettings;
-use usage_parser::UsageParser;
+#[cfg(any(target_os = "windows", target_arch = "wasm32"))]
+use crate::osstringext::OsStrExt3;
+use crate::{
+    args::{
+        arg_builder::{Base, Switched, Valued},
+        settings::ArgSettings,
+    },
+    map::VecMap,
+    usage_parser::UsageParser,
+};
 
 /// The abstract representation of a command line argument. Used to set all the options and
 /// relationships that define a valid argument for the program.
@@ -334,7 +340,7 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// ```
     /// [`short`]: ./struct.Arg.html#method.short
     pub fn short<S: AsRef<str>>(mut self, s: S) -> Self {
-        self.s.short = s.as_ref().trim_left_matches(|c| c == '-').chars().nth(0);
+        self.s.short = s.as_ref().trim_left_matches(|c| c == '-').chars().next();
         self
     }
 
@@ -1023,7 +1029,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.r_unless = Some(names.iter().copied().collect());
         }
         self.setb(ArgSettings::RequiredUnlessAll);
         self.required(true)
@@ -1099,7 +1105,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.r_unless = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.r_unless = Some(names.iter().copied().collect());
         }
         self.required(true)
     }
@@ -1197,7 +1203,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.blacklist = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.blacklist = Some(names.iter().copied().collect());
         }
         self
     }
@@ -1342,7 +1348,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.overrides = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.overrides = Some(names.iter().copied().collect());
         }
         self
     }
@@ -1406,9 +1412,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         if let Some(ref mut vec) = self.b.requires {
             vec.push((None, name));
         } else {
-            let mut vec = vec![];
-            vec.push((None, name));
-            self.b.requires = Some(vec);
+            self.b.requires = Some(vec![(None, name)]);
         }
         self
     }
@@ -2407,7 +2411,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.v.possible_vals = Some(names.iter().map(|s| *s).collect::<Vec<_>>());
+            self.v.possible_vals = Some(names.iter().copied().collect());
         }
         self
     }
@@ -2603,7 +2607,7 @@ impl<'a, 'b> Arg<'a, 'b> {
                 vec.push(s);
             }
         } else {
-            self.b.groups = Some(names.into_iter().map(|s| *s).collect::<Vec<_>>());
+            self.b.groups = Some(names.iter().copied().collect());
         }
         self
     }
@@ -2909,12 +2913,11 @@ impl<'a, 'b> Arg<'a, 'b> {
             }
             self.setb(ArgSettings::TakesValue);
             self.setb(ArgSettings::UseValueDelimiter);
-            self.unset(ArgSettings::ValueDelimiterNotSet)
         } else {
             self.v.val_delim = None;
             self.unsetb(ArgSettings::UseValueDelimiter);
-            self.unset(ArgSettings::ValueDelimiterNotSet)
         }
+        self.unset(ArgSettings::ValueDelimiterNotSet)
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter. This means if an
@@ -3031,7 +3034,7 @@ impl<'a, 'b> Arg<'a, 'b> {
         self.setb(ArgSettings::UseValueDelimiter);
         self.v.val_delim = Some(
             d.chars()
-                .nth(0)
+                .next()
                 .expect("Failed to get value_delimiter from arg"),
         );
         self
@@ -3479,7 +3482,6 @@ impl<'a, 'b> Arg<'a, 'b> {
     /// [`Arg::default_value_ifs`] only using [`OsStr`]s instead.
     /// [`Arg::default_value_ifs`]: ./struct.Arg.html#method.default_value_ifs
     /// [`OsStr`]: https://doc.rust-lang.org/std/ffi/struct.OsStr.html
-    #[cfg_attr(feature = "lints", allow(explicit_counter_loop))]
     pub fn default_value_ifs_os(mut self, ifs: &[(&'a str, Option<&'b OsStr>, &'b OsStr)]) -> Self {
         for &(arg, val, default) in ifs {
             self = self.default_value_if_os(arg, val, default);

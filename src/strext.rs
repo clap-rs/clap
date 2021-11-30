@@ -10,7 +10,7 @@ impl _StrExt for str {
         }
         match self.as_bytes().get(index) {
             None => false,
-            Some(&b) => b < 128 || b >= 192,
+            Some(&b) => !(128..192).contains(&b),
         }
     }
 }

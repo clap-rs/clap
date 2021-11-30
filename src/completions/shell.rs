@@ -4,7 +4,6 @@ use std::fmt;
 use std::str::FromStr;
 
 /// Describes which shell to produce a completions file for
-#[cfg_attr(feature = "lints", allow(enum_variant_names))]
 #[derive(Debug, Copy, Clone)]
 pub enum Shell {
     /// Generates a .bash completion file for the Bourne Again SHell (BASH)
@@ -29,6 +28,7 @@ impl Shell {
 impl FromStr for Shell {
     type Err = String;
 
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::wildcard_in_or_patterns))]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ZSH" | _ if s.eq_ignore_ascii_case("zsh") => Ok(Shell::Zsh),

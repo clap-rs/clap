@@ -1,16 +1,20 @@
 // Std
-use std::convert::From;
-use std::error::Error as StdError;
-use std::fmt as std_fmt;
-use std::fmt::Display;
-use std::io::{self, Write};
-use std::process;
-use std::result::Result as StdResult;
+use std::{
+    convert::From,
+    error::Error as StdError,
+    fmt as std_fmt,
+    fmt::Display,
+    io::{self, Write},
+    process,
+    result::Result as StdResult,
+};
 
 // Internal
-use args::AnyArg;
-use fmt::{ColorWhen, Colorizer, ColorizerOption};
-use suggestions;
+use crate::{
+    args::AnyArg,
+    fmt::{ColorWhen, Colorizer, ColorizerOption},
+    suggestions,
+};
 
 /// Short hand for [`Result`] type
 ///
@@ -385,10 +389,10 @@ pub struct Error {
 impl Error {
     /// Should the message be written to `stdout` or not
     pub fn use_stderr(&self) -> bool {
-        match self.kind {
-            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => false,
-            _ => true,
-        }
+        !matches!(
+            self.kind,
+            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed
+        )
     }
 
     /// Prints the error message and exits. If `Error::use_stderr` evaluates to `true`, the message
@@ -881,11 +885,7 @@ impl Error {
             when: ColorWhen::Auto,
         });
         Error {
-            message: format!(
-                "{} The argument '{}' wasn't found",
-                c.error("error:"),
-                a.clone()
-            ),
+            message: format!("{} The argument '{}' wasn't found", c.error("error:"), a),
             kind: ErrorKind::ArgumentNotFound,
             info: Some(vec![a]),
         }
@@ -902,7 +902,7 @@ impl Error {
         });
         Error {
             message: format!("{} {}", c.error("error:"), description),
-            kind: kind,
+            kind,
             info: None,
         }
     }

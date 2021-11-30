@@ -1,19 +1,19 @@
 // std
 #[allow(deprecated, unused_imports)]
-use std::ascii::AsciiExt;
-use std::fmt::Display;
+use std::{ascii::AsciiExt, fmt::Display};
 
 // Internal
-use app::parser::{ParseResult, Parser};
-use app::settings::AppSettings as AS;
-use app::usage;
-use args::settings::ArgSettings;
-use args::{AnyArg, ArgMatcher, MatchedArg};
-use errors::Result as ClapResult;
-use errors::{Error, ErrorKind};
-use fmt::{Colorizer, ColorizerOption};
-use INTERNAL_ERROR_MSG;
-use INVALID_UTF8;
+use crate::{
+    app::{
+        parser::{ParseResult, Parser},
+        settings::AppSettings as AS,
+        usage,
+    },
+    args::{settings::ArgSettings, AnyArg, ArgMatcher, MatchedArg},
+    errors::{Error, ErrorKind, Result as ClapResult},
+    fmt::{Colorizer, ColorizerOption},
+    INTERNAL_ERROR_MSG, INVALID_UTF8,
+};
 
 pub struct Validator<'a, 'b, 'z>(&'z mut Parser<'a, 'b>)
 where
@@ -74,7 +74,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
             });
         }
         self.validate_blacklist(matcher)?;
-        if !(self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) && !reqs_validated {
+        if !(reqs_validated || self.0.is_set(AS::SubcommandsNegateReqs) && subcmd_name.is_some()) {
             self.validate_required(matcher)?;
         }
         self.validate_matched_args(matcher)?;
@@ -162,13 +162,14 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
     fn build_err(&self, name: &str, matcher: &ArgMatcher) -> ClapResult<()> {
         debugln!("build_err!: name={}", name);
         let mut c_with = find_from!(self.0, &name, blacklist, matcher);
-        c_with = c_with.or(self
-            .0
-            .find_any_arg(name)
-            .map_or(None, |aa| aa.blacklist())
-            .map_or(None, |bl| bl.iter().find(|arg| matcher.contains(arg)))
-            .map_or(None, |an| self.0.find_any_arg(an))
-            .map_or(None, |aa| Some(format!("{}", aa))));
+        c_with = c_with.or_else(|| {
+            self.0
+                .find_any_arg(name)
+                .and_then(|aa| aa.blacklist())
+                .and_then(|bl| bl.iter().find(|arg| matcher.contains(arg)))
+                .and_then(|an| self.0.find_any_arg(an))
+                .map(|aa| format!("{}", aa))
+        });
         debugln!("build_err!: '{:?}' conflicts with '{}'", c_with, &name);
         //        matcher.remove(&name);
         let usg = usage::create_error_usage(self.0, matcher, None);
@@ -184,7 +185,7 @@ impl<'a, 'b, 'z> Validator<'a, 'b, 'z> {
                     debugln!("build_err!: It was a positional...");
                     Err(Error::argument_conflict(p, c_with, &*usg, self.0.color()))
                 }
-                None => panic!(INTERNAL_ERROR_MSG),
+                None => panic!("{}", INTERNAL_ERROR_MSG),
             }
         }
     }

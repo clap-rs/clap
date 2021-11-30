@@ -1,14 +1,13 @@
 // Std
 #[allow(deprecated, unused_imports)]
-use std::ascii::AsciiExt;
-use std::io::Write;
+use std::{ascii::AsciiExt, io::Write};
 
 // Internal
-use app::parser::Parser;
-use app::App;
-use args::{AnyArg, ArgSettings};
-use completions;
-use INTERNAL_ERROR_MSG;
+use crate::{
+    app::{parser::Parser, App},
+    args::{AnyArg, ArgSettings},
+    completions, INTERNAL_ERROR_MSG,
+};
 
 pub struct ZshGen<'a, 'b>
 where
@@ -20,7 +19,7 @@ where
 impl<'a, 'b> ZshGen<'a, 'b> {
     pub fn new(p: &'b Parser<'a, 'b>) -> Self {
         debugln!("ZshGen::new;");
-        ZshGen { p: p }
+        ZshGen { p }
     }
 
     pub fn generate_to<W: Write>(&self, buf: &mut W) {
