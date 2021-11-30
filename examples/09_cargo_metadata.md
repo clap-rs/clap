@@ -5,7 +5,7 @@ You can have clap pull the application metadata directly from your Cargo.toml us
 $ 09_cargo_metadata --help
 clap 3.0.0-beta.5
 
-Kevin K. <kbknapp@gmail.com>:Clap Maintainers
+Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
