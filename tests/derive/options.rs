@@ -14,10 +14,9 @@
 
 #![allow(clippy::option_option)]
 
-mod utils;
+use crate::utils;
 
 use clap::{Parser, Subcommand};
-use utils::*;
 
 #[test]
 fn required_option() {
@@ -199,7 +198,7 @@ fn option_option_type_help() {
         #[clap(long, value_name = "val")]
         arg: Option<Option<i32>>,
     }
-    let help = get_help::<Opt>();
+    let help = utils::get_help::<Opt>();
     assert!(help.contains("--arg <val>"));
     assert!(!help.contains("--arg <val>..."));
 }

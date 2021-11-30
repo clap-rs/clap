@@ -40,9 +40,6 @@ proc-macro-error = "1"
 
 [dev-dependencies]
 clap = { path = "../", default-features = false, features = ["std", "derive", "env"] }
-trybuild = "1.0"
-rustversion = "1"
-version-sync = "0.9"
 
 [features]
 default = []

@@ -1,7 +1,6 @@
-mod utils;
+use crate::utils;
 
 use clap::Parser;
-use utils::*;
 
 #[test]
 fn explicit_short_long_no_rename() {
@@ -32,6 +31,6 @@ fn explicit_name_no_rename() {
         foo: String,
     }
 
-    let help = get_long_help::<Opt>();
+    let help = utils::get_long_help::<Opt>();
     assert!(help.contains("<.options>"))
 }

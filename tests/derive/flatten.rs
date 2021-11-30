@@ -12,10 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-mod utils;
+use crate::utils;
 
 use clap::{Args, Parser, Subcommand};
-use utils::get_help;
 
 #[test]
 fn flatten() {
@@ -231,7 +230,7 @@ fn docstrings_ordering_with_multiple_clap() {
         flattened: Flattened,
     }
 
-    let short_help = get_help::<Command>();
+    let short_help = utils::get_help::<Command>();
 
     assert!(short_help.contains("This is the docstring for Command"));
 }
@@ -251,7 +250,7 @@ fn docstrings_ordering_with_multiple_clap_partial() {
         flattened: Flattened,
     }
 
-    let short_help = get_help::<Command>();
+    let short_help = utils::get_help::<Command>();
 
     assert!(short_help.contains("This is the docstring for Flattened"));
 }

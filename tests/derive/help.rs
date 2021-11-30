@@ -221,8 +221,8 @@ fn derive_generated_error_has_full_context() {
     let expected = r#"error: The following required argument was not provided: req-str
 
 USAGE:
-    clap_derive --req-str <REQ_STR>
-    clap_derive <SUBCOMMAND>
+    clap --req-str <REQ_STR>
+    clap <SUBCOMMAND>
 
 For more information try --help
 "#;

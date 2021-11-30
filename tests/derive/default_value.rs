@@ -1,8 +1,6 @@
 use clap::Parser;
 
-mod utils;
-
-use utils::*;
+use crate::utils;
 
 #[test]
 fn default_value() {
@@ -14,7 +12,7 @@ fn default_value() {
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
 
-    let help = get_long_help::<Opt>();
+    let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 3]"));
 }
 
@@ -28,7 +26,7 @@ fn default_value_t() {
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(&["test"]).unwrap());
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
 
-    let help = get_long_help::<Opt>();
+    let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 3]"));
 }
 
@@ -42,6 +40,6 @@ fn auto_default_value_t() {
     assert_eq!(Opt { arg: 0 }, Opt::try_parse_from(&["test"]).unwrap());
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(&["test", "1"]).unwrap());
 
-    let help = get_long_help::<Opt>();
+    let help = utils::get_long_help::<Opt>();
     assert!(help.contains("[default: 0]"));
 }

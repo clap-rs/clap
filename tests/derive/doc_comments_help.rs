@@ -12,10 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-mod utils;
+use crate::utils;
 
 use clap::{ArgEnum, Parser};
-use utils::*;
 
 #[test]
 fn doc_comments() {
@@ -28,7 +27,7 @@ fn doc_comments() {
         foo: bool,
     }
 
-    let help = get_long_help::<LoremIpsum>();
+    let help = utils::get_long_help::<LoremIpsum>();
     assert!(help.contains("Lorem ipsum"));
     assert!(help.contains("Fooify a bar and a baz"));
 }
@@ -44,7 +43,7 @@ fn help_is_better_than_comments() {
         foo: bool,
     }
 
-    let help = get_long_help::<LoremIpsum>();
+    let help = utils::get_long_help::<LoremIpsum>();
     assert!(help.contains("Dolor sit amet"));
     assert!(!help.contains("Lorem ipsum"));
     assert!(help.contains("DO NOT PASS A BAR"));
@@ -59,7 +58,7 @@ fn empty_line_in_doc_comment_is_double_linefeed() {
     #[clap(name = "lorem-ipsum")]
     struct LoremIpsum {}
 
-    let help = get_long_help::<LoremIpsum>();
+    let help = utils::get_long_help::<LoremIpsum>();
     assert!(help.starts_with("lorem-ipsum \n\nFoo.\n\nBar\n\nUSAGE:"));
 }
 
@@ -80,8 +79,8 @@ fn field_long_doc_comment_both_help_long_help() {
         bar: bool,
     }
 
-    let short_help = get_help::<LoremIpsum>();
-    let long_help = get_long_help::<LoremIpsum>();
+    let short_help = utils::get_help::<LoremIpsum>();
+    let long_help = utils::get_long_help::<LoremIpsum>();
 
     assert!(short_help.contains("Dot is removed from one short comment"));
     assert!(!short_help.contains("Dot is removed from one short comment."));
@@ -112,8 +111,8 @@ fn top_long_doc_comment_both_help_long_help() {
         },
     }
 
-    let short_help = get_help::<LoremIpsum>();
-    let long_help = get_subcommand_long_help::<LoremIpsum>("foo");
+    let short_help = utils::get_help::<LoremIpsum>();
+    let long_help = utils::get_subcommand_long_help::<LoremIpsum>("foo");
 
     assert!(!short_help.contains("Or something else"));
     assert!(long_help.contains("DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"));
@@ -146,7 +145,7 @@ fn verbatim_doc_comment() {
         foo: bool,
     }
 
-    let help = get_long_help::<SeeFigure1>();
+    let help = utils::get_long_help::<SeeFigure1>();
     let sample = r#"
                    ()
                    |
@@ -179,7 +178,7 @@ fn verbatim_doc_comment_field() {
         bar: bool,
     }
 
-    let help = get_long_help::<App>();
+    let help = utils::get_long_help::<App>();
 
     assert!(help.contains("This help ends in a period."));
     assert!(help.contains("This help does not end in a period"));
@@ -196,12 +195,12 @@ fn multiline_separates_default() {
         x: String,
     }
 
-    let help = get_long_help::<App>();
+    let help = utils::get_long_help::<App>();
     assert!(!help.contains("Doc comment [default"));
     assert!(help.lines().any(|s| s.trim().starts_with("[default")));
 
     // The short help should still have the default on the same line
-    let help = get_help::<App>();
+    let help = utils::get_help::<App>();
     assert!(help.contains("Multiline [default"));
 }
 

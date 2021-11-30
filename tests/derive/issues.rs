@@ -1,7 +1,6 @@
 // https://github.com/TeXitoi/structopt/issues/{NUMBER}
 
-mod utils;
-use utils::*;
+use crate::utils;
 
 use clap::{AppSettings, ArgGroup, Args, Parser, Subcommand};
 
@@ -71,7 +70,7 @@ fn issue_324() {
         Start,
     }
 
-    let help = get_long_help::<Opt>();
+    let help = utils::get_long_help::<Opt>();
     assert!(help.contains("MY_VERSION"));
 }
 
@@ -97,7 +96,7 @@ fn issue_418() {
         Frobnicate,
     }
 
-    let help = get_long_help::<Opts>();
+    let help = utils::get_long_help::<Opts>();
     assert!(help.contains("Reticulate the splines [aliases: ret]"));
 }
 

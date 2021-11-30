@@ -1,7 +1,8 @@
-mod utils;
+#![cfg(feature = "env")]
+
+use crate::utils;
 
 use clap::Parser;
-use utils::*;
 
 #[test]
 fn it_works() {
@@ -12,7 +13,7 @@ fn it_works() {
         be_nice: String,
     }
 
-    let help = get_help::<BehaviorModel>();
+    let help = utils::get_help::<BehaviorModel>();
     assert!(help.contains("[env: be-nice=]"));
 }
 
@@ -24,7 +25,7 @@ fn default_is_screaming() {
         be_nice: String,
     }
 
-    let help = get_help::<BehaviorModel>();
+    let help = utils::get_help::<BehaviorModel>();
     assert!(help.contains("[env: BE_NICE=]"));
 }
 
@@ -40,7 +41,7 @@ fn overridable() {
         be_aggressive: String,
     }
 
-    let help = get_help::<BehaviorModel>();
+    let help = utils::get_help::<BehaviorModel>();
     assert!(help.contains("[env: be-nice=]"));
     assert!(help.contains("[env: BeAggressive=]"));
 }

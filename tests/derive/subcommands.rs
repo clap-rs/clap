@@ -12,10 +12,9 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-mod utils;
+use crate::utils;
 
 use clap::{Args, Parser, Subcommand};
-use utils::*;
 
 #[derive(Parser, PartialEq, Debug)]
 enum Opt {
@@ -157,7 +156,7 @@ fn test_tuple_commands() {
         Opt4::try_parse_from(&["test", "fetch", "origin"]).unwrap()
     );
 
-    let output = get_long_help::<Opt4>();
+    let output = utils::get_long_help::<Opt4>();
 
     assert!(output.contains("download history from remote"));
     assert!(output.contains("Add a file"));
