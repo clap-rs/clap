@@ -1,8 +1,18 @@
-# `clap` Examples
+# Examples
 
-Each example is accompanying by a markdown file demonstrating its features.
+- Basic demo: [derive](demo.md)
+- git-like interface: [builder](git.md), [derive](git_derive.md)
+- pacman-like interface: [builder](git.md)
+- Escaped positionals with `--`: [builder](escaped_positional.md), [derive](escaped_positional_derive.md)
+- Multi-call
+  - busybox: [builder](multicall_busybox.md)
+  - hostname: [builder](multicall_hostname.md)
 
 ## Contributing
 
-Each example must have a markdown file.  They are verified using 
-[trycmd](https://docs.rs/trycmd).
+New examples:
+- Building: They must be added to [Cargo.toml](../../Cargo.toml) with the appropriate `required-features`.
+- Testing: Ensure there is a markdown file with [trycmd](https://docs.rs/trycmd) syntax
+- Link the `.md` file from here
+
+See also the general [CONTRIBUTING](../../CONTRIBUTING.md).
