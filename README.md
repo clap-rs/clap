@@ -104,6 +104,9 @@ CLI parsers optimized for other use cases.
 
 ### Related Projects
 
+- [clap-verbosity-flag](https://github.com/rust-cli/clap-verbosity-flag)
+- [clap-cargo](https://github.com/crate-ci/clap-cargo)
+- [concolor-clap](https://github.com/rust-cli/concolor/tree/main/crates/clap)
 - [Command-line Apps for Rust](https://rust-cli.github.io/book/index.html) book
 - [`trycmd`](https://github.com/epage/trycmd):  Snapshot testing
   - Or for more control, [`assert_cmd`](https://github.com/assert-rs/assert_cmd) and [`assert_fs`](https://github.com/assert-rs/assert_fs)
