@@ -2954,6 +2954,8 @@ impl<'help> Arg<'help> {
     /// If `val` is set to `None`, `arg` only needs to be present. If `val` is set to `"some-val"`
     /// then `arg` must be present at runtime **and** have the value `val`.
     ///
+    /// If `default` is set to `None`, `default_value` will be removed.
+    ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
     /// at runtime. This setting however only takes effect when the user has not provided a value at

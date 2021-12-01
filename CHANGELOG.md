@@ -1,365 +1,197 @@
-## Unreleased
+# Change Log
+All notable changes to this project will be documented in this file.
 
-TODO: Structopt and traits
-TODO: `YamlLoader`
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
 
-<a name="v3.0.0-rc.0"></a>
-## v3.0.0-rc.0
+<!-- next-header -->
+## [Unreleased] - ReleaseDate
 
+**Note:** clap v3 has been in development for several years and has changed
+hands multiple times.  Unfortunately, our changelog might be incomplete,
+whether in changes or their motivation.
 
-<a name="v3.0.0-beta.5"></a>
-## v3.0.0-beta.5 (2021-10-18)
+TBD:
+- `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
+- Rename of `StructOpt`
+- Rename of `structopt`
 
-#### BREAKING CHANGES
+### BREAKING CHANGES
 
-* **Renamed Features**
-  * `unicode_help` to `unicode` to encompass more functionality
-* **Gated behind features**
-  * `App::replace` is now gated behind `unstable-replace`
-* **Removed `derive` requirement**
-  * `clap::ArgEnum`
-  * `clap::Args`
-  * `clap::FromArgMatches`
-  * `clap::IntoApp`
-  * `clap::Subcommand`
-* **Renamed Traits**
-  * `clap::Clap` => `clap::Parser`
-* **Renamed Methods**
-  * `App::generate_usage` => `App::render_usage`
-* **Removed Settings**
-  * `AppSettings::DisableVersionForSubcommands` is now default behaviour
-  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
-  * `AppSettings::StrictUtf8` is now default behaviour
-  * `AppSettings::AllowInvalidUtf8` in favor of `ArgSettings::AllowInvalidUtf8`
-  * `AppSettings::UnifiedHelpMessage` is now default behaviour
-  * `AppSettings::ColorAlways` in favor of `App::color`
-  * `AppSettings::ColorNever` in favor of `App::color`
-  * `AppSettings::ColorAuto` in favor of `App::color`
-* **Removed methods**
-  * **App**
-    * `App::get_flags`
-    * `App::get_positionals_with_no_heading`
-    * `App::get_flags_with_no_heading`
-    * `App::get_opts_with_no_heading`
-    * `App::stop_custom_headings` in favor of `App:help_heading(None)`
-  * **Error**
-    * `Error::with_description` in favor of `App::error`
-  * **ArgEnum**
-    * `ArgEnum::as_arg` in favor of `ArgEnum::to_arg_value`
-  * **clap_generate::Generator**
-    * `Generator::all_subcommands`
-    * `Generator::find_subcommand_with_path`
-    * `Generator::subcommands`
-    * `Generator::shorts_and_visible_aliases`
-    * `Generator::longs_and_visible_aliases`
-    * `Generator::flags`
-* **Removed**
-  * `ArgEnum::VARIANTS` in favor of `ArgEnum::value_variants`
-* **Deprecated**
-  * `clap::clap_app!` in favor of other builders
-* **Changed**
-  * `App::get_possible_values` returns `Option<&[ArgValue]>` now
-  * `RegexRef` is now an enum also allowing `RegexSet` to be used
-  * `clap_generate::Generator::file_name` and `clap_generate::Generator::generate` now take `&self`
-  * `clap_generate::generate` and `clap_generate::generate_to` now takes `Generator` as first argument
+**From clap 2**
 
-#### Features
+Subtle changes (i.e. compiler won't catch):
+- `AppSettings::UnifiedHelpMessage` is now default behaviour
+  - `{flags}` and `{unified}` will assert if present in `App::help_template`
+  - See [clap-rs/clap#2807](https://github.com/clap-rs/clap/issues/2807)
+- `App::override_usage` no longer implies a leading `\t`, allowing multi lined usages
+- `Arg::require_equals` no longer implies `ArgSettings::ForbidEmptyValues` ([#2233](https://github.com/clap-rs/clap/issues/2233))
+- `Arg::require_delimiter` no longer implies `ArgSettings::TakesValue` and `ArgSettings::UseValueDelimiter` ([#2233](https://github.com/clap-rs/clap/issues/2233))
+- `Arg::env`, `Arg::env_os`, `Arg::last`, `Arg::require_equals`, `Arg::allow_hyphen_values`,
+  `Arg::hide_possible_values`, `Arg::hide_default_value`, `Arg::hide_env_values`,
+  `Arg::case_insensitive` and `Arg::multiple_values` no longer imply `ArgSettings::TakesValue` ([#2233](https://github.com/clap-rs/clap/issues/2233))
+- Removed support for `{n}` as a newline in help text
+- `ArgMatches::is_present` now longer checks subcommand names
+- Some env variable values are now considered false for flags, not just "not-present" ([clap-rs/clap#2539](https://github.com/clap-rs/clap/issues/2539))
+- Changed `...`s meaning in usage parser.  Before, it always meant `multiple` which is still true for `--option [val]...`.  Now `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`.
 
-* **Added**
-  * `clap::ArgValue` to denote information about possible values for args
-  * `clap::ColorChoice` to specify color setting for the app
-* **Added Settings**
-  * `AppSettings::AllowInvalidUtf8ForExternalSubcommands`
-  * `AppSettings::Multicall` behind `unstable-multicall` feature
-  * `ArgSettings::AllowInvalidUtf8`
-* **Added Methods**
-  * **ArgEnum**
-    * `ArgEnum::value_variants`
-    * `ArgEnum::to_arg_value`
-  * **App**
-    * `App::color`
-    * `App::error`
-    * `App::get_long_about`
-    * `App::get_help_heading`
-  * **Arg**
-    * `Arg::is_positional`
-* Allow positionals to occur multiple times
-
-<a name="v3.0.0-beta.4"></a>
-## v3.0.0-beta.4 (2021-08-14)
-
-#### Minimum Required Rust
-* As of this release, `clap` requires `rustc 1.54.0` or greater.
-
-#### BREAKING CHANGES
-
-Added `unicode_help`, `env` features.
-
-* **Gated behind `env`**:
-  * **Arg**
-    * `Arg::env`
-    * `Arg::env_os`
-    * `Arg::hide_env_values`
-  * **ArgSettings**
-    * `ArgSettings::HideEnvValues`
-* **Removed Methods**
-  * **Arg**
-    * `Arg::settings` in favor of `Arg::setting(Setting1 | Setting2)`
-    * `Arg::multiple` in favour of `Arg::multiple_values` and `Arg::multiple_occurrences`
-* **Renamed Settings**
-  * `AppSettings::DisableHelpFlags` => `AppSettings::DisableHelpFlag`
-  * `AppSettings::DisableVersion` => `AppSettings::DisableVersionFlag`
-  * `AppSettings::VersionlessSubcommands` => `AppSettings::DisableVersionForSubcommands` (changed again 3.0.0-beta.5)
-* **Renamed Variants**
-  * **ErrorKind**
-    * `ErrorKind::MissingArgumentOrSubcommand` => `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
-* **Changed**
-  * Allowing empty values is the default again with `ArgSettings::AllowEmptyValues` changing to
-    `ArgSettings::ForbidEmptyValues`
-  * `AppSettings::GlobalVersion` renamed to `AppSettings::PropagateVersion` and it is not applied
-    globally anymore
-  * `Arg::env`, `Arg::env_os`, `Arg::last`, `Arg::require_equals`, `Arg::allow_hyphen_values`,
-    `Arg::hide_possible_values`, `Arg::hide_default_value`, `Arg::hide_env_values`,
-    `Arg::case_insensitive` and `Arg::multiple_values` does not set `ArgSettings::TakesValue` anymore
-  * `Arg::require_delimiter` does not set `ArgSettings::TakesValue` and `ArgSettings::UseValueDelimiter`
-    anymore
-  * `Arg::require_equals` does not disallow empty values anymore
-  * `Arg::default_value_if`, `Arg::default_value_if_os`, `Arg::default_value_ifs`,
-    `Arg::default_value_ifs_os` now takes the default value parameter as an option
-  * `Arg::index`, `Arg::number_of_values`, `Arg::min_values`, `Arg::max_values` now takes `usize`
-  * `Arg::value_delimiter` now accepts `char` instead of `&str`
-  * `ArgMatches::is_present` does not handle subcommand names anymore
-  * Some env var values are considered the same as env var not being present when the arg does not have
-    `ArgSettings::TakesValue`
-  * `clap_generate::generate_to` now returns `Result<PathBuf, io::Error>`
-  * `@group` in `clap_app!` now needs `:` instead of `=>`
-  * `app` and `arg` objects in `yaml` now allow unknown keys if `_has_metadata` is set
-
-#### Features
-
-* **Added**
-  * `clap_generate::Shell`
-  * `clap::Args` behind `derive` feature
-* **Added Methods**
-  * **App**
-    * `App::license`
-  * **Arg**
-    * `Arg::get_long_about`
-    * `Arg::get_env`
-    * `Arg::get_default_values`
-    * `Arg::hide_env`
-    * `Arg::required_if_eq_all`
-    * `Arg::forbid_empty_values`
-    * `Arg::max_occurrences`
-  * **ArgMatches**
-    * `ArgMatches::grouped_values_of`
-  * **Macros**
-    * `crate_license!`
-  * **Error**
-    * `Error::print`
-* **Added Settings**
-  * `AppSettings::UseLongFormatForHelpSubcommand`
-  * `AppSettings::IgnoreErrors`
-  * `AppSettings::InferLongArgs`
-  * `ArgSettings::HideEnv`
-
-#### Enhancements
-
-* Better completion scripts
-* Multiple bug fixes, performance improvements and error message improvements
-
-
-<a name="v3.0.0-beta.2"></a>
-## v3.0.0-beta.2 (2020-09-18)
-
-#### BREAKING CHANGES
-
-* **Removed**
-  * `From<&yaml_rust::yaml::Hash>` for `ArgGroup`
-  * **App**
-    * `App::write_version` in favor of `write!(w, App::render_version)`
-    * `App::write_long_version` in favor of `write!(w, App::render_long_version)`
-  * **Error**
-    * `Error::cause` in favor of `<Error as Display>::to_string`
-  * **Macros**
-    * `_clap_count_exprs!`
-* **Renamed Methods**
-  * **App**
-    * `App::set_term_width` => `App::term_width`
-  * **Arg**
-    * `Arg::from_yaml` => `Arg::from`
-    * `Arg::with_name` => `Arg::new`
-    * `Arg::required_if` => `Arg::required_if_eq`
-    * `Arg::required_ifs` => `Arg::required_if_eq_any`
-    * `Arg::required_unless` => `Arg::required_unless_present`
-    * `Arg::required_unless_one` => `Arg::required_unless_present_any`
-    * `Arg::required_unless_all` => `Arg::required_unless_present_all`
-  * **ArgGroup**
-    * `ArgGroup::from_yaml` => `ArgGroup::from`
-    * `ArgGroup::with_name` => `ArgGroup::new`
-* **Renamed Variants**
-  * **ErrorKind**
-    * `ErrorKind::HelpDisplayed` => `ErrorKind::DisplayHelp`
-    * `ErrorKind::VersionDisplayed` => `ErrorKind::DisplayVersion`
-* **Changed**
-  * `App::print_help` & `App::print_long_help` now return `std::io::Result`
-  * `App::write_help` & `App::write_long_help` now return `std::io::Result`
-  * `Error::info` now is of type `Vec<String>` instead of `Option<Vec<String>>`
-  * `ArgMatches::subcommand` now returns `Option<(&str, &ArgMatches)>`
-  * `short` in `#[clap()]` now accepts `char` instead of `&str`
-
-#### Features
-
-* Added support for subcommands that are flags (pacman style)
-* Added `Indices` that is returned by `ArgMatches::indices_of`
-* Added `@global_setting` for app's macro builder
-* **Added Methods**
-  * **Arg**
-    * `Arg::default_missing_value`
-    * `Arg::default_missing_value_os`
-    * `Arg::default_missing_values`
-    * `Arg::default_missing_values_os`
-    * `Arg::short_alias`
-    * `Arg::short_aliases`
-    * `Arg::visible_short_alias`
-    * `Arg::visible_short_aliases`
-    * `Arg::value_hint`
-    * `Arg::validator_regex` (gated behind `regex` feature)
-  * **App**
-    * `App::subcommand_placeholder`
-    * `App::before_long_help`
-    * `App::after_long_help`
-* TODO: List App::get_* methods
-
-#### Enhancements
-
-* `help_heading` defined on `Arg` now has higher priority than `App`
-* Limited default text wrapping to 100 when `wrap_help` feature is not enabled
-* Multiple bug fixes and error message improvements
-* Size and Performance improvements
-
-
-<a name="v3.0.0-beta.1"></a>
-## v3.0.0-beta.1 (2020-05-03)
-
-#### Minimum Required Rust
-
-* As of this release, `clap` requires `rustc 1.40.0` or greater.
-
-#### BREAKING CHANGES
-
-Added `std`, `cargo`, `derive` features.
-
-* **Gated behind `cargo`**:
-  * **Macros**
-    * `crate_name!`
-    * `crate_version!`
-    * `crate_authors!`
-    * `crate_description!`
-    * `app_from_crate!`
-
-* **Removed**
-  * `SubCommand` in favor of `App`
-    * `SubCommand::with_name` => `App::new`
-    * `SubCommand::from_yaml` => `App::from`
-  * `Shell` (changed again in 3.0.0-beta.4)
-  * **App**
-    * `App::with_defaults`
-    * `App::version_message` in favor of `App::mut_arg`
-    * `App::version_short` in favor of `App::mut_arg`
-    * `App::help_message` in favor of `App::mut_arg`
-    * `App::help_short` in favor of `App::mut_arg`
-    * `App::arg_from_usage` in favor of `App::arg`
-    * `App::args_from_usage` in favor of `App::args`
-    * `App::settings` in favor of `App::setting(Setting1 | Setting2)`
-    * `App::unset_settings` in favor of `App::unset_setting(Setting1 | Setting2)`
-    * `App::global_settings` in favor of `App::global_setting(Setting1 | Setting2)`
-    * `App::gen_completions` in favor of TODO:
-    * `App::gen_completions_to` in favor of TODO:
-  * **Arg**
-    * `Arg::empty_values` in favor of TODO:
-  * **ArgMatches**
-    * `ArgMatches::usage` in favor of `App::generate_usage`
-  * **Macros**
-    * `arg_enum!` in favor of `ArgEnum` derive macro.
-    * `value_t!` in favor of `ArgMatches::value_of_t`
-    * `value_t_or_exit!` in favor of `ArgMatches::value_of_t_or_exit`
-    * `values_t!` in favor of `ArgMatches::values_of_t`
-    * `values_t_or_exit!` in favor of `ArgMatches::values_of_t_or_exit`
-* **Removed Settings**
-  * `AppSettings::PropagateGlobalValuesDown`
-  * `ArgSettings::Global` in favor of `Arg::global` method
-  * `ArgSettings::Multiple` in favor of `ArgSettings::MultipleValues` and `ArgSettings::MultipleOccurrences`
-* **Renamed Methods**
-  * **App**
-    * `App::from_yaml` => `App::from`
-    * `App::arg_from_usage` => `App::arg`
-    * `App::help` => `App::override_help`
-    * `App::usage` => `App::override_usage`
-    * `App::template` => `App::help_template`
-    * `App::get_matches_safe` => `App::try_get_matches`
-    * `App::get_matches_from_safe` => `App::try_get_matches_from`
-    * `App::get_matches_from_safe_borrow` => `App::try_get_matches_from_mut`
-  * **Arg**
-    * `Arg::help` => `Arg::about`
-    * `Arg::from_usage` => `Arg::from`
-    * `Arg::set` => `Arg::setting`
-    * `Arg::unset` => `Arg::unset_setting`
-* **Renamed Settings**
-  * `ArgSettings::CaseInsensitive` => `ArgSettings::IgnoreCase`
-  * `ArgSettings::AllowLeadingHyphen` => `ArgSettings::AllowHyphenValues`
-  * `ArgSettings::EmptyValues` => `ArgSettings::AllowEmptyValues`
-* **Renamed Fields**
-  * `Error::message` => `Error::cause`
-* **Changed**
-  * `App::write_help` is now a mutable reference instance method (takes `&mut self`)
-  * `Arg::short` now accepts `char` instead of `&str`
-  * `Arg::validator` now takes first argument as `Fn(&str) -> Result<O, E: ToString>` instead of
+Easier to catch changes:
+- When using `no-default-features`, you now have to specify the `std` feature (reserved for future work)
+- Gated env support behind `env` feature flag
+  - Impacts `Arg::env`, `Arg::env_os`, `Arg::hide_env_values`, `ArgSettings::HideEnvValues`
+  - See [clap-rs/clap#2694](https://github.com/clap-rs/clap/pull/2694)
+- Gated crate information behind `cargo` feature flag
+  - Impacts `crate_name!`, `crate_version!`, `crate_authors!`, `crate_description!`, `app_from_crate!`
+- `AppSettings::StrictUtf8` is now default behaviour and asserts if
+  `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and
+  `ArgSettings::AllowInvalidUtf8` and `ArgMatches::value_of_os` aren't used
+  together
+  - `AppSettings::AllowInvalidUtf8` has been removed
+  - [clap-rs/clap#751](https://github.com/clap-rs/clap/issues/751)
+- `Arg::short` and `Arg::value_delimiter` now take a `char` instead of a `&str`
+- `ArgMatches` panics on unknown arguments
+- Removed `VersionlessSubcommands`, making it the default (see [clap-rs/clap#2812](https://github.com/clap-rs/clap/issues/2812))
+- Completion generation has been split out into [clap_generate](./clap_generate).
+- Removed `ArgSettings::EmptyValues` in favor of `ArgSettings::ForbidEmptyValues`
+- Validator signatures have been loosed:
+  - `Arg::validator` now takes first argument as `Fn(&str) -> Result<O, E: ToString>` instead of
     `Fn(String) -> Result<(), String>`
-  * `Arg::validator_os` now takes first argument as `Fn(&OsStr) -> Result<O, OsString>` instead of
+  - `Arg::validator_os` now takes first argument as `Fn(&OsStr) -> Result<O, OsString>` instead of
     `Fn(&OsStr) -> Result<(), OsString>`
-* Removed support for `{n}` in help text
-* In usage parser, for options `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`
-  but `--option [val]...` results in `ArgSettings::MultipleValues` *and* `ArgSettings::MultipleOccurrences`.
-  Before both resulted in the same thing.
-* `App` and `Arg` now need only one lifetime
-* Allowing empty values is no longer the default (changed again in 3.0.0-beta.4)
-* `UseValueDelimiter` is no longer the default
-* `App::override_usage` no longer implies `\t` which allows multi lined usages
+- `Arg::value_name` now sets, rather than appends (see [clap-rs/clap#2634](https://github.com/clap-rs/clap/issues/2634))
+- Upgrade `yaml-rust` from 0.3 to 0.4
+- Replaced `ArgGroup::from(BTreeMap)` to `ArgGroup::from(yaml)`
+- Replaced `ArgMatches::usage` with `App::generate_usage`
+- Replaced `Arg::settings` with `Arg::setting(Setting1 | Setting2)`
+- `App` and `Arg` now need only one lifetime
+- Removed deprecated `App::with_defaults`, replaced with `app_from_crate`
+- Removed deprecated `AppSettings::PropagateGlobalValuesDown` (now the default)
+- Some `App` functions, like `App::write_help` now take `&mut self` instead of `&self`
+- `Error::message` is now private, use `Error::to_string`
+- `Arg::default_value_if`, `Arg::default_value_if_os`, `Arg::default_value_ifs`,
+  `Arg::default_value_ifs_os` now takes the default value parameter as an option ([clap-rs/clap#1406](https://github.com/clap-rs/clap/issues/1406))
+- Changed `App::print_help` & `App::print_long_help` to now return `std::io::Result`
+- Changed `App::write_help` & `App::write_long_help` to now return `std::io::Result`
+- Changed `Arg::index`, `Arg::number_of_values`, `Arg::min_values`, `Arg::max_values` to taking `usize` instead of u64
+- Changed `Error::info` to type `Vec<String>` instead of `Option<Vec<String>>`
+- Changed `ArgMatches::subcommand` to now return `Option<(&str, &ArgMatches)>`
+- Renamed `ErrorKind::MissingArgumentOrSubcommand` to `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
+- Renamed `ErrorKind::HelpDisplayed` to `ErrorKind::DisplayHelp`
+- Renamed `ErrorKind::VersionDisplayed` to `ErrorKind::DisplayVersion`
 
-#### Features
+**From structopt 0.3.25**
 
-* **Added Methods**
-  * **App**
-    * `App::replace`
-    * `App::get_matches_mut`
-    * `App::mut_arg`
-    * `App::unset_global_setting`
-    * `App::help_heading`
-    * `App::stop_custom_headings`
-  * **Arg**
-    * `Arg::exclusive`
-    * `Arg::multiple_values`
-    * `Arg::multiple_occurrences`
-    * `Arg::help_heading`
-    * `Arg::settings` (changed again in 3.0.0-beta.4)
-* **Added Settings**
-  * `AppSettings::HelpRequired`
-  * `AppSettings::NoAutoHelp`
-  * `AppSettings::NoAutoVersion`
-  * `AppSettings::SubcommandPrecedenceOverArg`
+- By default, the `App` isn't initialized with crate information anymore.  Now opt-in via `#[clap(author)]`, `#[clap(about)]`, `#[clap(version)]` ([clap-rs/clap#3034](https://github.com/clap-rs/clap/issues/3034))
+- `#[clap(default_value)]` is replaced with `#[clap(default_value_t)]` ([clap-rs/clap#1694](https://github.com/clap-rs/clap/issues/1694))
+- Subcommands nested under subcommands now needs a `#[clap(subcommand)]` attribute ([clap-rs/clap#2587](https://github.com/clap-rs/clap/pull/2587))
+- `Vec<_>` and `Option<Vec<_>>` have changed from `multiple` to `multiple_occurrences`
 
-#### Enhancements
+On top of the clap 2 changes
 
-* Made `App::arg` and `App::args` more generic
-* Improvements to `clap_app!` macro to make it support more wider use cases
-* Colors now work correctly on Windows Console
-* Multiple bug fixes and error message improvements
-* Improvements to parsing logic and help messages
+### Deprecations
 
+While a lot of deprecations have been added to clean up the API (overloaded meaning of `Arg::multiple`) or make things more consistent, some particular highlights are:
+- `clap_app!` has been deprecated in favor of the builder API with `arg!` ([clap-rs/clap#2835](https://github.com/clap-rs/clap/issues/2835))
+- `Arg::from_usage` has been deprecated in favor of `arg!`
+- The YAML API has been deprecated in favor the builder or derive APIs
 
-<a name="v2.33.0"></a>
-## v2.33.0 (2019-04-06)
+### Performance
+
+**From clap 2**
+
+- Split out non-default `unicode` feature flag for faster builds and smaller binaries for ASCII-only CLIs.
+- Split out non-default `env` feature flag  for faster builds and smaller binaries.
+
+### Features
+
+**From clap 2**
+
+- Integration of `structopt::StructOpt` via `clap::Parser` (requires `derive` feature flag)
+- Custom help headings
+  - `App::help_heading` (apply to all future args)
+  - `Arg::help_heading` (apply to current arg)
+  - `App::subcommand_help_heading` along with `App::subcommand_value_name` (apply to subcommands)
+  - See [clap-rs/clap#805](https://github.com/clap-rs/clap/issues/805)
+  - `AppSettings::UnifiedHelpMessage` is now default behaviour ([clap-rs/clap#2807](https://github.com/clap-rs/clap/issues/2807))
+- Deriving of `ArgEnum` for generating `Arg::possible_values` (requires `derive` feature flag)
+- Disable built-in help/version behavior with `AppSettings::NoAutoHelp` and `AppSettings::NoAutoVersion`
+- Change an existing arg with new builder method `mut_arg` (particularly helpful for `--help` and `--version`)
+- Provide extra context in long help messages (`--help`) with `before_long_help` and `after_long_help` ([clap-rs/clap#1903](https://github.com/clap-rs/clap/issues/1903))
+- Detect missing help descriptions via debug asserts by enabling `AppSettings::HelpExpected`
+- Aliases for short flags ([clap-rs/clap#1896](https://github.com/clap-rs/clap/issues/1896))
+- Validate UTF-8 values, rather than panicing during `ArgMatches::value_of` thanks to `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8`
+  - Debug builds will assert when the `ArgMatches` calls do not match the UTF-8 setting.
+  - See [clap-rs/clap#751](https://github.com/clap-rs/clap/issues/751)
+- `clap::PossibleValue` to allow
+  - Hiding ([clap-rs/clap#2756](https://github.com/clap-rs/clap/issues/2756))
+  - Completion help for possible values for args ([clap-rs/clap#2731](https://github.com/clap-rs/clap/issues/2731))
+- Allow arguments to conflict with all others via `Arg::exclusive` ([clap-rs/clap#1583](https://github.com/clap-rs/clap/issues/1583))
+- Validate arguments with a regex (required `regex` feature flag)
+  - See [clap-rs/clap](https://github.com/clap-rs/clap/issues/1968)
+- `Arg::default_missing_value` for cases like `--color[=<WHEN>]` ([clap-rs/clap#1587](https://github.com/clap-rs/clap/pull/1587))
+- `clap::App::color` / `clap::ColorChoice` to specify color setting for the app
+- Custom error reporting with `App::error`
+- Replace `Arg::multiple(bool)` with `Arg::multiple_values` / `Arg::multiple_occurrences`
+  - Positionals can be either
+- Added support for flag subcommands like pacman ([clap-rs/clap#1361](https://github.com/clap-rs/clap/issues/1361))
+- Partial parsing via `AppSettings::IgnoreErrors` ([clap-rs/clap#1880](https://github.com/clap-rs/clap/issues/1880))
+- Enable `cmd help` to print long help (`--help` instead of `-h`) with `AppSettings::UseLongFormatForHelpSubcommand` ([clap-rs/clap#2435](https://github.com/clap-rs/clap/issues/2435))
+- Allow long arg abbreviations like we do with subcommands via `AppSettings::InferLongArgs` ([clap-rs/clap#2435](https://github.com/clap-rs/clap/issues/2435))
+- Detect subcommands among positional arguments with `AppSettings::SubcommandPrecedenceOverArg`
+- Give completion scripts hints with `Arg::value_hint` ([clap-rs/clap#1793](https://github.com/clap-rs/clap/pull/1793))
+- Allow unsetting defaults with
+- `Arg::default_value_if`, `Arg::default_value_if_os`, `Arg::default_value_ifs`,
+  `Arg::default_value_ifs_os` ([clap-rs/clap#1406](https://github.com/clap-rs/clap/issues/1406))
+- Interpret some env variable values as `false` for flags, in addition to "not-present" ([clap-rs/clap#2539](https://github.com/clap-rs/clap/issues/2539))
+  - `n`, `no`, `f`, `false`, `off`, `0`
+- Added `arg!` macro for creating an `Arg` from a compile-time usage parser
+
+- *(Experimental)* Busybox-like multi-call support
+  - See `AppSettings::Multicall` behind `unstable-multicall` feature flag
+  - See [clap-rs/clap#1120](https://github.com/clap-rs/clap/issues/1120)
+- *(Experimental)* Alias an argument to anything group of arguments
+  - See `App::replace` behind `unstable-replace` feature flag
+  - See [clap-rs#1603](https://github.com/clap-rs/clap/issues/1603)
+- *(Experimental)* Grouping of multiple values within multiple occurrences
+  - See `ArgMatches::grouped_values_of` behind `unstable-grouped` feature flag
+  - See [clap-rs/clap#1026](https://github.com/clap-rs/clap/issues/1026)
+
+**From structopt 0.3.25**
+
+- Allow defaulting with native types via new `default_value_t [= <expr>]` attribute ([clap-rs/clap#1694](https://github.com/clap-rs/clap/issues/1694))
+- New `update` API
+- New `arg_enum` attribute for integrating with `ArgEnum` trait
+
+On top of the clap 2 changes
+
+### Fixes
+
+**From clap 2**
+
+- Correctly handle colored output on Windows
+- Only generate version flags when `App::version`, `App::long_version` are set
+  (see [clap-rs/clap#2812](https://github.com/clap-rs/clap/issues/2812))
+- General completion script improvements
+- Limited default help text wrapping to 100 when `wrap_help` feature is not enabled
+- Be more specific than `Arg::multiple` with `Arg::multiple_values` and `Arg::multiple_occurrences`
+- `app_from_crate!` defaults to separating multiple authors with `", "`
+- Ensure all examples work
+- `IgnoreCase` is now unicode aware (requires `unicode` feature flag)
+- Always respect `ColorChoice::Never`, even if that means we skip colors in some cases
+- `ArgMatches` panics on unknown arguments
+
+**From structopt 0.3.25**
+
+- Support `SubcommandsNegateReqs` by allowing required `Option<_>`s ([clap-rs/clap#2255](https://github.com/clap-rs/clap/issues/2255))
+- Infer `AllowInvalidUtf8` based on parser ([clap-rs/clap#751](https://github.com/clap-rs/clap/issues/2255))
+
+On top of the clap 2 changes
+
+### Minimum Required Rust
+
+- As of this release, `clap` requires `rustc 1.54.0` or greater.
+
+## [v2.33.0] (2019-04-06)
 
 #### New Sponsor
 
@@ -399,7 +231,6 @@ Added `std`, `cargo`, `derive` features.
 
 * As of this release, `clap` requires `rustc 1.31.0` or greater.
 
-<a name="v2.32.0"></a>
 ## v2.32.0 (2018-06-26)
 
 #### Minimum Required Rust
@@ -427,7 +258,6 @@ Added `std`, `cargo`, `derive` features.
 
 
 
-<a name="v2.31.2"></a>
 ### v2.31.2 (2018-03-19)
 
 #### Bug Fixes
@@ -439,7 +269,6 @@ Added `std`, `cargo`, `derive` features.
 
 * Fixes some typos in the `README.md` ([c8e685d7](https://github.com/kbknapp/clap-rs/commit/c8e685d76adee2a3cc06cac6952ffcf6f9548089))
 
-<a name="v2.31.1"></a>
 ### v2.31.1 (2018-03-06)
 
 
@@ -448,7 +277,6 @@ Added `std`, `cargo`, `derive` features.
 * **AllowMissingPositional:**  improves the ability of AllowMissingPositional to allow 'skipping' to the last positional arg with '--' ([df20e6e2](https://github.com/kbknapp/clap-rs/commit/df20e6e24b4e782be0b423b484b9798e3e2efe2f))
 
 
-<a name="v2.31.0"></a>
 ## v2.31.0 (2018-03-04)
 
 
@@ -473,7 +301,6 @@ Added `std`, `cargo`, `derive` features.
 *  Uses the short help tool-tip for PowerShell completion scripts ([ecda22ce](https://github.com/kbknapp/clap-rs/commit/ecda22ce7210ce56d7b2d1a5445dd1b8a2959656))
 
 
-<a name="v2.30.0"></a>
 ## v2.30.0 (2018-02-13)
 
 #### Bug Fixes
@@ -487,7 +314,6 @@ Added `std`, `cargo`, `derive` features.
 * **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API ([414707e4e97](https://github.com/kbknapp/clap-rs/pull/1176/commits/414707e4e979d07bfe555247e5d130c546673708), closes [#1160](https://github.com/kbknapp/clap-rs/issues/1160))
 
 
-<a name="v2.29.4"></a>
 ### v2.29.4 (2018-02-06)
 
 
@@ -497,7 +323,6 @@ Added `std`, `cargo`, `derive` features.
 
 
 
-<a name="v2.29.3"></a>
 ### v2.29.3 (2018-02-05)
 
 
@@ -516,7 +341,6 @@ Added `std`, `cargo`, `derive` features.
 
 
 
-<a name="v2.29.2"></a>
 ## v2.29.2 (2018-01-16)
 
 
@@ -537,7 +361,6 @@ Added `std`, `cargo`, `derive` features.
 
 
 
-<a name="2.29.1"></a>
 ### 2.29.1 (2018-01-09)
 
 
@@ -558,7 +381,6 @@ Added `std`, `cargo`, `derive` features.
 * **completions/zsh.rs:**  Fix completion of long option values ([46365cf8](https://github.com/kbknapp/clap-rs/commit/46365cf8be5331ba04c895eb183e2f230b5aad51))
 
 
-<a name="2.29.0"></a>
 ## 2.29.0 (2017-12-02)
 
 
@@ -568,7 +390,6 @@ Added `std`, `cargo`, `derive` features.
 
 
 
-<a name="2.28.0"></a>
 ## 2.28.0 (2017-11-28)
 
 The minimum required Rust is now 1.20. This was done to start using bitflags 1.0 and having >1.0 deps is a *very good* thing!
@@ -601,7 +422,6 @@ The minimum required Rust is now 1.20. This was done to start using bitflags 1.0
 
 
 
-<a name="v2.27.1"></a>
 ## v2.27.1 (2017-10-24)
 
 
@@ -609,7 +429,6 @@ The minimum required Rust is now 1.20. This was done to start using bitflags 1.0
 
 * Adds `term_size` as an optional dependency (with feature `wrap_help`) to fix compile bug
 
-<a name="v2.27.0"></a>
 ## v2.27.0 (2017-10-24)
 
 ** This release raises the minimum required version of Rust to 1.18 **
@@ -655,7 +474,6 @@ See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46
 
 
 
-<a name="v2.26.2"></a>
 ### v2.26.2 (2017-09-14)
 
 
@@ -669,7 +487,6 @@ See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46
 
 
 
-<a name="v2.26.1"></a>
 ### v2.26.1 (2017-09-14)
 
 
@@ -687,7 +504,6 @@ See the commit [0c223f54](https://github.com/kbknapp/clap-rs/commit/0c223f54ed46
 
 
 
-<a name="v2.26.0"></a>
 ## v2.26.0 (2017-07-29)
 
 Minimum version of Rust is now v1.13.0 (Stable)
@@ -705,7 +521,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.25.1"></a>
 ### v2.25.1 (2017-07-21)
 
 #### Improvements
@@ -716,7 +531,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * Various documentation typos and grammar fixes
 
-<a name="v2.25.0"></a>
 ### v2.25.0 (2017-06-20)
 
 
@@ -743,7 +557,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.24.2"></a>
 ### v2.24.2 (2017-05-15)
 
 
@@ -761,7 +574,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.24.0"></a>
 ### v2.24.0 (2017-05-07)
 
 
@@ -773,7 +585,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.24.0"></a>
 ## v2.24.0 (2017-05-05)
 
 
@@ -787,7 +598,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators. ([0a4384e3](https://github.com/kbknapp/clap-rs/commit/0a4384e350eed74c2a4dc8964c203f21ac64897f))
 
 
-<a name="v2.23.2"></a>
 ### v2.23.2 (2017-04-19)
 
 
@@ -804,7 +614,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 *   Fix a typo the minimum rust version required ([71dabba3](https://github.com/kbknapp/clap-rs/commit/71dabba3ea0a17c88b0e2199c9d99f0acbf3bc17))
 
-<a name="v2.23.1"></a>
 ### v2.23.1 (2017-04-05)
 
 
@@ -813,7 +622,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fixes a missing newline character in the autogenerated help and version messages in some instances ([5ae9007d](https://github.com/kbknapp/clap-rs/commit/5ae9007d984ae94ae2752df51bcbaeb0ec89bc15))
 
 
-<a name="v2.23.0"></a>
 ## v2.23.0 (2017-04-05)
 
 
@@ -844,7 +652,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.22.2"></a>
 ### v2.22.2 (2017-03-30)
 
 
@@ -854,7 +661,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.22.1"></a>
 ### v2.22.1 (2017-03-24)
 
 
@@ -862,7 +668,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **usage:**  fixes a big regression with custom usage strings ([2c41caba](https://github.com/kbknapp/clap-rs/commit/2c41caba3c7d723a2894e315d04da796b0e97759))
 
-<a name="v2.22.0"></a>
 ## v2.22.0 (2017-03-23)
 
 #### API Additions
@@ -871,7 +676,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Arg::hide_default_value:**  adds ability to hide the default value of an argument from the help string ([89e6ea86](https://github.com/kbknapp/clap-rs/commit/89e6ea861e16a1ad56757ca12f6b32d02253e44a), closes [#902](https://github.com/kbknapp/clap-rs/issues/902))
 
 
-<a name="v2.21.3"></a>
 ### v2.21.3 (2017-03-23)
 
 #### Bug Fixes
@@ -879,7 +683,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **yaml:**  adds support for loading author info from yaml ([e04c390c](https://github.com/kbknapp/clap-rs/commit/e04c390c597a55fa27e724050342f16c42f1c5c9))
 
 
-<a name="v2.21.2"></a>
 ### v2.21.2 (2017-03-17)
 
 
@@ -895,7 +698,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.21.1"></a>
 ### v2.21.1 (2017-03-12)
 
 
@@ -906,7 +708,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.21.0"></a>
 ## v2.21.0 (2017-03-09)
 
 #### Performance
@@ -949,7 +750,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.20.5"></a>
 ### v2.20.5 (2017-02-18)
 
 
@@ -958,7 +758,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **clap_app!:**   fixes a critical bug of a missing fragment specifier when using `!property` style tags. ([5635c1f94](https://github.com/kbknapp/clap-rs/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94))
 
 
-<a name="v2.20.4"></a>
 ### v2.20.4 (2017-02-15)
 
 
@@ -971,7 +770,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   Fix examples link in CONTRIBUTING.md ([60cf875d](https://github.com/kbknapp/clap-rs/commit/60cf875d67a252e19bb85054be57696fac2c57a1))
 
 
-<a name="v2.20.3"></a>
 ### v2.20.3 (2017-02-03)
 
 
@@ -989,7 +787,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.20.2"></a>
 ### v2.20.2 (2017-02-03)
 
 #### Bug Fixes
@@ -1001,7 +798,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 *   adds ArgGroup::multiple to the supported YAML fields for building ArgGroups from YAML ([d8590037](https://github.com/kbknapp/clap-rs/commit/d8590037ce07dafd8cd5b26928aa4a9fd3018288), closes [#840](https://github.com/kbknapp/clap-rs/issues/840))
 
-<a name="v2.20.1"></a>
 ### v2.20.1 (2017-01-31)
 
 #### Bug Fixes
@@ -1019,7 +815,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fix link from app_from_crate! to crate_authors! (#822) ([5b29be9b](https://github.com/kbknapp/clap-rs/commit/5b29be9b073330ab1f7227cdd19fe4aab39d5dcb))
 *   fix spelling of "guaranteed" ([4f30a65b](https://github.com/kbknapp/clap-rs/commit/4f30a65b9c03eb09607eb91a929a6396637dc105))
 
-<a name="v2.20.0"></a>
 
 #### New Settings
 
@@ -1073,7 +868,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **README.md:**  fix some typos ([f22c21b4](https://github.com/kbknapp/clap-rs/commit/f22c21b422d5b287d1a1ac183a379ee02eebf54f))
 * **src/app/mod.rs:**  fix some typos ([5c9b0d47](https://github.com/kbknapp/clap-rs/commit/5c9b0d47ca78dea285c5b9dec79063d24c3e451a))
 
-<a name="v2.19.3"></a>
 ### v2.19.3 (2016-12-28)
 
 
@@ -1083,7 +877,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.19.2"></a>
 ### v2.19.2 (2016-12-08)
 
 #### Bug Fixes
@@ -1097,7 +890,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.19.1"></a>
 ### v2.19.1 (2016-12-01)
 
 
@@ -1110,7 +902,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Bash Completion:**  allows bash completion to fall back to traditional bash completion upon no matching completing function ([b1b16d56](https://github.com/kbknapp/clap-rs/commit/b1b16d56d8fddf819bdbe24b3724bb6a9f3fa613)))
 
 
-<a name="v2.19.0"></a>
 ## v2.19.0 (2016-11-21)
 
 #### Features
@@ -1134,7 +925,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Compatibility Policy:**  adds an official compatibility policy to ([760d66dc](https://github.com/kbknapp/clap-rs/commit/760d66dc17310b357f257776624151da933cd25d), closes [#740](https://github.com/kbknapp/clap-rs/issues/740))
 * **Contributing:**  updates the readme to improve the readability and contributing sections ([eb51316c](https://github.com/kbknapp/clap-rs/commit/eb51316cdfdc7258d287ba13b67ef2f42bd2b8f6))
 
-<a name="v2.18.0"></a>
 ## v2.18.0 (2016-11-05)
 
 
@@ -1144,7 +934,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.17.1"></a>
 ### v2.17.1 (2016-11-02)
 
 
@@ -1154,7 +943,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.17.0"></a>
 ## v2.17.0 (2016-11-01)
 
 
@@ -1164,7 +952,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.16.4"></a>
 ### v2.16.4 (2016-10-31)
 
 
@@ -1184,7 +971,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.16.3"></a>
 ### v2.16.3 (2016-10-28)
 
 
@@ -1195,7 +981,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.15.1"></a>
 ### v2.16.2 (2016-10-25)
 
 
@@ -1204,7 +989,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Fish Completions:**  fixes a bug where single quotes are not escaped ([780b4a18](https://github.com/kbknapp/clap-rs/commit/780b4a18281b6f7f7071e1b9db2290fae653c406), closes [#704](https://github.com/kbknapp/clap-rs/issues/704))
 
 
-<a name="v2.16.1"></a>
 ### v2.16.1 (2016-10-24)
 
 
@@ -1214,7 +998,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.16.0"></a>
 ## v2.16.0 (2016-10-23)
 
 
@@ -1224,7 +1007,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.15.0"></a>
 ## v2.15.0 (2016-10-21)
 
 
@@ -1237,7 +1019,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **app/settings.rs:**  moves variants to roughly alphabetical order ([9ed4d4d7](https://github.com/kbknapp/clap-rs/commit/9ed4d4d7957a23357aef60081e45639ab9e3905f))
 
 
-<a name="v2.14.1"></a>
 ### v2.14.1 (2016-10-20)
 
 
@@ -1264,7 +1045,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.14.0"></a>
 ## v2.14.0 (2016-10-05)
 
 
@@ -1282,7 +1062,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   typo ([bac417fa](https://github.com/kbknapp/clap-rs/commit/bac417fa1cea3d32308334c7cccfcf54546cd9d8))
 
 
-<a name="v2.13.0"></a>
 ## v2.13.0 (2016-09-18)
 
 
@@ -1298,7 +1077,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.12.1"></a>
 ### v2.12.1 (2016-09-13)
 
 
@@ -1308,7 +1086,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.12.0"></a>
 ## v2.12.0 (2016-09-13)
 
 
@@ -1341,7 +1118,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.11.3"></a>
 ### v2.11.3 (2016-09-07)
 
 
@@ -1359,7 +1135,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.11.2"></a>
 ### v2.11.2 (2016-09-06)
 
 #### Improvements
@@ -1367,7 +1142,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Help Wrapping:**  makes some minor changes to when next line help is automatically used ([5658b117](https://github.com/kbknapp/clap-rs/commit/5658b117aec3e03adff9c8c52a4c4bc1fcb4e1ff))
 
 
-<a name="v2.11.1"></a>
 ### v2.11.1 (2016-09-05)
 
 
@@ -1385,7 +1159,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.11.0"></a>
 ### v2.11.0 (2016-08-28)
 
 
@@ -1409,7 +1182,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.10.4"></a>
 ### v2.10.4 (2016-08-25)
 
 
@@ -1419,7 +1191,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.10.3"></a>
 ### v2.10.3 (2016-08-25)
 
 #### Features
@@ -1436,7 +1207,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.10.2"></a>
 ### v2.10.2 (2016-08-22)
 
 
@@ -1446,7 +1216,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.10.1"></a>
 ### v2.10.1 (2016-08-21)
 
 
@@ -1460,7 +1229,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.10.0"></a>
 ## v2.10.0 (2016-07-29)
 
 
@@ -1482,7 +1250,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="2.9.3"></a>
 ### 2.9.3 (2016-07-24)
 
 
@@ -1497,7 +1264,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Settings:**  Add unset_setting and unset_settings fns to App (#598) ([0ceba231](https://github.com/kbknapp/clap-rs/commit/0ceba231c6767cd6d88fdb1feeeea41deadf77ff), closes [#590](https://github.com/kbknapp/clap-rs/issues/590))
 
 
-<a name="2.9.2"></a>
 ### 2.9.2 (2016-07-03)
 
 
@@ -1511,7 +1277,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="2.9.1"></a>
 ### 2.9.1 (2016-07-02)
 
 
@@ -1520,7 +1285,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Completions:**  allows multiple completions to be built by namespacing with bin name ([57484b2d](https://github.com/kbknapp/clap-rs/commit/57484b2daeaac01c1026e8c84efc8bf099e0eb31))
 
 
-<a name="v2.9.0"></a>
 ## v2.9.0 (2016-07-01)
 
 
@@ -1542,7 +1306,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **AllowLeadingHyphen:**  fixes an issue where  isn't ignored like it should be with this setting ([96c24c9a](https://github.com/kbknapp/clap-rs/commit/96c24c9a8fa1f85e06138d3cdd133e51659e19d2), closes [#558](https://github.com/kbknapp/clap-rs/issues/558))
 
-<a name="v2.8.0"></a>
 ## v2.8.0 (2016-06-30)
 
 
@@ -1560,7 +1323,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.7.1"></a>
 ### v2.7.1 (2016-06-29)
 
 
@@ -1572,7 +1334,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.7.0"></a>
 ## v2.7.0 (2016-06-28)
 
 
@@ -1600,7 +1361,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.6.0"></a>
 ## v2.6.0 (2016-06-14)
 
 
@@ -1633,7 +1393,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.5.2"></a>
 ### v2.5.2 (2016-05-31)
 
 
@@ -1654,7 +1413,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   inter-links all types and pages ([3312893d](https://github.com/kbknapp/clap-rs/commit/3312893ddaef3f44d68d8d26ed3d08010be50d97), closes [#505](https://github.com/kbknapp/clap-rs/issues/505))
 *   makes all publicly available types viewable in docs ([52ca6505](https://github.com/kbknapp/clap-rs/commit/52ca6505b4fec7b5c2d53d160c072d395eb21da6))
 
-<a name="v2.5.1"></a>
 ### v2.5.1 (2016-05-11)
 
 
@@ -1662,7 +1420,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **Subcommand Aliases**: fixes lifetime issue when setting multiple aliases at once ([ac42f6cf0](https://github.com/kbknapp/clap-rs/commit/ac42f6cf0de6c4920f703807d63061803930b18d))
 
-<a name="v2.5.0"></a>
 ## v2.5.0 (2016-05-10)
 
 
@@ -1675,7 +1432,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **SubCommands:**  adds support for subcommand aliases ([66b4dea6](https://github.com/kbknapp/clap-rs/commit/66b4dea65c44d8f77ff522238a9237aed1bcab6d), closes [#469](https://github.com/kbknapp/clap-rs/issues/469))
 
 
-<a name="v2.4.3"></a>
 ### v2.4.3 (2016-05-10)
 
 
@@ -1692,17 +1448,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
   *  moves positionals to standard <> formatting ([03dfe5ce](https://github.com/kbknapp/clap-rs/commit/03dfe5ceff1d63f172788ff688567ddad9fe119b))
   *  default help subcommand string has been shortened ([5b7fe8e4](https://github.com/kbknapp/clap-rs/commit/5b7fe8e4161e43ab19e2e5fcf55fbe46791134e9), closes [#494](https://github.com/kbknapp/clap-rs/issues/494))
 
-<a name="v2.4.2"></a>
 ### v2.4.3 (2016-05-10)
 
 * Ghost Release
 
-<a name="v2.4.1"></a>
 ### v2.4.3 (2016-05-10)
 
 * Ghost Release
 
-<a name="v2.4.0"></a>
 ## v2.4.0 (2016-05-02)
 
 
@@ -1721,7 +1474,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Required Args:**  fixes issue where missing required args are sometimes duplicated in error messages ([3beebd81](https://github.com/kbknapp/clap-rs/commit/3beebd81e7bc2faa4115ac109cf570e512c5477f), closes [#492](https://github.com/kbknapp/clap-rs/issues/492))
 
 
-<a name="v2.3.0"></a>
 ## v2.3.0 (2016-04-18)
 
 
@@ -1746,7 +1498,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **HELP:**  Adjust Help to semantic changes introduced in 6933b84 ([8d23806b](https://github.com/kbknapp/clap-rs/commit/8d23806bd67530ad412c34a1dcdcb1435555573d))
 
-<a name="v2.2.6"></a>
 ### v2.2.6 (2016-04-11)
 
 #### Bug Fixes
@@ -1754,7 +1505,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Arg Groups**: fixes bug where arg name isn't printed properly ([3019a685](https://github.com/kbknapp/clap-rs/commit/3019a685eee747ccbe6be09ad5dddce0b1d1d4db), closes [#476](https://github.com/kbknapp/clap-rs/issues/476))
 
 
-<a name="v2.2.5"></a>
 ### v2.2.5 (2016-04-03)
 
 
@@ -1764,7 +1514,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Help Message:**  fixes bug where arg name is printed twice ([71acf1d5](https://github.com/kbknapp/clap-rs/commit/71acf1d576946658b8bbdb5ae79e6716c43a030f), closes [#472](https://github.com/kbknapp/clap-rs/issues/472))
 
 
-<a name="v2.2.4"></a>
 ### v2.2.4 (2016-03-30)
 
 
@@ -1775,7 +1524,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v2.2.3"></a>
 ### v2.2.3 (2016-03-28)
 
 
@@ -1783,7 +1531,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **Help Subcommand:**  fixes issue where help and version flags weren't properly displayed ([205b07bf](https://github.com/kbknapp/clap-rs/commit/205b07bf2e6547851f1290f8cd6b169145e144f1), closes [#466](https://github.com/kbknapp/clap-rs/issues/466))
 
-<a name="v2.2.2"></a>
 ### v2.2.2 (2016-03-27)
 
 
@@ -1793,7 +1540,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Usage Strings:**  fixes small bug where -- would appear needlessly in usage strings ([6933b849](https://github.com/kbknapp/clap-rs/commit/6933b8491c2a7e28cdb61b47dcf10caf33c2f78a), closes [#461](https://github.com/kbknapp/clap-rs/issues/461))
 
 
-<a name="2.2.1"></a>
 ### 2.2.1 (2016-03-16)
 
 
@@ -1806,7 +1552,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Help Message:**  fixes a bug where small terminal sizes causing a loop ([1d73b035](https://github.com/kbknapp/clap-rs/commit/1d73b0355236923aeaf6799abc759762ded7e1d0), closes [#453](https://github.com/kbknapp/clap-rs/issues/453))
 
 
-<a name="v2.2.0"></a>
 ## v2.2.0 (2016-03-15)
 
 
@@ -1826,7 +1571,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **Groups:**  explains required ArgGroups better ([4ff0205b](https://github.com/kbknapp/clap-rs/commit/4ff0205b85a45151b59bbaf090a89df13438380f), closes [#439](https://github.com/kbknapp/clap-rs/issues/439))
 
-<a name="v2.1.2"></a>
 ### v2.1.2 (2016-02-24)
 
 #### Bug Fixes
@@ -1834,7 +1578,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Nightly:**  fixes failing nightly build ([d752c170](https://github.com/kbknapp/clap-rs/commit/d752c17029598b19037710f204b7943f0830ae75), closes [#434](https://github.com/kbknapp/clap-rs/issues/434))
 
 
-<a name="v2.1.1"></a>
 ### v2.1.1 (2016-02-19)
 
 
@@ -1848,7 +1591,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Help:**  adds setting for next line help by arg ([066df748](https://github.com/kbknapp/clap-rs/commit/066df7486e684cf50a8479a356a12ba972c34ce1), closes [#427](https://github.com/kbknapp/clap-rs/issues/427))
 
 
-<a name="v2.1.0"></a>
 ## v2.1.0 (2016-02-10)
 
 
@@ -1861,7 +1603,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Default Values:**  adds better examples and notes for default values ([9facd74f](https://github.com/kbknapp/clap-rs/commit/9facd74f843ef3807c5d35259558a344e6c25905))
 
 
-<a name="v2.0.6"></a>
 ### v2.0.6 (2016-02-09)
 
 
@@ -1870,7 +1611,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Positional Arguments:**  now displays value name if appropriate ([f0a99916](https://github.com/kbknapp/clap-rs/commit/f0a99916c59ce675515c6dcdfe9a40b130510908), closes [#420](https://github.com/kbknapp/clap-rs/issues/420))
 
 
-<a name="v2.0.5"></a>
 ### v2.0.5 (2016-02-05)
 
 
@@ -1879,7 +1619,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Multiple Values:**  fixes bug where number_of_values wasn't respected ([72c387da](https://github.com/kbknapp/clap-rs/commit/72c387da0bb8a6f526f863770f08bb8ca0d3de03))
 
 
-<a name="v2.0.4"></a>
 ### v2.0.4 (2016-02-04)
 
 
@@ -1889,7 +1628,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   Stop lonely hyphens from causing panic ([85b11468](https://github.com/kbknapp/clap-rs/commit/85b11468b0189d5cc15f1cfac5db40d17a0077dc), closes [#410](https://github.com/kbknapp/clap-rs/issues/410))
 * **AppSettings:**  fixes bug where subcmds didn't receive parent ver ([a62e4527](https://github.com/kbknapp/clap-rs/commit/a62e452754b3b0e3ac9a15aa8b5330636229ead1))
 
-<a name="v2.0.3"></a>
 ### v2.0.3 (2016-02-02)
 
 
@@ -1907,7 +1645,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **value_t_or_exit:**  fixes typo which causes value_t_or_exit to return a Result ([ee96baff](https://github.com/kbknapp/clap-rs/commit/ee96baffd306cb8d20ddc5575cf739bb1a6354e8))
 
 
-<a name="v2.0.2"></a>
 ### v2.0.2 (2016-01-31)
 
 
@@ -1922,7 +1659,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Usage Parser:**  fixes a bug where literal single quotes weren't allowed in help strings ([0bcc7120](https://github.com/kbknapp/clap-rs/commit/0bcc71206478074769e311479b34a9f74fe80f5c), closes [#406](https://github.com/kbknapp/clap-rs/issues/406))
 
 
-<a name="v2.0.1"></a>
 ### v2.0.1 (2016-01-30)
 
 
@@ -1931,7 +1667,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fixes cargo features to NOT require nightly with unstable features ([dcbcc60c](https://github.com/kbknapp/clap-rs/commit/dcbcc60c9ba17894be636472ea4b07a82d86a9db), closes [#402](https://github.com/kbknapp/clap-rs/issues/402))
 
 
-<a name="v2.0.0"></a>
 ## v2.0.0 (2016-01-28)
 
 
@@ -2008,7 +1743,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 
-<a name="v1.5.5"></a>
 ### v1.5.5 (2016-01-04)
 
 
@@ -2019,7 +1753,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fixes an intentional panic issue discovered via clippy ([ea83a3d4](https://github.com/kbknapp/clap-rs/commit/ea83a3d421ea8856d4cac763942834d108b71406))
 
 
-<a name="v1.5.4"></a>
 ### v1.5.4 (2015-12-18)
 
 
@@ -2038,7 +1771,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   ArgRequiredElseHelp setting now takes precedence over missing required args ([faad83fb](https://github.com/kbknapp/clap-rs/commit/faad83fbef6752f3093b6e98fca09a9449b830f4), closes [#362](https://github.com/kbknapp/clap-rs/issues/362))
 
 
-<a name="v1.5.3"></a>
 ### v1.5.3 (2015-11-20)
 
 
@@ -2049,7 +1781,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.5.2"></a>
 ### v1.5.2 (2015-11-14)
 
 
@@ -2059,7 +1790,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.5.1"></a>
 ### v1.5.1 (2015-11-13)
 
 
@@ -2069,7 +1799,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.5.0"></a>
 ## v1.5.0 (2015-11-13)
 
 
@@ -2099,7 +1828,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.7"></a>
 ### v1.4.7 (2015-11-03)
 
 
@@ -2114,7 +1842,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.6"></a>
 ### v1.4.6 (2015-10-29)
 
 
@@ -2137,7 +1864,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.5"></a>
 ### v1.4.5 (2015-10-06)
 
 
@@ -2147,7 +1873,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.4"></a>
 ### v1.4.4 (2015-10-06)
 
 
@@ -2174,7 +1899,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.3"></a>
 ### v1.4.3 (2015-09-30)
 
 
@@ -2193,7 +1917,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.2"></a>
 ### v1.4.2 (2015-09-23)
 
 
@@ -2203,7 +1926,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.1"></a>
 ### v1.4.1 (2015-09-22)
 
 
@@ -2228,7 +1950,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.4.0"></a>
 ## v1.4.0 (2015-09-09)
 
 
@@ -2241,7 +1962,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.3.2"></a>
 ### v1.3.2 (2015-09-08)
 
 
@@ -2261,7 +1981,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.3.1"></a>
 ### v1.3.1 (2015-09-04)
 
 
@@ -2276,7 +1995,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.3.0"></a>
 ## v1.3.0 (2015-09-01)
 
 
@@ -2302,7 +2020,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.5"></a>
 ### v1.2.5 (2015-08-27)
 
 
@@ -2317,7 +2034,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.4"></a>
 ### v1.2.4 (2015-08-26)
 
 
@@ -2327,7 +2043,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.3"></a>
 ### v1.2.3 (2015-08-24)
 
 
@@ -2337,7 +2052,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.2"></a>
 ### v1.2.2 (2015-08-23)
 
 
@@ -2348,7 +2062,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.1"></a>
 ### v1.2.1 (2015-08-20)
 
 
@@ -2372,7 +2085,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.2.0"></a>
 ### v1.2.0 (2015-08-15)
 
 
@@ -2397,7 +2109,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.6"></a>
 ### v1.1.6 (2015-08-01)
 
 
@@ -2407,14 +2118,12 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.5"></a>
 ### v1.1.5 (2015-07-29)
 
 #### Performance
 
 *   removes some unneeded allocations ([93e915df](https://github.com/kbknapp/clap-rs/commit/93e915dfe300f7b7d6209ca93323c6a46f89a8c1))
 
-<a name="v1.1.4"></a>
 ### v1.1.4 (2015-07-20)
 
 
@@ -2429,7 +2138,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.3"></a>
 ### v1.1.3 (2015-07-18)
 
 
@@ -2443,7 +2151,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.2"></a>
 ### v1.1.2 (2015-07-17)
 
 
@@ -2453,7 +2160,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.1"></a>
 ## v1.1.1 (2015-07-17)
 
 
@@ -2463,7 +2169,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.1.0"></a>
 ## v1.1.0 (2015-07-16)
 
 
@@ -2488,7 +2193,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fix incorrect code example for `App::subcommand_required` ([8889689d](https://github.com/kbknapp/clap-rs/commit/8889689dc6336ccc45b2c9f2cf8e2e483a639e93))
 
 
-<a name="v1.0.3"></a>
 ### v1.0.3 (2015-07-11)
 
 
@@ -2502,7 +2206,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.0.2"></a>
 ### v1.0.2 (2015-07-09)
 
 
@@ -2512,7 +2215,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.0.1"></a>
 ### v1.0.1 (2015-07-08)
 
 
@@ -2522,7 +2224,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.0.0"></a>
 ## v1.0.0 (2015-07-08)
 
 
@@ -2537,7 +2238,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v1.0.0"></a>
 ## v1.0.0-beta (2015-06-30)
 
 
@@ -2556,7 +2256,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.11.0"></a>
 ## v0.11.0 (2015-06-17) - BREAKING CHANGE
 
 
@@ -2570,7 +2269,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.5"></a>
 ### v0.10.5 (2015-06-06)
 
 
@@ -2580,7 +2278,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.4"></a>
 ### v0.10.4 (2015-06-06)
 
 
@@ -2590,7 +2287,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.3"></a>
 ### v0.10.3 (2015-05-31)
 
 
@@ -2600,7 +2296,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.2"></a>
 ### v0.10.2 (2015-05-30)
 
 
@@ -2614,7 +2309,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.1"></a>
 ### v0.10.1 (2015-05-26)
 
 
@@ -2624,7 +2318,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.10.0"></a>
 ## v0.10.0 (2015-05-23)
 
 
@@ -2646,7 +2339,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.9.2"></a>
 ## v0.9.2 (2015-05-20)
 
 
@@ -2656,7 +2348,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.9.1"></a>
 ## v0.9.1 (2015-05-18)
 
 
@@ -2666,7 +2357,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.9.0"></a>
 ## v0.9.0 (2015-05-17)
 
 
@@ -2683,7 +2373,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.6"></a>
 ## v0.8.6 (2015-05-17)
 
 
@@ -2693,7 +2382,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.5"></a>
 ## v0.8.5 (2015-05-15)
 
 
@@ -2709,7 +2397,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.4"></a>
 ## v0.8.4 (2015-05-12)
 
 
@@ -2719,7 +2406,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.3"></a>
 ## v0.8.3 (2015-05-10)
 
 
@@ -2733,7 +2419,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.2"></a>
 ## v0.8.2 (2015-05-08)
 
 
@@ -2743,7 +2428,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.1"></a>
 ## v0.8.1 (2015-05-06)
 
 
@@ -2758,7 +2442,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.8.0"></a>
 ## v0.8.0 (2015-05-06)
 
 
@@ -2792,7 +2475,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.6"></a>
 ## v0.7.6 (2015-05-05)
 
 
@@ -2815,7 +2497,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.5"></a>
 ## v0.7.5 (2015-05-04)
 
 
@@ -2825,7 +2506,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.4"></a>
 ## v0.7.4 (2015-05-03)
 
 
@@ -2835,7 +2515,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.3"></a>
 ## v0.7.3 (2015-05-03)
 
 
@@ -2850,7 +2529,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.2"></a>
 ## v0.7.2 (2015-05-03)
 
 
@@ -2860,7 +2538,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.1"></a>
 ## v0.7.1 (2015-05-01)
 
 
@@ -2870,7 +2547,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.7.0"></a>
 ## v0.7.0 (2015-04-30) - BREAKING CHANGE
 
 
@@ -2889,7 +2565,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.9"></a>
 ## v0.6.9 (2015-04-29)
 
 
@@ -2899,7 +2574,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="0.6.8"></a>
 ## 0.6.8 (2015-04-27)
 
 
@@ -2914,7 +2588,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.7"></a>
 ## v0.6.7 (2015-04-22)
 
 
@@ -2928,7 +2601,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.6"></a>
 ## v0.6.6 (2015-04-19)
 
 
@@ -2942,7 +2614,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.5"></a>
 ## v0.6.5 (2015-04-19)
 
 
@@ -2952,7 +2623,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.4"></a>
 ## v0.6.4 (2015-04-17)
 
 
@@ -2962,7 +2632,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.3"></a>
 ## v0.6.3 (2015-04-16)
 
 
@@ -2972,7 +2641,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.2"></a>
 ## v0.6.2 (2015-04-14)
 
 
@@ -2986,7 +2654,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.1"></a>
 ## v0.6.1 (2015-04-13)
 
 
@@ -2996,7 +2663,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.6.0"></a>
 ## v0.6.0 (2015-04-13)
 
 
@@ -3011,7 +2677,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.14"></a>
 ## v0.5.14 (2015-04-10)
 
 
@@ -3027,7 +2692,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.13"></a>
 ## v0.5.13 (2015-04-09)
 
 
@@ -3038,7 +2702,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.12"></a>
 ## v0.5.12 (2015-04-08)
 
 
@@ -3048,7 +2711,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.11"></a>
 ## v0.5.11 (2015-04-08)
 
 
@@ -3058,7 +2720,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.10"></a>
 ## v0.5.10 (2015-04-08)
 
 
@@ -3068,7 +2729,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.9"></a>
 ## v0.5.9 (2015-04-08)
 
 
@@ -3080,7 +2740,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.8"></a>
 ## v0.5.8 (2015-04-08)
 
 
@@ -3095,7 +2754,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.7"></a>
 ## v0.5.7 (2015-04-08)
 
 
@@ -3105,7 +2763,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.6"></a>
 ## v0.5.6 (2015-04-08)
 
 
@@ -3115,7 +2772,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.5"></a>
 ## v0.5.5 (2015-04-08)
 
 
@@ -3125,7 +2781,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.4"></a>
 ## v0.5.4 (2015-04-08)
 
 
@@ -3135,7 +2790,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.3"></a>
 ## v0.5.3 (2015-04-08)
 
 
@@ -3147,7 +2801,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.2"></a>
 ## v0.5.2 (2015-04-08)
 
 
@@ -3157,7 +2810,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.1"></a>
 ## v0.5.1 (2015-04-08)
 
 
@@ -3167,7 +2819,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.5.0"></a>
 ## v0.5.0 (2015-04-08)
 
 
@@ -3177,7 +2828,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.4.18"></a>
 ## v0.4.18 (2015-04-08)
 
 
@@ -3191,7 +2841,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.4.17"></a>
 ## v0.4.17 (2015-04-08)
 
 
@@ -3201,7 +2850,6 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-<a name="v0.4.16"></a>
 ## v0.4.16 (2015-04-08)
 
 
@@ -3213,3 +2861,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 #### Features
 
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/kbknapp/clap-rs/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
+
+<!-- next-url -->
+[Unreleased]: https://github.com/clap-rs/clap/compare/v2.33.0...HEAD
+[2.32.0]: https://github.com/clap-rs/clap/compare/v2.32.0...v2.33.0
