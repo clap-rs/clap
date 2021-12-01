@@ -30,7 +30,7 @@ enum Commands {
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
     Add {
         /// Stuff to add
-        #[clap(required = true)]
+        #[clap(required = true, parse(from_os_str))]
         path: Vec<PathBuf>,
     },
     #[clap(external_subcommand)]

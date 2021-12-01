@@ -17,7 +17,6 @@ enum Mode {
 fn main() {
     let cli = Cli::parse();
 
-    // Note, it's safe to call unwrap() because the arg is required
     match cli.mode {
         Mode::Fast => {
             println!("Hare");

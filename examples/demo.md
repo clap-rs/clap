@@ -19,6 +19,8 @@ OPTIONS:
     -c, --config <PATH>    Sets a custom config file. Could have been an Option<T> with no default
                            too [default: default.toml]
     -h, --help             Print help information
+    -m, --mode <MODE>      What mode to run the program in [default: slow] [possible values: fast,
+                           slow]
     -v, --verbose          A level of verbosity, and can be used multiple times
     -V, --version          Print version information
 ```
