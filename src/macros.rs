@@ -12,6 +12,166 @@ macro_rules! load_yaml {
     };
 }
 
+/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+macro_rules! value_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        $crate::value_t!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+)]
+macro_rules! value_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t_or_exit!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+macro_rules! values_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+)]
+macro_rules! values_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t_or_exit!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[macro_export]
+macro_rules! arg_enum {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        $crate::arg_enum!(@as_item
+        $($tts)*
+
+        impl ::std::str::FromStr for $e {
+            type Err = String;
+
+            fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
+                #[allow(deprecated, unused_imports)]
+                use ::std::ascii::AsciiExt;
+                match s {
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v)),+,
+                    _ => Err({
+                        let v = vec![
+                            $(stringify!($v),)+
+                        ];
+                        format!("valid values: {}",
+                            v.join(", "))
+                    }),
+                }
+            }
+        }
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($v),)+
+                ]
+            }
+        });
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+             enum $e {
+                 $($v$(=$val)*),+
+             }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+}
+
 /// Allows you to pull the version from your Cargo.toml at compile time as
 /// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
@@ -742,58 +902,4 @@ macro_rules! debug {
 #[cfg(not(feature = "debug"))]
 macro_rules! debug {
     ($($arg:tt)*) => {};
-}
-
-/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
-macro_rules! value_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        clap::value_t!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
-)]
-macro_rules! value_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        value_t_or_exit!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t_or_exit::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
-macro_rules! values_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
-)]
-macro_rules! values_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t_or_exit!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t_or_exit::<$t>($v)
-    };
 }
