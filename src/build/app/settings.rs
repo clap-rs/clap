@@ -103,11 +103,11 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::DISABLE_HELP_SC,
     DisableHelpFlag("disablehelpflag")
         => Flags::DISABLE_HELP_FLAG,
-    DisableHelpFlags("disablehelpflag")
+    DisableHelpFlags("disablehelpflags")
         => Flags::DISABLE_HELP_FLAG,
     DisableVersionFlag("disableversionflag")
         => Flags::DISABLE_VERSION_FLAG,
-    DisableVersion("disableversionflag")
+    DisableVersion("disableversion")
         => Flags::DISABLE_VERSION_FLAG,
     PropagateVersion("propagateversion")
         => Flags::PROPAGATE_VERSION,

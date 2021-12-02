@@ -422,34 +422,26 @@ impl<'help> App<'help> {
             )
         };
 
-        let mut has_metadata = false;
-
         for (k, v) in yaml {
             a = match k.as_str().expect("App fields must be strings") {
-                "_has_metadata" => {
-                    has_metadata = true;
-                    a
-                }
-                "bin_name" => yaml_to_str!(a, v, bin_name),
                 "version" => yaml_to_str!(a, v, version),
                 "long_version" => yaml_to_str!(a, v, long_version),
                 "author" => yaml_to_str!(a, v, author),
+                "bin_name" => yaml_to_str!(a, v, bin_name),
                 "about" => yaml_to_str!(a, v, about),
+                "long_about" => yaml_to_str!(a, v, long_about),
                 "before_help" => yaml_to_str!(a, v, before_help),
-                "before_long_help" => yaml_to_str!(a, v, before_long_help),
                 "after_help" => yaml_to_str!(a, v, after_help),
-                "after_long_help" => yaml_to_str!(a, v, after_long_help),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
-                "help_template" => yaml_to_str!(a, v, help_template),
-                "override_help" => yaml_to_str!(a, v, override_help),
-                "override_usage" => yaml_to_str!(a, v, override_usage),
+                "template" => yaml_to_str!(a, v, help_template),
+                "usage" => yaml_to_str!(a, v, override_usage),
+                "help" => yaml_to_str!(a, v, override_help),
+                "help_message" => yaml_to_str!(a, v, help_message),
+                "version_message" => yaml_to_str!(a, v, version_message),
                 "alias" => yaml_to_str!(a, v, alias),
                 "aliases" => yaml_vec_or_str!(a, v, alias),
                 "visible_alias" => yaml_to_str!(a, v, visible_alias),
                 "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
                 "display_order" => yaml_to_usize!(a, v, display_order),
-                "term_width" => yaml_to_usize!(a, v, term_width),
-                "max_term_width" => yaml_to_usize!(a, v, max_term_width),
                 "args" => {
                     if let Some(vec) = v.as_vec() {
                         for arg_yaml in vec {
@@ -486,13 +478,7 @@ impl<'help> App<'help> {
                 "global_setting" | "global_settings" => {
                     yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
                 }
-                "name" => continue,
-                s => {
-                    if !has_metadata {
-                        panic!("Unknown setting '{}' in YAML file for {}", s, err)
-                    }
-                    continue;
-                }
+                _ => a,
             }
         }
 

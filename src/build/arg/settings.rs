@@ -64,7 +64,7 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
     Last("last") => Flags::LAST,
     IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
-    CaseInsensitive("ignorecase") => Flags::CASE_INSENSITIVE,
+    CaseInsensitive("caseinsensitive") => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
     HideEnv("hideenv") => Flags::HIDE_ENV,
     #[cfg(feature = "env")]
