@@ -17,6 +17,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 2. Tutorial: [Builder API](https://github.com/clap-rs/clap/blob/master/examples/tutorial_builder/README.md),  [Derive API](https://github.com/clap-rs/clap/blob/master/examples/tutorial_derive/README.md)
 3. [Examples](https://github.com/clap-rs/clap/blob/master/examples/README.md)
 4. [API Reference](https://docs.rs/clap)
+    - [Derive Reference](https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md)
     - [Feature Flags](#feature-flags)
 5. [CHANGELOG](https://github.com/clap-rs/clap/blob/master/docs/CHANGELOG.md)
 6. [FAQ](https://github.com/clap-rs/clap/blob/master/docs/FAQ.md)

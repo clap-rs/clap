@@ -9,7 +9,7 @@ struct Cli {
     name: Option<String>,
 
     /// Sets a custom config file
-    #[clap(short, long, value_name = "FILE")]
+    #[clap(short, long, parse(from_os_str), value_name = "FILE")]
     config: Option<PathBuf>,
 
     /// Turn debugging information on
