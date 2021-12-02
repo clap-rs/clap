@@ -869,6 +869,30 @@ impl<'help> App<'help> {
         self.override_help(help)
     }
 
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn help_short(self, c: char) -> Self {
+        self.mut_arg("help", |a| a.short(c))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn version_short(self, c: char) -> Self {
+        self.mut_arg("version", |a| a.short(c))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn help_message(self, s: impl Into<&'help str>) -> Self {
+        self.mut_arg("help", |a| a.help(s.into()))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn version_message(self, s: impl Into<&'help str>) -> Self {
+        self.mut_arg("version", |a| a.help(s.into()))
+    }
+
     /// Sets the help template to be used, overriding the default format.
     ///
     /// **NOTE:** The template system is by design very simple. Therefore, the
@@ -954,6 +978,15 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, replaced with [`App::setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")]
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.insert((*s).into());
+        }
+        self
+    }
+
     /// Remove a setting for the current command or subcommand.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
@@ -983,6 +1016,15 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, replaced with [`App::unset_setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")]
+    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.remove((*s).into());
+        }
+        self
+    }
+
     /// Apply a setting for the current command and all subcommands.
     ///
     /// See [`App::setting`] to apply a setting only to this command.
@@ -1001,6 +1043,16 @@ impl<'help> App<'help> {
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
+        self
+    }
+
+    /// Deprecated, replaced with [`App::global_setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")]
+    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.insert((*s).into());
+            self.g_settings.insert((*s).into());
+        }
         self
     }
 
