@@ -52,6 +52,7 @@ impl_settings! { ArgSettings, ArgFlags,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
     Multiple("multiple") => Flags::MULTIPLE,
     ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
+    Global("global") => Flags::GLOBAL,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -99,6 +100,8 @@ pub enum ArgSettings {
     Multiple,
     /// Forbids an arg from accepting empty values such as `""`
     ForbidEmptyValues,
+    /// Sets an arg to be global (i.e. exist in all subcommands)
+    Global,
     /// Hides an arg from the help message
     Hidden,
     /// Allows an argument to take a value (such as `--option value`)

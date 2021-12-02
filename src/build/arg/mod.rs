@@ -119,7 +119,6 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
-    pub(crate) global: bool,
     pub(crate) exclusive: bool,
     pub(crate) value_hint: ValueHint,
 }
@@ -268,7 +267,7 @@ impl<'help> Arg<'help> {
 
     /// Get information on if this argument is global or not
     pub fn get_global(&self) -> bool {
-        self.global
+        self.is_set(ArgSettings::Global)
     }
 
     /// Get the environment variable name specified for this argument, if any
@@ -387,7 +386,6 @@ impl<'help> Arg<'help> {
                 "required_if_eq_all" => yaml_array_tuple2!(a, v, required_if_eq_all),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_usize!(a, v, index),
-                "global" => yaml_to_bool!(a, v, global),
                 "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
                 "multiple_values" => yaml_to_bool!(a, v, multiple_values),
                 "hide" => yaml_to_bool!(a, v, hide),
@@ -3791,9 +3789,12 @@ impl<'help> Arg<'help> {
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
-    pub fn global(mut self, yes: bool) -> Self {
-        self.global = yes;
-        self
+    pub fn global(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::Global)
+        } else {
+            self.unset_setting(ArgSettings::Global)
+        }
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter.
@@ -5082,7 +5083,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("terminator", &self.terminator)
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
-            .field("global", &self.global)
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
             .field("default_missing_vals", &self.default_missing_vals);

@@ -290,7 +290,7 @@ impl<'help> App<'help> {
     /// this `App`.
     pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
-        if arg.global {
+        if arg.get_global() {
             self.get_global_arg_conflicts_with(arg)
         } else {
             arg.blacklist
@@ -2529,7 +2529,7 @@ impl<'help> App<'help> {
         let global_args: Vec<_> = self
             .args
             .args()
-            .filter(|a| a.global)
+            .filter(|a| a.get_global())
             .map(|ga| ga.id.clone())
             .collect();
         if let Some(used_subcommand) = matcher.0.subcommand.as_ref() {
@@ -2672,7 +2672,7 @@ impl<'help> App<'help> {
         debug!("App::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
-            for a in self.args.args().filter(|a| a.global) {
+            for a in self.args.args().filter(|a| a.get_global()) {
                 let mut propagate = false;
                 let is_generated = matches!(
                     a.provider,

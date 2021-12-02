@@ -210,7 +210,7 @@ pub(crate) fn assert_app(app: &App) {
         }
 
         assert!(
-            !(arg.is_set(ArgSettings::Required) && arg.global),
+            !(arg.is_set(ArgSettings::Required) && arg.get_global()),
             "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
             arg.name
         );
