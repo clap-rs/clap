@@ -1113,7 +1113,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_any`"
     )]
-    pub fn required_unless_any<T, I>(self, names: I) -> Self
+    pub fn required_unless_one<T, I>(self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
         T: Key,
