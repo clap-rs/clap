@@ -1983,6 +1983,12 @@ impl<'help> App<'help> {
         self._render_version(false)
     }
 
+    /// Deprecated, replaced with [`App::render_version`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
+    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        write!(w, "{}", self.render_version()).map_err(From::from)
+    }
+
     /// Version message rendered as if the user ran `--version`.
     ///
     /// See also [`App::render_version`].
@@ -2005,6 +2011,12 @@ impl<'help> App<'help> {
     /// [ANSI escape codes]: https://en.wikipedia.org/wiki/ANSI_escape_code
     pub fn render_long_version(&self) -> String {
         self._render_version(true)
+    }
+
+    /// Deprecated, replaced with [`App::render_long_version`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
+    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
     /// Usage statement
