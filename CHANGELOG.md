@@ -129,6 +129,7 @@ While a lot of deprecations have been added to clean up the API (overloaded mean
 - `Arg::default_missing_value` for cases like `--color[=<WHEN>]` ([clap-rs/clap#1587](https://github.com/clap-rs/clap/pull/1587))
 - `clap::App::color` / `clap::ColorChoice` to specify color setting for the app
 - Custom error reporting with `App::error`
+- `App::debug_assert` test helper
 - Replace `Arg::multiple(bool)` with `Arg::multiple_values` / `Arg::multiple_occurrences`
   - Positionals can be either
 - Added support for flag subcommands like pacman ([clap-rs/clap#1361](https://github.com/clap-rs/clap/issues/1361))
