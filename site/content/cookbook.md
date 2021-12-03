@@ -2,7 +2,19 @@
 title = "Cookbook"
 +++
 
+For more usage examples see: 
+
+[Quick Example](https://github.com/clap-rs/clap#quick-example)
+
+[Using Derive Macros](https://github.com/clap-rs/clap#using-derive-macros)
+
+[Using Builder Pattern](https://github.com/clap-rs/clap#using-builder-pattern)
+
+[Using YAML](https://github.com/clap-rs/clap#using-yaml)
+
+
 ## A Basic Application
+---
 
 This example shows how to create a simple application with several arguments using usage strings.
 
