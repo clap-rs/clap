@@ -290,7 +290,7 @@ impl<'help> App<'help> {
     /// this `App`.
     pub fn get_arg_conflicts_with(&self, arg: &Arg) -> Vec<&Arg<'help>> // FIXME: This could probably have been an iterator
     {
-        if arg.global {
+        if arg.get_global() {
             self.get_global_arg_conflicts_with(arg)
         } else {
             arg.blacklist
@@ -422,34 +422,26 @@ impl<'help> App<'help> {
             )
         };
 
-        let mut has_metadata = false;
-
         for (k, v) in yaml {
             a = match k.as_str().expect("App fields must be strings") {
-                "_has_metadata" => {
-                    has_metadata = true;
-                    a
-                }
-                "bin_name" => yaml_to_str!(a, v, bin_name),
                 "version" => yaml_to_str!(a, v, version),
                 "long_version" => yaml_to_str!(a, v, long_version),
                 "author" => yaml_to_str!(a, v, author),
+                "bin_name" => yaml_to_str!(a, v, bin_name),
                 "about" => yaml_to_str!(a, v, about),
+                "long_about" => yaml_to_str!(a, v, long_about),
                 "before_help" => yaml_to_str!(a, v, before_help),
-                "before_long_help" => yaml_to_str!(a, v, before_long_help),
                 "after_help" => yaml_to_str!(a, v, after_help),
-                "after_long_help" => yaml_to_str!(a, v, after_long_help),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
-                "help_template" => yaml_to_str!(a, v, help_template),
-                "override_help" => yaml_to_str!(a, v, override_help),
-                "override_usage" => yaml_to_str!(a, v, override_usage),
+                "template" => yaml_to_str!(a, v, help_template),
+                "usage" => yaml_to_str!(a, v, override_usage),
+                "help" => yaml_to_str!(a, v, override_help),
+                "help_message" => yaml_to_str!(a, v, help_message),
+                "version_message" => yaml_to_str!(a, v, version_message),
                 "alias" => yaml_to_str!(a, v, alias),
                 "aliases" => yaml_vec_or_str!(a, v, alias),
                 "visible_alias" => yaml_to_str!(a, v, visible_alias),
                 "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
                 "display_order" => yaml_to_usize!(a, v, display_order),
-                "term_width" => yaml_to_usize!(a, v, term_width),
-                "max_term_width" => yaml_to_usize!(a, v, max_term_width),
                 "args" => {
                     if let Some(vec) = v.as_vec() {
                         for arg_yaml in vec {
@@ -486,13 +478,7 @@ impl<'help> App<'help> {
                 "global_setting" | "global_settings" => {
                     yaml_to_setting!(a, v, global_setting, AppSettings, "AppSetting", err)
                 }
-                "name" => continue,
-                s => {
-                    if !has_metadata {
-                        panic!("Unknown setting '{}' in YAML file for {}", s, err)
-                    }
-                    continue;
-                }
+                _ => a,
             }
         }
 
@@ -869,6 +855,30 @@ impl<'help> App<'help> {
         self.override_help(help)
     }
 
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn help_short(self, c: char) -> Self {
+        self.mut_arg("help", |a| a.short(c))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn version_short(self, c: char) -> Self {
+        self.mut_arg("version", |a| a.short(c))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn help_message(self, s: impl Into<&'help str>) -> Self {
+        self.mut_arg("help", |a| a.help(s.into()))
+    }
+
+    /// Deprecated, replaced with [`App::mut_arg`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    pub fn version_message(self, s: impl Into<&'help str>) -> Self {
+        self.mut_arg("version", |a| a.help(s.into()))
+    }
+
     /// Sets the help template to be used, overriding the default format.
     ///
     /// **NOTE:** The template system is by design very simple. Therefore, the
@@ -954,6 +964,15 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, replaced with [`App::setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")]
+    pub fn settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.insert((*s).into());
+        }
+        self
+    }
+
     /// Remove a setting for the current command or subcommand.
     ///
     /// See [`AppSettings`] for a full list of possibilities and examples.
@@ -983,6 +1002,15 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Deprecated, replaced with [`App::unset_setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")]
+    pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.remove((*s).into());
+        }
+        self
+    }
+
     /// Apply a setting for the current command and all subcommands.
     ///
     /// See [`App::setting`] to apply a setting only to this command.
@@ -1001,6 +1029,16 @@ impl<'help> App<'help> {
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
+        self
+    }
+
+    /// Deprecated, replaced with [`App::global_setting(a| b)`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")]
+    pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
+        for s in settings {
+            self.settings.insert((*s).into());
+            self.g_settings.insert((*s).into());
+        }
         self
     }
 
@@ -1983,6 +2021,12 @@ impl<'help> App<'help> {
         self._render_version(false)
     }
 
+    /// Deprecated, replaced with [`App::render_version`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_version`")]
+    pub fn write_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        write!(w, "{}", self.render_version()).map_err(From::from)
+    }
+
     /// Version message rendered as if the user ran `--version`.
     ///
     /// See also [`App::render_version`].
@@ -2005,6 +2049,12 @@ impl<'help> App<'help> {
     /// [ANSI escape codes]: https://en.wikipedia.org/wiki/ANSI_escape_code
     pub fn render_long_version(&self) -> String {
         self._render_version(true)
+    }
+
+    /// Deprecated, replaced with [`App::render_long_version`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::render_long_version`")]
+    pub fn write_long_version<W: Write>(&self, w: &mut W) -> ClapResult<()> {
+        write!(w, "{}", self.render_long_version()).map_err(From::from)
     }
 
     /// Usage statement
@@ -2465,7 +2515,7 @@ impl<'help> App<'help> {
         let global_args: Vec<_> = self
             .args
             .args()
-            .filter(|a| a.global)
+            .filter(|a| a.get_global())
             .map(|ga| ga.id.clone())
             .collect();
         if let Some(used_subcommand) = matcher.0.subcommand.as_ref() {
@@ -2608,7 +2658,7 @@ impl<'help> App<'help> {
         debug!("App::_propagate_global_args:{}", self.name);
 
         for sc in &mut self.subcommands {
-            for a in self.args.args().filter(|a| a.global) {
+            for a in self.args.args().filter(|a| a.get_global()) {
                 let mut propagate = false;
                 let is_generated = matches!(
                     a.provider,

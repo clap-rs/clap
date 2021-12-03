@@ -12,6 +12,166 @@ macro_rules! load_yaml {
     };
 }
 
+/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+macro_rules! value_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        $crate::value_t!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+)]
+macro_rules! value_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t_or_exit!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+macro_rules! values_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+)]
+macro_rules! values_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t_or_exit!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[macro_export]
+macro_rules! arg_enum {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        $crate::arg_enum!(@as_item
+        $($tts)*
+
+        impl ::std::str::FromStr for $e {
+            type Err = String;
+
+            fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
+                #[allow(deprecated, unused_imports)]
+                use ::std::ascii::AsciiExt;
+                match s {
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v)),+,
+                    _ => Err({
+                        let v = vec![
+                            $(stringify!($v),)+
+                        ];
+                        format!("valid values: {}",
+                            v.join(", "))
+                    }),
+                }
+            }
+        }
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($v),)+
+                ]
+            }
+        });
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+             enum $e {
+                 $($v$(=$val)*),+
+             }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+}
+
 /// Allows you to pull the version from your Cargo.toml at compile time as
 /// `MAJOR.MINOR.PATCH_PKGVERSION_PRE`
 ///
@@ -464,13 +624,6 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    (@app ($builder:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($builder.arg(
-                $crate::clap_app!{ @arg ($crate::Arg::new(stringify!($name).trim_matches('"'))) (-) $($tail)* }))
-            $($tt)*
-        }
-    };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
@@ -478,48 +631,35 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Global Settings
-    (@app ($builder:expr) (@global_setting $setting:ident) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($builder.global_setting($crate::AppSettings::$setting))
-            $($tt)*
-        }
-    };
-    // Settings
     (@app ($builder:expr) (@setting $setting:ident) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.setting($crate::AppSettings::$setting))
             $($tt)*
         }
     };
-    // Treat the application builder as an argument to set its attributes
+// Treat the application builder as an argument to set its attributes
     (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app ($crate::clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
-    // ArgGroup
-    (@app ($builder:expr) (@group $name:ident: $($attrs:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($attrs)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($tail)* })
             $($tt)*
         }
     };
-    // Handle subcommand creation
-    (@app ($builder:expr) (@subcommand ($name:expr) => $($tail:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident !$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
-            ))
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(false)) $($tail)* })
             $($tt)*
         }
     };
-    (@app ($builder:expr) (@subcommand $name:literal => $($tail:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
-            ))
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(true)) $($tail)* })
             $($tt)*
         }
     };
+// Handle subcommand creation
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.subcommand(
@@ -528,32 +668,20 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Yaml like function calls - used for setting various meta directly against the app
+// Yaml like function calls - used for setting various meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
+// $crate::clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
         $crate::clap_app!{ @app
             ($builder.$ident($($v),*))
             $($tt)*
         }
     };
-    // Add members to group and continue argument handling with the parent builder
+
+// Add members to group and continue argument handling with the parent builder
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     // Treat the group builder as an argument to set its attributes
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) $($attr)* $($tt)* }
-    };
-    (@group ($builder:expr, $group:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group
-            ($crate::clap_app!{ @app ($builder) (@arg ($name): $($tail)*) },
-             $group.arg($name))
-            $($tt)*
-        }
-    };
-    (@group ($builder:expr, $group:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group
-            ($crate::clap_app!{ @app ($builder) (@arg $name: $($tail)*) },
-             $group.arg(stringify!($name).trim_matches('"')))
-            $($tt)*
-        }
+        $crate::clap_app!{ @group ($builder, $crate::clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
     };
     (@group ($builder:expr, $group:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @group
@@ -562,49 +690,15 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Handle group attributes
-    (@group ($builder:expr, $group:expr) !$ident:ident $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident(false)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) +$ident:ident $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident(true)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) * $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) +required $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) ... $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) +multiple $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident[$($target:literal)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target).trim_matches('"')) )*) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident[$($target:ident)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target)) )*) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr),*) $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
-    };
 
-    // No more tokens to munch
+// No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
-    // Shorthand tokens influenced by the usage_string
+// Shorthand tokens influenced by the usage_string
     (@arg ($arg:expr) $modes:tt --($long:expr) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long($long)) $modes $($tail)* }
     };
-    (@arg ($arg:expr) $modes:tt --$long:literal $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.long(stringify!($long).trim_matches('"'))) $modes $($tail)* }
-    };
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
-    };
-    (@arg ($arg:expr) $modes:tt -($short:expr) $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.short($short)) $modes $($tail)* }
-    };
-    (@arg ($arg:expr) $modes:tt -$short:literal $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.short($short.to_string().chars().next().expect(r#""" is not allowed here"#))) $modes $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.short(stringify!($short).chars().next().unwrap())) $modes $($tail)* }
@@ -622,62 +716,52 @@ macro_rules! clap_app {
         $crate::clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg) $modes +multiple_values +takes_value $($tail)* }
+        $crate::clap_app!{ @arg ($arg) $modes +multiple +takes_value $($tail)* }
     };
-    // Shorthand magic
+// Shorthand magic
     (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes min_values($n) max_values($m) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt * $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes +required $($tail)* }
     };
-    // !foo -> .foo(false)
+// !foo -> .foo(false)
     (@arg ($arg:expr) $modes:tt !$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
-    // +foo -> .foo(true)
+// +foo -> .foo(true)
     (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
     };
-    // Validator
+// Validator
     (@arg ($arg:expr) $modes:tt {$fn_:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.validator($fn_)) $modes $($tail)* }
     };
     (@as_expr $expr:expr) => { $expr };
-    // Help
+// Help
     (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help($crate::clap_app!{ @as_expr $desc }) };
-    // Handle functions that need to be called multiple times for each argument
-    (@arg ($arg:expr) $modes:tt $ident:ident[$($target:literal)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target).trim_matches('"')) )*) $modes $($tail)* }
-    };
+// Handle functions that need to be called multiple times for each argument
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
     };
-    // Inherit builder's functions, e.g. `index(2)`, `requires_if("val", "arg")`
+// Inherit builder's functions, e.g. `index(2)`, `requires_if("val", "arg")`
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr),*) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
     };
-    // Inherit builder's functions with trailing comma, e.g. `index(2,)`, `requires_if("val", "arg",)`
+// Inherit builder's functions with trailing comma, e.g. `index(2,)`, `requires_if("val", "arg",)`
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
     };
-    // Build a subcommand outside of an app.
-    (@subcommand ($name:expr) => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
-    };
-    (@subcommand $name:literal => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
-    };
+
+// Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
     };
-    // Start the magic
+// Start the magic
     (($name:expr) => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)*}
     }};
-    ($name:literal => $($tail:tt)*) => {{
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)*}
-    }};
+
     ($name:ident => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};
@@ -818,58 +902,4 @@ macro_rules! debug {
 #[cfg(not(feature = "debug"))]
 macro_rules! debug {
     ($($arg:tt)*) => {};
-}
-
-/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
-macro_rules! value_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        clap::value_t!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
-)]
-macro_rules! value_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        value_t_or_exit!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t_or_exit::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
-macro_rules! values_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
-)]
-macro_rules! values_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t_or_exit!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t_or_exit::<$t>($v)
-    };
 }

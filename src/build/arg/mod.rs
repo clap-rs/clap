@@ -23,10 +23,6 @@ use std::{
 #[cfg(feature = "env")]
 use std::{env, ffi::OsString};
 
-// Third Party
-#[cfg(feature = "regex")]
-use ::regex::Regex;
-
 #[cfg(feature = "yaml")]
 use yaml_rust::Yaml;
 
@@ -119,7 +115,6 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
-    pub(crate) global: bool,
     pub(crate) exclusive: bool,
     pub(crate) value_hint: ValueHint,
 }
@@ -268,7 +263,7 @@ impl<'help> Arg<'help> {
 
     /// Get information on if this argument is global or not
     pub fn get_global(&self) -> bool {
-        self.global
+        self.is_set(ArgSettings::Global)
     }
 
     /// Get the environment variable name specified for this argument, if any
@@ -356,6 +351,7 @@ impl<'help> Arg<'help> {
         note = "Maybe clap::Parser would fit your use case? (Issue #9)"
     )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
+        #![allow(deprecated)]
         let yaml_file_hash = y.as_hash().expect("YAML file must be a hash");
         // We WANT this to panic on error...so expect() is good.
         let (name_yaml, yaml) = yaml_file_hash
@@ -365,34 +361,21 @@ impl<'help> Arg<'help> {
         let name_str = name_yaml.as_str().expect("Arg name must be a string");
         let mut a = Arg::new(name_str);
 
-        let mut has_metadata = false;
-
         for (k, v) in yaml.as_hash().expect("Arg must be a hash") {
             a = match k.as_str().expect("Arg fields must be strings") {
-                "_has_metadata" => {
-                    has_metadata = true;
-                    a
-                }
                 "short" => yaml_to_char!(a, v, short),
                 "long" => yaml_to_str!(a, v, long),
-                "alias" => yaml_to_str!(a, v, alias),
                 "aliases" => yaml_vec_or_str!(a, v, alias),
-                "short_alias" => yaml_to_str!(a, v, alias),
-                "short_aliases" => yaml_to_chars!(a, v, short_aliases),
                 "help" => yaml_to_str!(a, v, help),
                 "long_help" => yaml_to_str!(a, v, long_help),
                 "required" => yaml_to_bool!(a, v, required),
-                "required_if_eq" => yaml_tuple2!(a, v, required_if_eq),
-                "required_if_eq_any" => yaml_array_tuple2!(a, v, required_if_eq_any),
-                "required_if_eq_all" => yaml_array_tuple2!(a, v, required_if_eq_all),
+                "required_if" => yaml_tuple2!(a, v, required_if_eq),
+                "required_ifs" => yaml_tuple2!(a, v, required_if_eq),
                 "takes_value" => yaml_to_bool!(a, v, takes_value),
                 "index" => yaml_to_usize!(a, v, index),
                 "global" => yaml_to_bool!(a, v, global),
-                "multiple_occurrences" => yaml_to_bool!(a, v, multiple_occurrences),
-                "multiple_values" => yaml_to_bool!(a, v, multiple_values),
-                "hide" => yaml_to_bool!(a, v, hide),
-                "hide_long_help" => yaml_to_bool!(a, v, hide_long_help),
-                "hide_short_help" => yaml_to_bool!(a, v, hide_short_help),
+                "multiple" => yaml_to_bool!(a, v, multiple),
+                "hidden" => yaml_to_bool!(a, v, hide),
                 "next_line_help" => yaml_to_bool!(a, v, next_line_help),
                 "group" => yaml_to_str!(a, v, group),
                 "number_of_values" => yaml_to_usize!(a, v, number_of_values),
@@ -401,17 +384,14 @@ impl<'help> Arg<'help> {
                 "value_name" => yaml_to_str!(a, v, value_name),
                 "use_delimiter" => yaml_to_bool!(a, v, use_delimiter),
                 "allow_hyphen_values" => yaml_to_bool!(a, v, allow_hyphen_values),
-                "raw" => yaml_to_bool!(a, v, raw),
-                "require_equals" => yaml_to_bool!(a, v, require_equals),
+                "last" => yaml_to_bool!(a, v, last),
                 "require_delimiter" => yaml_to_bool!(a, v, require_delimiter),
-                "value_terminator" => yaml_to_str!(a, v, value_terminator),
                 "value_delimiter" => yaml_to_char!(a, v, value_delimiter),
-                "required_unless_present" => yaml_to_str!(a, v, required_unless_present),
+                "required_unless" => yaml_to_str!(a, v, required_unless_present),
                 "display_order" => yaml_to_usize!(a, v, display_order),
                 "default_value" => yaml_to_str!(a, v, default_value),
                 "default_value_if" => yaml_tuple3!(a, v, default_value_if),
                 "default_value_ifs" => yaml_tuple3!(a, v, default_value_if),
-                "default_missing_value" => yaml_to_str!(a, v, default_missing_value),
                 #[cfg(feature = "env")]
                 "env" => yaml_to_str!(a, v, env),
                 "value_names" => yaml_vec_or_str!(a, v, value_name),
@@ -420,62 +400,16 @@ impl<'help> Arg<'help> {
                 "requires_if" => yaml_tuple2!(a, v, requires_if),
                 "requires_ifs" => yaml_tuple2!(a, v, requires_if),
                 "conflicts_with" => yaml_vec_or_str!(a, v, conflicts_with),
-                "exclusive" => yaml_to_bool!(a, v, exclusive),
-                "last" => yaml_to_bool!(a, v, last),
-                "help_heading" => yaml_to_str!(a, v, help_heading),
-                "value_hint" => yaml_str_parse!(a, v, value_hint),
-                "hide_default_value" => yaml_to_bool!(a, v, hide_default_value),
-                #[cfg(feature = "env")]
-                "hide_env" => yaml_to_bool!(a, v, hide_env),
-                #[cfg(feature = "env")]
-                "hide_env_values" => yaml_to_bool!(a, v, hide_env_values),
-                "hide_possible_values" => yaml_to_bool!(a, v, hide_possible_values),
                 "overrides_with" => yaml_to_str!(a, v, overrides_with),
-                "overrides_with_all" => yaml_vec_or_str!(a, v, overrides_with),
-                "possible_value" => yaml_to_str!(a, v, possible_value),
                 "possible_values" => yaml_vec_or_str!(a, v, possible_value),
-                "ignore_case" => yaml_to_bool!(a, v, ignore_case),
-                "required_unless_present_any" => yaml_vec!(a, v, required_unless_present_any),
-                "required_unless_present_all" => yaml_vec!(a, v, required_unless_present_all),
-                "visible_alias" => yaml_to_str!(a, v, visible_alias),
-                "visible_aliases" => yaml_vec_or_str!(a, v, visible_alias),
-                "visible_short_alias" => yaml_to_char!(a, v, visible_short_alias),
-                "visible_short_aliases" => yaml_to_chars!(a, v, visible_short_aliases),
-                #[cfg(feature = "regex")]
-                "validator_regex" => {
-                    if let Some(vec) = v.as_vec() {
-                        debug_assert_eq!(2, vec.len());
-                        let regex = yaml_str!(vec[0]);
-
-                        match Regex::new(regex) {
-                            Err(e) => panic!(
-                                "Failed to convert \"{}\" into regular expression: {}",
-                                regex, e
-                            ),
-                            Ok(regex) => a.validator_regex(regex, yaml_str!(vec[1])),
-                        }
-                    } else {
-                        panic!("Failed to convert YAML value to vector")
-                    }
-                }
-                "setting" | "settings" => {
-                    yaml_to_setting!(
-                        a,
-                        v,
-                        setting,
-                        ArgSettings,
-                        "ArgSetting",
-                        format!("arg '{}'", name_str)
-                    )
-                }
+                "case_insensitive" => yaml_to_bool!(a, v, ignore_case),
+                "required_unless_one" => yaml_vec!(a, v, required_unless_present_any),
+                "required_unless_all" => yaml_vec!(a, v, required_unless_present_all),
                 s => {
-                    if !has_metadata {
-                        panic!(
-                            "Unknown setting '{}' in YAML file for arg '{}'",
-                            s, name_str
-                        )
-                    }
-                    continue;
+                    panic!(
+                        "Unknown setting '{}' in YAML file for arg '{}'",
+                        s, name_str
+                    )
                 }
             }
         }
@@ -1113,7 +1047,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_any`"
     )]
-    pub fn required_unless_any<T, I>(self, names: I) -> Self
+    pub fn required_unless_one<T, I>(self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
         T: Key,
@@ -3020,6 +2954,8 @@ impl<'help> Arg<'help> {
     /// If `val` is set to `None`, `arg` only needs to be present. If `val` is set to `"some-val"`
     /// then `arg` must be present at runtime **and** have the value `val`.
     ///
+    /// If `default` is set to `None`, `default_value` will be removed.
+    ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
     /// at runtime. This setting however only takes effect when the user has not provided a value at
@@ -3791,9 +3727,12 @@ impl<'help> Arg<'help> {
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
-    pub fn global(mut self, yes: bool) -> Self {
-        self.global = yes;
-        self
+    pub fn global(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::Global)
+        } else {
+            self.unset_setting(ArgSettings::Global)
+        }
     }
 
     /// Specifies that *multiple values* may only be set using the delimiter.
@@ -5082,7 +5021,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("terminator", &self.terminator)
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
-            .field("global", &self.global)
             .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
             .field("default_missing_vals", &self.default_missing_vals);
