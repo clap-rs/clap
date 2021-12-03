@@ -13,8 +13,6 @@ whether in changes or their motivation.
 
 TBD:
 - `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
-- Rename of `StructOpt`
-- Rename of `structopt`
 
 ### BREAKING CHANGES
 
