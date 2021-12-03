@@ -15,34 +15,13 @@
 use std::env;
 
 use proc_macro2::{Span, TokenStream};
-use proc_macro_error::abort_call_site;
 use quote::quote;
-use syn::{Attribute, Data, DataStruct, DeriveInput, Fields, Generics, Ident};
+use syn::{Attribute, Generics, Ident};
 
 use crate::{
     attrs::{Attrs, Name, DEFAULT_CASING, DEFAULT_ENV_CASING},
-    dummies,
     utils::Sp,
 };
-
-pub fn derive_into_app(input: &DeriveInput) -> TokenStream {
-    let ident = &input.ident;
-
-    dummies::into_app(ident);
-
-    match input.data {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(_),
-            ..
-        }) => gen_for_struct(ident, &input.generics, &input.attrs),
-        Data::Struct(DataStruct {
-            fields: Fields::Unit,
-            ..
-        }) => gen_for_struct(ident, &input.generics, &input.attrs),
-        Data::Enum(_) => gen_for_enum(ident, &input.generics, &input.attrs),
-        _ => abort_call_site!("`#[derive(IntoApp)]` only supports non-tuple structs and enums"),
-    }
-}
 
 pub fn gen_for_struct(
     struct_name: &Ident,
