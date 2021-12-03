@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use clap::{AppSettings, StructOpt};
 
 #[test]
