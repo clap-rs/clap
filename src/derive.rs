@@ -152,6 +152,73 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
             .map_err(format_error::<Self>)
     }
+
+    /// Deprecated, `StructOpt::clap` replaced with [`IntoApp::into_app`] (derive as part of
+    /// [`Parser`])
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+    )]
+    fn clap<'help>() -> App<'help> {
+        <Self as IntoApp>::into_app()
+    }
+
+    /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches`] (derive as part of
+    /// [`Parser`])
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+    )]
+    fn from_clap(matches: &ArgMatches) -> Self {
+        <Self as FromArgMatches>::from_arg_matches(matches).unwrap()
+    }
+
+    /// Deprecated, `StructOpt::from_args` replaced with `Parser::parse` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
+    )]
+    fn from_args() -> Self {
+        Self::parse()
+    }
+
+    /// Deprecated, `StructOpt::from_args_safe` replaced with `Parser::try_parse` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
+    )]
+    fn from_args_safe() -> Result<Self, Error> {
+        Self::try_parse()
+    }
+
+    /// Deprecated, `StructOpt::from_iter` replaced with `Parser::parse_from` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
+    )]
+    fn from_iter<I, T>(itr: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        Self::parse_from(itr)
+    }
+
+    /// Deprecated, `StructOpt::from_iter_safe` replaced with `Parser::try_parse_from` (note the
+    /// change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
+    )]
+    fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        Self::try_parse_from(itr)
+    }
 }
 
 /// Build an [`App`] relevant for a user-defined container.

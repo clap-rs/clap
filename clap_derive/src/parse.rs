@@ -274,7 +274,7 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
 pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
     all_attrs
         .iter()
-        .filter(|attr| attr.path.is_ident("clap"))
+        .filter(|attr| attr.path.is_ident("clap") || attr.path.is_ident("structopt"))
         .flat_map(|attr| {
             attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
                 .unwrap_or_abort()

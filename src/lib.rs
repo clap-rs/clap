@@ -47,6 +47,10 @@ pub use yaml_rust::YamlLoader;
 #[doc(hidden)]
 pub use clap_derive::{self, *};
 
+/// Deprecated, replaced with [`Parser`]
+#[deprecated(since = "3.0.0", note = "Replaced with `Parser`")]
+pub use Parser as StructOpt;
+
 #[cfg(any(feature = "derive", feature = "cargo"))]
 #[doc(hidden)]
 pub use lazy_static;
