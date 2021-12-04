@@ -1889,6 +1889,40 @@ impl<'help> App<'help> {
         self
     }
 
+    /// Catch problems earlier in the development cycle.
+    ///
+    /// Most error states are handled as asserts under the assumption they are programming mistake
+    /// and not something to handle at runtime.  Rather than relying on tests (manual or automated)
+    /// that exhaustively test your CLI to ensure the asserts are evaluated, this will run those
+    /// asserts in a way convenient for running as a test.
+    ///
+    /// **Note::** This will not help with asserts in [`ArgMatches`], those will need exhaustive
+    /// testing of your CLI.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// fn app() -> App<'static> {
+    ///     App::new("foo")
+    ///         .arg(Arg::new("bar").short('b')
+    ///     )
+    /// }
+    ///
+    /// #[test]
+    /// fn verify_app() {
+    ///     app().debug_assert();
+    /// }
+    ///
+    /// fn main() {
+    ///     let m = app().get_matches_from(vec!["foo", "-b"]);
+    ///     println!("{}", m.is_present("bar"));
+    /// }
+    /// ```
+    pub fn debug_assert(mut self) {
+        self._build_all();
+    }
+
     /// Custom error message for post-parsing validation
     ///
     /// # Examples
