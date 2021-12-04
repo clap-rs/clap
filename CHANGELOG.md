@@ -14,6 +14,29 @@ whether in changes or their motivation.
 TBD:
 - `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
 
+### Highlights
+
+**[StructOpt](https://docs.rs/structopt/) Integration**
+
+[StructOpt](https://docs.rs/structopt/) provides a serde-like declarative
+approach to defining your parser.  The main benefits we've seen so far from integrating are:
+- Tighter feedback between the design of clap and the derives
+- More universal traits.  Crates exist for common CLI patterns
+  ([example](https://github.com/rust-cli/clap-verbosity-flag))
+  and we've re-designed the `StructOpt` traits so crates built on clap3 can be
+  reused not just with other derives but also people using the builder API.
+  People can even hand implement these so people using the builder API won't
+  have the pay the cost for derives.
+
+**Custom Help Headings**
+
+Previously, clap automatically grouped arguments in the help as either
+`ARGS`, `FLAGS`, `OPTIONS`, and `SUBCOMMANDS`.
+
+You can now override the default group with `Arg::help_heading` and
+`App::subcommand_help_heading`.  To apply a heading to a series of arguments,
+you can set `App::help_heading`.
+
 ### Migrating
 
 **From clap v2**
