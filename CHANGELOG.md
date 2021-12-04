@@ -14,6 +14,72 @@ whether in changes or their motivation.
 TBD:
 - `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
 
+### Migrating
+
+**From clap v2**
+
+1. Update your dependency
+    1. *If you use `no-default-features`:* add the `std` feature
+2. Resolve compiler errors
+3. Resolve behavior changes
+    1. Refactor your `App` creation to a function and add a test similar to the one below, resolving any of its assertions
+    2. Look over the "subtle changes" under BREAKING CHANGES
+    3. *If using builder:* test your application under various circumstances to see if `ArgMatches` asserts regarding `AllowInvalidUtf8`.
+4. *At your leisure:* resolve deprecation notices
+
+Example test:
+```rust
+fn app() -> clap::App {
+    ...
+}
+
+#[test]
+fn verify_app() {
+    app.debug_assert();
+}
+```
+
+**From structopt 0.3.25**
+
+1. Update your dependency, adding the `derive` feature flag
+    1. *If you use `no-default-features`:* add the `std` feature
+2. Resolve compiler errors, including
+    1. Update your `use` statements from `structopt` and `structopt::clap` to `clap`
+3. Resolve behavior changes
+    1. Add a test similar to the one below, resolving any of its assertions
+    2. Look over the "subtle changes" under BREAKING CHANGES
+4. *At your leisure:* resolve deprecation notices
+
+Example test:
+```rust
+#[derive(clap::StructOpt)]
+struct Args {
+    ...
+}
+
+#[test]
+fn verify_app() {
+    use clap::IntoApp;
+    Args::into_app().debug_assert()
+}
+```
+
+**From clap v3.0.0-beta.5**
+
+1. Update your dependency
+    1. Add in `derive`, `env`, `cargo`, or `unicode` feature flags as needed
+2. Resolve compiler errors
+    2. *If you use `yaml`, `clap_app!`, or usage parser:* revert any changes you made for clap3
+    2. Change `Arg::about` `Arg::long_about` back to `help` and `long_help` and change `PossibleValue::about` to `help` ([clap-rs/clap#2937](https://github.com/clap-rs/clap/discussions/2937))
+    3. Change `AppSettings::HelpRequired` to `AppSettings::HelpExpected`
+    4. Change `PossibleValue::hidden` to `PossibleValue::hide`
+    5. Change `App::subcommand_placeholder` to `App::subcommand_value_name` / `App::subcommand_help_heading`
+3. Resolve behavior changes
+    2. Add the above listed test appropriate for your application and resolve any problems it reports
+    1. *If using `derive`:* see the structopt breaking changes section for `Vec` changes
+    3. *If using builder:* test your application under various circumstances to see if `ArgMatches` asserts regarding `AllowInvalidUtf8`.
+4. *At your leisure:* resolve deprecation notices
+
 ### BREAKING CHANGES
 
 **From clap 2**
