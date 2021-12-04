@@ -11,9 +11,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 hands multiple times.  Unfortunately, our changelog might be incomplete,
 whether in changes or their motivation.
 
-TBD:
-- `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
-
 ### Highlights
 
 **[StructOpt](https://docs.rs/structopt/) Integration**
@@ -111,6 +108,9 @@ Subtle changes (i.e. compiler won't catch):
 - `AppSettings::UnifiedHelpMessage` is now default behaviour
   - `{flags}` and `{unified}` will assert if present in `App::help_template`
   - See [clap-rs/clap#2807](https://github.com/clap-rs/clap/issues/2807)
+- `AppSettings::EnableColoredHelp` is now the default behavior but can be
+  opted-out with `AppSettings::DisableColoredHelp`
+  ([clap-rs/clap#2806](https://github.com/clap-rs/clap/issues/2806))
 - `App::override_usage` no longer implies a leading `\t`, allowing multi lined usages
 - `Arg::require_equals` no longer implies `ArgSettings::ForbidEmptyValues` ([#2233](https://github.com/clap-rs/clap/issues/2233))
 - `Arg::require_delimiter` no longer implies `ArgSettings::TakesValue` and `ArgSettings::UseValueDelimiter` ([#2233](https://github.com/clap-rs/clap/issues/2233))
