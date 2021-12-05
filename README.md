@@ -210,7 +210,7 @@ This second method shows a method using the 'Builder Pattern' which allows more 
 // (Full example with detailed comments in examples/01b_quick_example.rs)
 //
 // This example demonstrates clap's "builder pattern" method of creating arguments
-// which the most flexible, but also most verbose.
+// which is the most flexible, but also most verbose.
 use clap::{Arg, App};
 
 fn main() {
