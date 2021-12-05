@@ -442,52 +442,7 @@ pub struct Error {
     backtrace: Option<Backtrace>,
 }
 
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.message.formatted())?;
-        if let Some(backtrace) = self.backtrace.as_ref() {
-            writeln!(f)?;
-            writeln!(f, "Backtrace:")?;
-            writeln!(f, "{}", backtrace)?;
-        }
-        Ok(())
-    }
-}
-
-fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
-    c.error("error:");
-    c.none(" ");
-    c.none(msg);
-}
-
-fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
-    c.none("\n\n");
-    c.none(usage);
-}
-
-fn try_help(app: &App, c: &mut Colorizer) {
-    if !app.settings.is_set(AppSettings::DisableHelpFlag) {
-        c.none("\n\nFor more information try ");
-        c.good("--help");
-        c.none("\n");
-    } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
-        c.none("\n\nFor more information try ");
-        c.good("help");
-        c.none("\n");
-    }
-}
-
 impl Error {
-    /// Returns the singular or plural form on the verb to be based on the argument's value.
-    fn singular_or_plural(n: usize) -> String {
-        if n > 1 {
-            String::from("were")
-        } else {
-            String::from("was")
-        }
-    }
-
     /// Create an unformatted error
     ///
     /// This is for you need to pass the error up to
@@ -559,6 +514,14 @@ impl Error {
     /// ```
     pub fn print(&self) -> io::Result<()> {
         self.message.formatted().print()
+    }
+
+    /// Deprecated, replaced with [`App::error`]
+    ///
+    /// [`App::error`]: crate::App::error
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
+    pub fn with_description(description: String, kind: ErrorKind) -> Self {
+        Error::raw(kind, description)
     }
 
     pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
@@ -1108,12 +1071,13 @@ impl Error {
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
-    /// Deprecated, replaced with [`App::error`]
-    ///
-    /// [`App::error`]: crate::App::error
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
-    pub fn with_description(description: String, kind: ErrorKind) -> Self {
-        Error::raw(kind, description)
+    /// Returns the singular or plural form on the verb to be based on the argument's value.
+    fn singular_or_plural(n: usize) -> String {
+        if n > 1 {
+            String::from("were")
+        } else {
+            String::from("was")
+        }
     }
 }
 
@@ -1133,6 +1097,42 @@ impl error::Error for Error {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.source.as_ref().map(|e| e.as_ref() as _)
+    }
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        // Assuming `self.message` already has a trailing newline, from `try_help` or similar
+        write!(f, "{}", self.message.formatted())?;
+        if let Some(backtrace) = self.backtrace.as_ref() {
+            writeln!(f)?;
+            writeln!(f, "Backtrace:")?;
+            writeln!(f, "{}", backtrace)?;
+        }
+        Ok(())
+    }
+}
+
+fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
+    c.error("error:");
+    c.none(" ");
+    c.none(msg);
+}
+
+fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
+    c.none("\n\n");
+    c.none(usage);
+}
+
+fn try_help(app: &App, c: &mut Colorizer) {
+    if !app.settings.is_set(AppSettings::DisableHelpFlag) {
+        c.none("\n\nFor more information try ");
+        c.good("--help");
+        c.none("\n");
+    } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
+        c.none("\n\nFor more information try ");
+        c.good("help");
+        c.none("\n");
     }
 }
 

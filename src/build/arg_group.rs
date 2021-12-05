@@ -112,22 +112,6 @@ impl<'help> ArgGroup<'help> {
         ArgGroup::default().name(n)
     }
 
-    /// Deprecated, replaced with [`ArgGroup::new`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
-    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
-        Self::new(n)
-    }
-
-    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-    #[cfg(feature = "yaml")]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
-    )]
-    pub fn from_yaml(yaml: &'help Yaml) -> Self {
-        Self::from(yaml)
-    }
-
     /// Sets the group name.
     ///
     /// # Examples
@@ -431,6 +415,22 @@ impl<'help> ArgGroup<'help> {
             self = self.conflicts_with(n);
         }
         self
+    }
+
+    /// Deprecated, replaced with [`ArgGroup::new`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `ArgGroup::new`")]
+    pub fn with_name<S: Into<&'help str>>(n: S) -> Self {
+        Self::new(n)
+    }
+
+    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+    #[cfg(feature = "yaml")]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
+    )]
+    pub fn from_yaml(yaml: &'help Yaml) -> Self {
+        Self::from(yaml)
     }
 }
 

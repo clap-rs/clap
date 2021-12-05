@@ -23,22 +23,6 @@ impl<'a> RegexRef<'a> {
     }
 }
 
-impl<'a> FromStr for RegexRef<'a> {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Regex::from_str(s).map(|v| Self::Regex(Cow::Owned(v)))
-    }
-}
-
-impl<'a> TryFrom<&'a str> for RegexRef<'a> {
-    type Error = <Self as FromStr>::Err;
-
-    fn try_from(r: &'a str) -> Result<Self, Self::Error> {
-        Self::from_str(r)
-    }
-}
-
 impl<'a> From<&'a Regex> for RegexRef<'a> {
     fn from(r: &'a Regex) -> Self {
         Self::Regex(Cow::Borrowed(r))
@@ -60,6 +44,22 @@ impl<'a> From<&'a RegexSet> for RegexRef<'a> {
 impl<'a> From<RegexSet> for RegexRef<'a> {
     fn from(r: RegexSet) -> Self {
         Self::RegexSet(Cow::Owned(r))
+    }
+}
+
+impl<'a> TryFrom<&'a str> for RegexRef<'a> {
+    type Error = <Self as FromStr>::Err;
+
+    fn try_from(r: &'a str) -> Result<Self, Self::Error> {
+        Self::from_str(r)
+    }
+}
+
+impl<'a> FromStr for RegexRef<'a> {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Regex::from_str(s).map(|v| Self::Regex(Cow::Owned(v)))
     }
 }
 

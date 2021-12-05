@@ -18,13 +18,6 @@ use crate::{
     {Error, INVALID_UTF8},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct SubCommand {
-    pub(crate) id: Id,
-    pub(crate) name: String,
-    pub(crate) matches: ArgMatches,
-}
-
 /// Container for parse results.
 ///
 /// Used to get information about the arguments that were supplied to the program at runtime by
@@ -82,44 +75,6 @@ pub struct ArgMatches {
     pub(crate) valid_subcommands: Vec<Id>,
     pub(crate) args: IndexMap<Id, MatchedArg>,
     pub(crate) subcommand: Option<Box<SubCommand>>,
-}
-
-// Private methods
-impl ArgMatches {
-    #[inline]
-    fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
-        #[cfg(debug_assertions)]
-        {
-            if *arg != Id::empty_hash() && !self.valid_args.contains(arg) {
-                panic!(
-                    "`'{:?}' is not a name of an argument or a group.\n\
-                     Make sure you're using the name of the argument itself \
-                     and not the name of short or long flags.",
-                    arg
-                );
-            }
-        }
-
-        self.args.get(arg)
-    }
-
-    #[inline]
-    fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
-        #[cfg(debug_assertions)]
-        {
-            if *id != Id::empty_hash() && !self.valid_subcommands.contains(id) {
-                panic!("'{:?}' is not a name of a subcommand.", id);
-            }
-        }
-
-        if let Some(ref sc) = self.subcommand {
-            if sc.id == *id {
-                return Some(sc);
-            }
-        }
-
-        None
-    }
 }
 
 impl ArgMatches {
@@ -905,6 +860,60 @@ impl ArgMatches {
         Some(i)
     }
 
+    /// The name and `ArgMatches` of the current [subcommand].
+    ///
+    /// Subcommand values are put in a child [`ArgMatches`]
+    ///
+    /// Returns `None` if the subcommand wasn't present at runtime,
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use clap::{App, Arg, };
+    ///  let app_m = App::new("git")
+    ///      .subcommand(App::new("clone"))
+    ///      .subcommand(App::new("push"))
+    ///      .subcommand(App::new("commit"))
+    ///      .get_matches();
+    ///
+    /// match app_m.subcommand() {
+    ///     Some(("clone",  sub_m)) => {}, // clone was used
+    ///     Some(("push",   sub_m)) => {}, // push was used
+    ///     Some(("commit", sub_m)) => {}, // commit was used
+    ///     _                       => {}, // Either no subcommand or one not tested for...
+    /// }
+    /// ```
+    ///
+    /// Another useful scenario is when you want to support third party, or external, subcommands.
+    /// In these cases you can't know the subcommand name ahead of time, so use a variable instead
+    /// with pattern matching!
+    ///
+    /// ```rust
+    /// # use clap::{App, AppSettings};
+    /// // Assume there is an external subcommand named "subcmd"
+    /// let app_m = App::new("myprog")
+    ///     .setting(AppSettings::AllowExternalSubcommands)
+    ///     .get_matches_from(vec![
+    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
+    ///     ]);
+    ///
+    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
+    /// // string argument name
+    /// match app_m.subcommand() {
+    ///     Some((external, sub_m)) => {
+    ///          let ext_args: Vec<&str> = sub_m.values_of("").unwrap().collect();
+    ///          assert_eq!(external, "subcmd");
+    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
+    ///     },
+    ///     _ => {},
+    /// }
+    /// ```
+    /// [subcommand]: crate::App::subcommand
+    #[inline]
+    pub fn subcommand(&self) -> Option<(&str, &ArgMatches)> {
+        self.subcommand.as_ref().map(|sc| (&*sc.name, &sc.matches))
+    }
+
     /// The `ArgMatches` for the current [subcommand].
     ///
     /// Subcommand values are put in a child [`ArgMatches`]
@@ -973,60 +982,51 @@ impl ArgMatches {
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)
     }
+}
 
-    /// The name and `ArgMatches` of the current [subcommand].
-    ///
-    /// Subcommand values are put in a child [`ArgMatches`]
-    ///
-    /// Returns `None` if the subcommand wasn't present at runtime,
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use clap::{App, Arg, };
-    ///  let app_m = App::new("git")
-    ///      .subcommand(App::new("clone"))
-    ///      .subcommand(App::new("push"))
-    ///      .subcommand(App::new("commit"))
-    ///      .get_matches();
-    ///
-    /// match app_m.subcommand() {
-    ///     Some(("clone",  sub_m)) => {}, // clone was used
-    ///     Some(("push",   sub_m)) => {}, // push was used
-    ///     Some(("commit", sub_m)) => {}, // commit was used
-    ///     _                       => {}, // Either no subcommand or one not tested for...
-    /// }
-    /// ```
-    ///
-    /// Another useful scenario is when you want to support third party, or external, subcommands.
-    /// In these cases you can't know the subcommand name ahead of time, so use a variable instead
-    /// with pattern matching!
-    ///
-    /// ```rust
-    /// # use clap::{App, AppSettings};
-    /// // Assume there is an external subcommand named "subcmd"
-    /// let app_m = App::new("myprog")
-    ///     .setting(AppSettings::AllowExternalSubcommands)
-    ///     .get_matches_from(vec![
-    ///         "myprog", "subcmd", "--option", "value", "-fff", "--flag"
-    ///     ]);
-    ///
-    /// // All trailing arguments will be stored under the subcommand's sub-matches using an empty
-    /// // string argument name
-    /// match app_m.subcommand() {
-    ///     Some((external, sub_m)) => {
-    ///          let ext_args: Vec<&str> = sub_m.values_of("").unwrap().collect();
-    ///          assert_eq!(external, "subcmd");
-    ///          assert_eq!(ext_args, ["--option", "value", "-fff", "--flag"]);
-    ///     },
-    ///     _ => {},
-    /// }
-    /// ```
-    /// [subcommand]: crate::App::subcommand
+// Private methods
+impl ArgMatches {
     #[inline]
-    pub fn subcommand(&self) -> Option<(&str, &ArgMatches)> {
-        self.subcommand.as_ref().map(|sc| (&*sc.name, &sc.matches))
+    fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
+        #[cfg(debug_assertions)]
+        {
+            if *arg != Id::empty_hash() && !self.valid_args.contains(arg) {
+                panic!(
+                    "`'{:?}' is not a name of an argument or a group.\n\
+                     Make sure you're using the name of the argument itself \
+                     and not the name of short or long flags.",
+                    arg
+                );
+            }
+        }
+
+        self.args.get(arg)
     }
+
+    #[inline]
+    fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
+        #[cfg(debug_assertions)]
+        {
+            if *id != Id::empty_hash() && !self.valid_subcommands.contains(id) {
+                panic!("'{:?}' is not a name of a subcommand.", id);
+            }
+        }
+
+        if let Some(ref sc) = self.subcommand {
+            if sc.id == *id {
+                return Some(sc);
+            }
+        }
+
+        None
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SubCommand {
+    pub(crate) id: Id,
+    pub(crate) name: String,
+    pub(crate) matches: ArgMatches,
 }
 
 // The following were taken and adapted from vec_map source

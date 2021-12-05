@@ -18,21 +18,6 @@ use crate::{
 use indexmap::IndexSet;
 use textwrap::core::display_width;
 
-pub(crate) fn dimensions() -> Option<(usize, usize)> {
-    #[cfg(not(feature = "wrap_help"))]
-    return None;
-
-    #[cfg(feature = "wrap_help")]
-    terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
-}
-
-const TAB: &str = "    ";
-
-pub(crate) enum HelpWriter<'writer> {
-    Normal(&'writer mut dyn Write),
-    Buffer(&'writer mut Colorizer),
-}
-
 /// `clap` Help Writer.
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
@@ -1005,6 +990,21 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         Ok(())
     }
+}
+
+pub(crate) fn dimensions() -> Option<(usize, usize)> {
+    #[cfg(not(feature = "wrap_help"))]
+    return None;
+
+    #[cfg(feature = "wrap_help")]
+    terminal_size::terminal_size().map(|(w, h)| (w.0.into(), h.0.into()))
+}
+
+const TAB: &str = "    ";
+
+pub(crate) enum HelpWriter<'writer> {
+    Normal(&'writer mut dyn Write),
+    Buffer(&'writer mut Colorizer),
 }
 
 fn should_show_arg(use_long: bool, arg: &Arg) -> bool {

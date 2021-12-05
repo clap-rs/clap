@@ -23,89 +23,6 @@ use crate::{
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
-#[derive(Debug)]
-pub(crate) enum ParseState {
-    ValuesDone,
-    Opt(Id),
-    Pos(Id),
-}
-
-/// Recoverable Parsing results.
-#[derive(Debug, PartialEq, Clone)]
-enum ParseResult {
-    FlagSubCommand(String),
-    Opt(Id),
-    ValuesDone,
-    /// Value attached to the short flag is not consumed(e.g. 'u' for `-cu` is
-    /// not consumed).
-    AttachedValueNotConsumed,
-    /// This long flag doesn't need a value but is provided one.
-    UnneededAttachedValue {
-        rest: String,
-        used: Vec<Id>,
-        arg: String,
-    },
-    /// This flag might be an hyphen Value.
-    MaybeHyphenValue,
-    /// Equals required but not provided.
-    EqualsNotProvided {
-        arg: String,
-    },
-    /// Failed to match a Arg.
-    NoMatchingArg {
-        arg: String,
-    },
-    /// No argument found e.g. parser is given `-` when parsing a flag.
-    NoArg,
-    /// This is a Help flag.
-    HelpFlag,
-    /// This is a version flag.
-    VersionFlag,
-}
-
-#[derive(Debug)]
-pub(crate) struct Input {
-    items: Vec<OsString>,
-    cursor: usize,
-}
-
-impl<I, T> From<I> for Input
-where
-    I: Iterator<Item = T>,
-    T: Into<OsString> + Clone,
-{
-    fn from(val: I) -> Self {
-        Self {
-            items: val.map(|x| x.into()).collect(),
-            cursor: 0,
-        }
-    }
-}
-
-impl Input {
-    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
-        if self.cursor >= self.items.len() {
-            None
-        } else {
-            let current = &self.items[self.cursor];
-            self.cursor += 1;
-            let remaining = &self.items[self.cursor..];
-            Some((current, remaining))
-        }
-    }
-
-    /// Insert some items to the Input items just after current parsing cursor.
-    /// Usually used by replaced items recovering.
-    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
-        self.items = insert_items
-            .iter()
-            .map(OsString::from)
-            .chain(self.items.drain(self.cursor..))
-            .collect();
-        self.cursor = 0;
-    }
-}
-
 pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
     pub(crate) required: ChildGraph<Id>,
@@ -139,6 +56,23 @@ impl<'help, 'app> Parser<'help, 'app> {
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
+        }
+    }
+
+    // Does all the initializing and prepares the parser
+    pub(crate) fn _build(&mut self) {
+        debug!("Parser::_build");
+
+        #[cfg(debug_assertions)]
+        self._verify_positionals();
+
+        for group in &self.app.groups {
+            if group.required {
+                let idx = self.required.insert(group.id.clone());
+                for a in &group.requires {
+                    self.required.insert_child(idx, a.clone());
+                }
+            }
         }
     }
 
@@ -314,23 +248,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         true
-    }
-
-    // Does all the initializing and prepares the parser
-    pub(crate) fn _build(&mut self) {
-        debug!("Parser::_build");
-
-        #[cfg(debug_assertions)]
-        self._verify_positionals();
-
-        for group in &self.app.groups {
-            if group.required {
-                let idx = self.required.insert(group.id.clone());
-                for a in &group.requires {
-                    self.required.insert_child(idx, a.clone());
-                }
-            }
-        }
     }
 
     // Should we color the help?
@@ -1922,4 +1839,87 @@ impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn is_set(&self, s: AS) -> bool {
         self.app.is_set(s)
     }
+}
+
+#[derive(Debug)]
+pub(crate) struct Input {
+    items: Vec<OsString>,
+    cursor: usize,
+}
+
+impl<I, T> From<I> for Input
+where
+    I: Iterator<Item = T>,
+    T: Into<OsString> + Clone,
+{
+    fn from(val: I) -> Self {
+        Self {
+            items: val.map(|x| x.into()).collect(),
+            cursor: 0,
+        }
+    }
+}
+
+impl Input {
+    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
+        if self.cursor >= self.items.len() {
+            None
+        } else {
+            let current = &self.items[self.cursor];
+            self.cursor += 1;
+            let remaining = &self.items[self.cursor..];
+            Some((current, remaining))
+        }
+    }
+
+    /// Insert some items to the Input items just after current parsing cursor.
+    /// Usually used by replaced items recovering.
+    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
+        self.items = insert_items
+            .iter()
+            .map(OsString::from)
+            .chain(self.items.drain(self.cursor..))
+            .collect();
+        self.cursor = 0;
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum ParseState {
+    ValuesDone,
+    Opt(Id),
+    Pos(Id),
+}
+
+/// Recoverable Parsing results.
+#[derive(Debug, PartialEq, Clone)]
+enum ParseResult {
+    FlagSubCommand(String),
+    Opt(Id),
+    ValuesDone,
+    /// Value attached to the short flag is not consumed(e.g. 'u' for `-cu` is
+    /// not consumed).
+    AttachedValueNotConsumed,
+    /// This long flag doesn't need a value but is provided one.
+    UnneededAttachedValue {
+        rest: String,
+        used: Vec<Id>,
+        arg: String,
+    },
+    /// This flag might be an hyphen Value.
+    MaybeHyphenValue,
+    /// Equals required but not provided.
+    EqualsNotProvided {
+        arg: String,
+    },
+    /// Failed to match a Arg.
+    NoMatchingArg {
+        arg: String,
+    },
+    /// No argument found e.g. parser is given `-` when parsing a flag.
+    NoArg,
+    /// This is a Help flag.
+    HelpFlag,
+    /// This is a version flag.
+    VersionFlag,
 }

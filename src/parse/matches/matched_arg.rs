@@ -8,16 +8,6 @@ use std::{
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
 
-// TODO: Maybe make this public?
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ValueType {
-    Unknown,
-    #[cfg(feature = "env")]
-    EnvVariable,
-    CommandLine,
-    DefaultValue,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MatchedArg {
     pub(crate) occurs: u64,
@@ -26,12 +16,6 @@ pub(crate) struct MatchedArg {
     vals: Vec<Vec<OsString>>,
     ignore_case: bool,
     invalid_utf8_allowed: Option<bool>,
-}
-
-impl Default for MatchedArg {
-    fn default() -> Self {
-        Self::new()
-    }
 }
 
 impl MatchedArg {
@@ -153,6 +137,22 @@ impl MatchedArg {
     pub(crate) fn is_invalid_utf8_allowed(&self) -> Option<bool> {
         self.invalid_utf8_allowed
     }
+}
+
+impl Default for MatchedArg {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// TODO: Maybe make this public?
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ValueType {
+    Unknown,
+    #[cfg(feature = "env")]
+    EnvVariable,
+    CommandLine,
+    DefaultValue,
 }
 
 #[cfg(test)]
