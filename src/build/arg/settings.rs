@@ -4,37 +4,6 @@ use std::{ops::BitOr, str::FromStr};
 // Third party
 use bitflags::bitflags;
 
-bitflags! {
-    struct Flags: u32 {
-        const REQUIRED         = 1;
-        const MULTIPLE_OCC     = 1 << 1;
-        const NO_EMPTY_VALS    = 1 << 2;
-        const GLOBAL           = 1 << 3;
-        const HIDDEN           = 1 << 4;
-        const TAKES_VAL        = 1 << 5;
-        const USE_DELIM        = 1 << 6;
-        const NEXT_LINE_HELP   = 1 << 7;
-        const REQ_DELIM        = 1 << 9;
-        const DELIM_NOT_SET    = 1 << 10;
-        const HIDE_POS_VALS    = 1 << 11;
-        const ALLOW_TAC_VALS   = 1 << 12;
-        const REQUIRE_EQUALS   = 1 << 13;
-        const LAST             = 1 << 14;
-        const HIDE_DEFAULT_VAL = 1 << 15;
-        const CASE_INSENSITIVE = 1 << 16;
-        #[cfg(feature = "env")]
-        const HIDE_ENV_VALS    = 1 << 17;
-        const HIDDEN_SHORT_H   = 1 << 18;
-        const HIDDEN_LONG_H    = 1 << 19;
-        const MULTIPLE_VALS    = 1 << 20;
-        const MULTIPLE         = Self::MULTIPLE_OCC.bits | Self::MULTIPLE_VALS.bits;
-        #[cfg(feature = "env")]
-        const HIDE_ENV         = 1 << 21;
-        const UTF8_NONE        = 1 << 22;
-        const NO_OP            = 0;
-    }
-}
-
 #[doc(hidden)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ArgFlags(Flags);
@@ -43,36 +12,6 @@ impl Default for ArgFlags {
     fn default() -> Self {
         Self::empty()
     }
-}
-
-// @TODO @p6 @internal: Reorder alphabetically
-impl_settings! { ArgSettings, ArgFlags,
-    Required("required") => Flags::REQUIRED,
-    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
-    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
-    Multiple("multiple") => Flags::MULTIPLE,
-    ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
-    Global("global") => Flags::GLOBAL,
-    Hidden("hidden") => Flags::HIDDEN,
-    TakesValue("takesvalue") => Flags::TAKES_VAL,
-    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
-    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
-    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
-    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
-    AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
-    AllowLeadingHyphen("allowleadinghypyhen") => Flags::ALLOW_TAC_VALS,
-    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
-    Last("last") => Flags::LAST,
-    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
-    CaseInsensitive("caseinsensitive") => Flags::CASE_INSENSITIVE,
-    #[cfg(feature = "env")]
-    HideEnv("hideenv") => Flags::HIDE_ENV,
-    #[cfg(feature = "env")]
-    HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
-    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
-    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
-    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
-    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
 }
 
 /// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
@@ -148,6 +87,67 @@ pub enum ArgSettings {
     HiddenLongHelp,
     /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
     AllowInvalidUtf8,
+}
+
+bitflags! {
+    struct Flags: u32 {
+        const REQUIRED         = 1;
+        const MULTIPLE_OCC     = 1 << 1;
+        const NO_EMPTY_VALS    = 1 << 2;
+        const GLOBAL           = 1 << 3;
+        const HIDDEN           = 1 << 4;
+        const TAKES_VAL        = 1 << 5;
+        const USE_DELIM        = 1 << 6;
+        const NEXT_LINE_HELP   = 1 << 7;
+        const REQ_DELIM        = 1 << 9;
+        const DELIM_NOT_SET    = 1 << 10;
+        const HIDE_POS_VALS    = 1 << 11;
+        const ALLOW_TAC_VALS   = 1 << 12;
+        const REQUIRE_EQUALS   = 1 << 13;
+        const LAST             = 1 << 14;
+        const HIDE_DEFAULT_VAL = 1 << 15;
+        const CASE_INSENSITIVE = 1 << 16;
+        #[cfg(feature = "env")]
+        const HIDE_ENV_VALS    = 1 << 17;
+        const HIDDEN_SHORT_H   = 1 << 18;
+        const HIDDEN_LONG_H    = 1 << 19;
+        const MULTIPLE_VALS    = 1 << 20;
+        const MULTIPLE         = Self::MULTIPLE_OCC.bits | Self::MULTIPLE_VALS.bits;
+        #[cfg(feature = "env")]
+        const HIDE_ENV         = 1 << 21;
+        const UTF8_NONE        = 1 << 22;
+        const NO_OP            = 0;
+    }
+}
+
+// @TODO @p6 @internal: Reorder alphabetically
+impl_settings! { ArgSettings, ArgFlags,
+    Required("required") => Flags::REQUIRED,
+    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
+    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
+    Multiple("multiple") => Flags::MULTIPLE,
+    ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
+    Global("global") => Flags::GLOBAL,
+    Hidden("hidden") => Flags::HIDDEN,
+    TakesValue("takesvalue") => Flags::TAKES_VAL,
+    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
+    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
+    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
+    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
+    AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
+    AllowLeadingHyphen("allowleadinghypyhen") => Flags::ALLOW_TAC_VALS,
+    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
+    Last("last") => Flags::LAST,
+    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
+    CaseInsensitive("caseinsensitive") => Flags::CASE_INSENSITIVE,
+    #[cfg(feature = "env")]
+    HideEnv("hideenv") => Flags::HIDE_ENV,
+    #[cfg(feature = "env")]
+    HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
+    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
+    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
+    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
+    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
 }
 
 #[cfg(test)]

@@ -14,14 +14,6 @@ use indexmap::map::Entry;
 #[derive(Debug, Default)]
 pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
 
-impl Deref for ArgMatcher {
-    type Target = ArgMatches;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
 impl ArgMatcher {
     pub(crate) fn new(app: &App) -> Self {
         ArgMatcher(ArgMatches {
@@ -202,5 +194,13 @@ impl ArgMatcher {
             return o.is_set(ArgSettings::MultipleValues);
         }
         true
+    }
+}
+
+impl Deref for ArgMatcher {
+    type Target = ArgMatches;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

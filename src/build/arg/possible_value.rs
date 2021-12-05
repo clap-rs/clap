@@ -32,80 +32,6 @@ pub struct PossibleValue<'help> {
     pub(crate) hide: bool,
 }
 
-impl<'help> From<&'help str> for PossibleValue<'help> {
-    fn from(s: &'help str) -> Self {
-        Self::new(s)
-    }
-}
-
-impl<'help> From<&'help &'help str> for PossibleValue<'help> {
-    fn from(s: &'help &'help str) -> Self {
-        Self::new(s)
-    }
-}
-
-/// Getters
-impl<'help> PossibleValue<'help> {
-    /// Get the name of the argument value
-    #[inline]
-    pub fn get_name(&self) -> &str {
-        self.name
-    }
-
-    /// Get the help specified for this argument, if any
-    #[inline]
-    pub fn get_help(&self) -> Option<&str> {
-        self.help
-    }
-
-    /// Should the value be hidden from help messages and completion
-    #[inline]
-    pub fn is_hidden(&self) -> bool {
-        self.hide
-    }
-
-    /// Get the name if argument value is not hidden, `None` otherwise
-    pub fn get_visible_name(&self) -> Option<&str> {
-        if self.hide {
-            None
-        } else {
-            Some(self.name)
-        }
-    }
-
-    /// Returns all valid values of the argument value.
-    ///
-    /// Namely the name and all aliases.
-    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
-        iter::once(&self.name).chain(&self.aliases).copied()
-    }
-
-    /// Tests if the value is valid for this argument value
-    ///
-    /// The value is valid if it is either the name or one of the aliases.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use clap::PossibleValue;
-    /// let arg_value = PossibleValue::new("fast").alias("not-slow");
-    ///
-    /// assert!(arg_value.matches("fast", false));
-    /// assert!(arg_value.matches("not-slow", false));
-    ///
-    /// assert!(arg_value.matches("FAST", true));
-    /// assert!(!arg_value.matches("FAST", false));
-    /// ```
-    pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
-        if ignore_case {
-            self.get_name_and_aliases()
-                .any(|name| eq_ignore_case(name, value))
-        } else {
-            self.get_name_and_aliases().any(|name| name == value)
-        }
-    }
-}
-
 impl<'help> PossibleValue<'help> {
     /// Create a [`PossibleValue`] with its name.
     ///
@@ -201,5 +127,79 @@ impl<'help> PossibleValue<'help> {
     {
         self.aliases.extend(names.into_iter());
         self
+    }
+}
+
+/// Reflection
+impl<'help> PossibleValue<'help> {
+    /// Get the name of the argument value
+    #[inline]
+    pub fn get_name(&self) -> &str {
+        self.name
+    }
+
+    /// Get the help specified for this argument, if any
+    #[inline]
+    pub fn get_help(&self) -> Option<&str> {
+        self.help
+    }
+
+    /// Should the value be hidden from help messages and completion
+    #[inline]
+    pub fn is_hidden(&self) -> bool {
+        self.hide
+    }
+
+    /// Get the name if argument value is not hidden, `None` otherwise
+    pub fn get_visible_name(&self) -> Option<&str> {
+        if self.hide {
+            None
+        } else {
+            Some(self.name)
+        }
+    }
+
+    /// Returns all valid values of the argument value.
+    ///
+    /// Namely the name and all aliases.
+    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
+        iter::once(&self.name).chain(&self.aliases).copied()
+    }
+
+    /// Tests if the value is valid for this argument value
+    ///
+    /// The value is valid if it is either the name or one of the aliases.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::PossibleValue;
+    /// let arg_value = PossibleValue::new("fast").alias("not-slow");
+    ///
+    /// assert!(arg_value.matches("fast", false));
+    /// assert!(arg_value.matches("not-slow", false));
+    ///
+    /// assert!(arg_value.matches("FAST", true));
+    /// assert!(!arg_value.matches("FAST", false));
+    /// ```
+    pub fn matches(&self, value: &str, ignore_case: bool) -> bool {
+        if ignore_case {
+            self.get_name_and_aliases()
+                .any(|name| eq_ignore_case(name, value))
+        } else {
+            self.get_name_and_aliases().any(|name| name == value)
+        }
+    }
+}
+
+impl<'help> From<&'help str> for PossibleValue<'help> {
+    fn from(s: &'help str) -> Self {
+        Self::new(s)
+    }
+}
+
+impl<'help> From<&'help &'help str> for PossibleValue<'help> {
+    fn from(s: &'help &'help str) -> Self {
+        Self::new(s)
     }
 }
