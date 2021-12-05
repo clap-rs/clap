@@ -31,7 +31,7 @@ fn main() {
 }
 ```
 
-The above example program can be run as shown below:
+The above example program can be run as shown below:https://github.com/clap-rs/clap.git
 
 ```
 $ hello --name John --count 3
