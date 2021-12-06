@@ -5,8 +5,6 @@ Used to validate README.md's content
 $ demo --help
 clap [..]
 
-
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
