@@ -38,9 +38,6 @@ proc-macro2 = "1.0.28"
 heck = "0.3.0"
 proc-macro-error = "1"
 
-[dev-dependencies]
-clap = { path = "../", default-features = false, features = ["std", "derive", "env"] }
-
 [features]
 default = []
 debug = []
