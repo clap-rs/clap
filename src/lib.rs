@@ -8,7 +8,7 @@
 #![cfg_attr(feature = "doc", doc = include_str!("../README.md"))]
 //! <https://github.com/clap-rs/clap>
 #![crate_type = "lib"]
-#![deny(
+#![warn(
     missing_docs,
     missing_debug_implementations,
     missing_copy_implementations,
