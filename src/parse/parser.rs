@@ -19,7 +19,7 @@ use crate::{
     parse::features::suggestions,
     parse::{ArgMatcher, SubCommand},
     parse::{Validator, ValueType},
-    util::{ChildGraph, Id},
+    util::{color::ColorChoice, ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
@@ -331,6 +331,16 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
             }
         }
+    }
+
+    // Should we color the help?
+    pub(crate) fn color_help(&self) -> ColorChoice {
+        #[cfg(feature = "color")]
+        if self.is_set(AS::DisableColoredHelp) {
+            return ColorChoice::Never;
+        }
+
+        self.app.get_color()
     }
 }
 
@@ -1866,7 +1876,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let mut c = Colorizer::new(true, self.app.get_color());
+        let mut c = Colorizer::new(true, self.color_help());
         Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
         Ok(c)
     }
@@ -1878,7 +1888,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let mut c = Colorizer::new(false, self.app.get_color());
+        let mut c = Colorizer::new(false, self.color_help());
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
@@ -1894,7 +1904,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::version_err");
 
         let msg = self.app._render_version(use_long);
-        let mut c = Colorizer::new(false, self.app.get_color());
+        let mut c = Colorizer::new(false, self.color_help());
         c.none(msg);
         ClapError::new(
             c,
