@@ -49,7 +49,7 @@ you can set `App::help_heading`.
 
 Example test:
 ```rust
-fn app() -> clap::App {
+fn app() -> clap::App<'static> {
     ...
 }
 
