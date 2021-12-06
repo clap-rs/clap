@@ -301,18 +301,36 @@ macro_rules! crate_name {
 #[cfg(feature = "cargo")]
 #[macro_export]
 macro_rules! app_from_crate {
-    () => {
-        $crate::App::new($crate::crate_name!())
-            .version($crate::crate_version!())
-            .author($crate::crate_authors!(", "))
-            .about($crate::crate_description!())
-    };
-    ($sep:expr) => {
-        $crate::App::new($crate::crate_name!())
-            .version($crate::crate_version!())
-            .author($crate::crate_authors!($sep))
-            .about($crate::crate_description!())
-    };
+    () => {{
+        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+
+        let author = $crate::crate_authors!(", ");
+        if !author.is_empty() {
+            app = app.author(author)
+        }
+
+        let about = $crate::crate_description!();
+        if !about.is_empty() {
+            app = app.about(about)
+        }
+
+        app
+    }};
+    ($sep:expr) => {{
+        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+
+        let author = $crate::crate_authors!($sep);
+        if !author.is_empty() {
+            app = app.author(author)
+        }
+
+        let about = $crate::crate_description!();
+        if !about.is_empty() {
+            app = app.about(about)
+        }
+
+        app
+    }};
 }
 
 #[doc(hidden)]

@@ -267,11 +267,13 @@ On top of the clap 2 changes
 - `IgnoreCase` is now unicode aware (requires `unicode` feature flag)
 - Always respect `ColorChoice::Never`, even if that means we skip colors in some cases
 - `ArgMatches` panics on unknown arguments
+- Gracefully handle empty `authors` field in `Cargo.toml` with `app_from_crate`
 
 **From structopt 0.3.25**
 
 - Support `SubcommandsNegateReqs` by allowing required `Option<_>`s ([clap-rs/clap#2255](https://github.com/clap-rs/clap/issues/2255))
 - Infer `AllowInvalidUtf8` based on parser ([clap-rs/clap#751](https://github.com/clap-rs/clap/issues/2255))
+- Gracefully handle empty `authors` field in `Cargo.toml`
 
 On top of the clap 2 changes
 

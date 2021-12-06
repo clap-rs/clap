@@ -26,8 +26,6 @@ You can create an application with several arguments using usage strings.
 $ 01_quick --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -93,8 +91,6 @@ file.  **This requires the `cargo` feature flag.**
 $ 02_crate --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -117,8 +113,6 @@ all subcommands (`app.global_setting()`).
 ```bash
 $ 02_app_settings --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -145,8 +139,6 @@ Flags are switches that can be on/off:
 ```bash
 $ 03_01_flag_bool --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -178,8 +170,6 @@ Or counted.
 $ 03_01_flag_count --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -205,8 +195,6 @@ Flags can also accept a value.
 ```bash
 $ 03_02_option --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -240,8 +228,6 @@ Or you can have users specify values by their position on the command-line:
 $ 03_03_positional --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -271,8 +257,6 @@ $ 03_04_subcommands
 ? failed
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -287,8 +271,6 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
 $ 03_04_subcommands help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -339,8 +321,6 @@ set `Arg::default_value`.
 $ 03_05_default_values --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -374,8 +354,6 @@ of the mistake, and what the possible valid values are
 $ 04_01_possible --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -408,8 +386,6 @@ When enabling the `derive` feature, you can use `ArgEnum` to take care of the bo
 ```bash
 $ 04_01_enum --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -445,8 +421,6 @@ More generally, you can validate and parse into any data type.
 ```bash
 $ 04_02_validate --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -484,8 +458,6 @@ each other.
 ```bash
 $ 04_03_relations --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -545,8 +517,6 @@ As a last resort, you can create custom errors with the basics of clap's formatt
 ```bash
 $ 04_04_custom --help
 clap [..]
-
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 

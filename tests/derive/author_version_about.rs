@@ -34,7 +34,6 @@ fn use_env() {
 
     let output = utils::get_long_help::<Opt>();
     assert!(output.starts_with("clap"));
-    assert!(output.contains("Kevin K. <kbknapp@gmail.com>, Clap Maintainers"));
     assert!(output
         .contains("A simple to use, efficient, and full-featured Command Line Argument Parser"));
 }

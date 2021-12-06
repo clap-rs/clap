@@ -2,9 +2,6 @@
 name = "clap_generate_fig"
 version = "3.0.0-beta.5"
 edition = "2018"
-authors = [
-	"Clap Maintainers"
-]
 include = [
 	"src/**/*",
 	"Cargo.toml",

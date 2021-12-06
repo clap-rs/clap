@@ -2,10 +2,6 @@
 name = "clap_derive"
 version = "3.0.0-beta.5"
 edition = "2018"
-authors = [
-	"Guillaume Pinot <texitoi@texitoi.eu>",
-	"Clap Maintainers"
-]
 include = [
 	"src/**/*",
 	"Cargo.toml",
@@ -37,9 +33,6 @@ quote = "1.0.9"
 proc-macro2 = "1.0.28"
 heck = "0.3.0"
 proc-macro-error = "1"
-
-[dev-dependencies]
-clap = { path = "../", default-features = false, features = ["std", "derive", "env"] }
 
 [features]
 default = []
