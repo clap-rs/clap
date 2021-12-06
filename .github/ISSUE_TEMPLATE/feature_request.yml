@@ -1,6 +1,8 @@
 name: Feature request
 description: Suggest an idea for this project
-labels: 'T: new feature'
+labels:
+  - 'C-enchancement'
+  - 'C-waiting-on-design'
 body:
   - type: checkboxes
     attributes:

@@ -6,3 +6,5 @@ updates:
     interval: monthly
     time: "07:00"
   open-pull-requests-limit: 10
+  labels:
+    - C-dependencies

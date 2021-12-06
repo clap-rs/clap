@@ -1,6 +1,6 @@
 name: Bug report
 description: Things not quite working right
-labels: 'T: bug'
+labels: 'C-bug'
 body:
   - type: checkboxes
     attributes:
