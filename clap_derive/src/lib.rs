@@ -12,8 +12,6 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.5")]
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
