@@ -7,7 +7,7 @@ Let's see what this looks like in the help:
 $ escaped_positional --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 

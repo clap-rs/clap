@@ -27,7 +27,7 @@ attributes.  **This requires enabling the `derive` feature flag.**
 $ 01_quick_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -93,7 +93,7 @@ You can use `app_from_crate!()` to fill these fields in from your `Cargo.toml` f
 $ 02_crate_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -118,7 +118,7 @@ all subcommands (`app.global_setting()`).
 $ 02_app_settings_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -146,7 +146,7 @@ Flags are switches that can be on/off:
 $ 03_01_flag_bool_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -178,7 +178,7 @@ Or counted.
 $ 03_01_flag_count_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -206,7 +206,7 @@ Flags can also accept a value.
 $ 03_02_option_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -240,7 +240,7 @@ Or you can have users specify values by their position on the command-line:
 $ 03_03_positional_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -271,7 +271,7 @@ $ 03_04_subcommands_derive
 ? failed
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -288,7 +288,7 @@ SUBCOMMANDS:
 $ 03_04_subcommands_derive help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -339,7 +339,7 @@ set `Arg::default_value`.
 $ 03_05_default_values_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -374,7 +374,7 @@ of the mistake, and what the possible valid values are
 $ 04_01_enum_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -411,7 +411,7 @@ More generally, you can validate and parse into any data type.
 $ 04_02_validate_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -450,7 +450,7 @@ each other.
 $ 04_03_relations_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
@@ -511,7 +511,7 @@ As a last resort, you can create custom errors with the basics of clap's formatt
 $ 04_04_custom_derive --help
 clap [..]
 
-Kevin K. <kbknapp@gmail.com>, Clap Maintainers
+
 
 A simple to use, efficient, and full-featured Command Line Argument Parser
 

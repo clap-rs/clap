@@ -9,10 +9,6 @@ members = [
 name = "clap"
 version = "3.0.0-beta.5"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
-authors = [
-	"Kevin K. <kbknapp@gmail.com>",
-	"Clap Maintainers"
-]
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
 homepage = "https://clap.rs/"

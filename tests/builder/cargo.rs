@@ -16,7 +16,7 @@ OPTIONS:
 
 static AUTHORS_ONLY: &str = "prog 1
 
-Kevin K. <kbknapp@gmail.com>:Clap Maintainers
+
 
 USAGE:
     prog

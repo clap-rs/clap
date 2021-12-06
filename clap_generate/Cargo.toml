@@ -2,10 +2,6 @@
 name = "clap_generate"
 version = "3.0.0-beta.5"
 edition = "2018"
-authors = [
-	"Kevin K. <kbknapp@gmail.com>",
-	"Clap Maintainers"
-]
 include = [
 	"src/**/*",
 	"Cargo.toml",
