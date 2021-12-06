@@ -95,11 +95,16 @@ OPTIONS:
 - Flexible enough to port your existing CLI interface
   - However, we won't necessarily streamline support for each use case
 - Reasonable parse performance
-- We will support the last two minor Rust releases (MSRV)
+- Resilient maintainership, including
+  - Willing to break compatibility rather than batching up breaking changes in large releases
+  - Leverage feature flags to keep to one active branch
+  - Being under [WG-CLI](https://github.com/rust-cli/team/) to increase the bus factor
 - We follow semver and will wait about 6 months between major breaking changes
+- We will support the last two minor Rust releases (MSRV)
 
 While these aspirations can be at odds with fast build times and low binary
-size, we will still strive to keep these reasonable.  Check out the
+size, we will still strive to keep these reasonable for the flexibility you
+get.  Check out the
 [argparse-benchmarks](https://github.com/rust-cli/argparse-benchmarks-rs) for
 CLI parsers optimized for other use cases.
 
