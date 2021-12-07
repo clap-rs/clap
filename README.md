@@ -100,7 +100,7 @@ OPTIONS:
   - Willing to break compatibility rather than batching up breaking changes in large releases
   - Leverage feature flags to keep to one active branch
   - Being under [WG-CLI](https://github.com/rust-cli/team/) to increase the bus factor
-- We follow semver and will wait about 6 months between major breaking changes
+- We follow semver and will wait about 6-9 months between major breaking changes
 - We will support the last two minor Rust releases (MSRV, currently 1.54.0)
 
 While these aspirations can be at odds with fast build times and low binary
