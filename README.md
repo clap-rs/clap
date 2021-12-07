@@ -35,35 +35,25 @@ Create your command-line parser, with all of the bells and whistles, declarative
 ```rust,no_run
 use clap::Parser;
 
-#[derive(Parser)]
-#[clap(about, version, author)] // Pull these from `Cargo.toml`
-struct Cli {
-    /// Sets a custom config file. Could have been an Option<T> with no default too
-    #[clap(short, long, default_value = "default.toml", value_name = "PATH")]
-    config: std::path::PathBuf,
-    /// Some input. Because this isn't an Option<T> it's required to be used
-    input: String,
-    /// A level of verbosity, and can be used multiple times
-    #[clap(short, long, parse(from_occurrences))]
-    verbose: i32,
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[clap(about, version, author)]
+struct Args {
+    /// Name of the person to greet
+    #[clap(short, long)]
+    name: String,
+
+    /// Number of times to greet
+    #[clap(short, long, default_value_t = 1)]
+    count: u8,
 }
 
 fn main() {
-    let args = Cli::parse();
+    let args = Args::parse();
 
-    println!("Value for config: {}", args.config.display());
-    println!("Using input file: {}", args.input);
-
-    // Vary the output based on how many times the user used the "verbose" flag
-    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match args.verbose {
-        0 => println!("No verbose info"),
-        1 => println!("Some verbose info"),
-        2 => println!("Tons of verbose info"),
-        _ => println!("Don't be ridiculous"),
+    for _ in 0..args.count {
+        println!("Hello {}!", args.name)
     }
-
-    // more program logic goes here...
 }
 ```
 *(note: requires feature `derive`)*
@@ -71,21 +61,15 @@ fn main() {
 $ demo --help
 clap [..]
 
-
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    demo[EXE] [OPTIONS] <INPUT>
-
-ARGS:
-    <INPUT>    Some input. Because this isn't an Option<T> it's required to be used
+    demo[EXE] [OPTIONS] --name <NAME>
 
 OPTIONS:
-    -c, --config <PATH>    Sets a custom config file. Could have been an Option<T> with no default
-                           too [default: default.toml]
+    -c, --count <COUNT>    Number of times to greet [default: 1]
     -h, --help             Print help information
-    -v, --verbose          A level of verbosity, and can be used multiple times
+    -n, --name <NAME>      Name of the person to greet
     -V, --version          Print version information
 ```
 *(version number and `.exe` extension on windows replaced by placeholders)*
