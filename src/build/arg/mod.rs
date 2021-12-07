@@ -122,12 +122,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     pub fn new<S: Into<&'help str>>(n: S) -> Self {
-        let name = n.into();
-        Arg {
-            id: Id::from(&*name),
-            name,
-            ..Default::default()
-        }
+        Arg::default().name(n)
     }
 
     /// Set the identifier used for referencing this argument in the clap API.
