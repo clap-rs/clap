@@ -7,22 +7,22 @@ jobs:
     name: Test
     strategy:
       matrix:
-        build: [linux, windows, mac, beta, nightly, minimal, default]
+        build: [stable, linux, windows, mac, nightly, minimal, default]
         include:
-        - build: linux
+        - build: stable
           os: ubuntu-latest
           rust: "stable"
+          features: "full"
+        - build: linux
+          os: ubuntu-latest
+          rust: "beta"
           features: "full"
         - build: windows
           os: windows-latest
-          rust: "stable"
+          rust: "beta"
           features: "full"
         - build: mac
           os: macos-latest
-          rust: "stable"
-          features: "full"
-        - build: beta
-          os: ubuntu-latest
           rust: "beta"
           features: "full"
         - build: nightly
