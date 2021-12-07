@@ -106,6 +106,8 @@ impl<'help> App<'help> {
     /// name will only be displayed to the user when they request to print
     /// version or help and usage information.
     ///
+    /// See also [`app_from_crate!!`](crate::app_from_crate!) and [`crate_name!`](crate::crate_name!).
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -910,6 +912,8 @@ impl<'help> App<'help> {
     ///
     /// **NOTE:** Only `App::about` (short format) is used in completion
     /// script generation in order to be concise.
+    ///
+    /// See also [`crate_description!`](crate::crate_description!).
     ///
     /// # Examples
     ///
