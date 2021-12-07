@@ -23,6 +23,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 6. [FAQ](https://github.com/clap-rs/clap/blob/master/docs/FAQ.md)
 7. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
 8. [Contributing](https://github.com/clap-rs/clap/blob/master/CONTRIBUTING.md)
+8. [Sponsors](#sponsors)
 
 ## About
 
@@ -142,3 +143,25 @@ CLI parsers optimized for other use cases.
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
 * **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
+
+## Sponsors
+
+<!-- omit in TOC -->
+### Gold
+
+[![](https://opencollective.com/clap/tiers/gold.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Silver
+
+[![](https://opencollective.com/clap/tiers/silver.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Bronze
+
+[![](https://opencollective.com/clap/tiers/bronze.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Backer
+
+[![](https://opencollective.com/clap/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
