@@ -65,6 +65,7 @@ fn main() {
     // more program logic goes here...
 }
 ```
+*(note: requires feature `derive`)*
 ```bash
 $ demo --help
 clap [..]
