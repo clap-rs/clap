@@ -71,6 +71,27 @@ $ cargo test --test <test_name> --features debug
 2. Push your changes back to your fork (`git push origin $your-branch`)
 3. Create a pull request against `master`! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
 
+## Conditions for fulfilling a bounty:
+
+1. You should make a pull request which fixes the issue the bounty was promised for
+2. The pull request should be merged by one of the maintainers
+
+### Below are the steps to redeem a bounty:
+
+1. Go to https://opencollective.com/clap/expenses/new.
+2. Select **Invoice**.
+3. Enter **Expense Title** as "Issue Bounty".
+4. In **Description**, link the issue you are redeeming _(Ex: `https://github.com/clap-rs/clap/issues/1464`)_
+5. In **Amount**, write the amount that the issue promised _(Ex: 10)_
+6. Fill payment information and submit
+7. Wait for us to approve it
+
+### Can I forgo the bounty?
+
+Yes, you can. In that case, you don't have to do anything except writing a
+comment on the issue saying that I do. The bounty will be reassigned to another
+issue.
+
 ## Specific Tasks
 
 ### Updating MSRV
