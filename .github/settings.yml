@@ -17,70 +17,79 @@ repository:
   # Manual: allow_auto_merge: true, see https://github.com/probot/settings/issues/402
   delete_branch_on_merge: true
 
-labels:
-  - name: "A-builder"
-    description: "Area: Builder API"
-    color: '#f7e101'
-  - name: "A-derive"
-    description: "Area: #[derive]` macro API"
-    color: '#f7e101'
-  - name: "A-docs"
-    description: "Area: documentation, including docs.rs, readme, examples, etc..."
-    color: '#f7e101'
-  - name: "A-completion"
-    description: "Area: completion generator"
-    color: '#f7e101'
-  - name: "A-help"
-    description: "Area: Help or usage messages"
-    color: '#f7e101'
-  - name: "A-meta"
-    description: "Area: administrative question or tracking issue"
-    color: '#f7e101'
-  - name: "A-parsing"
-    description: "Area: Parser's logic and needs it changed somehow."
-    color: '#f7e101'
-  - name: "C-bug"
-    description: "Category: Things not working as expected"
-    color: '#f5f1fd'
-  - name: "C-enhancement"
-    description: "Category: Raise on the bar on expectations"
-    color: '#f5f1fd'
-  - name: "C-tracking-issue"
-    description: "Category: A tracking issue for an unstable feature"
-    color: '#f5f1fd'
-  - name: "C-dependencies"
-    description: "Category: Updating dependencies"
-    color: '#f5f1fd'
-  - name: "E-easy"
-    description: "Call for participation: Experience needed to fix: Easy / not much"
-    color: '#02E10C'
-  - name: "E-medium"
-    description: "Call for participation: Experience needed to fix: Medium / intermediate"
-    color: '#02E10C'
-  - name: "E-hard"
-    description: "Call for participation: Experience needed to fix: Hard / a lot"
-    color: '#02E10C'
-  - name: "E-help-wanted"
-    description: "Call for participation: Help is requested to fix this issue."
-    color: '#02E10C'
-  - name: "S-blocked"
-    description: "Status: marked as blocked on something else such as an RFC or other implementation work."
-    color: '#D3DDDD'
-  - name: "S-experimental"
-    description: "Status: Ongoing experiment that does not require reviewing and won't be merged in its current state."
-    color: '#D3DDDD'
-  - name: "S-waiting-on-design"
-    description: "Status: Waiting on design to be resolved before implementing"
-    color: '#D3DDDD'
-  - name: "S-waiting-on-decision"
-    description: "Status: Waiting on a go/no-go before implementing"
-    color: '#D3DDDD'
-  - name: "S-waiting-on-author"
-    description: "Status: This is awaiting some action (such as code changes or more information) from the author."
-    color: '#D3DDDD'
-  - name: "M-breaking change"
-    description: "Meta: Implementing or merging this will introduce a breaking change."
-    color: '#E10C02'
+#labels:
+#  - name: "A-builder"
+#    description: "Area: Builder API"
+#    color: '#f7e101'
+#  - name: "A-derive"
+#    description: "Area: #[derive]` macro API"
+#    color: '#f7e101'
+#  - name: "A-docs"
+#    description: "Area: documentation, including docs.rs, readme, examples, etc..."
+#    color: '#f7e101'
+#  - name: "A-completion"
+#    description: "Area: completion generator"
+#    color: '#f7e101'
+#  - name: "A-help"
+#    description: "Area: Help or usage messages"
+#    color: '#f7e101'
+#  - name: "A-meta"
+#    description: "Area: administrative question or tracking issue"
+#    color: '#f7e101'
+#  - name: "A-parsing"
+#    description: "Area: Parser's logic and needs it changed somehow."
+#    color: '#f7e101'
+#  - name: "C-bug"
+#    description: "Category: Things not working as expected"
+#    color: '#f5f1fd'
+#  - name: "C-enhancement"
+#    description: "Category: Raise on the bar on expectations"
+#    color: '#f5f1fd'
+#  - name: "C-tracking-issue"
+#    description: "Category: A tracking issue for an unstable feature"
+#    color: '#f5f1fd'
+#  - name: "C-dependencies"
+#    description: "Category: Updating dependencies"
+#    color: '#f5f1fd'
+#  - name: "E-easy"
+#    description: "Call for participation: Experience needed to fix: Easy / not much"
+#    color: '#02E10C'
+#  - name: "E-medium"
+#    description: "Call for participation: Experience needed to fix: Medium / intermediate"
+#    color: '#02E10C'
+#  - name: "E-hard"
+#    description: "Call for participation: Experience needed to fix: Hard / a lot"
+#    color: '#02E10C'
+#  - name: "E-help-wanted"
+#    description: "Call for participation: Help is requested to fix this issue."
+#    color: '#02E10C'
+#  - name: "S-triage"
+#    description: "Status: New; needs maintainer attention."
+#    color: '#D3DDDD'
+#  - name: "S-blocked"
+#    description: "Status: Blocked on something else such as an RFC or other implementation work."
+#    color: '#D3DDDD'
+#  - name: "S-experimental"
+#    description: "Status: Ongoing experiment that does not require reviewing and won't be merged in its current state."
+#    color: '#D3DDDD'
+#  - name: "S-waiting-on-design"
+#    description: "Status: Waiting on user-facing design to be resolved before implementing"
+#    color: '#D3DDDD'
+#  - name: "S-waiting-on-decision"
+#    description: "Status: Waiting on a go/no-go before implementing"
+#    color: '#D3DDDD'
+#  - name: "S-waiting-on-mentor"
+#    description: "Status: Needs elaboration on the details before doing a 'Call for participation'"
+#    color: '#D3DDDD'
+#  - name: "S-waiting-on-author"
+#    description: "Status: This is awaiting some action (such as code changes or more information) from the author."
+#    color: '#D3DDDD'
+#  - name: "M-breaking-change"
+#    description: "Meta: Implementing or merging this will introduce a breaking change."
+#    color: '#E10C02'
+#  - name: "M-unreviewed"
+#    description: "Meta: Request for post-merge review."
+#    color: '#E10C02'
 
 branches:
   - name: main
