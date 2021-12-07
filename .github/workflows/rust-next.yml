@@ -53,6 +53,8 @@ jobs:
       run: make build-${{matrix.features}}
     - name: Test
       run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
   rustfmt:
     name: rustfmt
     strategy:
