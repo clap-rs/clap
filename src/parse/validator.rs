@@ -520,8 +520,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         } else {
             false
         };
-        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        // Issue 1105 (https://github.com/kbknapp/clap-rs/issues/1105)
+        // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+        // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
         if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.is_vals_empty() {
             return Err(Error::empty_value(
                 self.p.app,
