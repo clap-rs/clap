@@ -9,7 +9,9 @@ body:
     attributes:
       options:
         - label: I have searched the [discussions](https://github.com/clap-rs/clap/discussions)
+          required: true
         - label: I have searched the existing issues
+          required: true
   - type: input
     attributes:
       label: Version
