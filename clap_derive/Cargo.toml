@@ -11,7 +11,6 @@ include = [
 description = "Parse command line argument by defining a struct, derive crate."
 repository = "https://github.com/clap-rs/clap/tree/master/clap_derive"
 documentation = "https://docs.rs/clap_derive"
-homepage = "https://clap.rs/"
 keywords = [
 	"clap",
 	"cli",
