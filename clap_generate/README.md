@@ -9,4 +9,3 @@ Generates completions (and other things) for [`clap`](https://github.com/clap-rs
 
 * [Documentation](https://docs.rs/clap_generate)
 * [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
-* [Website](https://clap.rs/)
