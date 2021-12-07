@@ -3,7 +3,7 @@
 //
 // CLI used is adapted from ripgrep 48a8a3a691220f9e5b2b08f4051abe8655ea7e8a
 
-use clap::{App, Arg, ArgSettings};
+use clap::{App, Arg};
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -298,7 +298,7 @@ fn app<F>(_next_line_help: bool, doc: F) -> App<'static>
 where
     F: Fn(&'static str) -> &'static str,
 {
-    let arg = |name| Arg::new(name).about(doc(name));
+    let arg = |name| Arg::new(name).help(doc(name));
     let flag = |name| arg(name).long(name);
 
     App::new("ripgrep")
@@ -325,16 +325,16 @@ where
         ]))
         .arg(
             arg("path")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::MultipleValues)
-                .setting(ArgSettings::MultipleOccurrences),
+                .takes_value(true)
+                .multiple_values(true)
+                .multiple_occurrences(true),
         )
         .arg(
             flag("regexp")
                 .short('e')
-                .setting(ArgSettings::AllowHyphenValues)
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::TakesValue)
+                .allow_hyphen_values(true)
+                .multiple_occurrences(true)
+                .takes_value(true)
                 .value_name("pattern"),
         )
         .arg(
@@ -350,22 +350,22 @@ where
         .arg(
             flag("color")
                 .value_name("WHEN")
-                .setting(ArgSettings::TakesValue)
-                .setting(ArgSettings::HidePossibleValues)
+                .takes_value(true)
+                .hide_possible_values(true)
                 .possible_values(["never", "auto", "always", "ansi"]),
         )
         .arg(
             flag("colors")
                 .value_name("SPEC")
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::TakesValue),
+                .multiple_occurrences(true)
+                .takes_value(true),
         )
         .arg(flag("fixed-strings").short('F'))
         .arg(
             flag("glob")
                 .short('g')
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::TakesValue)
+                .multiple_occurrences(true)
+                .takes_value(true)
                 .value_name("GLOB"),
         )
         .arg(flag("ignore-case").short('i'))
@@ -375,22 +375,18 @@ where
         .arg(
             flag("type")
                 .short('t')
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::TakesValue)
+                .multiple_occurrences(true)
+                .takes_value(true)
                 .value_name("TYPE"),
         )
         .arg(
             flag("type-not")
                 .short('T')
-                .setting(ArgSettings::MultipleOccurrences)
-                .setting(ArgSettings::TakesValue)
+                .multiple_occurrences(true)
+                .takes_value(true)
                 .value_name("TYPE"),
         )
-        .arg(
-            flag("unrestricted")
-                .short('u')
-                .setting(ArgSettings::MultipleOccurrences),
-        )
+        .arg(flag("unrestricted").short('u').multiple_occurrences(true))
         .arg(flag("invert-match").short('v'))
         .arg(flag("word-regexp").short('w'))
         // Third, set up less common flags.
@@ -419,7 +415,7 @@ where
             flag("file")
                 .short('f')
                 .value_name("FILE")
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
         .arg(flag("files-with-matches").short('l'))
         .arg(flag("files-without-match"))
@@ -431,7 +427,7 @@ where
         .arg(
             flag("ignore-file")
                 .value_name("FILE")
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
         .arg(flag("follow").short('L'))
         .arg(
@@ -468,12 +464,12 @@ where
         .arg(
             flag("type-add")
                 .value_name("TYPE")
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
         .arg(
             flag("type-clear")
                 .value_name("TYPE")
-                .setting(ArgSettings::MultipleOccurrences),
+                .multiple_occurrences(true),
         )
 }
 

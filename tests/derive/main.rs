@@ -1,0 +1,32 @@
+#![cfg(feature = "derive")]
+
+mod app_name;
+mod arg_enum;
+mod argument_naming;
+mod arguments;
+mod author_version_about;
+mod basic;
+mod boxed;
+mod custom_string_parsers;
+mod default_value;
+mod deny_warnings;
+mod doc_comments_help;
+mod explicit_name_no_renaming;
+mod flags;
+mod flatten;
+mod generic;
+mod help;
+mod issues;
+mod macros;
+mod nested_subcommands;
+mod non_literal_attributes;
+mod options;
+mod privacy;
+mod raw_bool_literal;
+mod raw_idents;
+mod rename_all_env;
+mod skip;
+mod structopt;
+mod subcommands;
+mod utf8;
+mod utils;

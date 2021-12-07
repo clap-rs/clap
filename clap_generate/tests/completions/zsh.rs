@@ -12,14 +12,14 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
         .arg(
             Arg::new("file")
                 .value_hint(ValueHint::FilePath)
-                .about("some input file"),
+                .help("some input file"),
         )
         .subcommand(
             App::new("test").about("tests things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
-                    .about("the case to test"),
+                    .help("the case to test"),
             ),
         )
 }
@@ -115,7 +115,7 @@ fn build_app_special_commands() -> App<'static> {
                 Arg::new("config")
                     .long("--config")
                     .takes_value(true)
-                    .about("the other case to test"),
+                    .help("the other case to test"),
             ),
         )
         .subcommand(App::new("some-cmd-with-hypens").alias("hyphen"))
@@ -252,28 +252,28 @@ fn build_app_special_help() -> App<'static> {
         .arg(
             Arg::new("single-quotes")
                 .long("single-quotes")
-                .about("Can be 'always', 'auto', or 'never'"),
+                .help("Can be 'always', 'auto', or 'never'"),
         )
         .arg(
             Arg::new("double-quotes")
                 .long("double-quotes")
-                .about("Can be \"always\", \"auto\", or \"never\""),
+                .help("Can be \"always\", \"auto\", or \"never\""),
         )
         .arg(
             Arg::new("backticks")
                 .long("backticks")
-                .about("For more information see `echo test`"),
+                .help("For more information see `echo test`"),
         )
-        .arg(Arg::new("backslash").long("backslash").about("Avoid '\\n'"))
+        .arg(Arg::new("backslash").long("backslash").help("Avoid '\\n'"))
         .arg(
             Arg::new("brackets")
                 .long("brackets")
-                .about("List packages [filter]"),
+                .help("List packages [filter]"),
         )
         .arg(
             Arg::new("expansions")
                 .long("expansions")
-                .about("Execute the shell command with $SHELL"),
+                .help("Execute the shell command with $SHELL"),
         )
 }
 
@@ -450,7 +450,7 @@ fn build_app_with_aliases() -> App<'static> {
                 .visible_short_alias('F')
                 .long("flag")
                 .visible_alias("flg")
-                .about("cmd flag"),
+                .help("cmd flag"),
         )
         .arg(
             Arg::new("option")
@@ -458,7 +458,7 @@ fn build_app_with_aliases() -> App<'static> {
                 .visible_short_alias('O')
                 .long("option")
                 .visible_alias("opt")
-                .about("cmd option")
+                .help("cmd option")
                 .takes_value(true),
         )
         .arg(Arg::new("positional"))
@@ -518,7 +518,7 @@ fn build_app_with_files_and_dirs() -> App<'static> {
         .arg(
             Arg::new("directory")
                 .long("dir")
-                .about("specify a directory")
+                .help("specify a directory")
                 .value_name("DIR")
                 .number_of_values(3)
                 .value_hint(ValueHint::DirPath),
@@ -528,7 +528,7 @@ fn build_app_with_files_and_dirs() -> App<'static> {
                 .long("inputfiles")
                 .value_name("FILE")
                 .multiple_occurrences(true)
-                .about("specify a file")
+                .help("specify a file")
                 .value_hint(ValueHint::FilePath),
         )
 }

@@ -1,21 +1,17 @@
+[workspace]
+members = [
+	"clap_derive",
+	"clap_generate",
+	"clap_generate_fig",
+]
+
 [package]
 name = "clap"
 version = "3.0.0-beta.5"
-edition = "2018"
-authors = [
-	"Kevin K. <kbknapp@gmail.com>",
-	"Clap Maintainers"
-]
-include = [
-	"src/**/*",
-	"Cargo.toml",
-	"LICENSE-*",
-	"README.md"
-]
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
-homepage = "https://clap.rs/"
+categories = ["command-line-interface"]
 keywords = [
 	"argument",
 	"cli",
@@ -23,9 +19,48 @@ keywords = [
 	"parser",
 	"parse"
 ]
-categories = ["command-line-interface"]
+edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
+
+[package.metadata.docs.rs]
+features = ["doc"]
+
+[features]
+default = [
+	"std",
+	"color",
+	"suggestions",
+]
+debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
+doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
+
+# Used in default
+std = ["indexmap/std"] # support for no_std in a backwards-compatible way
+color = ["atty", "termcolor"]
+suggestions = ["strsim"]
+
+# Optional
+derive = ["clap_derive", "lazy_static"]
+cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+wrap_help = ["terminal_size", "textwrap/terminal_size"]
+yaml = ["yaml-rust"]
+env = [] # Use environment variables during arg parsing
+unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
+
+# In-work features
+unstable-replace = []
+unstable-multicall = []
+unstable-grouped = []
 
 [lib]
 bench = false
@@ -79,46 +114,182 @@ backtrace = { version = "0.3", optional = true }
 [dev-dependencies]
 regex = "1.0"
 lazy_static = "1"
-version-sync = "0.9"
 criterion = "0.3.2"
+trybuild = "1.0"
+rustversion = "1"
+# Cutting out `filesystem` feature
+trycmd = { version = "0.8.2", default-features = false, features = ["color-auto", "diff", "examples"] }
+
+[[example]]
+name = "demo"
+required-features = ["derive"]
+
+[[example]]
+name = "escaped_positional"
+required-features = ["cargo"]
+
+[[example]]
+name = "escaped_positional_derive"
+required-features = ["derive"]
+
+[[example]]
+name = "git_derive"
+required-features = ["derive"]
 
 [[example]]
 name = "busybox"
-path = "examples/24a_multicall_busybox.rs"
+path = "examples/multicall_busybox.rs"
+required-features = ["unstable-multicall"]
 
 [[example]]
 name = "hostname"
-path = "examples/24b_multicall_hostname.rs"
+path = "examples/multicall_hostname.rs"
+required-features = ["unstable-multicall"]
 
-[features]
-default = [
-	"std",
-	"derive",
-	"cargo",
-	"color",
-	"env",
-	"suggestions",
-	"unicode",
-]
-debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
+[[example]]
+name = "01_quick"
+path = "examples/tutorial_builder/01_quick.rs"
+required-features = ["cargo"]
 
-# Used in default
-std = ["indexmap/std"] # support for no_std in a backwards-compatible way
-derive = ["clap_derive", "lazy_static"]
-cargo = ["lazy_static"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
-color = ["atty", "termcolor"]
-env = [] # Use environment variables during arg parsing
-suggestions = ["strsim"]
-unicode = ["textwrap/unicode-width", "unicase"]  # Support for unicode characters in arguments and help messages
+[[example]]
+name = "02_apps"
+path = "examples/tutorial_builder/02_apps.rs"
+required-features = ["cargo"]
 
-# Optional
-wrap_help = ["terminal_size", "textwrap/terminal_size"]
-yaml = ["yaml-rust"]
+[[example]]
+name = "02_crate"
+path = "examples/tutorial_builder/02_crate.rs"
+required-features = ["cargo"]
 
-# In-work features
-unstable-replace = []
-unstable-multicall = []
-unstable-grouped = []
+[[example]]
+name = "02_app_settings"
+path = "examples/tutorial_builder/02_app_settings.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_01_flag_bool"
+path = "examples/tutorial_builder/03_01_flag_bool.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_01_flag_count"
+path = "examples/tutorial_builder/03_01_flag_count.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_02_option"
+path = "examples/tutorial_builder/03_02_option.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_03_positional"
+path = "examples/tutorial_builder/03_03_positional.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_04_subcommands"
+path = "examples/tutorial_builder/03_04_subcommands.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "03_05_default_values"
+path = "examples/tutorial_builder/03_05_default_values.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_01_possible"
+path = "examples/tutorial_builder/04_01_possible.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_01_enum"
+path = "examples/tutorial_builder/04_01_enum.rs"
+required-features = ["cargo", "derive"]
+
+[[example]]
+name = "04_02_validate"
+path = "examples/tutorial_builder/04_02_validate.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_03_relations"
+path = "examples/tutorial_builder/04_03_relations.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "04_04_custom"
+path = "examples/tutorial_builder/04_04_custom.rs"
+required-features = ["cargo"]
+
+[[example]]
+name = "01_quick_derive"
+path = "examples/tutorial_derive/01_quick.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_apps_derive"
+path = "examples/tutorial_derive/02_apps.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_crate_derive"
+path = "examples/tutorial_derive/02_crate.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "02_app_settings_derive"
+path = "examples/tutorial_derive/02_app_settings.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_01_flag_bool_derive"
+path = "examples/tutorial_derive/03_01_flag_bool.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_01_flag_count_derive"
+path = "examples/tutorial_derive/03_01_flag_count.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_02_option_derive"
+path = "examples/tutorial_derive/03_02_option.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_03_positional_derive"
+path = "examples/tutorial_derive/03_03_positional.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_04_subcommands_derive"
+path = "examples/tutorial_derive/03_04_subcommands.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "03_05_default_values_derive"
+path = "examples/tutorial_derive/03_05_default_values.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_01_enum_derive"
+path = "examples/tutorial_derive/04_01_enum.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_02_validate_derive"
+path = "examples/tutorial_derive/04_02_validate.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_03_relations_derive"
+path = "examples/tutorial_derive/04_03_relations.rs"
+required-features = ["derive"]
+
+[[example]]
+name = "04_04_custom_derive"
+path = "examples/tutorial_derive/04_04_custom.rs"
+required-features = ["derive"]
 
 [profile.test]
 opt-level = 1
@@ -127,20 +298,3 @@ opt-level = 1
 lto = true
 codegen-units = 1
 
-[package.metadata.docs.rs]
-features = ["yaml", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"]
-targets = ["x86_64-unknown-linux-gnu"]
-
-[workspace]
-members = [
-	"clap_derive",
-	"clap_generate",
-	"clap_generate_fig",
-	"clap_up",
-]
-default-members = [
-	".",
-	"clap_derive",
-	"clap_generate",
-	"clap_generate_fig",
-]

@@ -5,43 +5,6 @@ use crate::{
 };
 use std::cmp::Ordering;
 
-#[derive(Eq)]
-enum Flag<'a> {
-    App(String, &'a str),
-    Arg(String, &'a str),
-}
-
-impl PartialEq for Flag<'_> {
-    fn eq(&self, other: &Flag) -> bool {
-        self.cmp(other) == Ordering::Equal
-    }
-}
-
-impl PartialOrd for Flag<'_> {
-    fn partial_cmp(&self, other: &Flag) -> Option<Ordering> {
-        use Flag::*;
-
-        match (self, other) {
-            (App(s1, _), App(s2, _))
-            | (Arg(s1, _), Arg(s2, _))
-            | (App(s1, _), Arg(s2, _))
-            | (Arg(s1, _), App(s2, _)) => {
-                if s1 == s2 {
-                    Some(Ordering::Equal)
-                } else {
-                    s1.partial_cmp(s2)
-                }
-            }
-        }
-    }
-}
-
-impl Ord for Flag<'_> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
-    }
-}
-
 pub(crate) fn assert_app(app: &App) {
     debug!("App::_debug_asserts");
 
@@ -210,7 +173,7 @@ pub(crate) fn assert_app(app: &App) {
         }
 
         assert!(
-            !(arg.is_set(ArgSettings::Required) && arg.global),
+            !(arg.is_set(ArgSettings::Required) && arg.get_global()),
             "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
             arg.name
         );
@@ -297,8 +260,45 @@ pub(crate) fn assert_app(app: &App) {
         );
     }
 
-    app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpRequired));
+    app._panic_on_missing_help(app.g_settings.is_set(AppSettings::HelpExpected));
     assert_app_flags(app);
+}
+
+#[derive(Eq)]
+enum Flag<'a> {
+    App(String, &'a str),
+    Arg(String, &'a str),
+}
+
+impl PartialEq for Flag<'_> {
+    fn eq(&self, other: &Flag) -> bool {
+        self.cmp(other) == Ordering::Equal
+    }
+}
+
+impl PartialOrd for Flag<'_> {
+    fn partial_cmp(&self, other: &Flag) -> Option<Ordering> {
+        use Flag::*;
+
+        match (self, other) {
+            (App(s1, _), App(s2, _))
+            | (Arg(s1, _), Arg(s2, _))
+            | (App(s1, _), Arg(s2, _))
+            | (Arg(s1, _), App(s2, _)) => {
+                if s1 == s2 {
+                    Some(Ordering::Equal)
+                } else {
+                    s1.partial_cmp(s2)
+                }
+            }
+        }
+    }
+}
+
+impl Ord for Flag<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
+    }
 }
 
 fn detect_duplicate_flags(flags: &[Flag], short_or_long: &str) {

@@ -23,89 +23,6 @@ use crate::{
     INTERNAL_ERROR_MSG, INVALID_UTF8,
 };
 
-#[derive(Debug)]
-pub(crate) enum ParseState {
-    ValuesDone,
-    Opt(Id),
-    Pos(Id),
-}
-
-/// Recoverable Parsing results.
-#[derive(Debug, PartialEq, Clone)]
-enum ParseResult {
-    FlagSubCommand(String),
-    Opt(Id),
-    ValuesDone,
-    /// Value attached to the short flag is not consumed(e.g. 'u' for `-cu` is
-    /// not consumed).
-    AttachedValueNotConsumed,
-    /// This long flag doesn't need a value but is provided one.
-    UnneededAttachedValue {
-        rest: String,
-        used: Vec<Id>,
-        arg: String,
-    },
-    /// This flag might be an hyphen Value.
-    MaybeHyphenValue,
-    /// Equals required but not provided.
-    EqualsNotProvided {
-        arg: String,
-    },
-    /// Failed to match a Arg.
-    NoMatchingArg {
-        arg: String,
-    },
-    /// No argument found e.g. parser is given `-` when parsing a flag.
-    NoArg,
-    /// This is a Help flag.
-    HelpFlag,
-    /// This is a version flag.
-    VersionFlag,
-}
-
-#[derive(Debug)]
-pub(crate) struct Input {
-    items: Vec<OsString>,
-    cursor: usize,
-}
-
-impl<I, T> From<I> for Input
-where
-    I: Iterator<Item = T>,
-    T: Into<OsString> + Clone,
-{
-    fn from(val: I) -> Self {
-        Self {
-            items: val.map(|x| x.into()).collect(),
-            cursor: 0,
-        }
-    }
-}
-
-impl Input {
-    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
-        if self.cursor >= self.items.len() {
-            None
-        } else {
-            let current = &self.items[self.cursor];
-            self.cursor += 1;
-            let remaining = &self.items[self.cursor..];
-            Some((current, remaining))
-        }
-    }
-
-    /// Insert some items to the Input items just after current parsing cursor.
-    /// Usually used by replaced items recovering.
-    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
-        self.items = insert_items
-            .iter()
-            .map(OsString::from)
-            .chain(self.items.drain(self.cursor..))
-            .collect();
-        self.cursor = 0;
-    }
-}
-
 pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
     pub(crate) required: ChildGraph<Id>,
@@ -139,6 +56,23 @@ impl<'help, 'app> Parser<'help, 'app> {
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
+        }
+    }
+
+    // Does all the initializing and prepares the parser
+    pub(crate) fn _build(&mut self) {
+        debug!("Parser::_build");
+
+        #[cfg(debug_assertions)]
+        self._verify_positionals();
+
+        for group in &self.app.groups {
+            if group.required {
+                let idx = self.required.insert(group.id.clone());
+                for a in &group.requires {
+                    self.required.insert_child(idx, a.clone());
+                }
+            }
         }
     }
 
@@ -314,23 +248,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         true
-    }
-
-    // Does all the initializing and prepares the parser
-    pub(crate) fn _build(&mut self) {
-        debug!("Parser::_build");
-
-        #[cfg(debug_assertions)]
-        self._verify_positionals();
-
-        for group in &self.app.groups {
-            if group.required {
-                let idx = self.required.insert(group.id.clone());
-                for a in &group.requires {
-                    self.required.insert_child(idx, a.clone());
-                }
-            }
-        }
     }
 
     // Should we color the help?
@@ -557,7 +474,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 } else if let Some(short_arg) = arg_os.strip_prefix("-") {
                     // Arg looks like a short flag, and not a possible number
 
-                    // Try to parse short args like normal, if AllowLeadingHyphen or
+                    // Try to parse short args like normal, if AllowHyphenValues or
                     // AllowNegativeNumbers is set, parse_short_arg will *not* throw
                     // an error, and instead return Ok(None)
                     let parse_result = self.parse_short_arg(
@@ -716,9 +633,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let mut sc_m = ArgMatcher::new(self.app);
 
                 while let Some((v, _)) = it.next() {
-                    if !self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands)
-                        && v.to_str().is_none()
-                    {
+                    let allow_invalid_utf8 =
+                        self.is_set(AS::AllowInvalidUtf8ForExternalSubcommands);
+                    if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
                             Usage::new(self).create_usage_with_title(&[]),
@@ -730,6 +647,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                         ValueType::CommandLine,
                         false,
                     );
+                    sc_m.get_mut(&Id::empty_hash())
+                        .expect("just inserted")
+                        .invalid_utf8_allowed(allow_invalid_utf8);
                 }
 
                 matcher.subcommand(SubCommand {
@@ -932,10 +852,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 if cmd == OsStr::new("help") {
                     let pb = Arg::new("subcommand")
                         .index(1)
-                        .setting(ArgSettings::TakesValue)
-                        .setting(ArgSettings::MultipleOccurrences)
+                        .takes_value(true)
+                        .multiple_occurrences(true)
                         .value_name("SUBCOMMAND")
-                        .about("The subcommand whose help message to display");
+                        .help("The subcommand whose help message to display");
                     sc = sc.arg(pb);
                 }
 
@@ -959,7 +879,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             next, current_positional.name
         );
 
-        if self.is_set(AS::AllowLeadingHyphen)
+        if self.is_set(AS::AllowHyphenValues)
             || self.app[&current_positional.id].is_set(ArgSettings::AllowHyphenValues)
             || (self.is_set(AS::AllowNegativeNumbers) && next.to_str_lossy().parse::<f64>().is_ok())
         {
@@ -1147,7 +1067,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // specified by the user is sent through. If HiddenShortHelp is not included,
         // then items specified with hidden_short_help will also be hidden.
         let should_long = |v: &Arg| {
-            v.long_about.is_some()
+            v.long_help.is_some()
                 || v.is_set(ArgSettings::HiddenLongHelp)
                 || v.is_set(ArgSettings::HiddenShortHelp)
         };
@@ -1245,7 +1165,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
             ParseResult::FlagSubCommand(sc_name.to_string())
-        } else if self.is_set(AS::AllowLeadingHyphen) {
+        } else if self.is_set(AS::AllowHyphenValues) {
             ParseResult::MaybeHyphenValue
         } else {
             ParseResult::NoMatchingArg {
@@ -1268,7 +1188,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let arg = short_arg.to_str_lossy();
 
         if (self.is_set(AS::AllowNegativeNumbers) && arg.parse::<f64>().is_ok())
-            || (self.is_set(AS::AllowLeadingHyphen)
+            || (self.is_set(AS::AllowHyphenValues)
                 && arg.chars().any(|c| !self.app.contains_short(c)))
             || matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
                 if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
@@ -1813,10 +1733,10 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
     fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
-        matcher.inc_occurrence_of(&arg.id, arg.is_set(ArgSettings::IgnoreCase));
+        matcher.inc_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {
-            matcher.inc_occurrence_of(&group, false);
+            matcher.inc_occurrence_of_group(&group);
         }
     }
 }
@@ -1919,4 +1839,87 @@ impl<'help, 'app> Parser<'help, 'app> {
     pub(crate) fn is_set(&self, s: AS) -> bool {
         self.app.is_set(s)
     }
+}
+
+#[derive(Debug)]
+pub(crate) struct Input {
+    items: Vec<OsString>,
+    cursor: usize,
+}
+
+impl<I, T> From<I> for Input
+where
+    I: Iterator<Item = T>,
+    T: Into<OsString> + Clone,
+{
+    fn from(val: I) -> Self {
+        Self {
+            items: val.map(|x| x.into()).collect(),
+            cursor: 0,
+        }
+    }
+}
+
+impl Input {
+    pub(crate) fn next(&mut self) -> Option<(&OsStr, &[OsString])> {
+        if self.cursor >= self.items.len() {
+            None
+        } else {
+            let current = &self.items[self.cursor];
+            self.cursor += 1;
+            let remaining = &self.items[self.cursor..];
+            Some((current, remaining))
+        }
+    }
+
+    /// Insert some items to the Input items just after current parsing cursor.
+    /// Usually used by replaced items recovering.
+    pub(crate) fn insert(&mut self, insert_items: &[&str]) {
+        self.items = insert_items
+            .iter()
+            .map(OsString::from)
+            .chain(self.items.drain(self.cursor..))
+            .collect();
+        self.cursor = 0;
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum ParseState {
+    ValuesDone,
+    Opt(Id),
+    Pos(Id),
+}
+
+/// Recoverable Parsing results.
+#[derive(Debug, PartialEq, Clone)]
+enum ParseResult {
+    FlagSubCommand(String),
+    Opt(Id),
+    ValuesDone,
+    /// Value attached to the short flag is not consumed(e.g. 'u' for `-cu` is
+    /// not consumed).
+    AttachedValueNotConsumed,
+    /// This long flag doesn't need a value but is provided one.
+    UnneededAttachedValue {
+        rest: String,
+        used: Vec<Id>,
+        arg: String,
+    },
+    /// This flag might be an hyphen Value.
+    MaybeHyphenValue,
+    /// Equals required but not provided.
+    EqualsNotProvided {
+        arg: String,
+    },
+    /// Failed to match a Arg.
+    NoMatchingArg {
+        arg: String,
+    },
+    /// No argument found e.g. parser is given `-` when parsing a flag.
+    NoArg,
+    /// This is a Help flag.
+    HelpFlag,
+    /// This is a version flag.
+    VersionFlag,
 }

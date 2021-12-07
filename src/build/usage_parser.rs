@@ -44,10 +44,7 @@ impl<'help> UsageParser<'help> {
 
     pub(crate) fn parse(mut self) -> Arg<'help> {
         debug!("UsageParser::parse");
-        let mut arg = Arg {
-            disp_ord: 999,
-            ..Default::default()
-        };
+        let mut arg = Arg::default();
         loop {
             debug!("UsageParser::parse:iter: pos={}", self.pos);
             self.stop_at(token);
@@ -173,12 +170,11 @@ impl<'help> UsageParser<'help> {
             self.pos += 1;
             if dot_counter == 3 {
                 debug!("UsageParser::multiple: setting multiple");
+                arg.settings.set(ArgSettings::MultipleOccurrences);
                 if arg.is_set(ArgSettings::TakesValue) {
-                    // This is after `--name=value`, so requesting multiple value
                     arg.settings.set(ArgSettings::MultipleValues);
-                } else {
-                    // This is after `[name]` (or a flag), so requesting multiple occurrences
-                    arg.settings.set(ArgSettings::MultipleOccurrences);
+                    arg.settings.set(ArgSettings::UseValueDelimiter);
+                    arg.val_delim.get_or_insert(',');
                 }
                 self.prev = UsageToken::Multiple;
                 self.pos += 1;
@@ -196,7 +192,7 @@ impl<'help> UsageParser<'help> {
             "UsageParser::help: setting help...{}",
             &self.usage[self.start..self.pos]
         );
-        arg.about = Some(&self.usage[self.start..self.pos]);
+        arg.help = Some(&self.usage[self.start..self.pos]);
         self.pos += 1; // Move to next byte to keep from thinking ending ' is a start
         self.prev = UsageToken::Help;
     }
@@ -245,103 +241,105 @@ fn default_value_end(b: u8) -> bool {
 
 #[cfg(test)]
 mod test {
+    #![allow(deprecated)]
+
     use crate::build::{Arg, ArgSettings};
 
     #[allow(clippy::cognitive_complexity)]
     #[test]
     fn create_flag_usage() {
-        let a = Arg::from("[flag] -f 'some help info'");
+        let a = Arg::from_usage("[flag] -f 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flag] --flag 'some help info'");
+        let a = Arg::from_usage("[flag] --flag 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("--flag 'some help info'");
+        let a = Arg::from_usage("--flag 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flag] -f --flag 'some help info'");
+        let a = Arg::from_usage("[flag] -f --flag 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert_eq!(a.long.unwrap(), "flag");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flag] -f... 'some help info'");
+        let a = Arg::from_usage("[flag] -f... 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flag] -f --flag... 'some help info'");
+        let a = Arg::from_usage("[flag] -f --flag... 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("-f --flag... 'some help info'");
+        let a = Arg::from_usage("-f --flag... 'some help info'");
         assert_eq!(a.name, "flag");
         assert_eq!(a.long.unwrap(), "flag");
         assert_eq!(a.short.unwrap(), 'f');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("--flags");
+        let a = Arg::from_usage("--flags");
         assert_eq!(a.name, "flags");
         assert_eq!(a.long.unwrap(), "flags");
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("--flags...");
+        let a = Arg::from_usage("--flags...");
         assert_eq!(a.name, "flags");
         assert_eq!(a.long.unwrap(), "flags");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flags] -f");
+        let a = Arg::from_usage("[flags] -f");
         assert_eq!(a.name, "flags");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("[flags] -f...");
+        let a = Arg::from_usage("[flags] -f...");
         assert_eq!(a.name, "flags");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("-f 'some help info'");
+        let a = Arg::from_usage("-f 'some help info'");
         assert_eq!(a.name, "f");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("-f");
+        let a = Arg::from_usage("-f");
         assert_eq!(a.name, "f");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.val_names.is_empty());
 
-        let a = Arg::from("-f...");
+        let a = Arg::from_usage("-f...");
         assert_eq!(a.name, "f");
         assert_eq!(a.short.unwrap(), 'f');
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
@@ -351,11 +349,11 @@ mod test {
     #[test]
     fn create_option_usage0() {
         // Short only
-        let a = Arg::from("[option] -o [opt] 'some help info'");
+        let a = Arg::from_usage("[option] -o [opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -365,11 +363,11 @@ mod test {
 
     #[test]
     fn create_option_usage1() {
-        let a = Arg::from("-o [opt] 'some help info'");
+        let a = Arg::from_usage("-o [opt] 'some help info'");
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -379,11 +377,11 @@ mod test {
 
     #[test]
     fn create_option_usage2() {
-        let a = Arg::from("<option> -o <opt> 'some help info'");
+        let a = Arg::from_usage("<option> -o <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -393,11 +391,11 @@ mod test {
 
     #[test]
     fn create_option_usage3() {
-        let a = Arg::from("-o <opt> 'some help info'");
+        let a = Arg::from_usage("-o <opt> 'some help info'");
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -407,12 +405,12 @@ mod test {
 
     #[test]
     fn create_option_usage4() {
-        let a = Arg::from("[option] -o [opt]... 'some help info'");
+        let a = Arg::from_usage("[option] -o [opt]... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -421,11 +419,11 @@ mod test {
 
     #[test]
     fn create_option_usage5() {
-        let a = Arg::from("[option]... -o [opt] 'some help info'");
+        let a = Arg::from_usage("[option]... -o [opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -435,12 +433,12 @@ mod test {
 
     #[test]
     fn create_option_usage6() {
-        let a = Arg::from("-o [opt]... 'some help info'");
+        let a = Arg::from_usage("-o [opt]... 'some help info'");
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -449,12 +447,12 @@ mod test {
 
     #[test]
     fn create_option_usage7() {
-        let a = Arg::from("<option> -o <opt>... 'some help info'");
+        let a = Arg::from_usage("<option> -o <opt>... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -463,11 +461,11 @@ mod test {
 
     #[test]
     fn create_option_usage8() {
-        let a = Arg::from("<option>... -o <opt> 'some help info'");
+        let a = Arg::from_usage("<option>... -o <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -477,12 +475,12 @@ mod test {
 
     #[test]
     fn create_option_usage9() {
-        let a = Arg::from("-o <opt>... 'some help info'");
+        let a = Arg::from_usage("-o <opt>... 'some help info'");
         assert_eq!(a.name, "o");
         assert_eq!(a.short.unwrap(), 'o');
         assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -490,26 +488,12 @@ mod test {
     }
 
     #[test]
-    fn create_option_usage10() {
-        let a = Arg::from("[option]... -o [opt]... 'some help info'");
-        assert_eq!(a.name, "option");
-        assert_eq!(a.short.unwrap(), 'o');
-        assert!(a.long.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(a.is_set(ArgSettings::MultipleOccurrences));
-        assert!(a.is_set(ArgSettings::MultipleValues));
-        assert!(a.is_set(ArgSettings::TakesValue));
-        assert!(!a.is_set(ArgSettings::Required));
-        assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"opt"]);
-    }
-
-    #[test]
     fn create_option_usage_long1() {
-        let a = Arg::from("[option] --opt [opt] 'some help info'");
+        let a = Arg::from_usage("[option] --opt [opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -519,11 +503,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long2() {
-        let a = Arg::from("--opt [option] 'some help info'");
+        let a = Arg::from_usage("--opt [option] 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -533,11 +517,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long3() {
-        let a = Arg::from("<option> --opt <opt> 'some help info'");
+        let a = Arg::from_usage("<option> --opt <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -547,11 +531,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long4() {
-        let a = Arg::from("--opt <option> 'some help info'");
+        let a = Arg::from_usage("--opt <option> 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -561,12 +545,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long5() {
-        let a = Arg::from("[option] --opt [opt]... 'some help info'");
+        let a = Arg::from_usage("[option] --opt [opt]... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -575,11 +559,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long6() {
-        let a = Arg::from("[option]... --opt [opt] 'some help info'");
+        let a = Arg::from_usage("[option]... --opt [opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -589,12 +573,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long7() {
-        let a = Arg::from("--opt [option]... 'some help info'");
+        let a = Arg::from_usage("--opt [option]... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -603,12 +587,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long8() {
-        let a = Arg::from("<option> --opt <opt>... 'some help info'");
+        let a = Arg::from_usage("<option> --opt <opt>... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -617,11 +601,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long9() {
-        let a = Arg::from("<option>... --opt <opt> 'some help info'");
+        let a = Arg::from_usage("<option>... --opt <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -631,12 +615,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long10() {
-        let a = Arg::from("--opt <option>... 'some help info'");
+        let a = Arg::from_usage("--opt <option>... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -645,11 +629,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals1() {
-        let a = Arg::from("[option] --opt=[opt] 'some help info'");
+        let a = Arg::from_usage("[option] --opt=[opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -659,11 +643,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals2() {
-        let a = Arg::from("--opt=[option] 'some help info'");
+        let a = Arg::from_usage("--opt=[option] 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -673,11 +657,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals3() {
-        let a = Arg::from("<option> --opt=<opt> 'some help info'");
+        let a = Arg::from_usage("<option> --opt=<opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -687,11 +671,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals4() {
-        let a = Arg::from("--opt=<option> 'some help info'");
+        let a = Arg::from_usage("--opt=<option> 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -701,12 +685,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals5() {
-        let a = Arg::from("[option] --opt=[opt]... 'some help info'");
+        let a = Arg::from_usage("[option] --opt=[opt]... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -715,11 +699,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals6() {
-        let a = Arg::from("[option]... --opt=[opt] 'some help info'");
+        let a = Arg::from_usage("[option]... --opt=[opt] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -729,12 +713,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals7() {
-        let a = Arg::from("--opt=[option]... 'some help info'");
+        let a = Arg::from_usage("--opt=[option]... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -743,12 +727,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals8() {
-        let a = Arg::from("<option> --opt=<opt>... 'some help info'");
+        let a = Arg::from_usage("<option> --opt=<opt>... 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -757,11 +741,11 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals9() {
-        let a = Arg::from("<option>... --opt=<opt> 'some help info'");
+        let a = Arg::from_usage("<option>... --opt=<opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -771,12 +755,12 @@ mod test {
 
     #[test]
     fn create_option_usage_long_equals10() {
-        let a = Arg::from("--opt=<option>... 'some help info'");
+        let a = Arg::from_usage("--opt=<option>... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert!(a.short.is_none());
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -785,11 +769,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both1() {
-        let a = Arg::from("[option] -o --opt [option] 'some help info'");
+        let a = Arg::from_usage("[option] -o --opt [option] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -799,11 +783,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both2() {
-        let a = Arg::from("-o --opt [option] 'some help info'");
+        let a = Arg::from_usage("-o --opt [option] 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -813,11 +797,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both3() {
-        let a = Arg::from("<option> -o --opt <opt> 'some help info'");
+        let a = Arg::from_usage("<option> -o --opt <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -827,11 +811,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both4() {
-        let a = Arg::from("-o --opt <option> 'some help info'");
+        let a = Arg::from_usage("-o --opt <option> 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -841,11 +825,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both5() {
-        let a = Arg::from("[option]... -o --opt [option] 'some help info'");
+        let a = Arg::from_usage("[option]... -o --opt [option] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -855,12 +839,12 @@ mod test {
 
     #[test]
     fn create_option_usage_both6() {
-        let a = Arg::from("-o --opt [option]... 'some help info'");
+        let a = Arg::from_usage("-o --opt [option]... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -869,11 +853,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both7() {
-        let a = Arg::from("<option>... -o --opt <opt> 'some help info'");
+        let a = Arg::from_usage("<option>... -o --opt <opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -883,12 +867,12 @@ mod test {
 
     #[test]
     fn create_option_usage_both8() {
-        let a = Arg::from("-o --opt <option>... 'some help info'");
+        let a = Arg::from_usage("-o --opt <option>... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -897,11 +881,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals1() {
-        let a = Arg::from("[option] -o --opt=[option] 'some help info'");
+        let a = Arg::from_usage("[option] -o --opt=[option] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -911,11 +895,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals2() {
-        let a = Arg::from("-o --opt=[option] 'some help info'");
+        let a = Arg::from_usage("-o --opt=[option] 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -925,11 +909,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals3() {
-        let a = Arg::from("<option> -o --opt=<opt> 'some help info'");
+        let a = Arg::from_usage("<option> -o --opt=<opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -939,11 +923,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals4() {
-        let a = Arg::from("-o --opt=<option> 'some help info'");
+        let a = Arg::from_usage("-o --opt=<option> 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -953,11 +937,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals5() {
-        let a = Arg::from("[option]... -o --opt=[option] 'some help info'");
+        let a = Arg::from_usage("[option]... -o --opt=[option] 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -967,12 +951,12 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals6() {
-        let a = Arg::from("-o --opt=[option]... 'some help info'");
+        let a = Arg::from_usage("-o --opt=[option]... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(!a.is_set(ArgSettings::Required));
@@ -981,11 +965,11 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals7() {
-        let a = Arg::from("<option>... -o --opt=<opt> 'some help info'");
+        let a = Arg::from_usage("<option>... -o --opt=<opt> 'some help info'");
         assert_eq!(a.name, "option");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -995,12 +979,12 @@ mod test {
 
     #[test]
     fn create_option_usage_both_equals8() {
-        let a = Arg::from("-o --opt=<option>... 'some help info'");
+        let a = Arg::from_usage("-o --opt=<option>... 'some help info'");
         assert_eq!(a.name, "opt");
         assert_eq!(a.long.unwrap(), "opt");
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1009,11 +993,11 @@ mod test {
 
     #[test]
     fn create_option_with_vals1() {
-        let a = Arg::from("-o <file> <mode> 'some help info'");
+        let a = Arg::from_usage("-o <file> <mode> 'some help info'");
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -1023,12 +1007,12 @@ mod test {
 
     #[test]
     fn create_option_with_vals2() {
-        let a = Arg::from("-o <file> <mode>... 'some help info'");
+        let a = Arg::from_usage("-o <file> <mode>... 'some help info'");
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1037,12 +1021,12 @@ mod test {
 
     #[test]
     fn create_option_with_vals3() {
-        let a = Arg::from("--opt <file> <mode>... 'some help info'");
+        let a = Arg::from_usage("--opt <file> <mode>... 'some help info'");
         assert_eq!(a.name, "opt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.about.unwrap(), "some help info");
-        assert!(!a.is_set(ArgSettings::MultipleOccurrences));
+        assert_eq!(a.help.unwrap(), "some help info");
+        assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
         assert!(a.is_set(ArgSettings::Required));
@@ -1051,11 +1035,11 @@ mod test {
 
     #[test]
     fn create_option_with_vals4() {
-        let a = Arg::from("[myopt] --opt <file> <mode> 'some help info'");
+        let a = Arg::from_usage("[myopt] --opt <file> <mode> 'some help info'");
         assert_eq!(a.name, "myopt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -1065,11 +1049,11 @@ mod test {
 
     #[test]
     fn create_option_with_vals5() {
-        let a = Arg::from("--opt <file> <mode> 'some help info'");
+        let a = Arg::from_usage("--opt <file> <mode> 'some help info'");
         assert_eq!(a.name, "opt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -1078,9 +1062,9 @@ mod test {
 
     #[test]
     fn create_positional_usage() {
-        let a = Arg::from("[pos] 'some help info'");
+        let a = Arg::from_usage("[pos] 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1089,9 +1073,9 @@ mod test {
 
     #[test]
     fn create_positional_usage0() {
-        let a = Arg::from("<pos> 'some help info'");
+        let a = Arg::from_usage("<pos> 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
@@ -1100,9 +1084,9 @@ mod test {
 
     #[test]
     fn pos_mult_help() {
-        let a = Arg::from("[pos]... 'some help info'");
+        let a = Arg::from_usage("[pos]... 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1111,9 +1095,9 @@ mod test {
 
     #[test]
     fn pos_help_lit_single_quote() {
-        let a = Arg::from("[pos]... 'some help\' info'");
+        let a = Arg::from_usage("[pos]... 'some help\' info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help' info");
+        assert_eq!(a.help.unwrap(), "some help' info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1122,9 +1106,9 @@ mod test {
 
     #[test]
     fn pos_help_double_lit_single_quote() {
-        let a = Arg::from("[pos]... 'some \'help\' info'");
+        let a = Arg::from_usage("[pos]... 'some \'help\' info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some 'help' info");
+        assert_eq!(a.help.unwrap(), "some 'help' info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1133,12 +1117,12 @@ mod test {
 
     #[test]
     fn pos_help_newline() {
-        let a = Arg::from(
+        let a = Arg::from_usage(
             "[pos]... 'some help\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help\ninfo");
+        assert_eq!(a.help.unwrap(), "some help\ninfo");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1147,12 +1131,12 @@ mod test {
 
     #[test]
     fn pos_help_newline_lit_sq() {
-        let a = Arg::from(
+        let a = Arg::from_usage(
             "[pos]... 'some help\' stuff\n\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help' stuff\ninfo");
+        assert_eq!(a.help.unwrap(), "some help' stuff\ninfo");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1161,9 +1145,9 @@ mod test {
 
     #[test]
     fn pos_req_mult_help() {
-        let a = Arg::from("<pos>... 'some help info'");
+        let a = Arg::from_usage("<pos>... 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
@@ -1172,7 +1156,7 @@ mod test {
 
     #[test]
     fn pos_req() {
-        let a = Arg::from("<pos>");
+        let a = Arg::from_usage("<pos>");
         assert_eq!(a.name, "pos");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
@@ -1182,7 +1166,7 @@ mod test {
 
     #[test]
     fn pos_mult() {
-        let a = Arg::from("[pos]...");
+        let a = Arg::from_usage("[pos]...");
         assert_eq!(a.name, "pos");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
@@ -1192,9 +1176,9 @@ mod test {
 
     #[test]
     fn pos_req_mult_def_help() {
-        let a = Arg::from("<pos>... @a 'some help info'");
+        let a = Arg::from_usage("<pos>... @a 'some help info'");
         assert_eq!(a.name, "pos");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::Required));
@@ -1204,11 +1188,11 @@ mod test {
 
     #[test]
     fn create_option_with_vals1_def() {
-        let a = Arg::from("-o <file> <mode> @a 'some help info'");
+        let a = Arg::from_usage("-o <file> <mode> @a 'some help info'");
         assert_eq!(a.name, "o");
         assert!(a.long.is_none());
         assert_eq!(a.short.unwrap(), 'o');
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -1219,11 +1203,11 @@ mod test {
 
     #[test]
     fn create_option_with_vals4_def() {
-        let a = Arg::from("[myopt] --opt <file> <mode> @a 'some help info'");
+        let a = Arg::from_usage("[myopt] --opt <file> <mode> @a 'some help info'");
         assert_eq!(a.name, "myopt");
         assert!(a.short.is_none());
         assert_eq!(a.long.unwrap(), "opt");
-        assert_eq!(a.about.unwrap(), "some help info");
+        assert_eq!(a.help.unwrap(), "some help info");
         assert!(!a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(a.is_set(ArgSettings::TakesValue));
@@ -1234,27 +1218,59 @@ mod test {
 
     #[test]
     fn nonascii() {
-        let a = Arg::from("<ASCII> 'üñíčöĐ€'");
+        let a = Arg::from_usage("<ASCII> 'üñíčöĐ€'");
         assert_eq!(a.name, "ASCII");
-        assert_eq!(a.about, Some("üñíčöĐ€"));
-        let a = Arg::from("<üñíčöĐ€> 'ASCII'");
+        assert_eq!(a.help, Some("üñíčöĐ€"));
+        let a = Arg::from_usage("<üñíčöĐ€> 'ASCII'");
         assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.about, Some("ASCII"));
-        let a = Arg::from("<üñíčöĐ€> 'üñíčöĐ€'");
+        assert_eq!(a.help, Some("ASCII"));
+        let a = Arg::from_usage("<üñíčöĐ€> 'üñíčöĐ€'");
         assert_eq!(a.name, "üñíčöĐ€");
-        assert_eq!(a.about, Some("üñíčöĐ€"));
-        let a = Arg::from("-ø 'ø'");
+        assert_eq!(a.help, Some("üñíčöĐ€"));
+        let a = Arg::from_usage("-ø 'ø'");
         assert_eq!(a.name, "ø");
         assert_eq!(a.short, Some('ø'));
-        assert_eq!(a.about, Some("ø"));
-        let a = Arg::from("--üñíčöĐ€ 'Nōṫ ASCII'");
+        assert_eq!(a.help, Some("ø"));
+        let a = Arg::from_usage("--üñíčöĐ€ 'Nōṫ ASCII'");
         assert_eq!(a.name, "üñíčöĐ€");
         assert_eq!(a.long, Some("üñíčöĐ€"));
-        assert_eq!(a.about, Some("Nōṫ ASCII"));
-        let a = Arg::from("[ñämê] --ôpt=[üñíčöĐ€] 'hælp'");
+        assert_eq!(a.help, Some("Nōṫ ASCII"));
+        let a = Arg::from_usage("[ñämê] --ôpt=[üñíčöĐ€] 'hælp'");
         assert_eq!(a.name, "ñämê");
         assert_eq!(a.long, Some("ôpt"));
         assert_eq!(a.val_names.iter().collect::<Vec<_>>(), [&"üñíčöĐ€"]);
-        assert_eq!(a.about, Some("hælp"));
+        assert_eq!(a.help, Some("hælp"));
+    }
+
+    #[test]
+    fn value_names_building_num_vals_from_usage() {
+        use crate::App;
+        let m = App::new("test")
+            .arg(Arg::from_usage("--pos <who> <what> <why>"))
+            .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
+
+        assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+        let m = m.unwrap();
+
+        assert_eq!(
+            m.values_of("pos").unwrap().collect::<Vec<_>>(),
+            ["val1", "val2", "val3"]
+        );
+    }
+
+    #[test]
+    fn issue_665() {
+        use crate::{App, ErrorKind};
+        // Verify fix for "arg_from_usage(): required values not being enforced when followed by another option"
+        let res = App::new("tester")
+        .arg(Arg::from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'"))
+        .arg(
+            Arg::from_usage("--subject-prefix [Subject-Prefix] 'Use [Subject-Prefix] instead of the standard [PATCH] prefix'")
+                .setting(ArgSettings::ForbidEmptyValues)
+        )
+        .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
+
+        assert!(res.is_err());
+        assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     }
 }

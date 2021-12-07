@@ -5,17 +5,8 @@ use std::{
     slice::Iter,
 };
 
-use crate::{parse::ArgPredicate, util::eq_ignore_case, INTERNAL_ERROR_MSG};
-
-// TODO: Maybe make this public?
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ValueType {
-    Unknown,
-    #[cfg(feature = "env")]
-    EnvVariable,
-    CommandLine,
-    DefaultValue,
-}
+use crate::util::eq_ignore_case;
+use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MatchedArg {
@@ -23,13 +14,8 @@ pub(crate) struct MatchedArg {
     pub(crate) ty: ValueType,
     indices: Vec<usize>,
     vals: Vec<Vec<OsString>>,
-    case_insensitive: bool,
-}
-
-impl Default for MatchedArg {
-    fn default() -> Self {
-        Self::new()
-    }
+    ignore_case: bool,
+    invalid_utf8_allowed: Option<bool>,
 }
 
 impl MatchedArg {
@@ -39,7 +25,8 @@ impl MatchedArg {
             ty: ValueType::Unknown,
             indices: Vec::new(),
             vals: Vec::new(),
-            case_insensitive: false,
+            ignore_case: false,
+            invalid_utf8_allowed: None,
         }
     }
 
@@ -124,31 +111,48 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == ValueType::DefaultValue {
-            return false;
-        }
-
-        match predicate {
-            ArgPredicate::Equals(val) => self.vals_flatten().any(|v| {
-                if self.case_insensitive {
-                    // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
-                    v.to_str().map_or(false, |v| eq_ignore_case(v, val))
-                } else {
-                    OsString::as_os_str(v) == OsStr::new(val)
-                }
-            }),
-            ArgPredicate::IsPresent => true,
-        }
+    pub(crate) fn contains_val(&self, val: &str) -> bool {
+        self.vals_flatten().any(|v| {
+            if self.ignore_case {
+                // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
+                v.to_str().map_or(false, |v| eq_ignore_case(v, val))
+            } else {
+                OsString::as_os_str(v) == OsStr::new(val)
+            }
+        })
     }
 
     pub(crate) fn set_ty(&mut self, ty: ValueType) {
         self.ty = ty;
     }
 
-    pub(crate) fn set_case_insensitive(&mut self, ci: bool) {
-        self.case_insensitive = ci;
+    pub(crate) fn set_ignore_case(&mut self, yes: bool) {
+        self.ignore_case = yes;
     }
+
+    pub(crate) fn invalid_utf8_allowed(&mut self, yes: bool) {
+        self.invalid_utf8_allowed = Some(yes);
+    }
+
+    pub(crate) fn is_invalid_utf8_allowed(&self) -> Option<bool> {
+        self.invalid_utf8_allowed
+    }
+}
+
+impl Default for MatchedArg {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// TODO: Maybe make this public?
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ValueType {
+    Unknown,
+    #[cfg(feature = "env")]
+    EnvVariable,
+    CommandLine,
+    DefaultValue,
 }
 
 #[cfg(test)]

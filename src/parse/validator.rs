@@ -4,7 +4,7 @@ use crate::{
     output::Usage,
     parse::{
         errors::{Error, ErrorKind, Result as ClapResult},
-        ArgMatcher, ArgPredicate, MatchedArg, ParseState, Parser,
+        ArgMatcher, MatchedArg, ParseState, Parser, ValueType,
     },
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG, INVALID_UTF8,
@@ -70,11 +70,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             ));
         }
         self.validate_conflicts(matcher)?;
-
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
+            self.validate_required_unless(matcher)?;
         }
-
         self.validate_matched_args(matcher)?;
 
         Ok(())
@@ -279,25 +278,17 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             .app
                             .unroll_args_in_group(&g.id)
                             .iter()
-                            .filter(|&a| matcher.check_explicit(a, ArgPredicate::IsPresent))
+                            .filter(|&a| matcher.contains(a))
                             .count()
                             > 1
                     };
-
-                    let conf_with_arg = || {
-                        g.conflicts
-                            .iter()
-                            .any(|x| matcher.check_explicit(x, ArgPredicate::IsPresent))
-                    };
-
+                    let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
                     let arg_conf_with_gr = || {
-                        matcher.check_explicit(&g.id, ArgPredicate::IsPresent)
-                            && matcher
-                                .arg_names()
-                                .filter_map(|x| self.p.app.find(x))
-                                .any(|x| x.blacklist.iter().any(|c| *c == g.id))
+                        matcher
+                            .arg_names()
+                            .filter_map(|x| self.p.app.find(x))
+                            .any(|x| x.blacklist.iter().any(|c| *c == g.id))
                     };
-
                     conf_with_self() || conf_with_arg() || arg_conf_with_gr()
                 } else if let Some(ma) = matcher.get(name) {
                     debug!(
@@ -347,9 +338,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 debug!("Validator::gather_conflicts:iter: id={:?}", name);
                 // if arg is "present" only because it got default value
                 // it doesn't conflict with anything and should be skipped
-                let skip = !matcher.check_explicit(name, ArgPredicate::IsPresent);
+                let skip = matcher
+                    .get(name)
+                    .map_or(false, |a| a.ty == ValueType::DefaultValue);
                 if skip {
-                    debug!("Validator::gather_conflicts:iter: This is not an explicit value, skipping.",);
+                    debug!("Validator::gather_conflicts:iter: This is default value, skipping.",);
                 }
                 !skip
             })
@@ -410,10 +403,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
                 debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                if matcher.check_explicit(&g.id, ArgPredicate::IsPresent) {
-                    for r in &g.requires {
-                        self.p.required.insert(r.clone());
-                    }
+                for r in &g.requires {
+                    self.p.required.insert(r.clone());
                 }
             }
         }
@@ -529,8 +520,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         } else {
             false
         };
-        // Issue 665 (https://github.com/kbknapp/clap-rs/issues/665)
-        // Issue 1105 (https://github.com/kbknapp/clap-rs/issues/1105)
+        // Issue 665 (https://github.com/clap-rs/clap/issues/665)
+        // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
         if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.is_vals_empty() {
             return Err(Error::empty_value(
                 self.p.app,
@@ -572,25 +563,21 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         // Validate the conditionally required args
         for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
-                if matcher.check_explicit(other, ArgPredicate::Equals(*val))
-                    && !matcher.contains(&a.id)
-                {
-                    return self.missing_required_error(matcher, vec![a.id.clone()]);
+                if let Some(ma) = matcher.get(other) {
+                    if ma.contains_val(val) && !matcher.contains(&a.id) {
+                        return self.missing_required_error(matcher, vec![a.id.clone()]);
+                    }
                 }
             }
 
             let match_all = a
                 .r_ifs_all
                 .iter()
-                .all(|(other, val)| matcher.check_explicit(other, ArgPredicate::Equals(*val)));
-
+                .all(|(other, val)| matcher.get(other).map_or(false, |ma| ma.contains_val(val)));
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
-
-        self.validate_required_unless(matcher)?;
-
         Ok(())
     }
 
@@ -627,7 +614,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             })
             .map(|a| a.id.clone())
             .collect();
-
         if failed_args.is_empty() {
             Ok(())
         } else {
@@ -638,7 +624,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        let exists = |id| matcher.check_explicit(id, ArgPredicate::IsPresent);
+        let exists = |id| matcher.contains(id);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
             && !a.r_unless.iter().any(exists)

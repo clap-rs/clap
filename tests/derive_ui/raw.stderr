@@ -1,0 +1,19 @@
+error: `#[clap(raw(...))` attributes are removed, they are replaced with raw methods
+
+  = help: if you meant to call `clap::Arg::raw()` method you should use bool literal, like `raw(true)` or `raw(false)`
+  = note: if you need to call `clap::Arg/App::ignore_case` method you can do it like this: #[clap(ignore_case = true)]
+
+  --> $DIR/raw.rs:13:12
+   |
+13 |     #[clap(raw(ignore_case = "true"))]
+   |            ^^^
+
+error: `#[clap(raw(...))` attributes are removed, they are replaced with raw methods
+
+  = help: if you meant to call `clap::Arg::raw()` method you should use bool literal, like `raw(true)` or `raw(false)`
+  = note: if you need to call `clap::Arg/App::requires_if` method you can do it like this: #[clap(requires_if("one", "two"))]
+
+  --> $DIR/raw.rs:19:12
+   |
+19 |     #[clap(raw(requires_if = r#""one", "two""#))]
+   |            ^^^

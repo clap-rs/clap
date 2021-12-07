@@ -87,7 +87,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
             }
         }
 
-        if let Some(data) = option.get_about() {
+        if let Some(data) = option.get_help() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
@@ -112,7 +112,7 @@ fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffe
             }
         }
 
-        if let Some(data) = flag.get_about() {
+        if let Some(data) = flag.get_help() {
             template.push_str(format!(" -d '{}'", escape_string(data)).as_str());
         }
 
@@ -159,7 +159,7 @@ fn value_completion(option: &Arg) -> String {
                     Some(format!(
                         "{}\t{}",
                         value.get_name(),
-                        value.get_about().unwrap_or_default()
+                        value.get_help().unwrap_or_default()
                     ))
                 })
                 .collect::<Vec<_>>()

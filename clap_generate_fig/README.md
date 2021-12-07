@@ -4,6 +4,5 @@ Generates [Fig](https://github.com/withfig/autocomplete) completions for [`clap`
 
 <!-- * [Documentation][docs] -->
 * [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
-* [Website](https://clap.rs/)
 
 <!-- [docs]: https://docs.rs/clap_generate_fig -->

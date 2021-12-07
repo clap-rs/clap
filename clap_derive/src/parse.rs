@@ -9,6 +9,17 @@ use syn::{
     Attribute, Expr, ExprLit, Ident, Lit, LitBool, LitStr, Token,
 };
 
+pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
+    all_attrs
+        .iter()
+        .filter(|attr| attr.path.is_ident("clap") || attr.path.is_ident("structopt"))
+        .flat_map(|attr| {
+            attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
+                .unwrap_or_abort()
+        })
+        .collect()
+}
+
 #[allow(clippy::large_enum_variant)]
 pub enum ClapAttr {
     // single-identifier attributes
@@ -269,15 +280,4 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
          https://docs.rs/structopt/0.3/structopt/#raw-methods"
             .into()
     }
-}
-
-pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
-    all_attrs
-        .iter()
-        .filter(|attr| attr.path.is_ident("clap"))
-        .flat_map(|attr| {
-            attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)
-                .unwrap_or_abort()
-        })
-        .collect()
 }

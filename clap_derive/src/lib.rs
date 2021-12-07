@@ -12,8 +12,6 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-#![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.5")]
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
@@ -43,19 +41,11 @@ pub fn arg_enum(input: TokenStream) -> TokenStream {
 /// receiving an instance of `clap::ArgMatches` from conducting parsing, and then
 /// implementing a conversion code to instantiate an instance of the user
 /// context struct.
-#[proc_macro_derive(Parser, attributes(clap))]
+#[proc_macro_derive(Parser, attributes(clap, structopt))]
 #[proc_macro_error]
 pub fn parser(input: TokenStream) -> TokenStream {
     let input: DeriveInput = parse_macro_input!(input);
     derives::derive_parser(&input).into()
-}
-
-/// Generates the `IntoApp` impl.
-#[proc_macro_derive(IntoApp, attributes(clap))]
-#[proc_macro_error]
-pub fn into_app(input: TokenStream) -> TokenStream {
-    let input: DeriveInput = parse_macro_input!(input);
-    derives::derive_into_app(&input).into()
 }
 
 /// Generates the `Subcommand` impl.

@@ -18,25 +18,6 @@ macro_rules! yaml_tuple2 {
 }
 
 #[cfg(feature = "yaml")]
-macro_rules! yaml_array_tuple2 {
-    ($a:ident, $v:ident, $c:ident) => {{
-        if let Some(vec) = $v.as_vec() {
-            for ys in vec {
-                if let Some(tup) = ys.as_vec() {
-                    debug_assert_eq!(2, tup.len());
-                    $a = $a.$c(&[(yaml_str!(tup[0]), yaml_str!(tup[1]))]);
-                } else {
-                    panic!("Failed to convert YAML value to vec");
-                }
-            }
-        } else {
-            panic!("Failed to convert YAML value to vec");
-        }
-        $a
-    }};
-}
-
-#[cfg(feature = "yaml")]
 macro_rules! yaml_tuple3 {
     ($a:ident, $v:ident, $c:ident) => {{
         if let Some(vec) = $v.as_vec() {
@@ -131,28 +112,6 @@ macro_rules! yaml_char {
 }
 
 #[cfg(feature = "yaml")]
-macro_rules! yaml_chars {
-    ($v:expr) => {{
-        &$v.as_vec()
-            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a list", $v))
-            .into_iter()
-            .map(|s| {
-                s.as_str()
-                    .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", s))
-            })
-            .map(|s| {
-                let mut chars = s.chars();
-                let c = chars.next().expect("short aliases must be a single char");
-                if chars.next().is_some() {
-                    panic!("short aliases must be a single char");
-                }
-                c
-            })
-            .collect::<Vec<char>>()
-    }};
-}
-
-#[cfg(feature = "yaml")]
 macro_rules! yaml_str {
     ($v:expr) => {{
         $v.as_str()
@@ -161,27 +120,9 @@ macro_rules! yaml_str {
 }
 
 #[cfg(feature = "yaml")]
-macro_rules! yaml_str_parse {
-    ($a:ident, $v:ident, $c:ident) => {{
-        $a.$c($v
-            .as_str()
-            .unwrap_or_else(|| panic!("failed to convert YAML {:?} value to a string", $v))
-            .parse()
-            .unwrap_or_else(|err| panic!("{}", err)))
-    }};
-}
-
-#[cfg(feature = "yaml")]
 macro_rules! yaml_to_char {
     ($a:ident, $v:ident, $c:ident) => {{
         $a.$c(yaml_char!($v))
-    }};
-}
-
-#[cfg(feature = "yaml")]
-macro_rules! yaml_to_chars {
-    ($a:ident, $v:ident, $c:ident) => {{
-        $a.$c(yaml_chars!($v))
     }};
 }
 

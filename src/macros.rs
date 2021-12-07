@@ -1,34 +1,174 @@
-/// A convenience macro for loading the YAML file at compile time (relative to the current file,
-/// like modules work). That YAML object can then be passed to this function.
-///
-/// # Panics
-///
-/// The YAML file must be properly formatted or this function will panic!(). A good way to
-/// ensure this doesn't happen is to run your program with the `--help` switch. If this passes
-/// without error, you needn't worry because the YAML is properly formatted.
-///
-/// # Examples
-///
-/// The following example shows how to load a properly formatted YAML file to build an instance
-/// of an `App` struct.
-///
-/// ```ignore
-/// # #[macro_use]
-/// # extern crate clap;
-/// # use clap::App;
-/// # fn main() {
-/// let yaml = load_yaml!("app.yaml");
-/// let app = App::from(yaml);
-///
-/// // continued logic goes here, such as `app.get_matches()` etc.
-/// # }
-/// ```
+/// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
 #[cfg(feature = "yaml")]
+#[deprecated(
+    since = "3.0.0",
+    note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+)]
 #[macro_export]
 macro_rules! load_yaml {
     ($yaml:expr) => {
         &$crate::YamlLoader::load_from_str(include_str!($yaml)).expect("failed to load YAML file")
             [0]
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::value_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
+macro_rules! value_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        $crate::value_t!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::value_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
+)]
+macro_rules! value_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        value_t_or_exit!($m.value_of($v), $t)
+    };
+    ($m:ident.value_of($v:expr), $t:ty) => {
+        $m.value_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t`][crate::ArgMatches::value_of_t]
+#[macro_export]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
+macro_rules! values_t {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgMatches::values_of_t_or_exit`][crate::ArgMatches::value_of_t_or_exit]
+#[macro_export]
+#[deprecated(
+    since = "3.0.0",
+    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
+)]
+macro_rules! values_t_or_exit {
+    ($m:ident, $v:expr, $t:ty) => {
+        values_t_or_exit!($m.values_of($v), $t)
+    };
+    ($m:ident.values_of($v:expr), $t:ty) => {
+        $m.values_of_t_or_exit::<$t>($v)
+    };
+}
+
+/// Deprecated, replaced with [`ArgEnum`][crate::ArgEnum]
+#[deprecated(since = "3.0.0", note = "Replaced with `ArgEnum`")]
+#[macro_export]
+macro_rules! arg_enum {
+    (@as_item $($i:item)*) => ($($i)*);
+    (@impls ( $($tts:tt)* ) -> ($e:ident, $($v:ident),+)) => {
+        $crate::arg_enum!(@as_item
+        $($tts)*
+
+        impl ::std::str::FromStr for $e {
+            type Err = String;
+
+            fn from_str(s: &str) -> ::std::result::Result<Self,Self::Err> {
+                #[allow(deprecated, unused_imports)]
+                use ::std::ascii::AsciiExt;
+                match s {
+                    $(stringify!($v) |
+                    _ if s.eq_ignore_ascii_case(stringify!($v)) => Ok($e::$v)),+,
+                    _ => Err({
+                        let v = vec![
+                            $(stringify!($v),)+
+                        ];
+                        format!("valid values: {}",
+                            v.join(", "))
+                    }),
+                }
+            }
+        }
+        impl ::std::fmt::Display for $e {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                match *self {
+                    $($e::$v => write!(f, stringify!($v)),)+
+                }
+            }
+        }
+        impl $e {
+            #[allow(dead_code)]
+            pub fn variants() -> [&'static str; $crate::_clap_count_exprs!($(stringify!($v)),+)] {
+                [
+                    $(stringify!($v),)+
+                ]
+            }
+        });
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+             enum $e {
+                 $($v$(=$val)*),+
+             }) -> ($e, $($v),+)
+        );
+    };
+    ($(#[$($m:meta),+])+ enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            ($(#[$($m),+])+
+            enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (pub enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (pub enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*,)+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
+    };
+    (enum $e:ident { $($v:ident $(=$val:expr)*),+ } ) => {
+        $crate::arg_enum!(@impls
+            (enum $e {
+                $($v$(=$val)*),+
+            }) -> ($e, $($v),+)
+        );
     };
 }
 
@@ -161,110 +301,336 @@ macro_rules! crate_name {
 #[cfg(feature = "cargo")]
 #[macro_export]
 macro_rules! app_from_crate {
-    () => {
-        $crate::App::new($crate::crate_name!())
-            .version($crate::crate_version!())
-            .author($crate::crate_authors!())
-            .about($crate::crate_description!())
+    () => {{
+        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+
+        let author = $crate::crate_authors!(", ");
+        if !author.is_empty() {
+            app = app.author(author)
+        }
+
+        let about = $crate::crate_description!();
+        if !about.is_empty() {
+            app = app.about(about)
+        }
+
+        app
+    }};
+    ($sep:expr) => {{
+        let mut app = $crate::App::new($crate::crate_name!()).version($crate::crate_version!());
+
+        let author = $crate::crate_authors!($sep);
+        if !author.is_empty() {
+            app = app.author(author)
+        }
+
+        let about = $crate::crate_description!();
+        if !about.is_empty() {
+            app = app.about(about)
+        }
+
+        app
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! arg_impl {
+    ( @string $val:ident ) => {
+        stringify!($val)
     };
-    ($sep:expr) => {
-        $crate::App::new($crate::crate_name!())
-            .version($crate::crate_version!())
-            .author($crate::crate_authors!($sep))
-            .about($crate::crate_description!())
+    ( @string $val:literal ) => {{
+        let ident_or_string_literal: &str = $val;
+        ident_or_string_literal
+    }};
+    ( @string $val:tt ) => {
+        ::std::compile_error!("Only identifiers or string literals supported");
+    };
+    ( @string ) => {
+        None
+    };
+
+    ( @char $val:ident ) => {{
+        let ident_or_char_literal = stringify!($val);
+        debug_assert_eq!(
+            ident_or_char_literal.len(),
+            1,
+            "Single-letter identifier expected, got {}",
+            ident_or_char_literal
+        );
+        ident_or_char_literal.chars().next().unwrap()
+    }};
+    ( @char $val:literal ) => {{
+        let ident_or_char_literal: char = $val;
+        ident_or_char_literal
+    }};
+    ( @char ) => {{
+        None
+    }};
+
+    (
+        @arg
+        ($arg:expr)
+        --$long:ident
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Flags should precede `...`");
+
+                let mut arg = $arg;
+                let long = $crate::arg_impl! { @string $long };
+                if arg.get_name().is_empty() {
+                    arg = arg.name(long);
+                }
+                arg.long(long)
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        --$long:literal
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Flags should precede `...`");
+
+                let mut arg = $arg;
+                let long = $crate::arg_impl! { @string $long };
+                if arg.get_name().is_empty() {
+                    arg = arg.name(long);
+                }
+                arg.long(long)
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        -$short:ident
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert_eq!($arg.get_long(), None, "Short flags should precede long flags");
+                debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Flags should precede `...`");
+
+                $arg.short($crate::arg_impl! { @char $short })
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        -$short:literal
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert_eq!($arg.get_long(), None, "Short flags should precede long flags");
+                debug_assert_eq!($arg.get_value_names(), None, "Flags should precede values");
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Flags should precede `...`");
+
+                $arg.short($crate::arg_impl! { @char $short })
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        <$value_name:ident>
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Values should precede `...`");
+                debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
+
+                let mut arg = $arg;
+
+                arg = arg.required(true);
+                arg = arg.takes_value(true);
+
+                let value_name = $crate::arg_impl! { @string $value_name };
+                if arg.get_name().is_empty() {
+                    arg = arg.name(value_name);
+                }
+                arg.value_name(value_name)
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        [$value_name:ident]
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                debug_assert!(!$arg.is_set($crate::ArgSettings::MultipleOccurrences), "Values should precede `...`");
+                debug_assert_eq!($arg.get_value_names(), None, "Multiple values not yet supported");
+
+                let mut arg = $arg;
+
+                if arg.get_long().is_none() && arg.get_short().is_none() {
+                    arg = arg.required(false);
+                } else {
+                    arg = arg.min_values(0).max_values(1);
+                }
+                arg = arg.takes_value(true);
+
+                let value_name = $crate::arg_impl! { @string $value_name };
+                if arg.get_name().is_empty() {
+                    arg = arg.name(value_name);
+                }
+                arg.value_name(value_name)
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        ...
+        $($tail:tt)*
+    ) => {
+        $crate::arg_impl! {
+            @arg
+            ({
+                $arg.multiple_occurrences(true)
+            })
+            $($tail)*
+        }
+    };
+    (
+        @arg
+        ($arg:expr)
+        $help:literal
+    ) => {
+        $arg.help($help)
+    };
+    (
+        @arg
+        ($arg:expr)
+    ) => {
+        $arg
     };
 }
 
-/// Build `App`, `Arg` and `Group` with Usage-string like input
-/// but without the associated parsing runtime cost.
+/// Create an [`Arg`] from a usage string.
 ///
-/// `clap_app!` also supports several shorthand syntaxes.
+/// Allows creation of basic settings for the [`Arg`].
+///
+/// **NOTE**: Not all settings may be set using the usage string method. Some properties are
+/// only available via the builder pattern.
+///
+/// # Syntax
+///
+/// Usage strings typically following the form:
+///
+/// ```notrust
+/// [explicit name] [short] [long] [value names] [...] [help string]
+/// ```
+///
+/// ### Explicit Name
+///
+/// The name may be either a bare-word or a string, followed by a `:`, like `name:` or
+/// `"name":`.
+///
+/// *Note:* This is an optional field, if it's omitted the argument will use one of the additional
+/// fields as the name using the following priority order:
+///
+///  1. Explicit Name
+///  2. Long
+///  3. Value Name
+///
+/// See [`Arg::name`][crate::Arg::name].
+///
+/// ### Short
+///
+/// A short flag is a `-` followed by either a bare-character or quoted character, like `-f` or
+/// `-'f'`.
+///
+/// See [`Arg::short`][crate::Arg::short].
+///
+/// ### Long
+///
+/// A long flag is a `--` followed by either a bare-word or a string, like `--foo` or
+/// `--"foo"`.
+///
+/// See [`Arg::long`][crate::Arg::long].
+///
+/// ### Values (Value Notation)
+///
+/// This is set by placing bare-word between:
+/// - `[]` like `[FOO]`
+///   - Positional argument: optional
+///   - Named argument: optional value
+/// - `<>` like `<FOO>`: required
+///
+/// See [`Arg::value_name`][crate::Arg::value_name].
+///
+/// ### `...`
+///
+/// `...` (three consecutive dots/periods) specifies that this argument may occur multiple
+/// times (not to be confused with multiple values per occurrence).
+///
+/// See [`Arg::multiple_occurrences`][crate::Arg::multiple_occurrences].
+///
+/// ### Help String
+///
+/// The help string is denoted between a pair of single quotes `''` and may contain any
+/// characters.
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # #[macro_use]
-/// # extern crate clap;
-/// # fn main() {
-/// let matches = clap_app!(myapp =>
-///     (version: "1.0")
-///     (author: "Kevin K. <kbknapp@gmail.com>")
-///     (about: "Does awesome things")
-///     (@arg CONFIG: -c --config +takes_value "Sets a custom config file")
-///     (@arg INPUT: +required "Sets the input file to use")
-///     (@arg debug: -d ... "Sets the level of debugging information")
-///     (@group difficulty: +required !multiple
-///         (@arg hard: -h --hard "Sets hard mode")
-///         (@arg normal: -n --normal "Sets normal mode")
-///         (@arg easy: -e --easy "Sets easy mode")
-///     )
-///     (@subcommand test =>
-///         (about: "controls testing features")
-///         (version: "1.3")
-///         (author: "Someone E. <someone_else@other.com>")
-///         (@arg verbose: -v --verbose "Print test information verbosely")
-///     )
-/// )
-/// .get_matches();
-/// # }
+/// ```rust
+/// # use clap::{App, Arg, arg};
+/// App::new("prog")
+///     .args(&[
+///         arg!(--config <FILE> "a required file for the configuration and no short"),
+///         arg!(-d --debug ... "turns on debugging information and allows multiples"),
+///         arg!([input] "an optional input file to use")
+/// ])
+/// # ;
 /// ```
-///
-/// # Shorthand Syntax for Args
-///
-/// * A single hyphen followed by a character (such as `-c`) sets the [`Arg::short`]
-/// * A double hyphen followed by a character or word (such as `--config`) sets [`Arg::long`]
-/// * Three dots (`...`) sets [`Arg::multiple_values(true)`]
-/// * Three dots (`...`) sets [`Arg::multiple_occurrences(true)`]
-/// * Angled brackets after either a short or long will set [`Arg::value_name`] and
-/// `Arg::required(true)` such as `--config <FILE>` = `Arg::value_name("FILE")` and
-/// `Arg::required(true)`
-/// * Square brackets after either a short or long will set [`Arg::value_name`] and
-/// `Arg::required(false)` such as `--config [FILE]` = `Arg::value_name("FILE")` and
-/// `Arg::required(false)`
-/// * There are short hand syntaxes for Arg methods that accept booleans
-///   * A plus sign will set that method to `true` such as `+required` = `Arg::required(true)`
-///   * An exclamation will set that method to `false` such as `!required` = `Arg::required(false)`
-/// * A `#{min, max}` will set [`Arg::min_values(min)`] and [`Arg::max_values(max)`]
-/// * An asterisk (`*`) will set `Arg::required(true)`
-/// * Curly brackets around a `fn` will set [`Arg::validator`] as in `{fn}` = `Arg::validator(fn)`
-/// * An Arg method that accepts a string followed by square brackets will set that method such as
-/// `conflicts_with[FOO]` will set `Arg::conflicts_with("FOO")` (note the lack of quotes around
-/// `FOO` in the macro)
-/// * An Arg method that takes a string and can be set multiple times (such as
-/// [`Arg::conflicts_with`]) followed by square brackets and a list of values separated by spaces
-/// will set that method such as `conflicts_with[FOO BAR BAZ]` will set
-/// `Arg::conflicts_with("FOO")`, `Arg::conflicts_with("BAR")`, and `Arg::conflicts_with("BAZ")`
-/// (note the lack of quotes around the values in the macro)
-///
-/// # Shorthand Syntax for Groups
-/// * Some shorthand syntaxes for `Arg` are also available for `ArgGroup`:
-///   * For methods accepting a boolean: `+required` and `!multiple`, etc.
-///   * For methods accepting strings: `conflicts_with[FOO]` and `conflicts_with[FOO BAR BAZ]`, etc.
-///   * `*` for `ArgGroup::required`
-///   * `...` for `ArgGroup::multiple`
-///
-/// # Alternative form for non-ident values
-///
-/// Certain places that normally accept an `ident` also optionally accept an alternative of `("expr enclosed by parens")`
-/// * `(@arg something: --something)` could also be `(@arg ("something-else"): --("something-else"))`
-/// * `(@subcommand something => ...)` could also be `(@subcommand ("something-else") => ...)`
-///
-/// Or it can be even simpler by using the literal directly
-/// * `(@arg "something-else": --"something-else")`
-/// * `(@subcommand "something-else" => ...)`
-///
-/// [`Arg::short`]: crate::Arg::short()
-/// [`Arg::long`]: crate::Arg::long()
-/// [`Arg::multiple_values(true)`]: crate::Arg::multiple_values()
-/// [`Arg::multiple_occurrences(true)`]: crate::Arg::multiple_occurrences()
-/// [`Arg::value_name`]: crate::Arg::value_name()
-/// [`Arg::min_values(min)`]: crate::Arg::min_values()
-/// [`Arg::max_values(max)`]: crate::Arg::max_values()
-/// [`Arg::validator`]: crate::Arg::validator()
-/// [`Arg::conflicts_with`]: crate::Arg::conflicts_with()
+/// [`Arg`]: ./struct.Arg.html
+#[macro_export]
+macro_rules! arg {
+    ( $name:ident: $($tail:tt)+ ) => {
+        $crate::arg_impl! {
+            @arg ($crate::Arg::new($crate::arg_impl! { @string $name })) $($tail)+
+        }
+    };
+    ( $($tail:tt)+ ) => {{
+        let arg = $crate::arg_impl! {
+            @arg ($crate::Arg::default()) $($tail)+
+        };
+        debug_assert!(!arg.get_name().is_empty(), "Without a value or long flag, the `name:` prefix is required");
+        arg
+    }};
+}
+
+/// Deprecated, replaced with [`clap::Parser`][crate::Parser] and [`clap::arg!`][crate::arg] (Issue clap-rs/clap#2835)
 #[deprecated(
     since = "3.0.0",
-    note = "Replaced with `App` builder API (with `From::from` for parsing usage) or `Parser` derive API (Issue #2835)"
+    note = "Replaced with `clap::Parser` for a declarative API (Issue clap-rs/clap#2835)"
 )]
 #[macro_export]
 macro_rules! clap_app {
@@ -276,13 +642,6 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    (@app ($builder:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($builder.arg(
-                $crate::clap_app!{ @arg ($crate::Arg::new(stringify!($name).trim_matches('"'))) (-) $($tail)* }))
-            $($tt)*
-        }
-    };
     (@app ($builder:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.arg(
@@ -290,48 +649,35 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Global Settings
-    (@app ($builder:expr) (@global_setting $setting:ident) $($tt:tt)*) => {
-        $crate::clap_app!{ @app
-            ($builder.global_setting($crate::AppSettings::$setting))
-            $($tt)*
-        }
-    };
-    // Settings
     (@app ($builder:expr) (@setting $setting:ident) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.setting($crate::AppSettings::$setting))
             $($tt)*
         }
     };
-    // Treat the application builder as an argument to set its attributes
+// Treat the application builder as an argument to set its attributes
     (@app ($builder:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app ($crate::clap_app!{ @arg ($builder) $($attr)* }) $($tt)* }
     };
-    // ArgGroup
-    (@app ($builder:expr) (@group $name:ident: $($attrs:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($attrs)* })
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name))) $($tail)* })
             $($tt)*
         }
     };
-    // Handle subcommand creation
-    (@app ($builder:expr) (@subcommand ($name:expr) => $($tail:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident !$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
-            ))
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(false)) $($tail)* })
             $($tt)*
         }
     };
-    (@app ($builder:expr) (@subcommand $name:literal => $($tail:tt)*) $($tt:tt)*) => {
+    (@app ($builder:expr) (@group $name:ident +$ident:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
-            ($builder.subcommand(
-                $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
-            ))
+            ($crate::clap_app!{ @group ($builder, $crate::ArgGroup::new(stringify!($name)).$ident(true)) $($tail)* })
             $($tt)*
         }
     };
+// Handle subcommand creation
     (@app ($builder:expr) (@subcommand $name:ident => $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @app
             ($builder.subcommand(
@@ -340,32 +686,20 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Yaml like function calls - used for setting various meta directly against the app
+// Yaml like function calls - used for setting various meta directly against the app
     (@app ($builder:expr) ($ident:ident: $($v:expr),*) $($tt:tt)*) => {
+// $crate::clap_app!{ @app ($builder.$ident($($v),*)) $($tt)* }
         $crate::clap_app!{ @app
             ($builder.$ident($($v),*))
             $($tt)*
         }
     };
-    // Add members to group and continue argument handling with the parent builder
+
+// Add members to group and continue argument handling with the parent builder
     (@group ($builder:expr, $group:expr)) => { $builder.group($group) };
     // Treat the group builder as an argument to set its attributes
     (@group ($builder:expr, $group:expr) (@attributes $($attr:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) $($attr)* $($tt)* }
-    };
-    (@group ($builder:expr, $group:expr) (@arg ($name:expr): $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group
-            ($crate::clap_app!{ @app ($builder) (@arg ($name): $($tail)*) },
-             $group.arg($name))
-            $($tt)*
-        }
-    };
-    (@group ($builder:expr, $group:expr) (@arg $name:literal: $($tail:tt)*) $($tt:tt)*) => {
-        $crate::clap_app!{ @group
-            ($crate::clap_app!{ @app ($builder) (@arg $name: $($tail)*) },
-             $group.arg(stringify!($name).trim_matches('"')))
-            $($tt)*
-        }
+        $crate::clap_app!{ @group ($builder, $crate::clap_app!{ @arg ($group) (-) $($attr)* }) $($tt)* }
     };
     (@group ($builder:expr, $group:expr) (@arg $name:ident: $($tail:tt)*) $($tt:tt)*) => {
         $crate::clap_app!{ @group
@@ -374,49 +708,15 @@ macro_rules! clap_app {
             $($tt)*
         }
     };
-    // Handle group attributes
-    (@group ($builder:expr, $group:expr) !$ident:ident $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident(false)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) +$ident:ident $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident(true)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) * $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) +required $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) ... $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group) +multiple $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident[$($target:literal)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target).trim_matches('"')) )*) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident[$($target:ident)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group $( .$ident(stringify!($target)) )*) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr),*) $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
-    };
-    (@group ($builder:expr, $group:expr) $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
-        $crate::clap_app!{ @group ($builder, $group.$ident($($expr),*)) $($tail)* }
-    };
 
-    // No more tokens to munch
+// No more tokens to munch
     (@arg ($arg:expr) $modes:tt) => { $arg };
-    // Shorthand tokens influenced by the usage_string
+// Shorthand tokens influenced by the usage_string
     (@arg ($arg:expr) $modes:tt --($long:expr) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long($long)) $modes $($tail)* }
     };
-    (@arg ($arg:expr) $modes:tt --$long:literal $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.long(stringify!($long).trim_matches('"'))) $modes $($tail)* }
-    };
     (@arg ($arg:expr) $modes:tt --$long:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.long(stringify!($long))) $modes $($tail)* }
-    };
-    (@arg ($arg:expr) $modes:tt -($short:expr) $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.short($short)) $modes $($tail)* }
-    };
-    (@arg ($arg:expr) $modes:tt -$short:literal $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg.short($short.to_string().chars().next().expect(r#""" is not allowed here"#))) $modes $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt -$short:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.short(stringify!($short).chars().next().unwrap())) $modes $($tail)* }
@@ -434,62 +734,52 @@ macro_rules! clap_app {
         $crate::clap_app!{ @arg ($arg.value_name(stringify!($var))) (+) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt ... $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg) $modes +multiple_values +takes_value $($tail)* }
+        $crate::clap_app!{ @arg ($arg) $modes +multiple +takes_value $($tail)* }
     };
-    // Shorthand magic
+// Shorthand magic
     (@arg ($arg:expr) $modes:tt #{$n:expr, $m:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes min_values($n) max_values($m) $($tail)* }
     };
     (@arg ($arg:expr) $modes:tt * $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg) $modes +required $($tail)* }
     };
-    // !foo -> .foo(false)
+// !foo -> .foo(false)
     (@arg ($arg:expr) $modes:tt !$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(false)) $modes $($tail)* }
     };
-    // +foo -> .foo(true)
+// +foo -> .foo(true)
     (@arg ($arg:expr) $modes:tt +$ident:ident $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident(true)) $modes $($tail)* }
     };
-    // Validator
+// Validator
     (@arg ($arg:expr) $modes:tt {$fn_:expr} $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.validator($fn_)) $modes $($tail)* }
     };
     (@as_expr $expr:expr) => { $expr };
-    // Help
-    (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.about($crate::clap_app!{ @as_expr $desc }) };
-    // Handle functions that need to be called multiple times for each argument
-    (@arg ($arg:expr) $modes:tt $ident:ident[$($target:literal)*] $($tail:tt)*) => {
-        $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target).trim_matches('"')) )*) $modes $($tail)* }
-    };
+// Help
+    (@arg ($arg:expr) $modes:tt $desc:tt) => { $arg.help($crate::clap_app!{ @as_expr $desc }) };
+// Handle functions that need to be called multiple times for each argument
     (@arg ($arg:expr) $modes:tt $ident:ident[$($target:ident)*] $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg $( .$ident(stringify!($target)) )*) $modes $($tail)* }
     };
-    // Inherit builder's functions, e.g. `index(2)`, `requires_if("val", "arg")`
+// Inherit builder's functions, e.g. `index(2)`, `requires_if("val", "arg")`
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr),*) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
     };
-    // Inherit builder's functions with trailing comma, e.g. `index(2,)`, `requires_if("val", "arg",)`
+// Inherit builder's functions with trailing comma, e.g. `index(2,)`, `requires_if("val", "arg",)`
     (@arg ($arg:expr) $modes:tt $ident:ident($($expr:expr,)*) $($tail:tt)*) => {
         $crate::clap_app!{ @arg ($arg.$ident($($expr),*)) $modes $($tail)* }
     };
-    // Build a subcommand outside of an app.
-    (@subcommand ($name:expr) => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)* }
-    };
-    (@subcommand $name:literal => $($tail:tt)*) => {
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)* }
-    };
+
+// Build a subcommand outside of an app.
     (@subcommand $name:ident => $($tail:tt)*) => {
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)* }
     };
-    // Start the magic
+// Start the magic
     (($name:expr) => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new($name)) $($tail)*}
     }};
-    ($name:literal => $($tail:tt)*) => {{
-        $crate::clap_app!{ @app ($crate::App::new(stringify!($name).trim_matches('"'))) $($tail)*}
-    }};
+
     ($name:ident => $($tail:tt)*) => {{
         $crate::clap_app!{ @app ($crate::App::new(stringify!($name))) $($tail)*}
     }};
@@ -617,68 +907,17 @@ macro_rules! wlnerr {
 #[cfg(feature = "debug")]
 macro_rules! debug {
     ($($arg:tt)*) => ({
-        // The `print!` line will make clippy complain about duplicates.
-        #[allow(clippy::branches_sharing_code)]
-        print!("[{:>w$}] \t", module_path!(), w = 28);
-        println!($($arg)*);
+        let prefix = format!("[{:>w$}] \t", module_path!(), w = 28);
+        let body = format!($($arg)*);
+        let mut color = $crate::output::fmt::Colorizer::new(true, $crate::ColorChoice::Auto);
+        color.hint(prefix);
+        color.hint(body);
+        color.none("\n");
+        let _ = color.print();
     })
 }
 
 #[cfg(not(feature = "debug"))]
 macro_rules! debug {
     ($($arg:tt)*) => {};
-}
-
-/// Deprecated, see [`ArgMatches::value_of_t`]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::value_of_t`")]
-macro_rules! value_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        clap::value_t!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, see [`ArgMatches::value_of_t_or_exit`]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::value_of_t_or_exit`"
-)]
-macro_rules! value_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        value_t_or_exit!($m.value_of($v), $t)
-    };
-    ($m:ident.value_of($v:expr), $t:ty) => {
-        $m.value_of_t_or_exit::<$t>($v)
-    };
-}
-
-/// Deprecated, see [`ArgMatches::values_of_t`]
-#[macro_export]
-#[deprecated(since = "3.0.0", note = "Replaced with `ArgMatches::values_of_t`")]
-macro_rules! values_t {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t::<$t>($v)
-    };
-}
-
-/// Deprecated, see [`ArgMatches::values_of_t_or_exit`]
-#[macro_export]
-#[deprecated(
-    since = "3.0.0",
-    note = "Replaced with `ArgMatches::values_of_t_or_exit`"
-)]
-macro_rules! values_t_or_exit {
-    ($m:ident, $v:expr, $t:ty) => {
-        values_t_or_exit!($m.values_of($v), $t)
-    };
-    ($m:ident.values_of($v:expr), $t:ty) => {
-        $m.values_of_t_or_exit::<$t>($v)
-    };
 }

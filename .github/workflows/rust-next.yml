@@ -1,0 +1,106 @@
+name: rust-next
+on:
+  schedule:
+  - cron: '3 3 3 * *'
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        build: [linux, windows, mac, beta, nightly, minimal, default]
+        include:
+        - build: linux
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "stable"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "stable"
+          features: "full"
+        - build: beta
+          os: ubuntu-latest
+          rust: "beta"
+          features: "full"
+        - build: nightly
+          os: ubuntu-latest
+          rust: "nightly"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+  rustfmt:
+    name: rustfmt
+    strategy:
+      matrix:
+        rust:
+        - stable
+        - beta
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+        components: rustfmt
+    - uses: Swatinem/rust-cache@v1
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+  clippy:
+    name: clippy
+    strategy:
+      matrix:
+        rust:
+        - 1.54.0  # MSRV
+        - stable
+    continue-on-error: ${{ matrix.rust != '1.54.0' }}  # MSRV
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+        components: clippy
+    - uses: Swatinem/rust-cache@v1
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --workspace --all-features --all-targets -- -D warnings

@@ -48,11 +48,11 @@ use std::ffi::OsString;
 ///     .about("My super CLI")
 ///     .arg(Arg::new("verbose")
 ///         .long("verbose")
-///         .about("More verbose output"))
+///         .help("More verbose output"))
 ///     .arg(Arg::new("name")
 ///         .long("name")
 ///         .short('n')
-///         .about("An optional name")
+///         .help("An optional name")
 ///         .takes_value(true));
 ///
 /// struct Context {
@@ -151,6 +151,73 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
         let matches = <Self as IntoApp>::into_app_for_update().try_get_matches_from(itr)?;
         <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
             .map_err(format_error::<Self>)
+    }
+
+    /// Deprecated, `StructOpt::clap` replaced with [`IntoApp::into_app`] (derive as part of
+    /// [`Parser`])
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+    )]
+    fn clap<'help>() -> App<'help> {
+        <Self as IntoApp>::into_app()
+    }
+
+    /// Deprecated, `StructOpt::from_clap` replaced with [`FromArgMatches::from_arg_matches`] (derive as part of
+    /// [`Parser`])
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+    )]
+    fn from_clap(matches: &ArgMatches) -> Self {
+        <Self as FromArgMatches>::from_arg_matches(matches).unwrap()
+    }
+
+    /// Deprecated, `StructOpt::from_args` replaced with `Parser::parse` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_args` is replaced with `Parser::parse` (note the change in derives)"
+    )]
+    fn from_args() -> Self {
+        Self::parse()
+    }
+
+    /// Deprecated, `StructOpt::from_args_safe` replaced with `Parser::try_parse` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_args_safe` is replaced with `Parser::try_parse` (note the change in derives)"
+    )]
+    fn from_args_safe() -> Result<Self, Error> {
+        Self::try_parse()
+    }
+
+    /// Deprecated, `StructOpt::from_iter` replaced with `Parser::parse_from` (note the change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_iter` is replaced with `Parser::parse_from` (note the change in derives)"
+    )]
+    fn from_iter<I, T>(itr: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        Self::parse_from(itr)
+    }
+
+    /// Deprecated, `StructOpt::from_iter_safe` replaced with `Parser::try_parse_from` (note the
+    /// change in derives)
+    #[deprecated(
+        since = "3.0.0",
+        note = "`StructOpt::from_iter_safe` is replaced with `Parser::try_parse_from` (note the change in derives)"
+    )]
+    fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
+    where
+        I: IntoIterator<Item = T>,
+        // TODO (@CreepySkeleton): discover a way to avoid cloning here
+        T: Into<OsString> + Clone,
+    {
+        Self::try_parse_from(itr)
     }
 }
 
@@ -313,13 +380,13 @@ pub trait ArgEnum: Sized + Clone {
     fn value_variants<'a>() -> &'a [Self];
 
     /// Parse an argument into `Self`.
-    fn from_str(input: &str, case_insensitive: bool) -> Result<Self, String> {
+    fn from_str(input: &str, ignore_case: bool) -> Result<Self, String> {
         Self::value_variants()
             .iter()
             .find(|v| {
                 v.to_possible_value()
                     .expect("ArgEnum::value_variants contains only values with a corresponding ArgEnum::to_possible_value")
-                    .matches(input, case_insensitive)
+                    .matches(input, ignore_case)
             })
             .cloned()
             .ok_or_else(|| format!("Invalid variant: {}", input))

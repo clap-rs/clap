@@ -4,6 +4,91 @@ use std::{ops::BitOr, str::FromStr};
 // Third party
 use bitflags::bitflags;
 
+#[doc(hidden)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ArgFlags(Flags);
+
+impl Default for ArgFlags {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
+
+/// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
+/// methods [`Arg::setting`], [`Arg::unset_setting`], and [`Arg::is_set`]. This is what the
+/// [`Arg`] methods which accept a `bool` use internally.
+///
+/// [`Arg`]: crate::Arg
+/// [`Arg::setting`]: crate::Arg::setting()
+/// [`Arg::unset_setting`]: crate::Arg::unset_setting()
+/// [`Arg::is_set`]: crate::Arg::is_set()
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum ArgSettings {
+    /// Specifies that an arg must be used
+    Required,
+    /// Allows an arg to accept multiple values
+    MultipleValues,
+    /// Allows an arg to appear multiple times
+    MultipleOccurrences,
+    /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
+    /// [`ArgSettings::MultipleValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
+    )]
+    Multiple,
+    /// Forbids an arg from accepting empty values such as `""`
+    ForbidEmptyValues,
+    /// Sets an arg to be global (i.e. exist in all subcommands)
+    Global,
+    /// Hides an arg from the help message
+    Hidden,
+    /// Allows an argument to take a value (such as `--option value`)
+    TakesValue,
+    /// Enables a delimiter to break up arguments `--option val1,val2,val3` becomes three values
+    /// (`val1`, `val2`, and `val3`) instead of the default one (`val1,val2,val3`)
+    UseValueDelimiter,
+    /// Tells an arg to display it's help on the line below the arg itself in the help message
+    NextLineHelp,
+    /// Says that arg *must* use a delimiter to separate values
+    RequireDelimiter,
+    /// Hides the possible values from the help message
+    HidePossibleValues,
+    /// Allows values that start with a hyphen
+    AllowHyphenValues,
+    /// Deprecated, replaced with [`ArgSettings::AllowHyphenValues`]
+    #[deprecated(
+        since = "3.0.0",
+        note = "Replaced with `ArgSettings::AllowHyphenValues`"
+    )]
+    AllowLeadingHyphen,
+    /// Requires that an equals be used to provide a value to an option such as `--option=value`
+    RequireEquals,
+    /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
+    /// It can also be accessed early (i.e. before other positionals) by providing `--`
+    Last,
+    /// Hides the default value from the help message
+    HideDefaultValue,
+    /// Possible values become case insensitive
+    IgnoreCase,
+    /// Deprecated, replaced with [`ArgSettings::IgnoreCase`]
+    #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
+    CaseInsensitive,
+    /// Hides environment variable arguments from the help message
+    #[cfg(feature = "env")]
+    HideEnv,
+    /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
+    /// information)
+    #[cfg(feature = "env")]
+    HideEnvValues,
+    /// The argument should **not** be shown in short help text
+    HiddenShortHelp,
+    /// The argument should **not** be shown in long help text
+    HiddenLongHelp,
+    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
+    AllowInvalidUtf8,
+}
+
 bitflags! {
     struct Flags: u32 {
         const REQUIRED         = 1;
@@ -35,16 +120,6 @@ bitflags! {
     }
 }
 
-#[doc(hidden)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ArgFlags(Flags);
-
-impl Default for ArgFlags {
-    fn default() -> Self {
-        Self::empty()
-    }
-}
-
 // @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,
     Required("required") => Flags::REQUIRED,
@@ -52,7 +127,7 @@ impl_settings! { ArgSettings, ArgFlags,
     MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
     Multiple("multiple") => Flags::MULTIPLE,
     ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
-    EmptyValues("emptyvalues") => Flags::NO_OP,
+    Global("global") => Flags::GLOBAL,
     Hidden("hidden") => Flags::HIDDEN,
     TakesValue("takesvalue") => Flags::TAKES_VAL,
     UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
@@ -60,10 +135,11 @@ impl_settings! { ArgSettings, ArgFlags,
     RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
     HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
     AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
+    AllowLeadingHyphen("allowleadinghypyhen") => Flags::ALLOW_TAC_VALS,
     RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
     Last("last") => Flags::LAST,
     IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
-    CaseInsensitive("ignorecase") => Flags::CASE_INSENSITIVE,
+    CaseInsensitive("caseinsensitive") => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
     HideEnv("hideenv") => Flags::HIDE_ENV,
     #[cfg(feature = "env")]
@@ -72,80 +148,6 @@ impl_settings! { ArgSettings, ArgFlags,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
     HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
     AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
-}
-
-/// Various settings that apply to arguments and may be set, unset, and checked via getter/setter
-/// methods [`Arg::setting`], [`Arg::unset_setting`], and [`Arg::is_set`]. This is what the
-/// [`Arg`] methods which accept a `bool` use internally.
-///
-/// [`Arg`]: crate::Arg
-/// [`Arg::setting`]: crate::Arg::setting()
-/// [`Arg::unset_setting`]: crate::Arg::unset_setting()
-/// [`Arg::is_set`]: crate::Arg::is_set()
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum ArgSettings {
-    /// Specifies that an arg must be used
-    Required,
-    /// Allows an arg to accept multiple values
-    MultipleValues,
-    /// Allows an arg to appear multiple times
-    MultipleOccurrences,
-    /// Deprecated, see [`ArgSettings::MultipleOccurrences`] (most likely what you want) and
-    /// [`ArgSettings::MultipleValues`]
-    #[deprecated(
-        since = "3.0.0",
-        note = "Split into `ArgSettings::MultipleOccurrences` (most likely what you want)  and `ArgSettings::MultipleValues`"
-    )]
-    Multiple,
-    /// Forbids an arg from accepting empty values such as `""`
-    ForbidEmptyValues,
-    /// Deprecated, this is now the default, see [`ArgSettings::ForbidEmptyValues`] for the
-    /// opposite.
-    #[deprecated(
-        since = "3.0.0",
-        note = "This is now the default see [`ArgSettings::ForbidEmptyValues`] for the opposite."
-    )]
-    EmptyValues,
-    /// Hides an arg from the help message
-    Hidden,
-    /// Allows an argument to take a value (such as `--option value`)
-    TakesValue,
-    /// Enables a delimiter to break up arguments `--option val1,val2,val3` becomes three values
-    /// (`val1`, `val2`, and `val3`) instead of the default one (`val1,val2,val3`)
-    UseValueDelimiter,
-    /// Tells an arg to display it's help on the line below the arg itself in the help message
-    NextLineHelp,
-    /// Says that arg *must* use a delimiter to separate values
-    RequireDelimiter,
-    /// Hides the possible values from the help message
-    HidePossibleValues,
-    /// Allows values that start with a hyphen
-    AllowHyphenValues,
-    /// Requires that an equals be used to provide a value to an option such as `--option=value`
-    RequireEquals,
-    /// Says that a positional arg will be the last positional, and requires `--` to be accessed.
-    /// It can also be accessed early (i.e. before other positionals) by providing `--`
-    Last,
-    /// Hides the default value from the help message
-    HideDefaultValue,
-    /// Possible values become case insensitive
-    IgnoreCase,
-    /// Deprecated, see [`ArgSettings::IgnoreCase`]
-    #[deprecated(since = "3.0.0", note = "Replaced with `ArgSettings::IgnoreCase`")]
-    CaseInsensitive,
-    /// Hides environment variable arguments from the help message
-    #[cfg(feature = "env")]
-    HideEnv,
-    /// Hides any values currently assigned to ENV variables in the help message (good for sensitive
-    /// information)
-    #[cfg(feature = "env")]
-    HideEnvValues,
-    /// The argument should **not** be shown in short help text
-    HiddenShortHelp,
-    /// The argument should **not** be shown in long help text
-    HiddenLongHelp,
-    /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
-    AllowInvalidUtf8,
 }
 
 #[cfg(test)]

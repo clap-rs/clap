@@ -1,0 +1,122 @@
+name: claptests
+version: "1.0"
+about: tests clap library
+author: Kevin K. <kbknapp@gmail.com>
+settings:
+    - ArgRequiredElseHelp
+help_message: prints help with a nonstandard description
+args:
+    - opt:
+        short: o
+        long: option
+        multiple: true
+        takes_value: true
+        help: tests options
+    - positional:
+        help: tests positionals
+    - positional2:
+        help: tests positionals with exclusions
+        default_value_if:
+            - [flag, Null, some]
+            - [postional, other, something]
+    - flag:
+        short: f
+        long: flag
+        multiple: true
+        takes_value: true
+        help: tests flags
+        global: true
+    - flag2:
+        short: F
+        help: tests flags with exclusions
+        conflicts_with:
+            - flag
+        requires:
+            - option2
+    - option2:
+        long: long-option-2
+        help: tests long options with exclusions
+        requires:
+            - positional2
+    - option3:
+        short: O
+        long: Option
+        help: tests options with specific value sets
+        takes_value: true
+        possible_values:
+            - fast
+            - slow
+        requires_if:
+            - [fast, flag]
+    - positional3:
+        help: tests positionals with specific values
+        possible_values: [ vi, emacs ]
+    - multvals:
+        long: multvals
+        help: Tests multiple values, not mult occs
+        value_names:
+            - one
+            - two
+    - multvalsmo:
+        long: multvalsmo
+        multiple: true
+        takes_value: true
+        help: Tests multiple values, not mult occs
+        value_names: [one, two]
+    - multvalsdelim:
+        long: multvalsdelim
+        help: Tests multiple values with required delimiter
+        multiple: true
+        takes_value: true
+        require_delimiter: true
+        value_delimiter: ","
+    - singlealias:
+        long: singlealias
+        help: Tests single alias
+        aliases: [alias]
+        required_if:
+            - [multvalsmo, two]
+    - multaliases:
+        long: multaliases
+        help: Tests multiple aliases
+        aliases: [als1, als2, als3]
+    - minvals2:
+        long: minvals2
+        multiple: true
+        takes_value: true
+        help: Tests 2 min vals
+        min_values: 2
+    - maxvals3:
+        long: maxvals3
+        multiple: true
+        takes_value: true
+        help: Tests 3 max vals
+        max_values: 3
+    - case_insensitive:
+        help: Test case_insensitive
+        possible_values: [test123, test321]
+        case_insensitive: true
+
+arg_groups:
+    - test:
+        args:
+            - maxvals3
+            - minmals2
+        conflicts_with:
+            - option3
+        requires:
+            - multvals
+subcommands:
+    - subcmd:
+        about: tests subcommands
+        version: "0.1"
+        author: Kevin K. <kbknapp@gmail.com>
+        args:
+            - scoption:
+                short: o
+                long: option
+                multiple: true
+                help: tests options
+                takes_value: true
+            - scpositional:
+                help: tests positionals

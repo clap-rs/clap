@@ -20,5 +20,4 @@ mod subcommand;
 pub use self::parser::derive_parser;
 pub use arg_enum::derive_arg_enum;
 pub use args::derive_args;
-pub use into_app::derive_into_app;
 pub use subcommand::derive_subcommand;

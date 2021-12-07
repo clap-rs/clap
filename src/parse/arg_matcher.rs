@@ -4,7 +4,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 // Internal
 use crate::{
     build::{App, Arg, ArgSettings},
-    parse::{ArgMatches, ArgPredicate, MatchedArg, SubCommand, ValueType},
+    parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
     util::Id,
 };
 
@@ -13,14 +13,6 @@ use indexmap::map::Entry;
 
 #[derive(Debug, Default)]
 pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
-
-impl Deref for ArgMatcher {
-    type Target = ArgMatches;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 impl ArgMatcher {
     pub(crate) fn new(app: &App) -> Self {
@@ -126,15 +118,20 @@ impl ArgMatcher {
         self.0.args.iter()
     }
 
-    pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
-        self.get(arg).map_or(false, |a| a.check_explicit(predicate))
+    pub(crate) fn inc_occurrence_of_arg(&mut self, arg: &Arg) {
+        let id = &arg.id;
+        debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new());
+        ma.set_ty(ValueType::CommandLine);
+        ma.set_ignore_case(arg.is_set(ArgSettings::IgnoreCase));
+        ma.invalid_utf8_allowed(arg.is_set(ArgSettings::AllowInvalidUtf8));
+        ma.occurs += 1;
     }
 
-    pub(crate) fn inc_occurrence_of(&mut self, arg: &Id, ci: bool) {
-        debug!("ArgMatcher::inc_occurrence_of: arg={:?}", arg);
-        let ma = self.entry(arg).or_insert(MatchedArg::new());
+    pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
+        debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
+        let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.set_ty(ValueType::CommandLine);
-        ma.set_case_insensitive(ci);
         ma.occurs += 1;
     }
 
@@ -146,7 +143,7 @@ impl ArgMatcher {
         }
     }
 
-    pub(crate) fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
+    fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
@@ -155,15 +152,15 @@ impl ArgMatcher {
         ma.push_val(val);
     }
 
-    pub(crate) fn new_val_group(&mut self, arg: &Id) {
-        let ma = self.entry(arg).or_default();
-        ma.new_val_group();
-    }
-
-    pub(crate) fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
+    fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
         let ma = self.entry(arg).or_default();
         ma.set_ty(ty);
         ma.append_val(val);
+    }
+
+    pub(crate) fn new_val_group(&mut self, arg: &Id) {
+        let ma = self.entry(arg).or_default();
+        ma.new_val_group();
     }
 
     pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
@@ -197,5 +194,13 @@ impl ArgMatcher {
             return o.is_set(ArgSettings::MultipleValues);
         }
         true
+    }
+}
+
+impl Deref for ArgMatcher {
+    type Target = ArgMatches;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

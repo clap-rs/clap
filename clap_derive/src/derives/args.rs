@@ -302,8 +302,7 @@ pub fn gen_augment(
                     Ty::OptionVec => quote_spanned! { ty.span()=>
                         .takes_value(true)
                         .value_name(#value_name)
-                        .multiple_values(true)
-                        .min_values(0)
+                        .multiple_occurrences(true)
                         #possible_values
                         #validator
                         #allow_invalid_utf8
@@ -313,7 +312,7 @@ pub fn gen_augment(
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)
-                            .multiple_values(true)
+                            .multiple_occurrences(true)
                             #possible_values
                             #validator
                             #allow_invalid_utf8
@@ -326,7 +325,6 @@ pub fn gen_augment(
 
                     Ty::Other if flag => quote_spanned! { ty.span()=>
                         .takes_value(false)
-                        .multiple_values(false)
                     },
 
                     Ty::Other => {
@@ -558,7 +556,7 @@ fn gen_parsers(
         FromFlag => (quote!(), quote!(), func.clone()),
     };
     if attrs.is_enum() {
-        let ci = attrs.case_insensitive();
+        let ci = attrs.ignore_case();
 
         parse = quote_spanned! { convert_type.span()=>
             |s| <#convert_type as clap::ArgEnum>::from_str(s, #ci).map_err(|err| clap::Error::raw(clap::ErrorKind::ValueValidation, format!("Invalid value for {}: {}", #name, err)))

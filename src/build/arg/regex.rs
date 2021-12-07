@@ -5,9 +5,7 @@ use std::borrow::Cow;
 
 /// Contains either a regular expression or a set of them or a reference to one.
 ///
-/// Essentially a [`Cow`] wrapper with custom convenience traits.
-///
-/// [`Cow`]: std::borrow::Cow
+/// See [Arg::validator_regex(][crate::Arg::validator_regex] to set this on an argument.
 #[derive(Debug, Clone)]
 pub enum RegexRef<'a> {
     /// Used if the underlying is a regex set
@@ -22,22 +20,6 @@ impl<'a> RegexRef<'a> {
             Self::Regex(r) => r.deref().is_match(text),
             Self::RegexSet(r) => r.deref().is_match(text),
         }
-    }
-}
-
-impl<'a> FromStr for RegexRef<'a> {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Regex::from_str(s).map(|v| Self::Regex(Cow::Owned(v)))
-    }
-}
-
-impl<'a> TryFrom<&'a str> for RegexRef<'a> {
-    type Error = <Self as FromStr>::Err;
-
-    fn try_from(r: &'a str) -> Result<Self, Self::Error> {
-        Self::from_str(r)
     }
 }
 
@@ -62,6 +44,22 @@ impl<'a> From<&'a RegexSet> for RegexRef<'a> {
 impl<'a> From<RegexSet> for RegexRef<'a> {
     fn from(r: RegexSet) -> Self {
         Self::RegexSet(Cow::Owned(r))
+    }
+}
+
+impl<'a> TryFrom<&'a str> for RegexRef<'a> {
+    type Error = <Self as FromStr>::Err;
+
+    fn try_from(r: &'a str) -> Result<Self, Self::Error> {
+        Self::from_str(r)
+    }
+}
+
+impl<'a> FromStr for RegexRef<'a> {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Regex::from_str(s).map(|v| Self::Regex(Cow::Owned(v)))
     }
 }
 

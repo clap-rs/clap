@@ -47,9 +47,9 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind};
+    /// # use clap::{App, arg, ErrorKind};
     /// let result = App::new("prog")
-    ///     .arg(Arg::from("--flag 'some flag'"))
+    ///     .arg(arg!(--flag "some flag"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
@@ -70,7 +70,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .about("The configuration file to use")
+    ///             .help("The configuration file to use")
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
@@ -97,7 +97,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .about("The configuration file to use")
+    ///             .help("The configuration file to use")
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
     /// assert!(result.is_err());
@@ -115,11 +115,11 @@ pub enum ErrorKind {
     /// # Examples
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("color")
-    ///          .setting(ArgSettings::TakesValue)
-    ///          .setting(ArgSettings::ForbidEmptyValues)
+    ///          .takes_value(true)
+    ///          .forbid_empty_values(true)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());
@@ -131,11 +131,11 @@ pub enum ErrorKind {
     /// sign to provide values.
     ///
     /// ```rust
-    /// # use clap::{App, Arg, ErrorKind, ArgSettings};
+    /// # use clap::{App, Arg, ErrorKind};
     /// let res = App::new("prog")
     ///     .arg(Arg::new("color")
-    ///          .setting(ArgSettings::TakesValue)
-    ///          .setting(ArgSettings::RequireEquals)
+    ///          .takes_value(true)
+    ///          .require_equals(true)
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color", "red"]);
     /// assert!(res.is_err());
@@ -315,7 +315,7 @@ pub enum ErrorKind {
     /// Occurs when the user provides a value containing invalid UTF-8.
     ///
     /// To allow arbitrary data
-    /// - Set [`ArgSettings::AllowInvalidUtf8`] for argument values
+    /// - Set [`Arg::allow_invalid_utf8`] for argument values
     /// - Set [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`] for external-subcommand
     ///   values
     ///
@@ -341,7 +341,7 @@ pub enum ErrorKind {
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
     /// ```
     ///
-    /// [`ArgSettings::AllowInvalidUtf8`]: crate::ArgSettings::AllowInvalidUtf8
+    /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
     /// [`AppSettings::AllowInvalidUtf8ForExternalSubcommands`]: crate::AppSettings::AllowInvalidUtf8ForExternalSubcommands
     InvalidUtf8,
 
@@ -376,7 +376,7 @@ pub enum ErrorKind {
     ///     .subcommand(App::new("config")
     ///         .about("Used for configuration")
     ///         .arg(Arg::new("config_file")
-    ///             .about("The configuration file to use")))
+    ///             .help("The configuration file to use")))
     ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
     /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
@@ -442,56 +442,12 @@ pub struct Error {
     backtrace: Option<Backtrace>,
 }
 
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.message.formatted())?;
-        if let Some(backtrace) = self.backtrace.as_ref() {
-            writeln!(f)?;
-            writeln!(f, "Backtrace:")?;
-            writeln!(f, "{}", backtrace)?;
-        }
-        Ok(())
-    }
-}
-
-fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
-    c.error("error:");
-    c.none(" ");
-    c.none(msg);
-}
-
-fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
-    c.none("\n\n");
-    c.none(usage);
-}
-
-fn try_help(app: &App, c: &mut Colorizer) {
-    if !app.settings.is_set(AppSettings::DisableHelpFlag) {
-        c.none("\n\nFor more information try ");
-        c.good("--help");
-        c.none("\n");
-    } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
-        c.none("\n\nFor more information try ");
-        c.good("help");
-        c.none("\n");
-    }
-}
-
 impl Error {
-    /// Returns the singular or plural form on the verb to be based on the argument's value.
-    fn singular_or_plural(n: usize) -> String {
-        if n > 1 {
-            String::from("were")
-        } else {
-            String::from("was")
-        }
-    }
-
     /// Create an unformatted error
     ///
-    /// Prefer [`App::error`] for generating errors.  This is for you need to pass the error up to
-    /// a place that has access to the `App` at which point you can call [`Error::format]
+    /// This is for you need to pass the error up to
+    /// a place that has access to the `App` at which point you can call [`Error::format].
+    /// Prefer [`App::error`] for generating errors.
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
@@ -507,7 +463,7 @@ impl Error {
         self
     }
 
-    /// Should the message be written to `stdout` or not
+    /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
         !matches!(
@@ -516,8 +472,9 @@ impl Error {
         )
     }
 
-    /// Prints the error and exits. Depending on the error kind, this
-    /// either prints to `stderr` and exits with a status of `1`
+    /// Prints the error and exits.
+    ///
+    /// Depending on the error kind, this either prints to `stderr` and exits with a status of `1`
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
@@ -557,6 +514,14 @@ impl Error {
     /// ```
     pub fn print(&self) -> io::Result<()> {
         self.message.formatted().print()
+    }
+
+    /// Deprecated, replaced with [`App::error`]
+    ///
+    /// [`App::error`]: crate::App::error
+    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
+    pub fn with_description(description: String, kind: ErrorKind) -> Self {
+        Error::raw(kind, description)
     }
 
     pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
@@ -941,7 +906,16 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false)
+        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
+        match &mut err.message {
+            Message::Raw(_) => {
+                unreachable!("`value_validation_with_color` only deals in formatted errors")
+            }
+            Message::Formatted(c) => {
+                c.none("\n");
+            }
+        }
+        err
     }
 
     fn value_validation_with_color(
@@ -1097,12 +1071,13 @@ impl Error {
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
-    /// Deprecated, see [`App::error`]
-    ///
-    /// [`App::error`]: crate::App::error
-    #[deprecated(since = "3.0.0", note = "Replaced with `App::error`")]
-    pub fn with_description(description: String, kind: ErrorKind) -> Self {
-        Error::raw(kind, description)
+    /// Returns the singular or plural form on the verb to be based on the argument's value.
+    fn singular_or_plural(n: usize) -> String {
+        if n > 1 {
+            String::from("were")
+        } else {
+            String::from("was")
+        }
     }
 }
 
@@ -1122,6 +1097,42 @@ impl error::Error for Error {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         self.source.as_ref().map(|e| e.as_ref() as _)
+    }
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        // Assuming `self.message` already has a trailing newline, from `try_help` or similar
+        write!(f, "{}", self.message.formatted())?;
+        if let Some(backtrace) = self.backtrace.as_ref() {
+            writeln!(f)?;
+            writeln!(f, "Backtrace:")?;
+            writeln!(f, "{}", backtrace)?;
+        }
+        Ok(())
+    }
+}
+
+fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
+    c.error("error:");
+    c.none(" ");
+    c.none(msg);
+}
+
+fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
+    c.none("\n\n");
+    c.none(usage);
+}
+
+fn try_help(app: &App, c: &mut Colorizer) {
+    if !app.settings.is_set(AppSettings::DisableHelpFlag) {
+        c.none("\n\nFor more information try ");
+        c.good("--help");
+        c.none("\n");
+    } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
+        c.none("\n\nFor more information try ");
+        c.good("help");
+        c.none("\n");
     }
 }
 
