@@ -70,3 +70,13 @@ $ cargo test --test <test_name> --features debug
 1. `git rebase` into concise commits and remove `--fixup`s or `wip` commits (`git rebase -i HEAD~NUM` where `NUM` is number of commits back to start the rebase)
 2. Push your changes back to your fork (`git push origin $your-branch`)
 3. Create a pull request against `master`! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
+
+## Specific Tasks
+
+### Updating MSRV
+
+Search for `MSRV`, for example
+```bash
+$ rg --hidden MSRV
+```
+And update all of the references
