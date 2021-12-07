@@ -17,7 +17,7 @@ It is a simple-to-use, efficient, and full-featured library for parsing command 
 * [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
 * [Website](https://clap.rs/)
 
-We are currently hard at work trying to release `3.0`. We have a `3.0.0-beta.5` prerelease out but we do not give any guarantees that its API is stable. We do not have a changelog yet which will be written down after we are sure about the API stability. We recommend users to not update to the prerelease version yet and to wait for the official `3.0`.
+We are currently hard at work trying to release `3.0`. We have a `3.0.0-rc.0` prerelease out but we do not give any guarantees that its API is stable. We do not have a changelog yet which will be written down after we are sure about the API stability. We recommend users to not update to the prerelease version yet and to wait for the official `3.0`.
 
 > If you're looking for the readme & examples for `clap v2.33` - find it on [github](https://github.com/clap-rs/clap/tree/v2.33.0), [crates.io](https://crates.io/crates/clap/2.33.0), [docs.rs](https://docs.rs/clap/2.33.0/clap/).
 
@@ -125,7 +125,7 @@ Add `clap` to your `Cargo.toml`
 
 ```toml
 [dependencies]
-clap = "3.0.0-beta.5"
+clap = "3.0.0-rc.0"
 ```
 
 #### Using Derive Macros
@@ -349,7 +349,7 @@ Simply add the `yaml` feature flag to your `Cargo.toml`.
 
 ```toml
 [dependencies]
-clap = { version = "3.0.0-beta.5", features = ["yaml"] }
+clap = { version = "3.0.0-rc.0", features = ["yaml"] }
 ```
 
 Finally we create our `main.rs` file just like we would have with the previous two examples:
@@ -425,7 +425,7 @@ For full usage, add `clap` as a dependency in your `Cargo.toml` to use from crat
 
 ```toml
 [dependencies]
-clap = "3.0.0-beta.5"
+clap = "3.0.0-rc.0"
 ```
 
 Define a list of valid arguments for your program (see the [documentation][docs] or [examples][examples] directory of this repo)
@@ -450,7 +450,7 @@ To disable these, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies.clap]
-version = "3.0.0-beta.5"
+version = "3.0.0-rc.0"
 default-features = false
 features = ["std"]
 ```
@@ -459,7 +459,7 @@ You can also selectively enable only the features you'd like to include, by addi
 
 ```toml
 [dependencies.clap]
-version = "3.0.0-beta.5"
+version = "3.0.0-rc.0"
 default-features = false
 
 # Cherry-pick the features you'd like to use
@@ -522,7 +522,7 @@ In order to keep from being surprised of breaking changes, it is **highly** reco
 
 ```toml
 [dependencies]
-clap = "~3.0.0-beta.5"
+clap = "~3.0.0-rc.0"
 ```
 
 This will cause *only* the patch version to be updated upon a `cargo update` call, and therefore cannot break due to new features, or bumped minimum versions of Rust.

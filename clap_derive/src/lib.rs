@@ -13,7 +13,7 @@
 // MIT/Apache 2.0 license.
 
 #![doc(html_logo_url = "https://clap.rs/images/media/clap.png")]
-#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-beta.5")]
+#![doc(html_root_url = "https://docs.rs/clap_derive/3.0.0-rc.0")]
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 

@@ -6,6 +6,28 @@ TODO: `YamlLoader`
 <a name="v3.0.0-rc.0"></a>
 ## v3.0.0-rc.0
 
+#### BREAKING CHANGES
+
+* **Gated behind features**
+  * `ArgMatches::grouped_values_of` is now gated behind `unstable-grouped`
+* **Renamed Structs**
+  * `clap::ArgValue` => `clap::PossibleValue`
+* **Removed Methods**
+  * `App::license`
+* **Removed Macros**
+  * `crate_license!`
+* **Changed**
+  * `Arg::from` now differentiates between `multiple_values` and `multiple_occurrences`. If `--opt [val]...` was meant for:
+    - only multiple occurrences, use `[opt]... --opt [val]`
+    - both multiple occurrences and values, use `[opt]... --opt [val]...`
+  * `Arg::from(...)` will now use `multiple_occurrences` for a positional arg's `...`, rather than `multiple_values`.
+
+#### Features
+
+* **Added Settings**
+  * `AppSettings::DisableColoredHelp`
+* **Added Methods**
+  * `App::get_color`
 
 <a name="v3.0.0-beta.5"></a>
 ## v3.0.0-beta.5 (2021-10-18)
@@ -28,7 +50,7 @@ TODO: `YamlLoader`
   * `App::generate_usage` => `App::render_usage`
 * **Removed Settings**
   * `AppSettings::DisableVersionForSubcommands` is now default behaviour
-  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method
+  * `AppSettings::ColoredHelp`: we are now relying solely on the `color` feature flag and `App::color` method (changed again 3.0.0-rc.0 with introduction of `AppSettings::DisableColoredHelp`)
   * `AppSettings::StrictUtf8` is now default behaviour
   * `AppSettings::AllowInvalidUtf8` in favor of `ArgSettings::AllowInvalidUtf8`
   * `AppSettings::UnifiedHelpMessage` is now default behaviour
@@ -142,7 +164,7 @@ Added `unicode_help`, `env` features.
   * `clap::Args` behind `derive` feature
 * **Added Methods**
   * **App**
-    * `App::license`
+    * `App::license` (changed again in 3.0.0-rc.0)
   * **Arg**
     * `Arg::get_long_about`
     * `Arg::get_env`
