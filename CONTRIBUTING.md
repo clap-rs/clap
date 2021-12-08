@@ -94,6 +94,13 @@ issue.
 
 ## Specific Tasks
 
+### Section-specific CONTRIBUTING
+
+- [Example CONTRIBUTING](./examples/README.md#contributing)
+- [Tutorial (builder) CONTRIBUTING](./examples/tutorial_builder/README.md#contributing)
+- [Tutorial (derive) CONTRIBUTING](./examples/tutorial_derive/README.md#contributing)
+- [clap_derive CONTRIBUTING](./clap_derive/CONTRIBUTING.md)
+
 ### Updating MSRV
 
 Search for `MSRV`, for example
