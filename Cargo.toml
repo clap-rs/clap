@@ -34,6 +34,7 @@ include = [
 
 [package.metadata.docs.rs]
 features = ["doc"]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
 
 [package.metadata.release]
 shared-version = true
