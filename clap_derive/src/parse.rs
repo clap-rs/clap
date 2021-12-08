@@ -277,7 +277,7 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
     } else {
         "if you need to call some method from `clap::Arg/App` \
          you should use raw method, see \
-         https://docs.rs/structopt/0.3/structopt/#raw-methods"
+         https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#raw-attributes"
             .into()
     }
 }
