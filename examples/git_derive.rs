@@ -1,3 +1,5 @@
+// Note: this requires the `derive` attribute
+
 use std::ffi::OsString;
 use std::path::PathBuf;
 

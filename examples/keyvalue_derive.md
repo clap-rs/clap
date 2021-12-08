@@ -1,5 +1,7 @@
 *Jump to [source](keyvalue_derive.rs)*
 
+**This requires enabling the `derive` feature flag.**
+
 ```bash
 $ keyvalue_derive --help
 clap 

@@ -1,5 +1,7 @@
 *Jump to [source](git_derive.rs)*
 
+**This requires enabling the `derive` feature flag.**
+
 Git is an example of several common subcommand patterns.
 
 Help:

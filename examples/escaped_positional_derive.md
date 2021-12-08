@@ -1,5 +1,7 @@
 *Jump to [source](escaped_positional_derive.rs)*
 
+**This requires enabling the `derive` feature flag.**
+
 You can use `--` to escape further arguments.
 
 Let's see what this looks like in the help:

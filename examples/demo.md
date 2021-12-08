@@ -1,5 +1,7 @@
 *Jump to [source](demo.rs)*
 
+**This requires enabling the `derive` feature flag.**
+
 Used to validate README.md's content
 ```bash
 $ demo --help
