@@ -524,7 +524,7 @@ fn gen_from_arg_matches(
     };
 
     quote! {
-        fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> Result<Self, clap::Error> {
+        fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
             if let Some((#subcommand_name_var, #sub_arg_matches_var)) = __clap_arg_matches.subcommand() {
                 {
                     let __clap_arg_matches = #sub_arg_matches_var;
@@ -640,7 +640,7 @@ fn gen_update_from_arg_matches(
         fn update_from_arg_matches<'b>(
             &mut self,
             __clap_arg_matches: &clap::ArgMatches,
-        ) -> Result<(), clap::Error> {
+        ) -> ::std::result::Result<(), clap::Error> {
             if let Some((__clap_name, __clap_sub_arg_matches)) = __clap_arg_matches.subcommand() {
                 match self {
                     #( #subcommands ),*
