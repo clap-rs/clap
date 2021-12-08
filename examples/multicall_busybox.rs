@@ -5,6 +5,8 @@ use clap::{App, AppSettings, Arg};
 fn main() {
     let app = App::new(env!("CARGO_CRATE_NAME"))
         .setting(AppSettings::ArgRequiredElseHelp)
+        .subcommand_value_name("APPLET")
+        .subcommand_help_heading("APPLETS")
         .arg(
             Arg::new("install")
                 .long("install")

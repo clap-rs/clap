@@ -1,3 +1,5 @@
+# Not run as part of pre-commit checks because they don't handle sending the correct commit
+# range to `committed`
 name: Lint Commits
 on: [pull_request]
 

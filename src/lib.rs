@@ -3,6 +3,7 @@
 // (see LICENSE or <http://opensource.org/licenses/MIT>) All files in the project carrying such
 // notice may not be copied, modified, or distributed except according to those terms.
 
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
 #![cfg_attr(feature = "doc", doc = include_str!("../README.md"))]
 //! <https://github.com/clap-rs/clap>
 #![warn(

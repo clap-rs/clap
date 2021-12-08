@@ -10,9 +10,12 @@ repository:
   has_downloads: true
   default_branch: master
 
-  allow_squash_merge: true
+  # Preference: people do clean commits
   allow_merge_commit: true
-  allow_rebase_merge: true
+  # Backup in case we need to clean up commits
+  allow_squash_merge: true
+  # Not really needed
+  allow_rebase_merge: false
 
   # Manual: allow_auto_merge: true, see https://github.com/probot/settings/issues/402
   delete_branch_on_merge: true

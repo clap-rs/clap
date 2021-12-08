@@ -8,17 +8,11 @@ clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    demo[EXE] [OPTIONS] <INPUT>
-
-ARGS:
-    <INPUT>    Some input. Because this isn't an Option<T> it's required to be used
+    demo[EXE] [OPTIONS] --name <NAME>
 
 OPTIONS:
-    -c, --config <PATH>    Sets a custom config file. Could have been an Option<T> with no default
-                           too [default: default.toml]
+    -c, --count <COUNT>    Number of times to greet [default: 1]
     -h, --help             Print help information
-    -m, --mode <MODE>      What mode to run the program in [default: slow] [possible values: fast,
-                           slow]
-    -v, --verbose          A level of verbosity, and can be used multiple times
+    -n, --name <NAME>      Name of the person to greet
     -V, --version          Print version information
 ```

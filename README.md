@@ -23,6 +23,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 6. [FAQ](https://github.com/clap-rs/clap/blob/master/docs/FAQ.md)
 7. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
 8. [Contributing](https://github.com/clap-rs/clap/blob/master/CONTRIBUTING.md)
+8. [Sponsors](#sponsors)
 
 ## About
 
@@ -34,56 +35,41 @@ Create your command-line parser, with all of the bells and whistles, declarative
 ```rust,no_run
 use clap::Parser;
 
-#[derive(Parser)]
-#[clap(about, version, author)] // Pull these from `Cargo.toml`
-struct Cli {
-    /// Sets a custom config file. Could have been an Option<T> with no default too
-    #[clap(short, long, default_value = "default.toml", value_name = "PATH")]
-    config: std::path::PathBuf,
-    /// Some input. Because this isn't an Option<T> it's required to be used
-    input: String,
-    /// A level of verbosity, and can be used multiple times
-    #[clap(short, long, parse(from_occurrences))]
-    verbose: i32,
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[clap(about, version, author)]
+struct Args {
+    /// Name of the person to greet
+    #[clap(short, long)]
+    name: String,
+
+    /// Number of times to greet
+    #[clap(short, long, default_value_t = 1)]
+    count: u8,
 }
 
 fn main() {
-    let args = Cli::parse();
+    let args = Args::parse();
 
-    println!("Value for config: {}", args.config.display());
-    println!("Using input file: {}", args.input);
-
-    // Vary the output based on how many times the user used the "verbose" flag
-    // (i.e. 'myprog -v -v -v' or 'myprog -vvv' vs 'myprog -v'
-    match args.verbose {
-        0 => println!("No verbose info"),
-        1 => println!("Some verbose info"),
-        2 => println!("Tons of verbose info"),
-        _ => println!("Don't be ridiculous"),
+    for _ in 0..args.count {
+        println!("Hello {}!", args.name)
     }
-
-    // more program logic goes here...
 }
 ```
+*(note: requires feature `derive`)*
 ```bash
 $ demo --help
 clap [..]
 
-
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    demo[EXE] [OPTIONS] <INPUT>
-
-ARGS:
-    <INPUT>    Some input. Because this isn't an Option<T> it's required to be used
+    demo[EXE] [OPTIONS] --name <NAME>
 
 OPTIONS:
-    -c, --config <PATH>    Sets a custom config file. Could have been an Option<T> with no default
-                           too [default: default.toml]
+    -c, --count <COUNT>    Number of times to greet [default: 1]
     -h, --help             Print help information
-    -v, --verbose          A level of verbosity, and can be used multiple times
+    -n, --name <NAME>      Name of the person to greet
     -V, --version          Print version information
 ```
 *(version number and `.exe` extension on windows replaced by placeholders)*
@@ -99,8 +85,8 @@ OPTIONS:
   - Willing to break compatibility rather than batching up breaking changes in large releases
   - Leverage feature flags to keep to one active branch
   - Being under [WG-CLI](https://github.com/rust-cli/team/) to increase the bus factor
-- We follow semver and will wait about 6 months between major breaking changes
-- We will support the last two minor Rust releases (MSRV)
+- We follow semver and will wait about 6-9 months between major breaking changes
+- We will support the last two minor Rust releases (MSRV, currently 1.54.0)
 
 While these aspirations can be at odds with fast build times and low binary
 size, we will still strive to keep these reasonable for the flexibility you
@@ -141,3 +127,25 @@ CLI parsers optimized for other use cases.
 * **unstable-replace**: Enable [`App::replace`](https://github.com/clap-rs/clap/issues/2836)
 * **unstable-multicall**: Enable [`AppSettings::Multicall`](https://github.com/clap-rs/clap/issues/2861)
 * **unstable-grouped**: Enable [`ArgMatches::grouped_values_of`](https://github.com/clap-rs/clap/issues/2924)
+
+## Sponsors
+
+<!-- omit in TOC -->
+### Gold
+
+[![](https://opencollective.com/clap/tiers/gold.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Silver
+
+[![](https://opencollective.com/clap/tiers/silver.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Bronze
+
+[![](https://opencollective.com/clap/tiers/bronze.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)
+
+<!-- omit in TOC -->
+### Backer
+
+[![](https://opencollective.com/clap/tiers/backer.svg?avatarHeight=36&width=600)](https://opencollective.com/clap)

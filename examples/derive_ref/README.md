@@ -190,6 +190,10 @@ In addition to the raw attributes, the following magic attributes are supported:
 | `Vec<T>`            | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
 | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
 
+Notes:
+- `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
+  - This gives the user some flexibility in designing their argument, like with `min_values(0)`
+
 You can then support your custom type with `#[clap(parse(<kind> [= <function>]))]`:
 
 | `<kind>`                 | Signature                             | Default `<function>`            |
