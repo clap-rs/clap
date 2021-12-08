@@ -100,7 +100,9 @@ jobs:
         override: true
         components: clippy
     - uses: Swatinem/rust-cache@v1
-    - uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --workspace --all-features --all-targets -- -D warnings
+    - name: Lint (ultra-minimal)
+      run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Lint Minimal
+      run: make clippy-minimal
+    - name: Lint All
+      run: make clippy-all

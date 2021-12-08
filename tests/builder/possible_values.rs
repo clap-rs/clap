@@ -15,7 +15,7 @@ For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
-static PV_ERROR: &'static str = "error: \"slo\" isn't a valid value for '-O <option>'
+static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
 \t[possible values: \"ludicrous speed\", fast, slow]
 
 USAGE:
@@ -37,7 +37,7 @@ For more information try --help
 ";
 
 #[cfg(not(feature = "suggestions"))]
-static PV_ERROR_ESCAPED: &'static str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
+static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
 \t[possible values: \"ludicrous speed\", fast, slow]
 
 USAGE:
