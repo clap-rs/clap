@@ -13,6 +13,9 @@ whether in changes or their motivation.
 
 ### Highlights
 
+A special thanks to the maintainers, contributors, beta users, and sponsors who
+have helped along this journey, especially kbknapp.
+
 **[StructOpt](https://docs.rs/structopt/) Integration**
 
 [StructOpt](https://docs.rs/structopt/) provides a serde-like declarative
