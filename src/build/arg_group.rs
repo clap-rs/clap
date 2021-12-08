@@ -438,7 +438,7 @@ impl<'help> ArgGroup<'help> {
         Self::new(n)
     }
 
-    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
@@ -463,10 +463,10 @@ impl<'help> From<&'_ ArgGroup<'help>> for ArgGroup<'help> {
     }
 }
 
-/// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
 #[cfg(feature = "yaml")]
 impl<'help> From<&'help Yaml> for ArgGroup<'help> {
-    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     fn from(y: &'help Yaml) -> Self {
         let b = y.as_hash().expect("ArgGroup::from::<Yaml> expects a table");
         // We WANT this to panic on error...so expect() is good.

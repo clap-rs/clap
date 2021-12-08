@@ -2327,7 +2327,7 @@ impl<'help> App<'help> {
 
 /// Deprecated
 impl<'help> App<'help> {
-    /// Deprecated in [Issue #9](https://github.com/epage/clapng/issues/9), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+    /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
@@ -2494,14 +2494,14 @@ impl<'help> App<'help> {
         self.term_width(width)
     }
 
-    /// Deprecated in [Issue #8](https://github.com/epage/clapng/issues/8), see [`arg!`][crate::arg!].
+    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         self.arg(Arg::from_usage(usage))
     }
 
-    /// Deprecated in [Issue #8](https://github.com/epage/clapng/issues/8), see [`arg!`][crate::arg!].
+    /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
         #![allow(deprecated)]

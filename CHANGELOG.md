@@ -34,6 +34,16 @@ You can now override the default group with `Arg::help_heading` and
 `App::subcommand_help_heading`.  To apply a heading to a series of arguments,
 you can set `App::help_heading`.
 
+**Deprecations**
+
+While a lot of deprecations have been added to clean up the API (overloaded
+meaning of `Arg::multiple`) or make things more consistent, some particular
+highlights are:
+- `clap_app!` has been deprecated in favor of the builder API with `arg!` ([clap-rs/clap#2835](https://github.com/clap-rs/clap/issues/2835))
+- `Arg::from_usage` has been deprecated in favor of `arg!` ([clap-rs/clap#3087](https://github.com/clap-rs/clap/issues/3087))
+  - [Porting example](https://github.com/clap-rs/clap/commit/4c4a2b86a08ef9e2d63010aab4909dd5a013dfb0) 
+- The YAML API has been deprecated in favor the builder or derive APIs ([clap-rs/clap#3087](https://github.com/clap-rs/clap/issues/3087))
+
 ### Migrating
 
 **From clap v2**
@@ -177,13 +187,6 @@ Easier to catch changes:
 - `Vec<_>` and `Option<Vec<_>>` have changed from `multiple` to `multiple_occurrences`
 
 On top of the clap 2 changes
-
-### Deprecations
-
-While a lot of deprecations have been added to clean up the API (overloaded meaning of `Arg::multiple`) or make things more consistent, some particular highlights are:
-- `clap_app!` has been deprecated in favor of the builder API with `arg!` ([clap-rs/clap#2835](https://github.com/clap-rs/clap/issues/2835))
-- `Arg::from_usage` has been deprecated in favor of `arg!`
-- The YAML API has been deprecated in favor the builder or derive APIs
 
 ### Performance
 
