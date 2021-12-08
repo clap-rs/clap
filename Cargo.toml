@@ -137,6 +137,10 @@ name = "git_derive"
 required-features = ["derive"]
 
 [[example]]
+name = "keyvalue_derive"
+required-features = ["derive"]
+
+[[example]]
 name = "busybox"
 path = "examples/multicall_busybox.rs"
 required-features = ["unstable-multicall"]
