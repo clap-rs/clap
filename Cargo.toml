@@ -35,6 +35,9 @@ include = [
 [package.metadata.docs.rs]
 features = ["doc"]
 
+[package.metadata.playground]
+features = ["doc"]
+
 [package.metadata.release]
 shared-version = true
 pre-release-replacements = [
