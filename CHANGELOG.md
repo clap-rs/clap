@@ -3005,9 +3005,9 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 <!-- next-url -->
 [Unreleased]: https://github.com/clap-rs/clap/compare/v2.34.0...HEAD
-[2.34.0]: https://github.com/clap-rs/clap/compare/v2.32.4...v2.34.0
-[2.33.4]: https://github.com/clap-rs/clap/compare/v2.32.3...v2.33.4
-[2.33.3]: https://github.com/clap-rs/clap/compare/v2.32.2...v2.33.3
-[2.33.2]: https://github.com/clap-rs/clap/compare/v2.32.1...v2.33.2
+[2.34.0]: https://github.com/clap-rs/clap/compare/v2.33.4...v2.34.0
+[2.33.4]: https://github.com/clap-rs/clap/compare/v2.33.3...v2.33.4
+[2.33.3]: https://github.com/clap-rs/clap/compare/v2.33.2...v2.33.3
+[2.33.2]: https://github.com/clap-rs/clap/compare/v2.33.1...v2.33.2
 [2.33.1]: https://github.com/clap-rs/clap/compare/v2.33.0...v2.33.1
 [2.33.0]: https://github.com/clap-rs/clap/compare/v2.32.0...v2.33.0
