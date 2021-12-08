@@ -290,6 +290,48 @@ On top of the clap 2 changes
 
 - As of this release, `clap` requires `rustc 1.54.0` or greater.
 
+## [v2.34.0] (2021-11-30)
+
+- Updates to Rust 2018 edition and bumps the MSRV to Rust 1.46
+
+### [v2.33.4] (2021-11-29)
+
+#### Bug Fixes
+
+* **prevents `panic`:**  swallows broken pipe errors on error output ([7a729bc4](https://github.com/kbknapp/clap-rs/commit/7a729bc4df2646b05f6bf15f001124cd39d076ce))
+
+### [v2.33.3 ](2020-08-13)
+
+#### Improvements
+
+* Suppress deprecation warnings when using `crate_*` macros.
+
+### [v2.33.2] (2020-08-5)
+
+#### Documentation
+
+* Fixed links to `2.x` examples. Now they point to the right place.
+
+### [v2.33.1] (2020-05-11)
+
+#### Bug Fixes
+
+* Windows: Prevent some panics when parsing invalid Unicode on Windows ([922c645](https://github.com/clap-rs/clap/commit/922c64508389170c9c77f1c8a4e597d14d3ed2f0), closes [#1905](https://github.com/clap-rs/clap/issues/1905))
+
+#### Documentation
+
+*   fixes versions referenced in the README ([d307466a](https://github.com/kbknapp/clap-rs/commit/d307466af1013f172b8ec0252f01a473e2192d6b))
+* **README.md:**
+  *  cuts down the number of examples to reduce confusion ([6e508ee0](https://github.com/kbknapp/clap-rs/commit/6e508ee09e7153de4adf4e88b0aa6418a537dadd))
+
+#### Improvements
+
+* **Deps:**  doesnt compile ansi_term on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
+
+#### Minimum Required Rust
+
+* As of this release, `clap` requires `rustc 1.36.0` or greater.
+
 ## [v2.33.0] (2019-04-06)
 
 #### New Sponsor
@@ -2962,5 +3004,10 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v2.33.0...HEAD
-[2.32.0]: https://github.com/clap-rs/clap/compare/v2.32.0...v2.33.0
+[Unreleased]: https://github.com/clap-rs/clap/compare/v2.34.0...HEAD
+[2.32.0]: https://github.com/clap-rs/clap/compare/v2.32.4...v2.34.0
+[2.32.4]: https://github.com/clap-rs/clap/compare/v2.32.3...v2.33.4
+[2.32.3]: https://github.com/clap-rs/clap/compare/v2.32.2...v2.33.3
+[2.32.2]: https://github.com/clap-rs/clap/compare/v2.32.1...v2.33.2
+[2.33.1]: https://github.com/clap-rs/clap/compare/v2.33.0...v2.33.1
+[2.33.0]: https://github.com/clap-rs/clap/compare/v2.32.0...v2.33.0
