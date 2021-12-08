@@ -290,29 +290,29 @@ On top of the clap 2 changes
 
 - As of this release, `clap` requires `rustc 1.54.0` or greater.
 
-## [v2.34.0] (2021-11-30)
+## [2.34.0] - 2021-11-30
 
 - Updates to Rust 2018 edition and bumps the MSRV to Rust 1.46
 
-### [v2.33.4] (2021-11-29)
+### [2.33.4] - 2021-11-29
 
 #### Bug Fixes
 
 * **prevents `panic`:**  swallows broken pipe errors on error output ([7a729bc4](https://github.com/kbknapp/clap-rs/commit/7a729bc4df2646b05f6bf15f001124cd39d076ce))
 
-### [v2.33.3 ](2020-08-13)
+### [2.33.3] - 2020-08-13
 
 #### Improvements
 
 * Suppress deprecation warnings when using `crate_*` macros.
 
-### [v2.33.2] (2020-08-5)
+### [2.33.2] - 2020-08-5
 
 #### Documentation
 
 * Fixed links to `2.x` examples. Now they point to the right place.
 
-### [v2.33.1] (2020-05-11)
+### [2.33.1] - 2020-05-11
 
 #### Bug Fixes
 
@@ -332,7 +332,7 @@ On top of the clap 2 changes
 
 * As of this release, `clap` requires `rustc 1.36.0` or greater.
 
-## [v2.33.0] (2019-04-06)
+## [2.33.0] - 2019-04-06
 
 #### New Sponsor
 
