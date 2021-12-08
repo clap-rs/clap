@@ -16,7 +16,6 @@ keywords = [
 	"cli",
 	"generate",
 	"completion",
-	"manpage",
 	"fig",
 ]
 categories = ["command-line-interface"]
