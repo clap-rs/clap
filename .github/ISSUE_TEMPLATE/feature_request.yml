@@ -1,8 +1,7 @@
 name: Feature request
 description: Suggest an idea for this project
 labels:
-   - 'T: new feature'
-#  - 'C-enhancement'
+  - 'C-enhancement'
 #  - 'S-triage'
 body:
   - type: checkboxes

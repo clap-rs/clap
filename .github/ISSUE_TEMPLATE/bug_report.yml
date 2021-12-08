@@ -1,8 +1,7 @@
 name: Bug report
 description: Things not quite working right
 labels:
-   - 'T: bug'
-#  - 'C-bug'
+  - 'C-bug'
 #  - 'S-triage'
 body:
   - type: checkboxes
