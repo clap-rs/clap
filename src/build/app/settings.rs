@@ -947,6 +947,10 @@ pub enum AppSettings {
 
     /// Deprecated, this is now the default
     #[deprecated(since = "3.0.0", note = "This is now the default")]
+    UnifiedHelpMessage,
+
+    /// Deprecated, this is now the default
+    #[deprecated(since = "3.0.0", note = "This is now the default")]
     ColoredHelp,
 
     /// Deprecated, see [`App::color`][crate::App::color]
@@ -1071,6 +1075,8 @@ impl_settings! { AppSettings, AppFlags,
         => Flags::ALLOW_NEG_NUMS,
     AllowMissingPositional("allowmissingpositional")
         => Flags::ALLOW_MISSING_POS,
+    UnifiedHelpMessage("unifiedhelpmessage")
+        => Flags::NO_OP,
     ColoredHelp("coloredhelp")
         => Flags::NO_OP,
     ColorAlways("coloralways")
