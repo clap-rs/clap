@@ -63,7 +63,7 @@ Not printing testing lists...
 
 You use the `App` the start building a parser.
 
-[Example:](02_app.rs)
+[Example:](02_apps.rs)
 ```bash
 $ 02_apps_derive --help
 MyApp 1.0
