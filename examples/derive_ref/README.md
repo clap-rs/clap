@@ -274,6 +274,8 @@ struct Foo {
 If you really want to use the `App::help/long_help` methods (you likely don't),
 use a raw method to override the `App::about` call generated from the doc comment.
 
+**TIP:** Set `#![deny(missing_docs)]` to catch missing `--help` documentation at compile time.
+
 #### Pre-processing
 
 ```rust

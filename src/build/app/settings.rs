@@ -839,6 +839,9 @@ pub enum AppSettings {
 
     /// Panic if help descriptions are omitted.
     ///
+    /// **NOTE:** When deriving [`Parser`][crate::Parser], you could instead check this at
+    /// compile-time with `#![deny(missing_docs)]`
+    ///
     /// # Examples
     ///
     /// ```rust
