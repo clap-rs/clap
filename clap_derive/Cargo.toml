@@ -22,6 +22,10 @@ categories = ["command-line-interface", "development-tools::procedural-macro-hel
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[package.metadata.release]
+shared-version = true
+tag = false
+
 [lib]
 proc-macro = true
 bench = false
