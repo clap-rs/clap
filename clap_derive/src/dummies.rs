@@ -32,10 +32,10 @@ pub fn into_app(name: &Ident) {
 pub fn from_arg_matches(name: &Ident) {
     append_dummy(quote! {
         impl clap::FromArgMatches for #name {
-            fn from_arg_matches(_m: &clap::ArgMatches) -> Result<Self, clap::Error> {
+            fn from_arg_matches(_m: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 unimplemented!()
             }
-            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> Result<(), clap::Error>{
+            fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error>{
                 unimplemented!()
             }
         }
@@ -79,7 +79,7 @@ pub fn arg_enum(name: &Ident) {
             fn value_variants<'a>() -> &'a [Self]{
                 unimplemented!()
             }
-            fn from_str(_input: &str, _ignore_case: bool) -> Result<Self, String> {
+            fn from_str(_input: &str, _ignore_case: bool) -> ::std::result::Result<Self, String> {
                 unimplemented!()
             }
             fn to_possible_value<'a>(&self) -> Option<clap::PossibleValue<'a>>{

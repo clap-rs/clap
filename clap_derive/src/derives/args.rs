@@ -131,12 +131,12 @@ pub fn gen_from_arg_matches_for_struct(
         )]
         #[deny(clippy::correctness)]
         impl #impl_generics clap::FromArgMatches for #struct_name #ty_generics #where_clause {
-            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> Result<Self, clap::Error> {
+            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 let v = #struct_name #constructor;
                 ::std::result::Result::Ok(v)
             }
 
-            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> Result<(), clap::Error> {
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
                 #updater
                 ::std::result::Result::Ok(())
             }
