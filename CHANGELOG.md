@@ -294,41 +294,41 @@ On top of the clap 2 changes
 
 - Updates to Rust 2018 edition and bumps the MSRV to Rust 1.46
 
-### [2.33.4] - 2021-11-29
+## [2.33.4] - 2021-11-29
 
-#### Bug Fixes
+### Bug Fixes
 
 * **prevents `panic`:**  swallows broken pipe errors on error output ([7a729bc4](https://github.com/kbknapp/clap-rs/commit/7a729bc4df2646b05f6bf15f001124cd39d076ce))
 
-### [2.33.3] - 2020-08-13
+## [2.33.3] - 2020-08-13
 
-#### Improvements
+### Improvements
 
 * Suppress deprecation warnings when using `crate_*` macros.
 
-### [2.33.2] - 2020-08-5
+## [2.33.2] - 2020-08-5
 
 #### Documentation
 
 * Fixed links to `2.x` examples. Now they point to the right place.
 
-### [2.33.1] - 2020-05-11
+## [2.33.1] - 2020-05-11
 
-#### Bug Fixes
+### Bug Fixes
 
 * Windows: Prevent some panics when parsing invalid Unicode on Windows ([922c645](https://github.com/clap-rs/clap/commit/922c64508389170c9c77f1c8a4e597d14d3ed2f0), closes [#1905](https://github.com/clap-rs/clap/issues/1905))
 
-#### Documentation
+### Documentation
 
 *   fixes versions referenced in the README ([d307466a](https://github.com/kbknapp/clap-rs/commit/d307466af1013f172b8ec0252f01a473e2192d6b))
 * **README.md:**
   *  cuts down the number of examples to reduce confusion ([6e508ee0](https://github.com/kbknapp/clap-rs/commit/6e508ee09e7153de4adf4e88b0aa6418a537dadd))
 
-#### Improvements
+### Improvements
 
 * **Deps:**  doesnt compile ansi_term on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
 
-#### Minimum Required Rust
+### Minimum Required Rust
 
 * As of this release, `clap` requires `rustc 1.36.0` or greater.
 
@@ -399,7 +399,7 @@ On top of the clap 2 changes
 
 
 
-### v2.31.2 (2018-03-19)
+## v2.31.2 (2018-03-19)
 
 #### Bug Fixes
 
@@ -410,7 +410,7 @@ On top of the clap 2 changes
 
 * Fixes some typos in the `README.md` ([c8e685d7](https://github.com/clap-rs/clap/commit/c8e685d76adee2a3cc06cac6952ffcf6f9548089))
 
-### v2.31.1 (2018-03-06)
+## v2.31.1 (2018-03-06)
 
 
 #### Improvements
@@ -455,7 +455,7 @@ On top of the clap 2 changes
 * **Help Message:** changes the `[values: foo bar baz]` array to `[possible values: foo bar baz]` for consistency with the API ([414707e4e97](https://github.com/clap-rs/clap/pull/1176/commits/414707e4e979d07bfe555247e5d130c546673708), closes [#1160](https://github.com/clap-rs/clap/issues/1160))
 
 
-### v2.29.4 (2018-02-06)
+## v2.29.4 (2018-02-06)
 
 
 #### Bug Fixes
@@ -464,7 +464,7 @@ On top of the clap 2 changes
 
 
 
-### v2.29.3 (2018-02-05)
+## v2.29.3 (2018-02-05)
 
 
 #### Improvements
@@ -615,7 +615,7 @@ See the commit [0c223f54](https://github.com/clap-rs/clap/commit/0c223f54ed46da4
 
 
 
-### v2.26.2 (2017-09-14)
+## v2.26.2 (2017-09-14)
 
 
 #### Improvements
@@ -628,7 +628,7 @@ See the commit [0c223f54](https://github.com/clap-rs/clap/commit/0c223f54ed46da4
 
 
 
-### v2.26.1 (2017-09-14)
+## v2.26.1 (2017-09-14)
 
 
 #### Bug Fixes
@@ -662,7 +662,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.25.1 (2017-07-21)
+## v2.25.1 (2017-07-21)
 
 #### Improvements
 
@@ -672,7 +672,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * Various documentation typos and grammar fixes
 
-### v2.25.0 (2017-06-20)
+## v2.25.0 (2017-06-20)
 
 
 #### Features
@@ -698,7 +698,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.24.2 (2017-05-15)
+## v2.24.2 (2017-05-15)
 
 
 #### Bug Fixes
@@ -715,7 +715,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.24.0 (2017-05-07)
+## v2.24.0 (2017-05-07)
 
 
 #### Bug Fixes
@@ -739,7 +739,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg_matches.rs:**  Added a Default implementation for Values and OsValues iterators. ([0a4384e3](https://github.com/clap-rs/clap/commit/0a4384e350eed74c2a4dc8964c203f21ac64897f))
 
 
-### v2.23.2 (2017-04-19)
+## v2.23.2 (2017-04-19)
 
 
 #### Bug Fixes
@@ -755,7 +755,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 *   Fix a typo the minimum rust version required ([71dabba3](https://github.com/clap-rs/clap/commit/71dabba3ea0a17c88b0e2199c9d99f0acbf3bc17))
 
-### v2.23.1 (2017-04-05)
+## v2.23.1 (2017-04-05)
 
 
 #### Bug Fixes
@@ -793,7 +793,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.22.2 (2017-03-30)
+## v2.22.2 (2017-03-30)
 
 
 #### Bug Fixes
@@ -802,7 +802,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.22.1 (2017-03-24)
+## v2.22.1 (2017-03-24)
 
 
 #### Bug Fixes
@@ -817,14 +817,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Arg::hide_default_value:**  adds ability to hide the default value of an argument from the help string ([89e6ea86](https://github.com/clap-rs/clap/commit/89e6ea861e16a1ad56757ca12f6b32d02253e44a), closes [#902](https://github.com/clap-rs/clap/issues/902))
 
 
-### v2.21.3 (2017-03-23)
+## v2.21.3 (2017-03-23)
 
 #### Bug Fixes
 
 * **yaml:**  adds support for loading author info from yaml ([e04c390c](https://github.com/clap-rs/clap/commit/e04c390c597a55fa27e724050342f16c42f1c5c9))
 
 
-### v2.21.2 (2017-03-17)
+## v2.21.2 (2017-03-17)
 
 
 #### Improvements
@@ -839,7 +839,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.21.1 (2017-03-12)
+## v2.21.1 (2017-03-12)
 
 
 #### Bug Fixes
@@ -891,7 +891,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.20.5 (2017-02-18)
+## v2.20.5 (2017-02-18)
 
 
 #### Bug Fixes
@@ -899,7 +899,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **clap_app!:**   fixes a critical bug of a missing fragment specifier when using `!property` style tags. ([5635c1f94](https://github.com/clap-rs/clap/commit/5e9b9cf4dd80fa66a624374fd04e6545635c1f94))
 
 
-### v2.20.4 (2017-02-15)
+## v2.20.4 (2017-02-15)
 
 
 #### Bug Fixes
@@ -911,7 +911,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   Fix examples link in CONTRIBUTING.md ([60cf875d](https://github.com/clap-rs/clap/commit/60cf875d67a252e19bb85054be57696fac2c57a1))
 
 
-### v2.20.3 (2017-02-03)
+## v2.20.3 (2017-02-03)
 
 
 #### Documentation
@@ -928,7 +928,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.20.2 (2017-02-03)
+## v2.20.2 (2017-02-03)
 
 #### Bug Fixes
 
@@ -939,7 +939,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 *   adds ArgGroup::multiple to the supported YAML fields for building ArgGroups from YAML ([d8590037](https://github.com/clap-rs/clap/commit/d8590037ce07dafd8cd5b26928aa4a9fd3018288), closes [#840](https://github.com/clap-rs/clap/issues/840))
 
-### v2.20.1 (2017-01-31)
+## v2.20.1 (2017-01-31)
 
 #### Bug Fixes
 
@@ -1009,7 +1009,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **README.md:**  fix some typos ([f22c21b4](https://github.com/clap-rs/clap/commit/f22c21b422d5b287d1a1ac183a379ee02eebf54f))
 * **src/app/mod.rs:**  fix some typos ([5c9b0d47](https://github.com/clap-rs/clap/commit/5c9b0d47ca78dea285c5b9dec79063d24c3e451a))
 
-### v2.19.3 (2016-12-28)
+## v2.19.3 (2016-12-28)
 
 
 #### Bug Fixes
@@ -1018,7 +1018,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.19.2 (2016-12-08)
+## v2.19.2 (2016-12-08)
 
 #### Bug Fixes
 
@@ -1031,7 +1031,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.19.1 (2016-12-01)
+## v2.19.1 (2016-12-01)
 
 
 #### Bug Fixes
@@ -1075,7 +1075,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.17.1 (2016-11-02)
+## v2.17.1 (2016-11-02)
 
 
 #### Bug Fixes
@@ -1093,7 +1093,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.16.4 (2016-10-31)
+## v2.16.4 (2016-10-31)
 
 
 #### Improvements
@@ -1112,7 +1112,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.16.3 (2016-10-28)
+## v2.16.3 (2016-10-28)
 
 
 #### Bug Fixes
@@ -1122,7 +1122,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.16.2 (2016-10-25)
+## v2.16.2 (2016-10-25)
 
 
 #### Bug Fixes
@@ -1130,7 +1130,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Fish Completions:**  fixes a bug where single quotes are not escaped ([780b4a18](https://github.com/clap-rs/clap/commit/780b4a18281b6f7f7071e1b9db2290fae653c406), closes [#704](https://github.com/clap-rs/clap/issues/704))
 
 
-### v2.16.1 (2016-10-24)
+## v2.16.1 (2016-10-24)
 
 
 #### Bug Fixes
@@ -1160,7 +1160,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **app/settings.rs:**  moves variants to roughly alphabetical order ([9ed4d4d7](https://github.com/clap-rs/clap/commit/9ed4d4d7957a23357aef60081e45639ab9e3905f))
 
 
-### v2.14.1 (2016-10-20)
+## v2.14.1 (2016-10-20)
 
 
 #### Documentation
@@ -1218,7 +1218,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.12.1 (2016-09-13)
+## v2.12.1 (2016-09-13)
 
 
 #### Bug Fixes
@@ -1259,7 +1259,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.11.3 (2016-09-07)
+## v2.11.3 (2016-09-07)
 
 
 #### Documentation
@@ -1276,14 +1276,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.11.2 (2016-09-06)
+## v2.11.2 (2016-09-06)
 
 #### Improvements
 
 * **Help Wrapping:**  makes some minor changes to when next line help is automatically used ([5658b117](https://github.com/clap-rs/clap/commit/5658b117aec3e03adff9c8c52a4c4bc1fcb4e1ff))
 
 
-### v2.11.1 (2016-09-05)
+## v2.11.1 (2016-09-05)
 
 
 #### Bug Fixes
@@ -1300,7 +1300,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.11.0 (2016-08-28)
+## v2.11.0 (2016-08-28)
 
 
 #### Bug Fixes
@@ -1323,7 +1323,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.10.4 (2016-08-25)
+## v2.10.4 (2016-08-25)
 
 
 #### Bug Fixes
@@ -1332,7 +1332,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.10.3 (2016-08-25)
+## v2.10.3 (2016-08-25)
 
 #### Features
 
@@ -1348,7 +1348,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.10.2 (2016-08-22)
+## v2.10.2 (2016-08-22)
 
 
 #### Bug Fixes
@@ -1357,7 +1357,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.10.1 (2016-08-21)
+## v2.10.1 (2016-08-21)
 
 
 #### Bug Fixes
@@ -1464,7 +1464,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.7.1 (2016-06-29)
+## v2.7.1 (2016-06-29)
 
 
 #### Bug Fixes
@@ -1534,7 +1534,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.5.2 (2016-05-31)
+## v2.5.2 (2016-05-31)
 
 
 #### Improvements
@@ -1554,7 +1554,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   inter-links all types and pages ([3312893d](https://github.com/clap-rs/clap/commit/3312893ddaef3f44d68d8d26ed3d08010be50d97), closes [#505](https://github.com/clap-rs/clap/issues/505))
 *   makes all publicly available types viewable in docs ([52ca6505](https://github.com/clap-rs/clap/commit/52ca6505b4fec7b5c2d53d160c072d395eb21da6))
 
-### v2.5.1 (2016-05-11)
+## v2.5.1 (2016-05-11)
 
 
 #### Bug Fixes
@@ -1573,7 +1573,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **SubCommands:**  adds support for subcommand aliases ([66b4dea6](https://github.com/clap-rs/clap/commit/66b4dea65c44d8f77ff522238a9237aed1bcab6d), closes [#469](https://github.com/clap-rs/clap/issues/469))
 
 
-### v2.4.3 (2016-05-10)
+## v2.4.3 (2016-05-10)
 
 
 #### Bug Fixes
@@ -1589,11 +1589,11 @@ Minimum version of Rust is now v1.13.0 (Stable)
   *  moves positionals to standard <> formatting ([03dfe5ce](https://github.com/clap-rs/clap/commit/03dfe5ceff1d63f172788ff688567ddad9fe119b))
   *  default help subcommand string has been shortened ([5b7fe8e4](https://github.com/clap-rs/clap/commit/5b7fe8e4161e43ab19e2e5fcf55fbe46791134e9), closes [#494](https://github.com/clap-rs/clap/issues/494))
 
-### v2.4.3 (2016-05-10)
+## v2.4.3 (2016-05-10)
 
 * Ghost Release
 
-### v2.4.3 (2016-05-10)
+## v2.4.3 (2016-05-10)
 
 * Ghost Release
 
@@ -1639,14 +1639,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **HELP:**  Adjust Help to semantic changes introduced in 6933b84 ([8d23806b](https://github.com/clap-rs/clap/commit/8d23806bd67530ad412c34a1dcdcb1435555573d))
 
-### v2.2.6 (2016-04-11)
+## v2.2.6 (2016-04-11)
 
 #### Bug Fixes
 
 * **Arg Groups**: fixes bug where arg name isn't printed properly ([3019a685](https://github.com/clap-rs/clap/commit/3019a685eee747ccbe6be09ad5dddce0b1d1d4db), closes [#476](https://github.com/clap-rs/clap/issues/476))
 
 
-### v2.2.5 (2016-04-03)
+## v2.2.5 (2016-04-03)
 
 
 #### Bug Fixes
@@ -1655,7 +1655,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Help Message:**  fixes bug where arg name is printed twice ([71acf1d5](https://github.com/clap-rs/clap/commit/71acf1d576946658b8bbdb5ae79e6716c43a030f), closes [#472](https://github.com/clap-rs/clap/issues/472))
 
 
-### v2.2.4 (2016-03-30)
+## v2.2.4 (2016-03-30)
 
 
 #### Bug Fixes
@@ -1665,14 +1665,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v2.2.3 (2016-03-28)
+## v2.2.3 (2016-03-28)
 
 
 #### Bug Fixes
 
 * **Help Subcommand:**  fixes issue where help and version flags weren't properly displayed ([205b07bf](https://github.com/clap-rs/clap/commit/205b07bf2e6547851f1290f8cd6b169145e144f1), closes [#466](https://github.com/clap-rs/clap/issues/466))
 
-### v2.2.2 (2016-03-27)
+## v2.2.2 (2016-03-27)
 
 
 #### Bug Fixes
@@ -1712,14 +1712,14 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 * **Groups:**  explains required ArgGroups better ([4ff0205b](https://github.com/clap-rs/clap/commit/4ff0205b85a45151b59bbaf090a89df13438380f), closes [#439](https://github.com/clap-rs/clap/issues/439))
 
-### v2.1.2 (2016-02-24)
+## v2.1.2 (2016-02-24)
 
 #### Bug Fixes
 
 * **Nightly:**  fixes failing nightly build ([d752c170](https://github.com/clap-rs/clap/commit/d752c17029598b19037710f204b7943f0830ae75), closes [#434](https://github.com/clap-rs/clap/issues/434))
 
 
-### v2.1.1 (2016-02-19)
+## v2.1.1 (2016-02-19)
 
 
 #### Documentation
@@ -1744,7 +1744,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Default Values:**  adds better examples and notes for default values ([9facd74f](https://github.com/clap-rs/clap/commit/9facd74f843ef3807c5d35259558a344e6c25905))
 
 
-### v2.0.6 (2016-02-09)
+## v2.0.6 (2016-02-09)
 
 
 #### Improvements
@@ -1752,7 +1752,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Positional Arguments:**  now displays value name if appropriate ([f0a99916](https://github.com/clap-rs/clap/commit/f0a99916c59ce675515c6dcdfe9a40b130510908), closes [#420](https://github.com/clap-rs/clap/issues/420))
 
 
-### v2.0.5 (2016-02-05)
+## v2.0.5 (2016-02-05)
 
 
 #### Bug Fixes
@@ -1760,7 +1760,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Multiple Values:**  fixes bug where number_of_values wasn't respected ([72c387da](https://github.com/clap-rs/clap/commit/72c387da0bb8a6f526f863770f08bb8ca0d3de03))
 
 
-### v2.0.4 (2016-02-04)
+## v2.0.4 (2016-02-04)
 
 
 #### Bug Fixes
@@ -1769,7 +1769,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   Stop lonely hyphens from causing panic ([85b11468](https://github.com/clap-rs/clap/commit/85b11468b0189d5cc15f1cfac5db40d17a0077dc), closes [#410](https://github.com/clap-rs/clap/issues/410))
 * **AppSettings:**  fixes bug where subcmds didn't receive parent ver ([a62e4527](https://github.com/clap-rs/clap/commit/a62e452754b3b0e3ac9a15aa8b5330636229ead1))
 
-### v2.0.3 (2016-02-02)
+## v2.0.3 (2016-02-02)
 
 
 #### Improvements
@@ -1786,7 +1786,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **value_t_or_exit:**  fixes typo which causes value_t_or_exit to return a Result ([ee96baff](https://github.com/clap-rs/clap/commit/ee96baffd306cb8d20ddc5575cf739bb1a6354e8))
 
 
-### v2.0.2 (2016-01-31)
+## v2.0.2 (2016-01-31)
 
 
 #### Improvements
@@ -1800,7 +1800,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **Usage Parser:**  fixes a bug where literal single quotes weren't allowed in help strings ([0bcc7120](https://github.com/clap-rs/clap/commit/0bcc71206478074769e311479b34a9f74fe80f5c), closes [#406](https://github.com/clap-rs/clap/issues/406))
 
 
-### v2.0.1 (2016-01-30)
+## v2.0.1 (2016-01-30)
 
 
 #### Bug Fixes
@@ -1884,7 +1884,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * Using the `clap_app!` macro requires compiling with the `unstable` feature because the syntax could change slightly in the future
 
 
-### v1.5.5 (2016-01-04)
+## v1.5.5 (2016-01-04)
 
 
 #### Bug Fixes
@@ -1894,7 +1894,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fixes an intentional panic issue discovered via clippy ([ea83a3d4](https://github.com/clap-rs/clap/commit/ea83a3d421ea8856d4cac763942834d108b71406))
 
 
-### v1.5.4 (2015-12-18)
+## v1.5.4 (2015-12-18)
 
 
 #### Examples
@@ -1912,7 +1912,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   ArgRequiredElseHelp setting now takes precedence over missing required args ([faad83fb](https://github.com/clap-rs/clap/commit/faad83fbef6752f3093b6e98fca09a9449b830f4), closes [#362](https://github.com/clap-rs/clap/issues/362))
 
 
-### v1.5.3 (2015-11-20)
+## v1.5.3 (2015-11-20)
 
 
 #### Bug Fixes
@@ -1922,7 +1922,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.5.2 (2015-11-14)
+## v1.5.2 (2015-11-14)
 
 
 #### Bug Fixes
@@ -1931,7 +1931,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.5.1 (2015-11-13)
+## v1.5.1 (2015-11-13)
 
 
 #### Bug Fixes
@@ -1969,7 +1969,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.7 (2015-11-03)
+## v1.4.7 (2015-11-03)
 
 
 #### Documentation
@@ -1983,7 +1983,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.6 (2015-10-29)
+## v1.4.6 (2015-10-29)
 
 
 #### Features
@@ -2005,7 +2005,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.5 (2015-10-06)
+## v1.4.5 (2015-10-06)
 
 
 #### Bug Fixes
@@ -2014,7 +2014,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.4 (2015-10-06)
+## v1.4.4 (2015-10-06)
 
 
 #### Documentation
@@ -2040,7 +2040,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.3 (2015-09-30)
+## v1.4.3 (2015-09-30)
 
 
 #### Features
@@ -2058,7 +2058,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.2 (2015-09-23)
+## v1.4.2 (2015-09-23)
 
 
 #### Bug Fixes
@@ -2067,7 +2067,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.4.1 (2015-09-22)
+## v1.4.1 (2015-09-22)
 
 
 #### Examples
@@ -2103,7 +2103,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.3.2 (2015-09-08)
+## v1.3.2 (2015-09-08)
 
 
 #### Documentation
@@ -2122,7 +2122,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.3.1 (2015-09-04)
+## v1.3.1 (2015-09-04)
 
 
 #### Examples
@@ -2161,7 +2161,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.5 (2015-08-27)
+## v1.2.5 (2015-08-27)
 
 
 #### Examples
@@ -2175,7 +2175,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.4 (2015-08-26)
+## v1.2.4 (2015-08-26)
 
 
 #### Bug Fixes
@@ -2184,7 +2184,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.3 (2015-08-24)
+## v1.2.3 (2015-08-24)
 
 
 #### Bug Fixes
@@ -2193,7 +2193,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.2 (2015-08-23)
+## v1.2.2 (2015-08-23)
 
 
 #### Bug Fixes
@@ -2203,7 +2203,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.1 (2015-08-20)
+## v1.2.1 (2015-08-20)
 
 
 #### Documentation
@@ -2226,7 +2226,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.2.0 (2015-08-15)
+## v1.2.0 (2015-08-15)
 
 
 #### Bug Fixes
@@ -2250,7 +2250,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.1.6 (2015-08-01)
+## v1.1.6 (2015-08-01)
 
 
 #### Bug Fixes
@@ -2259,13 +2259,13 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.1.5 (2015-07-29)
+## v1.1.5 (2015-07-29)
 
 #### Performance
 
 *   removes some unneeded allocations ([93e915df](https://github.com/clap-rs/clap/commit/93e915dfe300f7b7d6209ca93323c6a46f89a8c1))
 
-### v1.1.4 (2015-07-20)
+## v1.1.4 (2015-07-20)
 
 
 #### Improvements
@@ -2279,7 +2279,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.1.3 (2015-07-18)
+## v1.1.3 (2015-07-18)
 
 
 #### Documentation
@@ -2292,7 +2292,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.1.2 (2015-07-17)
+## v1.1.2 (2015-07-17)
 
 
 #### Bug Fixes
@@ -2334,7 +2334,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   fix incorrect code example for `App::subcommand_required` ([8889689d](https://github.com/clap-rs/clap/commit/8889689dc6336ccc45b2c9f2cf8e2e483a639e93))
 
 
-### v1.0.3 (2015-07-11)
+## v1.0.3 (2015-07-11)
 
 
 #### Improvements
@@ -2347,7 +2347,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.0.2 (2015-07-09)
+## v1.0.2 (2015-07-09)
 
 
 #### Improvements
@@ -2356,7 +2356,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v1.0.1 (2015-07-08)
+## v1.0.1 (2015-07-08)
 
 
 #### Bug Fixes
@@ -2410,7 +2410,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v0.10.5 (2015-06-06)
+## v0.10.5 (2015-06-06)
 
 
 #### Bug Fixes
@@ -2419,7 +2419,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v0.10.4 (2015-06-06)
+## v0.10.4 (2015-06-06)
 
 
 #### Bug Fixes
@@ -2428,7 +2428,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v0.10.3 (2015-05-31)
+## v0.10.3 (2015-05-31)
 
 
 #### Bug Fixes
@@ -2437,7 +2437,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v0.10.2 (2015-05-30)
+## v0.10.2 (2015-05-30)
 
 
 #### Improvements
@@ -2450,7 +2450,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 
 
-### v0.10.1 (2015-05-26)
+## v0.10.1 (2015-05-26)
 
 
 #### Features
@@ -3005,9 +3005,9 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 <!-- next-url -->
 [Unreleased]: https://github.com/clap-rs/clap/compare/v2.34.0...HEAD
-[2.32.0]: https://github.com/clap-rs/clap/compare/v2.32.4...v2.34.0
-[2.32.4]: https://github.com/clap-rs/clap/compare/v2.32.3...v2.33.4
-[2.32.3]: https://github.com/clap-rs/clap/compare/v2.32.2...v2.33.3
+[2.34.0]: https://github.com/clap-rs/clap/compare/v2.32.4...v2.34.0
+[2.33.4]: https://github.com/clap-rs/clap/compare/v2.32.3...v2.33.4
+[2.33.3]: https://github.com/clap-rs/clap/compare/v2.32.2...v2.33.3
 [2.32.2]: https://github.com/clap-rs/clap/compare/v2.32.1...v2.33.2
 [2.33.1]: https://github.com/clap-rs/clap/compare/v2.33.0...v2.33.1
 [2.33.0]: https://github.com/clap-rs/clap/compare/v2.32.0...v2.33.0
