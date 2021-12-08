@@ -454,7 +454,7 @@ impl Attrs {
                             only on field level";
 
                             note = "see \
-                                https://docs.rs/structopt/0.3.5/structopt/#magical-methods")
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
                     };
 
                     let val = if let Some(expr) = expr {
