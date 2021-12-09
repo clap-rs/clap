@@ -24,12 +24,12 @@ fn example_tests() {
         "unicode",
         #[cfg(feature = "wrap_help")]
         "wrap_help",
-        #[cfg(feature = "unsable-replace")]
-        "unsable-replace",
-        #[cfg(feature = "unsable-multicall")]
-        "unsable-multicall",
-        #[cfg(feature = "unsable-grouped")]
-        "unsable-grouped",
+        #[cfg(feature = "unstable-replace")]
+        "unstable-replace",
+        #[cfg(feature = "unstable-multicall")]
+        "unstable-multicall",
+        #[cfg(feature = "unstable-grouped")]
+        "unstable-grouped",
     ]
     .join(" ");
     t.register_bins(trycmd::cargo::compile_examples(["--features", &features]).unwrap());
