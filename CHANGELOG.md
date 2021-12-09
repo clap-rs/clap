@@ -106,7 +106,7 @@ fn verify_app() {
     1. Add in `derive`, `env`, `cargo`, or `unicode` feature flags as needed
 3. Resolve compiler errors
     1. *If you use `yaml`, `clap_app!`, or usage parser:* revert any changes you made for clap3
-    2. Change `Arg::about` `Arg::long_about` back to `help` and `long_help` and change `PossibleValue::about` to `help` ([clap-rs/clap#2937](https://github.com/clap-rs/clap/discussions/2937))
+    2. Change `Arg::about` `Arg::long_about` back to `help` and `long_help` and change `PossibleValue::about` to `help` ([clap-rs/clap#3075](https://github.com/clap-rs/clap/issues/3075))
     3. Change `AppSettings::HelpRequired` to `AppSettings::HelpExpected`
     4. Change `PossibleValue::hidden` to `PossibleValue::hide`
     5. Change `App::subcommand_placeholder` to `App::subcommand_value_name` / `App::subcommand_help_heading`
