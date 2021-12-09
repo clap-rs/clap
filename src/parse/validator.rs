@@ -315,7 +315,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .app
                     .find(name)
                     // Find `arg`s which are exclusive but also appear with other args.
-                    .filter(|&arg| arg.exclusive && args_count > 1)
+                    .filter(|&arg| arg.is_set(ArgSettings::Exclusive) && args_count > 1)
             })
             // Throw an error for the first conflict found.
             .try_for_each(|arg| {
