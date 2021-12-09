@@ -607,7 +607,7 @@ impl<'help> App<'help> {
         if self.settings.is_set(AppSettings::Multicall) {
             if let Some((argv0, _)) = it.next() {
                 let argv0 = Path::new(&argv0);
-                if let Some(command) = argv0.file_name().and_then(|f| f.to_str()) {
+                if let Some(command) = argv0.file_stem().and_then(|f| f.to_str()) {
                     // Stop borrowing command so we can get another mut ref to it.
                     let command = command.to_owned();
                     debug!(

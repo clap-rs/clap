@@ -6,7 +6,7 @@ See the documentation for clap::AppSettings::Multicall for rationale.
 
 This example omits the implementation of displaying address config
 
-```bash,ignore
+```bash
 $ hostname
 www
 ```
