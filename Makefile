@@ -18,8 +18,6 @@ _FEATURES_full = --features "derive cargo env unicode yaml regex unstable-replac
 _FEATURES_debug = ${_FEATURES_full} --features debug
 _FEATURES_release = ${_FEATURES_full} --release
 
-_FEATURES_all = --all-features
-
 check-%:
 	cargo check ${_FEATURES_${@:check-%=%}} --all-targets ${ARGS}
 

@@ -180,4 +180,4 @@ jobs:
     - name: Lint (minimal)
       run: make clippy-minimal
     - name: Lint (all)
-      run: make clippy-all
+      run: make clippy-full
