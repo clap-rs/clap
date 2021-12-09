@@ -789,7 +789,7 @@ macro_rules! impl_settings {
     ($settings:ident, $flags:ident,
         $(
             $(#[$inner:ident $($args:tt)*])*
-            $setting:ident($str:expr) => $flag:path
+            $setting:ident => $flag:path
         ),+
     ) => {
         impl $flags {
@@ -876,23 +876,6 @@ macro_rules! impl_settings {
                 flags.set(self);
                 flags.set(rhs);
                 flags
-            }
-        }
-
-        /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
-        #[cfg(feature = "yaml")]
-        impl FromStr for $settings {
-            type Err = String;
-            fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-                #[allow(deprecated)]  // some Settings might be deprecated
-                #[allow(unreachable_patterns)] // some Settings might be deprecated
-                match &*s.to_ascii_lowercase() {
-                    $(
-                        $(#[$inner $($args)*])*
-                        $str => Ok($settings::$setting),
-                    )*
-                    _ => Err(format!("unknown AppSetting: `{}`", s)),
-                }
             }
         }
     }

@@ -1060,102 +1060,164 @@ bitflags! {
 }
 
 impl_settings! { AppSettings, AppFlags,
-    ArgRequiredElseHelp("argrequiredelsehelp")
+    ArgRequiredElseHelp
         => Flags::ARG_REQUIRED_ELSE_HELP,
-    SubcommandPrecedenceOverArg("subcommandprecedenceoverarg")
+    SubcommandPrecedenceOverArg
         => Flags::SUBCOMMAND_PRECEDENCE_OVER_ARG,
-    ArgsNegateSubcommands("argsnegatesubcommands")
+    ArgsNegateSubcommands
         => Flags::ARGS_NEGATE_SCS,
-    AllowExternalSubcommands("allowexternalsubcommands")
+    AllowExternalSubcommands
         => Flags::ALLOW_UNK_SC,
-    StrictUtf8("strictutf8")
+    StrictUtf8
         => Flags::NO_OP,
-    AllowInvalidUtf8ForExternalSubcommands("allowinvalidutf8forexternalsubcommands")
+    AllowInvalidUtf8ForExternalSubcommands
         => Flags::SC_UTF8_NONE,
-    AllowHyphenValues("allowhyphenvalues")
+    AllowHyphenValues
         => Flags::LEADING_HYPHEN,
-    AllowLeadingHyphen("allowleadinghyphen")
+    AllowLeadingHyphen
         => Flags::LEADING_HYPHEN,
-    AllowNegativeNumbers("allownegativenumbers")
+    AllowNegativeNumbers
         => Flags::ALLOW_NEG_NUMS,
-    AllowMissingPositional("allowmissingpositional")
+    AllowMissingPositional
         => Flags::ALLOW_MISSING_POS,
-    UnifiedHelpMessage("unifiedhelpmessage")
+    UnifiedHelpMessage
         => Flags::NO_OP,
-    ColoredHelp("coloredhelp")
+    ColoredHelp
         => Flags::NO_OP,
-    ColorAlways("coloralways")
+    ColorAlways
         => Flags::COLOR_ALWAYS,
-    ColorAuto("colorauto")
+    ColorAuto
         => Flags::COLOR_AUTO,
-    ColorNever("colornever")
+    ColorNever
         => Flags::COLOR_NEVER,
-    DontDelimitTrailingValues("dontdelimittrailingvalues")
+    DontDelimitTrailingValues
         => Flags::DONT_DELIM_TRAIL,
-    DontCollapseArgsInUsage("dontcollapseargsinusage")
+    DontCollapseArgsInUsage
         => Flags::DONT_COLLAPSE_ARGS,
-    DeriveDisplayOrder("derivedisplayorder")
+    DeriveDisplayOrder
         => Flags::DERIVE_DISP_ORDER,
-    DisableColoredHelp("disablecoloredhelp")
+    DisableColoredHelp
         => Flags::DISABLE_COLORED_HELP,
-    DisableHelpSubcommand("disablehelpsubcommand")
+    DisableHelpSubcommand
         => Flags::DISABLE_HELP_SC,
-    DisableHelpFlag("disablehelpflag")
+    DisableHelpFlag
         => Flags::DISABLE_HELP_FLAG,
-    DisableHelpFlags("disablehelpflags")
+    DisableHelpFlags
         => Flags::DISABLE_HELP_FLAG,
-    DisableVersionFlag("disableversionflag")
+    DisableVersionFlag
         => Flags::DISABLE_VERSION_FLAG,
-    DisableVersion("disableversion")
+    DisableVersion
         => Flags::DISABLE_VERSION_FLAG,
-    PropagateVersion("propagateversion")
+    PropagateVersion
         => Flags::PROPAGATE_VERSION,
-    GlobalVersion("propagateversion")
+    GlobalVersion
         => Flags::PROPAGATE_VERSION,
-    HidePossibleValues("hidepossiblevalues")
+    HidePossibleValues
         => Flags::NO_POS_VALUES,
-    HidePossibleValuesInHelp("hidepossiblevaluesinhelp")
+    HidePossibleValuesInHelp
         => Flags::NO_POS_VALUES,
-    HelpExpected("helpexpected")
+    HelpExpected
         => Flags::HELP_REQUIRED,
-    Hidden("hidden")
+    Hidden
         => Flags::HIDDEN,
     #[cfg(feature = "unstable-multicall")]
-    Multicall("multicall")
+    Multicall
         => Flags::MULTICALL,
-    NoAutoHelp("noautohelp")
+    NoAutoHelp
         => Flags::NO_AUTO_HELP,
-    NoAutoVersion("noautoversion")
+    NoAutoVersion
         => Flags::NO_AUTO_VERSION,
-    NoBinaryName("nobinaryname")
+    NoBinaryName
         => Flags::NO_BIN_NAME,
-    SubcommandsNegateReqs("subcommandsnegatereqs")
+    SubcommandsNegateReqs
         => Flags::SC_NEGATE_REQS,
-    SubcommandRequired("subcommandrequired")
+    SubcommandRequired
         => Flags::SC_REQUIRED,
-    SubcommandRequiredElseHelp("subcommandrequiredelsehelp")
+    SubcommandRequiredElseHelp
         => Flags::SC_REQUIRED_ELSE_HELP,
-    UseLongFormatForHelpSubcommand("uselongformatforhelpsubcommand")
+    UseLongFormatForHelpSubcommand
         => Flags::USE_LONG_FORMAT_FOR_HELP_SC,
-    TrailingVarArg("trailingvararg")
+    TrailingVarArg
         => Flags::TRAILING_VARARG,
-    UnifiedHelp("unifiedhelp") => Flags::NO_OP,
-    NextLineHelp("nextlinehelp")
+    UnifiedHelp => Flags::NO_OP,
+    NextLineHelp
         => Flags::NEXT_LINE_HELP,
-    IgnoreErrors("ignoreerrors")
+    IgnoreErrors
         => Flags::IGNORE_ERRORS,
-    WaitOnError("waitonerror")
+    WaitOnError
         => Flags::WAIT_ON_ERROR,
-    Built("built")
+    Built
         => Flags::BUILT,
-    BinNameBuilt("binnamebuilt")
+    BinNameBuilt
         => Flags::BIN_NAME_BUILT,
-    InferSubcommands("infersubcommands")
+    InferSubcommands
         => Flags::INFER_SUBCOMMANDS,
-    AllArgsOverrideSelf("allargsoverrideself")
+    AllArgsOverrideSelf
         => Flags::ARGS_OVERRIDE_SELF,
-    InferLongArgs("inferlongargs")
+    InferLongArgs
         => Flags::INFER_LONG_ARGS
+}
+
+/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+#[cfg(feature = "yaml")]
+impl FromStr for AppSettings {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        #[allow(deprecated)]
+        #[allow(unreachable_patterns)]
+        match &*s.to_ascii_lowercase() {
+            "argrequiredelsehelp" => Ok(AppSettings::ArgRequiredElseHelp),
+            "subcommandprecedenceoverarg" => Ok(AppSettings::SubcommandPrecedenceOverArg),
+            "argsnegatesubcommands" => Ok(AppSettings::ArgsNegateSubcommands),
+            "allowexternalsubcommands" => Ok(AppSettings::AllowExternalSubcommands),
+            "strictutf8" => Ok(AppSettings::StrictUtf8),
+            "allowinvalidutf8forexternalsubcommands" => {
+                Ok(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
+            }
+            "allowhyphenvalues" => Ok(AppSettings::AllowHyphenValues),
+            "allowleadinghyphen" => Ok(AppSettings::AllowLeadingHyphen),
+            "allownegativenumbers" => Ok(AppSettings::AllowNegativeNumbers),
+            "allowmissingpositional" => Ok(AppSettings::AllowMissingPositional),
+            "unifiedhelpmessage" => Ok(AppSettings::UnifiedHelpMessage),
+            "coloredhelp" => Ok(AppSettings::ColoredHelp),
+            "coloralways" => Ok(AppSettings::ColorAlways),
+            "colorauto" => Ok(AppSettings::ColorAuto),
+            "colornever" => Ok(AppSettings::ColorNever),
+            "dontdelimittrailingvalues" => Ok(AppSettings::DontDelimitTrailingValues),
+            "dontcollapseargsinusage" => Ok(AppSettings::DontCollapseArgsInUsage),
+            "derivedisplayorder" => Ok(AppSettings::DeriveDisplayOrder),
+            "disablecoloredhelp" => Ok(AppSettings::DisableColoredHelp),
+            "disablehelpsubcommand" => Ok(AppSettings::DisableHelpSubcommand),
+            "disablehelpflag" => Ok(AppSettings::DisableHelpFlag),
+            "disablehelpflags" => Ok(AppSettings::DisableHelpFlags),
+            "disableversionflag" => Ok(AppSettings::DisableVersionFlag),
+            "disableversion" => Ok(AppSettings::DisableVersion),
+            "propagateversion" => Ok(AppSettings::PropagateVersion),
+            "propagateversion" => Ok(AppSettings::GlobalVersion),
+            "hidepossiblevalues" => Ok(AppSettings::HidePossibleValues),
+            "hidepossiblevaluesinhelp" => Ok(AppSettings::HidePossibleValuesInHelp),
+            "helpexpected" => Ok(AppSettings::HelpExpected),
+            "hidden" => Ok(AppSettings::Hidden),
+            "noautohelp" => Ok(AppSettings::NoAutoHelp),
+            "noautoversion" => Ok(AppSettings::NoAutoVersion),
+            "nobinaryname" => Ok(AppSettings::NoBinaryName),
+            "subcommandsnegatereqs" => Ok(AppSettings::SubcommandsNegateReqs),
+            "subcommandrequired" => Ok(AppSettings::SubcommandRequired),
+            "subcommandrequiredelsehelp" => Ok(AppSettings::SubcommandRequiredElseHelp),
+            "uselongformatforhelpsubcommand" => Ok(AppSettings::UseLongFormatForHelpSubcommand),
+            "trailingvararg" => Ok(AppSettings::TrailingVarArg),
+            "unifiedhelp" => Ok(AppSettings::UnifiedHelp),
+            "nextlinehelp" => Ok(AppSettings::NextLineHelp),
+            "ignoreerrors" => Ok(AppSettings::IgnoreErrors),
+            "waitonerror" => Ok(AppSettings::WaitOnError),
+            "built" => Ok(AppSettings::Built),
+            "binnamebuilt" => Ok(AppSettings::BinNameBuilt),
+            "infersubcommands" => Ok(AppSettings::InferSubcommands),
+            "allargsoverrideself" => Ok(AppSettings::AllArgsOverrideSelf),
+            "inferlongargs" => Ok(AppSettings::InferLongArgs),
+            _ => Err(format!("unknown AppSetting: `{}`", s)),
+        }
+    }
 }
 
 #[cfg(test)]
