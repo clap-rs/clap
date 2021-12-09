@@ -1,4 +1,4 @@
-// Note: this requires the `derive` attribute
+// Note: this requires the `derive` feature
 
 use clap::Parser;
 
