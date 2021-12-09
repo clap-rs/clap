@@ -19,7 +19,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 4. [API Reference](https://docs.rs/clap)
     - [Derive Reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.1/examples/derive_ref/README.md)
     - [Feature Flags](#feature-flags)
-5. [CHANGELOG](https://github.com/clap-rs/clap/blob/v3.0.0-rc.1/docs/CHANGELOG.md)
+5. [CHANGELOG](https://github.com/clap-rs/clap/blob/v3.0.0-rc.1/CHANGELOG.md)
 6. [FAQ](https://github.com/clap-rs/clap/blob/v3.0.0-rc.1/docs/FAQ.md)
 7. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
 8. [Contributing](https://github.com/clap-rs/clap/blob/v3.0.0-rc.1/CONTRIBUTING.md)
