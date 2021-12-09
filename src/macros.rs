@@ -2,7 +2,7 @@
 #[cfg(feature = "yaml")]
 #[deprecated(
     since = "3.0.0",
-    note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
 )]
 #[macro_export]
 macro_rules! load_yaml {

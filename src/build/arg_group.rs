@@ -442,7 +442,7 @@ impl<'help> ArgGroup<'help> {
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
+        note = "Maybe clap::Parser would fit your use case? (Issue #3087)"
     )]
     pub fn from_yaml(yaml: &'help Yaml) -> Self {
         Self::from(yaml)
