@@ -240,9 +240,6 @@ impl<'help> ArgGroup<'help> {
     /// Use of more than one arg is an error." Vice setting `ArgGroup::multiple(true)` which
     /// states, '*At least* one arg from this group must be used. Using multiple is OK."
     ///
-    /// **NOTE:** An argument is considered present when there is a
-    /// [`Arg::default_value`](crate::Arg::default_value)
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -276,9 +273,6 @@ impl<'help> ArgGroup<'help> {
     /// This is not to be confused with a [required group]. Requirement rules function just like
     /// [argument requirement rules], you can name other arguments or groups that must be present
     /// when any one of the arguments from this group is used.
-    ///
-    /// **NOTE:** An argument is considered present when there is a
-    /// [`Arg::default_value`](crate::Arg::default_value)
     ///
     /// **NOTE:** The name provided may be an argument or group name
     ///
@@ -317,9 +311,6 @@ impl<'help> ArgGroup<'help> {
     /// when one of the arguments from this group is used.
     ///
     /// **NOTE:** The names provided may be an argument or group name
-    ///
-    /// **NOTE:** An argument is considered present when there is a
-    /// [`Arg::default_value`](crate::Arg::default_value)
     ///
     /// # Examples
     ///
@@ -361,9 +352,6 @@ impl<'help> ArgGroup<'help> {
     ///
     /// **NOTE:** The name provided may be an argument, or group name
     ///
-    /// **NOTE:** An argument is considered present when there is a
-    /// [`Arg::default_value`](crate::Arg::default_value)
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -396,9 +384,6 @@ impl<'help> ArgGroup<'help> {
     /// or groups that must *not* be present when one of the arguments from this group are used.
     ///
     /// **NOTE:** The names provided may be an argument, or group name
-    ///
-    /// **NOTE:** An argument is considered present when there is a
-    /// [`Arg::default_value`](crate::Arg::default_value)
     ///
     /// # Examples
     ///
