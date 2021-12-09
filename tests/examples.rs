@@ -6,8 +6,8 @@ fn example_tests() {
     let features = [
         #[cfg(feature = "debug")]
         "debug",
-        #[cfg(feature = "doc")]
-        "doc",
+        #[cfg(feature = "unstable-doc")]
+        "unstable-doc",
         #[cfg(feature = "std")]
         "std",
         #[cfg(feature = "derive")]
