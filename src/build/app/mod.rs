@@ -2331,7 +2331,7 @@ impl<'help> App<'help> {
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Maybe clap::Parser would fit your use case? (Issue #9)"
+        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
     )]
     pub fn from_yaml(y: &'help Yaml) -> Self {
         #![allow(deprecated)]
@@ -2495,14 +2495,14 @@ impl<'help> App<'help> {
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
+    #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         self.arg(Arg::from_usage(usage))
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
-    #[deprecated(since = "3.0.0", note = "Replaced with `arg!`")]
+    #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         for line in usage.lines() {

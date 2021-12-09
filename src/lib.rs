@@ -39,7 +39,7 @@ pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcomma
 #[doc(hidden)]
 #[deprecated(
     since = "3.0.0",
-    note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+    note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
 )]
 pub use yaml_rust::YamlLoader;
 
@@ -91,7 +91,7 @@ impl SubCommand {
     #[cfg(feature = "yaml")]
     #[deprecated(
         since = "3.0.0",
-        note = "Deprecated in Issue #9, maybe clap::Parser would fit your use case?"
+        note = "Deprecated in Issue #3087, maybe clap::Parser would fit your use case?"
     )]
     pub fn from_yaml(yaml: &yaml_rust::Yaml) -> App {
         #![allow(deprecated)]
