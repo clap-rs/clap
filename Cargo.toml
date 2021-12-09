@@ -311,6 +311,11 @@ name = "04_04_custom_derive"
 path = "examples/tutorial_derive/04_04_custom.rs"
 required-features = ["derive"]
 
+[[example]]
+name = "custom_bool"
+path = "examples/derive_ref/custom_bool.rs"
+required-features = ["derive"]
+
 [profile.test]
 opt-level = 1
 
