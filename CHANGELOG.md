@@ -105,14 +105,14 @@ fn verify_app() {
 2. Update your dependency
     1. Add in `derive`, `env`, `cargo`, or `unicode` feature flags as needed
 3. Resolve compiler errors
-    2. *If you use `yaml`, `clap_app!`, or usage parser:* revert any changes you made for clap3
+    1. *If you use `yaml`, `clap_app!`, or usage parser:* revert any changes you made for clap3
     2. Change `Arg::about` `Arg::long_about` back to `help` and `long_help` and change `PossibleValue::about` to `help` ([clap-rs/clap#2937](https://github.com/clap-rs/clap/discussions/2937))
     3. Change `AppSettings::HelpRequired` to `AppSettings::HelpExpected`
     4. Change `PossibleValue::hidden` to `PossibleValue::hide`
     5. Change `App::subcommand_placeholder` to `App::subcommand_value_name` / `App::subcommand_help_heading`
 4. Resolve behavior changes
-    2. Add the above listed test appropriate for your application and resolve any problems it reports
-    1. *If using `derive`:* see the structopt breaking changes section for `Vec` changes
+    1. Add the above listed test appropriate for your application and resolve any problems it reports
+    2. *If using `derive`:* see the structopt breaking changes section for `Vec` changes
     3. *If using builder:* test your application under various circumstances to see if `ArgMatches` asserts regarding `AllowInvalidUtf8`.
 5. *At your leisure:* resolve deprecation notices
 
