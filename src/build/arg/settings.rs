@@ -87,6 +87,9 @@ pub enum ArgSettings {
     HiddenLongHelp,
     /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
     AllowInvalidUtf8,
+    /// Specifies that option should exist on its own.
+    /// Having any other arguments present at runtime is an error.
+    Exclusive,
 }
 
 bitflags! {
@@ -116,6 +119,7 @@ bitflags! {
         #[cfg(feature = "env")]
         const HIDE_ENV         = 1 << 21;
         const UTF8_NONE        = 1 << 22;
+        const EXCLUSIVE        = 1 << 23;
         const NO_OP            = 0;
     }
 }
@@ -147,7 +151,8 @@ impl_settings! { ArgSettings, ArgFlags,
     HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
     HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
     HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
-    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE
+    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE,
+    Exclusive("exclusive") => Flags::EXCLUSIVE
 }
 
 #[cfg(test)]
@@ -226,6 +231,10 @@ mod test {
         assert_eq!(
             "allowinvalidutf8".parse::<ArgSettings>().unwrap(),
             ArgSettings::AllowInvalidUtf8
+        );
+        assert_eq!(
+            "exclusive".parse::<ArgSettings>().unwrap(),
+            ArgSettings::Exclusive
         );
         assert!("hahahaha".parse::<ArgSettings>().is_err());
     }

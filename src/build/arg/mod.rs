@@ -99,7 +99,6 @@ pub struct Arg<'help> {
     pub(crate) terminator: Option<&'help str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<&'help str>>,
-    pub(crate) exclusive: bool,
     pub(crate) value_hint: ValueHint,
 }
 
@@ -702,9 +701,12 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     #[inline]
-    pub fn exclusive(mut self, yes: bool) -> Self {
-        self.exclusive = yes;
-        self
+    pub fn exclusive(self, yes: bool) -> Self {
+        if yes {
+            self.setting(ArgSettings::Exclusive)
+        } else {
+            self.unset_setting(ArgSettings::Exclusive)
+        }
     }
 
     /// Specifies that an argument can be matched to all child [`Subcommand`]s.
@@ -4961,7 +4963,6 @@ impl<'help> fmt::Debug for Arg<'help> {
             .field("terminator", &self.terminator)
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
-            .field("exclusive", &self.exclusive)
             .field("value_hint", &self.value_hint)
             .field("default_missing_vals", &self.default_missing_vals);
 
