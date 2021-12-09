@@ -1,3 +1,5 @@
+// Note: this requires the `cargo` feature
+
 use clap::{app_from_crate, arg};
 
 fn main() {
