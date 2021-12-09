@@ -88,7 +88,7 @@ pub enum ArgSettings {
     /// Specifies that option values that are invalid UTF-8 should *not* be treated as an error.
     AllowInvalidUtf8,
     /// Specifies that option should exist on its own.
-    /// Having any othe arguments present at runtime is an error.
+    /// Having any other arguments present at runtime is an error.
     Exclusive,
 }
 
