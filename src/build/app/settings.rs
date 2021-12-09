@@ -1,5 +1,7 @@
 // Std
-use std::{ops::BitOr, str::FromStr};
+use std::ops::BitOr;
+#[cfg(feature = "yaml")]
+use std::str::FromStr;
 
 // Third party
 use bitflags::bitflags;
@@ -1158,11 +1160,12 @@ impl_settings! { AppSettings, AppFlags,
 
 #[cfg(test)]
 mod test {
-    use super::AppSettings;
-
     #[allow(clippy::cognitive_complexity)]
     #[test]
+    #[cfg(feature = "yaml")]
     fn app_settings_fromstr() {
+        use super::AppSettings;
+
         assert_eq!(
             "disablehelpflag".parse::<AppSettings>().unwrap(),
             AppSettings::DisableHelpFlag

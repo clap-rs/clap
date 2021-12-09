@@ -1,5 +1,7 @@
 // Std
-use std::{ops::BitOr, str::FromStr};
+use std::ops::BitOr;
+#[cfg(feature = "yaml")]
+use std::str::FromStr;
 
 // Third party
 use bitflags::bitflags;
@@ -157,10 +159,11 @@ impl_settings! { ArgSettings, ArgFlags,
 
 #[cfg(test)]
 mod test {
-    use super::ArgSettings;
-
     #[test]
+    #[cfg(feature = "yaml")]
     fn arg_settings_fromstr() {
+        use super::ArgSettings;
+
         assert_eq!(
             "allowhyphenvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::AllowHyphenValues
