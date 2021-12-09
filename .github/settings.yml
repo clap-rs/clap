@@ -42,6 +42,9 @@ repository:
 #  - name: "A-parsing"
 #    description: "Area: Parser's logic and needs it changed somehow."
 #    color: '#f7e101'
+#  - name: "A-validators"
+#    description: "Area: ArgMatches validation logic
+#    color: '#f7e101'
 #  - name: "C-bug"
 #    description: "Category: Things not working as expected"
 #    color: '#f5f1fd'
