@@ -26,7 +26,9 @@ For less detailed but more broad comparisons, see
 
 Simple! `clap` *is* `structopt`.  `structopt` started as a derive API built on
 top of clap v2.  With clap v3, we've forked structopt and integrated it
-directly into clap.
+directly into clap.  structopt is in
+[maintenance mode](https://github.com/TeXitoi/structopt/issues/516#issuecomment-989566094)
+with the release of `clap_derive`.
 
 The benefits of integrating `structopt` and `clap` are:
 - Easier cross-linking in documentation
