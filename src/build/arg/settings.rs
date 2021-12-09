@@ -1,5 +1,7 @@
 // Std
-use std::{ops::BitOr, str::FromStr};
+use std::ops::BitOr;
+#[cfg(feature = "yaml")]
+use std::str::FromStr;
 
 // Third party
 use bitflags::bitflags;
@@ -126,41 +128,82 @@ bitflags! {
 
 // @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,
-    Required("required") => Flags::REQUIRED,
-    MultipleOccurrences("multipleoccurrences") => Flags::MULTIPLE_OCC,
-    MultipleValues("multiplevalues") => Flags::MULTIPLE_VALS,
-    Multiple("multiple") => Flags::MULTIPLE,
-    ForbidEmptyValues("forbidemptyvalues") => Flags::NO_EMPTY_VALS,
-    Global("global") => Flags::GLOBAL,
-    Hidden("hidden") => Flags::HIDDEN,
-    TakesValue("takesvalue") => Flags::TAKES_VAL,
-    UseValueDelimiter("usevaluedelimiter") => Flags::USE_DELIM,
-    NextLineHelp("nextlinehelp") => Flags::NEXT_LINE_HELP,
-    RequireDelimiter("requiredelimiter") => Flags::REQ_DELIM,
-    HidePossibleValues("hidepossiblevalues") => Flags::HIDE_POS_VALS,
-    AllowHyphenValues("allowhyphenvalues") => Flags::ALLOW_TAC_VALS,
-    AllowLeadingHyphen("allowleadinghypyhen") => Flags::ALLOW_TAC_VALS,
-    RequireEquals("requireequals") => Flags::REQUIRE_EQUALS,
-    Last("last") => Flags::LAST,
-    IgnoreCase("ignorecase") => Flags::CASE_INSENSITIVE,
-    CaseInsensitive("caseinsensitive") => Flags::CASE_INSENSITIVE,
+    Required => Flags::REQUIRED,
+    MultipleOccurrences => Flags::MULTIPLE_OCC,
+    MultipleValues => Flags::MULTIPLE_VALS,
+    Multiple => Flags::MULTIPLE,
+    ForbidEmptyValues => Flags::NO_EMPTY_VALS,
+    Global => Flags::GLOBAL,
+    Hidden => Flags::HIDDEN,
+    TakesValue => Flags::TAKES_VAL,
+    UseValueDelimiter => Flags::USE_DELIM,
+    NextLineHelp => Flags::NEXT_LINE_HELP,
+    RequireDelimiter => Flags::REQ_DELIM,
+    HidePossibleValues => Flags::HIDE_POS_VALS,
+    AllowHyphenValues => Flags::ALLOW_TAC_VALS,
+    AllowLeadingHyphen => Flags::ALLOW_TAC_VALS,
+    RequireEquals => Flags::REQUIRE_EQUALS,
+    Last => Flags::LAST,
+    IgnoreCase => Flags::CASE_INSENSITIVE,
+    CaseInsensitive => Flags::CASE_INSENSITIVE,
     #[cfg(feature = "env")]
-    HideEnv("hideenv") => Flags::HIDE_ENV,
+    HideEnv => Flags::HIDE_ENV,
     #[cfg(feature = "env")]
-    HideEnvValues("hideenvvalues") => Flags::HIDE_ENV_VALS,
-    HideDefaultValue("hidedefaultvalue") => Flags::HIDE_DEFAULT_VAL,
-    HiddenShortHelp("hiddenshorthelp") => Flags::HIDDEN_SHORT_H,
-    HiddenLongHelp("hiddenlonghelp") => Flags::HIDDEN_LONG_H,
-    AllowInvalidUtf8("allowinvalidutf8") => Flags::UTF8_NONE,
-    Exclusive("exclusive") => Flags::EXCLUSIVE
+    HideEnvValues => Flags::HIDE_ENV_VALS,
+    HideDefaultValue => Flags::HIDE_DEFAULT_VAL,
+    HiddenShortHelp => Flags::HIDDEN_SHORT_H,
+    HiddenLongHelp => Flags::HIDDEN_LONG_H,
+    AllowInvalidUtf8 => Flags::UTF8_NONE,
+    Exclusive => Flags::EXCLUSIVE
+}
+
+/// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
+#[cfg(feature = "yaml")]
+impl FromStr for ArgSettings {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        #[allow(deprecated)]
+        #[allow(unreachable_patterns)]
+        match &*s.to_ascii_lowercase() {
+            "required" => Ok(ArgSettings::Required),
+            "multipleoccurrences" => Ok(ArgSettings::MultipleOccurrences),
+            "multiplevalues" => Ok(ArgSettings::MultipleValues),
+            "multiple" => Ok(ArgSettings::Multiple),
+            "forbidemptyvalues" => Ok(ArgSettings::ForbidEmptyValues),
+            "global" => Ok(ArgSettings::Global),
+            "hidden" => Ok(ArgSettings::Hidden),
+            "takesvalue" => Ok(ArgSettings::TakesValue),
+            "usevaluedelimiter" => Ok(ArgSettings::UseValueDelimiter),
+            "nextlinehelp" => Ok(ArgSettings::NextLineHelp),
+            "requiredelimiter" => Ok(ArgSettings::RequireDelimiter),
+            "hidepossiblevalues" => Ok(ArgSettings::HidePossibleValues),
+            "allowhyphenvalues" => Ok(ArgSettings::AllowHyphenValues),
+            "allowleadinghypyhen" => Ok(ArgSettings::AllowLeadingHyphen),
+            "requireequals" => Ok(ArgSettings::RequireEquals),
+            "last" => Ok(ArgSettings::Last),
+            "ignorecase" => Ok(ArgSettings::IgnoreCase),
+            "caseinsensitive" => Ok(ArgSettings::CaseInsensitive),
+            #[cfg(feature = "env")]
+            "hideenv" => Ok(ArgSettings::HideEnv),
+            #[cfg(feature = "env")]
+            "hideenvvalues" => Ok(ArgSettings::HideEnvValues),
+            "hidedefaultvalue" => Ok(ArgSettings::HideDefaultValue),
+            "hiddenshorthelp" => Ok(ArgSettings::HiddenShortHelp),
+            "hiddenlonghelp" => Ok(ArgSettings::HiddenLongHelp),
+            "allowinvalidutf8" => Ok(ArgSettings::AllowInvalidUtf8),
+            "exclusive" => Ok(ArgSettings::Exclusive),
+            _ => Err(format!("unknown AppSetting: `{}`", s)),
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use super::ArgSettings;
-
     #[test]
+    #[cfg(feature = "yaml")]
     fn arg_settings_fromstr() {
+        use super::ArgSettings;
+
         assert_eq!(
             "allowhyphenvalues".parse::<ArgSettings>().unwrap(),
             ArgSettings::AllowHyphenValues
