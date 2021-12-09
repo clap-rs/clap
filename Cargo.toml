@@ -33,11 +33,11 @@ include = [
 ]
 
 [package.metadata.docs.rs]
-features = ["doc"]
+features = ["unstable-doc"]
 cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
 
 [package.metadata.playground]
-features = ["doc"]
+features = ["unstable-doc"]
 
 [package.metadata.release]
 shared-version = true
@@ -57,7 +57,7 @@ default = [
 	"suggestions",
 ]
 debug = ["clap_derive/debug", "backtrace"] # Enables debug messages
-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
+unstable-doc = ["derive", "cargo", "wrap_help", "yaml", "env", "unicode", "regex", "unstable-replace", "unstable-multicall", "unstable-grouped"] # for docs.rs
 
 # Used in default
 std = ["indexmap/std"] # support for no_std in a backwards-compatible way
