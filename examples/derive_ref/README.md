@@ -191,6 +191,8 @@ In addition to the raw attributes, the following magic attributes are supported:
 | `Option<Vec<T>>`    | `0..` occurrences of argument        | `.takes_value(true).required(false).multiple_occurrences(true)`  |
 
 Notes:
+- For custom type behavior, you can override the implied attributes/settings and/or set additional ones
+  - For example, see [custom_bool](./custom_bool.md)
 - `Option<Vec<T>>` will be `None` instead of `vec![]` if no arguments are provided.
   - This gives the user some flexibility in designing their argument, like with `min_values(0)`
 
