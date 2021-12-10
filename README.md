@@ -96,6 +96,7 @@ CLI parsers optimized for other use cases.
 
 ### Related Projects
 
+- [wild](https://crates.io/crates/wild) for supporting wildcards (`*`) on Windows like you do Linux
 - [clap-verbosity-flag](https://github.com/rust-cli/clap-verbosity-flag)
 - [clap-cargo](https://github.com/crate-ci/clap-cargo)
 - [concolor-clap](https://github.com/rust-cli/concolor/tree/main/crates/clap)
