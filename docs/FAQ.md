@@ -57,12 +57,12 @@ Depending on the style in which you choose to define the valid arguments, `clap`
 
 ### How many approaches are there to create an App/Arg?
 
-To build an `App` there are three:
+To build an `App` there are two:
 
 - Derive Macros
 - Builder Pattern
 
-To build an `Arg` there are four:
+To build an `Arg` there are two:
 
 - Derive Macros
 - Builder Pattern
