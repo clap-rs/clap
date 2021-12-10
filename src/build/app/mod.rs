@@ -2879,19 +2879,13 @@ impl<'help> App<'help> {
                 .args
                 .args_mut()
                 .filter(|a| !a.is_positional())
-                .filter(|a| a.get_display_order() == 999)
                 .filter(|a| a.provider != ArgProvider::Generated)
                 .enumerate()
             {
-                a.disp_ord = Some(i);
+                a.disp_ord.get_or_insert(i);
             }
-            for (i, mut sc) in &mut self
-                .subcommands
-                .iter_mut()
-                .enumerate()
-                .filter(|&(_, ref sc)| sc.get_display_order() == 999)
-            {
-                sc.disp_ord = Some(i);
+            for (i, sc) in &mut self.subcommands.iter_mut().enumerate() {
+                sc.disp_ord.get_or_insert(i);
             }
         }
         for sc in &mut self.subcommands {
