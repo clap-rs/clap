@@ -114,7 +114,7 @@ fn gen_to_possible_value(lits: &[(TokenStream, Ident)]) -> TokenStream {
     let (lit, variant): (Vec<TokenStream>, Vec<Ident>) = lits.iter().cloned().unzip();
 
     quote! {
-        fn to_possible_value<'a>(&self) -> Option<clap::PossibleValue<'a>> {
+        fn to_possible_value<'a>(&self) -> ::std::option::Option<clap::PossibleValue<'a>> {
             match self {
                 #(Self::#variant => Some(#lit),)*
                 _ => None
