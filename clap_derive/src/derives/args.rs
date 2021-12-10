@@ -602,7 +602,7 @@ fn gen_parsers(
         Ty::OptionVec => quote_spanned! { ty.span()=>
             if #arg_matches.is_present(#name) {
                 Some(#arg_matches.#values_of(#name)
-                    .map(|v| v.map::<Result<#convert_type, clap::Error>, _>(#parse).collect::<Result<Vec<_>, clap::Error>>())
+                    .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new))
             } else {
@@ -613,7 +613,7 @@ fn gen_parsers(
         Ty::Vec => {
             quote_spanned! { ty.span()=>
                 #arg_matches.#values_of(#name)
-                    .map(|v| v.map::<Result<#convert_type, clap::Error>, _>(#parse).collect::<Result<Vec<_>, clap::Error>>())
+                    .map(|v| v.map::<::std::result::Result<#convert_type, clap::Error>, _>(#parse).collect::<::std::result::Result<Vec<_>, clap::Error>>())
                     .transpose()?
                     .unwrap_or_else(Vec::new)
             }
