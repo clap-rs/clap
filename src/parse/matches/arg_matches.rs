@@ -990,7 +990,13 @@ impl ArgMatches {
     fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
         #[cfg(debug_assertions)]
         {
-            if *arg != Id::empty_hash() && !self.valid_args.contains(arg) {
+            if *arg == Id::empty_hash() || self.valid_args.contains(arg) {
+            } else if self.valid_subcommands.contains(arg) {
+                panic!(
+                    "Subcommand `'{:?}' used where an argument or group name was expected.",
+                    arg
+                );
+            } else {
                 panic!(
                     "`'{:?}' is not a name of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
@@ -1007,7 +1013,13 @@ impl ArgMatches {
     fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
-            if *id != Id::empty_hash() && !self.valid_subcommands.contains(id) {
+            if *id == Id::empty_hash() || self.valid_subcommands.contains(id) {
+            } else if self.valid_args.contains(id) {
+                panic!(
+                    "Argument or group `'{:?}' used where a subcommand name was expected.",
+                    id
+                );
+            } else {
                 panic!("'{:?}' is not a name of a subcommand.", id);
             }
         }
