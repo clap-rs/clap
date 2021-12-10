@@ -987,6 +987,7 @@ impl ArgMatches {
 // Private methods
 impl ArgMatches {
     #[inline]
+    #[cfg_attr(debug_assertions, track_caller)]
     fn get_arg(&self, arg: &Id) -> Option<&MatchedArg> {
         #[cfg(debug_assertions)]
         {
@@ -1010,6 +1011,7 @@ impl ArgMatches {
     }
 
     #[inline]
+    #[cfg_attr(debug_assertions, track_caller)]
     fn get_subcommand(&self, id: &Id) -> Option<&SubCommand> {
         #[cfg(debug_assertions)]
         {
