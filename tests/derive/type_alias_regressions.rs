@@ -27,5 +27,5 @@ pub struct Opts {
 
 #[test]
 fn type_alias_regressions() {
-    Opts::parse();
+    Opts::parse_from(["test"]);
 }
