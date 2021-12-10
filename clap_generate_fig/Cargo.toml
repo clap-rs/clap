@@ -26,7 +26,7 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-rc.1", default-features = false, features = ["std"] }
+clap = { path = "../", version = "=3.0.0-rc.2", default-features = false, features = ["std"] }
 clap_generate = { path = "../clap_generate", version = "=3.0.0-rc.1"}
 
 [dev-dependencies]

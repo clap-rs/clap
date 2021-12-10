@@ -26,11 +26,11 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-rc.1", default-features = false, features = ["std"] }
+clap = { path = "../", version = "=3.0.0-rc.2", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 pretty_assertions = "1.0"
-clap = { path = "../", version = "=3.0.0-rc.1", default-features = false, features = ["std", "derive"] }
+clap = { path = "../", version = "=3.0.0-rc.2", default-features = false, features = ["std", "derive"] }
 
 [features]
 default = []
