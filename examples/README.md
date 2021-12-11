@@ -3,7 +3,7 @@
 - Basic demo: [derive](demo.md)
 - Key-value pair arguments: [derive](keyvalue_derive.md)
 - git-like interface: [builder](git.md), [derive](git_derive.md)
-- pacman-like interface: [builder](git.md)
+- pacman-like interface: [builder](pacman.md)
 - Escaped positionals with `--`: [builder](escaped_positional.md), [derive](escaped_positional_derive.md)
 - Multi-call
   - busybox: [builder](multicall_busybox.md)
