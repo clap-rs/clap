@@ -97,13 +97,13 @@ CLI parsers optimized for other use cases.
 ### Related Projects
 
 - [wild](https://crates.io/crates/wild) for supporting wildcards (`*`) on Windows like you do Linux
-- [argfile](https://github.com/rust-cli/argfile) for loading additional arguments from a file (aka response files)
-- [clap-verbosity-flag](https://github.com/rust-cli/clap-verbosity-flag)
-- [clap-cargo](https://github.com/crate-ci/clap-cargo)
-- [concolor-clap](https://github.com/rust-cli/concolor/tree/main/crates/clap)
+- [argfile](https://crates.io/crates/argfile) for loading additional arguments from a file (aka response files)
+- [clap-verbosity-flag](https://crates.io/crates/clap-verbosity-flag)
+- [clap-cargo](https://crates.io/crates/clap-cargo)
+- [concolor-clap](https://crates.io/crates/concolor-clap)
 - [Command-line Apps for Rust](https://rust-cli.github.io/book/index.html) book
-- [`trycmd`](https://github.com/epage/trycmd):  Snapshot testing
-  - Or for more control, [`assert_cmd`](https://github.com/assert-rs/assert_cmd) and [`assert_fs`](https://github.com/assert-rs/assert_fs)
+- [`trycmd`](https://crates.io/crates/trycmd):  Snapshot testing
+  - Or for more control, [`assert_cmd`](https://crates.io/crates/assert_cmd) and [`assert_fs`](https://crates.io/crates/assert_fs)
 
 ## Feature Flags
 
