@@ -15,16 +15,16 @@ use indexmap::map::Entry;
 pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
 
 impl ArgMatcher {
-    pub(crate) fn new(app: &App) -> Self {
+    pub(crate) fn new(_app: &App) -> Self {
         ArgMatcher(ArgMatches {
             #[cfg(debug_assertions)]
             valid_args: {
-                let args = app.args.args().map(|a| a.id.clone());
-                let groups = app.groups.iter().map(|g| g.id.clone());
+                let args = _app.args.args().map(|a| a.id.clone());
+                let groups = _app.groups.iter().map(|g| g.id.clone());
                 args.chain(groups).collect()
             },
             #[cfg(debug_assertions)]
-            valid_subcommands: app.subcommands.iter().map(|sc| sc.id.clone()).collect(),
+            valid_subcommands: _app.subcommands.iter().map(|sc| sc.id.clone()).collect(),
             ..Default::default()
         })
     }
