@@ -2,7 +2,6 @@
 members = [
 	"clap_derive",
 	"clap_generate",
-	"clap_generate_fig",
 ]
 
 [package]

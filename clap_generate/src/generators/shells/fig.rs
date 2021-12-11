@@ -2,10 +2,13 @@
 use std::io::Write;
 
 // Internal
+use crate::utils;
+use crate::Generator;
+
 use clap::*;
-use clap_generate::*;
 
 /// Generate fig completion file
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fig;
 
 impl Generator for Fig {

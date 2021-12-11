@@ -13,6 +13,8 @@ pub enum Shell {
     Bash,
     /// Elvish shell
     Elvish,
+    /// Fig
+    Fig,
     /// Friendly Interactive SHell (fish)
     Fish,
     /// PowerShell
@@ -59,6 +61,7 @@ impl ArgEnum for Shell {
             Shell::Bash,
             Shell::Elvish,
             Shell::Fish,
+            Shell::Fig,
             Shell::PowerShell,
             Shell::Zsh,
         ]
@@ -69,6 +72,7 @@ impl ArgEnum for Shell {
             Shell::Bash => PossibleValue::new("bash"),
             Shell::Elvish => PossibleValue::new("elvish"),
             Shell::Fish => PossibleValue::new("fish"),
+            Shell::Fig => PossibleValue::new("fig"),
             Shell::PowerShell => PossibleValue::new("powershell"),
             Shell::Zsh => PossibleValue::new("zsh"),
         })
@@ -81,6 +85,7 @@ impl Generator for Shell {
             Shell::Bash => generators::Bash.file_name(name),
             Shell::Elvish => generators::Elvish.file_name(name),
             Shell::Fish => generators::Fish.file_name(name),
+            Shell::Fig => generators::Fig.file_name(name),
             Shell::PowerShell => generators::PowerShell.file_name(name),
             Shell::Zsh => generators::Zsh.file_name(name),
         }
@@ -91,6 +96,7 @@ impl Generator for Shell {
             Shell::Bash => generators::Bash.generate(app, buf),
             Shell::Elvish => generators::Elvish.generate(app, buf),
             Shell::Fish => generators::Fish.generate(app, buf),
+            Shell::Fig => generators::Fig.generate(app, buf),
             Shell::PowerShell => generators::PowerShell.generate(app, buf),
             Shell::Zsh => generators::Zsh.generate(app, buf),
         }

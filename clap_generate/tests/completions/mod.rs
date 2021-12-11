@@ -4,6 +4,7 @@ use std::fmt;
 
 mod bash;
 mod elvish;
+mod fig;
 mod fish;
 mod powershell;
 mod zsh;
