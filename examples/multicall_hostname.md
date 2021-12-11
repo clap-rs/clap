@@ -10,4 +10,4 @@ This example omits the implementation of displaying address config
 $ hostname
 www
 ```
-*Note: without the links setup, we can't demonostrate the multicall behavior*
+*Note: without the links setup, we can't demonstrate the multicall behavior*

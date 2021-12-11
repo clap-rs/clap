@@ -12,7 +12,7 @@ $ busybox true
 $ busybox false
 ? 1
 ```
-*Note: without the links setup, we can't demonostrate the multicall behavior*
+*Note: without the links setup, we can't demonstrate the multicall behavior*
 
 But includes the `--install` option as an example of why it can be useful
 for the main program to take arguments that aren't applet subcommands.
