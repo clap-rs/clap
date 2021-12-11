@@ -115,8 +115,9 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: crate::ArgMatches::occurrences_of()
     pub fn value_of<T: Key>(&self, id: T) -> Option<&str> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_utf8_validation(arg, &id);
         let v = arg.first()?;
         Some(v.to_str().expect(INVALID_UTF8))
     }
@@ -163,8 +164,9 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_no_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_no_utf8_validation(arg, &id);
         let v = arg.first()?;
         Some(v.to_string_lossy())
     }
@@ -212,8 +214,9 @@ impl ArgMatches {
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_no_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_no_utf8_validation(arg, &id);
         let v = arg.first()?;
         Some(v.as_os_str())
     }
@@ -249,8 +252,9 @@ impl ArgMatches {
     /// [values]: Values
     /// [`Iterator`]: std::iter::Iterator
     pub fn values_of<T: Key>(&self, id: T) -> Option<Values> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_utf8_validation(arg, &id);
         fn to_str_slice(o: &OsString) -> &str {
             o.to_str().expect(INVALID_UTF8)
         }
@@ -263,8 +267,9 @@ impl ArgMatches {
     /// Placeholder documentation.
     #[cfg(feature = "unstable-grouped")]
     pub fn grouped_values_of<T: Key>(&self, id: T) -> Option<GroupedValues> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_utf8_validation(arg, &id);
         let v = GroupedValues {
             iter: arg
                 .vals()
@@ -310,8 +315,9 @@ impl ArgMatches {
     /// assert_eq!(itr.next(), None);
     /// ```
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_no_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_no_utf8_validation(arg, &id);
         let v = arg
             .vals_flatten()
             .map(|v| v.to_string_lossy().into_owned())
@@ -362,8 +368,9 @@ impl ArgMatches {
     /// [values]: OsValues
     /// [`String`]: std::string::String
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
-        let arg = self.get_arg(&Id::from(id))?;
-        assert_no_utf8_validation(arg);
+        let id = Id::from(id);
+        let arg = self.get_arg(&id)?;
+        assert_no_utf8_validation(arg, &id);
         fn to_str_slice(o: &OsString) -> &OsStr {
             o
         }
@@ -1253,19 +1260,21 @@ impl<'a> Default for Indices<'a> {
 
 #[track_caller]
 #[inline]
-fn assert_utf8_validation(arg: &MatchedArg) {
+fn assert_utf8_validation(arg: &MatchedArg, id: &Id) {
     debug_assert!(
         matches!(arg.is_invalid_utf8_allowed(), None | Some(false)),
-        "Must use `_os` lookups with `Arg::allow_invalid_utf8`"
+        "Must use `_os` lookups with `Arg::allow_invalid_utf8` at `{:?}`",
+        id
     );
 }
 
 #[track_caller]
 #[inline]
-fn assert_no_utf8_validation(arg: &MatchedArg) {
+fn assert_no_utf8_validation(arg: &MatchedArg, id: &Id) {
     debug_assert!(
         matches!(arg.is_invalid_utf8_allowed(), None | Some(true)),
-        "Must use `Arg::allow_invalid_utf8` with `_os` lookups"
+        "Must use `Arg::allow_invalid_utf8` with `_os` lookups at `{:?}`",
+        id
     );
 }
 
