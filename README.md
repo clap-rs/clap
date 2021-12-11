@@ -98,6 +98,7 @@ CLI parsers optimized for other use cases.
 
 - [wild](https://crates.io/crates/wild) for supporting wildcards (`*`) on Windows like you do Linux
 - [argfile](https://crates.io/crates/argfile) for loading additional arguments from a file (aka response files)
+- [clap-generate](https://crates.io/crates/clap-generate) for shell completion support
 - [clap-verbosity-flag](https://crates.io/crates/clap-verbosity-flag)
 - [clap-cargo](https://crates.io/crates/clap-cargo)
 - [concolor-clap](https://crates.io/crates/concolor-clap)
