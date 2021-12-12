@@ -2,7 +2,7 @@
 
 Macro implementation for clap's derives.
 
-See [docs.rs](https://docs.rs/clap).
+See [docs.rs](https://docs.rs/clap_derive/).
 
 ## License
 
