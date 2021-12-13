@@ -25,6 +25,7 @@ impl Default for ArgFlags {
 /// [`Arg::unset_setting`]: crate::Arg::unset_setting()
 /// [`Arg::is_set`]: crate::Arg::is_set()
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[non_exhaustive]
 pub enum ArgSettings {
     /// Specifies that an arg must be used
     Required,
