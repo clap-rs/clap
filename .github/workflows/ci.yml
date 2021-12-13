@@ -181,3 +181,5 @@ jobs:
       run: make clippy-minimal
     - name: Lint (all)
       run: make clippy-full
+    - name: Lint (release)
+      run: make clippy-release
