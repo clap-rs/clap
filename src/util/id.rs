@@ -7,7 +7,7 @@ use std::{
 };
 
 #[derive(Clone, Eq, Default)]
-#[cfg_attr(not(debug_assertions), derive(Copy), repr(transparent))]
+#[cfg_attr(not(debug_assertions), repr(transparent))]
 pub(crate) struct Id {
     #[cfg(debug_assertions)]
     name: String,

@@ -1,3 +1,4 @@
+#[cfg(debug_assertions)]
 use clap::{App, Arg};
 
 #[test]
