@@ -396,6 +396,9 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 ValueHint::Hostname => "_hosts",
                 ValueHint::Url => "_urls",
                 ValueHint::EmailAddress => "_email_addresses",
+                _ => {
+                    return None;
+                }
             }
             .to_string(),
         )

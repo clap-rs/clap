@@ -23,6 +23,7 @@ impl Default for AppFlags {
 ///
 /// [`App`]: crate::App
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[non_exhaustive]
 pub enum AppSettings {
     /// Try not to fail on parse errors, like missing option values.
     ///
