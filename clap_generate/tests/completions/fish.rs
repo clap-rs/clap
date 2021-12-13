@@ -37,7 +37,6 @@ complete -c myapp -n "__fish_use_subcommand" -f -a "help" -d 'Print this message
 complete -c myapp -n "__fish_seen_subcommand_from test" -l case -d 'the case to test' -r
 complete -c myapp -n "__fish_seen_subcommand_from test" -s h -l help -d 'Print help information'
 complete -c myapp -n "__fish_seen_subcommand_from test" -s V -l version -d 'Print version information'
-complete -c myapp -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
 "#;
 
 #[test]
@@ -73,7 +72,6 @@ complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s h -l help -d 'Pr
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hyphens" -s h -l help -d 'Print help information'
 complete -c my_app -n "__fish_seen_subcommand_from some-cmd-with-hyphens" -s V -l version -d 'Print version information'
-complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
 "#;
 
 #[test]
@@ -197,5 +195,4 @@ complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_sub
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
 complete -c my_app -n "__fish_seen_subcommand_from some_cmd; and __fish_seen_subcommand_from help" -s V -l version -d 'Print version information'
-complete -c my_app -n "__fish_seen_subcommand_from help" -s h -l help -d 'Print help information'
 "#;
