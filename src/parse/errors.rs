@@ -1133,6 +1133,8 @@ fn try_help(app: &App, c: &mut Colorizer) {
         c.none("\n\nFor more information try ");
         c.good("help");
         c.none("\n");
+    } else {
+        c.none("\n");
     }
 }
 

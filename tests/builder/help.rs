@@ -2643,6 +2643,11 @@ fn disabled_help_flag_and_subcommand() {
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::UnrecognizedSubcommand);
     assert_eq!(err.info, &["help"]);
+    assert!(
+        err.to_string().ends_with('\n'),
+        "Errors should have a trailing newline, got {:?}",
+        err.to_string()
+    );
 }
 
 #[test]
