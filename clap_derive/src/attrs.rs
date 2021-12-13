@@ -323,7 +323,7 @@ impl Attrs {
                         if res.is_enum {
                             abort!(field.ty, "`arg_enum` is meaningless for bool")
                         }
-                        if let Some(m) = res.find_method("default_value") {
+                        if let Some(m) = res.find_default_method() {
                             abort!(m.name, "default_value is meaningless for bool")
                         }
                         if let Some(m) = res.find_method("required") {
@@ -331,7 +331,7 @@ impl Attrs {
                         }
                     }
                     Ty::Option => {
-                        if let Some(m) = res.find_method("default_value") {
+                        if let Some(m) = res.find_default_method() {
                             abort!(m.name, "default_value is meaningless for Option")
                         }
                     }
@@ -557,12 +557,14 @@ impl Attrs {
         }
     }
 
-    pub fn has_method(&self, name: &str) -> bool {
-        self.find_method(name).is_some()
-    }
-
     pub fn find_method(&self, name: &str) -> Option<&Method> {
         self.methods.iter().find(|m| m.name == name)
+    }
+
+    pub fn find_default_method(&self) -> Option<&Method> {
+        self.methods
+            .iter()
+            .find(|m| m.name == "default_value" || m.name == "default_value_os")
     }
 
     /// generate methods from attributes on top of struct or enum

@@ -328,7 +328,7 @@ pub fn gen_augment(
                     },
 
                     Ty::Other => {
-                        let required = !attrs.has_method("default_value") && !override_required;
+                        let required = attrs.find_default_method().is_none() && !override_required;
                         quote_spanned! { ty.span()=>
                             .takes_value(true)
                             .value_name(#value_name)

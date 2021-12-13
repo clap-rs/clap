@@ -283,6 +283,7 @@ On top of the clap 2 changes
 - Support `SubcommandsNegateReqs` by allowing required `Option<_>`s ([clap-rs/clap#2255](https://github.com/clap-rs/clap/issues/2255))
 - Infer `AllowInvalidUtf8` based on parser ([clap-rs/clap#751](https://github.com/clap-rs/clap/issues/2255))
 - Gracefully handle empty `authors` field in `Cargo.toml`
+- Don't panic with `default_value_os` but treat it like `default_value` ([clap-rs/clap#3031](https://github.com/clap-rs/clap/issues/3031))
 
 On top of the clap 2 changes
 
