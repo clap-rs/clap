@@ -75,3 +75,21 @@ fn value_validation_has_newline() {
         err.to_string()
     );
 }
+
+#[test]
+fn argument_not_found_auto_has_newline() {
+    let m = App::new("test")
+        .arg(arg!([PORT]).help("Network port to use"))
+        .try_get_matches_from(["test"])
+        .unwrap();
+
+    let res = m.value_of_t::<usize>("PORT");
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert!(
+        err.to_string().ends_with('\n'),
+        "Errors should have a trailing newline, got {:?}",
+        err.to_string()
+    );
+}

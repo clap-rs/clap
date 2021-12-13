@@ -1066,7 +1066,7 @@ impl Error {
 
         start_error(&mut c, "The argument '");
         c.warning(arg.clone());
-        c.none("' wasn't found");
+        c.none("' wasn't found\n");
 
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
