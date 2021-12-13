@@ -2680,3 +2680,46 @@ fn override_help_flag_using_short() {
     let matches = app.get_matches_from(&["foo", "-h"]);
     assert!(matches.subcommand_matches("help").is_some());
 }
+
+#[test]
+fn subcommand_help_doesnt_have_useless_help_flag() {
+    // The main care-about is that the docs and behavior match.  Since the `help` subcommand
+    // currently ignores the `--help` flag, the output shouldn't have it.
+    let app = App::new("test_app").subcommand(App::new("test").about("Subcommand"));
+
+    assert!(utils::compare_output(
+        app,
+        "example help help",
+        "example-help 
+
+Print this message or the help of the given subcommand(s)
+
+USAGE:
+    example help [SUBCOMMAND]...
+
+ARGS:
+    <SUBCOMMAND>...    The subcommand whose help message to display
+",
+        false
+    ));
+}
+
+#[test]
+fn disable_help_flag_affects_help_subcommand() {
+    let mut app = App::new("test_app")
+        .global_setting(AppSettings::DisableHelpFlag)
+        .subcommand(App::new("test").about("Subcommand"));
+    app._build_all();
+
+    let args = app
+        .find_subcommand("help")
+        .unwrap()
+        .get_arguments()
+        .map(|a| a.get_name())
+        .collect::<Vec<_>>();
+    assert!(
+        !args.contains(&"help"),
+        "`help` should not be present: {:?}",
+        args
+    );
+}

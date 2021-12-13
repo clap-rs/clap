@@ -72,8 +72,6 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Print help information]' \
-'--help[Print help information]' \
 && ret=0
 ;;
         esac
@@ -192,8 +190,6 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Print help information]' \
-'--help[Print help information]' \
 && ret=0
 ;;
         esac
@@ -391,8 +387,6 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" \
-'-h[Print help information]' \
-'--help[Print help information]' \
 && ret=0
 ;;
         esac

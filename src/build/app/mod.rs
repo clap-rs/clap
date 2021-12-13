@@ -2839,7 +2839,11 @@ impl<'help> App<'help> {
         {
             debug!("App::_check_help_and_version: Building help subcommand");
             self.subcommands.push(
-                App::new("help").about("Print this message or the help of the given subcommand(s)"),
+                App::new("help")
+                    .about("Print this message or the help of the given subcommand(s)")
+                    // The parser acts like this is set, so let's set it so we don't falsely
+                    // advertise it to the user
+                    .setting(AppSettings::DisableHelpFlag),
             );
         }
     }

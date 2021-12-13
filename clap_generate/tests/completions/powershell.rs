@@ -81,8 +81,6 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             break
         }
         'my_app;help' {
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
             break
         }
     })
@@ -171,8 +169,6 @@ Register-ArgumentCompleter -Native -CommandName 'my_app' -ScriptBlock {
             break
         }
         'my_app;help' {
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
             break
         }
     })

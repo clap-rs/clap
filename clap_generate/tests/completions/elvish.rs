@@ -65,8 +65,6 @@ set edit:completion:arg-completer[my_app] = [@words]{
             cand --version 'Print version information'
         }
         &'my_app;help'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
         }
     ]
     $completions[$command]
@@ -142,8 +140,6 @@ set edit:completion:arg-completer[my_app] = [@words]{
             cand --version 'Print version information'
         }
         &'my_app;help'= {
-            cand -h 'Print help information'
-            cand --help 'Print help information'
         }
     ]
     $completions[$command]

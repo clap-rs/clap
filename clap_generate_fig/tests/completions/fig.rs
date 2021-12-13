@@ -61,10 +61,6 @@ static FIG: &str = r#"const completion: Fig.Spec = {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
       options: [
-        {
-          name: ["-h", "--help"],
-          description: "Print help information",
-        },
       ],
     },
   ],
@@ -172,10 +168,6 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
       options: [
-        {
-          name: ["-h", "--help"],
-          description: "Print help information",
-        },
       ],
     },
   ],
@@ -445,10 +437,6 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
       options: [
-        {
-          name: ["-h", "--help"],
-          description: "Print help information",
-        },
       ],
     },
   ],
