@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{App, Arg, Error, ErrorKind};
+use clap::{arg, App, Arg, Error, ErrorKind};
 
 fn compare_error(
     err: Error,
@@ -56,4 +56,22 @@ For more information try --help
     let expected_kind = ErrorKind::InvalidValue;
     let err = app.error(expected_kind, "Failed for mysterious reasons");
     assert!(compare_error(err, expected_kind, MESSAGE, true));
+}
+
+#[test]
+fn value_validation_has_newline() {
+    let m = App::new("test")
+        .arg(arg!(<PORT>).help("Network port to use"))
+        .try_get_matches_from(["test", "foo"])
+        .unwrap();
+
+    let res = m.value_of_t::<usize>("PORT");
+
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    assert!(
+        err.to_string().ends_with('\n'),
+        "Errors should have a trailing newline, got {:?}",
+        err.to_string()
+    );
 }
