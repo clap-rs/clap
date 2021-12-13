@@ -12,6 +12,6 @@ fn main() {
     // Note, it's safe to call unwrap() because the arg is required
     let port: usize = matches
         .value_of_t("PORT")
-        .expect("'MODE' is required and parsing will fail if its missing");
+        .expect("'PORT' is required and parsing will fail if its missing");
     println!("PORT = {}", port);
 }
