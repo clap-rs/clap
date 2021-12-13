@@ -77,7 +77,7 @@ fn main() {
 
 - `Parser` parses arguments into a `struct` (arguments) or `enum` (subcommands).
 - `Args` allows defining a set of re-usable arguments that get merged into their parent container.
-- `Subcimmand` defines available subcommands.
+- `Subcommand` defines available subcommands.
 - `ArgEnum` allows parsing a value directly into an `enum`, erroring on unsupported values.
 
 ## Raw Attributes
