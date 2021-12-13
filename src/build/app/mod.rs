@@ -607,7 +607,7 @@ impl<'help> App<'help> {
         if self.settings.is_set(AppSettings::Multicall) {
             if let Some((argv0, _)) = it.next() {
                 let argv0 = Path::new(&argv0);
-                if let Some(command) = argv0.file_name().and_then(|f| f.to_str()) {
+                if let Some(command) = argv0.file_stem().and_then(|f| f.to_str()) {
                     // Stop borrowing command so we can get another mut ref to it.
                     let command = command.to_owned();
                     debug!(
@@ -615,39 +615,12 @@ impl<'help> App<'help> {
                         command
                     );
 
-                    let subcommand = self
-                        .subcommands
-                        .iter_mut()
-                        .find(|subcommand| subcommand.aliases_to(&command));
-                    debug!(
-                        "App::try_get_matches_from_mut: Matched subcommand {:?}",
-                        subcommand
-                    );
-
-                    match subcommand {
-                        None if command == self.name => {
-                            debug!("App::try_get_matches_from_mut: no existing applet but matches name");
-                            debug!(
-                                "App::try_get_matches_from_mut: Setting bin_name to command name"
-                            );
-                            self.bin_name.get_or_insert(command);
-                            debug!(
-                                "App::try_get_matches_from_mut: Continuing with top-level parser."
-                            );
-                            return self._do_parse(&mut it);
-                        }
-                        _ => {
-                            debug!(
-                                "App::try_get_matches_from_mut: existing applet or no program name"
-                            );
-                            debug!("App::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
-                            it.insert(&[&command]);
-                            debug!("App::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
-                            self.name.clear();
-                            self.bin_name = None;
-                            return self._do_parse(&mut it);
-                        }
-                    };
+                    debug!("App::try_get_matches_from_mut: Reinserting command into arguments so subcommand parser matches it");
+                    it.insert(&[&command]);
+                    debug!("App::try_get_matches_from_mut: Clearing name and bin_name so that displayed command name starts with applet name");
+                    self.name.clear();
+                    self.bin_name = None;
+                    return self._do_parse(&mut it);
                 }
             }
         };
