@@ -55,17 +55,19 @@ Depending on the style in which you choose to define the valid arguments, `clap`
  * You want to use subcommands (although other libraries also support subcommands, they are not nearly as feature rich as those provided by `clap`)
  * You want some sort of custom validation built into the argument parsing process, instead of as part of your application (which allows for earlier failures, better error messages, more cohesive experience, etc.)
 
-### How many approaches are there to create an App/Arg?
+### How many approaches are there to create a parser?
 
-To build an `App` there are two:
+The following APIs are supported:
+- [Derive](../examples/tutorial_derive/README.md)
+- [Builder](../examples/tutorial_builder/README.md)
 
-- Derive Macros
-- Builder Pattern
+Previously, we supported:
+- [YAML](https://github.com/clap-rs/clap/issues/3087)
+- [docopt](http://docopt.org/)-inspired [usage parser](https://github.com/clap-rs/clap/issues/3086)
+- [`clap_app!`](https://github.com/clap-rs/clap/issues/2835)
 
-To build an `Arg` there are two:
-
-- Derive Macros
-- Builder Pattern
+There are also experiments with other APIs:
+- [fncmd](https://github.com/yuhr/fncmd): function attribute
 
 ### Why is there a default subcommand of help?
 
