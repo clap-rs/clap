@@ -14,7 +14,7 @@
 
 use crate::utils;
 
-use clap::{ArgEnum, Parser};
+use clap::{ArgEnum, IntoApp, Parser};
 
 #[test]
 fn doc_comments() {
@@ -213,4 +213,29 @@ fn argenum_multiline_doc_comment() {
         /// Doc comment
         Bar,
     }
+}
+
+#[test]
+fn doc_comment_about_handles_both_abouts() {
+    /// Opts doc comment summary
+    #[derive(Parser, Debug)]
+    pub struct Opts {
+        #[clap(subcommand)]
+        pub cmd: Sub,
+    }
+
+    /// Sub doc comment summary
+    ///
+    /// Sub doc comment body
+    #[derive(Parser, PartialEq, Eq, Debug)]
+    pub enum Sub {
+        Compress { output: String },
+    }
+
+    let app = Opts::into_app();
+    assert_eq!(app.get_about(), Some("Opts doc comment summary"));
+    assert_eq!(
+        app.get_long_about(),
+        Some("Sub doc comment summary\n\nSub doc comment body")
+    );
 }
