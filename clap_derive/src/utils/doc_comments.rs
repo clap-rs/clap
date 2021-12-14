@@ -61,7 +61,10 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
             lines.join("\n")
         };
 
-        vec![Method::new(short_name, quote!(#short))]
+        vec![
+            Method::new(short_name, quote!(#short)),
+            Method::new(long_name, quote!(None)),
+        ]
     }
 }
 

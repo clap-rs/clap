@@ -234,8 +234,7 @@ fn doc_comment_about_handles_both_abouts() {
 
     let app = Opts::into_app();
     assert_eq!(app.get_about(), Some("Opts doc comment summary"));
-    assert_eq!(
-        app.get_long_about(),
-        Some("Sub doc comment summary\n\nSub doc comment body")
-    );
+    // clap will fallback to `about` on `None`.  The main care about is not providing a `Sub` doc
+    // comment.
+    assert_eq!(app.get_long_about(), None);
 }
