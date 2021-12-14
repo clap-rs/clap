@@ -9,7 +9,6 @@ Help:
 $ git_derive
 ? failed
 git 
-
 A fictional versioning CLI
 
 USAGE:
@@ -25,7 +24,6 @@ SUBCOMMANDS:
     push     pushes things
 $ git_derive help
 git 
-
 A fictional versioning CLI
 
 USAGE:
@@ -41,7 +39,6 @@ SUBCOMMANDS:
     push     pushes things
 $ git_derive help add
 git_derive[EXE]-add 
-
 adds things
 
 USAGE:
@@ -59,7 +56,6 @@ A basic argument:
 $ git_derive add
 ? failed
 git_derive[EXE]-add 
-
 adds things
 
 USAGE:

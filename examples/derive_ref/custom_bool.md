@@ -5,7 +5,6 @@ Example of overriding the magic `bool` behavior
 ```bash
 $ custom_bool --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
