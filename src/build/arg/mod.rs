@@ -2712,8 +2712,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
-    pub fn help(mut self, h: &'help str) -> Self {
-        self.help = Some(h);
+    pub fn help(mut self, h: impl Into<Option<&'help str>>) -> Self {
+        self.help = h.into();
         self
     }
 
@@ -2773,8 +2773,8 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::help`]: Arg::help()
     #[inline]
-    pub fn long_help(mut self, h: &'help str) -> Self {
-        self.long_help = Some(h);
+    pub fn long_help(mut self, h: impl Into<Option<&'help str>>) -> Self {
+        self.long_help = h.into();
         self
     }
 
