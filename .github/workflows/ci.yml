@@ -19,7 +19,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [test, check, docs, rustfmt, clippy]
+    needs: [test, check, docs, rustfmt, clippy, minimal_versions]
     runs-on: ubuntu-latest
     steps:
       - name: Done
@@ -183,3 +183,49 @@ jobs:
       run: make clippy-full
     - name: Lint (release)
       run: make clippy-release
+  minimal_versions:
+    name: Minimal versions
+    strategy:
+      matrix:
+        build: [ linux, windows, mac, minimal, default ]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            rust: "stable"
+            features: "full"
+          - build: windows
+            os: windows-latest
+            rust: "stable"
+            features: "full"
+          - build: mac
+            os: macos-latest
+            rust: "stable"
+            features: "full"
+          - build: minimal
+            os: ubuntu-latest
+            rust: "stable"
+            features: "minimal"
+          - build: default
+            os: ubuntu-latest
+            rust: "stable"
+            features: "default"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.54.0  # MSRV
+          override: true
+      - name: Downgrade crates to minimal supported versions
+        run: cargo +nightly update -Z minimal-versions
+      - uses: Swatinem/rust-cache@v1
+      - name: Build
+        run: make build-${{matrix.features}}
+      - name: Test
+        run: make test-${{matrix.features}}
