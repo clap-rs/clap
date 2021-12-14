@@ -896,8 +896,8 @@ impl<'help> App<'help> {
     ///     .about("Does really amazing things for great people")
     /// # ;
     /// ```
-    pub fn about<S: Into<&'help str>>(mut self, about: S) -> Self {
-        self.about = Some(about.into());
+    pub fn about<O: Into<Option<&'help str>>>(mut self, about: O) -> Self {
+        self.about = about.into();
         self
     }
 
@@ -920,8 +920,8 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`App::about`]: App::about()
-    pub fn long_about<S: Into<&'help str>>(mut self, about: S) -> Self {
-        self.long_about = Some(about.into());
+    pub fn long_about<O: Into<Option<&'help str>>>(mut self, long_about: O) -> Self {
+        self.long_about = long_about.into();
         self
     }
 
