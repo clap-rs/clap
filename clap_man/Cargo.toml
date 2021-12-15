@@ -21,6 +21,11 @@ categories = ["command-line-interface"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
+[package.metadata.release]
+pre-release-replacements = [
+  {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=4, prerelease = true},
+]
+
 [lib]
 bench = false
 
