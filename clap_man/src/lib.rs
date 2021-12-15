@@ -8,7 +8,7 @@ mod render;
 
 use std::io::Write;
 
-/// Manpage sections, the most common is [`ManpageSection::Executable`].
+/// Manpage sections, the most common is [`Section::Executable`].
 #[derive(Debug, Clone, Copy)]
 pub enum Section {
     /// Executable programs or shell commands
@@ -81,7 +81,7 @@ impl Man {
         }
     }
 
-    /// Add section for your man page, see [`ManpageSection`].
+    /// Add section for your man page, see [`Section`].
     pub fn section(mut self, section: Section) -> Self {
         self.section = Some(section);
         self
