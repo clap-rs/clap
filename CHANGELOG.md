@@ -181,6 +181,7 @@ Easier to catch changes:
 - Renamed `ErrorKind::MissingArgumentOrSubcommand` to `ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand`
 - Renamed `ErrorKind::HelpDisplayed` to `ErrorKind::DisplayHelp`
 - Renamed `ErrorKind::VersionDisplayed` to `ErrorKind::DisplayVersion`
+- Added `#[non_exhaustive]` to `clap::{ValueHint, ErrorKind, AppSettings, ArgSettings}` ([clap-rs/clap#3167](https://github.com/clap-rs/clap/pull/3167))
 
 **From structopt 0.3.25**
 
@@ -277,6 +278,8 @@ On top of the clap 2 changes
 - Always respect `ColorChoice::Never`, even if that means we skip colors in some cases
 - `ArgMatches` panics on unknown arguments
 - Gracefully handle empty `authors` field in `Cargo.toml` with `app_from_crate`
+- Do not show `--help` in `cmd help` with `DisableHelpFlag` ([clap-rs/clap#3169](https://github.com/clap-rs/clap/pull/3169))
+- Do not show `--help` in `cmd help help` that doesn't work ([clap-rs/clap#3169](https://github.com/clap-rs/clap/pull/3169))
 
 **From structopt 0.3.25**
 
@@ -284,6 +287,7 @@ On top of the clap 2 changes
 - Infer `AllowInvalidUtf8` based on parser ([clap-rs/clap#751](https://github.com/clap-rs/clap/issues/2255))
 - Gracefully handle empty `authors` field in `Cargo.toml`
 - Don't panic with `default_value_os` but treat it like `default_value` ([clap-rs/clap#3031](https://github.com/clap-rs/clap/issues/3031))
+- When using `flatten` and `subcommand`, ensure our doc comment always overrides the nested container's doc comment, whether it has only `about` or `about` and `long_about` ([clap-rs/clap#3175](]https://github.com/clap-rs/clap/pull/3175))
 
 On top of the clap 2 changes
 
