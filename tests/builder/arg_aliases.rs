@@ -3,7 +3,6 @@ use crate::utils;
 use clap::{arg, App, Arg};
 
 static SC_VISIBLE_ALIAS_HELP: &str = "ct-test 1.2
-
 Some help
 
 USAGE:
@@ -17,7 +16,6 @@ OPTIONS:
 ";
 
 static SC_INVISIBLE_ALIAS_HELP: &str = "ct-test 1.2
-
 Some help
 
 USAGE:

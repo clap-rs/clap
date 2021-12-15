@@ -3,9 +3,7 @@ use crate::utils;
 use clap::{arg, App, AppSettings, Arg};
 
 static HIDDEN_ARGS: &str = "test 1.4
-
 Kevin K.
-
 tests stuff
 
 USAGE:
@@ -39,9 +37,7 @@ fn hide_args() {
 }
 
 static HIDDEN_SHORT_ARGS: &str = "test 2.31.2
-
 Steve P.
-
 hides short args
 
 USAGE:
@@ -54,9 +50,7 @@ OPTIONS:
 ";
 
 static HIDDEN_SHORT_ARGS_LONG_HELP: &str = "test 2.31.2
-
 Steve P.
-
 hides short args
 
 USAGE:
@@ -131,9 +125,7 @@ fn hide_short_args_long_help() {
 }
 
 static HIDDEN_LONG_ARGS: &str = "test 2.31.2
-
 Steve P.
-
 hides long args
 
 USAGE:
@@ -177,9 +169,7 @@ fn hide_long_args() {
 }
 
 static HIDDEN_LONG_ARGS_SHORT_HELP: &str = "test 2.31.2
-
 Steve P.
-
 hides long args
 
 USAGE:

@@ -26,7 +26,6 @@ attributes.  **This requires enabling the `derive` feature flag.**
 ```bash
 $ 01_quick_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -67,9 +66,7 @@ You use the `App` the start building a parser.
 ```bash
 $ 02_apps_derive --help
 MyApp 1.0
-
 Kevin K. <kbknapp@gmail.com>
-
 Does awesome things
 
 USAGE:
@@ -90,7 +87,6 @@ You can use `app_from_crate!()` to fill these fields in from your `Cargo.toml` f
 ```bash
 $ 02_crate_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -113,7 +109,6 @@ all subcommands (`app.global_setting()`).
 ```bash
 $ 02_app_settings_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -139,7 +134,6 @@ Flags are switches that can be on/off:
 ```bash
 $ 03_01_flag_bool_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -169,7 +163,6 @@ Or counted.
 ```bash
 $ 03_01_flag_count_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -195,7 +188,6 @@ Flags can also accept a value.
 ```bash
 $ 03_02_option_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -227,7 +219,6 @@ Or you can have users specify values by their position on the command-line:
 ```bash
 $ 03_03_positional_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -256,7 +247,6 @@ subcommands.
 $ 03_04_subcommands_derive
 ? failed
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -271,7 +261,6 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
 $ 03_04_subcommands_derive help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -286,7 +275,6 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
 $ 03_04_subcommands_derive help add
 03_04_subcommands_derive[EXE]-add [..]
-
 Adds files to myapp
 
 USAGE:
@@ -320,7 +308,6 @@ set `Arg::default_value`.
 ```bash
 $ 03_05_default_values_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -353,7 +340,6 @@ of the mistake, and what the possible valid values are
 ```bash
 $ 04_01_enum_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -388,7 +374,6 @@ More generally, you can validate and parse into any data type.
 ```bash
 $ 04_02_validate_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -425,7 +410,6 @@ each other.
 ```bash
 $ 04_03_relations_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
@@ -484,7 +468,6 @@ As a last resort, you can create custom errors with the basics of clap's formatt
 ```bash
 $ 04_04_custom_derive --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:

@@ -8,7 +8,6 @@ Let's see what this looks like in the help:
 ```bash
 $ escaped_positional --help
 clap [..]
-
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:

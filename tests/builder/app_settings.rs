@@ -39,9 +39,7 @@ OPTIONS:
 ";
 
 static SKIP_POS_VALS: &str = "test 1.3
-
 Kevin K.
-
 tests stuff
 
 USAGE:
@@ -96,7 +94,6 @@ OPTIONS:
 ";
 
 static LONG_FORMAT_FOR_NESTED_HELP_SUBCOMMAND: &str = "myprog-test-nested 
-
 long form about message
 
 USAGE:

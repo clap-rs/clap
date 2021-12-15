@@ -7,7 +7,6 @@ Help:
 $ git
 ? failed
 git 
-
 A fictional versioning CLI
 
 USAGE:
@@ -23,7 +22,6 @@ SUBCOMMANDS:
     push     pushes things
 $ git help
 git 
-
 A fictional versioning CLI
 
 USAGE:
@@ -39,7 +37,6 @@ SUBCOMMANDS:
     push     pushes things
 $ git help add
 git[EXE]-add 
-
 adds things
 
 USAGE:
@@ -57,7 +54,6 @@ A basic argument:
 $ git add
 ? failed
 git[EXE]-add 
-
 adds things
 
 USAGE:

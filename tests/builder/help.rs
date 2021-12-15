@@ -3,9 +3,7 @@ use crate::utils;
 use clap::{arg, App, AppSettings, Arg, ArgGroup, ErrorKind, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
-
 Kevin K.
-
 tests stuff
 
 USAGE:
@@ -18,9 +16,7 @@ OPTIONS:
 ";
 
 static HELP: &str = "clap-test v1.4.8
-
 Kevin K. <kbknapp@gmail.com>
-
 tests clap library
 
 USAGE:
@@ -91,7 +87,6 @@ SUBCOMMANDS:
 static AFTER_HELP: &str = "some text that comes before the help
 
 clap-test v1.4.8
-
 tests clap library
 
 USAGE:
@@ -107,7 +102,6 @@ some text that comes after the help
 static AFTER_LONG_HELP: &str = "some longer text that comes before the help
 
 clap-test v1.4.8
-
 tests clap library
 
 USAGE:
@@ -136,9 +130,7 @@ OPTIONS:
 ";
 
 static SC_HELP: &str = "clap-test-subcmd 0.1
-
 Kevin K. <kbknapp@gmail.com>
-
 tests subcommands
 
 USAGE:
@@ -197,9 +189,7 @@ OPTIONS:
 ";
 
 static MULTI_SC_HELP: &str = "ctest-subcmd-multi 0.1
-
 Kevin K. <kbknapp@gmail.com>
-
 tests subcommands
 
 USAGE:
@@ -324,9 +314,7 @@ OPTIONS:
 ";
 
 static ISSUE_702: &str = "myapp 1.0
-
 foo
-
 bar
 
 USAGE:
@@ -346,10 +334,8 @@ OPTIONS:
 
 static ISSUE_777: &str = "A app with a crazy very long long
 long name hahaha 1.0
-
 Some Very Long Name and crazy long
 email <email@server.com>
-
 Show how the about text is not
 wrapped
 
@@ -526,9 +512,7 @@ OPTIONS:
 ";
 
 static LONG_ABOUT: &str = "myapp 1.0
-
 foo
-
 something really really long, with
 multiple lines of text
 that should be displayed
@@ -549,9 +533,7 @@ OPTIONS:
 ";
 
 static CUSTOM_HELP_SECTION: &str = "blorp 1.4
-
 Will M.
-
 does stuff
 
 USAGE:
@@ -1789,9 +1771,7 @@ fn custom_headers_headers() {
 }
 
 static MULTIPLE_CUSTOM_HELP_SECTIONS: &str = "blorp 1.4
-
 Will M.
-
 does stuff
 
 USAGE:
@@ -1877,9 +1857,7 @@ fn multiple_custom_help_headers() {
 }
 
 static CUSTOM_HELP_SECTION_HIDDEN_ARGS: &str = "blorp 1.4
-
 Will M.
-
 does stuff
 
 USAGE:
@@ -1937,7 +1915,6 @@ fn custom_help_headers_hide_args() {
 }
 
 static ISSUE_897: &str = "ctest-foo 0.1
-
 Long about foo
 
 USAGE:
@@ -1968,7 +1945,6 @@ fn show_long_about_issue_897() {
 }
 
 static ISSUE_897_SHORT: &str = "ctest-foo 0.1
-
 About foo
 
 USAGE:
@@ -2153,7 +2129,6 @@ fn after_help_no_args() {
 }
 
 static HELP_SUBCMD_HELP: &str = "myapp-help 
-
 Print this message or the help of the given subcommand(s)
 
 USAGE:
@@ -2181,7 +2156,6 @@ fn help_subcmd_help() {
 }
 
 static SUBCMD_HELP_SUBCMD_HELP: &str = "myapp-subcmd-help 
-
 Print this message or the help of the given subcommand(s)
 
 USAGE:
@@ -2691,7 +2665,6 @@ fn subcommand_help_doesnt_have_useless_help_flag() {
         app,
         "example help help",
         "example-help 
-
 Print this message or the help of the given subcommand(s)
 
 USAGE:

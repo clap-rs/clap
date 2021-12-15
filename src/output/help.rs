@@ -34,8 +34,7 @@ pub(crate) struct Help<'help, 'app, 'parser, 'writer> {
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
-        {author-section}\
-        {about-section}\n\
+        {author-with-newline}{about-with-newline}\n\
         {usage-heading}\n    {usage}\n\
         \n\
         {all-args}{after-help}\
@@ -43,8 +42,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
-        {author-section}\
-        {about-section}\n\
+        {author-with-newline}{about-with-newline}\n\
         {usage-heading}\n    {usage}{after-help}\
     ";
 
