@@ -1,0 +1,39 @@
+[package]
+name = "clap_man"
+version = "3.0.0-rc.4"
+edition = "2018"
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"LICENSE-*",
+	"README.md"
+]
+description = "A generator library used with clap for manpages"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_generate"
+documentation = "https://docs.rs/clap_generate"
+keywords = [
+	"clap",
+	"cli",
+	"generate",
+	"manpage",
+]
+categories = ["command-line-interface"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[lib]
+bench = false
+
+[dependencies]
+clap = { path = "../", version = "=3.0.0-rc.4", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+pretty_assertions = "1.0"
+clap = { path = "../", version = "=3.0.0-rc.4", default-features = false, features = ["std", "derive"] }
+
+[features]
+default = []
+debug = ["clap/debug"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]

@@ -16,7 +16,6 @@ keywords = [
 	"cli",
 	"generate",
 	"completion",
-	"manpage",
 ]
 categories = ["command-line-interface"]
 license = "MIT OR Apache-2.0"

@@ -2106,6 +2106,18 @@ impl<'help> App<'help> {
         &self.name
     }
 
+    /// Get the version of the app.
+    #[inline]
+    pub fn get_version(&self) -> Option<&'help str> {
+        self.version
+    }
+
+    /// Get the authors of the app.
+    #[inline]
+    pub fn get_author(&self) -> Option<&'help str> {
+        self.author
+    }
+
     /// Get the short flag of the subcommand.
     #[inline]
     pub fn get_short_flag(&self) -> Option<char> {
@@ -2233,6 +2245,24 @@ impl<'help> App<'help> {
     #[inline]
     pub fn has_subcommands(&self) -> bool {
         !self.subcommands.is_empty()
+    }
+
+    /// Returns the help heading for listing subcommands.
+    #[inline]
+    pub fn get_subommand_help_heading(&self) -> Option<&str> {
+        self.subcommand_heading
+    }
+
+    /// Returns the help heading for listing subcommands.
+    #[inline]
+    pub fn get_after_help(&self) -> Option<&str> {
+        self.after_help
+    }
+
+    /// Returns the help heading for listing subcommands.
+    #[inline]
+    pub fn get_after_long_help(&self) -> Option<&str> {
+        self.after_long_help
     }
 
     /// Find subcommand such that its name or one of aliases equals `name`.
