@@ -141,6 +141,14 @@ name = "demo"
 required-features = ["derive"]
 
 [[example]]
+name = "cargo-example"
+required-features = ["cargo"]
+
+[[example]]
+name = "cargo-example-derive"
+required-features = ["derive"]
+
+[[example]]
 name = "escaped-positional"
 required-features = ["cargo"]
 
