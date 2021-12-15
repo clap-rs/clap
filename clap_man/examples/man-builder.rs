@@ -1,5 +1,5 @@
 use clap::{arg, App};
-use clap_man::Man;
+use clap_man::{Man, Section};
 use std::io;
 
 // Run this example as `cargo run --example man-builder | man -l -`.
@@ -9,7 +9,6 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .long_about("With a longer description to help clarify some things.")
         .subcommand_help_heading("Commands")
         .arg(
             arg!(-c --config <FILE> "Sets a custom config file")
@@ -26,7 +25,7 @@ fn main() {
         );
 
     Man::new()
-        .section(1)
+        .section(Section::Executable)
         .manual("GNU")
         .custom_section(
             "Reference",

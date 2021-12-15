@@ -4,21 +4,6 @@ use crate::man::{bold, document_title, escape, indent, italic, list, section_tit
 
 use clap::ArgSettings;
 
-fn app_name(app: &clap::App) -> String {
-    if let Some(name) = app.get_bin_name() {
-        escape(name)
-    } else {
-        escape(app.get_name())
-    }
-}
-
-fn subcommand_heading(app: &clap::App) -> String {
-    match app.get_subommand_help_heading() {
-        Some(title) => escape(title),
-        None => "Subcommands".to_string(),
-    }
-}
-
 pub(crate) fn header(app: &clap::App, section: i8, manual: Option<String>, buf: &mut dyn Write) {
     write!(buf, "{}", document_title(app, section, manual, None)).unwrap();
 }
@@ -27,7 +12,7 @@ pub(crate) fn about(app: &clap::App, buf: &mut dyn Write) {
     write!(buf, "{}", section_title("Name")).unwrap();
     write!(buf, "{}", bold(&app_name(app))).unwrap();
 
-    if let Some(about) = app.get_about() {
+    if let Some(about) = app.get_about().or_else(|| app.get_long_about()) {
         write!(buf, r" \- {}", escape(about)).unwrap();
     }
 
@@ -35,7 +20,7 @@ pub(crate) fn about(app: &clap::App, buf: &mut dyn Write) {
 }
 
 pub(crate) fn description(app: &clap::App, buf: &mut dyn Write) {
-    if let Some(about) = app.get_long_about() {
+    if let Some(about) = app.get_long_about().or_else(|| app.get_about()) {
         writeln!(buf, "{}{}", section_title("Description"), escape(about)).unwrap();
     }
 }
@@ -71,7 +56,6 @@ pub(crate) fn synopsis(app: &clap::App, buf: &mut dyn Write) {
     writeln!(buf).unwrap();
 }
 
-// TODO: handle positional arguments in a different way?
 pub(crate) fn options(app: &clap::App, buf: &mut dyn Write) {
     let items: Vec<_> = app
         .get_arguments()
@@ -97,14 +81,18 @@ pub(crate) fn options(app: &clap::App, buf: &mut dyn Write) {
             write!(buf, " {}", italic(&value.join(" "))).unwrap();
         }
 
+        if let Some(defs) = option_default_values(opt) {
+            write!(buf, " {}", defs).unwrap();
+        }
+
         writeln!(buf).unwrap();
 
-        if let Some(help) = opt.get_help() {
+        if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
             write!(buf, "{}", indent(4, help)).unwrap();
         }
 
-        if let Some(help) = opt.get_long_help() {
-            write!(buf, "\n.sp\n.sp\n{}", indent(4, help)).unwrap();
+        if let Some(env) = option_environment(opt) {
+            writeln!(buf, "{}", indent(4, &env)).unwrap();
         }
 
         writeln!(buf, "\n").unwrap();
@@ -115,14 +103,20 @@ pub(crate) fn options(app: &clap::App, buf: &mut dyn Write) {
         let (rhs, lhs) = if required { ("<", ">") } else { ("[", "]") };
         let name = format!("{}{}{}", rhs, pos.get_name(), lhs);
 
-        writeln!(buf, "{}", bold(&name)).unwrap();
+        write!(buf, "{}", bold(&name)).unwrap();
 
-        if let Some(help) = pos.get_help() {
+        if let Some(defs) = option_default_values(pos) {
+            write!(buf, " {}", defs).unwrap();
+        }
+
+        writeln!(buf).unwrap();
+
+        if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
             write!(buf, "{}", indent(4, help)).unwrap();
         }
 
-        if let Some(help) = pos.get_long_help() {
-            write!(buf, "\n.sp\n.sp\n{}", indent(4, help)).unwrap();
+        if let Some(env) = option_environment(pos) {
+            writeln!(buf, "{}", indent(4, &env)).unwrap();
         }
 
         writeln!(buf, "\n").unwrap();
@@ -191,5 +185,48 @@ pub(crate) fn after_help(app: &clap::App, buf: &mut dyn Write) {
         if let Some(long) = app.get_after_long_help() {
             writeln!(buf, ".sp\n{}", escape(long)).unwrap();
         }
+    }
+}
+
+fn option_environment(opt: &clap::Arg) -> Option<String> {
+    if let Some(env) = opt.get_env() {
+        let env = bold(&escape(&env.to_string_lossy()));
+        let text = format!(
+            "May also be specified with the {} environment variable. ",
+            env
+        );
+        return Some(format!("\n.sp\n{}", &text));
+    }
+
+    None
+}
+
+fn option_default_values(opt: &clap::Arg) -> Option<String> {
+    if !opt.get_default_values().is_empty() {
+        let values = opt
+            .get_default_values()
+            .iter()
+            .map(|s| s.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join(",");
+
+        return Some(format!("[default: {}]", values));
+    }
+
+    None
+}
+
+fn app_name(app: &clap::App) -> String {
+    if let Some(name) = app.get_bin_name() {
+        escape(name)
+    } else {
+        escape(app.get_name())
+    }
+}
+
+fn subcommand_heading(app: &clap::App) -> String {
+    match app.get_subommand_help_heading() {
+        Some(title) => escape(title),
+        None => "Subcommands".to_string(),
     }
 }

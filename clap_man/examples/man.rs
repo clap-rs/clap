@@ -16,10 +16,12 @@ fn main() {
             arg!(-c --config <FILE> "Sets a custom config file")
                 .long_help("Some more text about how to set a custom config file")
                 .required(false)
-                .takes_value(true),
+                .takes_value(true)
+                .default_value("config.toml")
+                .env("CONFIG_FILE"),
         )
-        .arg(arg!([output] "Sets an optional output file").index(1))
-        .arg(arg!(-d --debug ... "Turn debugging information on"))
+        .arg(arg!([output] "Sets an output file").default_value("result.txt"))
+        .arg(arg!(-d --debug ... "Turn debugging information on").env("DEBUG_ON"))
         .subcommand(
             App::new("test")
                 .about("does testing things")
