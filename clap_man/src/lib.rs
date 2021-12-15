@@ -8,23 +8,66 @@ mod render;
 
 use std::io::Write;
 
+/// Manpage sections, the most common is [`ManpageSection::Executable`].
+#[derive(Debug, Clone, Copy)]
+pub enum Section {
+    /// Executable programs or shell commands
+    Executable,
+    /// System calls (functions provided by the kernel)
+    SystemCalls,
+    /// Library calls (functions within program libraries)
+    LibraryCalls,
+    /// Special files (usually found in /dev)
+    SpecialFiles,
+    /// File formats and conventions, e.g. /etc/passwd
+    FileFormats,
+    /// Games
+    Games,
+    /// Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7)
+    Miscellaneous,
+    /// System administration commands (usually only for root)
+    SystemAdministrationCommands,
+    /// Kernel routines [Non standard]
+    KernelRoutines,
+}
+
+impl Section {
+    fn value(&self) -> i8 {
+        match self {
+            Section::Executable => 1,
+            Section::SystemCalls => 2,
+            Section::LibraryCalls => 3,
+            Section::SpecialFiles => 4,
+            Section::FileFormats => 5,
+            Section::Games => 6,
+            Section::Miscellaneous => 7,
+            Section::SystemAdministrationCommands => 8,
+            Section::KernelRoutines => 9,
+        }
+    }
+}
+
 /// Man page generator
 #[derive(Debug, Clone)]
 pub struct Man {
-    section: Option<i8>,
+    section: Option<Section>,
     manual: Option<String>,
     sections: Vec<(String, Vec<String>)>,
 }
 
 impl Default for Man {
     fn default() -> Self {
-        Self::new()
+        Self {
+            section: Some(Section::Executable),
+            manual: Some("General Commands Manual".to_string()),
+            sections: Vec::new(),
+        }
     }
 }
 
-/// Generate manpage for your application using sane defaults.
+/// Generate manpage for your application using the most common default values.
 pub fn generate_manpage<'a>(app: &mut clap::App<'a>, buf: &mut dyn Write) {
-    let man = Man::new().section(1).manual("General Commands Manual");
+    let man = Man::default();
     man.render(app, buf);
 }
 
@@ -38,18 +81,8 @@ impl Man {
         }
     }
 
-    /// Add section for your man page, the most common being 1 for programs.
-    ///
-    /// 1. Executable programs or shell commands
-    /// 2. System calls (functions provided by the kernel)
-    /// 3. Library calls (functions within program libraries)
-    /// 4. Special files (usually found in /dev)
-    /// 5. File formats and conventions, e.g. /etc/passwd
-    /// 6. Games
-    /// 7. Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7)
-    /// 8. System administration commands (usually only for root)
-    /// 9. Kernel routines [Non standard]
-    pub fn section(mut self, section: i8) -> Self {
+    /// Add section for your man page, see [`ManpageSection`].
+    pub fn section(mut self, section: Section) -> Self {
         self.section = Some(section);
         self
     }
@@ -100,6 +133,6 @@ impl Man {
     }
 
     fn get_section(&self) -> i8 {
-        self.section.unwrap_or(1)
+        self.section.unwrap_or(Section::Executable).value()
     }
 }
