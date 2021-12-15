@@ -1,17 +1,17 @@
-*Jump to [source](escaped_positional.rs)*
+*Jump to [source](escaped-positional-derive.rs)*
 
-**This requires enabling the `cargo` feature flag.**
+**This requires enabling the `derive` feature flag.**
 
 You can use `--` to escape further arguments.
 
 Let's see what this looks like in the help:
 ```bash
-$ escaped_positional --help
+$ escaped-positional-derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 USAGE:
-    escaped_positional[EXE] [OPTIONS] [-- <SLOP>...]
+    escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
 ARGS:
     <SLOP>...    
@@ -25,7 +25,7 @@ OPTIONS:
 
 Here is a baseline without any arguments:
 ```bash
-$ escaped_positional
+$ escaped-positional-derive
 -f used: false
 -p's value: None
 'slops' values: []
@@ -33,19 +33,19 @@ $ escaped_positional
 
 Notice that we can't pass positional arguments before `--`:
 ```bash
-$ escaped_positional foo bar
+$ escaped-positional-derive foo bar
 ? failed
 error: Found argument 'foo' which wasn't expected, or isn't valid in this context
 
 USAGE:
-    escaped_positional[EXE] [OPTIONS] [-- <SLOP>...]
+    escaped-positional-derive[EXE] [OPTIONS] [-- <SLOP>...]
 
 For more information try --help
 ```
 
 But you can after:
 ```bash
-$ escaped_positional -f -p=bob -- sloppy slop slop
+$ escaped-positional-derive -f -p=bob -- sloppy slop slop
 -f used: true
 -p's value: Some("bob")
 'slops' values: ["sloppy", "slop", "slop"]
@@ -53,7 +53,7 @@ $ escaped_positional -f -p=bob -- sloppy slop slop
 
 As mentioned, the parser will directly pass everything through:
 ```bash
-$ escaped_positional -- -f -p=bob sloppy slop slop
+$ escaped-positional-derive -- -f -p=bob sloppy slop slop
 -f used: false
 -p's value: None
 'slops' values: ["-f", "-p=bob", "sloppy", "slop", "slop"]

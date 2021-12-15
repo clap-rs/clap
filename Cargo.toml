@@ -141,29 +141,29 @@ name = "demo"
 required-features = ["derive"]
 
 [[example]]
-name = "escaped_positional"
+name = "escaped-positional"
 required-features = ["cargo"]
 
 [[example]]
-name = "escaped_positional_derive"
+name = "escaped-positional-derive"
 required-features = ["derive"]
 
 [[example]]
-name = "git_derive"
+name = "git-derive"
 required-features = ["derive"]
 
 [[example]]
-name = "keyvalue_derive"
+name = "keyvalue-derive"
 required-features = ["derive"]
 
 [[example]]
 name = "busybox"
-path = "examples/multicall_busybox.rs"
+path = "examples/multicall-busybox.rs"
 required-features = ["unstable-multicall"]
 
 [[example]]
 name = "hostname"
-path = "examples/multicall_hostname.rs"
+path = "examples/multicall-hostname.rs"
 required-features = ["unstable-multicall"]
 
 [[example]]
@@ -312,8 +312,8 @@ path = "examples/tutorial_derive/04_04_custom.rs"
 required-features = ["derive"]
 
 [[example]]
-name = "custom_bool"
-path = "examples/derive_ref/custom_bool.rs"
+name = "custom-bool"
+path = "examples/derive_ref/custom-bool.rs"
 required-features = ["derive"]
 
 [profile.test]

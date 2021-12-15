@@ -1,4 +1,4 @@
-*Jump to [source](multicall_hostname.rs)*
+*Jump to [source](multicall-hostname.rs)*
 
 Example of a `hostname-style` multicall program
 
