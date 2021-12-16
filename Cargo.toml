@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "clap"
-version = "3.0.0-rc.6"
+version = "3.0.0-rc.7"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 repository = "https://github.com/clap-rs/clap"
 documentation = "https://docs.rs/clap/"
@@ -112,7 +112,7 @@ name = "06_rustup"
 path = "benches/06_rustup.rs"
 
 [dependencies]
-clap_derive = { path = "./clap_derive", version = "=3.0.0-rc.6", optional = true }
+clap_derive = { path = "./clap_derive", version = "=3.0.0-rc.7", optional = true }
 bitflags = "1.2"
 textwrap = { version = "0.14.0", default-features = false, features = [] }
 unicase = { version = "2.6", optional = true }
