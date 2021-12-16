@@ -399,7 +399,9 @@ impl Attrs {
     fn push_attrs(&mut self, attrs: &[Attribute]) {
         use ClapAttr::*;
 
-        for attr in parse_clap_attributes(attrs) {
+        let parsed = parse_clap_attributes(attrs);
+        for attr in &parsed {
+            let attr = attr.clone();
             match attr {
                 Short(ident) => {
                     self.push_method(ident, self.name.clone().translate_char(*self.casing));
@@ -463,16 +465,25 @@ impl Attrs {
                         quote!(<#ty as ::std::default::Default>::default())
                     };
 
-                    let val = quote_spanned!(ident.span()=> {
-                        clap::lazy_static::lazy_static! {
-                            static ref DEFAULT_VALUE: &'static str = {
+                    let val = if parsed.iter().any(|a| matches!(a, ArgEnum(_))) {
+                        quote_spanned!(ident.span()=> {
+                            {
                                 let val: #ty = #val;
-                                let s = ::std::string::ToString::to_string(&val);
-                                ::std::boxed::Box::leak(s.into_boxed_str())
-                            };
-                        }
-                        *DEFAULT_VALUE
-                    });
+                                val.to_possible_value().unwrap().get_name()
+                            }
+                        })
+                    } else {
+                        quote_spanned!(ident.span()=> {
+                            clap::lazy_static::lazy_static! {
+                                static ref DEFAULT_VALUE: &'static str = {
+                                    let val: #ty = #val;
+                                    let s = ::std::string::ToString::to_string(&val);
+                                    ::std::boxed::Box::leak(s.into_boxed_str())
+                                };
+                            }
+                            *DEFAULT_VALUE
+                        })
+                    };
 
                     let raw_ident = Ident::new("default_value", ident.span());
                     self.methods.push(Method::new(raw_ident, val));
