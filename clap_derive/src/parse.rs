@@ -21,6 +21,7 @@ pub fn parse_clap_attributes(all_attrs: &[Attribute]) -> Vec<ClapAttr> {
 }
 
 #[allow(clippy::large_enum_variant)]
+#[derive(Clone)]
 pub enum ClapAttr {
     // single-identifier attributes
     Short(Ident),

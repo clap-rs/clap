@@ -134,13 +134,13 @@ impl<'help> PossibleValue<'help> {
 impl<'help> PossibleValue<'help> {
     /// Get the name of the argument value
     #[inline]
-    pub fn get_name(&self) -> &str {
+    pub fn get_name(&self) -> &'help str {
         self.name
     }
 
     /// Get the help specified for this argument, if any
     #[inline]
-    pub fn get_help(&self) -> Option<&str> {
+    pub fn get_help(&self) -> Option<&'help str> {
         self.help
     }
 
@@ -151,7 +151,7 @@ impl<'help> PossibleValue<'help> {
     }
 
     /// Get the name if argument value is not hidden, `None` otherwise
-    pub fn get_visible_name(&self) -> Option<&str> {
+    pub fn get_visible_name(&self) -> Option<&'help str> {
         if self.hide {
             None
         } else {
@@ -162,7 +162,7 @@ impl<'help> PossibleValue<'help> {
     /// Returns all valid values of the argument value.
     ///
     /// Namely the name and all aliases.
-    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &str> {
+    pub fn get_name_and_aliases(&self) -> impl Iterator<Item = &'help str> + '_ {
         iter::once(&self.name).chain(&self.aliases).copied()
     }
 

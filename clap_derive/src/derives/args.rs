@@ -73,7 +73,7 @@ pub fn gen_for_struct(
     quote! {
         #from_arg_matches
 
-        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
             clippy::style,
             clippy::complexity,

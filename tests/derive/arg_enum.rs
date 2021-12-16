@@ -52,12 +52,6 @@ fn default_value() {
         }
     }
 
-    impl std::fmt::Display for ArgChoice {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-            std::fmt::Display::fmt(self.to_possible_value().unwrap().get_name(), f)
-        }
-    }
-
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
         #[clap(arg_enum, default_value_t)]

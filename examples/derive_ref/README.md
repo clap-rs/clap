@@ -174,7 +174,7 @@ In addition to the raw attributes, the following magic attributes are supported:
   - Without `<expr>`: fills the field with `Default::default()`
 - `default_value = <str>`: `clap::Arg::default_value` and `clap::Arg::required(false)`
 - `default_value_t [= <expr>]`: `clap::Arg::default_value` and `clap::Arg::required(false)`
-  - Requires `std::fmt::Display`
+  - Requires `std::fmt::Display` or `#[clap(arg_enum)]`
   - Without `<expr>`, relies on `Default::default()`
 
 ### Arg Types
