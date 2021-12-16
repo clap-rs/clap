@@ -121,7 +121,7 @@ os_str_bytes = "6.0"
 strsim = { version = "0.10",  optional = true }
 yaml-rust = { version = "0.4.1",  optional = true }
 atty = { version = "0.2",  optional = true }
-termcolor = { version = "1.1", optional = true }
+termcolor = { version = "1.1.1", optional = true }
 terminal_size = { version = "0.1.12", optional = true }
 lazy_static = { version = "1", optional = true }
 regex = { version = "1.0", optional = true }
@@ -131,10 +131,10 @@ backtrace = { version = "0.3", optional = true }
 regex = "1.0"
 lazy_static = "1"
 criterion = "0.3.2"
-trybuild = "1.0"
+trybuild = "1.0.18"
 rustversion = "1"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.8.2", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.8.3", default-features = false, features = ["color-auto", "diff", "examples"] }
 
 [[example]]
 name = "demo"
