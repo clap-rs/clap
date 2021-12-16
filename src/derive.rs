@@ -19,6 +19,8 @@ use std::ffi::OsString;
 ///
 /// See also [`Subcommand`] and [`Args`].
 ///
+/// **NOTE:** Deriving requires the `derive` feature flag
+///
 /// # Examples
 ///
 /// The following example creates a `Context` struct that would be used
@@ -221,7 +223,9 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     }
 }
 
-/// Build an [`App`] relevant for a user-defined container.
+/// Create an [`App`] relevant for a user-defined container.
+///
+/// Derived as part of [`Parser`], [`Args`], and [`Subcommand`].
 pub trait IntoApp: Sized {
     /// Build an [`App`] that can instantiate `Self`.
     ///
@@ -234,6 +238,8 @@ pub trait IntoApp: Sized {
 }
 
 /// Converts an instance of [`ArgMatches`] to a user-defined container.
+///
+/// Derived as part of [`Parser`], [`Args`], and [`Subcommand`].
 pub trait FromArgMatches: Sized {
     /// Instantiate `Self` from [`ArgMatches`], parsing the arguments as needed.
     ///
@@ -273,7 +279,7 @@ pub trait FromArgMatches: Sized {
     fn update_from_arg_matches(&mut self, matches: &ArgMatches) -> Result<(), Error>;
 }
 
-/// Parse arguments into a user-defined container.
+/// Parse a set of arguments into a user-defined container.
 ///
 /// Implementing this trait lets a parent container delegate argument parsing behavior to `Self`.
 /// with:
@@ -281,6 +287,7 @@ pub trait FromArgMatches: Sized {
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
+/// **NOTE:** Deriving requires the `derive` feature flag
 ///
 /// # Example
 ///
@@ -320,6 +327,8 @@ pub trait Args: FromArgMatches + Sized {
 /// - `#[clap(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
+/// **NOTE:** Deriving requires the `derive` feature flag
+///
 /// # Example
 ///
 #[cfg_attr(not(feature = "derive"), doc = " ```ignore")]
@@ -354,8 +363,11 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// Parse arguments into enums.
 ///
 /// When deriving [`Parser`], a field whose type implements `ArgEnum` can have the attribute
-/// `#[clap(arg_enum)]`.  In addition to parsing, help and error messages may report possible
-/// variants.
+/// `#[clap(arg_enum)]` which will
+/// - Call [`Arg::possible_values`][crate::Arg::possible_values]
+/// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
+///
+/// **NOTE:** Deriving requires the `derive` feature flag
 ///
 /// # Example
 ///
