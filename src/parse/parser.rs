@@ -1072,11 +1072,12 @@ impl<'help, 'app> Parser<'help, 'app> {
                 || v.is_set(ArgSettings::HiddenShortHelp)
         };
 
+        // Subcommands aren't checked because we prefer short help for them, deferring to
+        // `cmd subcmd --help` for more.
         self.app.long_about.is_some()
             || self.app.before_long_help.is_some()
             || self.app.after_long_help.is_some()
             || self.app.args.args().any(should_long)
-            || self.app.subcommands.iter().any(|s| s.long_about.is_some())
     }
 
     fn parse_long_arg(
