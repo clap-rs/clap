@@ -56,7 +56,11 @@ fn main() {
     }
 }
 ```
-*(note: requires feature `derive`)*
+Add this to `Cargo.toml`:
+```toml
+[dependencies]
+clap = { version = "3.0.0-rc.7", features = ["derive"] }
+```
 ```bash
 $ demo --help
 clap [..]
