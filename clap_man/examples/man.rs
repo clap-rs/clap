@@ -9,7 +9,11 @@ fn main() {
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>:Ola Nordmann <old@nordmann.no>")
         .about("Does awesome things")
-        .long_about("With a longer description to help clarify some things.")
+        .long_about(
+            "With a longer description to help clarify some things.
+
+            And a few newlines.",
+        )
         .after_help("This is an extra section added to the end of the manpage.")
         .after_long_help("With even more text added.")
         .arg(

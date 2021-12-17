@@ -1,6 +1,6 @@
 [package]
 name = "clap_man"
-version = "3.0.0-rc.4"
+version = "0.1.0"
 edition = "2018"
 include = [
 	"src/**/*",
@@ -30,6 +30,7 @@ pre-release-replacements = [
 bench = false
 
 [dependencies]
+roff = "0.1.0"
 clap = { path = "../", version = "=3.0.0-rc.4", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]

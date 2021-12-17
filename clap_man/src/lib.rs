@@ -3,62 +3,25 @@
 #![warn(missing_docs, trivial_casts, unused_allocation, trivial_numeric_casts)]
 #![forbid(unsafe_code)]
 
-mod man;
 mod render;
 
+pub use roff;
+
+use render::subcommand_heading;
+use roff::{ManSection, Roff, Troffable};
 use std::io::Write;
 
-/// Manpage sections, the most common is [`Section::Executable`].
-#[derive(Debug, Clone, Copy)]
-pub enum Section {
-    /// Executable programs or shell commands
-    Executable,
-    /// System calls (functions provided by the kernel)
-    SystemCalls,
-    /// Library calls (functions within program libraries)
-    LibraryCalls,
-    /// Special files (usually found in /dev)
-    SpecialFiles,
-    /// File formats and conventions, e.g. /etc/passwd
-    FileFormats,
-    /// Games
-    Games,
-    /// Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7)
-    Miscellaneous,
-    /// System administration commands (usually only for root)
-    SystemAdministrationCommands,
-    /// Kernel routines [Non standard]
-    KernelRoutines,
-}
-
-impl Section {
-    fn value(&self) -> i8 {
-        match self {
-            Section::Executable => 1,
-            Section::SystemCalls => 2,
-            Section::LibraryCalls => 3,
-            Section::SpecialFiles => 4,
-            Section::FileFormats => 5,
-            Section::Games => 6,
-            Section::Miscellaneous => 7,
-            Section::SystemAdministrationCommands => 8,
-            Section::KernelRoutines => 9,
-        }
-    }
-}
-
 /// Man page generator
-#[derive(Debug, Clone)]
 pub struct Man {
-    section: Option<Section>,
+    section: Option<ManSection>,
     manual: Option<String>,
-    sections: Vec<(String, Vec<String>)>,
+    sections: Vec<(String, String)>,
 }
 
 impl Default for Man {
     fn default() -> Self {
         Self {
-            section: Some(Section::Executable),
+            section: Some(ManSection::Executable),
             manual: Some("General Commands Manual".to_string()),
             sections: Vec::new(),
         }
@@ -82,7 +45,7 @@ impl Man {
     }
 
     /// Add section for your man page, see [`Section`].
-    pub fn section(mut self, section: Section) -> Self {
+    pub fn section(mut self, section: ManSection) -> Self {
         self.section = Some(section);
         self
     }
@@ -95,44 +58,68 @@ impl Man {
     }
 
     /// Add a custom section to the man pages.
-    pub fn custom_section(
-        mut self,
-        title: impl Into<String>,
-        body: Vec<impl Into<String>>,
-    ) -> Self {
-        self.sections
-            .push((title.into(), body.into_iter().map(|s| s.into()).collect()));
+    pub fn custom_section<'a, I, C>(mut self, title: impl Into<String>, content: I) -> Self
+    where
+        I: IntoIterator<Item = &'a C>,
+        C: Troffable + 'a,
+    {
+        self.sections.push((
+            title.into(),
+            content.into_iter().map(Troffable::render).collect(),
+        ));
         self
     }
 
     /// Write the manpage to a buffer.
     pub fn render(self, app: &mut clap::App, buf: &mut dyn std::io::Write) {
         app._build_all();
-        render::header(app, self.get_section(), self.manual.clone(), buf);
 
-        // Set sentence_space_size to 0 to prevent extra space between sentences separated
-        // by a newline the alternative is to add \& at the end of the line
-        writeln!(buf, ".ss \\n[.ss] 0").unwrap();
-        // Disable hyphenation
-        writeln!(buf, ".nh").unwrap();
-        // Disable justification (adjust text to the left margin only)
-        writeln!(buf, ".ad l").unwrap();
+        let mut page = Roff::new(app.get_name(), self.get_section())
+            .section("Name", [&render::about(app)])
+            .section("Synopsis", [&render::synopsis(app)])
+            .section("Description", &render::description(app));
 
-        render::about(app, buf);
-        render::description(app, buf);
-        render::synopsis(app, buf);
+        if app_has_arguments(app) {
+            page = page.section("Options", &render::options(app));
+        }
 
-        render::options(app, buf);
-        render::subcommands(app, self.get_section(), buf);
+        if app_has_subcommands(app) {
+            page = page.section(
+                &subcommand_heading(app),
+                &render::subcommands(app, self.get_section().value()),
+            )
+        }
 
-        render::after_help(app, buf);
-        render::custom_sections(self.sections, buf);
+        if app.get_after_long_help().is_some() || app.get_after_help().is_some() {
+            page = page.section("Extra", &render::after_help(app))
+        }
 
-        render::version(app, buf);
-        render::authors(app, buf);
+        for (title, section) in self.sections {
+            page = page.section(&title, &[section]);
+        }
+
+        if app.get_version().is_some() {
+            page = page.section("Version", &[render::version(app)]);
+        }
+
+        if app.get_author().is_some() {
+            page = page.section("Author(s)", &[app.get_author().unwrap_or_default()]);
+        }
+
+        buf.write_all(page.render().as_bytes()).unwrap();
     }
 
-    fn get_section(&self) -> i8 {
-        self.section.unwrap_or(Section::Executable).value()
+    fn get_section(&self) -> ManSection {
+        self.section.unwrap_or(ManSection::Executable)
     }
+}
+
+fn app_has_arguments(app: &clap::App) -> bool {
+    app.get_arguments()
+        .any(|i| !i.is_set(clap::ArgSettings::Hidden))
+}
+
+fn app_has_subcommands(app: &clap::App) -> bool {
+    app.get_subcommands()
+        .any(|i| !i.is_set(clap::AppSettings::Hidden))
 }

@@ -1,5 +1,6 @@
 use clap::{arg, App};
-use clap_man::{Man, Section};
+use clap_man::{roff::ManSection, Man};
+use roff::bold;
 use std::io;
 
 // Run this example as `cargo run --example man-builder | man -l -`.
@@ -25,13 +26,14 @@ fn main() {
         );
 
     Man::new()
-        .section(Section::Executable)
+        .section(ManSection::Executable)
         .manual("GNU")
         .custom_section(
             "Reference",
-            vec![
-                "For more information about the config file syntax, look up the INI format.",
-                "To see the debug information, visit our website on GitHub.",
+            &[
+                "For more information about the config file syntax, look up the INI format. ",
+                "To see the debug information, visit our website on ",
+                &bold("GitHub"),
             ],
         )
         .render(&mut app, &mut io::stdout());

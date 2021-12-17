@@ -142,6 +142,9 @@ rustversion = "1"
 # Cutting out `filesystem` feature
 trycmd = { version = "0.9", default-features = false, features = ["color-auto", "diff", "examples"] }
 
+[patch.crates-io]
+roff = { git = "https://github.com/sondr3/roff-rs", branch = "updates" }
+
 [[example]]
 name = "demo"
 required-features = ["derive"]
