@@ -49,7 +49,7 @@ pre-release-replacements = [
   {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly=1},
   {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/clap-rs/clap/compare/{{tag_name}}...HEAD", exactly=1},
   {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=9, prerelease = true},
-  {file="README.md", search="version = \"[a-z0-9\\.-]+\"", replace="version = \"{{version}}\"", exactly=1},
+  {file="README.md", search="version = \"[a-z0-9\\.-]+\"", replace="version = \"{{version}}\"", exactly=1, prerelease = true},
 ]
 
 [features]
