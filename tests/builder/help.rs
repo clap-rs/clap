@@ -597,14 +597,11 @@ USAGE:
     about-in-subcommands-list [SUBCOMMAND]
 
 OPTIONS:
-    -h, --help
-            Print help information
+    -h, --help    Print help information
 
 SUBCOMMANDS:
-    help
-            Print this message or the help of the given subcommand(s)
-    sub
-            short about sub
+    help    Print this message or the help of the given subcommand(s)
+    sub     short about sub
 ";
 
 fn setup() -> App<'static> {
@@ -2281,7 +2278,7 @@ fn option_usage_order() {
 }
 
 #[test]
-fn about_in_subcommands_list() {
+fn prefer_about_over_long_about_in_subcommands_list() {
     let app = App::new("about-in-subcommands-list").subcommand(
         App::new("sub")
             .long_about("long about sub")
