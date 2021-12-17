@@ -32,16 +32,18 @@ pub(crate) fn synopsis(app: &clap::App) -> String {
     res.push(' ');
 
     for opt in app.get_arguments() {
+        let (lhs, rhs) = optional_or_required_markers(opt);
         res.push_str(&match (opt.get_short(), opt.get_long()) {
-            (Some(short), Some(long)) => format!("[-{}|--{}] ", short, long),
-            (Some(short), None) => format!("[-{}] ", short),
-            (None, Some(long)) => format!("[--{}] ", long),
+            (Some(short), Some(long)) => format!("{}-{}|--{}{} ", lhs, short, long, rhs),
+            (Some(short), None) => format!("{}-{}{} ", lhs, short, rhs),
+            (None, Some(long)) => format!("{}--{}{} ", lhs, long, rhs),
             (None, None) => "".to_string(),
         });
     }
 
     for arg in app.get_positionals() {
-        res.push_str(&format!("[{}] ", arg.get_name()));
+        let (lhs, rhs) = optional_or_required_markers(arg);
+        res.push_str(&format!("{}{}{} ", lhs, arg.get_name(), rhs));
     }
 
     if app.has_subcommands() {
@@ -92,9 +94,8 @@ pub(crate) fn options(app: &clap::App) -> Vec<String> {
     }
 
     for pos in items.iter().filter(|a| a.is_positional()) {
-        let required = pos.is_set(ArgSettings::Required);
-        let (rhs, lhs) = if required { ("<", ">") } else { ("[", "]") };
-        let name = format!("{}{}{}", rhs, pos.get_name(), lhs);
+        let (lhs, rhs) = optional_or_required_markers(pos);
+        let name = format!("{}{}{}", lhs, pos.get_name(), rhs);
 
         let mut header = vec![bold(&name)];
 
@@ -150,6 +151,14 @@ pub(crate) fn after_help(app: &clap::App) -> Vec<String> {
             .filter_map(|l| (!l.trim().is_empty()).then(|| paragraph(l.trim())))
             .collect(),
         None => Vec::new(),
+    }
+}
+
+fn optional_or_required_markers(opt: &clap::Arg) -> (String, String) {
+    if opt.is_set(ArgSettings::Required) {
+        ("<".to_string(), ">".to_string())
+    } else {
+        ("[".to_string(), "]".to_string())
     }
 }
 
