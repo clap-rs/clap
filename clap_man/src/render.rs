@@ -3,7 +3,7 @@ use roff::{bold, escape, italic, list, paragraph};
 
 pub(crate) fn subcommand_heading(app: &clap::App) -> String {
     match app.get_subommand_help_heading() {
-        Some(title) => escape(title),
+        Some(title) => title.to_string(),
         None => "Subcommands".to_string(),
     }
 }
@@ -32,7 +32,7 @@ pub(crate) fn synopsis(app: &clap::App) -> String {
     res.push(' ');
 
     for opt in app.get_arguments() {
-        let (lhs, rhs) = optional_or_required_markers(opt);
+        let (lhs, rhs) = option_markers(opt);
         res.push_str(&match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => format!("{}-{}|--{}{} ", lhs, short, long, rhs),
             (Some(short), None) => format!("{}-{}{} ", lhs, short, rhs),
@@ -42,12 +42,22 @@ pub(crate) fn synopsis(app: &clap::App) -> String {
     }
 
     for arg in app.get_positionals() {
-        let (lhs, rhs) = optional_or_required_markers(arg);
+        let (lhs, rhs) = option_markers(arg);
         res.push_str(&format!("{}{}{} ", lhs, arg.get_name(), rhs));
     }
 
     if app.has_subcommands() {
-        res.push_str(&format!("[{}] ", subcommand_heading(app).to_lowercase()));
+        let (lhs, rhs) = subcommand_markers(app);
+        res.push_str(&format!(
+            "{}{}{} ",
+            lhs,
+            escape(
+                &app.get_subcommand_value_name()
+                    .unwrap_or(&subcommand_heading(app))
+                    .to_lowercase()
+            ),
+            rhs
+        ));
     }
 
     res
@@ -94,7 +104,7 @@ pub(crate) fn options(app: &clap::App) -> Vec<String> {
     }
 
     for pos in items.iter().filter(|a| a.is_positional()) {
-        let (lhs, rhs) = optional_or_required_markers(pos);
+        let (lhs, rhs) = option_markers(pos);
         let name = format!("{}{}{}", lhs, pos.get_name(), rhs);
 
         let mut header = vec![bold(&name)];
@@ -125,7 +135,7 @@ pub(crate) fn subcommands(app: &clap::App, section: i8) -> Vec<String> {
         .map(|command| {
             let name = format!("{}-{}({})", app.get_name(), command.get_name(), section);
 
-            let mut body = match command.get_long_about().or_else(|| command.get_about()) {
+            let mut body = match command.get_about().or_else(|| command.get_long_about()) {
                 Some(about) => about
                     .lines()
                     .filter_map(|l| (!l.trim().is_empty()).then(|| l.trim()))
@@ -141,7 +151,12 @@ pub(crate) fn subcommands(app: &clap::App, section: i8) -> Vec<String> {
 }
 
 pub(crate) fn version(app: &clap::App) -> String {
-    format!("v{}", app.get_version().unwrap())
+    format!(
+        "v{}",
+        app.get_long_version()
+            .or_else(|| app.get_version())
+            .unwrap()
+    )
 }
 
 pub(crate) fn after_help(app: &clap::App) -> Vec<String> {
@@ -154,11 +169,22 @@ pub(crate) fn after_help(app: &clap::App) -> Vec<String> {
     }
 }
 
-fn optional_or_required_markers(opt: &clap::Arg) -> (String, String) {
-    if opt.is_set(ArgSettings::Required) {
-        ("<".to_string(), ">".to_string())
+fn subcommand_markers(cmd: &clap::App) -> (&'static str, &'static str) {
+    markers(
+        cmd.is_set(AppSettings::SubcommandRequired)
+            || cmd.is_set(AppSettings::SubcommandRequiredElseHelp),
+    )
+}
+
+fn option_markers(opt: &clap::Arg) -> (&'static str, &'static str) {
+    markers(opt.is_set(ArgSettings::Required))
+}
+
+fn markers(required: bool) -> (&'static str, &'static str) {
+    if required {
+        ("<", ">")
     } else {
-        ("[".to_string(), "]".to_string())
+        ("[", "]")
     }
 }
 
@@ -171,7 +197,9 @@ fn long_option(opt: &str) -> String {
 }
 
 fn option_environment(opt: &clap::Arg) -> Option<String> {
-    if let Some(env) = opt.get_env() {
+    if opt.is_set(ArgSettings::HideEnv) {
+        return None;
+    } else if let Some(env) = opt.get_env() {
         return Some(paragraph(&format!(
             "May also be specified with the {} environment variable. ",
             bold(&env.to_string_lossy())

@@ -50,8 +50,9 @@ impl Man {
         self
     }
 
-    /// Set manual for where the document comes from, the most common being
-    /// `General Commands Manual`.
+    /// Set manual for where the document comes from.
+    ///
+    /// The most common being `General Commands Manual`.
     pub fn manual(mut self, manual: impl Into<String>) -> Self {
         self.manual = Some(manual.into());
         self
@@ -75,9 +76,18 @@ impl Man {
         app._build_all();
 
         let mut page = Roff::new(app.get_name(), self.get_section())
+            .source(&format!(
+                "{} {}",
+                app.get_name(),
+                app.get_version().unwrap_or_default()
+            ))
             .section("Name", [&render::about(app)])
             .section("Synopsis", [&render::synopsis(app)])
             .section("Description", &render::description(app));
+
+        if let Some(manual) = &self.manual {
+            page = page.manual(manual);
+        }
 
         if app_has_arguments(app) {
             page = page.section("Options", &render::options(app));
@@ -98,7 +108,7 @@ impl Man {
             page = page.section(&title, &[section]);
         }
 
-        if app.get_version().is_some() {
+        if app_has_version(app) {
             page = page.section("Version", &[render::version(app)]);
         }
 
@@ -112,6 +122,12 @@ impl Man {
     fn get_section(&self) -> ManSection {
         self.section.unwrap_or(ManSection::Executable)
     }
+}
+
+fn app_has_version(app: &clap::App) -> bool {
+    app.get_long_version()
+        .or_else(|| app.get_version())
+        .is_some()
 }
 
 fn app_has_arguments(app: &clap::App) -> bool {

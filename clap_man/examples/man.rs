@@ -25,7 +25,11 @@ fn main() {
                 .env("CONFIG_FILE"),
         )
         .arg(arg!([output] "Sets an output file").default_value("result.txt"))
-        .arg(arg!(-d --debug ... "Turn debugging information on").env("DEBUG_ON"))
+        .arg(
+            arg!(-d --debug ... "Turn debugging information on")
+                .env("DEBUG_ON")
+                .hide_env(true),
+        )
         .subcommand(
             App::new("test")
                 .about("does testing things")
