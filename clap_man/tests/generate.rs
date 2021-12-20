@@ -25,5 +25,5 @@ fn render_manpage() {
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    generate_manpage(&mut app, &mut io::sink());
+    generate_manpage(&mut app, &mut io::sink()).unwrap();
 }

@@ -1,81 +1,100 @@
 use clap::{AppSettings, ArgSettings};
-use roff::{bold, escape, italic, list, paragraph};
+use roff::{roman, bold, italic, Inline, Roff};
 
 pub(crate) fn subcommand_heading(app: &clap::App) -> String {
     match app.get_subommand_help_heading() {
         Some(title) => title.to_string(),
-        None => "Subcommands".to_string(),
+        None => "SUBCOMMANDS".to_string(),
     }
 }
 
-pub(crate) fn about(app: &clap::App) -> String {
-    match app.get_about().or_else(|| app.get_long_about()) {
+pub(crate) fn about(roff: &mut Roff, app: &clap::App) {
+    let s = match app.get_about().or_else(|| app.get_long_about()) {
         Some(about) => format!("{} - {}", app.get_name(), about),
         None => app.get_name().to_string(),
+    };
+    roff.text([roman(&s)]);
+}
+
+pub(crate) fn description(roff: &mut Roff, app: &clap::App)  {
+    if let Some(about) = app.get_long_about().or_else(|| app.get_about()) {
+        for line in about.lines() {
+            if line.trim().is_empty() {
+                roff.control("PP", []);
+            } else {
+                roff.text([roman(line)]);
+            }
+        }
     }
 }
 
-pub(crate) fn description(app: &clap::App) -> Vec<String> {
-    match app.get_long_about().or_else(|| app.get_about()) {
-        Some(about) => about
-            .lines()
-            .filter_map(|l| (!l.trim().is_empty()).then(|| paragraph(l.trim())))
-            .collect(),
-        None => Vec::new(),
-    }
-}
+pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
+    let mut line = vec![
+        bold(app.get_name()),
+        roman(" "),
+    ];
 
-pub(crate) fn synopsis(app: &clap::App) -> String {
-    let mut res = String::new();
-
-    res.push_str(&italic(app.get_name()));
-    res.push(' ');
 
     for opt in app.get_arguments() {
         let (lhs, rhs) = option_markers(opt);
-        res.push_str(&match (opt.get_short(), opt.get_long()) {
-            (Some(short), Some(long)) => format!("{}-{}|--{}{} ", lhs, short, long, rhs),
-            (Some(short), None) => format!("{}-{}{} ", lhs, short, rhs),
-            (None, Some(long)) => format!("{}--{}{} ", lhs, long, rhs),
-            (None, None) => "".to_string(),
-        });
+        match (opt.get_short(), opt.get_long()) {
+            (Some(short), Some(long)) => {
+                line.push(roman(lhs));
+                line.push(bold(&format!("-{}", short)));
+                line.push(roman("|"));
+                line.push(bold(&format!("--{}", long)));
+                line.push(roman(rhs));
+                line.push(roman(" "));
+            }
+            (Some(short), None) => {
+                line.push(roman(lhs));
+                line.push(bold(&format!("-{} ", short)));
+                line.push(roman(rhs));
+                line.push(roman(" "));
+            }
+            (None, Some(long)) => {
+                line.push(roman(lhs));
+                line.push(bold(&format!("--{}", long)));
+                line.push(roman(rhs));
+                line.push(roman(" "));
+            }
+            (None, None) => (),
+        };
     }
 
     for arg in app.get_positionals() {
         let (lhs, rhs) = option_markers(arg);
-        res.push_str(&format!("{}{}{} ", lhs, arg.get_name(), rhs));
+        line.push(roman(lhs));
+        line.push(italic(arg.get_name()));
+        line.push(roman(rhs));
+        line.push(roman(" "));
     }
 
     if app.has_subcommands() {
         let (lhs, rhs) = subcommand_markers(app);
-        res.push_str(&format!(
-            "{}{}{} ",
-            lhs,
-            escape(
-                &app.get_subcommand_value_name()
-                    .unwrap_or(&subcommand_heading(app))
-                    .to_lowercase()
-            ),
-            rhs
-        ));
+        line.push(roman(lhs));
+        line.push(italic(
+            &app.get_subcommand_value_name()
+                .unwrap_or(&subcommand_heading(app))
+                .to_lowercase()));
+        line.push(roman(rhs));
     }
 
-    res
+    roff.text(line);
 }
 
-pub(crate) fn options(app: &clap::App) -> Vec<String> {
-    let mut res = Vec::new();
+pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
     let items: Vec<_> = app
         .get_arguments()
         .filter(|i| !i.is_set(ArgSettings::Hidden))
         .collect();
 
     for opt in items.iter().filter(|a| !a.is_positional()) {
-        let mut body = Vec::new();
+        let mut body = vec![];
 
         let mut header = match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
-                vec![short_option(short), ", ".to_string(), long_option(long)]
+                vec![short_option(short), roman(", "), long_option(long)]
             }
             (Some(short), None) => vec![short_option(short)],
             (None, Some(long)) => vec![long_option(long)],
@@ -83,24 +102,26 @@ pub(crate) fn options(app: &clap::App) -> Vec<String> {
         };
 
         if let Some(value) = &opt.get_value_names() {
-            header.push(format!("={}", italic(&value.join(" "))));
+            header.push(roman("="));
+            header.push(italic(&value.join(" ")));
         }
 
         if let Some(defs) = option_default_values(opt) {
-            header.push(format!(" {}", defs));
+            header.push(roman(" "));
+            header.push(roman(&defs));
         }
 
         if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
-            body.push(help.to_string());
+            body.push(roman(help));
         }
 
-        if let Some(env) = option_environment(opt) {
-            body.push(env);
+        if let Some(mut env) = option_environment(opt) {
+            body.append(&mut env);
         }
 
-        body.push("\n".to_string());
-
-        res.push(list(&header, &body));
+        roff.control("TP", []);
+        roff.text(header);
+        roff.text(body);
     }
 
     for pos in items.iter().filter(|a| a.is_positional()) {
@@ -109,45 +130,38 @@ pub(crate) fn options(app: &clap::App) -> Vec<String> {
 
         let mut header = vec![bold(&name)];
 
-        let mut body = Vec::new();
+        let mut body = vec![];
 
         if let Some(defs) = option_default_values(pos) {
-            header.push(format!(" {}", defs));
+            header.push(roman(&format!(" {}", defs)));
         }
 
         if let Some(help) = pos.get_long_help().or_else(|| pos.get_help()) {
-            body.push(help.to_string());
+            body.push(roman(&help.to_string()));
         }
 
-        if let Some(env) = option_environment(pos) {
-            body.push(env);
+        if let Some(mut env) = option_environment(pos) {
+            body.append(&mut env);
         }
 
-        res.push(list(&header, &body))
+        roff.control("TP", []);
+        roff.text(body);
     }
-
-    res
 }
 
-pub(crate) fn subcommands(app: &clap::App, section: i8) -> Vec<String> {
-    app.get_subcommands()
-        .filter(|s| !s.is_set(AppSettings::Hidden))
-        .map(|command| {
-            let name = format!("{}-{}({})", app.get_name(), command.get_name(), section);
+pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
+    for sub in app.get_subcommands().filter(|s| !s.is_set(AppSettings::Hidden)) {
+        roff.control("TP", []);
 
-            let mut body = match command.get_about().or_else(|| command.get_long_about()) {
-                Some(about) => about
-                    .lines()
-                    .filter_map(|l| (!l.trim().is_empty()).then(|| l.trim()))
-                    .collect(),
-                None => Vec::new(),
-            };
+        let name = format!("{}-{}({})", app.get_name(), sub.get_name(), section);
+        roff.text([roman(&name)]);
 
-            body.push("\n");
-
-            list(&[bold(&name)], &body)
-        })
-        .collect()
+        if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
+            for line in about.lines() {
+                roff.text([roman(line)]);
+            }
+        }
+    }
 }
 
 pub(crate) fn version(app: &clap::App) -> String {
@@ -159,13 +173,11 @@ pub(crate) fn version(app: &clap::App) -> String {
     )
 }
 
-pub(crate) fn after_help(app: &clap::App) -> Vec<String> {
-    match app.get_after_long_help().or_else(|| app.get_after_help()) {
-        Some(about) => about
-            .lines()
-            .filter_map(|l| (!l.trim().is_empty()).then(|| paragraph(l.trim())))
-            .collect(),
-        None => Vec::new(),
+pub(crate) fn after_help(roff: &mut Roff, app: &clap::App) {
+    if let Some(about) = app.get_after_long_help().or_else(|| app.get_after_help()) {
+        for line in about.lines() {
+            roff.text([roman(line)]);
+        }
     }
 }
 
@@ -188,22 +200,23 @@ fn markers(required: bool) -> (&'static str, &'static str) {
     }
 }
 
-fn short_option(opt: char) -> String {
-    format!("-{}", bold(&opt.to_string()))
+fn short_option(opt: char) -> Inline {
+    bold(&format!("-{}", opt))
 }
 
-fn long_option(opt: &str) -> String {
-    format!("--{}", bold(&opt.to_string()))
+fn long_option(opt: &str) -> Inline {
+    bold(&format!("--{}", opt))
 }
 
-fn option_environment(opt: &clap::Arg) -> Option<String> {
+fn option_environment(opt: &clap::Arg) -> Option<Vec<Inline>> {
     if opt.is_set(ArgSettings::HideEnv) {
         return None;
     } else if let Some(env) = opt.get_env() {
-        return Some(paragraph(&format!(
-            "May also be specified with the {} environment variable. ",
-            bold(&env.to_string_lossy())
-        )));
+        return Some(vec![
+            roman("May also be specified with the "),
+            bold(env.to_string_lossy().to_owned()),
+            roman(" environment variable. "),
+        ]);
     }
 
     None

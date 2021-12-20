@@ -1,11 +1,9 @@
 use clap::{arg, App};
-use clap_man::{roff::ManSection, Man};
-use roff::bold;
-use std::io;
+use clap_man::{Man, Meta};
 
 // Run this example as `cargo run --example man-builder | man -l -`.
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let mut app = App::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
@@ -23,18 +21,14 @@ fn main() {
             App::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "Lists test values")),
+        )
+        .after_help(
+            "\
+For more information about the config file syntax, look up the INI format.
+To see the debug information, visit our website on github.com"
         );
 
-    Man::new()
-        .section(ManSection::Executable)
-        .manual("GNU")
-        .custom_section(
-            "Reference",
-            &[
-                "For more information about the config file syntax, look up the INI format. ",
-                "To see the debug information, visit our website on ",
-                &bold("GitHub"),
-            ],
-        )
-        .render(&mut app, &mut io::stdout());
+    let meta = Meta::from_clap("1", "GNU", &app);
+    let man = Man::new(&meta, &mut app);
+    man.render(&mut std::io::stdout())
 }
