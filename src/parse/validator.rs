@@ -380,15 +380,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             c.insert(g.id.clone());
                         }
                     }
-                } else if let Some(g) = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| !g.multiple && g.id == *name)
-                {
-                    debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                    c.insert(g.id.clone());
                 }
             });
 
