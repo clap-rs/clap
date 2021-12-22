@@ -258,6 +258,23 @@ fn required_unless_err() {
     assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
 }
 
+#[test]
+fn required_unless_present_with_optional_value() {
+    let res = App::new("unlesstest")
+        .arg(Arg::new("opt").long("opt").min_values(0).max_values(1))
+        .arg(
+            Arg::new("cfg")
+                .required_unless_present("dbg")
+                .takes_value(true)
+                .long("config"),
+        )
+        .arg(Arg::new("dbg").long("debug"))
+        .try_get_matches_from(vec!["unlesstest", "--opt"]);
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+}
+
 // REQUIRED_UNLESS_ALL
 
 #[test]
