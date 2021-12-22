@@ -98,7 +98,6 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn parse_from<I, T>(itr: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().get_matches_from(itr);
@@ -118,7 +117,6 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn try_parse_from<I, T>(itr: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app().try_get_matches_from(itr)?;
@@ -129,10 +127,8 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn update_from<I, T>(&mut self, itr: I)
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
-        // TODO find a way to get partial matches
         let matches = <Self as IntoApp>::into_app_for_update().get_matches_from(itr);
         let res = <Self as FromArgMatches>::update_from_arg_matches(self, &matches)
             .map_err(format_error::<Self>);
@@ -147,7 +143,6 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn try_update_from<I, T>(&mut self, itr: I) -> Result<(), Error>
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
         let matches = <Self as IntoApp>::into_app_for_update().try_get_matches_from(itr)?;
@@ -201,7 +196,6 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn from_iter<I, T>(itr: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
         Self::parse_from(itr)
@@ -216,7 +210,6 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     fn from_iter_safe<I, T>(itr: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = T>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         T: Into<OsString> + Clone,
     {
         Self::try_parse_from(itr)
@@ -422,7 +415,6 @@ impl<T: Parser> Parser for Box<T> {
     fn parse_from<I, It>(itr: I) -> Self
     where
         I: IntoIterator<Item = It>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
         Box::new(<T as Parser>::parse_from(itr))
@@ -431,7 +423,6 @@ impl<T: Parser> Parser for Box<T> {
     fn try_parse_from<I, It>(itr: I) -> Result<Self, Error>
     where
         I: IntoIterator<Item = It>,
-        // TODO (@CreepySkeleton): discover a way to avoid cloning here
         It: Into<OsString> + Clone,
     {
         <T as Parser>::try_parse_from(itr).map(Box::new)

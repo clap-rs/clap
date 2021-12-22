@@ -827,8 +827,6 @@ impl<'help, 'app> Parser<'help, 'app> {
         let mut bin_name = self.app.bin_name.as_ref().unwrap_or(&self.app.name).clone();
 
         let mut sc = {
-            // @TODO @perf: cloning all these Apps isn't great, but since it's just displaying the
-            // help message there are bigger fish to fry
             let mut sc = self.app.clone();
 
             for cmd in cmds.iter() {

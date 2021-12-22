@@ -145,7 +145,6 @@ impl Default for MatchedArg {
     }
 }
 
-// TODO: Maybe make this public?
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ValueType {
     Unknown,
