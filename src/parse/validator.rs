@@ -12,15 +12,11 @@ use crate::{
 
 pub(crate) struct Validator<'help, 'app, 'parser> {
     p: &'parser mut Parser<'help, 'app>,
-    c: ChildGraph<Id>,
 }
 
 impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     pub(crate) fn new(p: &'parser mut Parser<'help, 'app>) -> Self {
-        Validator {
-            p,
-            c: ChildGraph::with_capacity(5),
-        }
+        Validator { p }
     }
 
     pub(crate) fn validate(
@@ -256,13 +252,13 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         panic!("{}", INTERNAL_ERROR_MSG);
     }
 
-    fn validate_conflicts(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn validate_conflicts(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
-        self.validate_exclusive(matcher)?;
-        self.gather_conflicts(matcher);
 
-        self.c
-            .iter()
+        self.validate_exclusive(matcher)?;
+
+        let c = self.gather_conflicts(matcher);
+        c.iter()
             .filter(|&name| {
                 debug!("Validator::validate_conflicts:iter:{:?}", name);
                 // Filter out the conflicting cases.
@@ -301,10 +297,12 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 }
             })
             // Throw an error for the first conflict found.
-            .try_for_each(|odd| self.build_conflict_err(odd, matcher))
+            .try_for_each(|odd| self.build_conflict_err(odd, matcher))?;
+
+        Ok(())
     }
 
-    fn validate_exclusive(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
         let args_count = matcher.arg_names().count();
         matcher
@@ -330,8 +328,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     // Gathers potential conflicts based on used argument, but without considering requirements
     // and such
-    fn gather_conflicts(&mut self, matcher: &mut ArgMatcher) {
+    fn gather_conflicts(&self, matcher: &ArgMatcher) -> ChildGraph<Id> {
         debug!("Validator::gather_conflicts");
+        let mut c = ChildGraph::with_capacity(5);
+
         matcher
             .arg_names()
             .filter(|name| {
@@ -353,11 +353,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         /*
                         for g_arg in self.p.app.unroll_args_in_group(&g.name) {
                             if &g_arg != name {
-                                self.c.insert(g.id.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
+                                c.insert(g.id.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
                             }
                         }
                         */
-                        self.c.insert(conf.clone());
+                        c.insert(conf.clone());
                     }
                     // Now we need to know which groups this arg was a member of, to add all other
                     // args in that group to the conflicts, as well as any args those args conflict
@@ -373,11 +373,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                             /*
                             for g_arg in self.p.app.unroll_args_in_group(&g.name) {
                                 if &g_arg != name {
-                                    self.c.insert(g.id.clone());
+                                    c.insert(g.id.clone());
                                 }
                             }
                             */
-                            self.c.insert(g.id.clone());
+                            c.insert(g.id.clone());
                         }
                     }
                 } else if let Some(g) = self
@@ -388,9 +388,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     .find(|g| !g.multiple && g.id == *name)
                 {
                     debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                    self.c.insert(g.id.clone());
+                    c.insert(g.id.clone());
                 }
             });
+
+        c
     }
 
     fn gather_requirements(&mut self, matcher: &ArgMatcher) {
@@ -410,7 +412,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         }
     }
 
-    fn validate_matched_args(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn validate_matched_args(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_matched_args");
         matcher.iter().try_for_each(|(name, ma)| {
             debug!(
