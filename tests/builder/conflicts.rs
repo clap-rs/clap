@@ -2,7 +2,7 @@ use crate::utils;
 
 use clap::{arg, App, Arg, ArgGroup, ErrorKind};
 
-static CONFLICT_ERR: &str = "error: The argument '-F' cannot be used with '--flag'
+static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
 
 USAGE:
     clap-test --flag --long-option-2 <option2> <positional> <positional2>
@@ -10,7 +10,7 @@ USAGE:
 For more information try --help
 ";
 
-static CONFLICT_ERR_REV: &str = "error: The argument '--flag' cannot be used with '-F'
+static CONFLICT_ERR_REV: &str = "error: The argument '-F' cannot be used with '--flag'
 
 USAGE:
     clap-test -F --long-option-2 <option2> <positional> <positional2>
@@ -18,7 +18,9 @@ USAGE:
 For more information try --help
 ";
 
-static CONFLICT_ERR_THREE: &str = "error: The argument '--two' cannot be used with '--one'
+static CONFLICT_ERR_THREE: &str = "error: The argument '--one' cannot be used with:
+    --two
+    --three
 
 USAGE:
     three_conflicting_arguments --one
@@ -71,29 +73,140 @@ fn flag_conflict_with_everything() {
 }
 
 #[test]
-fn group_conflict() {
-    let result = App::new("group_conflict")
+fn arg_conflicts_with_group() {
+    let mut app = App::new("group_conflict")
         .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
-        .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
+        .group(ArgGroup::new("gr").arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
-        .try_get_matches_from(vec!["myprog", "--other", "-f"]);
+        .arg(arg!(--other "other arg"));
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--flag"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
 }
 
 #[test]
-fn group_conflict_2() {
-    let result = App::new("group_conflict")
-        .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
-        .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
+fn group_conflicts_with_arg() {
+    let mut app = App::new("group_conflict")
+        .arg(arg!(-f --flag "some flag"))
+        .group(
+            ArgGroup::new("gr")
+                .arg("some")
+                .arg("other")
+                .conflicts_with("flag"),
+        )
         .arg(arg!(--some "some arg"))
-        .arg(arg!(--other "other arg"))
-        .try_get_matches_from(vec!["myprog", "-f", "--some"]);
+        .arg(arg!(--other "other arg"));
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--flag"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+}
+
+#[test]
+fn arg_conflicts_with_required_group() {
+    let mut app = App::new("group_conflict")
+        .arg(arg!(-f --flag "some flag").conflicts_with("gr"))
+        .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"));
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+}
+
+#[test]
+fn required_group_conflicts_with_arg() {
+    let mut app = App::new("group_conflict")
+        .arg(arg!(-f --flag "some flag"))
+        .group(
+            ArgGroup::new("gr")
+                .required(true)
+                .arg("some")
+                .arg("other")
+                .conflicts_with("flag"),
+        )
+        .arg(arg!(--some "some arg"))
+        .arg(arg!(--other "other arg"));
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--other"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
 }
 
 #[test]
@@ -181,7 +294,7 @@ fn two_conflicting_arguments() {
     let a = a.unwrap_err();
     assert!(
         a.to_string()
-            .contains("The argument \'--production\' cannot be used with \'--develop\'"),
+            .contains("The argument \'--develop\' cannot be used with \'--production\'"),
         "{}",
         a
     );
@@ -211,7 +324,7 @@ fn three_conflicting_arguments() {
     let a = a.unwrap_err();
     assert!(
         a.to_string()
-            .contains("The argument \'--two\' cannot be used with \'--one\'"),
+            .contains("The argument \'--one\' cannot be used with:"),
         "{}",
         a
     );
