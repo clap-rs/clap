@@ -127,7 +127,6 @@ bitflags! {
     }
 }
 
-// @TODO @p6 @internal: Reorder alphabetically
 impl_settings! { ArgSettings, ArgFlags,
     Required => Flags::REQUIRED,
     MultipleOccurrences => Flags::MULTIPLE_OCC,

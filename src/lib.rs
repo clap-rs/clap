@@ -16,7 +16,7 @@
     trivial_numeric_casts
 )]
 #![forbid(unsafe_code)]
-// TODO: https://github.com/rust-lang/rust-clippy/issues/7290
+// HACK https://github.com/rust-lang/rust-clippy/issues/7290
 #![allow(clippy::single_component_path_imports)]
 #![allow(clippy::branches_sharing_code)]
 
