@@ -251,6 +251,12 @@ path = "examples/tutorial_builder/04_04_custom.rs"
 required-features = ["cargo"]
 
 [[example]]
+name = "05_01_assert"
+path = "examples/tutorial_builder/05_01_assert.rs"
+required-features = ["cargo"]
+test = true
+
+[[example]]
 name = "01_quick_derive"
 path = "examples/tutorial_derive/01_quick.rs"
 required-features = ["derive"]
@@ -319,6 +325,12 @@ required-features = ["derive"]
 name = "04_04_custom_derive"
 path = "examples/tutorial_derive/04_04_custom.rs"
 required-features = ["derive"]
+
+[[example]]
+name = "05_01_assert_derive"
+path = "examples/tutorial_derive/05_01_assert.rs"
+required-features = ["derive"]
+test = true
 
 [[example]]
 name = "custom-bool"

@@ -15,7 +15,8 @@
     2. [Validated values](#validated-values)
     3. [Argument Relations](#relations-relations)
     4. [Custom Validation](#custom-validation)
-5. [Contributing](#contributing)
+5. [Tips](#tips)
+6. [Contributing](#contributing)
 
 ## Quick Start
 
@@ -548,6 +549,10 @@ $ 04_04_custom --major -c config.toml --spec-in input.txt
 Version: 2.2.3
 Doing work using input input.txt and config config.toml
 ```
+
+## Tips
+
+- Proactively check for bad `App` configurations by calling `App::debug_assert` ([example](05_01_assert.rs))
 
 ## Contributing
 

@@ -69,7 +69,7 @@ fn app() -> clap::App<'static> {
 
 #[test]
 fn verify_app() {
-    app.debug_assert();
+    app().debug_assert();
 }
 ```
 
