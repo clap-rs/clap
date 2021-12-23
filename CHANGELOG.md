@@ -134,7 +134,7 @@ Subtle changes (i.e. compiler won't catch):
   `Arg::hide_possible_values`, `Arg::hide_default_value`, `Arg::hide_env_values`,
   `Arg::case_insensitive` and `Arg::multiple_values` no longer imply `ArgSettings::TakesValue` ([#2233](https://github.com/clap-rs/clap/issues/2233))
 - Removed support for `{n}` as a newline in help text ([#1810](https://github.com/clap-rs/clap/pull/1810))
-- `ArgMatches::is_present` now longer checks subcommand names
+- `ArgMatches::is_present` no longer checks subcommand names
 - Some env variable values are now considered false for flags, not just "not-present" ([clap-rs/clap#2539](https://github.com/clap-rs/clap/issues/2539))
 - Changed `...`s meaning in usage parser.  Before, it always meant `multiple` which is still true for `--option [val]...`.  Now `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`.
 
