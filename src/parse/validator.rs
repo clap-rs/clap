@@ -224,7 +224,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     Err(Error::argument_conflict(
                         self.p.app,
                         latter_arg,
-                        Some(former_arg.to_string()),
+                        vec![former_arg.to_string()],
                         usg,
                     ))
                 })
@@ -243,7 +243,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             Err(Error::argument_conflict(
                 self.p.app,
                 &self.p.app[first],
-                c_with,
+                c_with.into_iter().collect(),
                 usg,
             ))
         } else {
@@ -319,7 +319,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 Err(Error::argument_conflict(
                     self.p.app,
                     arg,
-                    None,
+                    Vec::new(),
                     Usage::new(self.p).create_usage_with_title(&[]),
                 ))
             })
