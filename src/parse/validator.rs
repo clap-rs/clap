@@ -228,7 +228,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                         usg,
                     ))
                 })
-        } else if let Some(g) = self.p.app.groups.iter().find(|x| x.id == *name) {
+        } else if let Some(g) = self.p.app.find_group(name) {
             let usg = Usage::new(self.p).create_usage_with_title(&[]);
             let args_in_group = self.p.app.unroll_args_in_group(&g.id);
             let first = matcher
@@ -263,30 +263,28 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             .filter(|&name| {
                 debug!("Validator::validate_conflicts:iter:{:?}", name);
                 // Filter out the conflicting cases.
-                if let Some(g) = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| !g.multiple && g.id == *name)
-                {
-                    let conf_with_self = || {
-                        self.p
-                            .app
-                            .unroll_args_in_group(&g.id)
-                            .iter()
-                            .filter(|&a| matcher.contains(a))
-                            .count()
-                            > 1
-                    };
-                    let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
-                    let arg_conf_with_gr = || {
-                        matcher
-                            .arg_names()
-                            .filter_map(|x| self.p.app.find(x))
-                            .any(|x| x.blacklist.iter().any(|c| *c == g.id))
-                    };
-                    conf_with_self() || conf_with_arg() || arg_conf_with_gr()
+                if let Some(g) = self.p.app.find_group(name) {
+                    if !g.multiple {
+                        let conf_with_self = || {
+                            self.p
+                                .app
+                                .unroll_args_in_group(&g.id)
+                                .iter()
+                                .filter(|&a| matcher.contains(a))
+                                .count()
+                                > 1
+                        };
+                        let conf_with_arg = || g.conflicts.iter().any(|x| matcher.contains(x));
+                        let arg_conf_with_gr = || {
+                            matcher
+                                .arg_names()
+                                .filter_map(|x| self.p.app.find(x))
+                                .any(|x| x.blacklist.iter().any(|c| *c == g.id))
+                        };
+                        conf_with_self() || conf_with_arg() || arg_conf_with_gr()
+                    } else {
+                        false
+                    }
                 } else if let Some(ma) = matcher.get(name) {
                     debug!(
                         "Validator::validate_conflicts:iter:{:?}: matcher contains it...",
@@ -351,45 +349,23 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Some(arg) = self.p.app.find(name) {
                     // Since an arg was used, every arg it conflicts with is added to the conflicts
                     for conf in &arg.blacklist {
-                        /*
-                        for g_arg in self.p.app.unroll_args_in_group(&g.name) {
-                            if &g_arg != name {
-                                c.insert(g.id.clone()); // TODO ERROR is here - groups allow one arg but this line disallows all group args
-                            }
-                        }
-                        */
                         c.insert(conf.clone());
                     }
                     // Now we need to know which groups this arg was a member of, to add all other
                     // args in that group to the conflicts, as well as any args those args conflict
                     // with
                     for grp in self.p.app.groups_for_arg(name) {
-                        if let Some(g) = self
-                            .p
-                            .app
-                            .groups
-                            .iter()
-                            .find(|g| !g.multiple && g.id == grp)
-                        {
-                            /*
-                            for g_arg in self.p.app.unroll_args_in_group(&g.name) {
-                                if &g_arg != name {
-                                    c.insert(g.id.clone());
-                                }
+                        if let Some(g) = self.p.app.find_group(&grp) {
+                            if !g.multiple {
+                                c.insert(g.id.clone());
                             }
-                            */
-                            c.insert(g.id.clone());
                         }
                     }
-                } else if let Some(g) = self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .find(|g| !g.multiple && g.id == *name)
-                {
-                    debug!("Validator::gather_conflicts:iter:{:?}:group", name);
-                    c.insert(g.id.clone());
+                } else if let Some(g) = self.p.app.find_group(name) {
+                    if !g.multiple {
+                        debug!("Validator::gather_conflicts:iter:{:?}:group", name);
+                        c.insert(g.id.clone());
+                    }
                 }
             });
 
@@ -404,7 +380,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 for req in self.p.app.unroll_requirements_for_arg(&arg.id, matcher) {
                     self.p.required.insert(req);
                 }
-            } else if let Some(g) = self.p.app.groups.iter().find(|grp| grp.id == *name) {
+            } else if let Some(g) = self.p.app.find_group(name) {
                 debug!("Validator::gather_requirements:iter:{:?}:group", name);
                 for r in &g.requires {
                     self.p.required.insert(r.clone());
@@ -549,7 +525,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if !self.is_missing_required_ok(arg, matcher) {
                     return self.missing_required_error(matcher, vec![]);
                 }
-            } else if let Some(group) = self.p.app.groups.iter().find(|g| g.id == *arg_or_group) {
+            } else if let Some(group) = self.p.app.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
                 if !self
                     .p
@@ -596,9 +572,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 || self
                     .p
                     .app
-                    .groups
-                    .iter()
-                    .find(|g| g.id == *conf)
+                    .find_group(conf)
                     .map_or(false, |g| g.args.iter().any(|arg| matcher.contains(arg)))
         })
     }
