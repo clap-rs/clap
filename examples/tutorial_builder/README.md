@@ -476,7 +476,7 @@ $ 04_03_relations --major --minor
 error: The argument '--major' cannot be used with '--minor'
 
 USAGE:
-    04_03_relations[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
+    04_03_relations[EXE] <--set-ver <VER>|--major|--minor|--patch>
 
 For more information try --help
 $ 04_03_relations --major -c config.toml

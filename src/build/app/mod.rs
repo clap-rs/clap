@@ -3055,6 +3055,10 @@ impl<'help> App<'help> {
             .map(|grp| grp.id.clone())
     }
 
+    pub(crate) fn find_group(&self, group_id: &Id) -> Option<&ArgGroup<'help>> {
+        self.groups.iter().find(|g| g.id == *group_id)
+    }
+
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
     pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures<'help> {

@@ -549,34 +549,40 @@ impl Error {
     pub(crate) fn argument_conflict(
         app: &App,
         arg: &Arg,
-        other: Option<String>,
+        others: Vec<String>,
         usage: String,
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
-        c.none("' cannot be used with ");
+        c.warning(arg);
+        c.none("' cannot be used with");
 
-        match other {
-            Some(ref name) => {
-                c.none("'");
-                c.warning(name);
-                c.none("'");
+        let mut info = vec![];
+        match others.len() {
+            0 => {
+                c.none(" one or more of the other specified arguments");
             }
-            None => {
-                c.none("one or more of the other specified arguments");
+            1 => {
+                let v = &others[0];
+                c.none(" '");
+                c.warning(v.clone());
+                c.none("'");
+                info.push(v.clone());
             }
-        };
+            _ => {
+                c.none(":");
+                for v in others {
+                    c.none("\n    ");
+                    c.warning(v.to_string());
+                    info.push(v.to_string());
+                }
+            }
+        }
 
         put_usage(&mut c, usage);
         try_help(app, &mut c);
-
-        let mut info = vec![arg];
-        if let Some(other) = other {
-            info.push(other);
-        }
 
         Self::new(
             c,

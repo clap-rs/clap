@@ -444,7 +444,7 @@ $ 04_03_relations_derive --major --minor
 error: The argument '--major' cannot be used with '--minor'
 
 USAGE:
-    04_03_relations_derive[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
+    04_03_relations_derive[EXE] <--set-ver <VER>|--major|--minor|--patch>
 
 For more information try --help
 $ 04_03_relations_derive --major -c config.toml

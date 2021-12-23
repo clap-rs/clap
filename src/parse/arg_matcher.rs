@@ -94,6 +94,13 @@ impl ArgMatcher {
         self.0.args.contains_key(arg)
     }
 
+    pub(crate) fn contains_explicit(&self, arg: &Id) -> bool {
+        self.0
+            .args
+            .get(arg)
+            .map_or(false, |a| a.ty != ValueType::DefaultValue)
+    }
+
     pub(crate) fn is_empty(&self) -> bool {
         self.0.args.is_empty()
     }
