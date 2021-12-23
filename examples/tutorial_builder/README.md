@@ -11,9 +11,9 @@
     4. [Subcommands](#subcommands)
     5. [Defaults](#defaults)
 4. Validation
-    1. [Enumerated values](#enumerated)
-    2. [Validated values](#validated)
-    3. [Argument Relations](#relations)
+    1. [Enumerated values](#enumerated-values)
+    2. [Validated values](#validated-values)
+    3. [Argument Relations](#relations-relations)
     4. [Custom Validation](#custom-validation)
 5. [Contributing](#contributing)
 
