@@ -4808,6 +4808,16 @@ impl<'help> Arg<'help> {
                 self.num_vals = Some(val_names_len);
             }
         }
+
+        let self_id = self.id.clone();
+        if self.is_positional() || self.is_set(ArgSettings::MultipleOccurrences) {
+            // Remove self-overrides where they don't make sense.
+            //
+            // We can evaluate switching this to a debug assert at a later time (though it will
+            // require changing propagation of `AllArgsOverrideSelf`).  Being conservative for now
+            // due to where we are at in the release.
+            self.overrides.retain(|e| *e != self_id);
+        }
     }
 
     pub(crate) fn generated(mut self) -> Self {

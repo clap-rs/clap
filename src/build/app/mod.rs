@@ -2601,6 +2601,7 @@ impl<'help> App<'help> {
             self._derive_display_order();
 
             let mut pos_counter = 1;
+            let self_override = self.is_set(AppSettings::AllArgsOverrideSelf);
             for a in self.args.args_mut() {
                 // Fill in the groups
                 for g in &a.groups {
@@ -2618,6 +2619,10 @@ impl<'help> App<'help> {
                     // if an arg has `Last` set, we need to imply DontCollapseArgsInUsage so that args
                     // in the usage string don't get confused or left out.
                     self.settings.set(AppSettings::DontCollapseArgsInUsage);
+                }
+                if self_override {
+                    let self_id = a.id.clone();
+                    a.overrides.push(self_id);
                 }
                 a._build();
                 if a.is_positional() && a.index.is_none() {

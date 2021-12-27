@@ -1496,12 +1496,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         arg_overrides.push((overridee.clone(), &overrider.id));
                     }
                 }
-                // Only do self override for argument that is not positional
-                // argument or flag with MultipleOccurrences setting enabled.
-                if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
-                    && !overrider.is_set(ArgSettings::MultipleOccurrences)
-                    && !overrider.is_positional()
-                {
+                if override_self {
                     debug!(
                         "Parser::remove_overrides:iter:{:?}:iter:{:?}: self override",
                         name, overrider
