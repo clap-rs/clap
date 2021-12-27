@@ -32,7 +32,8 @@ fn propagate_global_arg_in_subcommand_to_subsubcommand_1385() {
                 .arg(Arg::new("arg1").long("arg1").takes_value(true).global(true))
                 .subcommand(App::new("sub1a")),
         )
-        .get_matches_from(&["foo", "sub1", "--arg1", "v1", "sub1a"]);
+        .try_get_matches_from(&["foo", "sub1", "--arg1", "v1", "sub1a"])
+        .unwrap();
     assert_eq!(
         "v1",
         m1.subcommand_matches("sub1")
@@ -55,7 +56,7 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
                 .arg(arg!(--"sub-str" <str>).required(false).global(true))
                 .subcommand(App::new("test")),
         )
-        .get_matches_from(&[
+        .try_get_matches_from(&[
             "app",
             "test",
             "test",
@@ -65,7 +66,8 @@ fn propagate_global_arg_to_subcommand_in_subsubcommand_2053() {
             "--sub-flag",
             "--sub-str",
             "world",
-        ]);
+        ])
+        .unwrap();
     assert_eq!(
         Some("world"),
         m.subcommand_matches("test").unwrap().value_of("sub-str")
@@ -80,7 +82,8 @@ fn global_arg_available_in_subcommand() {
             Arg::new("not").global(false).long("not"),
         ])
         .subcommand(App::new("ping"))
-        .get_matches_from(&["opt", "ping", "--global"]);
+        .try_get_matches_from(&["opt", "ping", "--global"])
+        .unwrap();
 
     assert!(m.is_present("global"));
     assert!(m.subcommand_matches("ping").unwrap().is_present("global"));

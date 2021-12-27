@@ -21,7 +21,8 @@ fn get_app() -> App<'static> {
 }
 
 fn get_matches(app: App<'static>, argv: &'static str) -> ArgMatches {
-    app.get_matches_from(argv.split(' ').collect::<Vec<_>>())
+    app.try_get_matches_from(argv.split(' ').collect::<Vec<_>>())
+        .unwrap()
 }
 
 fn get_outer_matches(m: &ArgMatches) -> &ArgMatches {

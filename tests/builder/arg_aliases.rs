@@ -144,7 +144,8 @@ fn alias_on_a_subcommand_option() {
             ),
         )
         .arg(Arg::new("other").long("other").aliases(&["o1", "o2", "o3"]))
-        .get_matches_from(vec!["test", "some", "--opt", "awesome"]);
+        .try_get_matches_from(vec!["test", "some", "--opt", "awesome"])
+        .unwrap();
 
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();

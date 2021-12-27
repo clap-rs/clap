@@ -447,7 +447,8 @@ fn issue_1047_min_zero_vals_default_val() {
                 .min_values(0)
                 .default_missing_value("default"),
         )
-        .get_matches_from(vec!["foo", "-d"]);
+        .try_get_matches_from(vec!["foo", "-d"])
+        .unwrap();
     assert_eq!(m.occurrences_of("del"), 1);
     assert_eq!(m.value_of("del"), Some("default"));
 }
@@ -531,7 +532,8 @@ fn issue_1073_suboptimal_flag_suggestion() {
 fn short_non_ascii_no_space() {
     let matches = App::new("app")
         .arg(arg!(opt: -'磨' <opt>))
-        .get_matches_from(&["test", "-磨VALUE"]);
+        .try_get_matches_from(&["test", "-磨VALUE"])
+        .unwrap();
 
     assert_eq!("VALUE", matches.value_of("opt").unwrap());
 }
@@ -540,7 +542,8 @@ fn short_non_ascii_no_space() {
 fn short_eq_val_starts_with_eq() {
     let matches = App::new("app")
         .arg(arg!(opt: -f <opt>))
-        .get_matches_from(&["test", "-f==value"]);
+        .try_get_matches_from(&["test", "-f==value"])
+        .unwrap();
 
     assert_eq!("=value", matches.value_of("opt").unwrap());
 }
@@ -549,7 +552,8 @@ fn short_eq_val_starts_with_eq() {
 fn long_eq_val_starts_with_eq() {
     let matches = App::new("app")
         .arg(arg!(opt: --foo <opt>))
-        .get_matches_from(&["test", "--foo==value"]);
+        .try_get_matches_from(&["test", "--foo==value"])
+        .unwrap();
 
     assert_eq!("=value", matches.value_of("opt").unwrap());
 }
@@ -559,7 +563,7 @@ fn issue_2022_get_flags_misuse() {
     let app = App::new("test")
         .help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
-    let matches = app.get_matches_from(&[""]);
+    let matches = app.try_get_matches_from(&[""]).unwrap();
     assert!(matches.value_of("a").is_some())
 }
 
@@ -568,14 +572,16 @@ fn issue_2279() {
     let before_help_heading = App::new("app")
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .help_heading(Some("This causes default_value to be ignored"))
-        .get_matches_from(&[""]);
+        .try_get_matches_from(&[""])
+        .unwrap();
 
     assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
 
     let after_help_heading = App::new("app")
         .help_heading(Some("This causes default_value to be ignored"))
         .arg(Arg::new("foo").short('f').default_value("bar"))
-        .get_matches_from(&[""]);
+        .try_get_matches_from(&[""])
+        .unwrap();
 
     assert_eq!(after_help_heading.value_of("foo"), Some("bar"));
 }
@@ -587,15 +593,24 @@ fn infer_long_arg() {
         .arg(Arg::new("racetrack").long("racetrack").alias("autobahn"))
         .arg(Arg::new("racecar").long("racecar").takes_value(true));
 
-    let matches = app.clone().get_matches_from(&["test", "--racec=hello"]);
+    let matches = app
+        .clone()
+        .try_get_matches_from(&["test", "--racec=hello"])
+        .unwrap();
     assert!(!matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), Some("hello"));
 
-    let matches = app.clone().get_matches_from(&["test", "--racet"]);
+    let matches = app
+        .clone()
+        .try_get_matches_from(&["test", "--racet"])
+        .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
-    let matches = app.clone().get_matches_from(&["test", "--auto"]);
+    let matches = app
+        .clone()
+        .try_get_matches_from(&["test", "--auto"])
+        .unwrap();
     assert!(matches.is_present("racetrack"));
     assert_eq!(matches.value_of("racecar"), None);
 
@@ -603,9 +618,9 @@ fn infer_long_arg() {
         .setting(AppSettings::InferLongArgs)
         .arg(Arg::new("arg").long("arg"));
 
-    let matches = app.clone().get_matches_from(&["test", "--"]);
+    let matches = app.clone().try_get_matches_from(&["test", "--"]).unwrap();
     assert!(!matches.is_present("arg"));
 
-    let matches = app.clone().get_matches_from(&["test", "--a"]);
+    let matches = app.clone().try_get_matches_from(&["test", "--a"]).unwrap();
     assert!(matches.is_present("arg"));
 }

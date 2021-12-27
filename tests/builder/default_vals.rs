@@ -641,7 +641,7 @@ fn with_value_delimiter() {
             .default_value("first;second"),
     );
 
-    let matches = app.get_matches_from(vec![""]);
+    let matches = app.try_get_matches_from(vec![""]).unwrap();
 
     assert_eq!(
         matches.values_of("option").unwrap().collect::<Vec<_>>(),
@@ -658,7 +658,9 @@ fn missing_with_value_delimiter() {
             .default_missing_values(&["value1;value2;value3", "value4;value5"]),
     );
 
-    let matches = app.get_matches_from(vec!["program", "--option"]);
+    let matches = app
+        .try_get_matches_from(vec!["program", "--option"])
+        .unwrap();
 
     assert_eq!(
         matches.values_of("option").unwrap().collect::<Vec<_>>(),

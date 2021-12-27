@@ -307,14 +307,14 @@ fn issue_1794() {
                 .required(true),
         );
 
-    let m = app.clone().get_matches_from(&["app", "pos1", "pos2"]);
+    let m = app.clone().try_get_matches_from(&["app", "pos1", "pos2"]).unwrap();
     assert_eq!(m.value_of("pos1"), Some("pos1"));
     assert_eq!(m.value_of("pos2"), Some("pos2"));
     assert!(!m.is_present("option1"));
 
     let m = app
         .clone()
-        .get_matches_from(&["app", "--option1", "positional"]);
+        .try_get_matches_from(&["app", "--option1", "positional"]).unwrap();
     assert_eq!(m.value_of("pos1"), None);
     assert_eq!(m.value_of("pos2"), Some("positional"));
     assert!(m.is_present("option1"));

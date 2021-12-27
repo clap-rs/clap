@@ -6,7 +6,8 @@ use clap::{App, Arg, ErrorKind};
 fn empty_values() {
     let m = App::new("config")
         .arg(Arg::new("config").long("config").takes_value(true))
-        .get_matches_from(&["config", "--config", ""]);
+        .try_get_matches_from(&["config", "--config", ""])
+        .unwrap();
     assert_eq!(m.value_of("config"), Some(""));
 }
 
@@ -14,12 +15,14 @@ fn empty_values() {
 fn empty_values_with_equals() {
     let m = App::new("config")
         .arg(Arg::new("config").long("config").takes_value(true))
-        .get_matches_from(&["config", "--config="]);
+        .try_get_matches_from(&["config", "--config="])
+        .unwrap();
     assert_eq!(m.value_of("config"), Some(""));
 
     let m = App::new("config")
         .arg(Arg::new("config").short('c').takes_value(true))
-        .get_matches_from(&["config", "-c="]);
+        .try_get_matches_from(&["config", "-c="])
+        .unwrap();
     assert_eq!(m.value_of("config"), Some(""))
 }
 

@@ -102,7 +102,8 @@ fn option_use_delim_false_override_itself() {
                 .required(false)
                 .overrides_with("opt"),
         )
-        .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
+        .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
     assert_eq!(
@@ -131,7 +132,8 @@ fn posix_compatible_flags_long() {
     let m = App::new("posix")
         .arg(arg!(--flag  "some flag").overrides_with("color"))
         .arg(arg!(--color "some other flag"))
-        .get_matches_from(vec!["", "--flag", "--color"]);
+        .try_get_matches_from(vec!["", "--flag", "--color"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
 }
@@ -141,7 +143,8 @@ fn posix_compatible_flags_long_rev() {
     let m = App::new("posix")
         .arg(arg!(--flag  "some flag").overrides_with("color"))
         .arg(arg!(--color "some other flag"))
-        .get_matches_from(vec!["", "--color", "--flag"]);
+        .try_get_matches_from(vec!["", "--color", "--flag"])
+        .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -151,7 +154,8 @@ fn posix_compatible_flags_short() {
     let m = App::new("posix")
         .arg(arg!(-f --flag  "some flag").overrides_with("color"))
         .arg(arg!(-c --color "some other flag"))
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .try_get_matches_from(vec!["", "-f", "-c"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
 }
@@ -161,7 +165,8 @@ fn posix_compatible_flags_short_rev() {
     let m = App::new("posix")
         .arg(arg!(-f --flag  "some flag").overrides_with("color"))
         .arg(arg!(-c --color "some other flag"))
-        .get_matches_from(vec!["", "-c", "-f"]);
+        .try_get_matches_from(vec!["", "-c", "-f"])
+        .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -175,7 +180,8 @@ fn posix_compatible_opts_long() {
                 .overrides_with("color"),
         )
         .arg(arg!(--color <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
+        .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
@@ -190,7 +196,8 @@ fn posix_compatible_opts_long_rev() {
                 .overrides_with("color"),
         )
         .arg(arg!(--color <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "--color", "some", "--flag", "other"]);
+        .try_get_matches_from(vec!["", "--color", "some", "--flag", "other"])
+        .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
@@ -205,7 +212,8 @@ fn posix_compatible_opts_long_equals() {
                 .overrides_with("color"),
         )
         .arg(arg!(--color <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "--flag=some", "--color=other"]);
+        .try_get_matches_from(vec!["", "--flag=some", "--color=other"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "other");
     assert!(!m.is_present("flag"));
@@ -220,7 +228,8 @@ fn posix_compatible_opts_long_equals_rev() {
                 .overrides_with("color"),
         )
         .arg(arg!(--color <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "--color=some", "--flag=other"]);
+        .try_get_matches_from(vec!["", "--color=some", "--flag=other"])
+        .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "other");
@@ -235,7 +244,8 @@ fn posix_compatible_opts_short() {
                 .overrides_with("c"),
         )
         .arg(arg!(c: -c <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "-f", "some", "-c", "other"]);
+        .try_get_matches_from(vec!["", "-f", "some", "-c", "other"])
+        .unwrap();
     assert!(m.is_present("c"));
     assert_eq!(m.value_of("c").unwrap(), "other");
     assert!(!m.is_present("f"));
@@ -250,7 +260,8 @@ fn posix_compatible_opts_short_rev() {
                 .overrides_with("c"),
         )
         .arg(arg!(c: -c <color> "some other flag").required(false))
-        .get_matches_from(vec!["", "-c", "some", "-f", "other"]);
+        .try_get_matches_from(vec!["", "-c", "some", "-f", "other"])
+        .unwrap();
     assert!(!m.is_present("c"));
     assert!(m.is_present("f"));
     assert_eq!(m.value_of("f").unwrap(), "other");
@@ -262,7 +273,8 @@ fn conflict_overridden() {
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
-        .get_matches_from(vec!["", "-f", "-c", "-d"]);
+        .try_get_matches_from(vec!["", "-f", "-c", "-d"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(m.is_present("debug"));
@@ -300,7 +312,8 @@ fn conflict_overridden_4() {
         .arg(arg!(-f --flag "some flag").conflicts_with("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
-        .get_matches_from(vec!["", "-d", "-f", "-c"]);
+        .try_get_matches_from(vec!["", "-d", "-f", "-c"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(m.is_present("debug"));
@@ -320,7 +333,8 @@ fn require_overridden_2() {
     let m = App::new("require_overridden")
         .arg(Arg::new("req_pos").required(true))
         .arg(arg!(-c --color "other flag").overrides_with("req_pos"))
-        .get_matches_from(vec!["", "-c", "req_pos"]);
+        .try_get_matches_from(vec!["", "-c", "req_pos"])
+        .unwrap();
     assert!(!m.is_present("color"));
     assert!(m.is_present("req_pos"));
 }
@@ -331,7 +345,8 @@ fn require_overridden_3() {
         .arg(arg!(-f --flag "some flag").requires("debug"))
         .arg(arg!(-d --debug "other flag"))
         .arg(arg!(-c --color "third flag").overrides_with("flag"))
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .try_get_matches_from(vec!["", "-f", "-c"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(!m.is_present("flag"));
     assert!(!m.is_present("debug"));
@@ -360,11 +375,13 @@ fn issue_1374_overrides_self_with_multiple_values() {
     );
     let m = app
         .clone()
-        .get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"]);
+        .try_get_matches_from(&["test", "--input", "a", "b", "c", "--input", "d"])
+        .unwrap();
     assert_eq!(m.values_of("input").unwrap().collect::<Vec<_>>(), &["d"]);
     let m = app
         .clone()
-        .get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"]);
+        .try_get_matches_from(&["test", "--input", "a", "b", "--input", "c", "d"])
+        .unwrap();
     assert_eq!(
         m.values_of("input").unwrap().collect::<Vec<_>>(),
         &["c", "d"]

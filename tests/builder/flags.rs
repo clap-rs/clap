@@ -19,7 +19,8 @@ fn flag_using_short() {
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
         ])
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .try_get_matches_from(vec!["", "-f", "-c"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -80,7 +81,8 @@ fn lots_o_flags_combined() {
 fn flag_using_long() {
     let m = App::new("flag")
         .args(&[arg!(--flag "some flag"), arg!(--color "some other flag")])
-        .get_matches_from(vec!["", "--flag", "--color"]);
+        .try_get_matches_from(vec!["", "--flag", "--color"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -103,7 +105,8 @@ fn flag_using_mixed() {
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
         ])
-        .get_matches_from(vec!["", "-f", "--color"]);
+        .try_get_matches_from(vec!["", "-f", "--color"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 
@@ -112,7 +115,8 @@ fn flag_using_mixed() {
             arg!(-f --flag "some flag"),
             arg!(-c --color "some other flag"),
         ])
-        .get_matches_from(vec!["", "--flag", "-c"]);
+        .try_get_matches_from(vec!["", "--flag", "-c"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
 }
@@ -125,7 +129,8 @@ fn multiple_flags_in_single() {
             arg!(-c --color "some other flag"),
             arg!(-d --debug "another other flag"),
         ])
-        .get_matches_from(vec!["", "-fcd"]);
+        .try_get_matches_from(vec!["", "-fcd"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
     assert!(m.is_present("debug"));
@@ -139,13 +144,20 @@ fn issue_1284_argument_in_flag_style() {
 
     let m = app
         .clone()
-        .get_matches_from(vec!["", "--", "--another-flag"]);
+        .try_get_matches_from(vec!["", "--", "--another-flag"])
+        .unwrap();
     assert_eq!(m.value_of("filename"), Some("--another-flag"));
 
-    let m = app.clone().get_matches_from(vec!["", "--a-flag"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["", "--a-flag"])
+        .unwrap();
     assert!(m.is_present("a-flag"));
 
-    let m = app.clone().get_matches_from(vec!["", "--", "--a-flag"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(vec!["", "--", "--a-flag"])
+        .unwrap();
     assert_eq!(m.value_of("filename"), Some("--a-flag"));
 
     assert!(utils::compare_output(

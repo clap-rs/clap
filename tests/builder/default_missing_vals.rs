@@ -126,17 +126,32 @@ fn default_missing_value_flag_value() {
         }
     }
 
-    assert_eq!(flag_value(app.clone().get_matches_from(&["test"])), false);
     assert_eq!(
-        flag_value(app.clone().get_matches_from(&["test", "--flag"])),
+        flag_value(app.clone().try_get_matches_from(&["test"]).unwrap()),
+        false
+    );
+    assert_eq!(
+        flag_value(
+            app.clone()
+                .try_get_matches_from(&["test", "--flag"])
+                .unwrap()
+        ),
         true
     );
     assert_eq!(
-        flag_value(app.clone().get_matches_from(&["test", "--flag=true"])),
+        flag_value(
+            app.clone()
+                .try_get_matches_from(&["test", "--flag=true"])
+                .unwrap()
+        ),
         true
     );
     assert_eq!(
-        flag_value(app.clone().get_matches_from(&["test", "--flag=false"])),
+        flag_value(
+            app.clone()
+                .try_get_matches_from(&["test", "--flag=false"])
+                .unwrap()
+        ),
         false
     );
 }

@@ -110,7 +110,8 @@ fn subcommand() {
             ),
         )
         .arg(Arg::new("other").long("other"))
-        .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
+        .try_get_matches_from(vec!["myprog", "some", "--test", "testing"])
+        .unwrap();
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();
@@ -131,7 +132,8 @@ fn subcommand_none_given() {
             ),
         )
         .arg(Arg::new("other").long("other"))
-        .get_matches_from(vec![""]);
+        .try_get_matches_from(vec![""])
+        .unwrap();
 
     assert!(m.subcommand_name().is_none());
 }
@@ -150,7 +152,8 @@ fn subcommand_multiple() {
             App::new("add").arg(Arg::new("roster").short('r')),
         ])
         .arg(Arg::new("other").long("other"))
-        .get_matches_from(vec!["myprog", "some", "--test", "testing"]);
+        .try_get_matches_from(vec!["myprog", "some", "--test", "testing"])
+        .unwrap();
 
     assert!(m.subcommand_matches("some").is_some());
     assert!(m.subcommand_matches("add").is_none());
@@ -202,7 +205,8 @@ fn subcommand_display_order() {
 fn single_alias() {
     let m = App::new("myprog")
         .subcommand(App::new("test").alias("do-stuff"))
-        .get_matches_from(vec!["myprog", "do-stuff"]);
+        .try_get_matches_from(vec!["myprog", "do-stuff"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
@@ -210,7 +214,8 @@ fn single_alias() {
 fn multiple_aliases() {
     let m = App::new("myprog")
         .subcommand(App::new("test").aliases(&["do-stuff", "test-stuff"]))
-        .get_matches_from(vec!["myprog", "test-stuff"]);
+        .try_get_matches_from(vec!["myprog", "test-stuff"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
@@ -334,7 +339,8 @@ fn replace() {
     let m = App::new("prog")
         .subcommand(App::new("module").subcommand(App::new("install").about("Install module")))
         .replace("install", &["module", "install"])
-        .get_matches_from(vec!["prog", "install"]);
+        .try_get_matches_from(vec!["prog", "install"])
+        .unwrap();
 
     assert_eq!(m.subcommand_name(), Some("module"));
     assert_eq!(
@@ -454,7 +460,8 @@ fn subcommand_after_argument() {
     let m = App::new("myprog")
         .arg(Arg::new("some_text"))
         .subcommand(App::new("test"))
-        .get_matches_from(vec!["myprog", "teat", "test"]);
+        .try_get_matches_from(vec!["myprog", "teat", "test"])
+        .unwrap();
     assert_eq!(m.value_of("some_text"), Some("teat"));
     assert_eq!(m.subcommand().unwrap().0, "test");
 }
@@ -464,7 +471,8 @@ fn subcommand_after_argument_looks_like_help() {
     let m = App::new("myprog")
         .arg(Arg::new("some_text"))
         .subcommand(App::new("test"))
-        .get_matches_from(vec!["myprog", "helt", "test"]);
+        .try_get_matches_from(vec!["myprog", "helt", "test"])
+        .unwrap();
     assert_eq!(m.value_of("some_text"), Some("helt"));
     assert_eq!(m.subcommand().unwrap().0, "test");
 }
@@ -475,15 +483,21 @@ fn issue_2494_subcommand_is_present() {
         .arg(Arg::new("global").long("global"))
         .subcommand(App::new("global"));
 
-    let m = app.clone().get_matches_from(&["opt", "--global", "global"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(&["opt", "--global", "global"])
+        .unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
     assert!(m.is_present("global"));
 
-    let m = app.clone().get_matches_from(&["opt", "--global"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(&["opt", "--global"])
+        .unwrap();
     assert!(m.subcommand_name().is_none());
     assert!(m.is_present("global"));
 
-    let m = app.get_matches_from(&["opt", "global"]);
+    let m = app.try_get_matches_from(&["opt", "global"]).unwrap();
     assert_eq!(m.subcommand_name().unwrap(), "global");
     assert!(!m.is_present("global"));
 }
@@ -519,11 +533,14 @@ fn busybox_like_multicall() {
         .subcommand(App::new("busybox").subcommands(applet_commands()))
         .subcommands(applet_commands());
 
-    let m = app.clone().get_matches_from(&["busybox", "true"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(&["busybox", "true"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("busybox"));
     assert_eq!(m.subcommand().unwrap().1.subcommand_name(), Some("true"));
 
-    let m = app.clone().get_matches_from(&["true"]);
+    let m = app.clone().try_get_matches_from(&["true"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("true"));
 
     let m = app.clone().try_get_matches_from(&["a.out"]);
@@ -539,10 +556,13 @@ fn hostname_like_multicall() {
         .subcommand(App::new("hostname"))
         .subcommand(App::new("dnsdomainname"));
 
-    let m = app.clone().get_matches_from(&["hostname"]);
+    let m = app.clone().try_get_matches_from(&["hostname"]).unwrap();
     assert_eq!(m.subcommand_name(), Some("hostname"));
 
-    let m = app.clone().get_matches_from(&["dnsdomainname"]);
+    let m = app
+        .clone()
+        .try_get_matches_from(&["dnsdomainname"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
 
     let m = app.clone().try_get_matches_from(&["a.out"]);
