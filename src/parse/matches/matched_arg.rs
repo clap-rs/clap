@@ -81,6 +81,10 @@ impl MatchedArg {
         self.vals.iter().flatten().count() == 0
     }
 
+    pub(crate) fn has_val_groups(&self) -> bool {
+        !self.vals.is_empty()
+    }
+
     // Will be used later
     #[allow(dead_code)]
     pub(crate) fn remove_vals(&mut self, len: usize) {

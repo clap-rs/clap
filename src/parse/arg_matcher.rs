@@ -176,8 +176,11 @@ impl ArgMatcher {
         ma.push_index(idx);
     }
 
-    pub(crate) fn arg_have_val(&mut self, arg: &Id) -> bool {
-        matches!(self.entry(arg), Entry::Occupied(_))
+    pub(crate) fn has_val_groups(&mut self, arg: &Id) -> bool {
+        match self.entry(arg) {
+            Entry::Occupied(e) => e.get().has_val_groups(),
+            Entry::Vacant(_) => false,
+        }
     }
 
     pub(crate) fn needs_more_vals(&self, o: &Arg) -> bool {

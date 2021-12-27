@@ -594,7 +594,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // Creating new value group rather than appending when the arg
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continuously.
-                let append = self.arg_have_val(matcher, p);
+                let append = self.has_val_groups(matcher, p);
                 self.add_val_to_arg(
                     p,
                     &arg_os,
@@ -1463,8 +1463,8 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
     }
 
-    fn arg_have_val(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
-        matcher.arg_have_val(&arg.id)
+    fn has_val_groups(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
+        matcher.has_val_groups(&arg.id)
     }
 
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
