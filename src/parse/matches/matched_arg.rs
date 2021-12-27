@@ -77,7 +77,7 @@ impl MatchedArg {
         self.vals.last().map(|x| x.len()).unwrap_or(0)
     }
 
-    pub(crate) fn is_vals_empty(&self) -> bool {
+    pub(crate) fn all_val_groups_empty(&self) -> bool {
         self.vals.iter().flatten().count() == 0
     }
 

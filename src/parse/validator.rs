@@ -42,7 +42,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             let o = &self.p.app[&a];
             reqs_validated = true;
             let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
-                v.is_vals_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
+                v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
                 true
             };
@@ -396,7 +396,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         };
         // Issue 665 (https://github.com/clap-rs/clap/issues/665)
         // Issue 1105 (https://github.com/clap-rs/clap/issues/1105)
-        if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.is_vals_empty() {
+        if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
                 self.p.app,
                 a,
