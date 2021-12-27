@@ -387,3 +387,15 @@ fn issue_1374_overrides_self_with_multiple_values() {
         &["c", "d"]
     );
 }
+
+#[test]
+fn incremental_override() {
+    let mut app = App::new("test")
+        .arg(arg!(--name <NAME>).multiple_occurrences(true))
+        .arg(arg!(--"no-name").overrides_with("name"));
+    let m = app
+        .try_get_matches_from_mut(&["test", "--name=ahmed", "--no-name", "--name=ali"])
+        .unwrap();
+    assert_eq!(m.values_of("name").unwrap().collect::<Vec<_>>(), &["ali"]);
+    assert!(!m.is_present("no-name"));
+}

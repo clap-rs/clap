@@ -457,7 +457,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn is_missing_required_ok(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.name);
-        self.validate_arg_conflicts(a, matcher) || self.p.overridden.contains(&a.id)
+        self.validate_arg_conflicts(a, matcher) || self.p.overridden.borrow().contains(&a.id)
     }
 
     fn validate_arg_conflicts(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
