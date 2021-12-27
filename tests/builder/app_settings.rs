@@ -418,7 +418,7 @@ fn no_bin_name() {
         .setting(AppSettings::NoBinaryName)
         .arg(Arg::new("test").required(true).index(1))
         .try_get_matches_from(vec!["testing"]);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     let matches = result.unwrap();
     assert_eq!(matches.value_of("test").unwrap(), "testing");
 }
@@ -454,7 +454,7 @@ fn stop_delim_values_only_pos_follows() {
             arg!([arg] ... "some arg"),
         ])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
@@ -484,7 +484,7 @@ fn delim_values_only_pos_follows() {
     let r = App::new("onlypos")
         .args(&[arg!(f: -f [flag] "some opt"), arg!([arg] ... "some arg")])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
@@ -516,7 +516,7 @@ fn delim_values_only_pos_follows_with_delim() {
             arg!([arg] ... "some arg").use_delimiter(true),
         ])
         .try_get_matches_from(vec!["", "--", "-f", "-g,x"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
@@ -894,7 +894,7 @@ fn allow_ext_sc_when_sc_required() {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .try_get_matches_from(vec!["clap-test", "external-cmd", "foo"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 
     match res.unwrap().subcommand() {
         Some((name, args)) => {
@@ -913,7 +913,7 @@ fn external_subcommand_looks_like_built_in() {
         .setting(AppSettings::AllowInvalidUtf8ForExternalSubcommands)
         .subcommand(App::new("install"))
         .try_get_matches_from(vec!["cargo", "install-update", "foo"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     match m.subcommand() {
         Some((name, args)) => {
@@ -931,7 +931,7 @@ fn aaos_flags() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(arg!(--flag  "some flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.occurrences_of("flag"), 1);
@@ -944,7 +944,7 @@ fn aaos_flags_mult() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(arg!(--flag ...  "some flag"))
         .try_get_matches_from(vec!["", "--flag", "--flag", "--flag", "--flag"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.occurrences_of("flag"), 4);
@@ -957,7 +957,7 @@ fn aaos_opts() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(arg!(--opt <val> "some option"))
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
@@ -976,7 +976,7 @@ fn aaos_opts_w_other_overrides() {
                 .overrides_with("opt"),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--other=test", "--opt=other"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert!(!m.is_present("other"));
@@ -996,7 +996,7 @@ fn aaos_opts_w_other_overrides_rev() {
                 .overrides_with("opt"),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--other=val"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.is_present("opt"));
     assert!(m.is_present("other"));
@@ -1015,7 +1015,7 @@ fn aaos_opts_w_other_overrides_2() {
         )
         .arg(arg!(--other <val> "some other option").required(false))
         .try_get_matches_from(vec!["", "--opt=some", "--other=test", "--opt=other"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert!(!m.is_present("other"));
@@ -1035,7 +1035,7 @@ fn aaos_opts_w_other_overrides_rev_2() {
         )
         .arg(arg!(--other <val> "some other option").required(true))
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--other=val"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.is_present("opt"));
     assert!(m.is_present("other"));
@@ -1055,7 +1055,7 @@ fn aaos_opts_mult() {
                 .require_delimiter(true),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--opt=other", "--opt=one,two"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 3);
@@ -1081,7 +1081,7 @@ fn aaos_opts_mult_req_delims() {
             "other",
             "val",
         ]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 2);
@@ -1098,7 +1098,7 @@ fn aaos_pos_mult() {
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(arg!([val] ... "some pos"))
         .try_get_matches_from(vec!["", "some", "other", "value"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("val"));
     assert_eq!(m.occurrences_of("val"), 3);
@@ -1188,17 +1188,17 @@ fn no_auto_help() {
 
     let result = app.clone().try_get_matches_from("myprog --help".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("help"));
 
     let result = app.clone().try_get_matches_from("myprog -h".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("help"));
 
     let result = app.clone().try_get_matches_from("myprog help".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert_eq!(result.unwrap().subcommand_name(), Some("help"));
 }
 
@@ -1212,12 +1212,12 @@ fn no_auto_version() {
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
     let result = app.clone().try_get_matches_from("myprog -V".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 }
 
@@ -1232,12 +1232,12 @@ fn no_auto_version_mut_arg() {
         .clone()
         .try_get_matches_from("myprog --version".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 
     let result = app.clone().try_get_matches_from("myprog -V".split(' '));
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     assert!(result.unwrap().is_present("version"));
 }
 

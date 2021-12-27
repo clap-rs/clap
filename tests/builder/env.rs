@@ -13,7 +13,7 @@ fn env() {
         .arg(arg!([arg] "some opt").env("CLP_TEST_ENV").takes_value(true))
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -31,7 +31,7 @@ fn env_bool_literal() {
         .arg(Arg::new("absent").short('a').env("CLP_TEST_FLAG_ABSENT"))
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("present"));
     assert_eq!(m.occurrences_of("present"), 0);
@@ -52,7 +52,7 @@ fn env_os() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -73,7 +73,7 @@ fn no_env() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -90,7 +90,7 @@ fn no_env_no_takes_value() {
         .arg(arg!([arg] "some opt").env("CLP_TEST_ENV_NONE"))
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -110,7 +110,7 @@ fn with_default() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -129,7 +129,7 @@ fn opt_user_override() {
         )
         .try_get_matches_from(vec!["", "--arg", "opt"]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
@@ -152,7 +152,7 @@ fn positionals() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -171,7 +171,7 @@ fn positionals_user_override() {
         )
         .try_get_matches_from(vec!["", "opt"]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 1);
@@ -196,7 +196,7 @@ fn multiple_one() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -217,7 +217,7 @@ fn multiple_three() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -240,7 +240,7 @@ fn multiple_no_delimiter() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -263,7 +263,7 @@ fn possible_value() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);
@@ -305,7 +305,7 @@ fn validator() {
         )
         .try_get_matches_from(vec![""]);
 
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.occurrences_of("arg"), 0);

@@ -359,7 +359,7 @@ fn conflict_with_unused_default() {
         .arg(arg!(-f --flag "some flag").conflicts_with("opt"))
         .try_get_matches_from(vec!["myprog", "-f"]);
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
 
     assert_eq!(m.value_of("opt"), Some("default"));

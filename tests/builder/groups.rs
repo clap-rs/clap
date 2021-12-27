@@ -90,7 +90,7 @@ fn group_single_value() {
         .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
@@ -104,7 +104,7 @@ fn group_single_flag() {
         .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-f"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
@@ -118,7 +118,7 @@ fn group_empty() {
         .arg(arg!(-c --color [color] "some option"))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec![""]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 
     let m = res.unwrap();
     assert!(!m.is_present("grp"));
@@ -239,7 +239,7 @@ fn required_group_multiple_args() {
                 .multiple(true),
         )
         .try_get_matches_from(vec!["group", "-f", "-c"]);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.is_present("flag"));
     assert!(m.is_present("color"));
@@ -288,7 +288,7 @@ fn group_acts_like_arg() {
         .arg(Arg::new("verbose").long("verbose").group("mode"))
         .try_get_matches_from(vec!["prog", "--debug"]);
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
     let m = result.unwrap();
     assert!(m.is_present("mode"));
 }

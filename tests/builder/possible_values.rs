@@ -52,7 +52,7 @@ fn possible_values_of_positional() {
         .arg(Arg::new("positional").index(1).possible_value("test123"))
         .try_get_matches_from(vec!["myprog", "test123"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("positional"));
@@ -71,7 +71,7 @@ fn possible_value_arg_value() {
         )
         .try_get_matches_from(vec!["myprog", "test123"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("arg_value"));
@@ -101,7 +101,7 @@ fn possible_values_of_positional_multiple() {
         )
         .try_get_matches_from(vec!["myprog", "test123", "test321"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("positional"));
@@ -140,7 +140,7 @@ fn possible_values_of_option() {
         )
         .try_get_matches_from(vec!["myprog", "--option", "test123"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -177,7 +177,7 @@ fn possible_values_of_option_multiple() {
         )
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "test321"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -279,7 +279,7 @@ fn alias() {
         )
         .try_get_matches_from(vec!["pv", "--option", "123"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m.unwrap().value_of("option").unwrap().eq("123"));
 }
 
@@ -297,7 +297,7 @@ fn aliases() {
         )
         .try_get_matches_from(vec!["pv", "--option", "2"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m.unwrap().value_of("option").unwrap().eq("2"));
 }
 
@@ -315,7 +315,7 @@ fn ignore_case() {
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m
         .unwrap()
         .value_of("option")
@@ -355,7 +355,7 @@ fn ignore_case_multiple() {
         )
         .try_get_matches_from(vec!["pv", "--option", "TeSt123", "teST123", "tESt321"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert_eq!(
         m.unwrap().values_of("option").unwrap().collect::<Vec<_>>(),
         &["TeSt123", "teST123", "tESt321"]

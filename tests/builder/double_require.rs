@@ -55,11 +55,11 @@ fn app() -> App<'static> {
 #[test]
 fn valid_cases() {
     let res = app().try_get_matches_from(vec!["", "-a"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let res = app().clone().try_get_matches_from(vec!["", "-b", "-c"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let res = app().try_get_matches_from(vec!["", "-c", "-b"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]

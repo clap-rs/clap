@@ -5,7 +5,7 @@ fn only_pos_follow() {
     let r = App::new("onlypos")
         .args(&[arg!(f: -f [flag] "some opt"), arg!([arg] "some arg")])
         .try_get_matches_from(vec!["", "--", "-f"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert!(!m.is_present("f"));
@@ -85,7 +85,7 @@ fn lots_o_vals() {
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some",
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.values_of("opt").unwrap().count(), 297); // i.e. more than u8
@@ -240,7 +240,7 @@ fn last_positional() {
         .arg(arg!([CORPUS] "some corpus"))
         .arg(arg!([ARGS]... "some file").last(true))
         .try_get_matches_from(vec!["test", "tgt", "--", "arg"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.values_of("ARGS").unwrap().collect::<Vec<_>>(), &["arg"]);
 }

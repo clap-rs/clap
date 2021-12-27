@@ -25,7 +25,7 @@ fn invalid_utf16_lossy_positional() {
     let r = App::new("bad_utf16")
         .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -40,7 +40,7 @@ fn invalid_utf16_lossy_option_short_space() {
             OsString::from("-a"),
             bad_osstring(b""),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -51,7 +51,7 @@ fn invalid_utf16_lossy_option_short_equals() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -62,7 +62,7 @@ fn invalid_utf16_lossy_option_short_no_space() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -77,7 +77,7 @@ fn invalid_utf16_lossy_option_long_space() {
             OsString::from("--arg"),
             bad_osstring(b""),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -88,7 +88,7 @@ fn invalid_utf16_lossy_option_long_equals() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -99,7 +99,7 @@ fn invalid_utf16_positional() {
     let r = App::new("bad_utf16")
         .arg(arg!(<arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
@@ -114,7 +114,7 @@ fn invalid_utf16_option_short_space() {
             OsString::from("-a"),
             bad_osstring(b""),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
@@ -125,7 +125,7 @@ fn invalid_utf16_option_short_equals() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a=")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
@@ -136,7 +136,7 @@ fn invalid_utf16_option_short_no_space() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"-a")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
@@ -151,7 +151,7 @@ fn invalid_utf16_option_long_space() {
             OsString::from("--arg"),
             bad_osstring(b""),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));
@@ -162,7 +162,7 @@ fn invalid_utf16_option_long_equals() {
     let r = App::new("bad_utf16")
         .arg(arg!(-a --arg <arg> "some arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), bad_osstring(b"--arg=")]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_os("arg").unwrap(), &*bad_osstring(b""));

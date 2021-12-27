@@ -13,6 +13,6 @@ fn possible_values_ignore_case() {
         )
         .try_get_matches_from(vec!["pv", "--option", "Ä"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m.unwrap().value_of("option").is_some());
 }

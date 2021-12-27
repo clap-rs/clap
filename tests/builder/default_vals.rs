@@ -10,7 +10,7 @@ fn opts() {
                 .default_value("default"),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "default");
@@ -43,7 +43,7 @@ fn opt_user_override() {
                 .default_value("default"),
         )
         .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.value_of("opt").unwrap(), "value");
@@ -54,7 +54,7 @@ fn positionals() {
     let r = App::new("df")
         .arg(arg!([arg] "some opt").default_value("default"))
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -65,7 +65,7 @@ fn positional_user_override() {
     let r = App::new("df")
         .arg(arg!([arg] "some arg").default_value("default"))
         .try_get_matches_from(vec!["", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "value");
@@ -85,7 +85,7 @@ fn osstr_opts() {
                 .default_value_os(expected),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), expected);
@@ -103,7 +103,7 @@ fn osstr_opt_user_override() {
                 .default_value_os(default),
         )
         .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.value_of("opt").unwrap(), "value");
@@ -117,7 +117,7 @@ fn osstr_positionals() {
     let r = App::new("df")
         .arg(arg!([arg] "some opt").default_value_os(expected))
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), expected);
@@ -131,7 +131,7 @@ fn osstr_positional_user_override() {
     let r = App::new("df")
         .arg(arg!([arg] "some arg").default_value_os(default))
         .try_get_matches_from(vec!["", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "value");
@@ -145,7 +145,7 @@ fn default_if_arg_present_no_default() {
         .arg(arg!(--opt <FILE> "some arg").required(true))
         .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -157,7 +157,7 @@ fn default_if_arg_present_no_default_user_override() {
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", None, Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -173,7 +173,7 @@ fn default_if_arg_present_no_arg_with_default() {
                 .default_value_if("opt", None, Some("default")),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "first");
@@ -189,7 +189,7 @@ fn default_if_arg_present_with_default() {
                 .default_value_if("opt", None, Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -205,7 +205,7 @@ fn default_if_arg_present_with_default_user_override() {
                 .default_value_if("opt", None, Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -221,7 +221,7 @@ fn default_if_arg_present_no_arg_with_default_user_override() {
                 .default_value_if("opt", None, Some("default")),
         )
         .try_get_matches_from(vec!["", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -235,7 +235,7 @@ fn default_if_arg_present_with_value_no_default() {
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -247,7 +247,7 @@ fn default_if_arg_present_with_value_no_default_fail() {
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert!(m.value_of("arg").is_none());
@@ -259,7 +259,7 @@ fn default_if_arg_present_with_value_no_default_user_override() {
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("some"), Some("default")))
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -275,7 +275,7 @@ fn default_if_arg_present_with_value_no_arg_with_default() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "first");
@@ -291,7 +291,7 @@ fn default_if_arg_present_with_value_no_arg_with_default_fail() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "first");
@@ -307,7 +307,7 @@ fn default_if_arg_present_with_value_with_default() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -323,7 +323,7 @@ fn default_if_arg_present_with_value_with_default_user_override() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "some", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -339,7 +339,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec!["", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -355,7 +355,7 @@ fn default_if_arg_present_no_arg_with_value_with_default_user_override_fail() {
                 .default_value_if("opt", Some("some"), Some("default")),
         )
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -369,7 +369,7 @@ fn no_default_if_arg_present_with_value_no_default() {
         .arg(arg!(--opt <FILE> "some arg").required(false))
         .arg(arg!([arg] "some arg").default_value_if("opt", Some("value"), None))
         .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
 }
@@ -384,7 +384,7 @@ fn no_default_if_arg_present_with_value_with_default() {
                 .default_value_if("opt", Some("value"), None),
         )
         .try_get_matches_from(vec!["", "--opt", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert!(m.value_of("arg").is_none());
@@ -400,7 +400,7 @@ fn no_default_if_arg_present_with_value_with_default_user_override() {
                 .default_value_if("opt", Some("value"), None),
         )
         .try_get_matches_from(vec!["", "--opt", "value", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "other");
@@ -416,7 +416,7 @@ fn no_default_if_arg_present_no_arg_with_value_with_default() {
                 .default_value_if("opt", Some("value"), None),
         )
         .try_get_matches_from(vec!["", "--opt", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -438,7 +438,7 @@ fn default_ifs_arg_present() {
                 ]),
         )
         .try_get_matches_from(vec!["", "--flag"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "flg");
@@ -455,7 +455,7 @@ fn no_default_ifs_arg_present() {
                 .default_value_ifs(&[("opt", Some("some"), Some("default")), ("flag", None, None)]),
         )
         .try_get_matches_from(vec!["", "--flag"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(!m.is_present("arg"));
     assert!(m.value_of("arg").is_none());
@@ -475,7 +475,7 @@ fn default_ifs_arg_present_user_override() {
                 ]),
         )
         .try_get_matches_from(vec!["", "--flag", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "value");
@@ -495,7 +495,7 @@ fn default_ifs_arg_present_order() {
                 ]),
         )
         .try_get_matches_from(vec!["", "--opt=some", "--flag"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(m.value_of("arg").unwrap(), "default");
@@ -526,7 +526,7 @@ fn conditional_reqs_pass() {
         )
         .try_get_matches_from(vec!["test", "--input", "some", "--output", "other"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
     assert_eq!(m.value_of("output"), Some("other"));
     assert_eq!(m.value_of("input"), Some("some"));
@@ -543,7 +543,7 @@ fn multiple_defaults() {
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("files"));
     assert_eq!(m.values_of_lossy("files").unwrap(), vec!["old", "new"]);
@@ -560,7 +560,7 @@ fn multiple_defaults_override() {
                 .default_values(&["old", "new"]),
         )
         .try_get_matches_from(vec!["", "--files", "other", "mine"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("files"));
     assert_eq!(m.values_of_lossy("files").unwrap(), vec!["other", "mine"]);
@@ -603,7 +603,7 @@ fn issue_1050_num_vals_and_defaults() {
                 .default_value("0"),
         )
         .try_get_matches_from(vec!["hello", "--exit-code=1"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert_eq!(m.value_of("exit-code"), Some("1"));
 }

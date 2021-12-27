@@ -177,7 +177,7 @@ fn arg_require_group_2() {
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f", "--some"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
@@ -192,7 +192,7 @@ fn arg_require_group_3() {
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"))
         .try_get_matches_from(vec!["", "-f", "--other"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
@@ -226,7 +226,7 @@ fn issue_753() {
                 .required_unless_present("list"),
         )
         .try_get_matches_from(vec!["test", "--list"]);
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
 }
 
 #[test]
@@ -241,7 +241,7 @@ fn required_unless_present() {
         .arg(Arg::new("dbg").long("debug"))
         .try_get_matches_from(vec!["unlesstest", "--debug"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("dbg"));
     assert!(!m.is_present("cfg"));
@@ -295,7 +295,7 @@ fn required_unless_present_all() {
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessall", "--debug", "-i", "file"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("dbg"));
     assert!(m.is_present("infile"));
@@ -334,7 +334,7 @@ fn required_unless_present_any() {
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("dbg"));
     assert!(!m.is_present("cfg"));
@@ -355,7 +355,7 @@ fn required_unless_any_2() {
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "-i", "file"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("infile"));
     assert!(!m.is_present("cfg"));
@@ -374,7 +374,7 @@ fn required_unless_any_works_with_short() {
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -389,7 +389,7 @@ fn required_unless_any_works_with_short_err() {
         )
         .try_get_matches_from(vec!["unlessone"]);
 
-    assert!(!res.is_ok());
+    assert!(res.is_err());
 }
 
 #[test]
@@ -400,7 +400,7 @@ fn required_unless_any_works_without() {
         .arg(Arg::new("x").required_unless_present_any(&["a", "b"]))
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -415,7 +415,7 @@ fn required_unless_any_works_with_long() {
         )
         .try_get_matches_from(vec!["unlessone", "-a"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -431,7 +431,7 @@ fn required_unless_any_1() {
         .arg(Arg::new("infile").short('i').takes_value(true))
         .try_get_matches_from(vec!["unlessone", "--debug"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.is_present("infile"));
     assert!(!m.is_present("cfg"));
@@ -513,7 +513,7 @@ fn requires_if_present_mult_pass() {
         .arg(Arg::new("other").long("other"))
         .try_get_matches_from(vec!["unlessone", "--config=some.cfg"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -528,7 +528,7 @@ fn requires_if_present_val_no_present_pass() {
         .arg(Arg::new("extra").long("extra"))
         .try_get_matches_from(vec!["unlessone"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 // Conditionally required
@@ -545,7 +545,7 @@ fn required_if_val_present_pass() {
         .arg(Arg::new("extra").takes_value(true).long("extra"))
         .try_get_matches_from(vec!["ri", "--extra", "val", "--config", "my.cfg"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -581,7 +581,7 @@ fn required_if_val_present_ignore_case_pass() {
         )
         .try_get_matches_from(vec!["ri", "--extra", "vaL", "--config", "my.cfg"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -620,7 +620,7 @@ fn required_if_all_values_present_pass() {
             "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
         ]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -636,7 +636,7 @@ fn required_if_some_values_present_pass() {
         .arg(Arg::new("option").takes_value(true).long("option"))
         .try_get_matches_from(vec!["ri", "--extra", "val"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -672,7 +672,7 @@ fn required_if_any_all_values_present_pass() {
             "ri", "--extra", "val", "--option", "spec", "--config", "my.cfg",
         ]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -773,7 +773,7 @@ fn required_if_wrong_val() {
         .arg(Arg::new("extra").takes_value(true).long("extra"))
         .try_get_matches_from(vec!["ri", "--extra", "other"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -789,7 +789,7 @@ fn required_ifs_val_present_pass() {
         .arg(Arg::new("extra").takes_value(true).long("extra"))
         .try_get_matches_from(vec!["ri", "--option", "spec", "--config", "my.cfg"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -822,7 +822,7 @@ fn required_ifs_wrong_val() {
         .arg(Arg::new("option").takes_value(true).long("option"))
         .try_get_matches_from(vec!["ri", "--option", "other"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -1028,7 +1028,7 @@ fn issue_1158_conflicting_requirements() {
 fn issue_1158_conflicting_requirements_rev() {
     let res = issue_1158_app().try_get_matches_from(&["", "--config", "some.conf"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
