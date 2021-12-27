@@ -591,6 +591,10 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
+                // Increase occurrence no matter if we are appending, occurrences
+                // of positional argument equals to number of values rather than
+                // the number of value groups.
+                self.inc_occurrence_of_arg(matcher, p);
                 // Creating new value group rather than appending when the arg
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continuously.
@@ -603,11 +607,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     append,
                     trailing_values,
                 );
-
-                // Increase occurrence no matter if we are appending, occurrences
-                // of positional argument equals to number of values rather than
-                // the number of value groups.
-                self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.is_multiple() {
@@ -1302,6 +1301,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if opt.is_set(ArgSettings::RequireEquals) && !has_eq {
             if opt.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
+                self.inc_occurrence_of_arg(matcher, opt);
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !opt.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt: has default_missing_vals");
@@ -1313,7 +1313,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                         false,
                     );
                 };
-                self.inc_occurrence_of_arg(matcher, opt);
                 if attached_value.is_some() {
                     ParseResult::AttachedValueNotConsumed
                 } else {
@@ -1333,6 +1332,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
+            self.inc_occurrence_of_arg(matcher, opt);
             self.add_val_to_arg(
                 opt,
                 v,
@@ -1341,7 +1341,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 false,
                 trailing_values,
             );
-            self.inc_occurrence_of_arg(matcher, opt);
             ParseResult::ValuesDone
         } else {
             debug!("Parser::parse_opt: More arg vals required...");
@@ -1470,8 +1469,8 @@ impl<'help, 'app> Parser<'help, 'app> {
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
-        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         self.inc_occurrence_of_arg(matcher, flag);
+        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
 
         ParseResult::ValuesDone
     }
