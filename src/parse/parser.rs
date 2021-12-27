@@ -1,6 +1,6 @@
 // Std
 use std::{
-    cell::Cell,
+    cell::{Cell, RefCell},
     ffi::{OsStr, OsString},
 };
 
@@ -26,7 +26,7 @@ use crate::{
 pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
     pub(crate) required: ChildGraph<Id>,
-    pub(crate) overridden: Vec<Id>,
+    pub(crate) overridden: RefCell<Vec<Id>>,
     pub(crate) seen: Vec<Id>,
     pub(crate) cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
@@ -51,7 +51,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         Parser {
             app,
             required: reqs,
-            overridden: Vec::new(),
+            overridden: Default::default(),
             seen: Vec::new(),
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
@@ -591,10 +591,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 self.seen.push(p.id.clone());
+                // Increase occurrence no matter if we are appending, occurrences
+                // of positional argument equals to number of values rather than
+                // the number of value groups.
+                self.inc_occurrence_of_arg(matcher, p);
                 // Creating new value group rather than appending when the arg
                 // doesn't have any value. This behaviour is right because
                 // positional arguments are always present continuously.
-                let append = self.arg_have_val(matcher, p);
+                let append = self.has_val_groups(matcher, p);
                 self.add_val_to_arg(
                     p,
                     &arg_os,
@@ -603,11 +607,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     append,
                     trailing_values,
                 );
-
-                // Increase occurrence no matter if we are appending, occurrences
-                // of positional argument equals to number of values rather than
-                // the number of value groups.
-                self.inc_occurrence_of_arg(matcher, p);
 
                 // Only increment the positional counter if it doesn't allow multiples
                 if !p.is_multiple() {
@@ -658,8 +657,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                     matches: sc_m.into_inner(),
                 });
 
-                self.remove_overrides(matcher);
-
                 return Validator::new(self).validate(
                     parse_state,
                     subcmd_name.is_some(),
@@ -696,8 +693,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.app.settings.is_set(AS::WaitOnError),
             ));
         }
-
-        self.remove_overrides(matcher);
 
         Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)
     }
@@ -1302,6 +1297,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if opt.is_set(ArgSettings::RequireEquals) && !has_eq {
             if opt.min_vals == Some(0) {
                 debug!("Requires equals, but min_vals == 0");
+                self.inc_occurrence_of_arg(matcher, opt);
                 // We assume this case is valid: require equals, but min_vals == 0.
                 if !opt.default_missing_vals.is_empty() {
                     debug!("Parser::parse_opt: has default_missing_vals");
@@ -1313,7 +1309,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                         false,
                     );
                 };
-                self.inc_occurrence_of_arg(matcher, opt);
                 if attached_value.is_some() {
                     ParseResult::AttachedValueNotConsumed
                 } else {
@@ -1333,6 +1328,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 fv,
                 fv.starts_with("=")
             );
+            self.inc_occurrence_of_arg(matcher, opt);
             self.add_val_to_arg(
                 opt,
                 v,
@@ -1341,7 +1337,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 false,
                 trailing_values,
             );
-            self.inc_occurrence_of_arg(matcher, opt);
             ParseResult::ValuesDone
         } else {
             debug!("Parser::parse_opt: More arg vals required...");
@@ -1463,78 +1458,40 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher.add_index_to(&arg.id, self.cur_idx.get(), ty);
     }
 
-    fn arg_have_val(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
-        matcher.arg_have_val(&arg.id)
+    fn has_val_groups(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) -> bool {
+        matcher.has_val_groups(&arg.id)
     }
 
     fn parse_flag(&self, flag: &Arg<'help>, matcher: &mut ArgMatcher) -> ParseResult {
         debug!("Parser::parse_flag");
 
-        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
         self.inc_occurrence_of_arg(matcher, flag);
+        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
 
         ParseResult::ValuesDone
     }
 
-    fn remove_overrides(&mut self, matcher: &mut ArgMatcher) {
-        debug!("Parser::remove_overrides");
-        let mut to_rem: Vec<Id> = Vec::new();
-        let mut self_override: Vec<Id> = Vec::new();
-        let mut arg_overrides = Vec::new();
-        for name in matcher.arg_names() {
-            debug!("Parser::remove_overrides:iter:{:?}", name);
-            if let Some(overrider) = self.app.find(name) {
-                let mut override_self = false;
-                for overridee in &overrider.overrides {
-                    debug!(
-                        "Parser::remove_overrides:iter:{:?} => {:?}",
-                        name, overrider
-                    );
-                    if *overridee == overrider.id {
-                        override_self = true;
-                    } else {
-                        arg_overrides.push((overrider.id.clone(), overridee));
-                        arg_overrides.push((overridee.clone(), &overrider.id));
-                    }
-                }
-                // Only do self override for argument that is not positional
-                // argument or flag with MultipleOccurrences setting enabled.
-                if (self.is_set(AS::AllArgsOverrideSelf) || override_self)
-                    && !overrider.is_set(ArgSettings::MultipleOccurrences)
-                    && !overrider.is_positional()
-                {
-                    debug!(
-                        "Parser::remove_overrides:iter:{:?}:iter:{:?}: self override",
-                        name, overrider
-                    );
-                    self_override.push(overrider.id.clone());
+    fn remove_overrides(&self, arg: &Arg<'help>, matcher: &mut ArgMatcher) {
+        debug!("Parser::remove_overrides: id={:?}", arg.id);
+        for override_id in &arg.overrides {
+            debug!("Parser::remove_overrides:iter:{:?}: removing", override_id);
+            matcher.remove(override_id);
+            self.overridden.borrow_mut().push(override_id.clone());
+        }
+
+        // Override anything that can override us
+        let mut transitive = Vec::new();
+        for arg_id in matcher.arg_names() {
+            if let Some(overrider) = self.app.find(arg_id) {
+                if overrider.overrides.contains(&arg.id) {
+                    transitive.push(&overrider.id);
                 }
             }
         }
-
-        // remove future overrides in reverse seen order
-        for arg in self.seen.iter().rev() {
-            for (a, overr) in arg_overrides.iter().filter(|(a, _)| a == arg) {
-                if !to_rem.contains(a) {
-                    to_rem.push((*overr).clone());
-                }
-            }
-        }
-
-        // Do self overrides
-        for name in &self_override {
-            debug!("Parser::remove_overrides:iter:self:{:?}: resetting", name);
-            if let Some(ma) = matcher.get_mut(name) {
-                ma.occurs = 1;
-                ma.override_vals();
-            }
-        }
-
-        // Finally remove conflicts
-        for name in &to_rem {
-            debug!("Parser::remove_overrides:iter:{:?}: removing", name);
-            matcher.remove(name);
-            self.overridden.push(name.clone());
+        for overrider_id in transitive {
+            debug!("Parser::remove_overrides:iter:{:?}: removing", overrider_id);
+            matcher.remove(overrider_id);
+            self.overridden.borrow_mut().push(overrider_id.clone());
         }
     }
 
@@ -1638,7 +1595,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 arg.name
             );
             match matcher.get(&arg.id) {
-                Some(ma) if ma.is_vals_empty() => {
+                Some(ma) if ma.all_val_groups_empty() => {
                     debug!(
                         "Parser::add_value:iter:{}: has no user defined vals",
                         arg.name
@@ -1732,6 +1689,9 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     /// Increase occurrence of specific argument and the grouped arg it's in.
     fn inc_occurrence_of_arg(&self, matcher: &mut ArgMatcher, arg: &Arg<'help>) {
+        // With each new occurrence, remove overrides from prior occurrences
+        self.remove_overrides(arg, matcher);
+
         matcher.inc_occurrence_of_arg(arg);
         // Increment or create the group "args"
         for group in self.app.groups_for_arg(&arg.id) {

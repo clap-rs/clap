@@ -77,8 +77,12 @@ impl MatchedArg {
         self.vals.last().map(|x| x.len()).unwrap_or(0)
     }
 
-    pub(crate) fn is_vals_empty(&self) -> bool {
+    pub(crate) fn all_val_groups_empty(&self) -> bool {
         self.vals.iter().flatten().count() == 0
+    }
+
+    pub(crate) fn has_val_groups(&self) -> bool {
+        !self.vals.is_empty()
     }
 
     // Will be used later
@@ -101,13 +105,6 @@ impl MatchedArg {
         }
         if let Some(remove_val) = remove_val {
             self.vals[0].drain(0..remove_val);
-        }
-    }
-
-    pub(crate) fn override_vals(&mut self) {
-        let len = self.vals.len();
-        if len > 1 {
-            self.vals.drain(0..len - 1);
         }
     }
 
@@ -157,47 +154,6 @@ pub(crate) enum ValueType {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_vals_override() {
-        let mut m = MatchedArg::new();
-        m.push_val("aaa".into());
-        m.new_val_group();
-        m.append_val("bbb".into());
-        m.append_val("ccc".into());
-        m.new_val_group();
-        m.append_val("ddd".into());
-        m.push_val("eee".into());
-        m.new_val_group();
-        m.append_val("fff".into());
-        m.append_val("ggg".into());
-        m.append_val("hhh".into());
-        m.append_val("iii".into());
-
-        m.override_vals();
-        let vals: Vec<&Vec<OsString>> = m.vals().collect();
-        assert_eq!(
-            vals,
-            vec![&vec![
-                OsString::from("fff"),
-                OsString::from("ggg"),
-                OsString::from("hhh"),
-                OsString::from("iii"),
-            ]]
-        );
-        m.override_vals();
-
-        let vals: Vec<&Vec<OsString>> = m.vals().collect();
-        assert_eq!(
-            vals,
-            vec![&vec![
-                OsString::from("fff"),
-                OsString::from("ggg"),
-                OsString::from("hhh"),
-                OsString::from("iii"),
-            ]]
-        );
-    }
 
     #[test]
     fn test_grouped_vals_first() {
