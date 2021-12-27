@@ -81,7 +81,7 @@ fn require_equals_min_values_zero() {
         )
         .arg(Arg::new("cmd"))
         .try_get_matches_from(vec!["prog", "--config", "cmd"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("cfg"));
     assert_eq!(m.value_of("cmd"), Some("cmd"));
@@ -127,7 +127,7 @@ fn require_equals_empty_vals_pass() {
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config="]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -140,7 +140,7 @@ fn require_equals_pass() {
                 .long("config"),
         )
         .try_get_matches_from(vec!["prog", "--config=file.conf"]);
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn stdin_char() {
     let r = App::new("opts")
         .arg(arg!(f: -f [flag] "some flag"))
         .try_get_matches_from(vec!["", "-f", "-"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("f"));
     assert_eq!(m.value_of("f").unwrap(), "-");
@@ -162,7 +162,7 @@ fn opts_using_short() {
             arg!(c: -c [color] "some other flag"),
         ])
         .try_get_matches_from(vec!["", "-f", "some", "-c", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("f"));
     assert_eq!(m.value_of("f").unwrap(), "some");
@@ -204,7 +204,7 @@ fn lots_o_vals() {
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some",
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().count(), 297); // i.e. more than u8
@@ -218,7 +218,7 @@ fn opts_using_long_space() {
             arg!(--color [color] "some other flag"),
         ])
         .try_get_matches_from(vec!["", "--flag", "some", "--color", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
@@ -234,7 +234,7 @@ fn opts_using_long_equals() {
             arg!(--color [color] "some other flag"),
         ])
         .try_get_matches_from(vec!["", "--flag=some", "--color=other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
@@ -250,7 +250,7 @@ fn opts_using_mixed() {
             arg!(-c --color [color] "some other flag"),
         ])
         .try_get_matches_from(vec!["", "-f", "some", "--color", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
@@ -266,7 +266,7 @@ fn opts_using_mixed2() {
             arg!(-c --color [color] "some other flag"),
         ])
         .try_get_matches_from(vec!["", "--flag=some", "-c", "other"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "some");
@@ -279,7 +279,7 @@ fn default_values_user_value() {
     let r = App::new("df")
         .arg(arg!(o: -o [opt] "some opt").default_value("default"))
         .try_get_matches_from(vec!["", "-o", "value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "value");
@@ -291,7 +291,7 @@ fn multiple_vals_pos_arg_equals() {
         .arg(arg!(o: -o [opt] ... "some opt"))
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o=1", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "1");
@@ -309,7 +309,7 @@ fn multiple_vals_pos_arg_delim() {
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
@@ -343,7 +343,7 @@ fn require_delims() {
         )
         .arg(arg!([file] "some file"))
         .try_get_matches_from(vec!["", "-o", "1,2", "some"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["1", "2"]);
@@ -360,7 +360,7 @@ fn leading_hyphen_pass() {
                 .allow_hyphen_values(true),
         )
         .try_get_matches_from(vec!["", "-o", "-2", "3"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "3"]);
@@ -386,7 +386,7 @@ fn leading_hyphen_with_flag_after() {
         )
         .arg(arg!(f: -f "some flag"))
         .try_get_matches_from(vec!["", "-o", "-2", "-f"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2", "-f"]);
@@ -399,7 +399,7 @@ fn leading_hyphen_with_flag_before() {
         .arg(arg!(o: -o [opt] ... "some opt").allow_hyphen_values(true))
         .arg(arg!(f: -f "some flag"))
         .try_get_matches_from(vec!["", "-f", "-o", "-2"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.values_of("o").unwrap().collect::<Vec<_>>(), &["-2"]);
@@ -470,7 +470,7 @@ fn issue_1105_empty_value_long_fail() {
 #[test]
 fn issue_1105_empty_value_long_explicit() {
     let r = issue_1105_setup(vec!["app", "--option", ""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
 }
@@ -478,7 +478,7 @@ fn issue_1105_empty_value_long_explicit() {
 #[test]
 fn issue_1105_empty_value_long_equals() {
     let r = issue_1105_setup(vec!["app", "--option="]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
 }
@@ -493,7 +493,7 @@ fn issue_1105_empty_value_short_fail() {
 #[test]
 fn issue_1105_empty_value_short_explicit() {
     let r = issue_1105_setup(vec!["app", "-o", ""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
 }
@@ -501,7 +501,7 @@ fn issue_1105_empty_value_short_explicit() {
 #[test]
 fn issue_1105_empty_value_short_equals() {
     let r = issue_1105_setup(vec!["app", "-o="]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
 }
@@ -509,7 +509,7 @@ fn issue_1105_empty_value_short_equals() {
 #[test]
 fn issue_1105_empty_value_short_explicit_no_space() {
     let r = issue_1105_setup(vec!["app", "-o", ""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert_eq!(m.value_of("option"), Some(""));
 }

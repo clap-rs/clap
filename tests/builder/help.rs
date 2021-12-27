@@ -1675,7 +1675,7 @@ fn issue_1112_setup() -> App<'static> {
 fn prefer_user_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "--help"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m.unwrap().is_present("help1"));
 }
 
@@ -1683,7 +1683,7 @@ fn prefer_user_help_long_1112() {
 fn prefer_user_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "-h"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m.unwrap().is_present("help1"));
 }
 
@@ -1691,7 +1691,7 @@ fn prefer_user_help_short_1112() {
 fn prefer_user_subcmd_help_long_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "--help"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m
         .unwrap()
         .subcommand_matches("foo")
@@ -1703,7 +1703,7 @@ fn prefer_user_subcmd_help_long_1112() {
 fn prefer_user_subcmd_help_short_1112() {
     let m = issue_1112_setup().try_get_matches_from(vec!["test", "foo", "-h"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     assert!(m
         .unwrap()
         .subcommand_matches("foo")

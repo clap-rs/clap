@@ -13,5 +13,5 @@ fn borrowed_args() {
         .arg(&arg2)
         .subcommand(App::new("sub1").arg(&arg))
         .try_get_matches_from(vec!["prog"]);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
 }

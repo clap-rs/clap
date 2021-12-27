@@ -15,7 +15,7 @@ fn option_long() {
             "", "--option", "val1", "--option", "val2", "--option", "val3",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -39,7 +39,7 @@ fn option_short() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -66,7 +66,7 @@ fn option_mixed() {
             "", "-o", "val1", "--option", "val2", "--option", "val3", "-o", "val4",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -89,7 +89,7 @@ fn option_exact_exact() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -111,7 +111,7 @@ fn option_exact_exact_not_mult() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -136,7 +136,7 @@ fn option_exact_exact_mult() {
             "", "-o", "val1", "val2", "val3", "-o", "val4", "val5", "val6",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -193,7 +193,7 @@ fn option_min_exact() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -285,7 +285,7 @@ fn option_max_exact() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2", "-o", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -308,7 +308,7 @@ fn option_max_less() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -348,7 +348,7 @@ fn positional() {
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -369,7 +369,7 @@ fn positional_exact_exact() {
         )
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -414,7 +414,7 @@ fn positional_min_exact() {
         .arg(Arg::new("pos").help("multiple positionals").min_values(3))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -441,7 +441,7 @@ fn positional_min_more() {
         .arg(Arg::new("pos").help("multiple positionals").min_values(3))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -458,7 +458,7 @@ fn positional_max_exact() {
         .arg(Arg::new("pos").help("multiple positionals").max_values(3))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -475,7 +475,7 @@ fn positional_max_less() {
         .arg(Arg::new("pos").help("multiple positionals").max_values(3))
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("pos"));
@@ -507,7 +507,7 @@ fn sep_long_equals() {
         )
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -529,7 +529,7 @@ fn sep_long_space() {
         )
         .try_get_matches_from(vec!["", "--option", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -551,7 +551,7 @@ fn sep_short_equals() {
         )
         .try_get_matches_from(vec!["", "-o=val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -573,7 +573,7 @@ fn sep_short_space() {
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -595,7 +595,7 @@ fn sep_short_no_space() {
         )
         .try_get_matches_from(vec!["", "-oval1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -616,7 +616,7 @@ fn sep_positional() {
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -638,7 +638,7 @@ fn different_sep() {
         )
         .try_get_matches_from(vec!["", "--option=val1;val2;val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -659,7 +659,7 @@ fn different_sep_positional() {
         )
         .try_get_matches_from(vec!["", "val1;val2;val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -682,7 +682,7 @@ fn no_sep() {
         )
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -701,7 +701,7 @@ fn no_sep_positional() {
         )
         .try_get_matches_from(vec!["", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -727,7 +727,7 @@ fn req_delimiter_long() {
         )
         .try_get_matches_from(vec!["", "--option", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -760,7 +760,7 @@ fn req_delimiter_long_with_equal() {
         )
         .try_get_matches_from(vec!["", "--option=val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -793,7 +793,7 @@ fn req_delimiter_short_with_space() {
         )
         .try_get_matches_from(vec!["", "-o", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -826,7 +826,7 @@ fn req_delimiter_short_with_no_space() {
         )
         .try_get_matches_from(vec!["", "-oval1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -859,7 +859,7 @@ fn req_delimiter_short_with_equal() {
         )
         .try_get_matches_from(vec!["", "-o=val1", "val2", "val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -921,7 +921,7 @@ fn req_delimiter_complex() {
             "val26",
         ]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -1212,7 +1212,7 @@ fn issue_1480_max_values_consumes_extra_arg_1() {
         .arg(Arg::new("positional").required(true).index(1))
         .try_get_matches_from(vec!["prog", "--field", "1", "file"]);
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
 }
 
 #[test]

@@ -39,7 +39,7 @@ fn single_alias_of_option() {
                 .alias("new-opt"),
         )
         .try_get_matches_from(vec!["", "--new-opt", "cool"]);
-    assert!(a.is_ok());
+    assert!(a.is_ok(), "{}", a.unwrap_err());
     let a = a.unwrap();
     assert!(a.is_present("alias"));
     assert_eq!(a.value_of("alias").unwrap(), "cool");
@@ -57,25 +57,25 @@ fn multiple_aliases_of_option() {
     let long = a
         .clone()
         .try_get_matches_from(vec!["", "--aliases", "value"]);
-    assert!(long.is_ok());
+    assert!(long.is_ok(), "{}", long.unwrap_err());
     let long = long.unwrap();
 
     let als1 = a
         .clone()
         .try_get_matches_from(vec!["", "--alias1", "value"]);
-    assert!(als1.is_ok());
+    assert!(als1.is_ok(), "{}", als1.unwrap_err());
     let als1 = als1.unwrap();
 
     let als2 = a
         .clone()
         .try_get_matches_from(vec!["", "--alias2", "value"]);
-    assert!(als2.is_ok());
+    assert!(als2.is_ok(), "{}", als2.unwrap_err());
     let als2 = als2.unwrap();
 
     let als3 = a
         .clone()
         .try_get_matches_from(vec!["", "--alias3", "value"]);
-    assert!(als3.is_ok());
+    assert!(als3.is_ok(), "{}", als3.unwrap_err());
     let als3 = als3.unwrap();
 
     assert!(long.is_present("aliases"));
@@ -93,7 +93,7 @@ fn single_alias_of_flag() {
     let a = App::new("test")
         .arg(Arg::new("flag").long("flag").alias("alias"))
         .try_get_matches_from(vec!["", "--alias"]);
-    assert!(a.is_ok());
+    assert!(a.is_ok(), "{}", a.unwrap_err());
     let a = a.unwrap();
     assert!(a.is_present("flag"));
 }
@@ -109,19 +109,19 @@ fn multiple_aliases_of_flag() {
     ]));
 
     let flag = a.clone().try_get_matches_from(vec!["", "--flag"]);
-    assert!(flag.is_ok());
+    assert!(flag.is_ok(), "{}", flag.unwrap_err());
     let flag = flag.unwrap();
 
     let inv = a.clone().try_get_matches_from(vec!["", "--invisible"]);
-    assert!(inv.is_ok());
+    assert!(inv.is_ok(), "{}", inv.unwrap_err());
     let inv = inv.unwrap();
 
     let cool = a.clone().try_get_matches_from(vec!["", "--cool"]);
-    assert!(cool.is_ok());
+    assert!(cool.is_ok(), "{}", cool.unwrap_err());
     let cool = cool.unwrap();
 
     let als = a.clone().try_get_matches_from(vec!["", "--aliases"]);
-    assert!(als.is_ok());
+    assert!(als.is_ok(), "{}", als.unwrap_err());
     let als = als.unwrap();
 
     assert!(flag.is_present("flag"));

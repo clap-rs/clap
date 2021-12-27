@@ -86,7 +86,7 @@ fn override_version_long_with_user_flag() {
         .arg(Arg::new("ver").long("version"))
         .try_get_matches_from("foo --version".split(' '));
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("ver"));
 }
@@ -108,7 +108,7 @@ fn override_version_short_with_user_flag() {
         .arg(Arg::new("ver").short('V'))
         .try_get_matches_from("foo -V".split(' '));
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(m.is_present("ver"));
 }
@@ -229,7 +229,7 @@ fn mut_arg_version_no_auto_version() {
         .setting(AppSettings::NoAutoVersion)
         .try_get_matches_from("foo -z".split(' '));
 
-    assert!(res.is_ok());
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     assert!(res.unwrap().is_present("version"));
 }
 

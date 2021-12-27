@@ -6,7 +6,7 @@ fn opt_default_no_delim() {
         .arg(Arg::new("option").long("option").takes_value(true))
         .try_get_matches_from(vec!["", "--option", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -20,7 +20,7 @@ fn opt_eq_no_delim() {
         .arg(Arg::new("option").long("option").takes_value(true))
         .try_get_matches_from(vec!["", "--option=val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -62,7 +62,7 @@ fn opt_s_no_space_no_delim() {
         .arg(Arg::new("option").short('o').takes_value(true))
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -81,7 +81,7 @@ fn opt_s_no_space_mult_no_delim() {
         )
         .try_get_matches_from(vec!["", "-o", "val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));
@@ -101,7 +101,7 @@ fn opt_eq_mult_def_delim() {
         )
         .try_get_matches_from(vec!["", "--opt=val1,val2,val3"]);
 
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
 
     assert!(m.is_present("option"));

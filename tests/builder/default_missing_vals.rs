@@ -12,7 +12,7 @@ fn opt_missing() {
                 .default_missing_value("always"),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "auto");
@@ -31,7 +31,7 @@ fn opt_present_with_missing_value() {
                 .default_missing_value("always"),
         )
         .try_get_matches_from(vec!["", "--color"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "always");
@@ -50,7 +50,7 @@ fn opt_present_with_value() {
                 .default_missing_value("always"),
         )
         .try_get_matches_from(vec!["", "--color=never"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "never");
@@ -68,7 +68,7 @@ fn opt_present_with_empty_value() {
                 .default_missing_value("always"),
         )
         .try_get_matches_from(vec!["", "--color="]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("color"));
     assert_eq!(m.value_of("color").unwrap(), "");
@@ -87,7 +87,7 @@ fn opt_default() {
                 .default_missing_value("default_missing"),
         )
         .try_get_matches_from(vec![""]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "default");
@@ -103,7 +103,7 @@ fn opt_default_user_override() {
                 .default_missing_value("default_missing"),
         )
         .try_get_matches_from(vec!["", "-o=value"]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.value_of("o").unwrap(), "value");

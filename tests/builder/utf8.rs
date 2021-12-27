@@ -80,7 +80,7 @@ fn invalid_utf8_lossy_positional() {
     let r = App::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -101,7 +101,7 @@ fn invalid_utf8_lossy_option_short_space() {
             OsString::from("-a"),
             OsString::from_vec(vec![0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -121,7 +121,7 @@ fn invalid_utf8_lossy_option_short_equals() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -141,7 +141,7 @@ fn invalid_utf8_lossy_option_short_no_space() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -162,7 +162,7 @@ fn invalid_utf8_lossy_option_long_space() {
             OsString::from("--arg"),
             OsString::from_vec(vec![0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -182,7 +182,7 @@ fn invalid_utf8_lossy_option_long_equals() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(&*m.value_of_lossy("arg").unwrap(), "\u{FFFD}");
@@ -193,7 +193,7 @@ fn invalid_utf8_positional() {
     let r = App::new("bad_utf8")
         .arg(Arg::new("arg").allow_invalid_utf8(true))
         .try_get_matches_from(vec![OsString::from(""), OsString::from_vec(vec![0xe9])]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -217,7 +217,7 @@ fn invalid_utf8_option_short_space() {
             OsString::from("-a"),
             OsString::from_vec(vec![0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -240,7 +240,7 @@ fn invalid_utf8_option_short_equals() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0x3d, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -263,7 +263,7 @@ fn invalid_utf8_option_short_no_space() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x61, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -287,7 +287,7 @@ fn invalid_utf8_option_long_space() {
             OsString::from("--arg"),
             OsString::from_vec(vec![0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -310,7 +310,7 @@ fn invalid_utf8_option_long_equals() {
             OsString::from(""),
             OsString::from_vec(vec![0x2d, 0x2d, 0x61, 0x72, 0x67, 0x3d, 0xe9]),
         ]);
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "{}", r.unwrap_err());
     let m = r.unwrap();
     assert!(m.is_present("arg"));
     assert_eq!(
@@ -373,7 +373,7 @@ fn allow_invalid_utf8_subcommand_args_with_allow_external_subcommands() {
             OsString::from_vec(vec![0xe9]),
             OsString::from("--another_normal"),
         ]);
-    assert!(m.is_ok());
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
     let (subcommand, args) = m.subcommand().unwrap();
     let args = args.values_of_os("").unwrap().collect::<Vec<_>>();
