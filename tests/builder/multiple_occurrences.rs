@@ -5,7 +5,8 @@ fn multiple_occurrences_of_flags_long() {
     let m = App::new("mo_flags_long")
         .arg(arg!(--multflag "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(--flag "disallowed multiple flag"))
-        .get_matches_from(vec!["", "--multflag", "--flag", "--multflag"]);
+        .try_get_matches_from(vec!["", "--multflag", "--flag", "--multflag"])
+        .unwrap();
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 2);
     assert!(m.is_present("flag"));
@@ -17,7 +18,8 @@ fn multiple_occurrences_of_flags_short() {
     let m = App::new("mo_flags_short")
         .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-f --flag "disallowed multiple flag"))
-        .get_matches_from(vec!["", "-m", "-f", "-m"]);
+        .try_get_matches_from(vec!["", "-m", "-f", "-m"])
+        .unwrap();
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 2);
     assert!(m.is_present("flag"));
@@ -30,7 +32,7 @@ fn multiple_occurrences_of_flags_mixed() {
         .arg(arg!(-m --multflag1 "allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-n --multflag2 "another allowed multiple flag").multiple_occurrences(true))
         .arg(arg!(-f --flag "disallowed multiple flag"))
-        .get_matches_from(vec![
+        .try_get_matches_from(vec![
             "",
             "-m",
             "-f",
@@ -38,7 +40,8 @@ fn multiple_occurrences_of_flags_mixed() {
             "--multflag1",
             "-m",
             "--multflag2",
-        ]);
+        ])
+        .unwrap();
     assert!(m.is_present("multflag1"));
     assert_eq!(m.occurrences_of("multflag1"), 3);
     assert!(m.is_present("multflag2"));
@@ -87,7 +90,8 @@ fn multiple_occurrences_of_flags_large_quantity() {
         .collect();
     let m = App::new("mo_flags_large_qty")
         .arg(arg!(-m --multflag "allowed multiple flag").multiple_occurrences(true))
-        .get_matches_from(args);
+        .try_get_matches_from(args)
+        .unwrap();
     assert!(m.is_present("multflag"));
     assert_eq!(m.occurrences_of("multflag"), 1024);
 }

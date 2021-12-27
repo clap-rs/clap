@@ -12,7 +12,7 @@ fn grouped_value_works() {
                 .multiple_values(true)
                 .multiple_occurrences(true),
         )
-        .get_matches_from(&[
+        .try_get_matches_from(&[
             "cli",
             "--option",
             "fr_FR:mon option 1",
@@ -20,7 +20,8 @@ fn grouped_value_works() {
             "--option",
             "fr_FR:mon option 2",
             "en_US:my option 2",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -43,11 +44,12 @@ fn issue_1026() {
                 .multiple_values(true)
                 .multiple_occurrences(true),
         )
-        .get_matches_from(&[
+        .try_get_matches_from(&[
             "backup", "-s", "server", "-u", "user", "--target", "target1", "file1", "file2",
             "file3", "--target", "target2", "file4", "file5", "file6", "file7", "--target",
             "target3", "file8",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("target").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -70,13 +72,14 @@ fn grouped_value_long_flag_delimiter() {
                 .multiple_values(true)
                 .multiple_occurrences(true),
         )
-        .get_matches_from(vec![
+        .try_get_matches_from(vec![
             "myapp",
             "--option=hmm",
             "--option=val1,val2,val3",
             "--option",
             "alice,bob",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -99,7 +102,8 @@ fn grouped_value_short_flag_delimiter() {
                 .multiple_values(true)
                 .multiple_occurrences(true),
         )
-        .get_matches_from(vec!["myapp", "-o=foo", "-o=val1,val2,val3", "-o=bar"]);
+        .try_get_matches_from(vec!["myapp", "-o=foo", "-o=val1,val2,val3", "-o=bar"])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("option").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -116,9 +120,10 @@ fn grouped_value_positional_arg() {
                 .takes_value(true)
                 .multiple_values(true),
         )
-        .get_matches_from(vec![
+        .try_get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("pos").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -136,9 +141,10 @@ fn grouped_value_multiple_positional_arg() {
                 .takes_value(true)
                 .multiple_values(true),
         )
-        .get_matches_from(vec![
+        .try_get_matches_from(vec![
             "myprog", "val1", "val2", "val3", "val4", "val5", "val6",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("pos2").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -157,9 +163,10 @@ fn grouped_value_multiple_positional_arg_last_multiple() {
                 .multiple_values(true)
                 .last(true),
         )
-        .get_matches_from(vec![
+        .try_get_matches_from(vec![
             "myprog", "val1", "--", "val2", "val3", "val4", "val5", "val6",
-        ]);
+        ])
+        .unwrap();
     let grouped_vals: Vec<_> = m.grouped_values_of("pos2").unwrap().collect();
     assert_eq!(
         grouped_vals,
@@ -179,12 +186,14 @@ fn issue_1374() {
     );
     let matches = app
         .clone()
-        .get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"]);
+        .try_get_matches_from(&["MyApp", "--input", "a", "b", "c", "--input", "d"])
+        .unwrap();
     let vs = matches.values_of("input").unwrap();
     assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
     let matches = app
         .clone()
-        .get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"]);
+        .try_get_matches_from(&["MyApp", "--input", "a", "b", "--input", "c", "d"])
+        .unwrap();
     let vs = matches.values_of("input").unwrap();
     assert_eq!(vs.collect::<Vec<_>>(), vec!["a", "b", "c", "d"]);
 }

@@ -2009,7 +2009,8 @@ fn help_required_but_not_given() {
     App::new("myapp")
         .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo"))
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[cfg(debug_assertions)]
@@ -2019,7 +2020,8 @@ fn help_required_but_not_given_settings_after_args() {
     App::new("myapp")
         .arg(Arg::new("foo"))
         .setting(AppSettings::HelpExpected)
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[cfg(debug_assertions)]
@@ -2030,7 +2032,8 @@ fn help_required_but_not_given_for_one_of_two_arguments() {
         .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo"))
         .arg(Arg::new("bar").help("It does bar stuff"))
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[test]
@@ -2043,7 +2046,8 @@ fn help_required_locally_but_not_given_for_subcommand() {
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[cfg(debug_assertions)]
@@ -2058,7 +2062,8 @@ fn help_required_globally_but_not_given_for_subcommand() {
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete")),
         )
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[test]
@@ -2071,7 +2076,8 @@ fn help_required_and_given_for_subcommand() {
                 .arg(Arg::new("create").help("creates bar"))
                 .arg(Arg::new("delete").help("deletes bar")),
         )
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[test]
@@ -2079,14 +2085,16 @@ fn help_required_and_given() {
     App::new("myapp")
         .setting(AppSettings::HelpExpected)
         .arg(Arg::new("foo").help("It does foo stuff"))
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[test]
 fn help_required_and_no_args() {
     App::new("myapp")
         .setting(AppSettings::HelpExpected)
-        .get_matches_from(empty_args());
+        .try_get_matches_from(empty_args())
+        .unwrap();
 }
 
 #[test]
@@ -2627,7 +2635,7 @@ fn override_help_subcommand() {
         .subcommand(App::new("help").arg(Arg::new("arg").takes_value(true)))
         .subcommand(App::new("not_help").arg(Arg::new("arg").takes_value(true)))
         .setting(AppSettings::DisableHelpSubcommand);
-    let matches = app.get_matches_from(&["bar", "help", "foo"]);
+    let matches = app.try_get_matches_from(&["bar", "help", "foo"]).unwrap();
     assert_eq!(
         matches.subcommand_matches("help").unwrap().value_of("arg"),
         Some("foo")
@@ -2639,7 +2647,7 @@ fn override_help_flag_using_long() {
     let app = App::new("foo")
         .subcommand(App::new("help").long_flag("help"))
         .setting(AppSettings::DisableHelpFlag);
-    let matches = app.get_matches_from(&["foo", "--help"]);
+    let matches = app.try_get_matches_from(&["foo", "--help"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 
@@ -2648,7 +2656,7 @@ fn override_help_flag_using_short() {
     let app = App::new("foo")
         .setting(AppSettings::DisableHelpFlag)
         .subcommand(App::new("help").short_flag('h'));
-    let matches = app.get_matches_from(&["foo", "-h"]);
+    let matches = app.try_get_matches_from(&["foo", "-h"]).unwrap();
     assert!(matches.subcommand_matches("help").is_some());
 }
 

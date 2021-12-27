@@ -140,7 +140,8 @@ fn short_alias_on_a_subcommand_option() {
                 .long("other")
                 .short_aliases(&['1', '2', '3']),
         )
-        .get_matches_from(vec!["test", "some", "-o", "awesome"]);
+        .try_get_matches_from(vec!["test", "some", "-o", "awesome"])
+        .unwrap();
 
     assert!(m.subcommand_matches("some").is_some());
     let sub_m = m.subcommand_matches("some").unwrap();

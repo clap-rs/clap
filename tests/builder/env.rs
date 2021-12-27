@@ -323,7 +323,8 @@ fn validator_output() {
                 .takes_value(true)
                 .validator(|s| s.parse::<i32>()),
         )
-        .get_matches_from(vec![""]);
+        .try_get_matches_from(vec![""])
+        .unwrap();
 
     assert_eq!(m.value_of("arg").unwrap().parse(), Ok(42));
 }

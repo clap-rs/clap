@@ -88,7 +88,9 @@ subcmd NOT present
 
 pub fn check_complex_output(args: &str, out: &str) {
     let mut w = vec![];
-    let matches = utils::complex_app().get_matches_from(args.split(' ').collect::<Vec<_>>());
+    let matches = utils::complex_app()
+        .try_get_matches_from(args.split(' ').collect::<Vec<_>>())
+        .unwrap();
     if matches.is_present("flag") {
         writeln!(w, "flag present {} times", matches.occurrences_of("flag")).unwrap();
     } else {
@@ -226,14 +228,16 @@ fn create_app() {
         .version("1.0")
         .author("kevin")
         .about("does awesome things")
-        .get_matches_from(vec![""]);
+        .try_get_matches_from(vec![""])
+        .unwrap();
 }
 
 #[test]
 fn add_multiple_arg() {
     let _ = App::new("test")
         .args(&[Arg::new("test").short('s'), Arg::new("test2").short('l')])
-        .get_matches_from(vec![""]);
+        .try_get_matches_from(vec![""])
+        .unwrap();
 }
 #[test]
 fn flag_x2_opt() {

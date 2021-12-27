@@ -44,7 +44,8 @@ fn positional() {
 
     let m = App::new("positional")
         .args(&[arg!(-f --flag "some flag"), Arg::new("positional").index(1)])
-        .get_matches_from(vec!["", "test", "--flag"]);
+        .try_get_matches_from(vec!["", "test", "--flag"])
+        .unwrap();
     assert!(m.is_present("positional"));
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("positional").unwrap(), "test");
@@ -164,14 +165,16 @@ fn positional_possible_values() {
 fn create_positional() {
     let _ = App::new("test")
         .arg(Arg::new("test").index(1).help("testing testing"))
-        .get_matches_from(vec![""]);
+        .try_get_matches_from(vec![""])
+        .unwrap();
 }
 
 #[test]
 fn positional_hyphen_does_not_panic() {
     let _ = App::new("test")
         .arg(Arg::new("dummy"))
-        .get_matches_from(vec!["test", "-"]);
+        .try_get_matches_from(vec!["test", "-"])
+        .unwrap();
 }
 
 #[test]

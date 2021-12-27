@@ -202,7 +202,8 @@ fn sub_command_negate_required() {
         .setting(AppSettings::SubcommandsNegateReqs)
         .arg(Arg::new("test").required(true).index(1))
         .subcommand(App::new("sub1"))
-        .get_matches_from(vec!["myprog", "sub1"]);
+        .try_get_matches_from(vec!["myprog", "sub1"])
+        .unwrap();
 }
 
 #[test]
@@ -359,7 +360,8 @@ fn infer_subcommands_pass() {
     let m = App::new("prog")
         .setting(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
-        .get_matches_from(vec!["prog", "te"]);
+        .try_get_matches_from(vec!["prog", "te"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
@@ -369,7 +371,8 @@ fn infer_subcommands_pass_close() {
         .setting(AppSettings::InferSubcommands)
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
-        .get_matches_from(vec!["prog", "tes"]);
+        .try_get_matches_from(vec!["prog", "tes"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
@@ -380,7 +383,8 @@ fn infer_subcommands_pass_exact_match() {
         .subcommand(App::new("test"))
         .subcommand(App::new("testa"))
         .subcommand(App::new("testb"))
-        .get_matches_from(vec!["prog", "test"]);
+        .try_get_matches_from(vec!["prog", "test"])
+        .unwrap();
     assert_eq!(m.subcommand_name(), Some("test"));
 }
 
@@ -466,7 +470,8 @@ fn dont_delim_values_trailingvararg() {
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::DontDelimitTrailingValues)
         .arg(arg!([opt] ... "some pos"))
-        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+        .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -494,7 +499,8 @@ fn delim_values_trailingvararg() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .arg(arg!([opt] ... "some pos"))
-        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+        .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -525,7 +531,8 @@ fn delim_values_trailingvararg_with_delim() {
     let m = App::new("positional")
         .setting(AppSettings::TrailingVarArg)
         .arg(arg!([opt] ... "some pos").use_delimiter(true))
-        .get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"]);
+        .try_get_matches_from(vec!["", "test", "--foo", "-Wl,-bar"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -605,7 +612,8 @@ fn leading_double_hyphen_trailingvararg() {
         .setting(AppSettings::TrailingVarArg)
         .setting(AppSettings::AllowHyphenValues)
         .arg(arg!([opt] ... "some pos"))
-        .get_matches_from(vec!["", "--foo", "-Wl", "bar"]);
+        .try_get_matches_from(vec!["", "--foo", "-Wl", "bar"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(
         m.values_of("opt").unwrap().collect::<Vec<_>>(),
@@ -859,7 +867,8 @@ fn issue_1437_allow_hyphen_values_for_positional_arg() {
                 .required(true)
                 .takes_value(true),
         )
-        .get_matches_from(["tmp", "-file"]);
+        .try_get_matches_from(["tmp", "-file"])
+        .unwrap();
     assert_eq!(m.value_of("pat"), Some("-file"));
 }
 
@@ -1104,7 +1113,8 @@ fn aaos_option_use_delim_false() {
     let m = App::new("posix")
         .setting(AppSettings::AllArgsOverrideSelf)
         .arg(arg!(--opt <val> "some option").use_delimiter(false))
-        .get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"]);
+        .try_get_matches_from(vec!["", "--opt=some,other", "--opt=one,two"])
+        .unwrap();
     assert!(m.is_present("opt"));
     assert_eq!(m.occurrences_of("opt"), 1);
     assert_eq!(

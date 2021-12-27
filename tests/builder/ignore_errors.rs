@@ -96,13 +96,15 @@ fn subcommand() {
         )
         .arg(Arg::new("other").long("other"));
 
-    let m = app.get_matches_from(vec![
-        "myprog",
-        "some",
-        "--test", /* missing: ,"some val" */
-        "-x",
-        "some other val",
-    ]);
+    let m = app
+        .try_get_matches_from(vec![
+            "myprog",
+            "some",
+            "--test", /* missing: ,"some val" */
+            "-x",
+            "some other val",
+        ])
+        .unwrap();
 
     assert_eq!(m.subcommand_name().unwrap(), "some");
     let sub_m = m.subcommand_matches("some").unwrap();

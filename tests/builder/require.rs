@@ -65,7 +65,8 @@ fn flag_required_2() {
     let m = App::new("flag_required")
         .arg(arg!(-f --flag "some flag").requires("color"))
         .arg(arg!(-c --color "third flag"))
-        .get_matches_from(vec!["", "-f", "-c"]);
+        .try_get_matches_from(vec!["", "-f", "-c"])
+        .unwrap();
     assert!(m.is_present("color"));
     assert!(m.is_present("flag"));
 }
@@ -86,7 +87,8 @@ fn option_required_2() {
     let m = App::new("option_required")
         .arg(arg!(f: -f <flag> "some flag").required(false).requires("c"))
         .arg(arg!(c: -c <color> "third flag").required(false))
-        .get_matches_from(vec!["", "-f", "val", "-c", "other_val"]);
+        .try_get_matches_from(vec!["", "-f", "val", "-c", "other_val"])
+        .unwrap();
     assert!(m.is_present("c"));
     assert_eq!(m.value_of("c").unwrap(), "other_val");
     assert!(m.is_present("f"));
@@ -107,7 +109,8 @@ fn positional_required() {
 fn positional_required_2() {
     let m = App::new("positional_required")
         .arg(Arg::new("flag").index(1).required(true))
-        .get_matches_from(vec!["", "someval"]);
+        .try_get_matches_from(vec!["", "someval"])
+        .unwrap();
     assert!(m.is_present("flag"));
     assert_eq!(m.value_of("flag").unwrap(), "someval");
 }
@@ -132,7 +135,8 @@ fn group_required_2() {
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"))
-        .get_matches_from(vec!["", "-f", "--some"]);
+        .try_get_matches_from(vec!["", "-f", "--some"])
+        .unwrap();
     assert!(m.is_present("some"));
     assert!(!m.is_present("other"));
     assert!(m.is_present("flag"));
@@ -145,7 +149,8 @@ fn group_required_3() {
         .group(ArgGroup::new("gr").required(true).arg("some").arg("other"))
         .arg(arg!(--some "some arg"))
         .arg(arg!(--other "other arg"))
-        .get_matches_from(vec!["", "-f", "--other"]);
+        .try_get_matches_from(vec!["", "-f", "--other"])
+        .unwrap();
     assert!(!m.is_present("some"));
     assert!(m.is_present("other"));
     assert!(m.is_present("flag"));
@@ -1048,7 +1053,8 @@ fn issue_1643_args_mutually_require_each_other() {
                 .requires("relation_id"),
         );
 
-    app.get_matches_from(&["test", "-u", "hello", "-r", "farewell"]);
+    app.try_get_matches_from(&["test", "-u", "hello", "-r", "farewell"])
+        .unwrap();
 }
 
 #[test]
@@ -1061,7 +1067,8 @@ fn short_flag_require_equals_with_minvals_zero() {
                 .require_equals(true),
         )
         .arg(Arg::new("unique").short('u'))
-        .get_matches_from(&["foo", "-cu"]);
+        .try_get_matches_from(&["foo", "-cu"])
+        .unwrap();
     assert!(m.is_present("check"));
     assert!(m.is_present("unique"));
 }
@@ -1078,7 +1085,8 @@ fn issue_2624() {
                 .possible_values(["silent", "quiet", "diagnose-first"]),
         )
         .arg(Arg::new("unique").short('u').long("unique"))
-        .get_matches_from(&["foo", "-cu"]);
+        .try_get_matches_from(&["foo", "-cu"])
+        .unwrap();
     assert!(matches.is_present("check"));
     assert!(matches.is_present("unique"));
 }
