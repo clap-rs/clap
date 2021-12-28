@@ -25,6 +25,7 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
 
     // remove one leading space no matter what
     for line in lines.iter_mut() {
+        println!("{}", line);
         if line.starts_with(' ') {
             *line = &line[1..];
         }
@@ -55,7 +56,7 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
         ]
     } else {
         let short = if preprocess {
-            let s = merge_lines(&lines);
+            let s = process_paragraph(&lines);
             remove_period(s)
         } else {
             lines.join("\n")
@@ -83,12 +84,36 @@ fn split_paragraphs(lines: &[&str]) -> Vec<String> {
         last_line += start + len;
 
         if len != 0 {
-            Some(merge_lines(&slice[..len]))
+            Some(process_paragraph(&slice[..len]))
         } else {
             None
         }
     })
     .collect()
+}
+
+fn process_paragraph(lines: &[&str]) -> String {
+    lines
+        .iter()
+        .map(|s| {
+            let mut ln = String::with_capacity(s.len());
+            let mut chars = s.trim().chars();
+            while let Some(c) = chars.next() {
+                if c == '\\' {
+                    match chars.next() {
+                        Some('\\') => ln.push('\\'),
+                        Some('n') => ln.push('\n'),
+                        Some(x) => { ln.push(c); ln.push(x) },
+                        None => ln.push(c),
+                    }
+                } else {
+                    ln.push(c);
+                }
+            }
+            ln
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn remove_period(mut s: String) -> String {
@@ -100,8 +125,4 @@ fn remove_period(mut s: String) -> String {
 
 fn is_blank(s: &str) -> bool {
     s.trim().is_empty()
-}
-
-fn merge_lines(lines: &[&str]) -> String {
-    lines.iter().map(|s| s.trim().replace("\\n", "\n")).collect::<Vec<_>>().join(" ")
 }
