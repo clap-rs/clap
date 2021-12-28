@@ -103,5 +103,5 @@ fn is_blank(s: &str) -> bool {
 }
 
 fn merge_lines(lines: &[&str]) -> String {
-    lines.iter().map(|s| s.trim()).collect::<Vec<_>>().join(" ")
+    lines.iter().map(|s| s.trim().replace("\\n", "\n")).collect::<Vec<_>>().join(" ")
 }
