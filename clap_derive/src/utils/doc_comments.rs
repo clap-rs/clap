@@ -25,7 +25,6 @@ pub fn process_doc_comment(lines: Vec<String>, name: &str, preprocess: bool) -> 
 
     // remove one leading space no matter what
     for line in lines.iter_mut() {
-        println!("{}", line);
         if line.starts_with(' ') {
             *line = &line[1..];
         }
@@ -95,25 +94,51 @@ fn split_paragraphs(lines: &[&str]) -> Vec<String> {
 fn process_paragraph(lines: &[&str]) -> String {
     lines
         .iter()
-        .map(|s| {
-            let mut ln = String::with_capacity(s.len());
-            let mut chars = s.trim().chars();
+        .map(|ln| ln.trim())
+         // Ignore empty lines even if they were escaped with slash
+        .filter(|ln| ln != &"\\" && !ln.is_empty())
+        // Run actual slash escaping
+        .map(|ln| {
+            let expected_len = ln.len() + 1;
+            let mut chars = ln.chars();
+            let mut ln = String::with_capacity(expected_len);
             while let Some(c) = chars.next() {
                 if c == '\\' {
-                    match chars.next() {
-                        Some('\\') => ln.push('\\'),
-                        Some('n') => ln.push('\n'),
-                        Some(x) => { ln.push(c); ln.push(x) },
-                        None => ln.push(c),
+                     match chars.next() {
+                        // Escape slash with slash
+                        Some('\\') => {
+                            ln.push('\\')
+                        },
+                        // Don't escape other letters
+                        Some(x) => {
+                            ln.push('\\');
+                            ln.push(x);
+                        },
+                        // Escape newline
+                        None => {
+                            // Remove whitespace so it wouldn't
+                            // mess with terminal wrapping
+                            ln = trim_end(ln);
+                            ln.push('\n');
+                            return ln
+                        },
                     }
                 } else {
                     ln.push(c);
                 }
             }
+            // Since every line is trimmed we need
+            // this space to avoid gluing words together
+            ln.push(' ');
             ln
         })
-        .collect::<Vec<_>>()
-        .join(" ")
+        .collect()
+}
+
+fn trim_end(mut s: String) -> String {
+    let while_text = s.trim_end_matches(|c: char| c.is_ascii_whitespace()).len();
+    s.truncate(while_text);
+    s
 }
 
 fn remove_period(mut s: String) -> String {
