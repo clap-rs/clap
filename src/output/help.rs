@@ -634,11 +634,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     }
 
     fn write_version(&mut self) -> io::Result<()> {
-        let version = if self.use_long {
-            self.parser.app.long_version.or(self.parser.app.version)
-        } else {
-            self.parser.app.version
-        };
+        let version = self.parser.app.version.or(self.parser.app.long_version);
         if let Some(output) = version {
             self.none(text_wrapper(output, self.term_w))?;
         }
