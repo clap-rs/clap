@@ -1118,11 +1118,11 @@ mod test {
     #[test]
     fn pos_help_newline() {
         let a = Arg::from_usage(
-            "[pos]... 'some help\n\
+            "[pos]... 'some help{n}\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help\ninfo");
+        assert_eq!(a.help.unwrap(), "some help{n}info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));
@@ -1132,11 +1132,11 @@ mod test {
     #[test]
     fn pos_help_newline_lit_sq() {
         let a = Arg::from_usage(
-            "[pos]... 'some help\' stuff\n\
+            "[pos]... 'some help\' stuff{n}\
              info'",
         );
         assert_eq!(a.name, "pos");
-        assert_eq!(a.help.unwrap(), "some help' stuff\ninfo");
+        assert_eq!(a.help.unwrap(), "some help' stuff{n}info");
         assert!(a.is_set(ArgSettings::MultipleOccurrences));
         assert!(!a.is_set(ArgSettings::MultipleValues));
         assert!(!a.is_set(ArgSettings::Required));

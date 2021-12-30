@@ -1126,11 +1126,44 @@ fn wrapping_newline_chars() {
 }
 
 #[test]
+fn wrapping_newline_variables() {
+    let app = App::new("ctest")
+        .version("0.1")
+        .term_width(60)
+        .arg(Arg::new("mode").help(
+            "x, max, maximum   20 characters, contains symbols.{n}\
+             l, long           Copy-friendly, 14 characters, contains symbols.{n}\
+             m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}",
+        ));
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        WRAPPING_NEWLINE_CHARS,
+        false
+    ));
+}
+
+#[test]
 fn old_newline_chars() {
     let app = App::new("ctest").version("0.1").arg(
         Arg::new("mode")
             .short('m')
             .help("Some help with some wrapping\n(Defaults to something)"),
+    );
+    assert!(utils::compare_output(
+        app,
+        "ctest --help",
+        OLD_NEWLINE_CHARS,
+        false
+    ));
+}
+
+#[test]
+fn old_newline_variables() {
+    let app = App::new("ctest").version("0.1").arg(
+        Arg::new("mode")
+            .short('m')
+            .help("Some help with some wrapping{n}(Defaults to something)"),
     );
     assert!(utils::compare_output(
         app,
