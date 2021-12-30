@@ -19,6 +19,10 @@ use std::ffi::OsString;
 ///
 /// See also [`Subcommand`] and [`Args`].
 ///
+/// See the
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.10/examples/derive_ref/README.md)
+/// for attributes and best practices.
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
 ///
 /// # Examples
@@ -280,6 +284,10 @@ pub trait FromArgMatches: Sized {
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
+/// See the
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.10/examples/derive_ref/README.md)
+/// for attributes and best practices.
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
 ///
 /// # Example
@@ -320,6 +328,10 @@ pub trait Args: FromArgMatches + Sized {
 /// - `#[clap(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
+/// See the
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.10/examples/derive_ref/README.md)
+/// for attributes and best practices.
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
 ///
 /// # Example
@@ -359,6 +371,10 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// `#[clap(arg_enum)]` which will
 /// - Call [`Arg::possible_values`][crate::Arg::possible_values]
 /// - Allowing using the `#[clap(default_value_t)]` attribute without implementing `Display`.
+///
+/// See the
+/// [derive reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.10/examples/derive_ref/README.md)
+/// for attributes and best practices.
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
 ///
