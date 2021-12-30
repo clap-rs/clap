@@ -13,7 +13,7 @@
 4. Validation
     1. [Enumerated values](#enumerated-values)
     2. [Validated values](#validated-values)
-    3. [Argument Relations](#relations-relations)
+    3. [Argument Relations](#argument-relations)
     4. [Custom Validation](#custom-validation)
 5. [Tips](#tips)
 6. [Contributing](#contributing)
