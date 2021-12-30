@@ -351,7 +351,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             self.parser.app.before_help
         };
         if let Some(output) = before_help {
-            self.none(text_wrapper(output, self.term_w))?;
+            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w))?;
             self.none("\n\n")?;
         }
         Ok(())
@@ -369,7 +369,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         };
         if let Some(output) = after_help {
             self.none("\n\n")?;
-            self.none(text_wrapper(output, self.term_w))?;
+            self.none(text_wrapper(&output.replace("{n}", "\n"), self.term_w))?;
         }
         Ok(())
     }
@@ -401,14 +401,14 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         }
 
         debug!("Help::help: Too long...");
-        if too_long && spaces <= self.term_w {
+        if too_long && spaces <= self.term_w || help.contains("{n}") {
             debug!("Yes");
             debug!("Help::help: help...{}", help);
             debug!("Help::help: help width...{}", display_width(&help));
             // Determine how many newlines we need to insert
             let avail_chars = self.term_w - spaces;
             debug!("Help::help: Usable space...{}", avail_chars);
-            help = text_wrapper(&help, avail_chars);
+            help = text_wrapper(&help.replace("{n}", "\n"), avail_chars);
         } else {
             debug!("No");
         }
@@ -874,10 +874,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
                 bn.replace(" ", "-")
             } else {
-                text_wrapper(&self.parser.app.name, self.term_w)
+                text_wrapper(&self.parser.app.name.replace("{n}", "\n"), self.term_w)
             }
         } else {
-            text_wrapper(&self.parser.app.name, self.term_w)
+            text_wrapper(&self.parser.app.name.replace("{n}", "\n"), self.term_w)
         };
         self.good(&bin_name)?;
         Ok(())
