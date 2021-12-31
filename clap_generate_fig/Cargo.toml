@@ -1,6 +1,6 @@
 [package]
 name = "clap_generate_fig"
-version = "3.0.0-rc.11"
+version = "3.0.0-rc.12"
 edition = "2018"
 include = [
 	"src/**/*",
@@ -26,4 +26,4 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap_complete_fig = { path = "../clap_complete_fig", version = "=3.0.0-rc.11"}
+clap_complete_fig = { path = "../clap_complete_fig", version = "=3.0.0-rc.12"}

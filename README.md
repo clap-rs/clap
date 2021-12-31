@@ -5,8 +5,8 @@
 
 [![Crates.io](https://img.shields.io/crates/v/clap?style=flat-square)](https://crates.io/crates/clap)
 [![Crates.io](https://img.shields.io/crates/d/clap?style=flat-square)](https://crates.io/crates/clap)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/LICENSE-APACHE)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/LICENSE-MIT)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/LICENSE-APACHE)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/LICENSE-MIT)
 [![Build Status](https://img.shields.io/github/workflow/status/clap-rs/clap/CI/staging?style=flat-square)](https://github.com/clap-rs/clap/actions/workflows/ci.yml?query=branch%3Astaging)
 [![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/master?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=master)
 [![Contributors](https://img.shields.io/github/contributors/clap-rs/clap?style=flat-square)](https://github.com/clap-rs/clap/graphs/contributors)
@@ -14,15 +14,15 @@
 Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 1. [About](#about)
-2. Tutorial: [Builder API](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/examples/tutorial_builder/README.md),  [Derive API](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/examples/tutorial_derive/README.md)
-3. [Examples](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/examples/README.md)
+2. Tutorial: [Builder API](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/examples/tutorial_builder/README.md),  [Derive API](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/examples/tutorial_derive/README.md)
+3. [Examples](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/examples/README.md)
 4. [API Reference](https://docs.rs/clap)
-    - [Derive Reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/examples/derive_ref/README.md)
+    - [Derive Reference](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/examples/derive_ref/README.md)
     - [Feature Flags](#feature-flags)
-5. [CHANGELOG](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/CHANGELOG.md)
-6. [FAQ](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/docs/FAQ.md)
+5. [CHANGELOG](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/CHANGELOG.md)
+6. [FAQ](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/docs/FAQ.md)
 7. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
-8. [Contributing](https://github.com/clap-rs/clap/blob/v3.0.0-rc.11/CONTRIBUTING.md)
+8. [Contributing](https://github.com/clap-rs/clap/blob/v3.0.0-rc.12/CONTRIBUTING.md)
 8. [Sponsors](#sponsors)
 
 ## About
@@ -59,7 +59,7 @@ fn main() {
 Add this to `Cargo.toml`:
 ```toml
 [dependencies]
-clap = { version = "3.0.0-rc.11", features = ["derive"] }
+clap = { version = "3.0.0-rc.12", features = ["derive"] }
 ```
 ```bash
 $ demo --help
