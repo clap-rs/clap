@@ -3,7 +3,7 @@ use std::io::Write;
 
 // Internal
 use clap::*;
-use clap_generate::*;
+use clap_complete::*;
 
 /// Generate fig completion file
 pub struct Fig;

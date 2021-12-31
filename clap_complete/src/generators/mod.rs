@@ -16,7 +16,7 @@ pub trait Generator {
     /// ```
     /// # use std::io::Write;
     /// # use clap::App;
-    /// use clap_generate::Generator;
+    /// use clap_complete::Generator;
     ///
     /// pub struct Fish;
     ///
@@ -39,7 +39,7 @@ pub trait Generator {
     /// ```
     /// use std::{io::Write, fmt::write};
     /// use clap::App;
-    /// use clap_generate::Generator;
+    /// use clap_complete::Generator;
     ///
     /// pub struct ClapDebug;
     ///

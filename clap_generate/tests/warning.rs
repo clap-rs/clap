@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use clap::{App, Arg};
 use clap_generate::{generate, generators::*};
 use std::io;

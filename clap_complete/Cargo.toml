@@ -1,0 +1,44 @@
+[package]
+name = "clap_complete"
+version = "3.0.0-rc.11"
+edition = "2018"
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"LICENSE-*",
+	"README.md"
+]
+description = "Generate shell completion scripts for your clap::App"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_complete"
+documentation = "https://docs.rs/clap_complete"
+keywords = [
+	"clap",
+	"cli",
+	"completion",
+	"bash",
+]
+categories = ["command-line-interface"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[package.metadata.release]
+pre-release-replacements = [
+  {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=4, prerelease = true},
+]
+
+[lib]
+bench = false
+
+[dependencies]
+clap = { path = "../", version = "=3.0.0-rc.11", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+pretty_assertions = "1.0"
+clap = { path = "../", version = "=3.0.0-rc.11", default-features = false, features = ["std", "derive"] }
+
+[features]
+default = []
+debug = ["clap/debug"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]

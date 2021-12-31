@@ -8,7 +8,7 @@ include = [
 	"LICENSE-*",
 	"README.md"
 ]
-description = "A generator library used with clap for Fig completion scripts"
+description = "Renamed to clap_complete_fig"
 repository = "https://github.com/clap-rs/clap/tree/master/clap_generate_fig"
 documentation = "https://docs.rs/clap_generate_fig"
 keywords = [
@@ -26,11 +26,4 @@ readme = "README.md"
 bench = false
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-rc.11", default-features = false, features = ["std"] }
-clap_generate = { path = "../clap_generate", version = "=3.0.0-rc.11"}
-
-[dev-dependencies]
-pretty_assertions = "1.0"
-
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
+clap_complete_fig = { path = "../clap_complete_fig", version = "=3.0.0-rc.11"}

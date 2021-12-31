@@ -1,8 +1,12 @@
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::{generate, generators::*};
+use clap_complete::{generate, generators::*};
 use std::fmt;
 
-mod fig;
+mod bash;
+mod elvish;
+mod fish;
+mod powershell;
+mod zsh;
 
 #[derive(PartialEq, Eq)]
 pub struct PrettyString<'a>(pub &'a str);

@@ -1,6 +1,5 @@
 use clap::App;
-use clap_generate::generate;
-use clap_generate_fig::Fig;
+use clap_complete::{generate, generators::Bash};
 use std::io;
 
 fn main() {
@@ -8,5 +7,5 @@ fn main() {
         .subcommand(App::new("test").subcommand(App::new("config")))
         .subcommand(App::new("hello"));
 
-    generate(Fig, &mut app, "myapp", &mut io::stdout());
+    generate(Bash, &mut app, "myapp", &mut io::stdout());
 }

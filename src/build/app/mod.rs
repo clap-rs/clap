@@ -2577,7 +2577,7 @@ impl<'help> App<'help> {
         Ok(matcher.into_inner())
     }
 
-    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
     pub fn _build_all(&mut self) {
         self._build();
@@ -2587,7 +2587,7 @@ impl<'help> App<'help> {
         self._build_bin_names();
     }
 
-    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
     pub fn _build(&mut self) {
         debug!("App::_build");
@@ -2875,7 +2875,7 @@ impl<'help> App<'help> {
         }
     }
 
-    // used in clap_generate (https://github.com/clap-rs/clap_generate)
+    // used in clap_complete (https://github.com/clap-rs/clap_complete)
     #[doc(hidden)]
     pub fn _build_bin_names(&mut self) {
         debug!("App::_build_bin_names");
