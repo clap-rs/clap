@@ -1,6 +1,8 @@
-use clap::{App, Arg};
-use clap_complete::{generate, generators::*};
 use std::io;
+
+use clap::{App, Arg};
+
+use clap_complete::{generate, shells::*};
 
 #[test]
 fn generate_completions() {

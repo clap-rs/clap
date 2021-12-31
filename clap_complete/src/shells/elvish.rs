@@ -1,11 +1,9 @@
-// Std
 use std::io::Write;
 
-// Internal
-use crate::utils;
-use crate::Generator;
-use crate::INTERNAL_ERROR_MSG;
 use clap::*;
+
+use crate::generator::{utils, Generator};
+use crate::INTERNAL_ERROR_MSG;
 
 /// Generate elvish completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

@@ -1,5 +1,5 @@
 use clap::App;
-use clap_complete::{generate, generators::Bash};
+use clap_complete::{generate, shells::Bash};
 use std::io;
 
 fn main() {

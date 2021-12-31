@@ -1,11 +1,8 @@
-// Std
 use std::{fmt::Write as _, io::Write};
 
-// Internal
-use crate::utils;
-use crate::Generator;
-
 use clap::*;
+
+use crate::generator::{utils, Generator};
 
 /// Generate bash completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
