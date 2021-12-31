@@ -153,7 +153,7 @@ Easier to catch changes:
 - `Arg::short` and `Arg::value_delimiter` now take a `char` instead of a `&str`
 - `ArgMatches` panics on unknown arguments
 - Removed `VersionlessSubcommands`, making it the default (see [clap-rs/clap#2812](https://github.com/clap-rs/clap/issues/2812))
-- Completion generation has been split out into [clap_generate](./clap_generate).
+- Completion generation has been split out into [clap_complete](./clap_complete).
 - Removed `ArgSettings::EmptyValues` in favor of `ArgSettings::ForbidEmptyValues`
 - Validator signatures have been loosed:
   - `Arg::validator` now takes first argument as `Fn(&str) -> Result<O, E: ToString>` instead of

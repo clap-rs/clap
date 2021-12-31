@@ -1,6 +1,5 @@
 use clap::{App, Arg};
-use clap_generate::generate;
-use clap_generate_fig::Fig;
+use clap_complete::{generate, generators::*};
 use std::io;
 
 #[test]
@@ -14,5 +13,9 @@ fn generate_completions() {
                 .arg(Arg::new("debug").short('d')),
         );
 
-    generate(Fig, &mut app, "test_app", &mut io::sink());
+    generate(Bash, &mut app, "test_app", &mut io::sink());
+    generate(Fish, &mut app, "test_app", &mut io::sink());
+    generate(PowerShell, &mut app, "test_app", &mut io::sink());
+    generate(Elvish, &mut app, "test_app", &mut io::sink());
+    generate(Zsh, &mut app, "test_app", &mut io::sink());
 }

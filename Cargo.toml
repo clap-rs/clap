@@ -1,6 +1,8 @@
 [workspace]
 members = [
 	"clap_derive",
+	"clap_complete",
+	"clap_complete_fig",
 	"clap_generate",
 	"clap_generate_fig",
 ]

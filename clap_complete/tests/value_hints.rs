@@ -1,12 +1,11 @@
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate_fig::Fig;
+use clap_complete::generators::*;
 use completions::common;
 
 mod completions;
 
 pub fn build_app_with_value_hints() -> App<'static> {
     App::new("my_app")
-        .setting(AppSettings::DisableVersionFlag)
         .setting(AppSettings::TrailingVarArg)
         .arg(
             Arg::new("choice")
@@ -80,136 +79,80 @@ pub fn build_app_with_value_hints() -> App<'static> {
         )
 }
 
-static FIG_VALUE_HINTS: &str = r#"const completion: Fig.Spec = {
-  name: "my_app",
-  description: "",
-  options: [
-    {
-      name: "--choice",
-      args: {
-        name: "choice",
-        isOptional: true,
-        suggestions: [
-          {
-            name: "bash",
-          },
-          {
-            name: "fish",
-          },
-          {
-            name: "zsh",
-          },
-        ]
-      },
-    },
-    {
-      name: "--unknown",
-      args: {
-        name: "unknown",
-        isOptional: true,
-      },
-    },
-    {
-      name: "--other",
-      args: {
-        name: "other",
-        isOptional: true,
-      },
-    },
-    {
-      name: ["-p", "--path"],
-      args: {
-        name: "path",
-        isOptional: true,
-        template: "filepaths",
-      },
-    },
-    {
-      name: ["-f", "--file"],
-      args: {
-        name: "file",
-        isOptional: true,
-        template: "filepaths",
-      },
-    },
-    {
-      name: ["-d", "--dir"],
-      args: {
-        name: "dir",
-        isOptional: true,
-        template: "folders",
-      },
-    },
-    {
-      name: ["-e", "--exe"],
-      args: {
-        name: "exe",
-        isOptional: true,
-        template: "filepaths",
-      },
-    },
-    {
-      name: "--cmd-name",
-      args: {
-        name: "cmd_name",
-        isOptional: true,
-        isCommand: true,
-      },
-    },
-    {
-      name: ["-c", "--cmd"],
-      args: {
-        name: "cmd",
-        isOptional: true,
-        isCommand: true,
-      },
-    },
-    {
-      name: ["-u", "--user"],
-      args: {
-        name: "user",
-        isOptional: true,
-      },
-    },
-    {
-      name: ["-h", "--host"],
-      args: {
-        name: "host",
-        isOptional: true,
-      },
-    },
-    {
-      name: "--url",
-      args: {
-        name: "url",
-        isOptional: true,
-      },
-    },
-    {
-      name: "--email",
-      args: {
-        name: "email",
-        isOptional: true,
-      },
-    },
-    {
-      name: "--help",
-      description: "Print help information",
-    },
-  ],
-  args: {
-    name: "command_with_args",
-    isVariadic: true,
-    isOptional: true,
-    isCommand: true,
-  },
-};
+static ZSH_VALUE_HINTS: &str = r#"#compdef my_app
 
-export default completion;
+autoload -U is-at-least
+
+_my_app() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'--choice=[]: :(bash fish zsh)' \
+'--unknown=[]: : ' \
+'--other=[]: :( )' \
+'-p+[]: :_files' \
+'--path=[]: :_files' \
+'-f+[]: :_files' \
+'--file=[]: :_files' \
+'-d+[]: :_files -/' \
+'--dir=[]: :_files -/' \
+'-e+[]: :_absolute_command_paths' \
+'--exe=[]: :_absolute_command_paths' \
+'--cmd-name=[]: :_command_names -e' \
+'-c+[]: :_cmdstring' \
+'--cmd=[]: :_cmdstring' \
+'-u+[]: :_users' \
+'--user=[]: :_users' \
+'-h+[]: :_hosts' \
+'--host=[]: :_hosts' \
+'--url=[]: :_urls' \
+'--email=[]: :_email_addresses' \
+'--help[Print help information]' \
+'*::command_with_args:_cmdambivalent' \
+&& ret=0
+}
+
+(( $+functions[_my_app_commands] )) ||
+_my_app_commands() {
+    local commands; commands=()
+    _describe -t commands 'my_app commands' commands "$@"
+}
+
+_my_app "$@""#;
+
+static FISH_VALUE_HINTS: &str = r#"complete -c my_app -l choice -r -f -a "{bash	,fish	,zsh	}"
+complete -c my_app -l unknown -r
+complete -c my_app -l other -r -f
+complete -c my_app -s p -l path -r -F
+complete -c my_app -s f -l file -r -F
+complete -c my_app -s d -l dir -r -f -a "(__fish_complete_directories)"
+complete -c my_app -s e -l exe -r -F
+complete -c my_app -l cmd-name -r -f -a "(__fish_complete_command)"
+complete -c my_app -s c -l cmd -r -f -a "(__fish_complete_command)"
+complete -c my_app -s u -l user -r -f -a "(__fish_complete_users)"
+complete -c my_app -s h -l host -r -f -a "(__fish_print_hostnames)"
+complete -c my_app -l url -r -f
+complete -c my_app -l email -r -f
+complete -c my_app -l help -d 'Print help information'
 "#;
 
 #[test]
-fn fig_with_value_hints() {
+fn zsh_with_value_hints() {
     let mut app = build_app_with_value_hints();
-    common(Fig, &mut app, "my_app", FIG_VALUE_HINTS);
+    common(Zsh, &mut app, "my_app", ZSH_VALUE_HINTS);
+}
+
+#[test]
+fn fish_with_value_hints() {
+    let mut app = build_app_with_value_hints();
+    common(Fish, &mut app, "my_app", FISH_VALUE_HINTS);
 }

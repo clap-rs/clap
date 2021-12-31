@@ -13,7 +13,7 @@
 //! ./target/debug/examples/value_hints_derive --<TAB>
 //! ```
 use clap::{App, AppSettings, IntoApp, Parser, ValueHint};
-use clap_generate::{generate, Generator, Shell};
+use clap_complete::{generate, Generator, Shell};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;

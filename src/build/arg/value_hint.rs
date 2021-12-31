@@ -4,7 +4,7 @@ use std::str::FromStr;
 ///
 /// See [Arg::value_hint][crate::Arg::value_hint] to set this on an argument.
 ///
-/// See the `clap_generate` crate for completion script generation.
+/// See the `clap_complete` crate for completion script generation.
 ///
 /// Overview of which hints are supported by which shell:
 ///

@@ -13,7 +13,7 @@
 //! ./target/debug/examples/value_hints --<TAB>
 //! ```
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_generate::{generate, Generator, Shell};
+use clap_complete::{generate, Generator, Shell};
 use std::io;
 
 fn build_cli() -> App<'static> {

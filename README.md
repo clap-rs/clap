@@ -81,7 +81,7 @@ OPTIONS:
 ### Aspirations
 
 - Out of the box, users get a polished CLI experience
-  - Including common argument behavior, help generation, suggested fixes for users, colored output, [shell completions](https://github.com/clap-rs/clap/tree/master/clap_generate), etc
+  - Including common argument behavior, help generation, suggested fixes for users, colored output, [shell completions](https://github.com/clap-rs/clap/tree/master/clap_complete), etc
 - Flexible enough to port your existing CLI interface
   - However, we won't necessarily streamline support for each use case
 - Reasonable parse performance
@@ -102,7 +102,7 @@ CLI parsers optimized for other use cases.
 
 - [wild](https://crates.io/crates/wild) for supporting wildcards (`*`) on Windows like you do Linux
 - [argfile](https://crates.io/crates/argfile) for loading additional arguments from a file (aka response files)
-- [clap_generate](https://crates.io/crates/clap_generate) for shell completion support
+- [clap_complete](https://crates.io/crates/clap_complete) for shell completion support
 - [clap-verbosity-flag](https://crates.io/crates/clap-verbosity-flag)
 - [clap-cargo](https://crates.io/crates/clap-cargo)
 - [concolor-clap](https://crates.io/crates/concolor-clap)
