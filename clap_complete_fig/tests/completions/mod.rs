@@ -1,5 +1,5 @@
 use clap::{App, AppSettings, Arg, ValueHint};
-use clap_complete::{generate, generators::*};
+use clap_complete::{generate, Generator};
 use std::fmt;
 
 mod fig;

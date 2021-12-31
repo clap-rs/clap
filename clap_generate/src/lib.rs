@@ -10,12 +10,13 @@ pub use clap_complete::Shell;
 
 #[deprecated(since = "3.0.0", note = "Renamed to `clap_complete::generators`")]
 pub mod generators {
-    pub use clap_complete::generators::*;
+    pub use clap_complete::generator::*;
+    pub use clap_complete::shells::*;
 }
 
 #[deprecated(since = "3.0.0", note = "Renamed to `clap_complete::utils`")]
 pub mod utils {
-    pub use clap_complete::utils::*;
+    pub use clap_complete::generator::utils::*;
 }
 
 #[deprecated(since = "3.0.0", note = "Renamed to `clap_complete::generate_to`")]

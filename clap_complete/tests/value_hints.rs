@@ -1,8 +1,9 @@
-use clap::{App, AppSettings, Arg, ValueHint};
-use clap_complete::generators::*;
-use completions::common;
-
 mod completions;
+
+use clap::{App, AppSettings, Arg, ValueHint};
+
+use clap_complete::shells::*;
+use completions::common;
 
 pub fn build_app_with_value_hints() -> App<'static> {
     App::new("my_app")

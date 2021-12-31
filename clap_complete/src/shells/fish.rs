@@ -1,10 +1,8 @@
-// Std
 use std::io::Write;
 
-// Internal
-use crate::utils;
-use crate::Generator;
 use clap::*;
+
+use crate::generator::{utils, Generator};
 
 /// Generate fish completion file
 ///

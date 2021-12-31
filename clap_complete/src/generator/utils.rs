@@ -1,3 +1,5 @@
+//! Helpers for writing generators
+
 use clap::{App, Arg, ArgSettings};
 
 /// Gets all subcommands including child subcommands in the form of `("name", "bin_name")`.

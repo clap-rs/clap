@@ -160,7 +160,7 @@ fn gen_options(app: &App, indent: usize) -> String {
         buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
     }
 
-    for flag in utils::flags(app) {
+    for flag in generator::utils::flags(app) {
         buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
 
         let mut flags = vec![];

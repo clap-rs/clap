@@ -3,7 +3,8 @@ use std::str::FromStr;
 
 use clap::{ArgEnum, PossibleValue};
 
-use crate::{generators, Generator};
+use crate::shells;
+use crate::Generator;
 
 /// Shell with auto-generated completion script available.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -78,21 +79,21 @@ impl ArgEnum for Shell {
 impl Generator for Shell {
     fn file_name(&self, name: &str) -> String {
         match self {
-            Shell::Bash => generators::Bash.file_name(name),
-            Shell::Elvish => generators::Elvish.file_name(name),
-            Shell::Fish => generators::Fish.file_name(name),
-            Shell::PowerShell => generators::PowerShell.file_name(name),
-            Shell::Zsh => generators::Zsh.file_name(name),
+            Shell::Bash => shells::Bash.file_name(name),
+            Shell::Elvish => shells::Elvish.file_name(name),
+            Shell::Fish => shells::Fish.file_name(name),
+            Shell::PowerShell => shells::PowerShell.file_name(name),
+            Shell::Zsh => shells::Zsh.file_name(name),
         }
     }
 
     fn generate(&self, app: &clap::App, buf: &mut dyn std::io::Write) {
         match self {
-            Shell::Bash => generators::Bash.generate(app, buf),
-            Shell::Elvish => generators::Elvish.generate(app, buf),
-            Shell::Fish => generators::Fish.generate(app, buf),
-            Shell::PowerShell => generators::PowerShell.generate(app, buf),
-            Shell::Zsh => generators::Zsh.generate(app, buf),
+            Shell::Bash => shells::Bash.generate(app, buf),
+            Shell::Elvish => shells::Elvish.generate(app, buf),
+            Shell::Fish => shells::Fish.generate(app, buf),
+            Shell::PowerShell => shells::PowerShell.generate(app, buf),
+            Shell::Zsh => shells::Zsh.generate(app, buf),
         }
     }
 }
