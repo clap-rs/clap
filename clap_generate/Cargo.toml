@@ -1,6 +1,6 @@
 [package]
 name = "clap_generate"
-version = "3.0.0-rc.12"
+version = "3.0.0-rc.13"
 edition = "2018"
 include = [
 	"src/**/*",
@@ -23,8 +23,8 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-clap = { path = "../", version = "=3.0.0-rc.12", default-features = false, features = ["std"] }
-clap_complete = { path = "../clap_complete", version = "=3.0.0-rc.12"}
+clap = { path = "../", version = "=3.0.0-rc.13", default-features = false, features = ["std"] }
+clap_complete = { path = "../clap_complete", version = "=3.0.0-rc.13"}
 
 [features]
 default = []
