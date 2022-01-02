@@ -4,7 +4,6 @@ use clap::{AppSettings, Parser, Subcommand};
 #[clap(author, version, about)]
 #[clap(global_setting(AppSettings::PropagateVersion))]
 #[clap(global_setting(AppSettings::UseLongFormatForHelpSubcommand))]
-#[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
