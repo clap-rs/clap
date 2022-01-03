@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic when getting number of values (#3241)
+- Don't warn when using `default_value_t` derive attribute with a `Subcommand` (#3245)
+
+Documentation
+- Added `name` attribute to `ArgEnum` variant derive reference
+
 ## [3.0.0] - 2021-12-31
 
 **Note:** clap v3 has been in development for several years and has changed
