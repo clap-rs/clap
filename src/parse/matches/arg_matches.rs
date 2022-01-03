@@ -260,6 +260,7 @@ impl ArgMatches {
         }
         let v = Values {
             iter: arg.vals_flatten().map(to_str_slice),
+            len: arg.num_vals(),
         };
         Some(v)
     }
@@ -274,6 +275,7 @@ impl ArgMatches {
             iter: arg
                 .vals()
                 .map(|g| g.iter().map(|x| x.to_str().expect(INVALID_UTF8)).collect()),
+            len: arg.vals().len(),
         };
         Some(v)
     }
@@ -376,6 +378,7 @@ impl ArgMatches {
         }
         let v = OsValues {
             iter: arg.vals_flatten().map(to_str_slice),
+            len: arg.num_vals(),
         };
         Some(v)
     }
@@ -863,6 +866,7 @@ impl ArgMatches {
         let arg = self.get_arg(&Id::from(id))?;
         let i = Indices {
             iter: arg.indices(),
+            len: arg.num_vals(),
         };
         Some(i)
     }
@@ -1080,6 +1084,7 @@ pub(crate) struct SubCommand {
 pub struct Values<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<OsString>>>, for<'r> fn(&'r OsString) -> &'r str>,
+    len: usize,
 }
 
 impl<'a> Iterator for Values<'a> {
@@ -1089,7 +1094,7 @@ impl<'a> Iterator for Values<'a> {
         self.iter.next()
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
+        (self.len, Some(self.len))
     }
 }
 
@@ -1107,6 +1112,7 @@ impl<'a> Default for Values<'a> {
         static EMPTY: [Vec<OsString>; 0] = [];
         Values {
             iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
         }
     }
 }
@@ -1116,6 +1122,7 @@ impl<'a> Default for Values<'a> {
 pub struct GroupedValues<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Iter<'a, Vec<OsString>>, fn(&Vec<OsString>) -> Vec<&str>>,
+    len: usize,
 }
 
 impl<'a> Iterator for GroupedValues<'a> {
@@ -1125,7 +1132,7 @@ impl<'a> Iterator for GroupedValues<'a> {
         self.iter.next()
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
+        (self.len, Some(self.len))
     }
 }
 
@@ -1143,6 +1150,7 @@ impl<'a> Default for GroupedValues<'a> {
         static EMPTY: [Vec<OsString>; 0] = [];
         GroupedValues {
             iter: EMPTY[..].iter().map(|_| unreachable!()),
+            len: 0,
         }
     }
 }
@@ -1171,6 +1179,7 @@ impl<'a> Default for GroupedValues<'a> {
 pub struct OsValues<'a> {
     #[allow(clippy::type_complexity)]
     iter: Map<Flatten<Iter<'a, Vec<OsString>>>, fn(&OsString) -> &OsStr>,
+    len: usize,
 }
 
 impl<'a> Iterator for OsValues<'a> {
@@ -1180,7 +1189,7 @@ impl<'a> Iterator for OsValues<'a> {
         self.iter.next()
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
+        (self.len, Some(self.len))
     }
 }
 
@@ -1198,6 +1207,7 @@ impl Default for OsValues<'_> {
         static EMPTY: [Vec<OsString>; 0] = [];
         OsValues {
             iter: EMPTY[..].iter().flatten().map(|_| unreachable!()),
+            len: 0,
         }
     }
 }
@@ -1226,6 +1236,7 @@ impl Default for OsValues<'_> {
 #[allow(missing_debug_implementations)]
 pub struct Indices<'a> {
     iter: Cloned<Iter<'a, usize>>,
+    len: usize,
 }
 
 impl<'a> Iterator for Indices<'a> {
@@ -1235,7 +1246,7 @@ impl<'a> Iterator for Indices<'a> {
         self.iter.next()
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.iter.size_hint()
+        (self.len, Some(self.len))
     }
 }
 
@@ -1254,6 +1265,7 @@ impl<'a> Default for Indices<'a> {
         // This is never called because the iterator is empty:
         Indices {
             iter: EMPTY[..].iter().cloned(),
+            len: 0,
         }
     }
 }
@@ -1319,5 +1331,57 @@ mod tests {
         let matches = ArgMatches::default();
         let mut indices = matches.indices_of("").unwrap_or_default();
         assert_eq!(indices.next(), None);
+    }
+
+    #[test]
+    fn values_exact_size() {
+        let l = crate::App::new("test")
+            .arg(
+                crate::Arg::new("POTATO")
+                    .takes_value(true)
+                    .multiple_values(true)
+                    .required(true),
+            )
+            .try_get_matches_from(["test", "one"])
+            .unwrap()
+            .values_of("POTATO")
+            .expect("present")
+            .len();
+        assert_eq!(l, 1);
+    }
+
+    #[test]
+    fn os_values_exact_size() {
+        let l = crate::App::new("test")
+            .arg(
+                crate::Arg::new("POTATO")
+                    .takes_value(true)
+                    .multiple_values(true)
+                    .allow_invalid_utf8(true)
+                    .required(true),
+            )
+            .try_get_matches_from(["test", "one"])
+            .unwrap()
+            .values_of_os("POTATO")
+            .expect("present")
+            .len();
+        assert_eq!(l, 1);
+    }
+
+    #[test]
+    fn indices_exact_size() {
+        let l = crate::App::new("test")
+            .arg(
+                crate::Arg::new("POTATO")
+                    .takes_value(true)
+                    .multiple_values(true)
+                    .required(true),
+            )
+            .try_get_matches_from(["test", "one"])
+            .unwrap()
+            .indices_of("POTATO")
+            .expect("present")
+            .len();
+        assert_eq!(l, 1);
     }
 }
