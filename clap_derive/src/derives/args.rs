@@ -117,7 +117,7 @@ pub fn gen_from_arg_matches_for_struct(
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     quote! {
-        #[allow(dead_code, unreachable_code, unused_variables)]
+        #[allow(dead_code, unreachable_code, unused_variables, unused_braces)]
         #[allow(
             clippy::style,
             clippy::complexity,
