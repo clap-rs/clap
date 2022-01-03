@@ -235,6 +235,8 @@ Notes:
 
 These correspond to a `clap::PossibleValue`.
 
+- `name = <expr>`: `clap::PossibleValue::new`
+  - When not present: case-converted field name is used
 - `help = <expr>`: `clap::PossibleValue::help`
   - When not present: Doc comment summary
 
