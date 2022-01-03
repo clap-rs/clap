@@ -124,7 +124,7 @@ pub trait Generator {
 /// Next, we place a `build.rs` in our project root.
 ///
 /// ```ignore
-/// use clap_complete::{generate_to, generators::Bash};
+/// use clap_complete::{generate_to, shells::Bash};
 /// use std::env;
 /// use std::io::Error;
 ///
@@ -195,7 +195,7 @@ where
 ///
 /// mod cli;
 /// use std::io;
-/// use clap_complete::{generate, generators::Bash};
+/// use clap_complete::{generate, shells::Bash};
 ///
 /// fn main() {
 ///     let matches = cli::build_cli().get_matches();
