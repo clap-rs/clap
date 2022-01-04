@@ -1610,7 +1610,7 @@ impl<'help> App<'help> {
     /// ```
     #[must_use]
     pub fn short_flag_alias(mut self, name: char) -> Self {
-        assert!(!(name == '-'), "short alias name cannot be `-`");
+        assert!(name != '-', "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, false));
         self
     }
@@ -1864,7 +1864,7 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            assert!(!(s == &'-'), "short alias name cannot be `-`");
+            assert!(s != &'-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, true));
         }
         self
