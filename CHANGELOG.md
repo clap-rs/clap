@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ignore `Last` when checking hyphen values (see #3249 for details)
+- Help catch bugs with `#[must_use]`
+
 ## [3.0.1] - 2022-01-03
 
 ### Fixes
