@@ -993,6 +993,44 @@ impl ArgMatches {
     pub fn subcommand_name(&self) -> Option<&str> {
         self.subcommand.as_ref().map(|sc| &*sc.name)
     }
+
+    /// Check if an arg can be queried
+    ///
+    /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
+    /// mistakes.  In some context, this doesn't work, so users can use this function to check
+    /// before they do a query on `ArgMatches`.
+    #[inline]
+    #[doc(hidden)]
+    pub fn is_valid_arg(&self, _id: impl Key) -> bool {
+        #[cfg(debug_assertions)]
+        {
+            let id = Id::from(_id);
+            id == Id::empty_hash() || self.valid_args.contains(&id)
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            true
+        }
+    }
+
+    /// Check if a subcommand can be queried
+    ///
+    /// By default, `ArgMatches` functions assert on undefined `Id`s to help catch programmer
+    /// mistakes.  In some context, this doesn't work, so users can use this function to check
+    /// before they do a query on `ArgMatches`.
+    #[inline]
+    #[doc(hidden)]
+    pub fn is_valid_subcommand(&self, _id: impl Key) -> bool {
+        #[cfg(debug_assertions)]
+        {
+            let id = Id::from(_id);
+            id == Id::empty_hash() || self.valid_subcommands.contains(&id)
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            true
+        }
+    }
 }
 
 // Private methods
