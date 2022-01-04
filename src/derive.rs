@@ -168,7 +168,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
     /// [`Parser`])
     #[deprecated(
         since = "3.0.0",
-        note = "`StructOpt::clap` is replaced with `IntoApp::into_app` (derived as part of `Parser`)"
+        note = "`StructOpt::from_clap` is replaced with `FromArgMatches::from_arg_matches` (derived as part of `Parser`)"
     )]
     fn from_clap(matches: &ArgMatches) -> Self {
         <Self as FromArgMatches>::from_arg_matches(matches).unwrap()
