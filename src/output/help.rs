@@ -868,7 +868,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let bin_name = if let Some(bn) = self.parser.app.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                bn.replace(" ", "-")
+                bn.replace(' ', "-")
             } else {
                 text_wrapper(&self.parser.app.name.replace("{n}", "\n"), self.term_w)
             }

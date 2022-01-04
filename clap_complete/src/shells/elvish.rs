@@ -54,7 +54,7 @@ set edit:completion:arg-completer[{bin_name}] = [@words]{{
 
 // Escape string inside single quotes
 fn escape_string(string: &str) -> String {
-    string.replace("'", "''")
+    string.replace('\'', "''")
 }
 
 fn get_tooltip<T: ToString>(help: Option<&str>, data: T) -> String {

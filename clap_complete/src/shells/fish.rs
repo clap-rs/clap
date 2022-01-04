@@ -26,7 +26,7 @@ impl Generator for Fish {
 
 // Escape string inside single quotes
 fn escape_string(string: &str) -> String {
-    string.replace("\\", "\\\\").replace("'", "\\'")
+    string.replace('\\', "\\\\").replace('\'', "\\'")
 }
 
 fn gen_fish_inner(root_command: &str, parent_commands: &[&str], app: &App, buffer: &mut String) {

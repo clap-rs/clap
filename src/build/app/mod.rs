@@ -2925,7 +2925,7 @@ impl<'help> App<'help> {
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                format!("{} {}\n", bn.replace(" ", "-"), ver)
+                format!("{} {}\n", bn.replace(' ', "-"), ver)
             } else {
                 format!("{} {}\n", &self.name[..], ver)
             }
