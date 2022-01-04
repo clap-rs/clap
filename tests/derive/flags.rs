@@ -1,6 +1,6 @@
 // Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,
 // Kevin Knapp (@kbknapp) <kbknapp@gmail.com>, and
-// Andrew Hobden (@hoverbear) <andrew@hoverbear.org>
+// Ana Hobden (@hoverbear) <operator@hoverbear.org>
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
