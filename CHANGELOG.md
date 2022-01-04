@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.0.2] - 2022-01-04
+
 ### Fixes
 
 - Ignore `Last` when checking hyphen values (see #3249 for details)
@@ -3025,7 +3027,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v3.0.1...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/clap-rs/clap/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/clap-rs/clap/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/clap-rs/clap/compare/v2.34.0...v3.0.0
 [2.34.0]: https://github.com/clap-rs/clap/compare/v2.33.4...v2.34.0

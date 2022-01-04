@@ -1,6 +1,6 @@
 [package]
 name = "clap_derive"
-version = "3.0.1"
+version = "3.0.2"
 edition = "2018"
 include = [
 	"src/**/*",
