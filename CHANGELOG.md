@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- For very limited cases, like `cargo`, expose `ArgMatches::is_valid_arg` to avoid panicing on undefined arguments
+
 ## [3.0.3] - 2022-01-04
 
 ### Fixes
