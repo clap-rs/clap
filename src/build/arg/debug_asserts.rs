@@ -56,12 +56,12 @@ fn assert_arg_flags(arg: &Arg) {
 
                 $(
                     if !arg.is_set($b) {
-                        s.push_str(&format!("\nArgSettings::{} is required when ArgSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
+                        s.push_str(&format!("  ArgSettings::{} is required when ArgSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
 
                 if !s.is_empty() {
-                    panic!("{}", s)
+                    panic!("Argument {:?}\n{}", arg.get_name(), s)
                 }
             }
         }
