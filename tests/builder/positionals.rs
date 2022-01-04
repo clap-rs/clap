@@ -287,3 +287,24 @@ fn positional_arg_with_short() {
         .arg(Arg::new("arg").index(1).short('a'))
         .try_get_matches();
 }
+
+#[test]
+fn ignore_hyphen_values_on_last() {
+    let app = clap::App::new("foo")
+        .arg(
+            clap::Arg::new("cmd")
+                .multiple_values(true)
+                .last(true)
+                .allow_hyphen_values(true),
+        )
+        .arg(
+            clap::Arg::new("name")
+                .long("name")
+                .short('n')
+                .takes_value(true)
+                .required(false),
+        );
+
+    let matches = app.try_get_matches_from(["test", "-n", "foo"]).unwrap();
+    assert_eq!(matches.value_of("name"), Some("foo"));
+}
