@@ -8,6 +8,7 @@ use std::{
 #[derive(Clone, Debug)]
 pub(crate) struct Colorizer {
     use_stderr: bool,
+    #[allow(unused)]
     color_when: ColorChoice,
     pieces: Vec<(String, Style)>,
 }
