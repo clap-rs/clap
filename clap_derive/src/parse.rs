@@ -252,8 +252,8 @@ fn raw_method_suggestion(ts: ParseBuffer) -> String {
     fn to_string<T: ToTokens>(val: &T) -> String {
         val.to_token_stream()
             .to_string()
-            .replace(" ", "")
-            .replace(",", ", ")
+            .replace(' ', "")
+            .replace(',', ", ")
     }
 
     if let Ok((name, exprs)) = do_parse() {

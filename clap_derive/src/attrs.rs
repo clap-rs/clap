@@ -879,8 +879,8 @@ impl Name {
                     Camel => s.to_lower_camel_case(),
                     ScreamingSnake => s.to_shouty_snake_case(),
                     Snake => s.to_snake_case(),
-                    Lower => s.to_snake_case().replace("_", ""),
-                    Upper => s.to_shouty_snake_case().replace("_", ""),
+                    Lower => s.to_snake_case().replace('_', ""),
+                    Upper => s.to_shouty_snake_case().replace('_', ""),
                     Verbatim => s,
                 };
                 quote_spanned!(ident.span()=> #s)
