@@ -1067,11 +1067,11 @@ impl ArgMatches {
             if *id == Id::empty_hash() || self.valid_subcommands.contains(id) {
             } else if self.valid_args.contains(id) {
                 panic!(
-                    "Argument or group `'{:?}' used where a subcommand name was expected.",
+                    "Argument or group `{:?}` used where a subcommand name was expected.",
                     id
                 );
             } else {
-                panic!("'{:?}' is not a name of a subcommand.", id);
+                panic!("`{:?}` is not a name of a subcommand.", id);
             }
         }
 
