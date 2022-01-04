@@ -16,7 +16,8 @@ pub(crate) fn assert_app(app: &App) {
         // PropagateVersion is meaningless if there is no version
         assert!(
             !app.settings.is_set(AppSettings::PropagateVersion),
-            "No version information via App::version or App::long_version to propagate"
+            "App {}: No version information via App::version or App::long_version to propagate",
+            app.get_name(),
         );
 
         // Used `App::mut_arg("version", ..) but did not provide any version information to display
@@ -27,7 +28,9 @@ pub(crate) fn assert_app(app: &App) {
 
         if has_mutated_version {
             assert!(app.settings.is_set(AppSettings::NoAutoVersion),
-                "Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion");
+                "App {}: Used App::mut_arg(\"version\", ..) without providing App::version, App::long_version or using AppSettings::NoAutoVersion"
+            ,app.get_name()
+                );
         }
     }
 
@@ -71,7 +74,8 @@ pub(crate) fn assert_app(app: &App) {
         // Name conflicts
         assert!(
             app.two_args_of(|x| x.id == arg.id).is_none(),
-            "Argument names must be unique, but '{}' is in use by more than one argument or group",
+            "App {}: Argument names must be unique, but '{}' is in use by more than one argument or group",
+            app.get_name(),
             arg.name,
         );
 
@@ -79,9 +83,12 @@ pub(crate) fn assert_app(app: &App) {
         if let Some(l) = arg.long {
             if let Some((first, second)) = app.two_args_of(|x| x.long == Some(l)) {
                 panic!(
-                    "Long option names must be unique for each argument, \
+                    "App {}: Long option names must be unique for each argument, \
                         but '--{}' is in use by both '{}' and '{}'",
-                    l, first.name, second.name
+                    app.get_name(),
+                    l,
+                    first.name,
+                    second.name
                 )
             }
         }
@@ -90,9 +97,12 @@ pub(crate) fn assert_app(app: &App) {
         if let Some(s) = arg.short {
             if let Some((first, second)) = app.two_args_of(|x| x.short == Some(s)) {
                 panic!(
-                    "Short option names must be unique for each argument, \
+                    "App {}: Short option names must be unique for each argument, \
                         but '-{}' is in use by both '{}' and '{}'",
-                    s, first.name, second.name
+                    app.get_name(),
+                    s,
+                    first.name,
+                    second.name
                 )
             }
         }
@@ -103,11 +113,13 @@ pub(crate) fn assert_app(app: &App) {
                 app.two_args_of(|x| x.is_positional() && x.index == Some(idx))
             {
                 panic!(
-                    "Argument '{}' has the same index as '{}' \
+                    "App {}: Argument '{}' has the same index as '{}' \
                     and they are both positional arguments\n\n\t \
                     Use Arg::multiple_values(true) to allow one \
                     positional argument to take multiple values",
-                    first.name, second.name
+                    app.get_name(),
+                    first.name,
+                    second.name
                 )
             }
         }
@@ -116,7 +128,8 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.requires {
             assert!(
                 app.id_exists(&req.1),
-                "Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
+                "App {}: Argument or group '{:?}' specified in 'requires*' for '{}' does not exist",
+                app.get_name(),
                 req.1,
                 arg.name,
             );
@@ -125,7 +138,8 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.r_ifs {
             assert!(
                 app.id_exists(&req.0),
-                "Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
+                "App {}: Argument or group '{:?}' specified in 'required_if_eq*' for '{}' does not exist",
+                    app.get_name(),
                 req.0,
                 arg.name
             );
@@ -134,7 +148,8 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.r_ifs_all {
             assert!(
                 app.id_exists(&req.0),
-                "Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
+                "App {}: Argument or group '{:?}' specified in 'required_if_eq_all' for '{}' does not exist",
+                    app.get_name(),
                 req.0,
                 arg.name
             );
@@ -143,7 +158,8 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.r_unless {
             assert!(
                 app.id_exists(req),
-                "Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                "App {}: Argument or group '{:?}' specified in 'required_unless*' for '{}' does not exist",
+                    app.get_name(),
                 req,
                 arg.name,
             );
@@ -153,7 +169,8 @@ pub(crate) fn assert_app(app: &App) {
         for req in &arg.blacklist {
             assert!(
                 app.id_exists(req),
-                "Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
+                "App {}: Argument or group '{:?}' specified in 'conflicts_with*' for '{}' does not exist",
+                    app.get_name(),
                 req,
                 arg.name,
             );
@@ -162,39 +179,45 @@ pub(crate) fn assert_app(app: &App) {
         if arg.is_set(ArgSettings::Last) {
             assert!(
                 arg.long.is_none(),
-                "Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
+                "App {}: Flags or Options cannot have last(true) set. '{}' has both a long and last(true) set.",
+                    app.get_name(),
                 arg.name
             );
             assert!(
                 arg.short.is_none(),
-                "Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
+                "App {}: Flags or Options cannot have last(true) set. '{}' has both a short and last(true) set.",
+                    app.get_name(),
                 arg.name
             );
         }
 
         assert!(
             !(arg.is_set(ArgSettings::Required) && arg.get_global()),
-            "Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
+            "App {}: Global arguments cannot be required.\n\n\t'{}' is marked as both global and required",
+                    app.get_name(),
             arg.name
         );
 
         // validators
         assert!(
             arg.validator.is_none() || arg.validator_os.is_none(),
-            "Argument '{}' has both `validator` and `validator_os` set which is not allowed",
+            "App {}: Argument '{}' has both `validator` and `validator_os` set which is not allowed",
+                    app.get_name(),
             arg.name
         );
 
         if arg.value_hint == ValueHint::CommandWithArguments {
             assert!(
                 arg.is_positional(),
-                "Argument '{}' has hint CommandWithArguments and must be positional.",
+                "App {}: Argument '{}' has hint CommandWithArguments and must be positional.",
+                app.get_name(),
                 arg.name
             );
 
             assert!(
                 app.is_set(AppSettings::TrailingVarArg),
-                "Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
+                "App {}: Positional argument '{}' has hint CommandWithArguments, so App must have TrailingVarArg set.",
+                    app.get_name(),
                 arg.name
             );
         }
@@ -204,14 +227,16 @@ pub(crate) fn assert_app(app: &App) {
         // Name conflicts
         assert!(
             app.groups.iter().filter(|x| x.id == group.id).count() < 2,
-            "Argument group name must be unique\n\n\t'{}' is already in use",
+            "App {}: Argument group name must be unique\n\n\t'{}' is already in use",
+            app.get_name(),
             group.name,
         );
 
         // Groups should not have naming conflicts with Args
         assert!(
             !app.args.args().any(|x| x.id == group.id),
-            "Argument group name '{}' must not conflict with argument name",
+            "App {}: Argument group name '{}' must not conflict with argument name",
+            app.get_name(),
             group.name,
         );
 
@@ -223,7 +248,8 @@ pub(crate) fn assert_app(app: &App) {
                         .args()
                         .any(|x| x.id == *arg && x.default_vals.is_empty())
                 }),
-                "Argument group '{}' is required but all of it's arguments have a default value.",
+                "App {}: Argument group '{}' is required but all of it's arguments have a default value.",
+                    app.get_name(),
                 group.name
             )
         }
@@ -232,7 +258,8 @@ pub(crate) fn assert_app(app: &App) {
             // Args listed inside groups should exist
             assert!(
                 app.args.args().any(|x| x.id == *arg),
-                "Argument group '{}' contains non-existent argument '{:?}'",
+                "App {}: Argument group '{}' contains non-existent argument '{:?}'",
+                app.get_name(),
                 group.name,
                 arg
             );
@@ -250,12 +277,14 @@ pub(crate) fn assert_app(app: &App) {
     if let Some(help_template) = app.template {
         assert!(
             !help_template.contains("{flags}"),
-            "{}",
-            "`{flags}` template variable was removed in clap3, they are now included in `{options}`"
+            "App {}: {}",
+                    app.get_name(),
+            "`{flags}` template variable was removed in clap3, they are now included in `{options}`",
         );
         assert!(
             !help_template.contains("{unified}"),
-            "{}",
+            "App {}: {}",
+            app.get_name(),
             "`{unified}` template variable was removed in clap3, use `{options}` instead"
         );
     }
@@ -351,7 +380,7 @@ fn assert_app_flags(app: &App) {
 
                 $(
                     if !app.is_set($b) {
-                        s.push_str(&format!("\nAppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
+                        s.push_str(&format!("  AppSettings::{} is required when AppSettings::{} is set.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
 
@@ -366,12 +395,12 @@ fn assert_app_flags(app: &App) {
 
                 $(
                     if app.is_set($b) {
-                        s.push_str(&format!("\nAppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
+                        s.push_str(&format!("  AppSettings::{} conflicts with AppSettings::{}.\n", std::stringify!($b), std::stringify!($a)));
                     }
                 )+
 
                 if !s.is_empty() {
-                    panic!("{}", s)
+                    panic!("{}\n{}", app.get_name(), s)
                 }
             }
         };
