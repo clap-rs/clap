@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Specify cause of debug assert failure
+
 ## [3.0.2] - 2022-01-04
 
 ### Fixes
