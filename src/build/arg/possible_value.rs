@@ -71,6 +71,7 @@ impl<'help> PossibleValue<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn help(mut self, help: &'help str) -> Self {
         self.help = Some(help);
         self
@@ -91,6 +92,7 @@ impl<'help> PossibleValue<'help> {
     /// ```
     /// [`Arg::hide_possible_values(true)`]: crate::Arg::hide_possible_values()
     #[inline]
+    #[must_use]
     pub fn hide(mut self, yes: bool) -> Self {
         self.hide = yes;
         self
@@ -106,6 +108,7 @@ impl<'help> PossibleValue<'help> {
     ///     .alias("not-fast")
     /// # ;
     /// ```
+    #[must_use]
     pub fn alias(mut self, name: &'help str) -> Self {
         self.aliases.push(name);
         self
@@ -121,6 +124,7 @@ impl<'help> PossibleValue<'help> {
     ///     .aliases(["not-fast", "snake-like"])
     /// # ;
     /// ```
+    #[must_use]
     pub fn aliases<I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = &'help str>,

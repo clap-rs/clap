@@ -121,6 +121,7 @@ impl<'help> ArgGroup<'help> {
     /// ArgGroup::default().name("config")
     /// # ;
     /// ```
+    #[must_use]
     pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
         self.name = n.into();
         self.id = Id::from(&self.name);
@@ -148,6 +149,7 @@ impl<'help> ArgGroup<'help> {
     /// assert!(m.is_present("flag"));
     /// ```
     /// [argument]: crate::Arg
+    #[must_use]
     pub fn arg<T: Key>(mut self, arg_id: T) -> Self {
         self.args.push(arg_id.into());
         self
@@ -173,6 +175,7 @@ impl<'help> ArgGroup<'help> {
     /// assert!(m.is_present("flag"));
     /// ```
     /// [arguments]: crate::Arg
+    #[must_use]
     pub fn args<T: Key>(mut self, ns: &[T]) -> Self {
         for n in ns {
             self = self.arg(n);
@@ -222,6 +225,7 @@ impl<'help> ArgGroup<'help> {
     ///
     /// [`Arg`]: crate::Arg
     #[inline]
+    #[must_use]
     pub fn multiple(mut self, yes: bool) -> Self {
         self.multiple = yes;
         self
@@ -266,6 +270,7 @@ impl<'help> ArgGroup<'help> {
     /// [`ArgGroup::multiple`]: ArgGroup::multiple()
     /// [`App`]: crate::App
     #[inline]
+    #[must_use]
     pub fn required(mut self, yes: bool) -> Self {
         self.required = yes;
         self
@@ -305,6 +310,7 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires()
+    #[must_use]
     pub fn requires<T: Key>(mut self, id: T) -> Self {
         self.requires.push(id.into());
         self
@@ -346,6 +352,7 @@ impl<'help> ArgGroup<'help> {
     /// ```
     /// [required group]: ArgGroup::required()
     /// [argument requirement rules]: crate::Arg::requires_all()
+    #[must_use]
     pub fn requires_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.requires(n);
@@ -385,6 +392,7 @@ impl<'help> ArgGroup<'help> {
     /// assert_eq!(err.kind, ErrorKind::ArgumentConflict);
     /// ```
     /// [argument exclusion rules]: crate::Arg::conflicts_with()
+    #[must_use]
     pub fn conflicts_with<T: Key>(mut self, id: T) -> Self {
         self.conflicts.push(id.into());
         self
@@ -425,6 +433,7 @@ impl<'help> ArgGroup<'help> {
     /// ```
     ///
     /// [argument exclusion rules]: crate::Arg::conflicts_with_all()
+    #[must_use]
     pub fn conflicts_with_all(mut self, ns: &[&'help str]) -> Self {
         for n in ns {
             self = self.conflicts_with(n);
