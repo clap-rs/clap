@@ -190,7 +190,7 @@ impl<'help> App<'help> {
         let (lower, _) = args.size_hint();
         self.args.reserve(lower);
 
-        for arg in args.into_iter() {
+        for arg in args {
             self = self.arg(arg);
         }
         self
