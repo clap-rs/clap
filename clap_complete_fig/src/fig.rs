@@ -38,7 +38,7 @@ impl Generator for Fig {
 
 // Escape string inside double quotes
 fn escape_string(string: &str) -> String {
-    string.replace("\\", "\\\\").replace("\"", "\\\"")
+    string.replace('\\', "\\\\").replace('\"', "\\\"")
 }
 
 fn gen_fig_inner(

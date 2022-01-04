@@ -160,6 +160,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [argument]: Arg
+    #[must_use]
     pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let mut arg = a.into();
         arg.help_heading.get_or_insert(self.current_help_heading);
@@ -181,6 +182,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [arguments]: Arg
+    #[must_use]
     pub fn args<I, T>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -190,7 +192,7 @@ impl<'help> App<'help> {
         let (lower, _) = args.size_hint();
         self.args.reserve(lower);
 
-        for arg in args.into_iter() {
+        for arg in args {
             self = self.arg(arg);
         }
         self
@@ -220,6 +222,7 @@ impl<'help> App<'help> {
     /// let res = app.try_get_matches_from_mut(vec!["foo", "-B"]);
     /// assert!(res.is_ok());
     /// ```
+    #[must_use]
     pub fn mut_arg<T, F>(mut self, arg_id: T, f: F) -> Self
     where
         F: FnOnce(Arg<'help>) -> Arg<'help>,
@@ -274,6 +277,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn group<G: Into<ArgGroup<'help>>>(mut self, group: G) -> Self {
         self.groups.push(group.into());
         self
@@ -301,6 +305,7 @@ impl<'help> App<'help> {
     ///     ])
     /// # ;
     /// ```
+    #[must_use]
     pub fn groups<I, T>(mut self, groups: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -333,6 +338,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn subcommand<S: Into<App<'help>>>(mut self, subcmd: S) -> Self {
         self.subcommands.push(subcmd.into());
         self
@@ -352,6 +358,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`IntoIterator`]: std::iter::IntoIterator
+    #[must_use]
     pub fn subcommands<I, T>(mut self, subcmds: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -829,6 +836,7 @@ impl<'help> App<'help> {
     ///
     /// // continued logic goes here, such as `app.get_matches()` etc.
     /// ```
+    #[must_use]
     pub fn name<S: Into<String>>(mut self, name: S) -> Self {
         self.name = name.into();
         self
@@ -854,6 +862,7 @@ impl<'help> App<'help> {
     ///      .bin_name("my_binary")
     /// # ;
     /// ```
+    #[must_use]
     pub fn bin_name<S: Into<String>>(mut self, name: S) -> Self {
         self.bin_name = Some(name.into());
         self
@@ -874,6 +883,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_authors!`]: ./macro.crate_authors!.html
+    #[must_use]
     pub fn author<S: Into<&'help str>>(mut self, author: S) -> Self {
         self.author = Some(author.into());
         self
@@ -896,6 +906,7 @@ impl<'help> App<'help> {
     ///     .about("Does really amazing things for great people")
     /// # ;
     /// ```
+    #[must_use]
     pub fn about<O: Into<Option<&'help str>>>(mut self, about: O) -> Self {
         self.about = about.into();
         self
@@ -920,6 +931,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`App::about`]: App::about()
+    #[must_use]
     pub fn long_about<O: Into<Option<&'help str>>>(mut self, long_about: O) -> Self {
         self.long_about = long_about.into();
         self
@@ -941,6 +953,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     ///
+    #[must_use]
     pub fn after_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_help = Some(help.into());
         self
@@ -962,6 +975,7 @@ impl<'help> App<'help> {
     ///                      like, for real, be careful with this!")
     /// # ;
     /// ```
+    #[must_use]
     pub fn after_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.after_long_help = Some(help.into());
         self
@@ -981,6 +995,7 @@ impl<'help> App<'help> {
     ///     .before_help("Some info I'd like to appear before the help info")
     /// # ;
     /// ```
+    #[must_use]
     pub fn before_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_help = Some(help.into());
         self
@@ -1000,6 +1015,7 @@ impl<'help> App<'help> {
     ///     .before_long_help("Some verbose and long info I'd like to appear before the help info")
     /// # ;
     /// ```
+    #[must_use]
     pub fn before_long_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.before_long_help = Some(help.into());
         self
@@ -1022,6 +1038,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
+    #[must_use]
     pub fn version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.version = Some(ver.into());
         self
@@ -1049,6 +1066,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`crate_version!`]: ./macro.crate_version!.html
+    #[must_use]
     pub fn long_version<S: Into<&'help str>>(mut self, ver: S) -> Self {
         self.long_version = Some(ver.into());
         self
@@ -1069,6 +1087,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ArgMatches::usage()
+    #[must_use]
     pub fn override_usage<S: Into<&'help str>>(mut self, usage: S) -> Self {
         self.usage_str = Some(usage.into());
         self
@@ -1105,6 +1124,7 @@ impl<'help> App<'help> {
     ///            work             Do some work")
     /// # ;
     /// ```
+    #[must_use]
     pub fn override_help<S: Into<&'help str>>(mut self, help: S) -> Self {
         self.help_str = Some(help.into());
         self
@@ -1153,6 +1173,7 @@ impl<'help> App<'help> {
     /// [`App::after_long_help`]: App::after_long_help()
     /// [`App::before_help`]: App::before_help()
     /// [`App::before_long_help`]: App::before_long_help()
+    #[must_use]
     pub fn help_template<S: Into<&'help str>>(mut self, s: S) -> Self {
         self.template = Some(s.into());
         self
@@ -1181,6 +1202,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<AppFlags>,
@@ -1210,6 +1232,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<AppFlags>,
@@ -1233,6 +1256,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.set(setting);
         self.g_settings.set(setting);
@@ -1253,6 +1277,7 @@ impl<'help> App<'help> {
     /// ```
     /// [global]: App::global_setting()
     #[inline]
+    #[must_use]
     pub fn unset_global_setting(mut self, setting: AppSettings) -> Self {
         self.settings.unset(setting);
         self.g_settings.unset(setting);
@@ -1276,6 +1301,7 @@ impl<'help> App<'help> {
     /// [`ColorChoice::Auto`]: crate::ColorChoice::Auto
     #[cfg(feature = "color")]
     #[inline]
+    #[must_use]
     pub fn color(self, color: ColorChoice) -> Self {
         #[allow(deprecated)]
         match color {
@@ -1297,6 +1323,7 @@ impl<'help> App<'help> {
     /// [`App::arg`]: App::arg()
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
+    #[must_use]
     pub fn help_heading<O>(mut self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
@@ -1323,6 +1350,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn term_width(mut self, width: usize) -> Self {
         self.term_w = Some(width);
         self
@@ -1346,6 +1374,7 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn max_term_width(mut self, w: usize) -> Self {
         self.max_w = Some(w);
         self
@@ -1456,6 +1485,7 @@ impl<'help> App<'help> {
     /// [`App::replace`]: App::replace()
     #[inline]
     #[cfg(feature = "unstable-replace")]
+    #[must_use]
     pub fn replace(mut self, name: &'help str, target: &'help [&'help str]) -> Self {
         self.replacers.insert(name, target);
         self
@@ -1488,6 +1518,7 @@ impl<'help> App<'help> {
     /// assert!(sync_matches.is_present("search"));
     /// ```
     /// [`Arg::short`]: Arg::short()
+    #[must_use]
     pub fn short_flag(mut self, short: char) -> Self {
         self.short_flag = Some(short);
         self
@@ -1524,6 +1555,7 @@ impl<'help> App<'help> {
     /// ```
     ///
     /// [`Arg::long`]: Arg::long()
+    #[must_use]
     pub fn long_flag(mut self, long: &'help str) -> Self {
         self.long_flag = Some(long.trim_start_matches(|c| c == '-'));
         self
@@ -1554,6 +1586,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::visible_alias`]: App::visible_alias()
+    #[must_use]
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), false));
         self
@@ -1575,8 +1608,9 @@ impl<'help> App<'help> {
     ///             .get_matches_from(vec!["myprog", "-d"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    #[must_use]
     pub fn short_flag_alias(mut self, name: char) -> Self {
-        assert!(!(name == '-'), "short alias name cannot be `-`");
+        assert!(name != '-', "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, false));
         self
     }
@@ -1597,6 +1631,7 @@ impl<'help> App<'help> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    #[must_use]
     pub fn long_flag_alias(mut self, name: &'help str) -> Self {
         self.long_flag_aliases.push((name, false));
         self
@@ -1631,6 +1666,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::visible_aliases`]: App::visible_aliases()
+    #[must_use]
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, false)));
         self
@@ -1656,6 +1692,7 @@ impl<'help> App<'help> {
     ///     .get_matches_from(vec!["myprog", "-a"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    #[must_use]
     pub fn short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
             assert!(s != &'-', "short alias name cannot be `-`");
@@ -1684,6 +1721,7 @@ impl<'help> App<'help> {
     ///             .get_matches_from(vec!["myprog", "--testing"]);
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
+    #[must_use]
     pub fn long_flag_aliases(mut self, names: &[&'help str]) -> Self {
         for s in names {
             self.long_flag_aliases.push((s, false));
@@ -1718,6 +1756,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::alias`]: App::alias()
+    #[must_use]
     pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), true));
         self
@@ -1742,6 +1781,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::short_flag_alias`]: App::short_flag_alias()
+    #[must_use]
     pub fn visible_short_flag_alias(mut self, name: char) -> Self {
         assert!(name != '-', "short alias name cannot be `-`");
         self.short_flag_aliases.push((name, true));
@@ -1767,6 +1807,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::long_flag_alias`]: App::long_flag_alias()
+    #[must_use]
     pub fn visible_long_flag_alias(mut self, name: &'help str) -> Self {
         self.long_flag_aliases.push((name, true));
         self
@@ -1799,6 +1840,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::alias`]: App::alias()
+    #[must_use]
     pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
@@ -1819,9 +1861,10 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::short_flag_aliases`]: App::short_flag_aliases()
+    #[must_use]
     pub fn visible_short_flag_aliases(mut self, names: &[char]) -> Self {
         for s in names {
-            assert!(!(s == &'-'), "short alias name cannot be `-`");
+            assert!(s != &'-', "short alias name cannot be `-`");
             self.short_flag_aliases.push((*s, true));
         }
         self
@@ -1842,6 +1885,7 @@ impl<'help> App<'help> {
     /// assert_eq!(m.subcommand_name(), Some("test"));
     /// ```
     /// [`App::long_flag_aliases`]: App::long_flag_aliases()
+    #[must_use]
     pub fn visible_long_flag_aliases(mut self, names: &[&'help str]) -> Self {
         for s in names {
             self.long_flag_aliases.push((s, true));
@@ -1898,6 +1942,7 @@ impl<'help> App<'help> {
     ///     alpha   Some help and text
     /// ```
     #[inline]
+    #[must_use]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = Some(ord);
         self
@@ -1963,6 +2008,7 @@ impl<'help> App<'help> {
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
+    #[must_use]
     pub fn subcommand_value_name<S>(mut self, value_name: S) -> Self
     where
         S: Into<&'help str>,
@@ -2031,6 +2077,7 @@ impl<'help> App<'help> {
     ///     help    Print this message or the help of the given subcommand(s)
     ///     sub1
     /// ```
+    #[must_use]
     pub fn subcommand_help_heading<T>(mut self, heading: T) -> Self
     where
         T: Into<&'help str>,
@@ -2393,48 +2440,56 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::override_usage`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_usage`")]
+    #[must_use]
     pub fn usage<S: Into<&'help str>>(self, usage: S) -> Self {
         self.override_usage(usage)
     }
 
     /// Deprecated, replaced with [`App::override_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::override_help`")]
+    #[must_use]
     pub fn help<S: Into<&'help str>>(self, help: S) -> Self {
         self.override_help(help)
     }
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[must_use]
     pub fn help_short(self, c: char) -> Self {
         self.mut_arg("help", |a| a.short(c))
     }
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[must_use]
     pub fn version_short(self, c: char) -> Self {
         self.mut_arg("version", |a| a.short(c))
     }
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[must_use]
     pub fn help_message(self, s: impl Into<&'help str>) -> Self {
         self.mut_arg("help", |a| a.help(s.into()))
     }
 
     /// Deprecated, replaced with [`App::mut_arg`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::mut_arg`")]
+    #[must_use]
     pub fn version_message(self, s: impl Into<&'help str>) -> Self {
         self.mut_arg("version", |a| a.help(s.into()))
     }
 
     /// Deprecated, replaced with [`App::help_template`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::help_template`")]
+    #[must_use]
     pub fn template<S: Into<&'help str>>(self, s: S) -> Self {
         self.help_template(s)
     }
 
     /// Deprecated, replaced with [`App::setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::setting(a | b)`")]
+    #[must_use]
     pub fn settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.settings.insert((*s).into());
@@ -2444,6 +2499,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::unset_setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::unset_setting(a | b)`")]
+    #[must_use]
     pub fn unset_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.settings.remove((*s).into());
@@ -2453,6 +2509,7 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::global_setting(a| b)`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::global_setting(a | b)`")]
+    #[must_use]
     pub fn global_settings(mut self, settings: &[AppSettings]) -> Self {
         for s in settings {
             self.settings.insert((*s).into());
@@ -2463,12 +2520,14 @@ impl<'help> App<'help> {
 
     /// Deprecated, replaced with [`App::term_width`]
     #[deprecated(since = "3.0.0", note = "Replaced with `App::term_width`")]
+    #[must_use]
     pub fn set_term_width(self, width: usize) -> Self {
         self.term_width(width)
     }
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[must_use]
     pub fn arg_from_usage(self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         self.arg(Arg::from_usage(usage))
@@ -2476,6 +2535,7 @@ impl<'help> App<'help> {
 
     /// Deprecated in [Issue #3086](https://github.com/clap-rs/clap/issues/3086), see [`arg!`][crate::arg!].
     #[deprecated(since = "3.0.0", note = "Deprecated in Issue #3086, see `clap::arg!")]
+    #[must_use]
     pub fn args_from_usage(mut self, usage: &'help str) -> Self {
         #![allow(deprecated)]
         for line in usage.lines() {
@@ -2925,7 +2985,7 @@ impl<'help> App<'help> {
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
                 // In case we're dealing with subcommands i.e. git mv is translated to git-mv
-                format!("{} {}\n", bn.replace(" ", "-"), ver)
+                format!("{} {}\n", bn.replace(' ', "-"), ver)
             } else {
                 format!("{} {}\n", &self.name[..], ver)
             }

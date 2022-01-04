@@ -127,6 +127,7 @@ impl<'help> Arg<'help> {
     /// Set the identifier used for referencing this argument in the clap API.
     ///
     /// See [`Arg::new`] for more details.
+    #[must_use]
     pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
         let name = n.into();
         self.id = Id::from(&*name);
@@ -158,6 +159,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("config"));
     /// ```
     #[inline]
+    #[must_use]
     pub fn short(mut self, s: char) -> Self {
         assert!(s != '-', "short option name cannot be `-`");
 
@@ -194,6 +196,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("cfg"));
     /// ```
     #[inline]
+    #[must_use]
     pub fn long(mut self, l: &'help str) -> Self {
         self.long = Some(l.trim_start_matches(|c| c == '-'));
         self
@@ -219,6 +222,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
+    #[must_use]
     pub fn alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), false));
         self
@@ -244,6 +248,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("cool"));
     /// ```
+    #[must_use]
     pub fn short_alias(mut self, name: char) -> Self {
         assert!(name != '-', "short alias name cannot be `-`");
 
@@ -271,6 +276,7 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
+    #[must_use]
     pub fn aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|&x| (x, false)));
         self
@@ -296,6 +302,7 @@ impl<'help> Arg<'help> {
     ///             ]);
     /// assert!(m.is_present("test"));
     /// ```
+    #[must_use]
     pub fn short_aliases(mut self, names: &[char]) -> Self {
         for s in names {
             assert!(s != &'-', "short alias name cannot be `-`");
@@ -324,6 +331,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
     /// [`App::alias`]: Arg::alias()
+    #[must_use]
     pub fn visible_alias<S: Into<&'help str>>(mut self, name: S) -> Self {
         self.aliases.push((name.into(), true));
         self
@@ -348,6 +356,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// assert_eq!(m.value_of("test"), Some("coffee"));
     /// ```
+    #[must_use]
     pub fn visible_short_alias(mut self, name: char) -> Self {
         assert!(name != '-', "short alias name cannot be `-`");
 
@@ -373,6 +382,7 @@ impl<'help> Arg<'help> {
     /// assert!(m.is_present("test"));
     /// ```
     /// [`App::aliases`]: Arg::aliases()
+    #[must_use]
     pub fn visible_aliases(mut self, names: &[&'help str]) -> Self {
         self.aliases.extend(names.iter().map(|n| (*n, true)));
         self
@@ -395,6 +405,7 @@ impl<'help> Arg<'help> {
     ///         ]);
     /// assert!(m.is_present("test"));
     /// ```
+    #[must_use]
     pub fn visible_short_aliases(mut self, names: &[char]) -> Self {
         for n in names {
             assert!(n != &'-', "short alias name cannot be `-`");
@@ -454,6 +465,7 @@ impl<'help> Arg<'help> {
     /// [`panic!`]: https://doc.rust-lang.org/std/macro.panic!.html
     /// [`App`]: crate::App
     #[inline]
+    #[must_use]
     pub fn index(mut self, idx: usize) -> Self {
         self.index = Some(idx);
         self
@@ -535,6 +547,7 @@ impl<'help> Arg<'help> {
     /// [index]: Arg::index()
     /// [`UnknownArgument`]: crate::ErrorKind::UnknownArgument
     #[inline]
+    #[must_use]
     pub fn last(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::Last)
@@ -597,6 +610,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     #[inline]
+    #[must_use]
     pub fn required(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::Required)
@@ -663,6 +677,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
+    #[must_use]
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
         self.requires.push((None, arg_id.into()));
         self
@@ -701,6 +716,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
     /// ```
     #[inline]
+    #[must_use]
     pub fn exclusive(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::Exclusive)
@@ -743,6 +759,7 @@ impl<'help> Arg<'help> {
     /// [`Subcommand`]: crate::Subcommand
     /// [`ArgMatches::is_present("flag")`]: ArgMatches::is_present()
     #[inline]
+    #[must_use]
     pub fn global(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::Global)
@@ -797,6 +814,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(files, ["file1", "file2", "file3"]);
     /// ```
     #[inline]
+    #[must_use]
     pub fn multiple_occurrences(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::MultipleOccurrences)
@@ -855,6 +873,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
+    #[must_use]
     pub fn max_occurrences(mut self, qty: usize) -> Self {
         self.max_occurs = Some(qty);
         if qty > 1 {
@@ -893,6 +912,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -922,6 +942,7 @@ impl<'help> Arg<'help> {
     /// # ;
     /// ```
     #[inline]
+    #[must_use]
     pub fn unset_setting<F>(mut self, setting: F) -> Self
     where
         F: Into<ArgFlags>,
@@ -965,6 +986,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::value_delimiter(char)`]: Arg::value_delimiter()
     /// [multiple values]: Arg::multiple_values
     #[inline]
+    #[must_use]
     pub fn takes_value(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::TakesValue)
@@ -1139,6 +1161,7 @@ impl<'help> Arg<'help> {
     /// [maximum]: Arg::max_values()
     /// [specific]: Arg::number_of_values()
     #[inline]
+    #[must_use]
     pub fn multiple_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::MultipleValues)
@@ -1187,6 +1210,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
+    #[must_use]
     pub fn number_of_values(mut self, qty: usize) -> Self {
         self.num_vals = Some(qty);
         self.takes_value(true).multiple_values(true)
@@ -1250,6 +1274,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
+    #[must_use]
     pub fn max_values(mut self, qty: usize) -> Self {
         self.max_vals = Some(qty);
         self.takes_value(true).multiple_values(true)
@@ -1314,6 +1339,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
+    #[must_use]
     pub fn min_values(mut self, qty: usize) -> Self {
         self.min_vals = Some(qty);
         self.takes_value(true).multiple_values(true)
@@ -1366,6 +1392,7 @@ impl<'help> Arg<'help> {
     /// [positional]: Arg::index()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
+    #[must_use]
     pub fn value_name(self, name: &'help str) -> Self {
         self.value_names(&[name])
     }
@@ -1423,6 +1450,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::number_of_values`]: Arg::number_of_values()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::multiple_values(true)`]: Arg::multiple_values()
+    #[must_use]
     pub fn value_names(mut self, names: &[&'help str]) -> Self {
         self.val_names = names.to_vec();
         self.takes_value(true)
@@ -1457,6 +1485,7 @@ impl<'help> Arg<'help> {
     ///             .value_hint(ValueHint::CommandWithArguments)
     ///     );
     /// ```
+    #[must_use]
     pub fn value_hint(mut self, value_hint: ValueHint) -> Self {
         self.value_hint = value_hint;
         self.takes_value(true)
@@ -1500,6 +1529,7 @@ impl<'help> Arg<'help> {
     /// [`Result`]: std::result::Result
     /// [`Err(String)`]: std::result::Result::Err
     /// [`Arc`]: std::sync::Arc
+    #[must_use]
     pub fn validator<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&str) -> Result<O, E> + Send + 'help,
@@ -1542,6 +1572,7 @@ impl<'help> Arg<'help> {
     /// [`Result`]: std::result::Result
     /// [`Err(String)`]: std::result::Result::Err
     /// [`Rc`]: std::rc::Rc
+    #[must_use]
     pub fn validator_os<F, O, E>(mut self, mut f: F) -> Self
     where
         F: FnMut(&OsStr) -> Result<O, E> + Send + 'help,
@@ -1607,6 +1638,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
     /// ```
     #[cfg(feature = "regex")]
+    #[must_use]
     pub fn validator_regex(
         self,
         regex: impl Into<RegexRef<'help>>,
@@ -1692,6 +1724,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
+    #[must_use]
     pub fn possible_value<T>(mut self, value: T) -> Self
     where
         T: Into<PossibleValue<'help>>,
@@ -1767,6 +1800,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
+    #[must_use]
     pub fn possible_values<I, T>(mut self, values: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -1826,6 +1860,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(&*matched_vals, &["TeSt123", "teST123", "tESt321"]);
     /// ```
     #[inline]
+    #[must_use]
     pub fn ignore_case(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::IgnoreCase)
@@ -1885,6 +1920,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
     #[inline]
+    #[must_use]
     pub fn allow_hyphen_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::AllowHyphenValues)
@@ -1925,6 +1961,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::value_of_lossy`]: crate::ArgMatches::value_of_lossy()
     /// [`ArgMatches::values_of_lossy`]: crate::ArgMatches::values_of_lossy()
     #[inline]
+    #[must_use]
     pub fn allow_invalid_utf8(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::AllowInvalidUtf8)
@@ -1979,6 +2016,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
     /// ```
     #[inline]
+    #[must_use]
     pub fn forbid_empty_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::ForbidEmptyValues)
@@ -2030,6 +2068,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
     /// ```
     #[inline]
+    #[must_use]
     pub fn require_equals(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::RequireEquals)
@@ -2088,6 +2127,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::value_delimiter`]: Arg::value_delimiter()
     #[inline]
+    #[must_use]
     pub fn use_delimiter(mut self, yes: bool) -> Self {
         if yes {
             if self.val_delim.is_none() {
@@ -2125,6 +2165,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     #[inline]
+    #[must_use]
     pub fn value_delimiter(mut self, d: char) -> Self {
         self.val_delim = Some(d);
         self.takes_value(true).use_delimiter(true)
@@ -2207,6 +2248,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(delims.values_of("opt").unwrap().collect::<Vec<_>>(), ["val1", "val2", "val3"]);
     /// ```
     #[inline]
+    #[must_use]
     pub fn require_delimiter(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::RequireDelimiter)
@@ -2265,6 +2307,7 @@ impl<'help> Arg<'help> {
     /// [`number_of_values`]: Arg::number_of_values()
     /// [`max_values`]: Arg::max_values()
     #[inline]
+    #[must_use]
     pub fn value_terminator(mut self, term: &'help str) -> Self {
         self.terminator = Some(term);
         self.takes_value(true)
@@ -2293,6 +2336,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::allow_hyphen_values(true)`]: Arg::allow_hyphen_values()
     /// [`Arg::last(true)`]: Arg::last()
     #[inline]
+    #[must_use]
     pub fn raw(self, yes: bool) -> Self {
         self.takes_value(yes)
             .multiple_values(yes)
@@ -2364,6 +2408,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::is_present`]: crate::ArgMatches::is_present()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     #[inline]
+    #[must_use]
     pub fn default_value(self, val: &'help str) -> Self {
         self.default_values_os(&[OsStr::new(val)])
     }
@@ -2375,6 +2420,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_value`]: Arg::default_value()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
+    #[must_use]
     pub fn default_value_os(self, val: &'help OsStr) -> Self {
         self.default_values_os(&[val])
     }
@@ -2385,6 +2431,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
+    #[must_use]
     pub fn default_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_values_os(&vals_vec[..])
@@ -2397,6 +2444,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_values`]: Arg::default_values()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
+    #[must_use]
     pub fn default_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.default_vals = vals.to_vec();
         self.takes_value(true)
@@ -2474,6 +2522,7 @@ impl<'help> Arg<'help> {
     /// [`ArgMatches::is_present`]: ArgMatches::is_present()
     /// [`Arg::default_value`]: Arg::default_value()
     #[inline]
+    #[must_use]
     pub fn default_missing_value(self, val: &'help str) -> Self {
         self.default_missing_values_os(&[OsStr::new(val)])
     }
@@ -2485,6 +2534,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
+    #[must_use]
     pub fn default_missing_value_os(self, val: &'help OsStr) -> Self {
         self.default_missing_values_os(&[val])
     }
@@ -2495,6 +2545,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_missing_value`]: Arg::default_missing_value()
     #[inline]
+    #[must_use]
     pub fn default_missing_values(self, vals: &[&'help str]) -> Self {
         let vals_vec: Vec<_> = vals.iter().map(|val| OsStr::new(*val)).collect();
         self.default_missing_values_os(&vals_vec[..])
@@ -2507,6 +2558,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::default_missing_values`]: Arg::default_missing_values()
     /// [`OsStr`]: std::ffi::OsStr
     #[inline]
+    #[must_use]
     pub fn default_missing_values_os(mut self, vals: &[&'help OsStr]) -> Self {
         self.default_missing_vals = vals.to_vec();
         self.takes_value(true)
@@ -2652,6 +2704,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::use_delimiter(true)`]: Arg::use_delimiter()
     #[cfg(feature = "env")]
     #[inline]
+    #[must_use]
     pub fn env(self, name: &'help str) -> Self {
         self.env_os(OsStr::new(name))
     }
@@ -2661,6 +2714,7 @@ impl<'help> Arg<'help> {
     /// See [`Arg::env`].
     #[cfg(feature = "env")]
     #[inline]
+    #[must_use]
     pub fn env_os(mut self, name: &'help OsStr) -> Self {
         self.env = Some((name, env::var_os(name)));
         self
@@ -2712,6 +2766,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::long_help`]: Arg::long_help()
     #[inline]
+    #[must_use]
     pub fn help(mut self, h: impl Into<Option<&'help str>>) -> Self {
         self.help = h.into();
         self
@@ -2773,6 +2828,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::help`]: Arg::help()
     #[inline]
+    #[must_use]
     pub fn long_help(mut self, h: impl Into<Option<&'help str>>) -> Self {
         self.long_help = h.into();
         self
@@ -2832,6 +2888,7 @@ impl<'help> Arg<'help> {
     /// [positional arguments]: Arg::index()
     /// [index]: Arg::index()
     #[inline]
+    #[must_use]
     pub fn display_order(mut self, ord: usize) -> Self {
         self.disp_ord = Some(ord);
         self
@@ -2841,6 +2898,7 @@ impl<'help> Arg<'help> {
     ///
     /// [current]: crate::App::help_heading
     #[inline]
+    #[must_use]
     pub fn help_heading<O>(mut self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
@@ -2893,6 +2951,7 @@ impl<'help> Arg<'help> {
     ///         on a line after the option
     /// ```
     #[inline]
+    #[must_use]
     pub fn next_line_help(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::NextLineHelp)
@@ -2934,6 +2993,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
+    #[must_use]
     pub fn hide(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::Hidden)
@@ -2966,6 +3026,7 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `--help` the `[values: fast, slow]` portion of
     /// the help text would be omitted.
     #[inline]
+    #[must_use]
     pub fn hide_possible_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HidePossibleValues)
@@ -2996,6 +3057,7 @@ impl<'help> Arg<'help> {
     /// If we were to run the above program with `--help` the `[default: localhost]` portion of
     /// the help text would be omitted.
     #[inline]
+    #[must_use]
     pub fn hide_default_value(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HideDefaultValue)
@@ -3024,6 +3086,7 @@ impl<'help> Arg<'help> {
     /// text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
+    #[must_use]
     pub fn hide_env(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HideEnv)
@@ -3053,6 +3116,7 @@ impl<'help> Arg<'help> {
     /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
+    #[must_use]
     pub fn hide_env_values(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HideEnvValues)
@@ -3131,6 +3195,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
+    #[must_use]
     pub fn hide_short_help(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HiddenShortHelp)
@@ -3203,6 +3268,7 @@ impl<'help> Arg<'help> {
     /// -V, --version    Print version information
     /// ```
     #[inline]
+    #[must_use]
     pub fn hide_long_help(self, yes: bool) -> Self {
         if yes {
             self.setting(ArgSettings::HiddenLongHelp)
@@ -3245,6 +3311,7 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
+    #[must_use]
     pub fn group<T: Key>(mut self, group_id: T) -> Self {
         self.groups.push(group_id.into());
         self
@@ -3282,6 +3349,7 @@ impl<'help> Arg<'help> {
     /// ```
     ///
     /// [`ArgGroup`]: crate::ArgGroup
+    #[must_use]
     pub fn groups<T: Key>(mut self, group_ids: &[T]) -> Self {
         self.groups.extend(group_ids.iter().map(Id::from));
         self
@@ -3396,6 +3464,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value`]: Arg::default_value()
+    #[must_use]
     pub fn default_value_if<T: Key>(
         self,
         arg_id: T,
@@ -3410,6 +3479,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_value_if`]: Arg::default_value_if()
     /// [`OsStr`]: std::ffi::OsStr
+    #[must_use]
     pub fn default_value_if_os<T: Key>(
         mut self,
         arg_id: T,
@@ -3497,6 +3567,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::takes_value(true)`]: Arg::takes_value()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
+    #[must_use]
     pub fn default_value_ifs<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help str>, Option<&'help str>)],
@@ -3512,6 +3583,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::default_value_ifs`]: Arg::default_value_ifs()
     /// [`OsStr`]: std::ffi::OsStr
+    #[must_use]
     pub fn default_value_ifs_os<T: Key>(
         mut self,
         ifs: &[(T, Option<&'help OsStr>, Option<&'help OsStr>)],
@@ -3574,6 +3646,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
+    #[must_use]
     pub fn required_unless_present<T: Key>(mut self, arg_id: T) -> Self {
         self.r_unless.push(arg_id.into());
         self
@@ -3644,6 +3717,7 @@ impl<'help> Arg<'help> {
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all(names)`]: Arg::required_unless_present_all()
+    #[must_use]
     pub fn required_unless_present_all<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -3720,6 +3794,7 @@ impl<'help> Arg<'help> {
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any(names)`]: Arg::required_unless_present_any()
     /// [`Arg::required_unless_present_all`]: Arg::required_unless_present_all()
+    #[must_use]
     pub fn required_unless_present_any<T, I>(mut self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -3810,6 +3885,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
+    #[must_use]
     pub fn required_if_eq<T: Key>(mut self, arg_id: T, val: &'help str) -> Self {
         self.r_ifs.push((arg_id.into(), val));
         self
@@ -3888,6 +3964,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [required]: Arg::required()
+    #[must_use]
     pub fn required_if_eq_any<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
@@ -3965,6 +4042,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
+    #[must_use]
     pub fn required_if_eq_all<T: Key>(mut self, ifs: &[(T, &'help str)]) -> Self {
         self.r_ifs_all
             .extend(ifs.iter().map(|(id, val)| (Id::from_ref(id), *val)));
@@ -4028,6 +4106,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
+    #[must_use]
     pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
         self.requires.push((Some(val), arg_id.into()));
         self
@@ -4079,6 +4158,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
+    #[must_use]
     pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
         self.requires
             .extend(ifs.iter().map(|(val, arg)| (Some(*val), Id::from(arg))));
@@ -4149,6 +4229,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
+    #[must_use]
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
         self.requires.extend(names.iter().map(|s| (None, s.into())));
         self
@@ -4199,6 +4280,7 @@ impl<'help> Arg<'help> {
     ///
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
+    #[must_use]
     pub fn conflicts_with<T: Key>(mut self, arg_id: T) -> Self {
         self.blacklist.push(arg_id.into());
         self
@@ -4251,6 +4333,7 @@ impl<'help> Arg<'help> {
     /// ```
     /// [`Arg::conflicts_with`]: Arg::conflicts_with()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
+    #[must_use]
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
         self.blacklist.extend(names.iter().map(Id::from));
         self
@@ -4366,6 +4449,7 @@ impl<'help> Arg<'help> {
     /// assert_eq!(m.occurrences_of("opt"), 2);
     /// assert_eq!(m.values_of("opt").unwrap().collect::<Vec<_>>(), &["first", "over", "other", "val"]);
     /// ```
+    #[must_use]
     pub fn overrides_with<T: Key>(mut self, arg_id: T) -> Self {
         self.overrides.push(arg_id.into());
         self
@@ -4399,6 +4483,7 @@ impl<'help> Arg<'help> {
     /// assert!(!m.is_present("debug"));
     /// assert!(!m.is_present("flag"));
     /// ```
+    #[must_use]
     pub fn overrides_with_all<T: Key>(mut self, names: &[T]) -> Self {
         self.overrides.extend(names.iter().map(Id::from));
         self
@@ -4686,6 +4771,7 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::required_unless_present`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_unless_present`")]
+    #[must_use]
     pub fn required_unless<T: Key>(self, arg_id: T) -> Self {
         self.required_unless_present(arg_id)
     }
@@ -4695,6 +4781,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_all`"
     )]
+    #[must_use]
     pub fn required_unless_all<T, I>(self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -4708,6 +4795,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Replaced with `Arg::required_unless_present_any`"
     )]
+    #[must_use]
     pub fn required_unless_one<T, I>(self, names: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -4718,12 +4806,14 @@ impl<'help> Arg<'help> {
 
     /// Deprecated, replaced with [`Arg::required_if_eq`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq`")]
+    #[must_use]
     pub fn required_if<T: Key>(self, arg_id: T, val: &'help str) -> Self {
         self.required_if_eq(arg_id, val)
     }
 
     /// Deprecated, replaced with [`Arg::required_if_eq_any`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::required_if_eq_any`")]
+    #[must_use]
     pub fn required_ifs<T: Key>(self, ifs: &[(T, &'help str)]) -> Self {
         self.required_if_eq_any(ifs)
     }
@@ -4731,6 +4821,7 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide`")]
     #[inline]
+    #[must_use]
     pub fn hidden(self, yes: bool) -> Self {
         self.hide(yes)
     }
@@ -4738,12 +4829,14 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::ignore_case`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::ignore_case`")]
     #[inline]
+    #[must_use]
     pub fn case_insensitive(self, yes: bool) -> Self {
         self.ignore_case(yes)
     }
 
     /// Deprecated, replaced with [`Arg::forbid_empty_values`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::forbid_empty_values`")]
+    #[must_use]
     pub fn empty_values(self, yes: bool) -> Self {
         self.forbid_empty_values(!yes)
     }
@@ -4754,6 +4847,7 @@ impl<'help> Arg<'help> {
         since = "3.0.0",
         note = "Split into `Arg::multiple_occurrences` (most likely what you want)  and `Arg::multiple_values`"
     )]
+    #[must_use]
     pub fn multiple(self, yes: bool) -> Self {
         self.multiple_occurrences(yes).multiple_values(yes)
     }
@@ -4761,6 +4855,7 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide_short_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_short_help`")]
     #[inline]
+    #[must_use]
     pub fn hidden_short_help(self, yes: bool) -> Self {
         self.hide_short_help(yes)
     }
@@ -4768,18 +4863,21 @@ impl<'help> Arg<'help> {
     /// Deprecated, replaced with [`Arg::hide_long_help`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::hide_long_help`")]
     #[inline]
+    #[must_use]
     pub fn hidden_long_help(self, yes: bool) -> Self {
         self.hide_long_help(yes)
     }
 
     /// Deprecated, replaced with [`Arg::setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::setting`")]
+    #[must_use]
     pub fn set(self, s: ArgSettings) -> Self {
         self.setting(s)
     }
 
     /// Deprecated, replaced with [`Arg::unset_setting`]
     #[deprecated(since = "3.0.0", note = "Replaced with `Arg::unset_setting`")]
+    #[must_use]
     pub fn unset(self, s: ArgSettings) -> Self {
         self.unset_setting(s)
     }

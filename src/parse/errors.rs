@@ -456,6 +456,7 @@ impl Error {
     }
 
     /// Format the existing message with the App's context
+    #[must_use]
     pub fn format(mut self, app: &mut App) -> Self {
         app._build();
         let usage = app.render_usage();

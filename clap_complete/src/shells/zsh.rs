@@ -92,7 +92,7 @@ _{bin_name_underscore}_commands() {{
     local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-        bin_name_underscore = name.replace(" ", "__"),
+        bin_name_underscore = name.replace(' ', "__"),
         bin_name = name,
         subcommands_and_args = subcommands_of(p)
     );
@@ -114,7 +114,7 @@ _{bin_name_underscore}_commands() {{
     local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-            bin_name_underscore = bin_name.replace(" ", "__"),
+            bin_name_underscore = bin_name.replace(' ', "__"),
             bin_name = bin_name,
             subcommands_and_args =
                 subcommands_of(parser_of(p, bin_name).expect(INTERNAL_ERROR_MSG))
@@ -259,7 +259,7 @@ fn get_subcommands_of(parent: &App) -> String {
     ;;
 esac",
         name = parent.get_name(),
-        name_hyphen = parent.get_bin_name().unwrap().replace(" ", "-"),
+        name_hyphen = parent.get_bin_name().unwrap().replace(' ', "-"),
         subcommands = all_subcommands.join("\n"),
         pos = parent.get_positionals().count() + 1
     )
@@ -328,7 +328,7 @@ fn get_args_of(parent: &App, p_global: Option<&App>) -> String {
     if parent.has_subcommands() {
         let subcommand_bin_name = format!(
             "\":: :_{name}_commands\" \\",
-            name = parent.get_bin_name().as_ref().unwrap().replace(" ", "__")
+            name = parent.get_bin_name().as_ref().unwrap().replace(' ', "__")
         );
         segments.push(subcommand_bin_name);
 
@@ -406,20 +406,20 @@ fn value_completion(arg: &Arg) -> Option<String> {
 /// Escape help string inside single quotes and brackets
 fn escape_help(string: &str) -> String {
     string
-        .replace("\\", "\\\\")
-        .replace("'", "'\\''")
-        .replace("[", "\\[")
-        .replace("]", "\\]")
+        .replace('\\', "\\\\")
+        .replace('\'', "'\\''")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
 }
 
 /// Escape value string inside single quotes and parentheses
 fn escape_value(string: &str) -> String {
     string
-        .replace("\\", "\\\\")
-        .replace("'", "'\\''")
-        .replace("(", "\\(")
-        .replace(")", "\\)")
-        .replace(" ", "\\ ")
+        .replace('\\', "\\\\")
+        .replace('\'', "'\\''")
+        .replace('(', "\\(")
+        .replace(')', "\\)")
+        .replace(' ', "\\ ")
 }
 
 fn write_opts_of(p: &App, p_global: Option<&App>) -> String {
@@ -631,9 +631,9 @@ fn write_positionals_of(p: &App) -> String {
             help = arg
                 .get_help()
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
-                .replace("[", "\\[")
-                .replace("]", "\\]")
-                .replace(":", "\\:"),
+                .replace('[', "\\[")
+                .replace(']', "\\]")
+                .replace(':', "\\:"),
             value_completion = value_completion(arg).unwrap_or_else(|| "".to_string())
         );
 

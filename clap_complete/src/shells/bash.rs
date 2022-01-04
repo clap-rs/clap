@@ -59,7 +59,7 @@ impl Generator for Bash {
 complete -F _{name} -o bashdefault -o default {name}
 ",
                 name = bin_name,
-                cmd = bin_name.replace("-", "__"),
+                cmd = bin_name.replace('-', "__"),
                 name_opts = all_options_for_path(app, bin_name),
                 name_opts_details = option_details_for_path(app, bin_name),
                 subcmds = all_subcommands(app),
@@ -88,7 +88,7 @@ fn all_subcommands(app: &App) -> String {
                 cmd+=\"__{fn_name}\"
                 ;;",
             name = sc,
-            fn_name = sc.replace("-", "__")
+            fn_name = sc.replace('-', "__")
         )
     }));
 
@@ -101,7 +101,7 @@ fn subcommand_details(app: &App) -> String {
     let mut subcmd_dets = vec![String::new()];
     let mut scs = utils::all_subcommands(app)
         .iter()
-        .map(|x| x.1.replace(" ", "__"))
+        .map(|x| x.1.replace(' ', "__"))
         .collect::<Vec<_>>();
 
     scs.sort();
@@ -122,7 +122,7 @@ fn subcommand_details(app: &App) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd = sc.replace("-", "__"),
+            subcmd = sc.replace('-', "__"),
             sc_opts = all_options_for_path(app, &*sc),
             level = sc.split("__").map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(app, &*sc)
