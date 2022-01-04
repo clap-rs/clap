@@ -1181,17 +1181,30 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::parse_short_arg: short_arg={:?}", short_arg);
         let arg = short_arg.to_str_lossy();
 
-        if (self.is_set(AS::AllowNegativeNumbers) && arg.parse::<f64>().is_ok())
-            || (self.is_set(AS::AllowHyphenValues)
-                && arg.chars().any(|c| !self.app.contains_short(c)))
-            || matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
-                if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
-            || self
-                .app
-                .args
-                .get(&pos_counter)
-                .map_or(false, |arg| arg.is_set(ArgSettings::AllowHyphenValues))
+        #[allow(clippy::blocks_in_if_conditions)]
+        if self.is_set(AS::AllowNegativeNumbers) && arg.parse::<f64>().is_ok() {
+            debug!("Parser::parse_short_arg: negative number");
+            return ParseResult::MaybeHyphenValue;
+        } else if self.is_set(AS::AllowHyphenValues)
+            && arg.chars().any(|c| !self.app.contains_short(c))
         {
+            debug!("Parser::parse_short_args: contains non-short flag");
+            return ParseResult::MaybeHyphenValue;
+        } else if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
+                if self.app[opt].is_set(ArgSettings::AllowHyphenValues))
+        {
+            debug!("Parser::parse_short_args: prior arg accepts hyphenated values",);
+            return ParseResult::MaybeHyphenValue;
+        } else if self
+            .app
+            .args
+            .get(&pos_counter)
+            .map_or(false, |arg| arg.is_set(ArgSettings::AllowHyphenValues))
+        {
+            debug!(
+                "Parser::parse_short_args: positional at {} allows hyphens",
+                pos_counter
+            );
             return ParseResult::MaybeHyphenValue;
         }
 
