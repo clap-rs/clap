@@ -75,7 +75,7 @@ fn main() {
         let input = cli
             .input_file
             .as_deref()
-            .or_else(|| cli.spec_in.as_deref())
+            .or(cli.spec_in.as_deref())
             .unwrap_or_else(|| {
                 let mut app = Cli::into_app();
                 app.error(
