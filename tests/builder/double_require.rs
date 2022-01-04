@@ -68,7 +68,7 @@ fn help_text() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     assert_eq!(err.kind, ErrorKind::DisplayHelp);
-    println!("{}", err.to_string());
+    println!("{}", err);
     assert_eq!(err.to_string(), HELP);
 }
 
