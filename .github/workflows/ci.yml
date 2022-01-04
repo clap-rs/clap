@@ -170,7 +170,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: "nightly-2022-01-03"  # pinned
+        toolchain: 1.54.0  # MSRV
         profile: minimal
         override: true
         components: clippy
