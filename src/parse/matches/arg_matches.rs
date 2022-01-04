@@ -1043,12 +1043,12 @@ impl ArgMatches {
             if *arg == Id::empty_hash() || self.valid_args.contains(arg) {
             } else if self.valid_subcommands.contains(arg) {
                 panic!(
-                    "Subcommand `'{:?}' used where an argument or group name was expected.",
+                    "Subcommand `{:?}` used where an argument or group name was expected.",
                     arg
                 );
             } else {
                 panic!(
-                    "`'{:?}' is not a name of an argument or a group.\n\
+                    "`{:?}` is not a name of an argument or a group.\n\
                      Make sure you're using the name of the argument itself \
                      and not the name of short or long flags.",
                     arg
