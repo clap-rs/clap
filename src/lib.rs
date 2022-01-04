@@ -20,6 +20,8 @@
 // HACK https://github.com/rust-lang/rust-clippy/issues/7290
 #![allow(clippy::single_component_path_imports)]
 #![allow(clippy::branches_sharing_code)]
+// Doesn't allow for debug statements, etc to be unique
+#![allow(clippy::if_same_then_else)]
 
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
