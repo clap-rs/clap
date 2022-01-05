@@ -6,24 +6,27 @@ See the documentation for clap::AppSettings::Multicall for rationale.
 
 This example omits every command except true and false,
 which are the most trivial to implement,
-```bash
+```console
 $ busybox true
 ? 0
+
 $ busybox false
 ? 1
+
 ```
 *Note: without the links setup, we can't demonstrate the multicall behavior*
 
 But includes the `--install` option as an example of why it can be useful
 for the main program to take arguments that aren't applet subcommands.
-```bash
+```console
 $ busybox --install
 ? failed
 ...
+
 ```
 
 Though users must pass something:
-```bash
+```console
 $ busybox
 ? failed
 busybox 
@@ -39,4 +42,5 @@ APPLETS:
     false    does nothing unsuccessfully
     help     Print this message or the help of the given subcommand(s)
     true     does nothing successfully
+
 ```

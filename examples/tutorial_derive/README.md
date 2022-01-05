@@ -24,7 +24,7 @@ You can create an application declaratively with a `struct` and some
 attributes.  **This requires enabling the `derive` feature flag.**
 
 [Example:](01_quick.rs)
-```bash
+```console
 $ 01_quick_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -44,19 +44,22 @@ OPTIONS:
 SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
     test    does testing things
+
 ```
 
 By default, the program does nothing:
-```bash
+```console
 $ 01_quick_derive
 Debug mode is off
+
 ```
 
 But you can mix and match the various features
-```bash
+```console
 $ 01_quick_derive -dd test
 Debug mode is on
 Not printing testing lists...
+
 ```
 
 ## Configuring the Parser
@@ -64,7 +67,7 @@ Not printing testing lists...
 You use the `App` the start building a parser.
 
 [Example:](02_apps.rs)
-```bash
+```console
 $ 02_apps_derive --help
 MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
@@ -78,14 +81,16 @@ OPTIONS:
         --one <ONE>    
         --two <TWO>    
     -V, --version      Print version information
+
 $ 02_apps_derive --version
 MyApp 1.0
+
 ```
 
 You can use `app_from_crate!()` to fill these fields in from your `Cargo.toml` file.
 
 [Example:](02_crate.rs)
-```bash
+```console
 $ 02_crate_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -98,8 +103,10 @@ OPTIONS:
         --one <ONE>    
         --two <TWO>    
     -V, --version      Print version information
+
 $ 02_crate_derive --version
 clap [..]
+
 ```
 
 You can use `AppSettings` to change the application level behavior of clap. You
@@ -107,7 +114,7 @@ can apply the setting to the top level command (`app.setting()`) or to it and
 all subcommands (`app.global_setting()`).
 
 [Example:](02_app_settings.rs)
-```bash
+```console
 $ 02_app_settings_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -120,9 +127,11 @@ OPTIONS:
         --one <ONE>    
     -h, --help         Print help information
     -V, --version      Print version information
+
 $ 02_app_settings_derive --one -1 --one -3 --two 10
 two: "10"
 one: "-3"
+
 ```
 
 ## Adding Arguments
@@ -132,7 +141,7 @@ one: "-3"
 Flags are switches that can be on/off:
 
 [Example:](03_01_flag_bool.rs)
-```bash
+```console
 $ 03_01_flag_bool_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -144,10 +153,13 @@ OPTIONS:
     -h, --help       Print help information
     -v, --verbose    
     -V, --version    Print version information
+
 $ 03_01_flag_bool_derive
 verbose: false
+
 $ 03_01_flag_bool_derive --verbose
 verbose: true
+
 $ 03_01_flag_bool_derive --verbose --verbose
 ? failed
 error: The argument '--verbose' was provided more than once, but cannot be used multiple times
@@ -156,12 +168,13 @@ USAGE:
     03_01_flag_bool_derive[EXE] [OPTIONS]
 
 For more information try --help
+
 ```
 
 Or counted.
 
 [Example:](03_01_flag_count.rs)
-```bash
+```console
 $ 03_01_flag_count_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -173,12 +186,16 @@ OPTIONS:
     -h, --help       Print help information
     -v, --verbose    
     -V, --version    Print version information
+
 $ 03_01_flag_count_derive
 verbose: 0
+
 $ 03_01_flag_count_derive --verbose
 verbose: 1
+
 $ 03_01_flag_count_derive --verbose --verbose
 verbose: 2
+
 ```
 
 ### Options
@@ -186,7 +203,7 @@ verbose: 2
 Flags can also accept a value.
 
 [Example:](03_02_option.rs)
-```bash
+```console
 $ 03_02_option_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -198,18 +215,25 @@ OPTIONS:
     -h, --help           Print help information
     -n, --name <NAME>    
     -V, --version        Print version information
+
 $ 03_02_option_derive
 name: None
+
 $ 03_02_option_derive --name bob
 name: Some("bob")
+
 $ 03_02_option_derive --name=bob
 name: Some("bob")
+
 $ 03_02_option_derive -n bob
 name: Some("bob")
+
 $ 03_02_option_derive -n=bob
 name: Some("bob")
+
 $ 03_02_option_derive -nbob
 name: Some("bob")
+
 ```
 
 ### Positionals
@@ -217,7 +241,7 @@ name: Some("bob")
 Or you can have users specify values by their position on the command-line:
 
 [Example:](03_03_positional.rs)
-```bash
+```console
 $ 03_03_positional_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -231,10 +255,13 @@ ARGS:
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
+
 $ 03_03_positional_derive
 name: None
+
 $ 03_03_positional_derive bob
 name: Some("bob")
+
 ```
 
 ### Subcommands
@@ -244,7 +271,7 @@ instance of a Subcommand can have its own version, author(s), Args, and even its
 subcommands.
 
 [Example:](03_04_subcommands.rs)
-```bash
+```console
 $ 03_04_subcommands_derive
 ? failed
 clap [..]
@@ -260,6 +287,7 @@ OPTIONS:
 SUBCOMMANDS:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
+
 $ 03_04_subcommands_derive help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -274,6 +302,7 @@ OPTIONS:
 SUBCOMMANDS:
     add     Adds files to myapp
     help    Print this message or the help of the given subcommand(s)
+
 $ 03_04_subcommands_derive help add
 03_04_subcommands_derive[EXE]-add [..]
 Adds files to myapp
@@ -287,16 +316,20 @@ ARGS:
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
+
 $ 03_04_subcommands_derive add bob
 'myapp add' was used, name is: Some("bob")
+
 ```
 
 Because we set `AppSettings::PropagateVersion`:
-```bash
+```console
 $ 03_04_subcommands_derive --version
 clap [..]
+
 $ 03_04_subcommands_derive add --version
 03_04_subcommands_derive[EXE]-add [..]
+
 ```
 
 ### Defaults
@@ -306,7 +339,7 @@ optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
 set `Arg::default_value`.
 
 [Example:](03_05_default_values.rs)
-```bash
+```console
 $ 03_05_default_values_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -320,10 +353,13 @@ ARGS:
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
+
 $ 03_05_default_values_derive
 name: "alice"
+
 $ 03_05_default_values_derive bob
 name: "bob"
+
 ```
 
 ## Validation
@@ -338,7 +374,7 @@ those specific values, they will receive a graceful exit with error message info
 of the mistake, and what the possible valid values are
 
 [Example:](04_01_enum.rs)
-```bash
+```console
 $ 04_01_enum_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -352,10 +388,13 @@ ARGS:
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
+
 $ 04_01_enum_derive fast
 Hare
+
 $ 04_01_enum_derive slow
 Tortoise
+
 $ 04_01_enum_derive medium
 ? failed
 error: "medium" isn't a valid value for '<MODE>'
@@ -365,6 +404,7 @@ USAGE:
     04_01_enum_derive[EXE] <MODE>
 
 For more information try --help
+
 ```
 
 ### Validated values
@@ -372,7 +412,7 @@ For more information try --help
 More generally, you can validate and parse into any data type.
 
 [Example:](04_02_validate.rs)
-```bash
+```console
 $ 04_02_validate_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -386,13 +426,16 @@ ARGS:
 OPTIONS:
     -h, --help       Print help information
     -V, --version    Print version information
+
 $ 04_02_validate_derive 22
 PORT = 22
+
 $ 04_02_validate_derive foobar
 ? failed
 error: Invalid value for '<PORT>': invalid digit found in string
 
 For more information try --help
+
 ```
 
 ### Argument Relations
@@ -408,7 +451,7 @@ be required, but making all of them required isn't feasible because perhaps they
 each other.
 
 [Example:](04_03_relations.rs)
-```bash
+```console
 $ 04_03_relations_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -428,6 +471,7 @@ OPTIONS:
         --set-ver <VER>        set version manually
         --spec-in <SPEC_IN>    some special input argument
     -V, --version              Print version information
+
 $ 04_03_relations_derive
 ? failed
 error: The following required arguments were not provided:
@@ -437,8 +481,10 @@ USAGE:
     04_03_relations_derive[EXE] [OPTIONS] <--set-ver <VER>|--major|--minor|--patch> [INPUT_FILE]
 
 For more information try --help
+
 $ 04_03_relations_derive --major
 Version: 2.2.3
+
 $ 04_03_relations_derive --major --minor
 ? failed
 error: The argument '--major' cannot be used with '--minor'
@@ -447,6 +493,7 @@ USAGE:
     04_03_relations_derive[EXE] <--set-ver <VER>|--major|--minor|--patch>
 
 For more information try --help
+
 $ 04_03_relations_derive --major -c config.toml
 ? failed
 error: The following required arguments were not provided:
@@ -456,9 +503,11 @@ USAGE:
     04_03_relations_derive[EXE] -c <CONFIG> <--set-ver <VER>|--major|--minor|--patch> <INPUT_FILE|--spec-in <SPEC_IN>>
 
 For more information try --help
+
 $ 04_03_relations_derive --major -c config.toml --spec-in input.txt
 Version: 2.2.3
 Doing work using input input.txt and config config.toml
+
 ```
 
 ### Custom Validation
@@ -466,7 +515,7 @@ Doing work using input input.txt and config config.toml
 As a last resort, you can create custom errors with the basics of clap's formatting.
 
 [Example:](04_04_custom.rs)
-```bash
+```console
 $ 04_04_custom_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -486,6 +535,7 @@ OPTIONS:
         --set-ver <VER>        set version manually
         --spec-in <SPEC_IN>    some special input argument
     -V, --version              Print version information
+
 $ 04_04_custom_derive
 ? failed
 error: Cam only modify one version field
@@ -494,8 +544,10 @@ USAGE:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
+
 $ 04_04_custom_derive --major
 Version: 2.2.3
+
 $ 04_04_custom_derive --major --minor
 ? failed
 error: Cam only modify one version field
@@ -504,6 +556,7 @@ USAGE:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
+
 $ 04_04_custom_derive --major -c config.toml
 ? failed
 Version: 2.2.3
@@ -513,9 +566,11 @@ USAGE:
     clap [OPTIONS] [INPUT_FILE]
 
 For more information try --help
+
 $ 04_04_custom_derive --major -c config.toml --spec-in input.txt
 Version: 2.2.3
 Doing work using input input.txt and config config.toml
+
 ```
 
 ## Tips

@@ -6,7 +6,7 @@ The crate [`clap-cargo`](https://github.com/crate-ci/clap-cargo) can help in
 mimicking cargo's interface.
 
 The help looks like:
-```bash
+```console
 $ cargo-example-derive --help
 cargo 
 
@@ -19,6 +19,7 @@ OPTIONS:
 SUBCOMMANDS:
     example-derive    A simple to use, efficient, and full-featured Command Line Argument Parser
     help              Print this message or the help of the given subcommand(s)
+
 $ cargo-example-derive example-derive --help
 cargo-example-derive [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -30,12 +31,15 @@ OPTIONS:
     -h, --help                             Print help information
         --manifest-path <MANIFEST_PATH>    
     -V, --version                          Print version information
+
 ```
 
 Then to directly invoke the command, run:
-```bash
+```console
 $ cargo-example-derive example-derive
 None
+
 $ cargo-example-derive example-derive --manifest-path Cargo.toml
 Some("Cargo.toml")
+
 ```

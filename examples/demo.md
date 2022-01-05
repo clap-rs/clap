@@ -3,7 +3,7 @@
 **This requires enabling the `derive` feature flag.**
 
 Used to validate README.md's content
-```bash
+```console
 $ demo --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -16,4 +16,5 @@ OPTIONS:
     -h, --help             Print help information
     -n, --name <NAME>      Name of the person to greet
     -V, --version          Print version information
+
 ```

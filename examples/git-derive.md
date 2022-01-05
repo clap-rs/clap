@@ -5,7 +5,7 @@
 Git is an example of several common subcommand patterns.
 
 Help:
-```bash
+```console
 $ git-derive
 ? failed
 git 
@@ -22,6 +22,7 @@ SUBCOMMANDS:
     clone    Clones repos
     help     Print this message or the help of the given subcommand(s)
     push     pushes things
+
 $ git-derive help
 git 
 A fictional versioning CLI
@@ -37,6 +38,7 @@ SUBCOMMANDS:
     clone    Clones repos
     help     Print this message or the help of the given subcommand(s)
     push     pushes things
+
 $ git-derive help add
 git-derive[EXE]-add 
 adds things
@@ -49,10 +51,11 @@ ARGS:
 
 OPTIONS:
     -h, --help    Print help information
+
 ```
 
 A basic argument:
-```bash
+```console
 $ git-derive add
 ? failed
 git-derive[EXE]-add 
@@ -66,12 +69,15 @@ ARGS:
 
 OPTIONS:
     -h, --help    Print help information
+
 $ git-derive add Cargo.toml Cargo.lock
 Adding ["Cargo.toml", "Cargo.lock"]
+
 ```
 
 External subcommands:
-```bash
+```console
 $ git-derive custom-tool arg1 --foo bar
 Calling out to "custom-tool" with ["arg1", "--foo", "bar"]
+
 ```
