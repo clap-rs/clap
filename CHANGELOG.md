@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Provide hack to workaround [inability to detect external subcommands aliasing when escaped](https://github.com/clap-rs/clap/issues/3263) (#3264)
+
+**docs:**
+- Cleaned up code blocks in tutorials (#3261)
+- Clean up quotes in `ArgMatches` asserts
+- List correct replacement for deprecated `Parser::from_clap` (#3257)
+
 ## [3.0.4] - 2022-01-04
 
 ### Features
