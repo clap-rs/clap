@@ -2,7 +2,7 @@
 
 Example of overriding the magic `bool` behavior
 
-```bash
+```console
 $ custom-bool --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -18,6 +18,7 @@ OPTIONS:
         --foo <FOO>    
     -h, --help         Print help information
     -V, --version      Print version information
+
 $ custom-bool
 ? failed
 error: The following required arguments were not provided:
@@ -28,16 +29,19 @@ USAGE:
     custom-bool[EXE] [OPTIONS] --foo <FOO> <BOOM>
 
 For more information try --help
+
 $ custom-bool --foo true false
 [examples/derive_ref/custom-bool.rs:31] opt = Opt {
     foo: true,
     bar: false,
     boom: false,
 }
+
 $ custom-bool --foo true --bar true false
 [examples/derive_ref/custom-bool.rs:31] opt = Opt {
     foo: true,
     bar: true,
     boom: false,
 }
+
 ```

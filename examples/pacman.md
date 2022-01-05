@@ -3,29 +3,34 @@
 [`pacman`](https://wiki.archlinux.org/index.php/pacman) defines subcommands via flags.
 
 Here, `-S` is a short flag subcommand:
-```bash
+```console
 $ pacman -S package
 Installing package...
+
 ```
 
 Here `--sync` is a long flag subcommand:
-```bash
+```console
 $ pacman --sync package
 Installing package...
+
 ```
 
 Now the short flag subcommand (`-S`) with a long flag:
-```bash
+```console
 $ pacman -S --search name
 Searching for name...
+
 ```
 
 And the various forms of short flags that work:
-```
+```console
 $ pacman -S -s name
 Searching for name...
+
 $ pacman -Ss name
 Searching for name...
+
 ```
 *(users can "stack" short subcommands with short flags or with other short flag subcommands)*
 
