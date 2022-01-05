@@ -25,6 +25,12 @@ impl ArgMatcher {
             },
             #[cfg(debug_assertions)]
             valid_subcommands: _app.subcommands.iter().map(|sc| sc.id.clone()).collect(),
+            // HACK: Allow an external subcommand's ArgMatches be a stand-in for any ArgMatches
+            // since users can't detect it and avoid the asserts.
+            //
+            // See clap-rs/clap#3263
+            #[cfg(debug_assertions)]
+            disable_asserts: _app.is_set(crate::AppSettings::AllowExternalSubcommands),
             ..Default::default()
         })
     }
