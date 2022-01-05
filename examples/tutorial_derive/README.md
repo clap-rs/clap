@@ -24,7 +24,7 @@ You can create an application declaratively with a `struct` and some
 attributes.  **This requires enabling the `derive` feature flag.**
 
 [Example:](01_quick.rs)
-```bash
+```console
 $ 01_quick_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -47,13 +47,13 @@ SUBCOMMANDS:
 ```
 
 By default, the program does nothing:
-```bash
+```console
 $ 01_quick_derive
 Debug mode is off
 ```
 
 But you can mix and match the various features
-```bash
+```console
 $ 01_quick_derive -dd test
 Debug mode is on
 Not printing testing lists...
@@ -64,7 +64,7 @@ Not printing testing lists...
 You use the `App` the start building a parser.
 
 [Example:](02_apps.rs)
-```bash
+```console
 $ 02_apps_derive --help
 MyApp 1.0
 Kevin K. <kbknapp@gmail.com>
@@ -85,7 +85,7 @@ MyApp 1.0
 You can use `app_from_crate!()` to fill these fields in from your `Cargo.toml` file.
 
 [Example:](02_crate.rs)
-```bash
+```console
 $ 02_crate_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -107,7 +107,7 @@ can apply the setting to the top level command (`app.setting()`) or to it and
 all subcommands (`app.global_setting()`).
 
 [Example:](02_app_settings.rs)
-```bash
+```console
 $ 02_app_settings_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -132,7 +132,7 @@ one: "-3"
 Flags are switches that can be on/off:
 
 [Example:](03_01_flag_bool.rs)
-```bash
+```console
 $ 03_01_flag_bool_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -161,7 +161,7 @@ For more information try --help
 Or counted.
 
 [Example:](03_01_flag_count.rs)
-```bash
+```console
 $ 03_01_flag_count_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -186,7 +186,7 @@ verbose: 2
 Flags can also accept a value.
 
 [Example:](03_02_option.rs)
-```bash
+```console
 $ 03_02_option_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -217,7 +217,7 @@ name: Some("bob")
 Or you can have users specify values by their position on the command-line:
 
 [Example:](03_03_positional.rs)
-```bash
+```console
 $ 03_03_positional_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -244,7 +244,7 @@ instance of a Subcommand can have its own version, author(s), Args, and even its
 subcommands.
 
 [Example:](03_04_subcommands.rs)
-```bash
+```console
 $ 03_04_subcommands_derive
 ? failed
 clap [..]
@@ -292,7 +292,7 @@ $ 03_04_subcommands_derive add bob
 ```
 
 Because we set `AppSettings::PropagateVersion`:
-```bash
+```console
 $ 03_04_subcommands_derive --version
 clap [..]
 $ 03_04_subcommands_derive add --version
@@ -306,7 +306,7 @@ optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
 set `Arg::default_value`.
 
 [Example:](03_05_default_values.rs)
-```bash
+```console
 $ 03_05_default_values_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -338,7 +338,7 @@ those specific values, they will receive a graceful exit with error message info
 of the mistake, and what the possible valid values are
 
 [Example:](04_01_enum.rs)
-```bash
+```console
 $ 04_01_enum_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -372,7 +372,7 @@ For more information try --help
 More generally, you can validate and parse into any data type.
 
 [Example:](04_02_validate.rs)
-```bash
+```console
 $ 04_02_validate_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -408,7 +408,7 @@ be required, but making all of them required isn't feasible because perhaps they
 each other.
 
 [Example:](04_03_relations.rs)
-```bash
+```console
 $ 04_03_relations_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -466,7 +466,7 @@ Doing work using input input.txt and config config.toml
 As a last resort, you can create custom errors with the basics of clap's formatting.
 
 [Example:](04_04_custom.rs)
-```bash
+```console
 $ 04_04_custom_derive --help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
