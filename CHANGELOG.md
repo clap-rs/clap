@@ -167,6 +167,8 @@ Subtle changes (i.e. compiler won't catch):
 - `ArgMatches::is_present` no longer checks subcommand names
 - Some env variable values are now considered false for flags, not just "not-present" ([clap-rs/clap#2539](https://github.com/clap-rs/clap/issues/2539))
 - Changed `...`s meaning in usage parser.  Before, it always meant `multiple` which is still true for `--option [val]...`.  Now `[name]... --option [val]` results in `ArgSettings::MultipleOccurrences`.
+- Usage exit code changed from `1` to `2` ([clap-rs/clap#1327](https://github.com/clap-rs/clap/issues/1327))
+- Reject `--foo=bar` when `takes_value(false)` ([clap-rs/clap#1543](https://github.com/clap-rs/clap/issues/1543))
 
 Easier to catch changes:
 - When using `no-default-features`, you now have to specify the `std` feature (reserved for future work)
