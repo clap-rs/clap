@@ -1033,6 +1033,11 @@ impl ArgMatches {
             true
         }
     }
+
+    /// Returns true if no arguments were matched
+    pub fn has_no_matched_args(&self) -> bool {
+        self.args.is_empty()
+    }
 }
 
 // Private methods
@@ -1426,5 +1431,32 @@ mod tests {
             .expect("present")
             .len();
         assert_eq!(l, 1);
+    }
+
+    #[test]
+    fn has_no_matched_args() {
+        // test with no args
+        let args: &[&str] = &[];
+        let ret = crate::App::new("test")
+            .arg(crate::Arg::new("super").short('s').takes_value(true))
+            .try_get_matches_from(args)
+            .unwrap();
+        assert!(ret.has_no_matched_args());
+
+        // test with app name
+        let args: &[&str] = &["test"];
+        let ret = crate::App::new("test")
+            .arg(crate::Arg::new("super").short('s').takes_value(true))
+            .try_get_matches_from(args)
+            .unwrap();
+        assert!(ret.has_no_matched_args());
+
+        // test with known args
+        let args: &[&str] = &["test", "--super", "man"];
+        let ret = crate::App::new("test")
+            .arg(crate::Arg::new("super").long("super").takes_value(true))
+            .try_get_matches_from(args)
+            .unwrap();
+        assert!(!ret.has_no_matched_args());
     }
 }
