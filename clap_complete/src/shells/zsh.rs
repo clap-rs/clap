@@ -39,7 +39,8 @@ _{name}() {{
 
 {subcommand_details}
 
-_{name} \"$@\"",
+_{name} \"$@\"
+",
                 name = app.get_bin_name().unwrap(),
                 initial_args = get_args_of(app, None),
                 subcommands = get_subcommands_of(app),
