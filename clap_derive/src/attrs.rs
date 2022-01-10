@@ -469,7 +469,7 @@ impl Attrs {
                         quote_spanned!(ident.span()=> {
                             {
                                 let val: #ty = #val;
-                                val.to_possible_value().unwrap().get_name()
+                                clap::ArgEnum::to_possible_value(&val).unwrap().get_name()
                             }
                         })
                     } else {
