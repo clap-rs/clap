@@ -120,10 +120,13 @@ In addition to the raw attributes, the following magic attributes are supported:
   - When not present: no author set
   - Without `<expr>`: defaults to crate's author
 - `about [= <expr>]`: `clap::App::about`
-  - When not present: Doc comment summary
+  - When not present: [Doc comment summary](#doc-comments)
   - Without `<expr>`: crate description (`Parser` container)
+    - **TIP:** When a doc comment is also present, you most likely want to add
+      `#[clap(long_about = None)]` to clear the doc comment so only `about`
+      gets shown with both `-h` and `--help`.
 - `long_about = <expr>`: `clap::App::long_about`
-  - When not present: Doc comment if there is a blank line, else nothing
+  - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
 - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to `about` / `long_about`
 - `help_heading`: `clap::App::help_heading`
   - When `flatten`ing `Args`, this is scoped to just the args in this struct and any struct `flatten`ed into it
@@ -153,9 +156,9 @@ In addition to the raw attributes, the following magic attributes are supported:
 - `name = <expr>`: `clap::Arg::new`
   - When not present: case-converted field name is used
 - `help = <expr>`: `clap::Arg::help`
-  - When not present: Doc comment summary
+  - When not present: [Doc comment summary](#doc-comments)
 - `long_help = <expr>`: `clap::Arg::long_help`
-  - When not present: Doc comment if there is a blank line, else nothing
+  - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
 - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to `help` / `long_help`
 - `short [= <char>]`: `clap::Arg::short`
   - When not present: no short set
@@ -238,7 +241,7 @@ These correspond to a `clap::PossibleValue`.
 - `name = <expr>`: `clap::PossibleValue::new`
   - When not present: case-converted field name is used
 - `help = <expr>`: `clap::PossibleValue::help`
-  - When not present: Doc comment summary
+  - When not present: [Doc comment summary](#doc-comments)
 
 ### Doc Comments
 
@@ -274,11 +277,13 @@ struct Foo {
 }
 ```
 
-**NOTE:** Raw attributes have priority over doc comments!
+**NOTE:** Attributes have priority over doc comments!
 
 **Top level doc comments always generate `App::about/long_about` calls!**
-If you really want to use the `App::help/long_help` methods (you likely don't),
-use a raw method to override the `App::about` call generated from the doc comment.
+If you really want to use the `App::about/long_about` methods (you likely don't),
+use the `about` / `long_about` attributes to override the calls generated from
+the doc comment.  To clear `long_about`, you can use
+`#[clap(long_about = None)]`.
 
 **TIP:** Set `#![deny(missing_docs)]` to catch missing `--help` documentation at compile time.
 
