@@ -24,7 +24,7 @@ readme = "README.md"
 
 [package.metadata.release]
 shared-version = true
-tag = false
+tag-name = "v{{version}}"
 
 [lib]
 proc-macro = true
