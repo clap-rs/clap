@@ -7,11 +7,11 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
-use clap::{ArgEnum, Parser, PossibleValue};
+use clap::Parser;
 
 #[test]
 fn basic() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -40,7 +40,7 @@ fn basic() {
 
 #[test]
 fn default_value() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -80,7 +80,7 @@ fn default_value() {
 
 #[test]
 fn multi_word_is_renamed_kebab() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     #[allow(non_camel_case_types)]
     enum ArgChoice {
         FooBar,
@@ -110,7 +110,7 @@ fn multi_word_is_renamed_kebab() {
 
 #[test]
 fn variant_with_defined_casing() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(rename_all = "screaming_snake")]
         FooBar,
@@ -133,7 +133,7 @@ fn variant_with_defined_casing() {
 
 #[test]
 fn casing_is_propagated_from_parent() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         FooBar,
@@ -156,7 +156,7 @@ fn casing_is_propagated_from_parent() {
 
 #[test]
 fn casing_propagation_is_overridden() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     #[clap(rename_all = "screaming_snake")]
     enum ArgChoice {
         #[clap(rename_all = "camel")]
@@ -181,7 +181,7 @@ fn casing_propagation_is_overridden() {
 
 #[test]
 fn ignore_case() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
@@ -208,7 +208,7 @@ fn ignore_case() {
 
 #[test]
 fn ignore_case_set_to_false() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
@@ -230,7 +230,7 @@ fn ignore_case_set_to_false() {
 
 #[test]
 fn alias() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP")]
         Totp,
@@ -258,7 +258,7 @@ fn alias() {
 
 #[test]
 fn multiple_alias() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         #[clap(alias = "TOTP", alias = "t")]
         Totp,
@@ -292,7 +292,7 @@ fn multiple_alias() {
 
 #[test]
 fn skip_variant() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     #[allow(dead_code)] // silence warning about `Baz` being unused
     enum ArgChoice {
         Foo,
@@ -302,31 +302,41 @@ fn skip_variant() {
     }
 
     assert_eq!(
-        ArgChoice::value_variants()
+        <ArgChoice as clap::ArgEnum>::value_variants()
             .iter()
-            .map(ArgEnum::to_possible_value)
+            .map(clap::ArgEnum::to_possible_value)
             .map(Option::unwrap)
             .collect::<Vec<_>>(),
-        vec![PossibleValue::new("foo"), PossibleValue::new("bar")]
+        vec![
+            clap::PossibleValue::new("foo"),
+            clap::PossibleValue::new("bar")
+        ]
     );
-    assert!(ArgChoice::from_str("foo", true).is_ok());
-    assert!(ArgChoice::from_str("bar", true).is_ok());
-    assert!(ArgChoice::from_str("baz", true).is_err());
+
+    {
+        use clap::ArgEnum;
+        assert!(ArgChoice::from_str("foo", true).is_ok());
+        assert!(ArgChoice::from_str("bar", true).is_ok());
+        assert!(ArgChoice::from_str("baz", true).is_err());
+    }
 }
 
 #[test]
 fn from_str_invalid() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
     }
 
-    assert!(ArgChoice::from_str("bar", true).is_err());
+    {
+        use clap::ArgEnum;
+        assert!(ArgChoice::from_str("bar", true).is_err());
+    }
 }
 
 #[test]
 fn option_type() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -356,7 +366,7 @@ fn option_type() {
 
 #[test]
 fn option_option_type() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -390,7 +400,7 @@ fn option_option_type() {
 
 #[test]
 fn vec_type() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
@@ -420,7 +430,7 @@ fn vec_type() {
 
 #[test]
 fn option_vec_type() {
-    #[derive(ArgEnum, PartialEq, Debug, Clone)]
+    #[derive(clap::ArgEnum, PartialEq, Debug, Clone)]
     enum ArgChoice {
         Foo,
         Bar,
