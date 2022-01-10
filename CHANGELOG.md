@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+**derive**
+- Don't assume user does `use clap::ArgEnum` (#3277)
+- Documentation fixes
+
 ## [3.0.5] - 2022-01-05
 
 ### Fixes
