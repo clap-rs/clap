@@ -98,7 +98,8 @@ _myapp__test_commands() {
     _describe -t commands 'myapp test commands' commands "$@"
 }
 
-_myapp "$@""#;
+_myapp "$@"
+"#;
 
 #[test]
 fn zsh_with_special_commands() {
@@ -234,7 +235,8 @@ _my_app__test_commands() {
     _describe -t commands 'my_app test commands' commands "$@"
 }
 
-_my_app "$@""#;
+_my_app "$@"
+"#;
 
 #[test]
 fn zsh_with_special_help() {
@@ -309,7 +311,8 @@ _my_app_commands() {
     _describe -t commands 'my_app commands' commands "$@"
 }
 
-_my_app "$@""#;
+_my_app "$@"
+"#;
 
 #[test]
 fn zsh_with_nested_subcommands() {
@@ -426,7 +429,8 @@ _my_app__second__third_commands() {
     _describe -t commands 'my_app second third commands' commands "$@"
 }
 
-_my_app "$@""#;
+_my_app "$@"
+"#;
 
 #[test]
 fn zsh_with_aliases() {
@@ -497,7 +501,8 @@ _cmd_commands() {
     _describe -t commands 'cmd commands' commands "$@"
 }
 
-_cmd "$@""#;
+_cmd "$@"
+"#;
 
 #[test]
 fn zsh_with_files_and_dirs() {
@@ -559,4 +564,5 @@ _my_app_commands() {
     _describe -t commands 'my_app commands' commands "$@"
 }
 
-_my_app "$@""#;
+_my_app "$@"
+"#;

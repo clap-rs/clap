@@ -128,7 +128,8 @@ _my_app_commands() {
     _describe -t commands 'my_app commands' commands "$@"
 }
 
-_my_app "$@""#;
+_my_app "$@"
+"#;
 
 static FISH_VALUE_HINTS: &str = r#"complete -c my_app -l choice -r -f -a "{bash	,fish	,zsh	}"
 complete -c my_app -l unknown -r
