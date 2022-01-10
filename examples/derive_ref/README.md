@@ -144,10 +144,6 @@ And for `Subcommand` variants:
 - `external_subcommand`: `clap::AppSettings::AllowExternalSubcommand`
   - Variant must be either `Variant(Vec<String>)` or `Variant(Vec<OsString>)`
 
-**Note:** Generally prefer putting app attributes on the `flatten`ed /
-`subcommand` field rather than among the Parent App Attributes.  This will
-compose better as you reuse `Args` and `Subcommand` implementations.
-
 ### Arg Attributes
 
 These correspond to a `clap::Arg`.
@@ -170,6 +166,12 @@ In addition to the raw attributes, the following magic attributes are supported:
   - When not present: no env set
   - Without `<str>`: defaults to the case-converted field name
 - `flatten`: Delegates to the field for more arguments (must implement `Args`)
+  - Only `help_heading` can be used with `flatten`.  See
+    [clap-rs/clap#3269](https://github.com/clap-rs/clap/issues/3269) for why
+    arg attributes are not generally supported.
+  - **Tip:** Though we do apply a flattened `Args`'s Parent App Attributes, this
+    makes reuse harder. Generally prefer putting the app attributes on the `Parser`
+    or on the flattened field.
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional
 - `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in 
