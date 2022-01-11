@@ -62,6 +62,8 @@ Not printing testing lists...
 
 ```
 
+In addition to this tutorial, see the [derive reference](../derive_ref/README.md).
+
 ## Configuring the Parser
 
 You use the `App` the start building a parser.
