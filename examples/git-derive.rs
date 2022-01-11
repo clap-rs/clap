@@ -8,7 +8,7 @@ use clap::{AppSettings, Parser, Subcommand};
 /// A fictional versioning CLI
 #[derive(Parser)]
 #[clap(name = "git")]
-#[clap(about = "A fictional versioning CLI")]
+#[clap(about = "A fictional versioning CLI", long_about = None)]
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
