@@ -112,16 +112,16 @@ when defining subcommands.
 
 In addition to the raw attributes, the following magic attributes are supported:
 - `name  = <expr>`: `clap::App::name`
-  - When not present: crate name (`Parser` container), variant name (`Subcommand` variant)
+  - When not present: [crate `name`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-name-field) (`Parser` container), variant name (`Subcommand` variant)
 - `version [= <expr>]`: `clap::App::version`
   - When not present: no version set
-  - Without `<expr>`: defaults to crate version
+  - Without `<expr>`: defaults to [crate `version`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-version-field)
 - `author [= <expr>]`: `clap::App::author`
   - When not present: no author set
-  - Without `<expr>`: defaults to crate's author
+  - Without `<expr>`: defaults to [crate `authors`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-authors-field)
 - `about [= <expr>]`: `clap::App::about`
   - When not present: [Doc comment summary](#doc-comments)
-  - Without `<expr>`: crate description (`Parser` container)
+  - Without `<expr>`: [crate `description`](https://doc.rust-lang.org/cargo/reference/manifest.html#the-description-field) (`Parser` container)
     - **TIP:** When a doc comment is also present, you most likely want to add
       `#[clap(long_about = None)]` to clear the doc comment so only `about`
       gets shown with both `-h` and `--help`.
