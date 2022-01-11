@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug, PartialEq)]
-#[clap(about, author, version)]
+#[clap(author, version, about, long_about = None)]
 struct Opt {
     // Default parser for `try_from_str` is FromStr::from_str.
     // `impl FromStr for bool` parses `true` or `false` so this

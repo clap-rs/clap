@@ -1,7 +1,7 @@
 use clap::{ErrorKind, IntoApp, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about, long_about = None)]
 struct Cli {
     /// set version manually
     #[clap(long, value_name = "VER")]

@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Optional name to operate on
     name: Option<String>,

@@ -4,7 +4,7 @@ use clap::Parser;
 #[clap(name = "MyApp")]
 #[clap(author = "Kevin K. <kbknapp@gmail.com>")]
 #[clap(version = "1.0")]
-#[clap(about = "Does awesome things")]
+#[clap(about = "Does awesome things", long_about = None)]
 struct Cli {
     #[clap(long)]
     two: String,

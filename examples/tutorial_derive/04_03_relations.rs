@@ -1,7 +1,7 @@
 use clap::{ArgGroup, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about, long_about = None)]
 #[clap(group(
             ArgGroup::new("vers")
                 .required(true)

@@ -1,7 +1,7 @@
 use clap::{ArgEnum, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about, long_about = None)]
 struct Cli {
     /// What mode to run the program in
     #[clap(arg_enum)]

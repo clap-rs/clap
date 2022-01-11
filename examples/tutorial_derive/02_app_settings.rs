@@ -1,7 +1,7 @@
 use clap::{AppSettings, Parser};
 
 #[derive(Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about, long_about = None)]
 #[clap(global_setting(AppSettings::AllArgsOverrideSelf))]
 #[clap(global_setting(AppSettings::DeriveDisplayOrder))]
 #[clap(global_setting(AppSettings::AllowNegativeNumbers))]

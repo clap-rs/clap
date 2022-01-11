@@ -258,7 +258,7 @@ for individual arguments can be specified via [`Arg::help`] and [`Arg::long_help
 # use clap::Parser;
 
 #[derive(Parser)]
-#[clap(about = "I am a program and I work, just pass `-h`")]
+#[clap(about = "I am a program and I work, just pass `-h`", long_about = None)]
 struct Foo {
     #[clap(short, help = "Pass `-h` and you'll see me!")]
     bar: String,
