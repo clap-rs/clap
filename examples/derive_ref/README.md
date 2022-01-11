@@ -80,6 +80,8 @@ fn main() {
 - `Subcommand` defines available subcommands.
 - `ArgEnum` allows parsing a value directly into an `enum`, erroring on unsupported values.
 
+See also the [tutorial](../tutorial_derive/README.md) and [examples](../README.md).
+
 ## Raw Attributes
 
 **Raw attributes** are forwarded directly to the underlying `clap` builder.  Any
