@@ -1600,7 +1600,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(
+            self.app.settings.is_set(AS::PrintToStderr),
+            self.color_help(),
+        );
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
@@ -1616,7 +1619,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::version_err");
 
         let msg = self.app._render_version(use_long);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(
+            self.app.settings.is_set(AS::PrintToStderr),
+            self.color_help(),
+        );
         c.none(msg);
         ClapError::new(
             c,

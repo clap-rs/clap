@@ -658,6 +658,8 @@ impl<'help> App<'help> {
 
     /// Prints the short help message (`-h`) to [`io::stdout()`].
     ///
+    /// If [`AppSettings::PrintToStderr`] is set, this will print to [`io::stderr()`] instead of stdout.
+    ///
     /// See also [`App::print_long_help`].
     ///
     /// # Examples
@@ -668,17 +670,21 @@ impl<'help> App<'help> {
     /// app.print_help();
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
+    /// [`io::stderr()`]: std::io::stderr()
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
+        let use_stderr = self.settings.is_set(AppSettings::PrintToStderr);
         let color = self.get_color();
 
         let p = Parser::new(self);
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(use_stderr, color);
         Help::new(HelpWriter::Buffer(&mut c), &p, false).write_help()?;
         c.print()
     }
 
     /// Prints the long help message (`--help`) to [`io::stdout()`].
+    ///
+    /// If [`AppSettings::PrintToStderr`] is set, this will print to [`io::stderr()`] instead of stdout.
     ///
     /// See also [`App::print_help`].
     ///
@@ -690,15 +696,17 @@ impl<'help> App<'help> {
     /// app.print_long_help();
     /// ```
     /// [`io::stdout()`]: std::io::stdout()
+    /// [`io::stderr()`]: std::io::stderr()
     /// [`BufWriter`]: std::io::BufWriter
     /// [`-h` (short)]: Arg::help()
     /// [`--help` (long)]: Arg::long_help()
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
+        let use_stderr = self.settings.is_set(AppSettings::PrintToStderr);
         let color = self.get_color();
 
         let p = Parser::new(self);
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(use_stderr, color);
         Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
         c.print()
     }
