@@ -25,11 +25,11 @@ impl Generator for Elvish {
 use builtin;
 use str;
 
-set edit:completion:arg-completer[{bin_name}] = [@words]{{
-    fn spaces [n]{{
+set edit:completion:arg-completer[{bin_name}] = {{|@words|
+    fn spaces {{|n|
         builtin:repeat $n ' ' | str:join ''
     }}
-    fn cand [text desc]{{
+    fn cand {{|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }}
     var command = '{bin_name}'
