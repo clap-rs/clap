@@ -34,11 +34,11 @@ static ELVISH: &str = r#"
 use builtin;
 use str;
 
-set edit:completion:arg-completer[my_app] = [@words]{
-    fn spaces [n]{
+set edit:completion:arg-completer[my_app] = {|@words|
+    fn spaces {|n|
         builtin:repeat $n ' ' | str:join ''
     }
-    fn cand [text desc]{
+    fn cand {|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
     var command = 'my_app'
@@ -94,11 +94,11 @@ static ELVISH_SPECIAL_CMDS: &str = r#"
 use builtin;
 use str;
 
-set edit:completion:arg-completer[my_app] = [@words]{
-    fn spaces [n]{
+set edit:completion:arg-completer[my_app] = {|@words|
+    fn spaces {|n|
         builtin:repeat $n ' ' | str:join ''
     }
-    fn cand [text desc]{
+    fn cand {|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
     var command = 'my_app'
@@ -180,11 +180,11 @@ static ELVISH_ALIASES: &str = r#"
 use builtin;
 use str;
 
-set edit:completion:arg-completer[cmd] = [@words]{
-    fn spaces [n]{
+set edit:completion:arg-completer[cmd] = {|@words|
+    fn spaces {|n|
         builtin:repeat $n ' ' | str:join ''
     }
-    fn cand [text desc]{
+    fn cand {|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
     var command = 'cmd'
