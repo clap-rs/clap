@@ -222,7 +222,7 @@ pub trait Parser: FromArgMatches + IntoApp + Sized {
 
 /// Create an [`App`] relevant for a user-defined container.
 ///
-/// Derived as part of [`Parser`], [`Args`], and [`Subcommand`].
+/// Derived as part of [`Parser`].
 pub trait IntoApp: Sized {
     /// Build an [`App`] that can instantiate `Self`.
     ///
