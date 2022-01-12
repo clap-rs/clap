@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Shift more asserts from parsing to `App` building (ie will now run in `App::debug_assert`)
+
+**derive**
+- Documentation fixes
+
 ## [3.0.6] - 2022-01-10
 
 ### Fixes
