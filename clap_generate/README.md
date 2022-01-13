@@ -13,7 +13,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 1. [About](#about)
 2. [API Reference](https://docs.rs/clap_generate)
 3. [Questions & Discussions](https://github.com/clap-rs/clap/discussions)
-4. [CONTRIBUTING](https://github.com/clap-rs/clap/blob/clap_generate-v3.0.0/clap_generate/CCONTRIBUTING.md)
+4. [CONTRIBUTING](https://github.com/clap-rs/clap/blob/clap_generate-v3.0.0/clap_generate/CONTRIBUTING.md)
 5. [Sponsors](https://github.com/clap-rs/clap/blob/clap_generate-v3.0.0/README.md#sponsors)
 
 ## About
