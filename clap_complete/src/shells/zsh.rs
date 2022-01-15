@@ -634,6 +634,7 @@ fn write_positionals_of(p: &App) -> String {
                 .map_or("".to_owned(), |v| " -- ".to_owned() + v)
                 .replace('[', "\\[")
                 .replace(']', "\\]")
+                .replace('\'', "'\\''")
                 .replace(':', "\\:"),
             value_completion = value_completion(arg).unwrap_or_else(|| "".to_string())
         );
