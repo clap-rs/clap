@@ -165,6 +165,7 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`Arg::values_of_lossy`]: ArgMatches::values_of_lossy()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_lossy<T: Key>(&self, id: T) -> Option<Cow<'_, str>> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -215,6 +216,7 @@ impl ArgMatches {
     /// [`default_value`]: crate::Arg::default_value()
     /// [`occurrences_of`]: ArgMatches::occurrences_of()
     /// [`ArgMatches::values_of_os`]: ArgMatches::values_of_os()
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn value_of_os<T: Key>(&self, id: T) -> Option<&OsStr> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -318,6 +320,7 @@ impl ArgMatches {
     /// assert_eq!(&itr.next().unwrap()[..], "\u{FFFD}!");
     /// assert_eq!(itr.next(), None);
     /// ```
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_lossy<T: Key>(&self, id: T) -> Option<Vec<String>> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -371,6 +374,7 @@ impl ArgMatches {
     /// [`OsSt`]: std::ffi::OsStr
     /// [values]: OsValues
     /// [`String`]: std::string::String
+    #[cfg_attr(debug_assertions, track_caller)]
     pub fn values_of_os<T: Key>(&self, id: T) -> Option<OsValues> {
         let id = Id::from(id);
         let arg = self.get_arg(&id)?;
@@ -1313,7 +1317,7 @@ impl<'a> Default for Indices<'a> {
     }
 }
 
-#[track_caller]
+#[cfg_attr(debug_assertions, track_caller)]
 #[inline]
 fn assert_utf8_validation(arg: &MatchedArg, id: &Id) {
     debug_assert!(
@@ -1323,7 +1327,7 @@ fn assert_utf8_validation(arg: &MatchedArg, id: &Id) {
     );
 }
 
-#[track_caller]
+#[cfg_attr(debug_assertions, track_caller)]
 #[inline]
 fn assert_no_utf8_validation(arg: &MatchedArg, id: &Id) {
     debug_assert!(
