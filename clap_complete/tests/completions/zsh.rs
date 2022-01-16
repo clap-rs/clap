@@ -8,18 +8,18 @@ fn build_app_with_name(s: &'static str) -> App<'static> {
     App::new(s)
         .version("3.0")
         .setting(AppSettings::PropagateVersion)
-        .about("Tests completions")
+        .about("Test test's completions")
         .arg(
             Arg::new("file")
                 .value_hint(ValueHint::FilePath)
-                .help("some input file"),
+                .help("some input's file"),
         )
         .subcommand(
-            App::new("test").about("tests things").arg(
+            App::new("test").about("test test's things").arg(
                 Arg::new("case")
                     .long("case")
                     .takes_value(true)
-                    .help("the case to test"),
+                    .help("test's cases to test"),
             ),
         )
 }
@@ -51,7 +51,7 @@ _myapp() {
 '--help[Print help information]' \
 '-V[Print version information]' \
 '--version[Print version information]' \
-'::file -- some input file:_files' \
+'::file -- some input'\''s file:_files' \
 ":: :_myapp_commands" \
 "*::: :->myapp" \
 && ret=0
@@ -63,7 +63,7 @@ _myapp() {
         case $line[2] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'--case=[the case to test]: : ' \
+'--case=[test'\''s cases to test]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -82,7 +82,7 @@ esac
 (( $+functions[_myapp_commands] )) ||
 _myapp_commands() {
     local commands; commands=(
-'test:tests things' \
+'test:test test'\''s things' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'myapp commands' commands "$@"
@@ -145,7 +145,7 @@ _my_app() {
 '--help[Print help information]' \
 '-V[Print version information]' \
 '--version[Print version information]' \
-'::file -- some input file:_files' \
+'::file -- some input'\''s file:_files' \
 ":: :_my_app_commands" \
 "*::: :->my_app" \
 && ret=0
@@ -157,7 +157,7 @@ _my_app() {
         case $line[2] in
             (test)
 _arguments "${_arguments_options[@]}" \
-'--case=[the case to test]: : ' \
+'--case=[test'\''s cases to test]: : ' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
@@ -201,7 +201,7 @@ esac
 (( $+functions[_my_app_commands] )) ||
 _my_app_commands() {
     local commands; commands=(
-'test:tests things' \
+'test:test test'\''s things' \
 'some_cmd:tests other things' \
 'some-cmd-with-hypens:' \
 'some_cmd_with_special_characters:This '\''is'\'' a "special" \[character\] string \\' \
