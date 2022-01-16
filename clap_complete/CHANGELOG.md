@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.0.4] - 2022-01-15
+
 ### Fixes
 
 - Unescaped chars in zsh completions
@@ -23,7 +25,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.3...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.4...HEAD
+[3.0.4]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.3...clap_complete-v3.0.4
 [3.0.3]: https://github.com/clap-rs/clap/compare/v3.0.2...clap_complete-v3.0.3
 [3.0.2]: https://github.com/clap-rs/clap/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/clap-rs/clap/compare/v3.0.0...v3.0.1
