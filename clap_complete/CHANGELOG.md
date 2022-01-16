@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Unescaped chars in zsh completions
+
 ## [3.0.3] - 2022-01-12
 
 ### Fixes
