@@ -447,7 +447,8 @@ impl Error {
     /// Create an unformatted error
     ///
     /// This is for you need to pass the error up to
-    /// a place that has access to the `App` at which point you can call [`Error::format].
+    /// a place that has access to the `App` at which point you can call [`Error::format`].
+    ///
     /// Prefer [`App::error`] for generating errors.
     ///
     /// [`App::error`]: crate::App::error
