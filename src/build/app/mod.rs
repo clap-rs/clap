@@ -2902,11 +2902,18 @@ impl<'help> App<'help> {
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debug!("App::_check_help_and_version: Building help subcommand");
-            let help_subcmd = App::new("help")
-                .about("Print this message or the help of the given subcommand(s)")
-                // The parser acts like this is set, so let's set it so we don't falsely
-                // advertise it to the user
-                .setting(AppSettings::DisableHelpFlag);
+            let mut help_subcmd =
+                App::new("help").about("Print this message or the help of the given subcommand(s)");
+            self._propagate_subcommand(&mut help_subcmd);
+
+            // The parser acts like this is set, so let's set it so we don't falsely
+            // advertise it to the user
+            help_subcmd.version = None;
+            help_subcmd.long_version = None;
+            help_subcmd = help_subcmd
+                .setting(AppSettings::DisableHelpFlag)
+                .unset_setting(AppSettings::PropagateVersion);
+
             self.subcommands.push(help_subcmd);
         }
     }
