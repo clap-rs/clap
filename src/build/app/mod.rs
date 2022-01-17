@@ -2775,32 +2775,31 @@ impl<'help> App<'help> {
 
     /// Propagate settings
     pub(crate) fn _propagate(&mut self) {
-        macro_rules! propagate_subcmd {
-            ($_self:expr, $sc:expr) => {{
-                // We have to create a new scope in order to tell rustc the borrow of `sc` is
-                // done and to recursively call this method
-                {
-                    if $_self.settings.is_set(AppSettings::PropagateVersion) {
-                        if $sc.version.is_none() && $_self.version.is_some() {
-                            $sc.version = Some($_self.version.unwrap());
-                        }
-                        if $sc.long_version.is_none() && $_self.long_version.is_some() {
-                            $sc.long_version = Some($_self.long_version.unwrap());
-                        }
-                    }
-
-                    $sc.settings = $sc.settings | $_self.g_settings;
-                    $sc.g_settings = $sc.g_settings | $_self.g_settings;
-                    $sc.term_w = $_self.term_w;
-                    $sc.max_w = $_self.max_w;
-                }
-            }};
-        }
-
         debug!("App::_propagate:{}", self.name);
+        let mut subcommands = std::mem::take(&mut self.subcommands);
+        for sc in &mut subcommands {
+            self._propagate_subcommand(sc);
+        }
+        self.subcommands = subcommands;
+    }
 
-        for sc in &mut self.subcommands {
-            propagate_subcmd!(self, sc);
+    fn _propagate_subcommand(&self, sc: &mut Self) {
+        // We have to create a new scope in order to tell rustc the borrow of `sc` is
+        // done and to recursively call this method
+        {
+            if self.settings.is_set(AppSettings::PropagateVersion) {
+                if sc.version.is_none() && self.version.is_some() {
+                    sc.version = Some(self.version.unwrap());
+                }
+                if sc.long_version.is_none() && self.long_version.is_some() {
+                    sc.long_version = Some(self.long_version.unwrap());
+                }
+            }
+
+            sc.settings = sc.settings | self.g_settings;
+            sc.g_settings = sc.g_settings | self.g_settings;
+            sc.term_w = self.term_w;
+            sc.max_w = self.max_w;
         }
     }
 
