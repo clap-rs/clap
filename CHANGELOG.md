@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Respected `DisableColoredHelp` on `cmd help help`
+- Provide a little more context when completing arguments for `cmd help`
+- Provide more context for some asserts
+- Small documentation improvements
+
 ## [3.0.7] - 2022-01-12
 
 ### Fixes
