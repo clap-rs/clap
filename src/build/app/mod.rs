@@ -2902,8 +2902,16 @@ impl<'help> App<'help> {
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debug!("App::_check_help_and_version: Building help subcommand");
-            let mut help_subcmd =
-                App::new("help").about("Print this message or the help of the given subcommand(s)");
+            let mut help_subcmd = App::new("help")
+                .about("Print this message or the help of the given subcommand(s)")
+                .arg(
+                    Arg::new("subcommand")
+                        .index(1)
+                        .takes_value(true)
+                        .multiple_occurrences(true)
+                        .value_name("SUBCOMMAND")
+                        .help("The subcommand whose help message to display"),
+                );
             self._propagate_subcommand(&mut help_subcmd);
 
             // The parser acts like this is set, so let's set it so we don't falsely
