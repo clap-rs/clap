@@ -72,7 +72,7 @@ static BASH: &str = r#"_myapp() {
             return 0
             ;;
         myapp__help)
-            opts=""
+            opts="<SUBCOMMAND>..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -175,7 +175,7 @@ static BASH_SPECIAL_CMDS: &str = r#"_my_app() {
             return 0
             ;;
         my_app__help)
-            opts=""
+            opts="<SUBCOMMAND>..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

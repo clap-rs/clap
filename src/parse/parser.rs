@@ -665,16 +665,6 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
                 .clone();
 
-                if cmd == OsStr::new("help") {
-                    let pb = Arg::new("subcommand")
-                        .index(1)
-                        .takes_value(true)
-                        .multiple_occurrences(true)
-                        .value_name("SUBCOMMAND")
-                        .help("The subcommand whose help message to display");
-                    sc = sc.arg(pb);
-                }
-
                 sc._build();
                 bin_name.push(' ');
                 bin_name.push_str(&sc.name);

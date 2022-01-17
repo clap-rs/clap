@@ -2775,32 +2775,31 @@ impl<'help> App<'help> {
 
     /// Propagate settings
     pub(crate) fn _propagate(&mut self) {
-        macro_rules! propagate_subcmd {
-            ($_self:expr, $sc:expr) => {{
-                // We have to create a new scope in order to tell rustc the borrow of `sc` is
-                // done and to recursively call this method
-                {
-                    if $_self.settings.is_set(AppSettings::PropagateVersion) {
-                        if $sc.version.is_none() && $_self.version.is_some() {
-                            $sc.version = Some($_self.version.unwrap());
-                        }
-                        if $sc.long_version.is_none() && $_self.long_version.is_some() {
-                            $sc.long_version = Some($_self.long_version.unwrap());
-                        }
-                    }
-
-                    $sc.settings = $sc.settings | $_self.g_settings;
-                    $sc.g_settings = $sc.g_settings | $_self.g_settings;
-                    $sc.term_w = $_self.term_w;
-                    $sc.max_w = $_self.max_w;
-                }
-            }};
-        }
-
         debug!("App::_propagate:{}", self.name);
+        let mut subcommands = std::mem::take(&mut self.subcommands);
+        for sc in &mut subcommands {
+            self._propagate_subcommand(sc);
+        }
+        self.subcommands = subcommands;
+    }
 
-        for sc in &mut self.subcommands {
-            propagate_subcmd!(self, sc);
+    fn _propagate_subcommand(&self, sc: &mut Self) {
+        // We have to create a new scope in order to tell rustc the borrow of `sc` is
+        // done and to recursively call this method
+        {
+            if self.settings.is_set(AppSettings::PropagateVersion) {
+                if sc.version.is_none() && self.version.is_some() {
+                    sc.version = Some(self.version.unwrap());
+                }
+                if sc.long_version.is_none() && self.long_version.is_some() {
+                    sc.long_version = Some(self.long_version.unwrap());
+                }
+            }
+
+            sc.settings = sc.settings | self.g_settings;
+            sc.g_settings = sc.g_settings | self.g_settings;
+            sc.term_w = self.term_w;
+            sc.max_w = self.max_w;
         }
     }
 
@@ -2903,13 +2902,27 @@ impl<'help> App<'help> {
             && !self.subcommands.iter().any(|s| s.id == Id::help_hash())
         {
             debug!("App::_check_help_and_version: Building help subcommand");
-            self.subcommands.push(
-                App::new("help")
-                    .about("Print this message or the help of the given subcommand(s)")
-                    // The parser acts like this is set, so let's set it so we don't falsely
-                    // advertise it to the user
-                    .setting(AppSettings::DisableHelpFlag),
-            );
+            let mut help_subcmd = App::new("help")
+                .about("Print this message or the help of the given subcommand(s)")
+                .arg(
+                    Arg::new("subcommand")
+                        .index(1)
+                        .takes_value(true)
+                        .multiple_occurrences(true)
+                        .value_name("SUBCOMMAND")
+                        .help("The subcommand whose help message to display"),
+                );
+            self._propagate_subcommand(&mut help_subcmd);
+
+            // The parser acts like this is set, so let's set it so we don't falsely
+            // advertise it to the user
+            help_subcmd.version = None;
+            help_subcmd.long_version = None;
+            help_subcmd = help_subcmd
+                .setting(AppSettings::DisableHelpFlag)
+                .unset_setting(AppSettings::PropagateVersion);
+
+            self.subcommands.push(help_subcmd);
         }
     }
 
