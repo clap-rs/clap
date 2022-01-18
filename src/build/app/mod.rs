@@ -2932,7 +2932,7 @@ impl<'help> App<'help> {
             help_subcmd.long_version = None;
             help_subcmd = help_subcmd
                 .setting(AppSettings::DisableHelpFlag)
-                .unset_setting(AppSettings::PropagateVersion);
+                .unset_global_setting(AppSettings::PropagateVersion);
 
             self.subcommands.push(help_subcmd);
         }
