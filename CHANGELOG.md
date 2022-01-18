@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Resolve `panic!` from v3.0.8 when using `global_setting(PropagateVersion)`.
+
 ## [3.0.9] - 2022-01-17
 
 ### Features
