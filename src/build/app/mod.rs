@@ -2246,6 +2246,18 @@ impl<'help> App<'help> {
         self.get_subcommands().find(|s| s.aliases_to(name))
     }
 
+    /// Find subcommand such that its name or one of aliases equals `name`, returning
+    /// a mutable reference to the subcommand.
+    ///
+    /// This does not recurse through subcommands of subcommands.
+    #[inline]
+    pub fn find_subcommand_mut<T>(&mut self, name: &T) -> Option<&mut App<'help>>
+    where
+        T: PartialEq<str> + ?Sized,
+    {
+        self.get_subcommands_mut().find(|s| s.aliases_to(name))
+    }
+
     /// Iterate through the set of arguments.
     #[inline]
     pub fn get_arguments(&self) -> impl Iterator<Item = &Arg<'help>> {
