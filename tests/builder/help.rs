@@ -2734,3 +2734,28 @@ fn disable_help_flag_affects_help_subcommand() {
         args
     );
 }
+
+#[test]
+fn dont_propagate_version_to_help_subcommand() {
+    let app = clap::App::new("test")
+        .version("1.0")
+        .global_setting(clap::AppSettings::PropagateVersion)
+        .subcommand(clap::App::new("subcommand"));
+
+    assert!(utils::compare_output(
+        app.clone(),
+        "example help help",
+        "example-help 
+Print this message or the help of the given subcommand(s)
+
+USAGE:
+    example help [SUBCOMMAND]...
+
+ARGS:
+    <SUBCOMMAND>...    The subcommand whose help message to display
+",
+        false
+    ));
+
+    app.debug_assert();
+}
