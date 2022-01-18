@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `App::find_subcommand_mut`
+
 ## [3.0.8] - 2022-01-17
 
 ### Fixes
