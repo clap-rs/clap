@@ -224,9 +224,11 @@ Notes:
 - `from_occurrences`:
   - Implies `arg.takes_value(false).multiple_occurrences(true)`
   - Reads from `clap::ArgMatches::occurrences_of` rather than a `value_of` function
+  - Because `takes_value(false)` is implied, it makes it incompatible with Defaulting (e.g. `default_value` & `default_value_t`)
 - `from_flag`
   - Implies `arg.takes_value(false)`
   - Reads from `clap::ArgMatches::is_present` rather than a `value_of` function
+  - Because `takes_value(false)` is implied, it makes it incompatible with Defaulting (e.g. `default_value` & `default_value_t`)
 
 **Warning:**
 - To support non-UTF8 paths, you must use `parse(from_os_str)`, otherwise
