@@ -31,6 +31,10 @@ Create your command-line parser, with all of the bells and whistles, declarative
 
 ### Example
 
+This uses our
+[Derive API](https://github.com/clap-rs/clap/blob/v3.0.10/examples/derive_ref/README.md)
+which provides access to the Builder API as attributes on a `struct`:
+
 <!-- Copied from examples/demo.{rs,md} -->
 ```rust,no_run
 use clap::Parser;
