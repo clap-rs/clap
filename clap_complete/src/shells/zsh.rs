@@ -41,7 +41,9 @@ _{name}() {{
 
 _{name} \"$@\"
 ",
-                name = app.get_bin_name().unwrap(),
+                name = app
+                    .get_bin_name()
+                    .expect("Getting the App's \"bin_name\" failed"),
                 initial_args = get_args_of(app, None),
                 subcommands = get_subcommands_of(app),
                 subcommand_details = subcommand_details(app)

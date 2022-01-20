@@ -16,7 +16,9 @@ impl Generator for Fish {
     }
 
     fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let command = app.get_bin_name().unwrap();
+        let command = app
+            .get_bin_name()
+            .expect("Getting the App's \"bin_name\" failed");
         let mut buffer = String::new();
 
         gen_fish_inner(command, &[], app, &mut buffer);

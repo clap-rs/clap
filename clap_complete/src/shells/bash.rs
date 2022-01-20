@@ -14,7 +14,9 @@ impl Generator for Bash {
     }
 
     fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let bin_name = app.get_bin_name().unwrap();
+        let bin_name = app
+            .get_bin_name()
+            .expect("Getting the App's \"bin_name\" failed");
 
         w!(
             buf,
