@@ -15,7 +15,9 @@ impl Generator for Elvish {
     }
 
     fn generate(&self, app: &App, buf: &mut dyn Write) {
-        let bin_name = app.get_bin_name().unwrap();
+        let bin_name = app
+            .get_bin_name()
+            .expect("crate::generate should have set the bin_name");
 
         let mut names = vec![];
         let subcommands_cases = generate_inner(app, "", &mut names);
