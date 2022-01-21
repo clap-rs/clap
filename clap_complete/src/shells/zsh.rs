@@ -15,6 +15,10 @@ impl Generator for Zsh {
     }
 
     fn generate(&self, app: &App, buf: &mut dyn Write) {
+        let bin_name = app
+            .get_bin_name()
+            .expect("crate::generate should have set the bin_name");
+
         w!(
             buf,
             format!(
@@ -41,7 +45,7 @@ _{name}() {{
 
 _{name} \"$@\"
 ",
-                name = app.get_bin_name().unwrap(),
+                name = bin_name,
                 initial_args = get_args_of(app, None),
                 subcommands = get_subcommands_of(app),
                 subcommand_details = subcommand_details(app)
@@ -81,7 +85,9 @@ _{name} \"$@\"
 fn subcommand_details(p: &App) -> String {
     debug!("subcommand_details");
 
-    let name = p.get_bin_name().unwrap();
+    let bin_name = p
+        .get_bin_name()
+        .expect("crate::generate should have set the bin_name");
 
     let mut ret = vec![];
 
@@ -93,8 +99,8 @@ _{bin_name_underscore}_commands() {{
     local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
 }}",
-        bin_name_underscore = name.replace(' ', "__"),
-        bin_name = name,
+        bin_name_underscore = bin_name.replace(' ', "__"),
+        bin_name = bin_name,
         subcommands_and_args = subcommands_of(p)
     );
     ret.push(parent_text);
@@ -247,6 +253,10 @@ fn get_subcommands_of(parent: &App) -> String {
         all_subcommands.push(segments.join("\n"));
     }
 
+    let parent_bin_name = parent
+        .get_bin_name()
+        .expect("crate::generate should have set the bin_name");
+
     format!(
         "
     case $state in
@@ -260,7 +270,7 @@ fn get_subcommands_of(parent: &App) -> String {
     ;;
 esac",
         name = parent.get_name(),
-        name_hyphen = parent.get_bin_name().unwrap().replace(' ', "-"),
+        name_hyphen = parent_bin_name.replace(' ', "-"),
         subcommands = all_subcommands.join("\n"),
         pos = parent.get_positionals().count() + 1
     )
@@ -327,9 +337,12 @@ fn get_args_of(parent: &App, p_global: Option<&App>) -> String {
     }
 
     if parent.has_subcommands() {
+        let parent_bin_name = parent
+            .get_bin_name()
+            .expect("crate::generate should have set the bin_name");
         let subcommand_bin_name = format!(
             "\":: :_{name}_commands\" \\",
-            name = parent.get_bin_name().as_ref().unwrap().replace(' ', "__")
+            name = parent_bin_name.replace(' ', "__")
         );
         segments.push(subcommand_bin_name);
 

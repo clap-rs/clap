@@ -14,6 +14,10 @@ use clap::App;
 pub trait Generator {
     /// Returns the file name that is created when this generator is called during compile time.
     ///
+    /// # Panics
+    ///
+    /// May panic when called outside of the context of [`generate`] or [`generate_to`]
+    ///
     /// # Examples
     ///
     /// ```
@@ -33,6 +37,10 @@ pub trait Generator {
     fn file_name(&self, name: &str) -> String;
 
     /// Generates output out of [`clap::App`](App).
+    ///
+    /// # Panics
+    ///
+    /// May panic when called outside of the context of [`generate`] or [`generate_to`]
     ///
     /// # Examples
     ///
