@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ensure conflicts work when they target a group with a default value
+
 ## [3.0.10] - 2022-01-18
 
 ### Fixes
