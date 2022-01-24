@@ -477,7 +477,7 @@ impl Error {
 
     /// Prints the error and exits.
     ///
-    /// Depending on the error kind, this either prints to `stderr` and exits with a status of `1`
+    /// Depending on the error kind, this either prints to `stderr` and exits with a status of `2`
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         if self.use_stderr() {
