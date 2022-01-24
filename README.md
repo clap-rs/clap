@@ -33,7 +33,7 @@ Create your command-line parser, with all of the bells and whistles, declarative
 
 This uses our
 [Derive API](https://github.com/clap-rs/clap/blob/v3.0.10/examples/derive_ref/README.md)
-which provides access to the Builder API as attributes on a `struct`:
+which provides access to the [Builder API](https://docs.rs/clap) as attributes on a `struct`:
 
 <!-- Copied from examples/demo.{rs,md} -->
 ```rust,no_run
@@ -101,6 +101,20 @@ size, we will still strive to keep these reasonable for the flexibility you
 get.  Check out the
 [argparse-benchmarks](https://github.com/rust-cli/argparse-benchmarks-rs) for
 CLI parsers optimized for other use cases.
+
+### Selecting an API
+
+Why use the declarative [Derive API](https://github.com/clap-rs/clap/blob/v3.0.10/examples/tutorial_derive/README.md):
+- Easier to read, write, and modify
+- Easier to keep the argument declaration and reading of argument in sync
+- Easier to reuse, e.g. [clap-verbosity-flag](https://crates.io/crates/clap-verbosity-flag)
+
+Why use the procedural [Builder API](https://github.com/clap-rs/clap/blob/v3.0.10/examples/tutorial_builder/README.md):
+- Faster compile times if you aren't already using other procedural macros
+- More flexible, e.g. you can look up how many times an argument showed up,
+  what its values were, and what were the indexes of those values.  The Derive
+  API can only report presence, number of occurrences, or values but no indices
+  or combinations of data.
 
 ### Related Projects
 
