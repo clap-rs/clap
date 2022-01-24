@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.0.5] - 2022-01-24
+
 ### Fixes
 
 - Clarified panics
@@ -29,7 +31,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.5...HEAD
+[3.0.5]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.4...clap_complete-v3.0.5
 [3.0.4]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.3...clap_complete-v3.0.4
 [3.0.3]: https://github.com/clap-rs/clap/compare/v3.0.2...clap_complete-v3.0.3
 [3.0.2]: https://github.com/clap-rs/clap/compare/v3.0.1...v3.0.2
