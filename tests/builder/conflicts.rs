@@ -107,6 +107,43 @@ fn arg_conflicts_with_group() {
 }
 
 #[test]
+fn arg_conflicts_with_group_with_multiple_sources() {
+    let mut app = clap::App::new("group_conflict")
+        .arg(clap::arg!(-f --flag "some flag").conflicts_with("gr"))
+        .group(clap::ArgGroup::new("gr").multiple(true))
+        .arg(
+            clap::arg!(--some <name> "some arg")
+                .required(false)
+                .group("gr"),
+        )
+        .arg(
+            clap::arg!(--other <secs> "other arg")
+                .required(false)
+                .default_value("1000")
+                .group("gr"),
+        );
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some", "usb1"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "--some", "usb1", "--other", "40"]);
+    if let Err(err) = result {
+        panic!("{}", err);
+    }
+
+    let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some", "usb1"]);
+    let err = result.err().unwrap();
+    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+}
+
+#[test]
 fn group_conflicts_with_arg() {
     let mut app = App::new("group_conflict")
         .arg(arg!(-f --flag "some flag"))

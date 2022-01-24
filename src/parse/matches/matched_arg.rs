@@ -119,8 +119,8 @@ impl MatchedArg {
         })
     }
 
-    pub(crate) fn set_ty(&mut self, ty: ValueType) {
-        self.ty = ty;
+    pub(crate) fn update_ty(&mut self, ty: ValueType) {
+        self.ty = self.ty.max(ty);
     }
 
     pub(crate) fn set_ignore_case(&mut self, yes: bool) {
@@ -142,13 +142,13 @@ impl Default for MatchedArg {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum ValueType {
     Unknown,
+    DefaultValue,
     #[cfg(feature = "env")]
     EnvVariable,
     CommandLine,
-    DefaultValue,
 }
 
 #[cfg(test)]
