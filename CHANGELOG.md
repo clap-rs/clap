@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Support for `default_value_os_t`
+
 ## [3.0.11] - 2022-01-24
 
 ### Fixes
