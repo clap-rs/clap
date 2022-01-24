@@ -185,6 +185,9 @@ In addition to the raw attributes, the following magic attributes are supported:
 - `default_value_t [= <expr>]`: `clap::Arg::default_value` and `clap::Arg::required(false)`
   - Requires `std::fmt::Display` or `#[clap(arg_enum)]`
   - Without `<expr>`, relies on `Default::default()`
+- `default_value_os_t [= <expr>]`: `clap::Arg::default_value_os` and `clap::Arg::required(false)`
+  - Requires `std::convert::Into<OsString>` or `#[clap(arg_enum)]`
+  - Without `<expr>`, relies on `Default::default()`
 
 ### Arg Types
 

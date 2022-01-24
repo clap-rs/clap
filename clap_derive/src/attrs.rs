@@ -489,6 +489,49 @@ impl Attrs {
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
+                DefaultValueOsT(ident, expr) => {
+                    let ty = if let Some(ty) = self.ty.as_ref() {
+                        ty
+                    } else {
+                        abort!(
+                            ident,
+                            "#[clap(default_value_os_t)] (without an argument) can be used \
+                            only on field level";
+
+                            note = "see \
+                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                    };
+
+                    let val = if let Some(expr) = expr {
+                        quote!(#expr)
+                    } else {
+                        quote!(<#ty as ::std::default::Default>::default())
+                    };
+
+                    let val = if parsed.iter().any(|a| matches!(a, ArgEnum(_))) {
+                        quote_spanned!(ident.span()=> {
+                            {
+                                let val: #ty = #val;
+                                clap::ArgEnum::to_possible_value(&val).unwrap().get_name()
+                            }
+                        })
+                    } else {
+                        quote_spanned!(ident.span()=> {
+                            clap::lazy_static::lazy_static! {
+                                static ref DEFAULT_VALUE: &'static ::std::ffi::OsStr = {
+                                    let val: #ty = #val;
+                                    let s: ::std::ffi::OsString = val.into();
+                                    ::std::boxed::Box::leak(s.into_boxed_os_str())
+                                };
+                            }
+                            *DEFAULT_VALUE
+                        })
+                    };
+
+                    let raw_ident = Ident::new("default_value_os", ident.span());
+                    self.methods.push(Method::new(raw_ident, val));
+                }
+
                 HelpHeading(ident, expr) => {
                     self.help_heading = Some(Method::new(ident, quote!(#expr)));
                 }
