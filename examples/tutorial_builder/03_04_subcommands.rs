@@ -17,6 +17,8 @@ fn main() {
             "'myapp add' was used, name is: {:?}",
             sub_matches.value_of("NAME")
         ),
-        _ => unreachable!(),
+        _ => unreachable!(
+            "Exhausted list of subcommands and SubcommandRequiredElseHelp prevents `None`"
+        ),
     }
 }

@@ -272,22 +272,6 @@ subcommands.
 
 [Example:](03_04_subcommands.rs)
 ```console
-$ 03_04_subcommands
-? failed
-clap [..]
-A simple to use, efficient, and full-featured Command Line Argument Parser
-
-USAGE:
-    03_04_subcommands[EXE] <SUBCOMMAND>
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    add     Adds files to myapp
-    help    Print this message or the help of the given subcommand(s)
-
 $ 03_04_subcommands help
 clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
@@ -319,6 +303,26 @@ OPTIONS:
 
 $ 03_04_subcommands add bob
 'myapp add' was used, name is: Some("bob")
+
+```
+
+Because we set `AppSettings::SubcommandRequiredElseHelp`:
+```console
+$ 03_04_subcommands
+? failed
+clap [..]
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+USAGE:
+    03_04_subcommands[EXE] <SUBCOMMAND>
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    add     Adds files to myapp
+    help    Print this message or the help of the given subcommand(s)
 
 ```
 
