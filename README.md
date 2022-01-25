@@ -32,8 +32,8 @@ Create your command-line parser, with all of the bells and whistles, declarative
 ### Example
 
 This uses our
-[Derive API](https://github.com/clap-rs/clap/blob/v3.0.12/examples/derive_ref/README.md)
-which provides access to the [Builder API](https://docs.rs/clap) as attributes on a `struct`:
+[Derive API](https://github.com/clap-rs/clap/blob/v3.0.12/examples/tutorial_derive/README.md)
+which provides access to the [Builder API](https://github.com/clap-rs/clap/blob/v3.0.12/examples/tutorial_builder/README.md) as attributes on a `struct`:
 
 <!-- Copied from examples/demo.{rs,md} -->
 ```rust,no_run
