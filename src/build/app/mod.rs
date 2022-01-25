@@ -2659,7 +2659,7 @@ impl<'help> App<'help> {
             .filter(|a| a.get_global())
             .map(|ga| ga.id.clone())
             .collect();
-        if let Some(used_subcommand) = matcher.0.subcommand.as_ref() {
+        if let Some(used_subcommand) = matcher.subcommand.as_ref() {
             if let Some(used_subcommand) = self
                 .subcommands
                 .iter()

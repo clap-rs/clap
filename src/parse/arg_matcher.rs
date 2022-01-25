@@ -12,7 +12,7 @@ use crate::{
 use indexmap::map::Entry;
 
 #[derive(Debug, Default)]
-pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
+pub(crate) struct ArgMatcher(ArgMatches);
 
 impl ArgMatcher {
     pub(crate) fn new(_app: &App) -> Self {
