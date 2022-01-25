@@ -1448,7 +1448,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         self.app.args.args().try_for_each(|a| {
             // Use env only if the arg was absent among command line args,
             // early return if this is not the case.
-            if matcher.get(&a.id).map_or(false, |a| a.occurs != 0) {
+            if matcher
+                .get(&a.id)
+                .map_or(false, |a| a.get_occurrences() != 0)
+            {
                 debug!("Parser::add_env: Skipping existing arg `{}`", a);
                 return Ok(());
             }
