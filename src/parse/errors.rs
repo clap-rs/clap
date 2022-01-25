@@ -432,13 +432,13 @@ pub enum ErrorKind {
 #[derive(Debug)]
 pub struct Error {
     /// Formatted error message, enhancing the cause message with extra information
-    pub(crate) message: Message,
+    message: Message,
     /// The type of error
     pub kind: ErrorKind,
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
-    pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
+    source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
 }
