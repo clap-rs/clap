@@ -466,6 +466,11 @@ impl Error {
         self
     }
 
+    /// Type of error for programmatic processing
+    pub fn kind(&self) -> ErrorKind {
+        self.kind
+    }
+
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
