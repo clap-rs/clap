@@ -85,7 +85,7 @@ fn possible_values_of_positional_fail() {
         .try_get_matches_from(vec!["myprog", "notest"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn possible_values_of_positional_multiple_fail() {
         .try_get_matches_from(vec!["myprog", "test123", "notest"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -160,7 +160,7 @@ fn possible_values_of_option_fail() {
         .try_get_matches_from(vec!["myprog", "--option", "notest"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -202,7 +202,7 @@ fn possible_values_of_option_multiple_fail() {
         .try_get_matches_from(vec!["", "--option", "test123", "--option", "notest"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -337,7 +337,7 @@ fn ignore_case_fail() {
         .try_get_matches_from(vec!["pv", "--option", "TeSt123"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }
 
 #[test]
@@ -377,5 +377,5 @@ fn ignore_case_multiple_fail() {
         .try_get_matches_from(vec!["pv", "--option", "test123", "teST123", "test321"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidValue);
 }

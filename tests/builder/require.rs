@@ -57,7 +57,7 @@ fn flag_required() {
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -79,7 +79,7 @@ fn option_required() {
         .try_get_matches_from(vec!["", "-f", "val"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn positional_required() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn group_required() {
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -166,7 +166,7 @@ fn arg_require_group() {
         .try_get_matches_from(vec!["", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -260,7 +260,7 @@ fn required_unless_err() {
         .try_get_matches_from(vec!["unlesstest"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -277,7 +277,7 @@ fn required_unless_present_with_optional_value() {
         .try_get_matches_from(vec!["unlesstest", "--opt"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 // REQUIRED_UNLESS_ALL
@@ -316,7 +316,7 @@ fn required_unless_all_err() {
         .try_get_matches_from(vec!["unlessall", "--debug"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 // REQUIRED_UNLESS_ONE
@@ -452,7 +452,7 @@ fn required_unless_any_err() {
         .try_get_matches_from(vec!["unlessone"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -480,7 +480,7 @@ fn requires_if_present_val() {
         .try_get_matches_from(vec!["unlessone", "--config=my.cfg"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -497,7 +497,7 @@ fn requires_if_present_mult() {
         .try_get_matches_from(vec!["unlessone", "--config=other.cfg"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -561,7 +561,7 @@ fn required_if_val_present_fail() {
         .try_get_matches_from(vec!["ri", "--extra", "val"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -602,7 +602,7 @@ fn required_if_val_present_ignore_case_fail() {
         .try_get_matches_from(vec!["ri", "--extra", "vaL"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -653,7 +653,7 @@ fn required_if_all_values_present_fail() {
         .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -690,7 +690,7 @@ fn required_if_any_all_values_present_fail() {
         .try_get_matches_from(vec!["ri", "--extra", "val", "--option", "spec"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -806,7 +806,7 @@ fn required_ifs_val_present_fail() {
         .try_get_matches_from(vec!["ri", "--option", "spec"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -839,7 +839,7 @@ fn required_ifs_wrong_val_mult_fail() {
         .try_get_matches_from(vec!["ri", "--extra", "other", "--option", "spec"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]

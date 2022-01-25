@@ -328,7 +328,7 @@ pub enum AppSettings {
     ///         "myprog",
     ///     ]);
     /// assert!(err.is_err());
-    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
+    /// assert_eq!(err.unwrap_err().kind(), ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
     ///
@@ -434,7 +434,7 @@ pub enum AppSettings {
     ///     .subcommand(App::new("dnsdomainname"));
     /// let m = app.try_get_matches_from_mut(&["/usr/bin/hostname", "dnsdomainname"]);
     /// assert!(m.is_err());
-    /// assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// let m = app.get_matches_from(&["/usr/bin/dnsdomainname"]);
     /// assert_eq!(m.subcommand_name(), Some("dnsdomainname"));
     /// ```
@@ -574,7 +574,7 @@ pub enum AppSettings {
     ///         "myprog"
     ///     ]);
     /// assert!(err.is_err());
-    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(err.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// # ;
     /// ```
     ///
@@ -766,7 +766,7 @@ pub enum AppSettings {
     ///         "myprog", "-h"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     DisableHelpFlag,
 
@@ -785,7 +785,7 @@ pub enum AppSettings {
     ///         "myprog", "help"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     ///
     /// [`subcommand`]: crate::App::subcommand()
@@ -803,7 +803,7 @@ pub enum AppSettings {
     ///         "myprog", "-V"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     DisableVersionFlag,
 

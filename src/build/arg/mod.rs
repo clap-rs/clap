@@ -542,7 +542,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     /// [index]: Arg::index()
     /// [`UnknownArgument`]: crate::ErrorKind::UnknownArgument
@@ -607,7 +607,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     #[inline]
     #[must_use]
@@ -672,7 +672,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -713,7 +713,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
     /// ```
     #[inline]
     #[must_use]
@@ -869,7 +869,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooManyOccurrences);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
@@ -1083,7 +1083,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage)
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage)
     /// ```
     ///
     /// A common mistake is to define an option which allows multiple values, and a positional
@@ -1151,7 +1151,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     ///
     /// [`subcommands`]: crate::App::subcommand()
@@ -1206,7 +1206,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
@@ -1270,7 +1270,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
@@ -1335,7 +1335,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::TooFewValues);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
     /// [`Arg::multiple_occurrences(true)`]: Arg::multiple_occurrences()
     #[inline]
@@ -1635,7 +1635,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "12345"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.err().unwrap().kind, ErrorKind::ValueValidation)
+    /// assert_eq!(res.err().unwrap().kind(), ErrorKind::ValueValidation)
     /// ```
     #[cfg(feature = "regex")]
     #[must_use]
@@ -1720,7 +1720,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--mode", "wrong"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
@@ -1796,7 +1796,7 @@ impl<'help> Arg<'help> {
     ///         "prog", "--mode", "wrong"
     ///     ]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::InvalidValue);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::InvalidValue);
     /// ```
     /// [options]: Arg::takes_value()
     /// [positional arguments]: Arg::index()
@@ -1916,7 +1916,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     /// [`Arg::number_of_values(1)`]: Arg::number_of_values()
     #[inline]
@@ -2013,7 +2013,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
     /// ```
     #[inline]
     #[must_use]
@@ -2065,7 +2065,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::NoEquals);
     /// ```
     #[inline]
     #[must_use]
@@ -2223,7 +2223,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_err());
     /// let err = res.unwrap_err();
-    /// assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(err.kind(), ErrorKind::UnknownArgument);
     /// ```
     ///
     /// What's happening is `-o` is getting `val1`, and because delimiters are required yet none
@@ -3643,7 +3643,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
     #[must_use]
@@ -3712,7 +3712,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any`]: Arg::required_unless_present_any()
@@ -3789,7 +3789,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
     /// [`Arg::required_unless_present_any(names)`]: Arg::required_unless_present_any()
@@ -3848,7 +3848,7 @@ impl<'help> Arg<'help> {
     ///
     /// // We did use --other=special so "cfg" had become required but was missing.
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     ///
     /// let res = App::new("prog")
     ///     .arg(Arg::new("cfg")
@@ -3880,7 +3880,7 @@ impl<'help> Arg<'help> {
     ///
     /// // However, case-insensitive comparisons can be enabled.  This typically occurs when using Arg::possible_values().
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -3959,7 +3959,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -4039,7 +4039,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [required]: Arg::required()
     #[must_use]
@@ -4101,7 +4101,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -4153,7 +4153,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err()); // We  used --config=special.conf so --option <val> is required
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [`Arg::requires(name)`]: Arg::requires()
     /// [Conflicting]: Arg::conflicts_with()
@@ -4225,7 +4225,7 @@ impl<'help> Arg<'help> {
     ///
     /// assert!(res.is_err());
     /// // We didn't use output
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     /// [Conflicting]: Arg::conflicts_with()
     /// [override]: Arg::overrides_with()
@@ -4275,7 +4275,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
     /// ```
     ///
     /// [`Arg::conflicts_with_all(names)`]: Arg::conflicts_with_all()
@@ -4329,7 +4329,7 @@ impl<'help> Arg<'help> {
     ///     ]);
     ///
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::ArgumentConflict);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
     /// ```
     /// [`Arg::conflicts_with`]: Arg::conflicts_with()
     /// [`Arg::exclusive(true)`]: Arg::exclusive()

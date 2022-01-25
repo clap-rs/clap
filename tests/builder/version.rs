@@ -26,7 +26,7 @@ fn no_version_flag_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), clap::ErrorKind::UnknownArgument);
     assert_eq!(err.info, ["-V"]);
 }
 
@@ -36,7 +36,7 @@ fn no_version_flag_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), clap::ErrorKind::UnknownArgument);
     assert_eq!(err.info, ["--version"]);
 }
 
@@ -46,7 +46,7 @@ fn version_flag_from_version_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "foo 3.0\n");
 }
 
@@ -56,7 +56,7 @@ fn version_flag_from_version_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "foo 3.0\n");
 }
 
@@ -66,7 +66,7 @@ fn version_flag_from_long_version_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
 }
 
@@ -76,7 +76,7 @@ fn version_flag_from_long_version_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
     assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
 }
 
@@ -99,7 +99,7 @@ fn override_version_long_with_user_flag_no_version_flag() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn override_version_short_with_user_flag_long_still_works() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
 #[test]
@@ -132,7 +132,7 @@ fn mut_version_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn mut_version_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
 static VERSION_ABOUT_MULTI_SC: &str = "foo-bar-baz 3.0
@@ -177,7 +177,7 @@ fn no_propagation_by_default_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
     assert_eq!(err.info, &["--version"]);
 }
 
@@ -187,7 +187,7 @@ fn no_propagation_by_default_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
     assert_eq!(err.info, &["-V"]);
 }
 
@@ -199,7 +199,7 @@ fn propagate_version_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
 #[test]
@@ -210,7 +210,7 @@ fn propagate_version_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayVersion);
+    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
 }
 
 #[cfg(debug_assertions)]

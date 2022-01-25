@@ -67,7 +67,7 @@ fn help_text() {
     let res = app().try_get_matches_from(vec!["prog", "--help"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::DisplayHelp);
+    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
     println!("{}", err);
     assert_eq!(err.to_string(), HELP);
 }
@@ -77,12 +77,12 @@ fn no_duplicate_error() {
     let res = app().try_get_matches_from(vec!["", "-b"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
     assert_eq!(err.to_string(), ONLY_B_ERROR);
 
     let res = app().try_get_matches_from(vec!["", "-c"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
     assert_eq!(err.to_string(), ONLY_C_ERROR);
 }

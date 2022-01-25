@@ -215,7 +215,7 @@ fn sub_command_negate_required_2() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -226,7 +226,7 @@ fn sub_command_required() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingSubcommand);
+    assert_eq!(err.kind(), ErrorKind::MissingSubcommand);
 }
 
 #[test]
@@ -239,7 +239,7 @@ fn arg_required_else_help() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
-        err.kind,
+        err.kind(),
         ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
     );
 }
@@ -254,7 +254,7 @@ fn arg_required_else_help_over_reqs() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
-        err.kind,
+        err.kind(),
         ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
     );
 }
@@ -288,7 +288,7 @@ fn subcommand_required_else_help() {
     assert!(result.is_err());
     let err = result.err().unwrap();
     assert_eq!(
-        err.kind,
+        err.kind(),
         ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
     );
 }
@@ -316,7 +316,7 @@ fn infer_subcommands_fail_no_args() {
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
 }
 
 #[cfg(feature = "suggestions")]
@@ -328,7 +328,7 @@ fn infer_subcommands_fail_no_args() {
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[test]
@@ -339,7 +339,7 @@ fn infer_subcommands_fail_with_args() {
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "t"]);
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     assert_eq!(m.unwrap().value_of("some"), Some("t"));
 }
 
@@ -351,7 +351,7 @@ fn infer_subcommands_fail_with_args2() {
         .subcommand(App::new("test"))
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "te"]);
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     assert_eq!(m.unwrap().value_of("some"), Some("te"));
 }
 
@@ -397,7 +397,7 @@ fn infer_subcommands_fail_suggestions() {
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
 }
 
 #[cfg(not(feature = "suggestions"))]
@@ -409,7 +409,7 @@ fn infer_subcommands_fail_suggestions() {
         .subcommand(App::new("temp"))
         .try_get_matches_from(vec!["prog", "temps"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
 }
 
 #[test]
@@ -547,7 +547,7 @@ fn leading_hyphen_short() {
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "-bar", "-o"]);
-    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
@@ -561,7 +561,7 @@ fn leading_hyphen_long() {
         .arg(Arg::new("some"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--bar", "-o"]);
-    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
@@ -575,7 +575,7 @@ fn leading_hyphen_opt() {
         .arg(Arg::new("some").takes_value(true).long("opt"))
         .arg(Arg::new("other").short('o'))
         .try_get_matches_from(vec!["", "--opt", "--bar", "-o"]);
-    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert!(m.is_present("some"));
     assert!(m.is_present("other"));
@@ -589,7 +589,7 @@ fn allow_negative_numbers() {
         .arg(Arg::new("panum"))
         .arg(Arg::new("onum").short('o').takes_value(true))
         .try_get_matches_from(vec!["negnum", "-20", "-o", "-1.2"]);
-    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "Error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(m.value_of("panum").unwrap(), "-20");
     assert_eq!(m.value_of("onum").unwrap(), "-1.2");
@@ -603,7 +603,7 @@ fn allow_negative_numbers_fail() {
         .arg(Arg::new("onum").short('o').takes_value(true))
         .try_get_matches_from(vec!["negnum", "--foo", "-o", "-1.2"]);
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument)
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument)
 }
 
 #[test]
@@ -629,7 +629,7 @@ fn disable_help_subcommand() {
         .try_get_matches_from(vec!["", "help"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -678,7 +678,7 @@ fn args_negate_subcommands_one_level() {
         .arg(arg!(<arg2> "some arg"))
         .subcommand(App::new("sub1").subcommand(App::new("sub2").subcommand(App::new("sub3"))))
         .try_get_matches_from(vec!["", "pickles", "sub1"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(m.value_of("arg2"), Some("sub1"));
 }
@@ -697,7 +697,7 @@ fn args_negate_subcommands_two_levels() {
                 .subcommand(App::new("sub2").subcommand(App::new("sub3"))),
         )
         .try_get_matches_from(vec!["", "sub1", "arg", "sub2"]);
-    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "error: {:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(
         m.subcommand_matches("sub1").unwrap().value_of("arg2"),
@@ -711,7 +711,7 @@ fn propagate_vals_down() {
         .arg(arg!([cmd] "command to run").global(true))
         .subcommand(App::new("foo"))
         .try_get_matches_from(vec!["myprog", "set", "foo"]);
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
     assert_eq!(m.value_of("cmd"), Some("set"));
     let sub_m = m.subcommand_matches("foo").unwrap();
@@ -725,7 +725,7 @@ fn allow_missing_positional() {
         .arg(arg!([src] "some file").default_value("src"))
         .arg(arg!(<dest> "some file"))
         .try_get_matches_from(vec!["test", "file"]);
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
     assert_eq!(m.value_of("src"), Some("src"));
     assert_eq!(m.value_of("dest"), Some("file"));
@@ -738,7 +738,7 @@ fn allow_missing_positional_no_default() {
         .arg(arg!([src] "some file"))
         .arg(arg!(<dest> "some file"))
         .try_get_matches_from(vec!["test", "file"]);
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
     assert_eq!(m.value_of("src"), None);
     assert_eq!(m.value_of("dest"), Some("file"));
@@ -751,7 +751,7 @@ fn missing_positional_no_hyphen() {
         .arg(arg!([BENCH] "some bench"))
         .arg(arg!([ARGS] ... "some args"))
         .try_get_matches_from(vec!["bench", "foo", "arg1", "arg2", "arg3"]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
 
     let m = r.unwrap();
 
@@ -772,7 +772,7 @@ fn missing_positional_hyphen() {
         .arg(arg!([BENCH] "some bench"))
         .arg(arg!([ARGS] ... "some args"))
         .try_get_matches_from(vec!["bench", "--", "arg1", "arg2", "arg3"]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
 
     let m = r.unwrap();
 
@@ -795,7 +795,7 @@ fn missing_positional_hyphen_far_back() {
         .arg(arg!([BENCH3] "some bench"))
         .arg(arg!([ARGS] ... "some args"))
         .try_get_matches_from(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
 
     let m = r.unwrap();
 
@@ -822,7 +822,7 @@ fn missing_positional_hyphen_req_error() {
         .arg(arg!([ARGS] ... "some args"))
         .try_get_matches_from(vec!["bench", "foo", "--", "arg1", "arg2", "arg3"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(r.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -833,7 +833,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args() {
         .try_get_matches_from(vec!["prog", "hello"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -844,7 +844,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_no_vals() {
         .try_get_matches_from(vec!["prog", "--hello"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -855,7 +855,7 @@ fn issue_1066_allow_leading_hyphen_and_unknown_args_option() {
         .try_get_matches_from(vec!["prog", "-hello"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]

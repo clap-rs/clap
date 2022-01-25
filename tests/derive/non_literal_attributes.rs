@@ -121,7 +121,7 @@ fn test_bool() {
     );
     let result = Opt::try_parse_from(&["test", "-l", "1", "--x", "1"]);
     assert!(result.is_err());
-    assert_eq!(result.unwrap_err().kind, ErrorKind::NoEquals);
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::NoEquals);
 }
 
 fn parse_hex(input: &str) -> Result<u64, ParseIntError> {

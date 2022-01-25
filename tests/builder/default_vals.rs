@@ -28,7 +28,7 @@ fn opt_without_value_fail() {
         .try_get_matches_from(vec!["", "-o"]);
     assert!(r.is_err());
     let err = r.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::EmptyValue);
+    assert_eq!(err.kind(), ErrorKind::EmptyValue);
     assert!(err
         .to_string()
         .contains("The argument '-o <opt>' requires a value but none was supplied"));

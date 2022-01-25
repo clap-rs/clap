@@ -300,7 +300,7 @@ fn alias_help() {
         .subcommand(App::new("test").alias("do-stuff"))
         .try_get_matches_from(vec!["myprog", "help", "do-stuff"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::DisplayHelp);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::DisplayHelp);
 }
 
 #[test]
@@ -356,7 +356,7 @@ fn issue_1031_args_with_same_name() {
         .subcommand(App::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "signer"]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(m.value_of("ui-path"), Some("signer"));
 }
@@ -368,7 +368,7 @@ fn issue_1031_args_with_same_name_no_more_vals() {
         .subcommand(App::new("signer"))
         .try_get_matches_from(vec!["prog", "--ui-path", "value", "signer"]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
     assert_eq!(m.value_of("ui-path"), Some("value"));
     assert_eq!(m.subcommand_name(), Some("signer"));
@@ -399,7 +399,7 @@ fn issue_1161_multiple_hyphen_hyphen() {
             "args",
         ]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
 
     let expected = Some(vec![
@@ -545,7 +545,7 @@ fn busybox_like_multicall() {
 
     let m = app.clone().try_get_matches_from(&["a.out"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[cfg(feature = "unstable-multicall")]
@@ -567,13 +567,13 @@ fn hostname_like_multicall() {
 
     let m = app.clone().try_get_matches_from(&["a.out"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 
     let m = app.try_get_matches_from_mut(&["hostname", "hostname"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 
     let m = app.try_get_matches_from(&["hostname", "dnsdomainname"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }

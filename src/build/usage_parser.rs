@@ -1249,7 +1249,7 @@ mod test {
             .arg(Arg::from_usage("--pos <who> <what> <why>"))
             .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
-        assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+        assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
         let m = m.unwrap();
 
         assert_eq!(
@@ -1271,6 +1271,6 @@ mod test {
         .try_get_matches_from(vec!["test", "--subject-prefix", "-v", "2"]);
 
         assert!(res.is_err());
-        assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+        assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
     }
 }

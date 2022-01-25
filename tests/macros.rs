@@ -217,7 +217,7 @@ fn group_macro_set_not_multiple() {
     let result = app.try_get_matches_from(vec!["bin_name", "--hard", "--easy"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -237,7 +237,7 @@ fn group_macro_set_required() {
     let result = app.try_get_matches_from(vec!["bin_name"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]

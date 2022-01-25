@@ -160,7 +160,7 @@ fn option_exact_less() {
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 
 #[test]
@@ -178,7 +178,7 @@ fn option_exact_more() {
         ]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 
 #[test]
@@ -217,7 +217,7 @@ fn option_min_less() {
         .try_get_matches_from(vec!["", "-o", "val1", "-o", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::TooFewValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooFewValues);
 }
 
 #[test]
@@ -235,7 +235,7 @@ fn option_short_min_more_mult_occurs() {
             "", "pos", "-o", "val1", "-o", "val2", "-o", "val3", "-o", "val4",
         ]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
 
     assert!(m.is_present("option"));
@@ -260,7 +260,7 @@ fn option_short_min_more_single_occur() {
         )
         .try_get_matches_from(vec!["", "pos", "-o", "val1", "val2", "val3", "val4"]);
 
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
     let m = res.unwrap();
 
     assert!(m.is_present("option"));
@@ -334,7 +334,7 @@ fn option_max_more() {
         ]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyValues);
 }
 
 #[test]
@@ -391,7 +391,7 @@ fn positional_exact_less() {
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 
 #[test]
@@ -405,7 +405,7 @@ fn positional_exact_more() {
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 
 #[test]
@@ -432,7 +432,7 @@ fn positional_min_less() {
         .try_get_matches_from(vec!["myprog", "val1", "val2"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::TooFewValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooFewValues);
 }
 
 #[test]
@@ -493,7 +493,7 @@ fn positional_max_more() {
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3", "val4"]);
 
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyValues);
 }
 
 #[test]
@@ -1018,7 +1018,7 @@ fn low_index_positional() {
         .arg(Arg::new("target").index(2).required(true))
         .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
@@ -1048,7 +1048,7 @@ fn low_index_positional_in_subcmd() {
         )
         .try_get_matches_from(vec!["lip", "test", "file1", "file2", "file3", "target"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
     let sm = m.subcommand_matches("test").unwrap();
 
@@ -1079,7 +1079,7 @@ fn low_index_positional_with_option() {
             "lip", "file1", "file2", "file3", "target", "--option", "test",
         ]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
@@ -1108,7 +1108,7 @@ fn low_index_positional_with_flag() {
         .arg(Arg::new("flg").long("flag"))
         .try_get_matches_from(vec!["lip", "file1", "file2", "file3", "target", "--flag"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert!(m.is_present("files"));
@@ -1136,7 +1136,7 @@ fn multiple_value_terminator_option() {
         .arg(Arg::new("other"))
         .try_get_matches_from(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert!(m.is_present("other"));
@@ -1163,7 +1163,7 @@ fn multiple_value_terminator_option_other_arg() {
         .arg(Arg::new("flag").short('F'))
         .try_get_matches_from(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert!(m.is_present("other"));
@@ -1197,7 +1197,7 @@ fn multiple_vals_with_hyphen() {
             ";",
             "/home/clap",
         ]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
 
     let m = res.unwrap();
     let cmds: Vec<_> = m.values_of("cmds").unwrap().collect();
@@ -1222,7 +1222,7 @@ fn issue_1480_max_values_consumes_extra_arg_2() {
         .try_get_matches_from(vec!["prog", "--field", "1", "2"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -1232,7 +1232,7 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
         .try_get_matches_from(vec!["prog", "--field", "1", "2", "3"]);
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -1248,7 +1248,7 @@ fn issue_2229() {
         ]);
 
     assert!(m.is_err()); // This panics, because `m.is_err() == false`.
-    assert_eq!(m.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
 }
 
 #[test]
@@ -1261,7 +1261,7 @@ fn value_names_building_num_vals() {
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert_eq!(
@@ -1276,7 +1276,7 @@ fn value_names_building_num_vals_for_positional() {
         .arg(Arg::new("pos").value_names(&["who", "what", "why"]))
         .try_get_matches_from(vec!["myprog", "val1", "val2", "val3"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert_eq!(
@@ -1296,7 +1296,7 @@ fn number_of_values_preferred_over_value_names() {
         )
         .try_get_matches_from(vec!["myprog", "--pos", "val1", "val2", "val3", "val4"]);
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind);
+    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
     let m = m.unwrap();
 
     assert_eq!(

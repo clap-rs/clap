@@ -16,7 +16,7 @@ fn validator_regex() {
         .try_get_matches_from(vec!["prog", "12345"]);
 
     assert!(m.is_err());
-    assert_eq!(m.err().unwrap().kind, ErrorKind::ValueValidation)
+    assert_eq!(m.err().unwrap().kind(), ErrorKind::ValueValidation)
 }
 
 #[test]
@@ -32,5 +32,5 @@ fn validator_regex_with_regex_set() {
         .try_get_matches_from(vec!["prog", "12345"]);
 
     assert!(m.is_err());
-    assert_eq!(m.err().unwrap().kind, ErrorKind::ValueValidation)
+    assert_eq!(m.err().unwrap().kind(), ErrorKind::ValueValidation)
 }
