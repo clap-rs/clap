@@ -272,35 +272,37 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     /// Writes argument's long command to the wrapped stream.
     fn long(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::long");
-        if arg.is_positional() {
-            return Ok(());
-        }
-        if arg.is_set(ArgSettings::TakesValue) {
-            if let Some(l) = arg.long {
-                if arg.short.is_some() {
-                    self.none(", ")?;
-                }
-                self.good(&format!("--{}", l))?
-            }
-
-            let sep = if arg.is_set(ArgSettings::RequireEquals) {
-                "="
-            } else {
-                " "
-            };
-            self.none(sep)?;
-        } else if let Some(l) = arg.long {
+        if let Some(long) = arg.long {
             if arg.short.is_some() {
                 self.none(", ")?;
             }
-            self.good(&format!("--{}", l))?;
+            self.good(&format!("--{}", long))?;
         }
         Ok(())
     }
 
     /// Writes argument's possible values to the wrapped stream.
-    fn val(&mut self, arg: &Arg<'help>, next_line_help: bool, longest: usize) -> io::Result<()> {
+    fn val(&mut self, arg: &Arg<'help>) -> io::Result<()> {
         debug!("Help::val: arg={}", arg.name);
+        let mut need_closing_bracket = false;
+        if arg.is_set(ArgSettings::TakesValue) && !arg.is_positional() {
+            let is_optional_val = arg.min_vals == Some(0);
+            let sep = if arg.is_set(ArgSettings::RequireEquals) {
+                if is_optional_val {
+                    need_closing_bracket = true;
+                    "[="
+                } else {
+                    "="
+                }
+            } else if is_optional_val {
+                need_closing_bracket = true;
+                " ["
+            } else {
+                " "
+            };
+            self.none(sep)?;
+        }
+
         if arg.is_set(ArgSettings::TakesValue) || arg.is_positional() {
             display_arg_val(
                 arg,
@@ -308,13 +310,27 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             )?;
         }
 
-        debug!("Help::val: Has switch...");
+        if need_closing_bracket {
+            self.none("]")?;
+        }
+        Ok(())
+    }
+
+    /// Write alignment padding between arg's switches/values and its about message.
+    fn align_to_about(
+        &mut self,
+        arg: &Arg<'help>,
+        next_line_help: bool,
+        longest: usize,
+    ) -> io::Result<()> {
+        debug!("Help::align_to_about: arg={}", arg.name);
+        debug!("Help::align_to_about: Has switch...");
         if self.use_long {
-            // long help prints messages on the next line so it don't need to align text
-            debug!("Help::val: printing long help so skip alignment");
+            // long help prints messages on the next line so it doesn't need to align text
+            debug!("Help::align_to_about: printing long help so skip alignment");
         } else if !arg.is_positional() {
             debug!("Yes");
-            debug!("Help::val: nlh...{:?}", next_line_help);
+            debug!("Help::align_to_about: nlh...{:?}", next_line_help);
             if !next_line_help {
                 let self_len = display_width(arg.to_string().as_str());
                 // subtract ourself
@@ -439,7 +455,8 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
     ) -> io::Result<()> {
         self.short(arg)?;
         self.long(arg)?;
-        self.val(arg, next_line_help, longest)?;
+        self.val(arg)?;
+        self.align_to_about(arg, next_line_help, longest)?;
 
         let about = if self.use_long {
             arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))

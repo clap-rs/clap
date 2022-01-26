@@ -94,6 +94,15 @@ pub fn complex_app() -> App<'static> {
             arg!(--maxvals3 <maxvals> "Tests 3 max vals")
                 .required(false)
                 .max_values(3),
+            arg!(--optvaleq <optval> "Tests optional value, require = sign")
+                .required(false)
+                .min_values(0)
+                .number_of_values(1)
+                .require_equals(true),
+            arg!(--optvalnoeq <optval> "Tests optional value")
+                .required(false)
+                .min_values(0)
+                .number_of_values(1),
         ])
         .subcommand(
             App::new("subcmd")

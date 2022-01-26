@@ -5013,9 +5013,19 @@ impl<'help> Display for Arg<'help> {
         } else if let Some(s) = self.short {
             write!(f, "-{}", s)?;
         }
+        let mut need_closing_bracket = false;
         if !self.is_positional() && self.is_set(ArgSettings::TakesValue) {
+            let is_optional_val = self.min_vals == Some(0);
             let sep = if self.is_set(ArgSettings::RequireEquals) {
-                "="
+                if is_optional_val {
+                    need_closing_bracket = true;
+                    "[="
+                } else {
+                    "="
+                }
+            } else if is_optional_val {
+                need_closing_bracket = true;
+                " ["
             } else {
                 " "
             };
@@ -5023,6 +5033,9 @@ impl<'help> Display for Arg<'help> {
         }
         if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
             display_arg_val(self, |s, _| write!(f, "{}", s))?;
+        }
+        if need_closing_bracket {
+            write!(f, "]")?;
         }
 
         Ok(())
