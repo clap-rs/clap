@@ -195,7 +195,7 @@ In addition to the raw attributes, the following magic attributes are supported:
 
 | Type                | Effect                               | Implies                                                          |
 |---------------------|--------------------------------------|------------------------------------------------------------------|
-| `bool`              | flag                                 | `#[clap(parser(from_flag))]`                                     |
+| `bool`              | flag                                 | `#[clap(parse(from_flag))]`                                     |
 | `Option<T>`         | optional argument                    | `.takes_value(true).required(false)`                             |
 | `Option<Option<T>>` | optional value for optional argument | `.takes_value(true).required(false).min_values(0).max_values(1)` |
 | `T`                 | required argument                    | `.takes_value(true).required(!has_default)`                      |
