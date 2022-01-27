@@ -828,17 +828,18 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 .entry(subcommand.get_display_order())
                 .or_insert_with(BTreeMap::new);
             let mut sc_str = String::new();
+            let show_name = subcommand.subcommand_is_positional();
             sc_str.push_str(
                 &subcommand
                     .short_flag
                     .map_or(String::new(), |c| format!("-{}, ", c)),
             );
-            sc_str.push_str(
-                &subcommand
-                    .long_flag
-                    .map_or(String::new(), |c| format!("--{}, ", c)),
-            );
-            sc_str.push_str(&subcommand.name);
+            sc_str.push_str(&subcommand.long_flag.map_or(String::new(), |c| {
+                format!("--{}{}", c, if show_name { ", " } else { "" })
+            }));
+            if show_name {
+                sc_str.push_str(&subcommand.name);
+            }
             longest = longest.max(display_width(&sc_str));
             btm.insert(sc_str, subcommand.clone());
         }

@@ -97,7 +97,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         // Verify all positional assertions pass
         self._build();
 
-        let mut subcmd_name: Option<String> = None;
+        let mut subcmd_name: Option<Id> = None;
         let mut keep_state = false;
         let mut parse_state = ParseState::ValuesDone;
         let mut pos_counter = 1;
@@ -213,14 +213,14 @@ impl<'help, 'app> Parser<'help, 'app> {
                     // Does the arg match a subcommand name, or any of its aliases (if defined)
                     let sc_name = self.possible_subcommand(&arg_os, valid_arg_found);
                     debug!("Parser::get_matches_with: sc={:?}", sc_name);
-                    if let Some(sc_name) = sc_name {
+                    if let Some((sc_name, sc_id)) = sc_name {
                         if sc_name == "help"
                             && !self.is_set(AS::NoAutoHelp)
                             && !self.is_set(AS::DisableHelpSubcommand)
                         {
                             self.parse_help_subcommand(remaining_args)?;
                         }
-                        subcmd_name = Some(sc_name.to_owned());
+                        subcmd_name = Some(sc_id.clone());
                         break;
                     }
                 }
@@ -495,7 +495,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         if let Some(ref pos_sc_name) = subcmd_name {
             let sc_name = self
                 .app
-                .find_subcommand(pos_sc_name)
+                .find_subcmd_by_id(pos_sc_name)
                 .expect(INTERNAL_ERROR_MSG)
                 .name
                 .clone();
@@ -578,7 +578,7 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     // Checks if the arg matches a subcommand name, or any of its aliases (if defined)
-    fn possible_subcommand(&self, arg_os: &RawOsStr, valid_arg_found: bool) -> Option<&str> {
+    fn possible_subcommand(&self, arg_os: &RawOsStr, valid_arg_found: bool) -> Option<(&str, &Id)> {
         debug!("Parser::possible_subcommand: arg={:?}", arg_os);
 
         if !(self.is_set(AS::ArgsNegateSubcommands) && valid_arg_found) {
@@ -587,26 +587,27 @@ impl<'help, 'app> Parser<'help, 'app> {
                 // `tes` and `test`.
                 let v = self
                     .app
-                    .all_subcommand_names()
-                    .filter(|s| RawOsStr::from_str(s).starts_with_os(arg_os))
+                    .all_subcommands_with_names()
+                    .filter(|(s, _)| RawOsStr::from_str(s).starts_with_os(arg_os))
                     .collect::<Vec<_>>();
 
                 if v.len() == 1 {
-                    return Some(v[0]);
+                    let (name, app) = v[0];
+                    return Some((name, &app.id));
                 }
 
                 // If there is any ambiguity, fallback to non-infer subcommand
                 // search.
             }
             if let Some(sc) = self.app.find_subcommand(arg_os) {
-                return Some(&sc.name);
+                return Some((&sc.name, &sc.id));
             }
         }
         None
     }
 
     // Checks if the arg matches a long flag subcommand name, or any of its aliases (if defined)
-    fn possible_long_flag_subcommand(&self, arg_os: &RawOsStr) -> Option<&str> {
+    fn possible_long_flag_subcommand(&self, arg_os: &RawOsStr) -> Option<&Id> {
         debug!("Parser::possible_long_flag_subcommand: arg={:?}", arg_os);
         if self.is_set(AS::InferSubcommands) {
             let options = self
@@ -615,22 +616,23 @@ impl<'help, 'app> Parser<'help, 'app> {
                 .fold(Vec::new(), |mut options, sc| {
                     if let Some(long) = sc.long_flag {
                         if RawOsStr::from_str(long).starts_with_os(arg_os) {
-                            options.push(long);
+                            options.push((long, &sc.id));
                         }
                         options.extend(
-                            sc.get_all_aliases()
-                                .filter(|alias| RawOsStr::from_str(alias).starts_with_os(arg_os)),
+                            sc.get_all_long_flag_aliases()
+                                .filter(|alias| RawOsStr::from_str(alias).starts_with_os(arg_os))
+                                .map(|long| (long, &sc.id)),
                         )
                     }
                     options
                 });
             if options.len() == 1 {
-                return Some(options[0]);
+                return Some(&options[0].1);
             }
 
-            for sc in options {
+            for (sc, id) in options {
                 if sc == arg_os {
-                    return Some(sc);
+                    return Some(id);
                 }
             }
         } else if let Some(sc_name) = self.app.find_long_subcmd(arg_os) {
@@ -732,20 +734,22 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if let Some(sc) = self.app.subcommands.iter_mut().find(|s| s.name == sc_name) {
             // Display subcommand name, short and long in usage
-            let mut sc_names = sc.name.clone();
-            let mut flag_subcmd = false;
+            let mut sc_names = vec![];
+            if sc.subcommand_is_positional() {
+                sc_names.push(sc.name.clone());
+            }
             if let Some(l) = sc.long_flag {
-                sc_names.push_str(&format!(", --{}", l));
-                flag_subcmd = true;
+                sc_names.push(format!("--{}", l));
             }
             if let Some(s) = sc.short_flag {
-                sc_names.push_str(&format!(", -{}", s));
-                flag_subcmd = true;
+                sc_names.push(format!("-{}", s));
             }
 
-            if flag_subcmd {
-                sc_names = format!("{{{}}}", sc_names);
-            }
+            let sc_names = if sc_names.len() == 1 {
+                sc_names.pop().unwrap()
+            } else {
+                format!("{{{}}}", sc_names.join(", "))
+            };
 
             sc.usage = Some(
                 self.app
@@ -971,7 +975,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 self.parse_flag(opt, matcher)
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(arg) {
-            ParseResult::FlagSubCommand(sc_name.to_string())
+            ParseResult::FlagSubCommand(sc_name.clone())
         } else if self.is_set(AS::AllowHyphenValues) {
             ParseResult::MaybeHyphenValue
         } else {
@@ -1073,9 +1077,9 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
             }
 
-            return if let Some(sc_name) = self.app.find_short_subcmd(c) {
-                debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_name);
-                let name = sc_name.to_string();
+            return if let Some(sc_id) = self.app.find_short_subcmd(c) {
+                debug!("Parser::parse_short_arg:iter:{}: subcommand={}", c, sc_id);
+                let name = sc_id.clone();
                 let done_short_args = {
                     let cur_idx = self.cur_idx.get();
                     // Get the index of the previously saved flag subcommand in the group of flags (if exists).
@@ -1676,7 +1680,7 @@ pub(crate) enum ParseState {
 /// Recoverable Parsing results.
 #[derive(Debug, PartialEq, Clone)]
 enum ParseResult {
-    FlagSubCommand(String),
+    FlagSubCommand(Id),
     Opt(Id),
     ValuesDone,
     /// Value attached to the short flag is not consumed(e.g. 'u' for `-cu` is

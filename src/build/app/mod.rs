@@ -1494,6 +1494,16 @@ impl<'help> App<'help> {
 
 /// Subcommand-specific Settings
 impl<'help> App<'help> {
+    #[must_use]
+    pub fn no_positional_subcommand(mut self) -> Self {
+        self.settings.set(AppSettings::NoPositionalSubcommand);
+        self
+    }
+
+    pub(crate) fn subcommand_is_positional(&self) -> bool {
+        !self.settings.is_set(AppSettings::NoPositionalSubcommand)
+    }
+
     /// Sets the short version of the subcommand flag without the preceding `-`.
     ///
     /// Allows the subcommand to be used as if it were an [`Arg::short`].
@@ -3104,7 +3114,8 @@ impl<'help> App<'help> {
     where
         T: PartialEq<str> + ?Sized,
     {
-        *name == *self.get_name() || self.get_all_aliases().any(|alias| *name == *alias)
+        (self.subcommand_is_positional() && *name == *self.get_name())
+            || self.get_all_aliases().any(|alias| *name == *alias)
     }
 
     /// Check if this subcommand can be referred to as `name`. In other words,
@@ -3135,6 +3146,10 @@ impl<'help> App<'help> {
         self.args.args().any(|x| x.id == *id) || self.groups.iter().any(|x| x.id == *id)
     }
 
+    pub(crate) fn find_subcmd_by_id(&self, id: &Id) -> Option<&App<'help>> {
+        self.subcommands.iter().find(|sc| sc.id == *id)
+    }
+
     /// Iterate through the groups this arg is member of.
     pub(crate) fn groups_for_arg<'a>(&'a self, arg: &Id) -> impl Iterator<Item = Id> + 'a {
         debug!("App::groups_for_arg: id={:?}", arg);
@@ -3155,7 +3170,24 @@ impl<'help> App<'help> {
         self.get_subcommands().flat_map(|sc| {
             let name = sc.get_name();
             let aliases = sc.get_all_aliases();
-            std::iter::once(name).chain(aliases)
+            sc.subcommand_is_positional()
+                .then(|| name)
+                .into_iter()
+                .chain(aliases)
+        })
+    }
+
+    pub(crate) fn all_subcommands_with_names(
+        &self,
+    ) -> impl Iterator<Item = (&str, &App<'help>)> + Captures<'help> {
+        self.get_subcommands().flat_map(|sc| {
+            let name = sc.get_name();
+            let aliases = sc.get_all_aliases();
+            sc.subcommand_is_positional()
+                .then(|| name)
+                .into_iter()
+                .chain(aliases)
+                .map(move |name| (name, sc))
         })
     }
 
@@ -3233,17 +3265,17 @@ impl<'help> App<'help> {
     }
 
     /// Find a flag subcommand name by short flag or an alias
-    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&str> {
+    pub(crate) fn find_short_subcmd(&self, c: char) -> Option<&Id> {
         self.get_subcommands()
             .find(|sc| sc.short_flag_aliases_to(c))
-            .map(|sc| sc.get_name())
+            .map(|sc| &sc.id)
     }
 
     /// Find a flag subcommand name by long flag or an alias
-    pub(crate) fn find_long_subcmd(&self, long: &RawOsStr) -> Option<&str> {
+    pub(crate) fn find_long_subcmd(&self, long: &RawOsStr) -> Option<&Id> {
         self.get_subcommands()
             .find(|sc| sc.long_flag_aliases_to(long))
-            .map(|sc| sc.get_name())
+            .map(|sc| &sc.id)
     }
 
     pub(crate) fn get_display_order(&self) -> usize {

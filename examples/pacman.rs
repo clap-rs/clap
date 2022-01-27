@@ -13,6 +13,7 @@ fn main() {
             App::new("query")
                 .short_flag('Q')
                 .long_flag("query")
+                .no_positional_subcommand()
                 .about("Query the package database.")
                 .arg(
                     Arg::new("search")
@@ -40,6 +41,7 @@ fn main() {
             App::new("sync")
                 .short_flag('S')
                 .long_flag("sync")
+                .no_positional_subcommand()
                 .about("Synchronize packages.")
                 .arg(
                     Arg::new("search")

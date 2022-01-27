@@ -950,6 +950,8 @@ pub enum AppSettings {
     /// ```
     NoAutoVersion,
 
+    NoPositionalSubcommand,
+
     /// Deprecated, replaced with [`AppSettings::AllowHyphenValues`]
     #[deprecated(
         since = "3.0.0",
@@ -1067,6 +1069,7 @@ bitflags! {
         const USE_LONG_FORMAT_FOR_HELP_SC    = 1 << 42;
         const INFER_LONG_ARGS                = 1 << 43;
         const IGNORE_ERRORS                  = 1 << 44;
+        const NO_POS_SUBCOMMAND              = 1 << 45;
         #[cfg(feature = "unstable-multicall")]
         const MULTICALL                      = 1 << 45;
         const NO_OP                          = 0;
@@ -1169,7 +1172,9 @@ impl_settings! { AppSettings, AppFlags,
     AllArgsOverrideSelf
         => Flags::ARGS_OVERRIDE_SELF,
     InferLongArgs
-        => Flags::INFER_LONG_ARGS
+        => Flags::INFER_LONG_ARGS,
+    NoPositionalSubcommand
+        => Flags::NO_POS_SUBCOMMAND
 }
 
 /// Deprecated in [Issue #3087](https://github.com/clap-rs/clap/issues/3087), maybe [`clap::Parser`][crate::Parser] would fit your use case?
