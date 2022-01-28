@@ -13,12 +13,9 @@ use roff::{roman, Roff};
 use std::io::Write;
 
 /// Generate a manual page and write it out.
-pub fn generate_manpage<'a>(
-    app: &mut clap::App<'a>,
-    buf: &mut dyn Write,
-) -> Result<(), std::io::Error> {
-    let meta = Meta::from_clap("1", "", app);
-    let man = Man::new(&meta, app);
+pub fn generate_manpage<'a>(app: clap::App<'a>, buf: &mut dyn Write) -> Result<(), std::io::Error> {
+    let meta = Meta::from_clap("1", "", &app);
+    let man = Man::new(meta, app);
     man.render(buf)
 }
 
@@ -60,58 +57,57 @@ impl Meta {
 }
 
 /// A manual page as constructed from a clap::App.
-pub struct Man {
-    roff: Roff,
+pub struct Man<'a> {
+    meta: Meta,
+    app: clap::App<'a>,
 }
 
-impl Man {
+impl<'a> Man<'a> {
     /// Create a new manual page.
-    pub fn new(meta: &Meta, app: &mut clap::App) -> Self {
+    pub fn new(meta: Meta, mut app: clap::App<'a>) -> Self {
         app._build_all();
-
-        let mut roff = Roff::default();
-        roff.control("TH", meta.to_args());
-        roff.control("SH", ["NAME"]);
-        render::about(&mut roff, app);
-        roff.control("SH", ["SYNOPSIS"]);
-        render::synopsis(&mut roff, app);
-        roff.control("SH", ["DESCRIPTION"]);
-        render::description(&mut roff, app);
-
-        if app_has_arguments(app) {
-            roff.control("SH", ["OPTIONS"]);
-            render::options(&mut roff, app);
-        }
-
-        if app_has_subcommands(app) {
-            let heading = subcommand_heading(app);
-            roff.control("SH", [heading.as_str()]);
-            render::subcommands(&mut roff, app, &meta.section);
-        }
-
-        if app.get_after_long_help().is_some() || app.get_after_help().is_some() {
-            roff.control("SH", ["EXTRA"]);
-            render::after_help(&mut roff, app);
-        }
-
-        if app_has_version(app) {
-            let version = roman(&render::version(app));
-            roff.control("SH", ["VERSION"]);
-            roff.text([version]);
-        }
-
-        if app.get_author().is_some() {
-            let author = roman(app.get_author().unwrap_or_default());
-            roff.control("SH", ["AUTHORS"]);
-            roff.text([author]);
-        }
-
-        Self { roff }
+        Self { meta, app }
     }
 
     /// Render a manual page into writer.
     pub fn render(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
-        self.roff.to_writer(w)
+        let mut roff = Roff::default();
+        roff.control("TH", self.meta.to_args());
+        roff.control("SH", ["NAME"]);
+        render::about(&mut roff, &self.app);
+        roff.control("SH", ["SYNOPSIS"]);
+        render::synopsis(&mut roff, &self.app);
+        roff.control("SH", ["DESCRIPTION"]);
+        render::description(&mut roff, &self.app);
+
+        if app_has_arguments(&self.app) {
+            roff.control("SH", ["OPTIONS"]);
+            render::options(&mut roff, &self.app);
+        }
+
+        if app_has_subcommands(&self.app) {
+            let heading = subcommand_heading(&self.app);
+            roff.control("SH", [heading.as_str()]);
+            render::subcommands(&mut roff, &self.app, &self.meta.section);
+        }
+
+        if self.app.get_after_long_help().is_some() || self.app.get_after_help().is_some() {
+            roff.control("SH", ["EXTRA"]);
+            render::after_help(&mut roff, &self.app);
+        }
+
+        if app_has_version(&self.app) {
+            let version = roman(&render::version(&self.app));
+            roff.control("SH", ["VERSION"]);
+            roff.text([version]);
+        }
+
+        if self.app.get_author().is_some() {
+            let author = roman(self.app.get_author().unwrap_or_default());
+            roff.control("SH", ["AUTHORS"]);
+            roff.text([author]);
+        }
+        roff.to_writer(w)
     }
 }
 

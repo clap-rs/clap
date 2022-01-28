@@ -4,7 +4,7 @@ use std::io;
 
 #[test]
 fn render_manpage() {
-    let mut app = App::new("myapp")
+    let app = App::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -25,5 +25,5 @@ fn render_manpage() {
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    generate_manpage(&mut app, &mut io::sink()).unwrap();
+    generate_manpage(app, &mut io::sink()).unwrap();
 }

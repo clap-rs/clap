@@ -4,7 +4,7 @@ use clap_man::{Man, Meta};
 // Run this example as `cargo run --example man-builder | man -l -`.
 
 fn main() -> Result<(), std::io::Error> {
-    let mut app = App::new("myapp")
+    let app = App::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
@@ -29,6 +29,6 @@ To see the debug information, visit our website on github.com",
         );
 
     let meta = Meta::from_clap("1", "GNU", &app);
-    let man = Man::new(&meta, &mut app);
+    let man = Man::new(meta, app);
     man.render(&mut std::io::stdout())
 }
