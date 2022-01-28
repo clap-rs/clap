@@ -1,0 +1,45 @@
+[package]
+name = "clap_man"
+version = "0.1.0"
+edition = "2018"
+include = [
+	"src/**/*",
+	"Cargo.toml",
+	"LICENSE-*",
+	"README.md"
+]
+description = "A manpage generator for clap"
+repository = "https://github.com/clap-rs/clap/tree/master/clap_man"
+documentation = "https://docs.rs/clap_man"
+keywords = [
+	"clap",
+	"cli",
+	"generate",
+	"manpage",
+]
+categories = ["command-line-interface"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+
+[package.metadata.release]
+pre-release-replacements = [
+  {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=4, prerelease = true},
+]
+
+[lib]
+bench = false
+
+[dependencies]
+roff = "0.2.1"
+clap = { path = "../", version = "3.0", default-features = false, features = ["std", "env"] }
+
+[dev-dependencies]
+pretty_assertions = "1.0"
+clap = { path = "../", version = "3.0", default-features = false, features = ["std"] }
+
+[features]
+default = []
+debug = ["clap/debug"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
