@@ -12,15 +12,9 @@ use render::subcommand_heading;
 use roff::{roman, Roff};
 use std::io::Write;
 
-/// Generate a manual page and write it out.
-pub fn generate_manpage(app: clap::App<'_>, buf: &mut dyn Write) -> Result<(), std::io::Error> {
-    let meta = Meta::from_clap("1", "", &app);
-    let man = Man::new(meta, app);
-    man.render(buf)
-}
-
-/// Metadata about a manual page.
-pub struct Meta {
+/// A manual page as constructed from a clap::App.
+pub struct Man<'a> {
+    app: clap::App<'a>,
     title: String,
     section: String,
     date: String,
@@ -28,51 +22,63 @@ pub struct Meta {
     manual: String,
 }
 
-impl Meta {
-    /// Create metadata from a clap::App.
-    pub fn from_clap(section: &str, manual: &str, app: &clap::App) -> Self {
+impl<'a> Man<'a> {
+    /// Create a new manual page.
+    pub fn new(mut app: clap::App<'a>) -> Self {
+        app._build_all();
+        let title = app.get_name().to_owned();
+        let section = "1".to_owned();
+        let date = "".to_owned();
+        let source = format!(
+            "{} {}",
+            app.get_name(),
+            app.get_version().unwrap_or_default()
+        );
+        let manual = "".to_owned();
         Self {
-            title: app.get_name().to_string(),
-            section: section.to_string(),
-            date: "".to_string(), // FIXME
-            source: format!(
-                "{} {}",
-                app.get_name(),
-                app.get_version().unwrap_or_default()
-            ),
-            manual: manual.to_string(),
+            app,
+            title,
+            section,
+            date,
+            source,
+            manual,
         }
     }
 
-    // Turn metadata into arguments for a .TH macro.
-    fn to_args(&self) -> Vec<&str> {
-        vec![
-            &self.title,
-            &self.section,
-            &self.date,
-            &self.source,
-            &self.manual,
-        ]
+    /// Override the default title
+    pub fn title(mut self, title: impl Into<String>) -> Self {
+        self.title = title.into();
+        self
     }
-}
 
-/// A manual page as constructed from a clap::App.
-pub struct Man<'a> {
-    meta: Meta,
-    app: clap::App<'a>,
-}
+    /// Override the default section
+    pub fn section(mut self, section: impl Into<String>) -> Self {
+        self.section = section.into();
+        self
+    }
 
-impl<'a> Man<'a> {
-    /// Create a new manual page.
-    pub fn new(meta: Meta, mut app: clap::App<'a>) -> Self {
-        app._build_all();
-        Self { meta, app }
+    /// Override the default date
+    pub fn date(mut self, date: impl Into<String>) -> Self {
+        self.date = date.into();
+        self
+    }
+
+    /// Override the default source
+    pub fn source(mut self, source: impl Into<String>) -> Self {
+        self.source = source.into();
+        self
+    }
+
+    /// Override the default manual
+    pub fn manual(mut self, manual: impl Into<String>) -> Self {
+        self.manual = manual.into();
+        self
     }
 
     /// Render a manual page into writer.
     pub fn render(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
-        roff.control("TH", self.meta.to_args());
+        roff.control("TH", self.title_args());
         self._render_name_section(&mut roff);
         self._render_synopsis_section(&mut roff);
         self._render_description_section(&mut roff);
@@ -98,6 +104,17 @@ impl<'a> Man<'a> {
         }
 
         roff.to_writer(w)
+    }
+
+    // Turn metadata into arguments for a .TH macro.
+    fn title_args(&self) -> Vec<&str> {
+        vec![
+            &self.title,
+            &self.section,
+            &self.date,
+            &self.source,
+            &self.manual,
+        ]
     }
 
     /// Render the NAME section into the writer.
@@ -158,7 +175,7 @@ impl<'a> Man<'a> {
     fn _render_subcommands_section(&self, roff: &mut Roff) {
         let heading = subcommand_heading(&self.app);
         roff.control("SH", [heading.as_str()]);
-        render::subcommands(roff, &self.app, &self.meta.section);
+        render::subcommands(roff, &self.app, &self.section);
     }
 
     /// Render the EXTRA section into the writer.
