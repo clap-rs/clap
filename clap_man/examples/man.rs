@@ -5,7 +5,7 @@ use std::io;
 // Run this example as `cargo run --example man | man -l -`.
 
 fn main() -> Result<(), std::io::Error> {
-    let mut app = App::new("myapp")
+    let app = App::new("myapp")
         .version("1.0")
         .author("Kevin K. <kbknapp@gmail.com>:Ola Nordmann <old@nordmann.no>")
         .about("Does awesome things")
@@ -36,5 +36,5 @@ And a few newlines.",
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    generate_manpage(&mut app, &mut io::stdout())
+    generate_manpage(app, &mut io::stdout())
 }
