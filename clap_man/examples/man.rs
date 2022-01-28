@@ -1,5 +1,5 @@
 use clap::{arg, App};
-use clap_man::generate_manpage;
+use clap_man::Man;
 use std::io;
 
 // Run this example as `cargo run --example man | man -l -`.
@@ -36,5 +36,5 @@ And a few newlines.",
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    generate_manpage(app, &mut io::stdout())
+    Man::new(app).render(&mut io::stdout())
 }

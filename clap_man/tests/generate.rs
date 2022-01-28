@@ -1,5 +1,5 @@
 use clap::{arg, App};
-use clap_man::generate_manpage;
+use clap_man::Man;
 use std::io;
 
 #[test]
@@ -25,5 +25,5 @@ fn render_manpage() {
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    generate_manpage(app, &mut io::sink()).unwrap();
+    Man::new(app).render(&mut io::sink()).unwrap();
 }
