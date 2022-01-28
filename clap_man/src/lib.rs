@@ -78,7 +78,7 @@ impl<'a> Man<'a> {
     /// Render a manual page into writer.
     pub fn render(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
-        roff.control("TH", self.title_args());
+        self._render_title(&mut roff);
         self._render_name_section(&mut roff);
         self._render_synopsis_section(&mut roff);
         self._render_description_section(&mut roff);
@@ -104,6 +104,17 @@ impl<'a> Man<'a> {
         }
 
         roff.to_writer(w)
+    }
+
+    /// Render the title into the writer.
+    pub fn render_title(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_title(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_title(&self, roff: &mut Roff) {
+        roff.control("TH", self.title_args());
     }
 
     // Turn metadata into arguments for a .TH macro.
