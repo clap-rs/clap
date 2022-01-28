@@ -13,7 +13,7 @@ use roff::{roman, Roff};
 use std::io::Write;
 
 /// Generate a manual page and write it out.
-pub fn generate_manpage<'a>(app: clap::App<'a>, buf: &mut dyn Write) -> Result<(), std::io::Error> {
+pub fn generate_manpage(app: clap::App<'_>, buf: &mut dyn Write) -> Result<(), std::io::Error> {
     let meta = Meta::from_clap("1", "", &app);
     let man = Man::new(meta, app);
     man.render(buf)
@@ -73,41 +73,130 @@ impl<'a> Man<'a> {
     pub fn render(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
         roff.control("TH", self.meta.to_args());
-        roff.control("SH", ["NAME"]);
-        render::about(&mut roff, &self.app);
-        roff.control("SH", ["SYNOPSIS"]);
-        render::synopsis(&mut roff, &self.app);
-        roff.control("SH", ["DESCRIPTION"]);
-        render::description(&mut roff, &self.app);
+        self._render_name_section(&mut roff);
+        self._render_synopsis_section(&mut roff);
+        self._render_description_section(&mut roff);
 
         if app_has_arguments(&self.app) {
-            roff.control("SH", ["OPTIONS"]);
-            render::options(&mut roff, &self.app);
+            self._render_options_section(&mut roff);
         }
 
         if app_has_subcommands(&self.app) {
-            let heading = subcommand_heading(&self.app);
-            roff.control("SH", [heading.as_str()]);
-            render::subcommands(&mut roff, &self.app, &self.meta.section);
+            self._render_subcommands_section(&mut roff);
         }
 
         if self.app.get_after_long_help().is_some() || self.app.get_after_help().is_some() {
-            roff.control("SH", ["EXTRA"]);
-            render::after_help(&mut roff, &self.app);
+            self._render_extra_section(&mut roff);
         }
 
         if app_has_version(&self.app) {
-            let version = roman(&render::version(&self.app));
-            roff.control("SH", ["VERSION"]);
-            roff.text([version]);
+            self._render_version_section(&mut roff);
         }
 
         if self.app.get_author().is_some() {
-            let author = roman(self.app.get_author().unwrap_or_default());
-            roff.control("SH", ["AUTHORS"]);
-            roff.text([author]);
+            self._render_authors_section(&mut roff);
         }
+
         roff.to_writer(w)
+    }
+
+    /// Render the NAME section into the writer.
+    pub fn render_name_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_name_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_name_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["NAME"]);
+        render::about(roff, &self.app);
+    }
+
+    /// Render the SYNOPSIS section into the writer.
+    pub fn render_synopsis_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_synopsis_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_synopsis_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["SYNOPSIS"]);
+        render::synopsis(roff, &self.app);
+    }
+
+    /// Render the DESCRIPTION section into the writer.
+    pub fn render_description_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_description_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_description_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["DESCRIPTION"]);
+        render::description(roff, &self.app);
+    }
+
+    /// Render the OPTIONS section into the writer.
+    pub fn render_options_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_options_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_options_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["OPTIONS"]);
+        render::options(roff, &self.app);
+    }
+
+    /// Render the SUBCOMMANDS section into the writer.
+    pub fn render_subcommands_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_subcommands_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_subcommands_section(&self, roff: &mut Roff) {
+        let heading = subcommand_heading(&self.app);
+        roff.control("SH", [heading.as_str()]);
+        render::subcommands(roff, &self.app, &self.meta.section);
+    }
+
+    /// Render the EXTRA section into the writer.
+    pub fn render_extra_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_extra_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_extra_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["EXTRA"]);
+        render::after_help(roff, &self.app);
+    }
+
+    /// Render the VERSION section into the writer.
+    pub fn render_version_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_version_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_version_section(&self, roff: &mut Roff) {
+        let version = roman(&render::version(&self.app));
+        roff.control("SH", ["VERSION"]);
+        roff.text([version]);
+    }
+
+    /// Render the AUTHORS section into the writer.
+    pub fn render_authors_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_authors_section(&mut roff);
+        roff.to_writer(w)
+    }
+
+    fn _render_authors_section(&self, roff: &mut Roff) {
+        let author = roman(self.app.get_author().unwrap_or_default());
+        roff.control("SH", ["AUTHORS"]);
+        roff.text([author]);
     }
 }
 
