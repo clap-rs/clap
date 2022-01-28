@@ -13,7 +13,10 @@ use roff::{roman, Roff};
 use std::io::Write;
 
 /// Generate a manual page and write it out.
-pub fn generate_manpage<'a>(app: &mut clap::App<'a>, buf: &mut dyn Write) -> Result<(), std::io::Error> {
+pub fn generate_manpage<'a>(
+    app: &mut clap::App<'a>,
+    buf: &mut dyn Write,
+) -> Result<(), std::io::Error> {
     let meta = Meta::from_clap("1", "", app);
     let man = Man::new(&meta, app);
     man.render(buf)
@@ -114,8 +117,8 @@ impl Man {
 
 // Does the application have a version?
 fn app_has_version(app: &clap::App) -> bool {
-    app.get_long_version()
-        .or_else(|| app.get_version())
+    app.get_version()
+        .or_else(|| app.get_long_version())
         .is_some()
 }
 

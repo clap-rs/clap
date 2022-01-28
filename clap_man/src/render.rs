@@ -1,5 +1,5 @@
 use clap::{AppSettings, ArgSettings};
-use roff::{roman, bold, italic, Inline, Roff};
+use roff::{bold, italic, roman, Inline, Roff};
 
 pub(crate) fn subcommand_heading(app: &clap::App) -> String {
     match app.get_subommand_help_heading() {
@@ -16,7 +16,7 @@ pub(crate) fn about(roff: &mut Roff, app: &clap::App) {
     roff.text([roman(&s)]);
 }
 
-pub(crate) fn description(roff: &mut Roff, app: &clap::App)  {
+pub(crate) fn description(roff: &mut Roff, app: &clap::App) {
     if let Some(about) = app.get_long_about().or_else(|| app.get_about()) {
         for line in about.lines() {
             if line.trim().is_empty() {
@@ -29,11 +29,7 @@ pub(crate) fn description(roff: &mut Roff, app: &clap::App)  {
 }
 
 pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
-    let mut line = vec![
-        bold(app.get_name()),
-        roman(" "),
-    ];
-
+    let mut line = vec![bold(app.get_name()), roman(" ")];
 
     for opt in app.get_arguments() {
         let (lhs, rhs) = option_markers(opt);
@@ -76,7 +72,8 @@ pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
         line.push(italic(
             &app.get_subcommand_value_name()
                 .unwrap_or(&subcommand_heading(app))
-                .to_lowercase()));
+                .to_lowercase(),
+        ));
         line.push(roman(rhs));
     }
 
@@ -150,7 +147,10 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
 }
 
 pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
-    for sub in app.get_subcommands().filter(|s| !s.is_set(AppSettings::Hidden)) {
+    for sub in app
+        .get_subcommands()
+        .filter(|s| !s.is_set(AppSettings::Hidden))
+    {
         roff.control("TP", []);
 
         let name = format!("{}-{}({})", app.get_name(), sub.get_name(), section);

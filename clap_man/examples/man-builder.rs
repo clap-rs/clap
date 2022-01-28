@@ -25,7 +25,7 @@ fn main() -> Result<(), std::io::Error> {
         .after_help(
             "\
 For more information about the config file syntax, look up the INI format.
-To see the debug information, visit our website on github.com"
+To see the debug information, visit our website on github.com",
         );
 
     let meta = Meta::from_clap("1", "GNU", &app);

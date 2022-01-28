@@ -31,11 +31,11 @@ bench = false
 
 [dependencies]
 roff = "0.2.1"
-clap = { path = "../", version = "=3.0.0-rc.7", default-features = false, features = ["std", "env"] }
+clap = { path = "../", version = "3.0", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]
 pretty_assertions = "1.0"
-clap = { path = "../", version = "=3.0.0-rc.7", default-features = false, features = ["std"] }
+clap = { path = "../", version = "3.0", default-features = false, features = ["std"] }
 
 [features]
 default = []
