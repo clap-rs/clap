@@ -14,7 +14,7 @@ pub(crate) struct Colorizer {
 }
 
 impl Colorizer {
-    #[inline]
+    #[inline(never)]
     pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
         Colorizer {
             use_stderr,
@@ -23,28 +23,28 @@ impl Colorizer {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     pub(crate) fn good(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Good));
     }
 
-    #[inline]
+    #[inline(never)]
     pub(crate) fn warning(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Warning));
     }
 
-    #[inline]
+    #[inline(never)]
     pub(crate) fn error(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Error));
     }
 
-    #[inline]
+    #[inline(never)]
     #[allow(dead_code)]
     pub(crate) fn hint(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Hint));
     }
 
-    #[inline]
+    #[inline(never)]
     pub(crate) fn none(&mut self, msg: impl Into<String>) {
         self.pieces.push((msg.into(), Style::Default));
     }

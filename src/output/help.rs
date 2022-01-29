@@ -125,14 +125,17 @@ macro_rules! write_method {
 
 // Methods to write Arg help.
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
+    #[inline(never)]
     fn good<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, good)
     }
 
+    #[inline(never)]
     fn warning<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, warning)
     }
 
+    #[inline(never)]
     fn none<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, none)
     }
