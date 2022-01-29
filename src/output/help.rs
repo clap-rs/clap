@@ -2,7 +2,6 @@
 use std::{
     borrow::Cow,
     cmp,
-    collections::BTreeMap,
     io::{self, Write},
     usize,
 };
@@ -125,14 +124,17 @@ macro_rules! write_method {
 
 // Methods to write Arg help.
 impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
+    #[inline(never)]
     fn good<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, good)
     }
 
+    #[inline(never)]
     fn warning<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, warning)
     }
 
+    #[inline(never)]
     fn none<T: Into<String> + AsRef<[u8]>>(&mut self, msg: T) -> io::Result<()> {
         write_method!(self, msg, none)
     }
@@ -179,7 +181,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::write_args");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
-        let mut ord_m = BTreeMap::new();
+        let mut ord_v = Vec::new();
 
         // Determine the longest
         for arg in args.iter().filter(|arg| {
@@ -193,9 +195,6 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 longest = longest.max(display_width(arg.to_string().as_str()));
                 debug!("Help::write_args: New Longest...{}", longest);
             }
-            let btm = ord_m
-                .entry(arg.get_display_order())
-                .or_insert_with(BTreeMap::new);
 
             // Formatting key like this to ensure that:
             // 1. Argument has long flags are printed just after short flags.
@@ -216,19 +215,15 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                 s.push_str(arg.name);
                 s
             };
-            btm.insert(key, arg);
+            ord_v.push((arg.get_display_order(), key, arg));
         }
+        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
         let next_line_help = self.will_args_wrap(args, longest);
 
-        let num_ord_m = ord_m.len();
-        for (i, btm) in ord_m.values().enumerate() {
-            let last_btm = i + 1 == num_ord_m;
-            let num_args = btm.len();
-            for (i, arg) in btm.values().enumerate() {
-                let last_arg = last_btm && i + 1 == num_args;
-                self.write_arg(arg, last_arg, next_line_help, longest)?;
-            }
+        for (i, (_, _, arg)) in ord_v.iter().enumerate() {
+            let last_arg = i + 1 == ord_v.len();
+            self.write_arg(arg, last_arg, next_line_help, longest)?;
         }
         Ok(())
     }
@@ -835,15 +830,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         debug!("Help::write_subcommands");
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
-        let mut ord_m = BTreeMap::new();
+        let mut ord_v = Vec::new();
         for subcommand in app
             .subcommands
             .iter()
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
-            let btm = ord_m
-                .entry(subcommand.get_display_order())
-                .or_insert_with(BTreeMap::new);
             let mut sc_str = String::new();
             sc_str.push_str(
                 &subcommand
@@ -857,23 +849,22 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             );
             sc_str.push_str(&subcommand.name);
             longest = longest.max(display_width(&sc_str));
-            btm.insert(sc_str, subcommand.clone());
+            ord_v.push((subcommand.get_display_order(), sc_str, subcommand.clone()));
         }
+        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
         debug!("Help::write_subcommands longest = {}", longest);
 
         let next_line_help = self.will_subcommands_wrap(&app.subcommands, longest);
 
         let mut first = true;
-        for btm in ord_m.values() {
-            for (sc_str, sc) in btm {
-                if first {
-                    first = false;
-                } else {
-                    self.none("\n")?;
-                }
-                self.write_subcommand(sc_str, sc, next_line_help, longest)?;
+        for (_, sc_str, sc) in &ord_v {
+            if first {
+                first = false;
+            } else {
+                self.none("\n")?;
             }
+            self.write_subcommand(sc_str, sc, next_line_help, longest)?;
         }
         Ok(())
     }
