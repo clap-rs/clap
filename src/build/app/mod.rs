@@ -2214,7 +2214,7 @@ impl<'help> App<'help> {
     }
 
     /// Should we color the output?
-    #[inline]
+    #[inline(never)]
     pub fn get_color(&self) -> ColorChoice {
         debug!("App::color: Color setting...");
 
