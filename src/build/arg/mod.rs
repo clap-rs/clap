@@ -17,7 +17,7 @@ use std::{
     error::Error,
     ffi::OsStr,
     fmt::{self, Display, Formatter},
-    iter, str,
+    str,
     sync::{Arc, Mutex},
 };
 #[cfg(feature = "env")]
@@ -5123,7 +5123,8 @@ where
         arg.val_delim.expect(INTERNAL_ERROR_MSG)
     } else {
         ' '
-    };
+    }
+    .to_string();
     if !arg.val_names.is_empty() {
         // If have val_name.
         match (arg.val_names.len(), arg.num_vals) {
@@ -5131,11 +5132,10 @@ where
                 // If single value name with multiple num_of_vals, display all
                 // the values with the single value name.
                 let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                let mut it = iter::repeat(arg_name).take(num_vals).peekable();
-                while let Some(arg_name) = it.next() {
+                for n in 1..=num_vals {
                     write(&arg_name, true)?;
-                    if it.peek().is_some() {
-                        write(&delim.to_string(), false)?;
+                    if n != num_vals {
+                        write(&delim, false)?;
                     }
                 }
             }
@@ -5145,7 +5145,7 @@ where
                 while let Some(val) = it.next() {
                     write(&format!("<{}>", val), true)?;
                     if it.peek().is_some() {
-                        write(&delim.to_string(), false)?;
+                        write(&delim, false)?;
                     }
                 }
                 if (num_val_names == 1 && mult_val) || (arg.is_positional() && mult_occ) {
@@ -5156,11 +5156,10 @@ where
     } else if let Some(num_vals) = arg.num_vals {
         // If number_of_values is specified, display the value multiple times.
         let arg_name = format!("<{}>", arg.name);
-        let mut it = iter::repeat(&arg_name).take(num_vals).peekable();
-        while let Some(arg_name) = it.next() {
-            write(arg_name, true)?;
-            if it.peek().is_some() {
-                write(&delim.to_string(), false)?;
+        for n in 1..=num_vals {
+            write(&arg_name, true)?;
+            if n != num_vals {
+                write(&delim, false)?;
             }
         }
     } else if arg.is_positional() {
