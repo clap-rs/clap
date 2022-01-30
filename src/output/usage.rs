@@ -54,7 +54,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
                 .iter()
-                .fold(String::new(), |a, s| a + &format!(" {}", s)[..])
+                .fold(String::new(), |a, s| a + " " + s)
         } else {
             String::new()
         };
@@ -178,7 +178,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         let r_string = self
             .get_required_usage_from(used, None, true)
             .iter()
-            .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+            .fold(String::new(), |acc, s| acc + " " + s);
 
         usage.push_str(
             &self
