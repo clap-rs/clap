@@ -4943,12 +4943,12 @@ impl<'help> Arg<'help> {
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
         debug!("Arg::name_no_brackets:{}", self.name);
-        let mut delim = String::new();
-        delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
+        let delim = if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
         } else {
             ' '
-        });
+        }
+        .to_string();
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
