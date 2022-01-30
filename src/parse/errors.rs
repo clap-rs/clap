@@ -821,7 +821,7 @@ impl Error {
         c.warning(max_occurs.to_string());
         c.none(" occurrences, but ");
         c.warning(curr_occurs.to_string());
-        c.none(format!(" {} provided", verb));
+        c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -872,7 +872,7 @@ impl Error {
         c.warning(min_vals.to_string());
         c.none(" values, but only ");
         c.warning(curr_vals.to_string());
-        c.none(format!(" {} provided", verb));
+        c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -965,7 +965,7 @@ impl Error {
         c.warning(num_vals.to_string());
         c.none(" values, but ");
         c.warning(curr_vals.to_string());
-        c.none(format!(" {} provided", verb));
+        c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -1081,11 +1081,11 @@ impl Error {
     }
 
     /// Returns the singular or plural form on the verb to be based on the argument's value.
-    fn singular_or_plural(n: usize) -> String {
+    fn singular_or_plural(n: usize) -> &'static str {
         if n > 1 {
-            String::from("were")
+            " were provided"
         } else {
-            String::from("was")
+            " was provided"
         }
     }
 }
