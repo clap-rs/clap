@@ -158,7 +158,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let mut longest = 2;
         let mut arg_v = Vec::with_capacity(10);
 
-        for arg in args
+        for &arg in args
             .iter()
             .filter(|arg| should_show_arg(self.use_long, *arg))
         {
@@ -185,7 +185,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let mut ord_v = Vec::new();
 
         // Determine the longest
-        for arg in args.iter().filter(|arg| {
+        for &arg in args.iter().filter(|arg| {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
