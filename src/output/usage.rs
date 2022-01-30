@@ -49,7 +49,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .app
             .usage
             .as_ref()
-            .unwrap_or_else(|| self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name));
+            .or_else(|| self.p.app.bin_name.as_ref())
+            .unwrap_or(&self.p.app.name);
         usage.push_str(&*name);
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
@@ -186,7 +187,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 .app
                 .usage
                 .as_ref()
-                .unwrap_or_else(|| self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name))[..],
+                .or_else(|| self.p.app.bin_name.as_ref())
+                .unwrap_or(&self.p.app.name)[..],
         );
         usage.push_str(&*r_string);
         if self.p.is_set(AS::SubcommandRequired) {

@@ -3043,11 +3043,9 @@ impl<'help> App<'help> {
         debug!("App::_render_version");
 
         let ver = if use_long {
-            self.long_version
-                .unwrap_or_else(|| self.version.unwrap_or(""))
+            self.long_version.or(self.version).unwrap_or("")
         } else {
-            self.version
-                .unwrap_or_else(|| self.long_version.unwrap_or(""))
+            self.version.or(self.long_version).unwrap_or("")
         };
         if let Some(bn) = self.bin_name.as_ref() {
             if bn.contains(' ') {
