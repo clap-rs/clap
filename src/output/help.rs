@@ -846,7 +846,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             }
             sc_str.push_str(&subcommand.name);
             longest = longest.max(display_width(&sc_str));
-            ord_v.push((subcommand.get_display_order(), sc_str, subcommand.clone()));
+            ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
