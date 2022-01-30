@@ -139,6 +139,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         write_method!(self, msg, none)
     }
 
+    #[inline(never)]
     fn spaces(&mut self, n: usize) -> io::Result<()> {
         // A string with 64 consecutive spaces.
         const SHORT_SPACE: &str =
