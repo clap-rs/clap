@@ -838,16 +838,12 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut sc_str = String::new();
-            sc_str.push_str(
-                &subcommand
-                    .short_flag
-                    .map_or(String::new(), |c| format!("-{}, ", c)),
-            );
-            sc_str.push_str(
-                &subcommand
-                    .long_flag
-                    .map_or(String::new(), |c| format!("--{}, ", c)),
-            );
+            if let Some(short) = subcommand.short_flag {
+                sc_str.push_str(&format!("-{}", short));
+            }
+            if let Some(long) = subcommand.long_flag {
+                sc_str.push_str(&format!("--{}", long));
+            }
             sc_str.push_str(&subcommand.name);
             longest = longest.max(display_width(&sc_str));
             ord_v.push((subcommand.get_display_order(), sc_str, subcommand.clone()));
