@@ -454,9 +454,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.align_to_about(arg, next_line_help, longest)?;
 
         let about = if self.use_long {
-            arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
+            arg.long_help.or(arg.help).unwrap_or("")
         } else {
-            arg.help.unwrap_or_else(|| arg.long_help.unwrap_or(""))
+            arg.help.or(arg.long_help).unwrap_or("")
         };
 
         self.help(
