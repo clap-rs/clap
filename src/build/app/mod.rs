@@ -116,27 +116,33 @@ impl<'help> App<'help> {
     /// # ;
     /// ```
     pub fn new<S: Into<String>>(name: S) -> Self {
-        let name = name.into();
-
-        App {
-            id: Id::from(&*name),
-            name,
-            ..Default::default()
+        /// The actual implementation of `new`, non-generic to save code size.
+        ///
+        /// If we don't do this rustc will unnecessarily generate multiple versions
+        /// of this code.
+        fn new_inner<'help>(name: String) -> App<'help> {
+            App {
+                id: Id::from(&*name),
+                name,
+                ..Default::default()
+            }
+            .arg(
+                Arg::new("help")
+                    .long("help")
+                    .help("Print help information")
+                    .global(true)
+                    .generated(),
+            )
+            .arg(
+                Arg::new("version")
+                    .long("version")
+                    .help("Print version information")
+                    .global(true)
+                    .generated(),
+            )
         }
-        .arg(
-            Arg::new("help")
-                .long("help")
-                .help("Print help information")
-                .global(true)
-                .generated(),
-        )
-        .arg(
-            Arg::new("version")
-                .long("version")
-                .help("Print version information")
-                .global(true)
-                .generated(),
-        )
+
+        new_inner(name.into())
     }
 
     /// Adds an [argument] to the list of valid possibilities.
