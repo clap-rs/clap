@@ -3015,7 +3015,7 @@ impl<'help> App<'help> {
                     debug!("No");
                     let bin_name = format!(
                         "{}{}{}",
-                        self.bin_name.as_ref().unwrap_or(&self.name.clone()),
+                        self.bin_name.as_ref().unwrap_or(&self.name),
                         if self.bin_name.is_some() { " " } else { "" },
                         &*sc.name
                     );
