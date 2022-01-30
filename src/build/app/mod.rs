@@ -106,7 +106,7 @@ impl<'help> App<'help> {
     /// name will only be displayed to the user when they request to print
     /// version or help and usage information.
     ///
-    /// See also [`app_from_crate!!`](crate::app_from_crate!) and [`crate_name!`](crate::crate_name!).
+    /// See also [`app_from_crate!`](crate::app_from_crate!) and [`crate_name!`](crate::crate_name!).
     ///
     /// # Examples
     ///
