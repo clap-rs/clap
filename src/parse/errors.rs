@@ -561,24 +561,20 @@ impl Error {
         c.warning(arg);
         c.none("' cannot be used with");
 
-        let mut info = vec![];
         match others.len() {
             0 => {
                 c.none(" one or more of the other specified arguments");
             }
             1 => {
-                let v = &others[0];
                 c.none(" '");
-                c.warning(v.clone());
+                c.warning(others[0].clone());
                 c.none("'");
-                info.push(v.clone());
             }
             _ => {
                 c.none(":");
-                for v in others {
+                for v in &others {
                     c.none("\n    ");
-                    c.warning(v.to_string());
-                    info.push(v.to_string());
+                    c.warning(v.clone());
                 }
             }
         }
@@ -591,7 +587,7 @@ impl Error {
             ErrorKind::ArgumentConflict,
             app.settings.is_set(AppSettings::WaitOnError),
         )
-        .set_info(info)
+        .set_info(others)
     }
 
     pub(crate) fn empty_value(app: &App, arg: &Arg, usage: String) -> Self {
@@ -630,27 +626,24 @@ impl Error {
         .set_info(vec![arg])
     }
 
-    pub(crate) fn invalid_value<G>(
+    pub(crate) fn invalid_value(
         app: &App,
         bad_val: String,
-        good_vals: &[G],
+        good_vals: &[&str],
         arg: &Arg,
         usage: String,
-    ) -> Self
-    where
-        G: AsRef<str> + Display,
-    {
+    ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
+        let arg = arg.to_string();
 
         let mut sorted: Vec<String> = good_vals
             .iter()
-            .map(|v| v.to_string())
-            .map(|v| {
+            .map(|&v| {
                 if v.contains(char::is_whitespace) {
                     format!("{:?}", v)
                 } else {
-                    v
+                    v.to_owned()
                 }
             })
             .collect();
@@ -659,7 +652,7 @@ impl Error {
         start_error(&mut c, "");
         c.warning(format!("{:?}", bad_val));
         c.none(" isn't a valid value for '");
-        c.warning(arg.to_string());
+        c.warning(arg.clone());
         c.none("'\n\t[possible values: ");
 
         if let Some((last, elements)) = sorted.split_last() {
@@ -682,7 +675,7 @@ impl Error {
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
-        let mut info = vec![arg.to_string(), bad_val];
+        let mut info = vec![arg, bad_val];
         info.extend(sorted);
 
         Self::new(
@@ -754,11 +747,9 @@ impl Error {
             "The following required arguments were not provided:",
         );
 
-        let mut info = vec![];
-        for v in required {
+        for v in &required {
             c.none("\n    ");
-            c.good(v.to_string());
-            info.push(v.to_string());
+            c.good(v.clone());
         }
 
         put_usage(&mut c, usage);
@@ -769,7 +760,7 @@ impl Error {
             ErrorKind::MissingRequiredArgument,
             app.settings.is_set(AppSettings::WaitOnError),
         )
-        .set_info(info)
+        .set_info(required)
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
@@ -814,13 +805,16 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_occurs);
+        let arg = arg.to_string();
+        let max_occurs = max_occurs.to_string();
+        let curr_occurs = curr_occurs.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.to_string());
+        c.warning(arg.clone());
         c.none("' allows at most ");
-        c.warning(max_occurs.to_string());
+        c.warning(max_occurs.clone());
         c.none(" occurrences, but ");
-        c.warning(curr_occurs.to_string());
+        c.warning(curr_occurs.clone());
         c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -830,11 +824,7 @@ impl Error {
             ErrorKind::TooManyOccurrences,
             app.settings.is_set(AppSettings::WaitOnError),
         )
-        .set_info(vec![
-            arg.to_string(),
-            curr_occurs.to_string(),
-            max_occurs.to_string(),
-        ])
+        .set_info(vec![arg, curr_occurs, max_occurs])
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
@@ -865,13 +855,16 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_vals);
+        let arg = arg.to_string();
+        let min_vals = min_vals.to_string();
+        let curr_vals = curr_vals.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.to_string());
+        c.warning(arg.clone());
         c.none("' requires at least ");
-        c.warning(min_vals.to_string());
+        c.warning(min_vals.clone());
         c.none(" values, but only ");
-        c.warning(curr_vals.to_string());
+        c.warning(curr_vals.clone());
         c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -881,11 +874,7 @@ impl Error {
             ErrorKind::TooFewValues,
             app.settings.is_set(AppSettings::WaitOnError),
         )
-        .set_info(vec![
-            arg.to_string(),
-            curr_vals.to_string(),
-            min_vals.to_string(),
-        ])
+        .set_info(vec![arg, curr_vals, min_vals])
     }
 
     pub(crate) fn value_validation(
@@ -958,13 +947,16 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let verb = Error::singular_or_plural(curr_vals);
+        let arg = arg.to_string();
+        let num_vals = num_vals.to_string();
+        let curr_vals = curr_vals.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.to_string());
+        c.warning(arg.clone());
         c.none("' requires ");
-        c.warning(num_vals.to_string());
+        c.warning(num_vals.clone());
         c.none(" values, but ");
-        c.warning(curr_vals.to_string());
+        c.warning(curr_vals.clone());
         c.none(verb);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -974,11 +966,7 @@ impl Error {
             ErrorKind::WrongNumberOfValues,
             app.settings.is_set(AppSettings::WaitOnError),
         )
-        .set_info(vec![
-            arg.to_string(),
-            curr_vals.to_string(),
-            num_vals.to_string(),
-        ])
+        .set_info(vec![arg, curr_vals, num_vals])
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {

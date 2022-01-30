@@ -257,7 +257,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.none(TAB)?;
 
         if let Some(s) = arg.short {
-            self.good(&format!("-{}", s))
+            self.good(format!("-{}", s))
         } else if !arg.is_positional() {
             self.none(TAB)
         } else {
@@ -272,7 +272,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             if arg.short.is_some() {
                 self.none(", ")?;
             }
-            self.good(&format!("--{}", long))?;
+            self.good(format!("--{}", long))?;
         }
         Ok(())
     }
@@ -409,7 +409,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         // Is help on next line, if so then indent
         if next_line_help {
-            self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
+            self.none(format!("\n{}{}{}", TAB, TAB, TAB))?;
         }
 
         debug!("Help::help: Too long...");
@@ -430,7 +430,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         for part in help.lines().skip(1) {
             self.none("\n")?;
             if next_line_help {
-                self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
+                self.none(format!("{}{}{}", TAB, TAB, TAB))?;
             } else if is_not_positional {
                 self.spaces(longest + 12)?;
             } else {
