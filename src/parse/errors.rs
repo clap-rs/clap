@@ -804,7 +804,7 @@ impl Error {
         usage: String,
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
-        let verb = Error::singular_or_plural(curr_occurs);
+        let were_provided = Error::singular_or_plural(curr_occurs);
         let arg = arg.to_string();
         let max_occurs = max_occurs.to_string();
         let curr_occurs = curr_occurs.to_string();
@@ -815,7 +815,7 @@ impl Error {
         c.warning(max_occurs.clone());
         c.none(" occurrences, but ");
         c.warning(curr_occurs.clone());
-        c.none(verb);
+        c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -854,7 +854,7 @@ impl Error {
         usage: String,
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
-        let verb = Error::singular_or_plural(curr_vals);
+        let were_provided = Error::singular_or_plural(curr_vals);
         let arg = arg.to_string();
         let min_vals = min_vals.to_string();
         let curr_vals = curr_vals.to_string();
@@ -865,7 +865,7 @@ impl Error {
         c.warning(min_vals.clone());
         c.none(" values, but only ");
         c.warning(curr_vals.clone());
-        c.none(verb);
+        c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -946,7 +946,7 @@ impl Error {
         usage: String,
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
-        let verb = Error::singular_or_plural(curr_vals);
+        let were_provided = Error::singular_or_plural(curr_vals);
         let arg = arg.to_string();
         let num_vals = num_vals.to_string();
         let curr_vals = curr_vals.to_string();
@@ -957,7 +957,7 @@ impl Error {
         c.warning(num_vals.clone());
         c.none(" values, but ");
         c.warning(curr_vals.clone());
-        c.none(verb);
+        c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
