@@ -795,8 +795,8 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     if !first {
                         self.none("\n\n")?;
                     }
-                    self.warning(&*format!("{}:\n", heading))?;
-                    self.write_args(&*args)?;
+                    self.warning(format!("{}:\n", heading))?;
+                    self.write_args(&args)?;
                     first = false
                 }
             }

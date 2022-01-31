@@ -582,14 +582,14 @@ impl Error {
             }
             1 => {
                 c.none(" '");
-                c.warning(others[0].clone());
+                c.warning(&*others[0]);
                 c.none("'");
             }
             _ => {
                 c.none(":");
                 for v in &others {
                     c.none("\n    ");
-                    c.warning(v.clone());
+                    c.warning(&**v);
                 }
             }
         }
@@ -605,7 +605,7 @@ impl Error {
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' requires a value but none was supplied");
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -617,7 +617,7 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Equal sign is needed when assigning values to '");
-        c.warning(&arg);
+        c.warning(&*arg);
         c.none("'.");
 
         put_usage(&mut c, usage);
@@ -652,7 +652,7 @@ impl Error {
         start_error(&mut c, "");
         c.warning(format!("{:?}", bad_val));
         c.none(" isn't a valid value for '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("'\n\t[possible values: ");
 
         if let Some((last, elements)) = sorted.split_last() {
@@ -691,7 +691,7 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "The subcommand '");
-        c.warning(subcmd.clone());
+        c.warning(&*subcmd);
         c.none("' wasn't recognized\n\n\tDid you mean ");
         c.good(did_you_mean);
         c.none("");
@@ -711,7 +711,7 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, " The subcommand '");
-        c.warning(subcmd.clone());
+        c.warning(&*subcmd);
         c.none("' wasn't recognized\n\n");
         c.warning("USAGE:");
         c.none(format!("\n    {} <subcommands>", name));
@@ -734,7 +734,7 @@ impl Error {
 
         for v in &required {
             c.none("\n    ");
-            c.good(v.clone());
+            c.good(&**v);
         }
 
         put_usage(&mut c, usage);
@@ -782,11 +782,11 @@ impl Error {
         let curr_occurs = curr_occurs.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' allows at most ");
-        c.warning(max_occurs.clone());
+        c.warning(&*max_occurs);
         c.none(" occurrences, but ");
-        c.warning(curr_occurs.clone());
+        c.warning(&*curr_occurs);
         c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -803,9 +803,9 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "The value '");
-        c.warning(val.clone());
+        c.warning(&*val);
         c.none("' was provided to '");
-        c.warning(&arg);
+        c.warning(&*arg);
         c.none("' but it wasn't expecting any more values");
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -827,11 +827,11 @@ impl Error {
         let curr_vals = curr_vals.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' requires at least ");
-        c.warning(min_vals.clone());
+        c.warning(&*min_vals);
         c.none(" values, but only ");
-        c.warning(curr_vals.clone());
+        c.warning(&*curr_vals);
         c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -895,7 +895,7 @@ impl Error {
         start_error(&mut c, "Invalid value");
 
         c.none(" for '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("'");
 
         c.none(format!(": {}", err));
@@ -919,11 +919,11 @@ impl Error {
         let curr_vals = curr_vals.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' requires ");
-        c.warning(num_vals.clone());
+        c.warning(&*num_vals);
         c.none(" values, but ");
-        c.warning(curr_vals.clone());
+        c.warning(&*curr_vals);
         c.none(were_provided);
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -941,7 +941,7 @@ impl Error {
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' was provided more than once, but cannot be used multiple times");
         put_usage(&mut c, usage);
         try_help(app, &mut c);
@@ -958,7 +958,7 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Found argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' which wasn't expected, or isn't valid in this context");
 
         if let Some((flag, subcmd)) = did_you_mean {
@@ -997,7 +997,7 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
 
         start_error(&mut c, "Found argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' which wasn't expected, or isn't valid in this context");
 
         c.none(format!(
@@ -1014,7 +1014,7 @@ impl Error {
         let mut c = Colorizer::new(true, ColorChoice::Never);
 
         start_error(&mut c, "The argument '");
-        c.warning(arg.clone());
+        c.warning(&*arg);
         c.none("' wasn't found\n");
 
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
