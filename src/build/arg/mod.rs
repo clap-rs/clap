@@ -5029,13 +5029,13 @@ impl<'help> Display for Arg<'help> {
             } else {
                 " "
             };
-            write!(f, "{}", sep)?;
+            f.write_str(sep)?;
         }
         if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
-            display_arg_val(self, |s, _| write!(f, "{}", s))?;
+            display_arg_val(self, |s, _| f.write_str(s))?;
         }
         if need_closing_bracket {
-            write!(f, "]")?;
+            f.write_str("]")?;
         }
 
         Ok(())
