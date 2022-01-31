@@ -16,7 +16,7 @@ use yaml_rust::Yaml;
 ///
 /// You can also do things such as name an entire `ArgGroup` as a [conflict] or [requirement] for
 /// another argument, meaning any of the arguments that belong to that group will cause a failure
-/// if present, or must present respectively.
+/// if present, or must be present respectively.
 ///
 /// Perhaps the most common use of `ArgGroup`s is to require one and *only* one argument to be
 /// present out of a given set. Imagine that you had multiple arguments, and you want one of them
