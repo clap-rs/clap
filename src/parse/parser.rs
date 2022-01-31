@@ -2,6 +2,7 @@
 use std::{
     cell::{Cell, RefCell},
     ffi::{OsStr, OsString},
+    fmt::Write as _,
 };
 
 // Third Party
@@ -735,11 +736,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             let mut sc_names = sc.name.clone();
             let mut flag_subcmd = false;
             if let Some(l) = sc.long_flag {
-                sc_names.push_str(&format!(", --{}", l));
+                write!(sc_names, ", --{}", l).unwrap();
                 flag_subcmd = true;
             }
             if let Some(s) = sc.short_flag {
-                sc_names.push_str(&format!(", -{}", s));
+                write!(sc_names, ", -{}", s).unwrap();
                 flag_subcmd = true;
             }
 

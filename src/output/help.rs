@@ -2,6 +2,7 @@
 use std::{
     borrow::Cow,
     cmp,
+    fmt::Write as _,
     io::{self, Write},
     usize,
 };
@@ -839,10 +840,10 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         {
             let mut sc_str = String::new();
             if let Some(short) = subcommand.short_flag {
-                sc_str.push_str(&format!("-{}", short));
+                write!(sc_str, "-{}", short).unwrap();
             }
             if let Some(long) = subcommand.long_flag {
-                sc_str.push_str(&format!("--{}", long));
+                write!(sc_str, "--{}", long).unwrap();
             }
             sc_str.push_str(&subcommand.name);
             longest = longest.max(display_width(&sc_str));
