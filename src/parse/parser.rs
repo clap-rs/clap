@@ -1190,26 +1190,12 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
         if !(trailing_values && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                let arg_split = val.split(delim);
-                let vals = if let Some(t) = arg.terminator {
-                    let mut vals = vec![];
-                    for val in arg_split {
-                        if t == val {
-                            break;
-                        }
-                        vals.push(val);
-                    }
-                    vals
-                } else {
-                    arg_split.collect()
-                };
-                self.add_multiple_vals_to_arg(
-                    arg,
-                    vals.into_iter().map(|x| x.to_os_str().into_owned()),
-                    matcher,
-                    ty,
-                    append,
-                );
+                let terminator = arg.terminator.map(OsStr::new);
+                let vals = val
+                    .split(delim)
+                    .map(|x| x.to_os_str().into_owned())
+                    .take_while(|val| Some(val.as_os_str()) != terminator);
+                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values or no more vals is needed, we're not
                 // looking for more values.
