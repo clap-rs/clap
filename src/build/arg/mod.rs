@@ -5189,12 +5189,12 @@ mod test {
         let mut f = Arg::new("flg").multiple_occurrences(true);
         f.long = Some("flag");
 
-        assert_eq!(&*format!("{}", f), "--flag");
+        assert_eq!(f.to_string(), "--flag");
 
         let mut f2 = Arg::new("flg");
         f2.short = Some('f');
 
-        assert_eq!(&*format!("{}", f2), "-f");
+        assert_eq!(f2.to_string(), "-f");
     }
 
     #[test]
@@ -5203,7 +5203,7 @@ mod test {
         f.long = Some("flag");
         f.aliases = vec![("als", true)];
 
-        assert_eq!(&*format!("{}", f), "--flag")
+        assert_eq!(f.to_string(), "--flag")
     }
 
     #[test]
@@ -5216,7 +5216,7 @@ mod test {
             ("f3", true),
             ("f4", true),
         ];
-        assert_eq!(&*format!("{}", f), "-f");
+        assert_eq!(f.to_string(), "-f");
     }
 
     #[test]
@@ -5225,7 +5225,7 @@ mod test {
         f.short = Some('a');
         f.short_aliases = vec![('b', true)];
 
-        assert_eq!(&*format!("{}", f), "-a")
+        assert_eq!(f.to_string(), "-a")
     }
 
     #[test]
@@ -5233,7 +5233,7 @@ mod test {
         let mut f = Arg::new("flg");
         f.short = Some('a');
         f.short_aliases = vec![('b', false), ('c', true), ('d', true), ('e', true)];
-        assert_eq!(&*format!("{}", f), "-a");
+        assert_eq!(f.to_string(), "-a");
     }
 
     // Options
@@ -5245,7 +5245,7 @@ mod test {
             .takes_value(true)
             .multiple_occurrences(true);
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5255,14 +5255,14 @@ mod test {
             .takes_value(true)
             .multiple_values(true);
 
-        assert_eq!(&*format!("{}", o), "--option <opt>...");
+        assert_eq!(o.to_string(), "--option <opt>...");
     }
 
     #[test]
     fn option_display2() {
         let o2 = Arg::new("opt").short('o').value_names(&["file", "name"]);
 
-        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+        assert_eq!(o2.to_string(), "-o <file> <name>");
     }
 
     #[test]
@@ -5273,7 +5273,7 @@ mod test {
             .multiple_values(true)
             .value_names(&["file", "name"]);
 
-        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+        assert_eq!(o2.to_string(), "-o <file> <name>");
     }
 
     #[test]
@@ -5283,7 +5283,7 @@ mod test {
             .long("option")
             .visible_alias("als");
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5294,7 +5294,7 @@ mod test {
             .visible_aliases(&["als2", "als3", "als4"])
             .alias("als_not_visible");
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5304,7 +5304,7 @@ mod test {
             .short('a')
             .visible_short_alias('b');
 
-        assert_eq!(&*format!("{}", o), "-a <opt>");
+        assert_eq!(o.to_string(), "-a <opt>");
     }
 
     #[test]
@@ -5315,7 +5315,7 @@ mod test {
             .visible_short_aliases(&['b', 'c', 'd'])
             .short_alias('e');
 
-        assert_eq!(&*format!("{}", o), "-a <opt>");
+        assert_eq!(o.to_string(), "-a <opt>");
     }
 
     // Positionals
@@ -5327,7 +5327,7 @@ mod test {
             .takes_value(true)
             .multiple_values(true);
 
-        assert_eq!(&*format!("{}", p), "<pos>...");
+        assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
@@ -5337,21 +5337,21 @@ mod test {
             .takes_value(true)
             .multiple_occurrences(true);
 
-        assert_eq!(&*format!("{}", p), "<pos>...");
+        assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
     fn positional_display_required() {
         let p2 = Arg::new("pos").index(1).required(true);
 
-        assert_eq!(&*format!("{}", p2), "<pos>");
+        assert_eq!(p2.to_string(), "<pos>");
     }
 
     #[test]
     fn positional_display_val_names() {
         let p2 = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
 
-        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
+        assert_eq!(p2.to_string(), "<file1> <file2>");
     }
 
     #[test]
@@ -5361,6 +5361,6 @@ mod test {
             .required(true)
             .value_names(&["file1", "file2"]);
 
-        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
+        assert_eq!(p2.to_string(), "<file1> <file2>");
     }
 }
