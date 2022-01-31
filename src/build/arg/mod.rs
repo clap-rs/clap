@@ -4974,7 +4974,8 @@ impl<'help> Arg<'help> {
         self.is_set(ArgSettings::MultipleValues) | self.is_set(ArgSettings::MultipleOccurrences)
     }
 
-    pub(crate) fn get_display_order(&self) -> usize {
+    /// Returns the display order of a given argument, or `999` if unset
+    pub fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
     }
 }

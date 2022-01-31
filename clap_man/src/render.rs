@@ -30,8 +30,38 @@ pub(crate) fn description(roff: &mut Roff, app: &clap::App) {
 
 pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
     let mut line = vec![bold(app.get_name()), roman(" ")];
+    let mut items: Vec<_> = app
+        .get_arguments()
+        .filter(|i| !i.is_set(ArgSettings::Hidden))
+        .collect();
 
-    for opt in app.get_arguments() {
+    // Render the help argument
+    items
+        .iter()
+        .filter(|a| a.get_long().unwrap_or(&"default".to_string()) == "help")
+        .for_each(|opt| {
+            let (lhs, rhs) = option_markers(opt);
+            let long = opt.get_long().unwrap();
+            let short = opt.get_short().unwrap();
+            line.push(roman(lhs));
+            line.push(bold(&format!("-{}", short)));
+            line.push(roman("|"));
+            line.push(bold(&format!("--{}", long)));
+            line.push(roman(rhs));
+            line.push(roman(" "));
+        });
+
+    // Sort the remaining arguments based on display order
+    items.sort_by(|a, b| {
+        a.get_display_order()
+            .partial_cmp(&b.get_display_order())
+            .unwrap()
+    });
+
+    for opt in items
+        .iter()
+        .filter(|a| a.get_long().unwrap_or(&"default".to_string()) != "help")
+    {
         let (lhs, rhs) = option_markers(opt);
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
@@ -81,45 +111,29 @@ pub(crate) fn synopsis(roff: &mut Roff, app: &clap::App) {
 }
 
 pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
-    let items: Vec<_> = app
+    let mut items: Vec<_> = app
         .get_arguments()
         .filter(|i| !i.is_set(ArgSettings::Hidden))
         .collect();
 
-    for opt in items.iter().filter(|a| !a.is_positional()) {
-        let mut body = vec![];
+    // Render the help message
+    items
+        .iter()
+        .filter(|a| a.get_long().unwrap_or(&"default".to_string()) == "help")
+        .for_each(|opt| render_optional_argument(opt, roff));
 
-        let mut header = match (opt.get_short(), opt.get_long()) {
-            (Some(short), Some(long)) => {
-                vec![short_option(short), roman(", "), long_option(long)]
-            }
-            (Some(short), None) => vec![short_option(short)],
-            (None, Some(long)) => vec![long_option(long)],
-            (None, None) => vec![],
-        };
+    // Sort the remaining arguments
+    items.sort_by(|a, b| {
+        a.get_display_order()
+            .partial_cmp(&b.get_display_order())
+            .unwrap()
+    });
 
-        if let Some(value) = &opt.get_value_names() {
-            header.push(roman("="));
-            header.push(italic(&value.join(" ")));
-        }
-
-        if let Some(defs) = option_default_values(opt) {
-            header.push(roman(" "));
-            header.push(roman(&defs));
-        }
-
-        if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
-            body.push(roman(help));
-        }
-
-        if let Some(mut env) = option_environment(opt) {
-            body.append(&mut env);
-        }
-
-        roff.control("TP", []);
-        roff.text(header);
-        roff.text(body);
-    }
+    // Render the remaining optional arguments
+    items
+        .iter()
+        .filter(|a| !a.is_positional() && a.get_long().unwrap_or(&"default".to_string()) != "help")
+        .for_each(|opt| render_optional_argument(opt, roff));
 
     for pos in items.iter().filter(|a| a.is_positional()) {
         let (lhs, rhs) = option_markers(pos);
@@ -144,6 +158,42 @@ pub(crate) fn options(roff: &mut Roff, app: &clap::App) {
         roff.control("TP", []);
         roff.text(body);
     }
+}
+
+/// A helper function to render optional arguments, this has been separated from
+/// `options` because we print the `help` info first, then order the remaining
+/// arguments and print them.
+pub(crate) fn render_optional_argument(opt: &&clap::Arg, roff: &mut Roff) {
+    let mut body = vec![];
+    let mut header = match (opt.get_short(), opt.get_long()) {
+        (Some(short), Some(long)) => {
+            vec![short_option(short), roman(", "), long_option(long)]
+        }
+        (Some(short), None) => vec![short_option(short)],
+        (None, Some(long)) => vec![long_option(long)],
+        (None, None) => vec![],
+    };
+
+    if let Some(value) = &opt.get_value_names() {
+        header.push(roman("="));
+        header.push(italic(&value.join(" ")));
+    }
+
+    if let Some(defs) = option_default_values(opt) {
+        header.push(roman(" "));
+        header.push(roman(&defs));
+    }
+
+    if let Some(help) = opt.get_long_help().or_else(|| opt.get_help()) {
+        body.push(roman(help));
+    }
+
+    if let Some(mut env) = option_environment(opt) {
+        body.append(&mut env);
+    }
+
+    roff.control("TP", []);
+    roff.text(header);
 }
 
 pub(crate) fn subcommands(roff: &mut Roff, app: &clap::App, section: &str) {
