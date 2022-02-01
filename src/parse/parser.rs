@@ -257,7 +257,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                             return Err(ClapError::no_equals(
                                 self.app,
                                 arg,
-                                Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
@@ -272,7 +272,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 self.app,
                                 rest,
                                 arg,
-                                Usage::new(&self.app, &self.required).create_usage_no_title(&used),
+                                Usage::new(self.app, &self.required).create_usage_no_title(&used),
                             ))
                         }
                         ParseResult::HelpFlag => {
@@ -346,7 +346,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                             return Err(ClapError::no_equals(
                                 self.app,
                                 arg,
-                                Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                             ))
                         }
                         ParseResult::NoMatchingArg { arg } => {
@@ -354,7 +354,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                                 self.app,
                                 arg,
                                 None,
-                                Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                             ));
                         }
                         ParseResult::HelpFlag => {
@@ -399,7 +399,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         self.app,
                         arg_os.to_str_lossy().into_owned(),
                         None,
-                        Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                        Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                     ));
                 }
 
@@ -440,7 +440,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     None => {
                         return Err(ClapError::invalid_utf8(
                             self.app,
-                            Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                         ));
                     }
                 };
@@ -454,7 +454,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     if !allow_invalid_utf8 && v.to_str().is_none() {
                         return Err(ClapError::invalid_utf8(
                             self.app,
-                            Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                         ));
                     }
                     sc_m.add_val_to(
@@ -499,7 +499,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             return Err(ClapError::missing_subcommand(
                 self.app,
                 bn.to_string(),
-                Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
             ));
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
@@ -527,7 +527,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 return ClapError::unnecessary_double_dash(
                     self.app,
                     arg_os.to_str_lossy().into_owned(),
-                    Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                    Usage::new(self.app, &self.required).create_usage_with_title(&[]),
                 );
             }
         }
@@ -548,7 +548,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     .as_ref()
                     .unwrap_or(&self.app.name)
                     .to_string(),
-                Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+                Usage::new(self.app, &self.required).create_usage_with_title(&[]),
             );
         }
         // If the argument must be a subcommand.
@@ -567,7 +567,7 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app,
             arg_os.to_str_lossy().into_owned(),
             None,
-            Usage::new(&self.app, &self.required).create_usage_with_title(&[]),
+            Usage::new(self.app, &self.required).create_usage_with_title(&[]),
         )
     }
 
@@ -715,7 +715,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         if !self.is_set(AS::SubcommandsNegateReqs) {
             let reqs =
-                Usage::new(&self.app, &self.required).get_required_usage_from(&[], None, true); // maybe Some(m)
+                Usage::new(self.app, &self.required).get_required_usage_from(&[], None, true); // maybe Some(m)
 
             for s in &reqs {
                 mid_string.push_str(s);
@@ -1557,14 +1557,14 @@ impl<'help, 'app> Parser<'help, 'app> {
             self.app,
             format!("--{}", arg),
             did_you_mean,
-            Usage::new(&self.app, &self.required).create_usage_with_title(&*used),
+            Usage::new(self.app, &self.required).create_usage_with_title(&*used),
         )
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
-        let usage = Usage::new(&self.app, &self.required);
+        let usage = Usage::new(self.app, &self.required);
         let mut c = Colorizer::new(true, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), &self.app, &usage, false).write_help()?;
+        Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, false).write_help()?;
         Ok(c)
     }
 
@@ -1575,10 +1575,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
-        let usage = Usage::new(&self.app, &self.required);
+        let usage = Usage::new(self.app, &self.required);
         let mut c = Colorizer::new(false, self.color_help());
 
-        match Help::new(HelpWriter::Buffer(&mut c), &self.app, &usage, use_long).write_help() {
+        match Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, use_long).write_help() {
             Err(e) => e.into(),
             _ => ClapError::for_app(self.app, c, ErrorKind::DisplayHelp, vec![]),
         }

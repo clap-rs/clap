@@ -680,8 +680,8 @@ impl<'help> App<'help> {
 
         let mut c = Colorizer::new(false, color);
         let parser = Parser::new(self);
-        let usage = Usage::new(&parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), &parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(parser.app, &parser.required);
+        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, false).write_help()?;
         c.print()
     }
 
@@ -706,8 +706,8 @@ impl<'help> App<'help> {
 
         let mut c = Colorizer::new(false, color);
         let parser = Parser::new(self);
-        let usage = Usage::new(&parser.app, &parser.required);
-        Help::new(HelpWriter::Buffer(&mut c), &parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(parser.app, &parser.required);
+        Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, true).write_help()?;
         c.print()
     }
 
@@ -731,8 +731,8 @@ impl<'help> App<'help> {
         self._build();
 
         let parser = Parser::new(self);
-        let usage = Usage::new(&parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), &parser.app, &usage, false).write_help()?;
+        let usage = Usage::new(parser.app, &parser.required);
+        Help::new(HelpWriter::Normal(w), parser.app, &usage, false).write_help()?;
         w.flush()
     }
 
@@ -756,8 +756,8 @@ impl<'help> App<'help> {
         self._build();
 
         let parser = Parser::new(self);
-        let usage = Usage::new(&parser.app, &parser.required);
-        Help::new(HelpWriter::Normal(w), &parser.app, &usage, true).write_help()?;
+        let usage = Usage::new(parser.app, &parser.required);
+        Help::new(HelpWriter::Normal(w), parser.app, &usage, true).write_help()?;
         w.flush()
     }
 
@@ -825,7 +825,7 @@ impl<'help> App<'help> {
         self._build();
 
         let parser = Parser::new(self);
-        Usage::new(&parser.app, &parser.required).create_usage_with_title(&[])
+        Usage::new(parser.app, &parser.required).create_usage_with_title(&[])
     }
 }
 
