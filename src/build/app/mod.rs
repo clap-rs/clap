@@ -822,7 +822,7 @@ impl<'help> App<'help> {
 
         let mut parser = Parser::new(self);
         parser._build();
-        Usage::new(&parser).create_usage_with_title(&[])
+        Usage::new(&parser.app, &parser.required).create_usage_with_title(&[])
     }
 }
 

@@ -962,7 +962,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                         self.warning("USAGE:")?;
                     }
                     "usage" => {
-                        self.none(Usage::new(self.parser).create_usage_no_title(&[]))?;
+                        self.none(Usage::new(&self.parser.app, &self.parser.required).create_usage_no_title(&[]))?;
                     }
                     "all-args" => {
                         self.write_all_args()?;
