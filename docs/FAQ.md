@@ -1,13 +1,9 @@
 1. [Comparisons](#comparisons)
    1. [How does `clap` compare to structopt?](#how-does-clap-compare-to-structopt)
-   2. [How does `clap` compare to getopts?](#how-does-clap-compare-to-getopts)
-   3. [How does `clap` compare to docopt.rs?](#how-does-clap-compare-to-docoptrs)
-   4. [What are some reasons to use `clap`? (The Pitch)](#what-are-some-reasons-to-use-clap-the-pitch)
-   5. [What are some reasons *not* to use `clap`? (The Anti Pitch)](#what-are-some-reasons-not-to-use-clap-the-anti-pitch)
-   6. [Reasons to use `clap`](#reasons-to-use-clap)
-   7. [Reasons to `docopt`](#reasons-to-docopt)
-   8. [Reasons to use `getopts`](#reasons-to-use-getopts)
-2. [How many methods are there to create an App/Arg?](#how-many-methods-are-there-to-create-an-apparg)
+   2. [What are some reasons to use `clap`? (The Pitch)](#what-are-some-reasons-to-use-clap-the-pitch)
+   3. [What are some reasons *not* to use `clap`? (The Anti Pitch)](#what-are-some-reasons-not-to-use-clap-the-anti-pitch)
+   4. [Reasons to use `clap`](#reasons-to-use-clap)
+2. [How many approaches are there to create a parser?](#how-many-approaches-are-there-to-create-a-parser)
 3. [Why is there a default subcommand of help?](#why-is-there-a-default-subcommand-of-help)
 
 ### Comparisons
