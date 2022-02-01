@@ -317,7 +317,7 @@ impl Attrs {
                                 help = "if you want to create a flag add `long` or `short`";
                                 help = "If you really want a boolean parameter \
                                     add an explicit parser, for example `parse(try_from_str)`";
-                                note = "see also https://github.com/clap-rs/clap_derive/tree/master/examples/true_or_false.rs";
+                                note = "see also https://github.com/clap-rs/clap/blob/master/examples/derive_ref/custom-bool.md";
                             )
                         }
                         if res.is_enum {
