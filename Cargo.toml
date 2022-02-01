@@ -140,7 +140,7 @@ criterion = "0.3.2"
 trybuild = "1.0.18"
 rustversion = "1"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.9", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.12", default-features = false, features = ["color-auto", "diff", "examples"] }
 
 [[example]]
 name = "demo"
