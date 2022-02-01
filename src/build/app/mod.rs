@@ -24,7 +24,7 @@ use yaml_rust::Yaml;
 
 // Internal
 use crate::{
-    build::{arg::ArgProvider, Arg, ArgGroup, ArgSettings},
+    build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings},
     mkeymap::MKeyMap,
     output::{fmt::Colorizer, Help, HelpWriter, Usage},
     parse::{ArgMatcher, ArgMatches, Input, Parser},
@@ -3239,19 +3239,20 @@ impl<'help> App<'help> {
     }
 
     pub(crate) fn unroll_requirements_for_arg(&self, arg: &Id, matcher: &ArgMatcher) -> Vec<Id> {
-        let requires_if_or_not = |(val, req_arg): &(Option<&str>, Id)| -> Option<Id> {
-            if let Some(v) = val {
-                if matcher
-                    .get(arg)
-                    .map(|ma| ma.contains_val(v))
-                    .unwrap_or(false)
-                {
-                    Some(req_arg.clone())
-                } else {
-                    None
+        let requires_if_or_not = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+            match val {
+                ArgPredicate::Equals(v) => {
+                    if matcher
+                        .get(arg)
+                        .map(|ma| ma.contains_val_os(v))
+                        .unwrap_or(false)
+                    {
+                        Some(req_arg.clone())
+                    } else {
+                        None
+                    }
                 }
-            } else {
-                Some(req_arg.clone())
+                ArgPredicate::IsPresent => Some(req_arg.clone()),
             }
         };
 
