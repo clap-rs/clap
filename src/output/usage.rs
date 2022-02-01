@@ -3,19 +3,20 @@ use indexmap::IndexSet;
 // Internal
 use crate::{
     build::AppSettings as AS,
-    build::{Arg, ArgSettings},
-    parse::{ArgMatcher, Parser},
-    util::Id,
+    build::{App, Arg, ArgSettings},
+    parse::ArgMatcher,
+    util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG,
 };
 
-pub(crate) struct Usage<'help, 'app, 'parser> {
-    p: &'parser Parser<'help, 'app>,
+pub(crate) struct Usage<'help, 'app> {
+    app: &'app App<'help>,
+    required: &'app ChildGraph<Id>,
 }
 
-impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
-    pub(crate) fn new(p: &'parser Parser<'help, 'app>) -> Self {
-        Usage { p }
+impl<'help, 'app> Usage<'help, 'app> {
+    pub(crate) fn new(app: &'app App<'help>, required: &'app ChildGraph<Id>) -> Self {
+        Usage { app, required }
     }
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
@@ -31,7 +32,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     // Creates a usage string (*without title*) if one was not provided by the user manually.
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_no_title");
-        if let Some(u) = self.p.app.usage_str {
+        if let Some(u) = self.app.usage_str {
             String::from(&*u)
         } else if used.is_empty() {
             self.create_help_usage(true)
@@ -45,12 +46,11 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         debug!("Usage::create_help_usage; incl_reqs={:?}", incl_reqs);
         let mut usage = String::with_capacity(75);
         let name = self
-            .p
             .app
             .usage
             .as_ref()
-            .or_else(|| self.p.app.bin_name.as_ref())
-            .unwrap_or(&self.p.app.name);
+            .or_else(|| self.app.bin_name.as_ref())
+            .unwrap_or(&self.app.name);
         usage.push_str(&*name);
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
@@ -64,30 +64,27 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             usage.push_str(" [OPTIONS]");
         }
 
-        let allow_missing_positional = self.p.app.is_set(AS::AllowMissingPositional);
+        let allow_missing_positional = self.app.is_set(AS::AllowMissingPositional);
         if !allow_missing_positional {
             usage.push_str(&req_string);
         }
 
         let has_last = self
-            .p
             .app
             .get_positionals()
             .any(|p| p.is_set(ArgSettings::Last));
         // places a '--' in the usage string if there are args and options
         // supporting multiple values
         if self
-            .p
             .app
             .get_non_positionals()
             .any(|o| o.is_set(ArgSettings::MultipleValues))
             && self
-                .p
                 .app
                 .get_positionals()
                 .any(|p| !p.is_set(ArgSettings::Required))
-            && !(self.p.app.has_visible_subcommands()
-                || self.p.is_set(AS::AllowExternalSubcommands))
+            && !(self.app.has_visible_subcommands()
+                || self.app.is_set(AS::AllowExternalSubcommands))
             && !has_last
         {
             usage.push_str(" [--]");
@@ -96,7 +93,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             (!p.is_set(ArgSettings::Required) || p.is_set(ArgSettings::Last))
                 && !p.is_set(ArgSettings::Hidden)
         };
-        if self.p.app.get_positionals().any(not_req_or_hidden) {
+        if self.app.get_positionals().any(not_req_or_hidden) {
             if let Some(args_tag) = self.get_args_tag(incl_reqs) {
                 usage.push_str(&*args_tag);
             } else {
@@ -104,7 +101,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             }
             if has_last && incl_reqs {
                 let pos = self
-                    .p
                     .app
                     .get_positionals()
                     .find(|p| p.is_set(ArgSettings::Last))
@@ -113,7 +109,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 let req = pos.is_set(ArgSettings::Required);
                 if req
                     && self
-                        .p
                         .app
                         .get_positionals()
                         .any(|p| !p.is_set(ArgSettings::Required))
@@ -138,14 +133,15 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         }
 
         // incl_reqs is only false when this function is called recursively
-        if self.p.app.has_visible_subcommands() && incl_reqs
-            || self.p.is_set(AS::AllowExternalSubcommands)
+        if self.app.has_visible_subcommands() && incl_reqs
+            || self.app.is_set(AS::AllowExternalSubcommands)
         {
-            let placeholder = self.p.app.subcommand_value_name.unwrap_or("SUBCOMMAND");
-            if self.p.is_set(AS::SubcommandsNegateReqs) || self.p.is_set(AS::ArgsNegateSubcommands)
+            let placeholder = self.app.subcommand_value_name.unwrap_or("SUBCOMMAND");
+            if self.app.is_set(AS::SubcommandsNegateReqs)
+                || self.app.is_set(AS::ArgsNegateSubcommands)
             {
                 usage.push_str("\n    ");
-                if !self.p.is_set(AS::ArgsNegateSubcommands) {
+                if !self.app.is_set(AS::ArgsNegateSubcommands) {
                     usage.push_str(&*self.create_help_usage(false));
                 } else {
                     usage.push_str(&*name);
@@ -153,8 +149,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
                 usage.push('>');
-            } else if self.p.is_set(AS::SubcommandRequired)
-                || self.p.is_set(AS::SubcommandRequiredElseHelp)
+            } else if self.app.is_set(AS::SubcommandRequired)
+                || self.app.is_set(AS::SubcommandRequiredElseHelp)
             {
                 usage.push_str(" <");
                 usage.push_str(placeholder);
@@ -183,17 +179,16 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
 
         usage.push_str(
             &self
-                .p
                 .app
                 .usage
                 .as_ref()
-                .or_else(|| self.p.app.bin_name.as_ref())
-                .unwrap_or(&self.p.app.name)[..],
+                .or_else(|| self.app.bin_name.as_ref())
+                .unwrap_or(&self.app.name)[..],
         );
         usage.push_str(&*r_string);
-        if self.p.is_set(AS::SubcommandRequired) {
+        if self.app.is_set(AS::SubcommandRequired) {
             usage.push_str(" <");
-            usage.push_str(self.p.app.subcommand_value_name.unwrap_or("SUBCOMMAND"));
+            usage.push_str(self.app.subcommand_value_name.unwrap_or("SUBCOMMAND"));
             usage.push('>');
         }
         usage.shrink_to_fit();
@@ -205,7 +200,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         debug!("Usage::get_args_tag; incl_reqs = {:?}", incl_reqs);
         let mut count = 0;
         for pos in self
-            .p
             .app
             .get_positionals()
             .filter(|pos| !pos.is_set(ArgSettings::Required))
@@ -213,11 +207,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|pos| !pos.is_set(ArgSettings::Last))
         {
             debug!("Usage::get_args_tag:iter:{}", pos.name);
-            let required = self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
+            let required = self.app.groups_for_arg(&pos.id).any(|grp_s| {
                 debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                 // if it's part of a required group we don't want to count it
-                self.p
-                    .app
+                self.app
                     .groups
                     .iter()
                     .any(|g| g.required && (g.id == grp_s))
@@ -231,25 +224,23 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             }
         }
 
-        if !self.p.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
+        if !self.app.is_set(AS::DontCollapseArgsInUsage) && count > 1 {
             debug!("Usage::get_args_tag:iter: More than one, returning [ARGS]");
 
             // [ARGS]
             None
         } else if count == 1 && incl_reqs {
             let pos = self
-                .p
                 .app
                 .get_positionals()
                 .find(|pos| {
                     !pos.is_set(ArgSettings::Required)
                         && !pos.is_set(ArgSettings::Hidden)
                         && !pos.is_set(ArgSettings::Last)
-                        && !self.p.app.groups_for_arg(&pos.id).any(|grp_s| {
+                        && !self.app.groups_for_arg(&pos.id).any(|grp_s| {
                             debug!("Usage::get_args_tag:iter:{:?}:iter:{:?}", pos.name, grp_s);
                             // if it's part of a required group we don't want to count it
-                            self.p
-                                .app
+                            self.app
                                 .groups
                                 .iter()
                                 .any(|g| g.required && (g.id == grp_s))
@@ -267,14 +258,13 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 pos.name_no_brackets(),
                 pos.multiple_str()
             ))
-        } else if self.p.is_set(AS::DontCollapseArgsInUsage)
-            && self.p.app.has_positionals()
+        } else if self.app.is_set(AS::DontCollapseArgsInUsage)
+            && self.app.has_positionals()
             && incl_reqs
         {
             debug!("Usage::get_args_tag:iter: Don't collapse returning all");
             Some(
-                self.p
-                    .app
+                self.app
                     .get_positionals()
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
                     .filter(|pos| !pos.is_set(ArgSettings::Hidden))
@@ -286,7 +276,6 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         } else if !incl_reqs {
             debug!("Usage::get_args_tag:iter: incl_reqs=false, building secondary usage string");
             let highest_req_pos = self
-                .p
                 .app
                 .get_positionals()
                 .filter_map(|pos| {
@@ -297,10 +286,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                     }
                 })
                 .max()
-                .unwrap_or_else(|| Some(self.p.app.get_positionals().count()));
+                .unwrap_or_else(|| Some(self.app.get_positionals().count()));
             Some(
-                self.p
-                    .app
+                self.app
                     .get_positionals()
                     .filter(|pos| pos.index <= highest_req_pos)
                     .filter(|pos| !pos.is_set(ArgSettings::Required))
@@ -318,7 +306,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
     // Determines if we need the `[OPTIONS]` tag in the usage string
     fn needs_options_tag(&self) -> bool {
         debug!("Usage::needs_options_tag");
-        'outer: for f in self.p.app.get_non_positionals() {
+        'outer: for f in self.app.get_non_positionals() {
             debug!("Usage::needs_options_tag:iter: f={}", f.name);
 
             // Don't print `[OPTIONS]` just for help or version
@@ -335,15 +323,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 debug!("Usage::needs_options_tag:iter Option is required");
                 continue;
             }
-            for grp_s in self.p.app.groups_for_arg(&f.id) {
+            for grp_s in self.app.groups_for_arg(&f.id) {
                 debug!("Usage::needs_options_tag:iter:iter: grp_s={:?}", grp_s);
-                if self
-                    .p
-                    .app
-                    .groups
-                    .iter()
-                    .any(|g| g.id == grp_s && g.required)
-                {
+                if self.app.groups.iter().any(|g| g.id == grp_s && g.required) {
                     debug!("Usage::needs_options_tag:iter:iter: Group is required");
                     continue 'outer;
                 }
@@ -377,9 +359,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
 
         let mut unrolled_reqs = IndexSet::new();
 
-        for a in self.p.required.iter() {
+        for a in self.required.iter() {
             if let Some(m) = matcher {
-                for aa in self.p.app.unroll_requirements_for_arg(a, m) {
+                for aa in self.app.unroll_requirements_for_arg(a, m) {
                     // if we don't check for duplicates here this causes duplicate error messages
                     // see https://github.com/clap-rs/clap/issues/2770
                     unrolled_reqs.insert(aa);
@@ -396,35 +378,33 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         );
 
         let args_in_groups = self
-            .p
             .app
             .groups
             .iter()
-            .filter(|gn| self.p.required.contains(&gn.id))
-            .flat_map(|g| self.p.app.unroll_args_in_group(&g.id))
+            .filter(|gn| self.required.contains(&gn.id))
+            .flat_map(|g| self.app.unroll_args_in_group(&g.id))
             .collect::<Vec<_>>();
 
         for a in unrolled_reqs
             .iter()
             .chain(incls.iter())
-            .filter(|name| !self.p.app.get_positionals().any(|p| &&p.id == name))
-            .filter(|name| !self.p.app.groups.iter().any(|g| &&g.id == name))
+            .filter(|name| !self.app.get_positionals().any(|p| &&p.id == name))
+            .filter(|name| !self.app.groups.iter().any(|g| &&g.id == name))
             .filter(|name| !args_in_groups.contains(name))
             .filter(|name| !(matcher.is_some() && matcher.as_ref().unwrap().contains(name)))
         {
             debug!("Usage::get_required_usage_from:iter:{:?}", a);
-            let arg = self.p.app.find(a).expect(INTERNAL_ERROR_MSG).to_string();
+            let arg = self.app.find(a).expect(INTERNAL_ERROR_MSG).to_string();
             ret_val.push(arg);
         }
         let mut g_vec: Vec<String> = vec![];
         for g in unrolled_reqs
             .iter()
-            .filter(|n| self.p.app.groups.iter().any(|g| g.id == **n))
+            .filter(|n| self.app.groups.iter().any(|g| g.id == **n))
         {
             // don't print requirement for required groups that have an arg.
             if let Some(m) = matcher {
                 let have_group_entry = self
-                    .p
                     .app
                     .unroll_args_in_group(g)
                     .iter()
@@ -434,7 +414,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 }
             }
 
-            let elem = self.p.app.format_group(g);
+            let elem = self.app.format_group(g);
             if !g_vec.contains(&elem) {
                 g_vec.push(elem);
             }
@@ -444,9 +424,9 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         let mut pvec = unrolled_reqs
             .iter()
             .chain(incls.iter())
-            .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
+            .filter(|a| self.app.get_positionals().any(|p| &&p.id == a))
             .filter(|&pos| matcher.map_or(true, |m| !m.contains(pos)))
-            .filter_map(|pos| self.p.app.find(pos))
+            .filter_map(|pos| self.app.find(pos))
             .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
             .filter(|pos| !args_in_groups.contains(&pos.id))
             .map(|pos| (pos.index.unwrap(), pos))
