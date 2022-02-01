@@ -12,3 +12,4 @@ pub use self::{
     arg::{Arg, ArgFlags, ArgSettings, PossibleValue, ValueHint},
     arg_group::ArgGroup,
 };
+pub(crate) use arg::ArgPredicate;
