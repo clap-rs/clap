@@ -124,7 +124,7 @@ impl<'help> ArgGroup<'help> {
     #[must_use]
     pub fn name<S: Into<&'help str>>(mut self, n: S) -> Self {
         self.name = n.into();
-        self.id = Id::from(&self.name);
+        self.id = Id::from(self.name);
         self
     }
 

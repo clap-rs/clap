@@ -4335,7 +4335,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
-        self.blacklist.extend(names.iter().map(Id::from));
+        self.blacklist.extend(names.iter().copied().map(Id::from));
         self
     }
 
