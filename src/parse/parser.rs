@@ -28,13 +28,13 @@ pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
     pub(crate) required: ChildGraph<Id>,
     pub(crate) overridden: RefCell<Vec<Id>>,
-    pub(crate) seen: Vec<Id>,
-    pub(crate) cur_idx: Cell<usize>,
+    seen: Vec<Id>,
+    cur_idx: Cell<usize>,
     /// Index of the previous flag subcommand in a group of flags.
-    pub(crate) flag_subcmd_at: Option<usize>,
+    flag_subcmd_at: Option<usize>,
     /// Counter indicating the number of items to skip
     /// when revisiting the group of flags which includes the flag subcommand.
-    pub(crate) flag_subcmd_skip: usize,
+    flag_subcmd_skip: usize,
 }
 
 // Initializing Methods
