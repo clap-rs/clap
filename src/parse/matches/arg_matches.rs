@@ -649,7 +649,8 @@ impl ArgMatches {
     /// assert_eq!(m.occurrences_of("flag"), 1);
     /// ```
     pub fn occurrences_of<T: Key>(&self, id: T) -> u64 {
-        self.get_arg(&Id::from(id)).map_or(0, |a| a.occurs)
+        self.get_arg(&Id::from(id))
+            .map_or(0, |a| a.get_occurrences())
     }
 
     /// The first index of that an argument showed up.

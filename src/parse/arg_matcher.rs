@@ -12,7 +12,7 @@ use crate::{
 use indexmap::map::Entry;
 
 #[derive(Debug, Default)]
-pub(crate) struct ArgMatcher(pub(crate) ArgMatches);
+pub(crate) struct ArgMatcher(ArgMatches);
 
 impl ArgMatcher {
     pub(crate) fn new(_app: &App) -> Self {
@@ -62,7 +62,7 @@ impl ArgMatcher {
                 // a default value of `other` myprog would have an existing MatchedArg for
                 // --global-arg where the value is `other`, however the occurs will be 0.
                 let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
-                    if parent_ma.occurs > 0 && ma.occurs == 0 {
+                    if parent_ma.get_occurrences() > 0 && ma.get_occurrences() == 0 {
                         parent_ma
                     } else {
                         ma
@@ -105,7 +105,7 @@ impl ArgMatcher {
         self.0
             .args
             .get(arg)
-            .map_or(false, |a| a.ty != ValueType::DefaultValue)
+            .map_or(false, |a| a.source() != ValueType::DefaultValue)
     }
 
     pub(crate) fn is_empty(&self) -> bool {
@@ -139,14 +139,14 @@ impl ArgMatcher {
         ma.update_ty(ValueType::CommandLine);
         ma.set_ignore_case(arg.is_set(ArgSettings::IgnoreCase));
         ma.invalid_utf8_allowed(arg.is_set(ArgSettings::AllowInvalidUtf8));
-        ma.occurs += 1;
+        ma.inc_occurrences();
     }
 
     pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
         debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
         ma.update_ty(ValueType::CommandLine);
-        ma.occurs += 1;
+        ma.inc_occurrences();
     }
 
     pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType, append: bool) {

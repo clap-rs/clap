@@ -16,7 +16,7 @@ fn compare_error(
         stderr,
         err.use_stderr()
     );
-    assert_eq!(expected_kind, err.kind);
+    assert_eq!(expected_kind, err.kind());
     utils::compare(expected_output, actual_output)
 }
 

@@ -26,10 +26,10 @@ use crate::util::eq_ignore_case;
 /// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct PossibleValue<'help> {
-    pub(crate) name: &'help str,
-    pub(crate) help: Option<&'help str>,
-    pub(crate) aliases: Vec<&'help str>, // (name, visible)
-    pub(crate) hide: bool,
+    name: &'help str,
+    help: Option<&'help str>,
+    aliases: Vec<&'help str>, // (name, visible)
+    hide: bool,
 }
 
 impl<'help> PossibleValue<'help> {

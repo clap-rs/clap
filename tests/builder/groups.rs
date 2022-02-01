@@ -38,7 +38,7 @@ fn required_group_missing_arg() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[cfg(debug_assertions)]
@@ -134,7 +134,7 @@ fn group_reqired_flags_empty() {
         .try_get_matches_from(vec![""]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -144,7 +144,7 @@ fn group_multi_value_single_arg() {
         .arg(arg!(-c --color <color> "some option").multiple_values(true))
         .group(ArgGroup::new("grp").args(&["flag", "color"]))
         .try_get_matches_from(vec!["", "-c", "blue", "red", "green"]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
 
     let m = res.unwrap();
     assert!(m.is_present("grp"));
@@ -162,7 +162,7 @@ fn empty_group() {
         .try_get_matches_from(vec!["empty_prog"]);
     assert!(r.is_err());
     let err = r.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -254,7 +254,7 @@ fn group_multiple_args_error() {
         .try_get_matches_from(vec!["group", "-f", "-c"]);
     assert!(result.is_err());
     let err = result.unwrap_err();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]

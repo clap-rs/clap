@@ -140,7 +140,7 @@ fn positional_multiple_2() {
         .try_get_matches_from(vec!["", "-f", "test1", "test2", "test3"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -230,7 +230,7 @@ fn missing_required_2() {
         .arg(arg!(<FILE2> "some file"))
         .try_get_matches_from(vec!["test", "file"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(r.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]
@@ -253,7 +253,7 @@ fn last_positional_no_double_dash() {
         .arg(arg!([ARGS]... "some file").last(true))
         .try_get_matches_from(vec!["test", "tgt", "crp", "arg"]);
     assert!(r.is_err());
-    assert_eq!(r.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(r.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]
@@ -263,7 +263,7 @@ fn last_positional_second_to_last_mult() {
         .arg(arg!([CORPUS]... "some corpus"))
         .arg(arg!([ARGS]... "some file").last(true))
         .try_get_matches_from(vec!["test", "tgt", "crp1", "crp2", "--", "arg"]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
 }
 
 #[cfg(debug_assertions)]

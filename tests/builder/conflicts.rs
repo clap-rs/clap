@@ -36,7 +36,7 @@ fn flag_conflict() {
         .try_get_matches_from(vec!["myprog", "-f", "-o"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn flag_conflict_2() {
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn flag_conflict_with_all() {
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn flag_conflict_with_everything() {
         .try_get_matches_from(vec!["myprog", "-o", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -83,12 +83,12 @@ fn arg_conflicts_with_group() {
     let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
@@ -140,7 +140,7 @@ fn arg_conflicts_with_group_with_multiple_sources() {
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some", "usb1"]);
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -159,12 +159,12 @@ fn group_conflicts_with_arg() {
     let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
@@ -193,12 +193,12 @@ fn arg_conflicts_with_required_group() {
     let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {
@@ -228,12 +228,12 @@ fn required_group_conflicts_with_arg() {
     let result = app.try_get_matches_from_mut(vec!["myprog", "--other", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "-f", "--some"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 
     let result = app.try_get_matches_from_mut(vec!["myprog", "--some"]);
     if let Err(err) = result {

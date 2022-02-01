@@ -53,7 +53,7 @@ fn lots_o_flags_sep() {
             "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o", "-o",
             "-o", "-o", "-o",
         ]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
@@ -71,7 +71,7 @@ fn lots_o_flags_combined() {
             "-oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "-ooooooooooooooooooooooooooooooooooooooooo",
         ]);
-    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind);
+    assert!(r.is_ok(), "{:?}", r.unwrap_err().kind());
     let m = r.unwrap();
     assert!(m.is_present("o"));
     assert_eq!(m.occurrences_of("o"), 297); // i.e. more than u8
@@ -95,7 +95,7 @@ fn flag_using_long_with_literals() {
         .arg(Arg::new("rainbow").long("rainbow"))
         .try_get_matches_from(vec!["", "--rainbow=false"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::TooManyValues);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::TooManyValues);
 }
 
 #[test]

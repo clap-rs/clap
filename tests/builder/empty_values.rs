@@ -37,7 +37,7 @@ fn no_empty_values() {
         )
         .try_get_matches_from(&["config", "--config", ""]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
     let m = App::new("config")
         .arg(
@@ -48,7 +48,7 @@ fn no_empty_values() {
         )
         .try_get_matches_from(&["config", "-c", ""]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue)
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue)
 }
 
 #[test]
@@ -62,7 +62,7 @@ fn no_empty_values_with_equals() {
         )
         .try_get_matches_from(&["config", "--config="]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
     let m = App::new("config")
         .arg(
@@ -73,7 +73,7 @@ fn no_empty_values_with_equals() {
         )
         .try_get_matches_from(&["config", "-c="]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn no_empty_values_without_equals() {
         )
         .try_get_matches_from(&["config", "--config"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue);
 
     let m = App::new("config")
         .arg(
@@ -98,7 +98,7 @@ fn no_empty_values_without_equals() {
         )
         .try_get_matches_from(&["config", "-c"]);
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::EmptyValue)
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::EmptyValue)
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn no_empty_values_without_equals_but_requires_equals() {
     let m = app.clone().try_get_matches_from(&["config", "--config"]);
     // Should error on no equals rather than empty value.
     assert!(m.is_err());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::NoEquals);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::NoEquals);
 
     static NO_EUQALS_ERROR: &str =
         "error: Equal sign is needed when assigning values to '--config=<config>'.

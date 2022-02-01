@@ -39,7 +39,7 @@ pub enum ErrorKind {
     ///         .possible_value("slow"))
     ///     .try_get_matches_from(vec!["prog", "other"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidValue);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidValue);
     /// ```
     InvalidValue,
 
@@ -53,7 +53,7 @@ pub enum ErrorKind {
     ///     .arg(arg!(--flag "some flag"))
     ///     .try_get_matches_from(vec!["prog", "--other"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnknownArgument);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnknownArgument);
     /// ```
     UnknownArgument,
 
@@ -75,7 +75,7 @@ pub enum ErrorKind {
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "confi"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidSubcommand);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidSubcommand);
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
@@ -102,7 +102,7 @@ pub enum ErrorKind {
     ///             .index(1)))
     ///     .try_get_matches_from(vec!["prog", "help", "nothing"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnrecognizedSubcommand);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnrecognizedSubcommand);
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
@@ -124,7 +124,7 @@ pub enum ErrorKind {
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color="]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::EmptyValue);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::EmptyValue);
     /// ```
     EmptyValue,
 
@@ -140,7 +140,7 @@ pub enum ErrorKind {
     ///          .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--color", "red"]);
     /// assert!(res.is_err());
-    /// assert_eq!(res.unwrap_err().kind, ErrorKind::NoEquals);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::NoEquals);
     /// ```
     NoEquals,
 
@@ -163,7 +163,7 @@ pub enum ErrorKind {
     ///          .validator(is_numeric))
     ///     .try_get_matches_from(vec!["prog", "NotANumber"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::ValueValidation);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::ValueValidation);
     /// ```
     ValueValidation,
 
@@ -179,7 +179,7 @@ pub enum ErrorKind {
     ///         .max_values(2))
     ///     .try_get_matches_from(vec!["prog", "too", "many", "values"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyValues);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyValues);
     /// ```
     /// [`Arg::max_values`]: Arg::max_values()
     TooManyValues,
@@ -197,7 +197,7 @@ pub enum ErrorKind {
     ///         .min_values(3))
     ///     .try_get_matches_from(vec!["prog", "--opt", "too", "few"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooFewValues);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooFewValues);
     /// ```
     /// [`Arg::min_values`]: Arg::min_values()
     TooFewValues,
@@ -215,7 +215,7 @@ pub enum ErrorKind {
     ///         .max_occurrences(2))
     ///     .try_get_matches_from(vec!["prog", "-vvv"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::TooManyOccurrences);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::TooManyOccurrences);
     /// ```
     /// [`Arg::max_occurrences`]: Arg::max_occurrences()
     TooManyOccurrences,
@@ -235,7 +235,7 @@ pub enum ErrorKind {
     ///         .number_of_values(2))
     ///     .try_get_matches_from(vec!["prog", "--opt", "wrong"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::WrongNumberOfValues);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::WrongNumberOfValues);
     /// ```
     ///
     /// [`Arg::number_of_values`]: Arg::number_of_values()
@@ -257,7 +257,7 @@ pub enum ErrorKind {
     ///         .long("color"))
     ///     .try_get_matches_from(vec!["prog", "--debug", "--color"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::ArgumentConflict);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
     /// ```
     ArgumentConflict,
 
@@ -272,7 +272,7 @@ pub enum ErrorKind {
     ///         .required(true))
     ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::MissingRequiredArgument);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
     /// ```
     MissingRequiredArgument,
 
@@ -290,7 +290,7 @@ pub enum ErrorKind {
     ///         "myprog",
     ///     ]);
     /// assert!(err.is_err());
-    /// assert_eq!(err.unwrap_err().kind, ErrorKind::MissingSubcommand);
+    /// assert_eq!(err.unwrap_err().kind(), ErrorKind::MissingSubcommand);
     /// # ;
     /// ```
     ///
@@ -309,7 +309,7 @@ pub enum ErrorKind {
     ///         .multiple_occurrences(false))
     ///     .try_get_matches_from(vec!["prog", "--debug", "--debug"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::UnexpectedMultipleUsage);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::UnexpectedMultipleUsage);
     /// ```
     UnexpectedMultipleUsage,
 
@@ -339,7 +339,7 @@ pub enum ErrorKind {
     ///                                 OsString::from("-u"),
     ///                                 OsString::from_vec(vec![0xE9])]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::InvalidUtf8);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidUtf8);
     /// ```
     ///
     /// [`Arg::allow_invalid_utf8`]: crate::Arg::allow_invalid_utf8
@@ -359,7 +359,7 @@ pub enum ErrorKind {
     /// let result = App::new("prog")
     ///     .try_get_matches_from(vec!["prog", "--help"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelp);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::DisplayHelp);
     /// ```
     DisplayHelp,
 
@@ -380,7 +380,7 @@ pub enum ErrorKind {
     ///             .help("The configuration file to use")))
     ///     .try_get_matches_from(vec!["prog"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand);
     /// ```
     ///
     /// [`Subcommand`]: crate::Subcommand
@@ -399,7 +399,7 @@ pub enum ErrorKind {
     ///     .version("3.0")
     ///     .try_get_matches_from(vec!["prog", "--version"]);
     /// assert!(result.is_err());
-    /// assert_eq!(result.unwrap_err().kind, ErrorKind::DisplayVersion);
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::DisplayVersion);
     /// ```
     DisplayVersion,
 
@@ -432,13 +432,13 @@ pub enum ErrorKind {
 #[derive(Debug)]
 pub struct Error {
     /// Formatted error message, enhancing the cause message with extra information
-    pub(crate) message: Message,
+    message: Message,
     /// The type of error
     pub kind: ErrorKind,
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
-    pub(crate) source: Option<Box<dyn error::Error + Send + Sync>>,
+    source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
 }
@@ -466,11 +466,16 @@ impl Error {
         self
     }
 
+    /// Type of error for programmatic processing
+    pub fn kind(&self) -> ErrorKind {
+        self.kind
+    }
+
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
         !matches!(
-            self.kind,
+            self.kind(),
             ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
         )
     }

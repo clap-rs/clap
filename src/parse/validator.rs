@@ -41,7 +41,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
             let o = &self.p.app[&a];
             reqs_validated = true;
-            let should_err = if let Some(v) = matcher.0.args.get(&o.id) {
+            let should_err = if let Some(v) = matcher.args.get(&o.id) {
                 v.all_val_groups_empty() && !(o.min_vals.is_some() && o.min_vals.unwrap() == 0)
             } else {
                 true
@@ -304,11 +304,15 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn validate_arg_num_occurs(&self, a: &Arg, ma: &MatchedArg) -> ClapResult<()> {
         debug!(
             "Validator::validate_arg_num_occurs: {:?}={}",
-            a.name, ma.occurs
+            a.name,
+            ma.get_occurrences()
         );
         // Occurrence of positional argument equals to number of values rather
         // than number of grouped values.
-        if ma.occurs > 1 && !a.is_set(ArgSettings::MultipleOccurrences) && !a.is_positional() {
+        if ma.get_occurrences() > 1
+            && !a.is_set(ArgSettings::MultipleOccurrences)
+            && !a.is_positional()
+        {
             // Not the first time, and we don't allow multiples
             return Err(Error::unexpected_multiple_usage(
                 self.p.app,
@@ -321,7 +325,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 "Validator::validate_arg_num_occurs: max_occurs set...{}",
                 max_occurs
             );
-            let occurs = ma.occurs as usize;
+            let occurs = ma.get_occurrences() as usize;
             if occurs > max_occurs {
                 return Err(Error::too_many_occurrences(
                     self.p.app,

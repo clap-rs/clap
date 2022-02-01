@@ -303,7 +303,7 @@ fn conflict_overridden_3() {
         .try_get_matches_from(vec!["", "-d", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::ArgumentConflict);
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
 
 #[test]
@@ -361,7 +361,7 @@ fn require_overridden_4() {
         .try_get_matches_from(vec!["", "-c", "-f"]);
     assert!(result.is_err());
     let err = result.err().unwrap();
-    assert_eq!(err.kind, ErrorKind::MissingRequiredArgument);
+    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
 }
 
 #[test]

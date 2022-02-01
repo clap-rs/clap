@@ -411,7 +411,7 @@ fn flag_subcommand_long_infer_fail() {
         .subcommand(App::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[cfg(feature = "suggestions")]
@@ -423,7 +423,7 @@ fn flag_subcommand_long_infer_fail() {
         .subcommand(App::new("temp").long_flag("temp"))
         .try_get_matches_from(vec!["prog", "--te"]);
     assert!(m.is_err(), "{:#?}", m.unwrap());
-    assert_eq!(m.unwrap_err().kind, ErrorKind::UnknownArgument);
+    assert_eq!(m.unwrap_err().kind(), ErrorKind::UnknownArgument);
 }
 
 #[test]

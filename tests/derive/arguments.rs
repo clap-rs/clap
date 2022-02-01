@@ -115,6 +115,6 @@ fn vec_type_is_multiple_values() {
     );
     assert_eq!(
         clap::ErrorKind::ValueValidation,
-        Opt::try_parse_from(&["test", "NOPE"]).err().unwrap().kind
+        Opt::try_parse_from(&["test", "NOPE"]).err().unwrap().kind()
     );
 }
