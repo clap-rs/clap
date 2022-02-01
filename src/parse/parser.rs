@@ -1325,10 +1325,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             if matcher.get(&arg.id).is_none() {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
-                        if let Some(v) = val {
-                            a.vals_flatten().any(|value| v == value)
-                        } else {
-                            true
+                        match val {
+                            crate::build::ArgPredicate::Equals(v) => {
+                                a.vals_flatten().any(|value| v == value)
+                            }
+                            crate::build::ArgPredicate::IsPresent => true,
                         }
                     } else {
                         false

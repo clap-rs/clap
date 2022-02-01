@@ -1,3 +1,4 @@
+mod arg_predicate;
 #[cfg(debug_assertions)]
 pub mod debug_asserts;
 mod possible_value;
@@ -9,6 +10,7 @@ mod value_hint;
 pub use self::possible_value::PossibleValue;
 pub use self::settings::{ArgFlags, ArgSettings};
 pub use self::value_hint::ValueHint;
+pub(crate) use arg_predicate::ArgPredicate;
 
 // Std
 use std::{
@@ -92,7 +94,7 @@ pub struct Arg<'help> {
     pub(crate) validator_os: Option<Arc<Mutex<ValidatorOs<'help>>>>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<&'help OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, Option<&'help OsStr>, Option<&'help OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate<'help>, Option<&'help OsStr>)>,
     pub(crate) default_missing_vals: Vec<&'help OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(&'help OsStr, Option<OsString>)>,
@@ -3486,7 +3488,8 @@ impl<'help> Arg<'help> {
         val: Option<&'help OsStr>,
         default: Option<&'help OsStr>,
     ) -> Self {
-        self.default_vals_ifs.push((arg_id.into(), val, default));
+        self.default_vals_ifs
+            .push((arg_id.into(), val.into(), default));
         self.takes_value(true)
     }
 
