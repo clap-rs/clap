@@ -824,8 +824,7 @@ impl<'help> App<'help> {
         // before parsing incase we run into a subcommand
         self._build();
 
-        let mut parser = Parser::new(self);
-        parser._build();
+        let parser = Parser::new(self);
         Usage::new(&parser.app, &parser.required).create_usage_with_title(&[])
     }
 }

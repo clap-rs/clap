@@ -48,6 +48,14 @@ impl<'help, 'app> Parser<'help, 'app> {
         {
             reqs.insert(a.id.clone());
         }
+        for group in &app.groups {
+            if group.required {
+                let idx = reqs.insert(group.id.clone());
+                for a in &group.requires {
+                    reqs.insert_child(idx, a.clone());
+                }
+            }
+        }
 
         Parser {
             app,
@@ -57,20 +65,6 @@ impl<'help, 'app> Parser<'help, 'app> {
             cur_idx: Cell::new(0),
             flag_subcmd_at: None,
             flag_subcmd_skip: 0,
-        }
-    }
-
-    // Does all the initializing and prepares the parser
-    pub(crate) fn _build(&mut self) {
-        debug!("Parser::_build");
-
-        for group in &self.app.groups {
-            if group.required {
-                let idx = self.required.insert(group.id.clone());
-                for a in &group.requires {
-                    self.required.insert_child(idx, a.clone());
-                }
-            }
         }
     }
 
@@ -96,7 +90,6 @@ impl<'help, 'app> Parser<'help, 'app> {
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
         // Verify all positional assertions pass
-        self._build();
 
         let mut subcmd_name: Option<String> = None;
         let mut keep_state = false;
