@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `ArgMatches::args_present()` to check if any args are present
+- Added `Error::kind()` as we work to deprecate direct member access for `Error`
+- Added `App::get_version`
+- Added `App::get_long_version`
+- Added `App::get_author`
+- Added `App::get_subcommand_help_heading`
+- Added `App::get_subcommand_value_name`
+- Added `App::get_after_help`
+- Added `App::get_after_long_help`
+
+### Performance
+
+- Misc binary size reductions
+
 ## [3.0.13] - 2022-01-26
 
 ### Fixes
