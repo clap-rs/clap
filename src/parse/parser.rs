@@ -476,8 +476,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 matcher.subcommand(SubCommand {
-                    name: sc_name.clone(),
-                    id: sc_name.into(),
+                    id: Id::from(&*sc_name),
+                    name: sc_name,
                     matches: sc_m.into_inner(),
                 });
 
