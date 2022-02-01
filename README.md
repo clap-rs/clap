@@ -68,8 +68,7 @@ clap = { version = "3.0.13", features = ["derive"] }
 ```bash
 $ demo --help
 clap [..]
-
-A simple to use, efficient, and full-featured Command Line Argument Parser
+Simple program to greet a person
 
 USAGE:
     demo[EXE] [OPTIONS] --name <NAME>
