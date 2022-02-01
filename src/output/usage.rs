@@ -1,6 +1,3 @@
-// std
-use std::collections::BTreeMap;
-
 use indexmap::IndexSet;
 
 // Internal
@@ -52,12 +49,13 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .app
             .usage
             .as_ref()
-            .unwrap_or_else(|| self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name));
+            .or_else(|| self.p.app.bin_name.as_ref())
+            .unwrap_or(&self.p.app.name);
         usage.push_str(&*name);
         let req_string = if incl_reqs {
             self.get_required_usage_from(&[], None, false)
                 .iter()
-                .fold(String::new(), |a, s| a + &format!(" {}", s)[..])
+                .fold(String::new(), |a, s| a + " " + s)
         } else {
             String::new()
         };
@@ -181,7 +179,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         let r_string = self
             .get_required_usage_from(used, None, true)
             .iter()
-            .fold(String::new(), |acc, s| acc + &format!(" {}", s)[..]);
+            .fold(String::new(), |acc, s| acc + " " + s);
 
         usage.push_str(
             &self
@@ -189,7 +187,8 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
                 .app
                 .usage
                 .as_ref()
-                .unwrap_or_else(|| self.p.app.bin_name.as_ref().unwrap_or(&self.p.app.name))[..],
+                .or_else(|| self.p.app.bin_name.as_ref())
+                .unwrap_or(&self.p.app.name)[..],
         );
         usage.push_str(&*r_string);
         if self.p.is_set(AS::SubcommandRequired) {
@@ -442,7 +441,7 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
         }
         ret_val.extend_from_slice(&g_vec);
 
-        let pmap = unrolled_reqs
+        let mut pvec = unrolled_reqs
             .iter()
             .chain(incls.iter())
             .filter(|a| self.p.app.get_positionals().any(|p| &&p.id == a))
@@ -451,9 +450,10 @@ impl<'help, 'app, 'parser> Usage<'help, 'app, 'parser> {
             .filter(|&pos| incl_last || !pos.is_set(ArgSettings::Last))
             .filter(|pos| !args_in_groups.contains(&pos.id))
             .map(|pos| (pos.index.unwrap(), pos))
-            .collect::<BTreeMap<usize, &Arg>>(); // sort by index
+            .collect::<Vec<(usize, &Arg)>>();
+        pvec.sort_by_key(|(ind, _)| *ind); // sort by index
 
-        for p in pmap.values() {
+        for (_, p) in pvec {
             debug!("Usage::get_required_usage_from:iter:{:?}", p.id);
             if !args_in_groups.contains(&p.id) {
                 ret_val.push(p.to_string());

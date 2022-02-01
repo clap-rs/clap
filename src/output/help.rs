@@ -2,6 +2,7 @@
 use std::{
     borrow::Cow,
     cmp,
+    fmt::Write as _,
     io::{self, Write},
     usize,
 };
@@ -139,6 +140,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         write_method!(self, msg, none)
     }
 
+    #[inline(never)]
     fn spaces(&mut self, n: usize) -> io::Result<()> {
         // A string with 64 consecutive spaces.
         const SHORT_SPACE: &str =
@@ -157,7 +159,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let mut longest = 2;
         let mut arg_v = Vec::with_capacity(10);
 
-        for arg in args
+        for &arg in args
             .iter()
             .filter(|arg| should_show_arg(self.use_long, *arg))
         {
@@ -184,7 +186,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         let mut ord_v = Vec::new();
 
         // Determine the longest
-        for arg in args.iter().filter(|arg| {
+        for &arg in args.iter().filter(|arg| {
             // If it's NextLineHelp we don't care to compute how long it is because it may be
             // NextLineHelp on purpose simply *because* it's so long and would throw off all other
             // args alignment
@@ -256,7 +258,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.none(TAB)?;
 
         if let Some(s) = arg.short {
-            self.good(&format!("-{}", s))
+            self.good(format!("-{}", s))
         } else if !arg.is_positional() {
             self.none(TAB)
         } else {
@@ -271,7 +273,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             if arg.short.is_some() {
                 self.none(", ")?;
             }
-            self.good(&format!("--{}", long))?;
+            self.good(format!("--{}", long))?;
         }
         Ok(())
     }
@@ -408,7 +410,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         // Is help on next line, if so then indent
         if next_line_help {
-            self.none(&format!("\n{}{}{}", TAB, TAB, TAB))?;
+            self.none(format!("\n{}{}{}", TAB, TAB, TAB))?;
         }
 
         debug!("Help::help: Too long...");
@@ -429,7 +431,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         for part in help.lines().skip(1) {
             self.none("\n")?;
             if next_line_help {
-                self.none(&format!("{}{}{}", TAB, TAB, TAB))?;
+                self.none(format!("{}{}{}", TAB, TAB, TAB))?;
             } else if is_not_positional {
                 self.spaces(longest + 12)?;
             } else {
@@ -454,9 +456,9 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
         self.align_to_about(arg, next_line_help, longest)?;
 
         let about = if self.use_long {
-            arg.long_help.unwrap_or_else(|| arg.help.unwrap_or(""))
+            arg.long_help.or(arg.help).unwrap_or("")
         } else {
-            arg.help.unwrap_or_else(|| arg.long_help.unwrap_or(""))
+            arg.help.or(arg.long_help).unwrap_or("")
         };
 
         self.help(
@@ -667,7 +669,7 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
 
         let spec_vals = &self.sc_spec_vals(app);
 
-        let about = app.about.unwrap_or_else(|| app.long_about.unwrap_or(""));
+        let about = app.about.or(app.long_about).unwrap_or("");
 
         self.subcmd(sc_str, next_line_help, longest)?;
         self.help(false, about, spec_vals, next_line_help, longest)
@@ -793,8 +795,8 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
                     if !first {
                         self.none("\n\n")?;
                     }
-                    self.warning(&*format!("{}:\n", heading))?;
-                    self.write_args(&*args)?;
+                    self.warning(format!("{}:\n", heading))?;
+                    self.write_args(&args)?;
                     first = false
                 }
             }
@@ -837,19 +839,15 @@ impl<'help, 'app, 'parser, 'writer> Help<'help, 'app, 'parser, 'writer> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut sc_str = String::new();
-            sc_str.push_str(
-                &subcommand
-                    .short_flag
-                    .map_or(String::new(), |c| format!("-{}, ", c)),
-            );
-            sc_str.push_str(
-                &subcommand
-                    .long_flag
-                    .map_or(String::new(), |c| format!("--{}, ", c)),
-            );
+            if let Some(short) = subcommand.short_flag {
+                write!(sc_str, "-{}", short).unwrap();
+            }
+            if let Some(long) = subcommand.long_flag {
+                write!(sc_str, "--{}", long).unwrap();
+            }
             sc_str.push_str(&subcommand.name);
             longest = longest.max(display_width(&sc_str));
-            ord_v.push((subcommand.get_display_order(), sc_str, subcommand.clone()));
+            ord_v.push((subcommand.get_display_order(), sc_str, subcommand));
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 

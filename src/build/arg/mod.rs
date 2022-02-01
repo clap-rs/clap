@@ -17,7 +17,7 @@ use std::{
     error::Error,
     ffi::OsStr,
     fmt::{self, Display, Formatter},
-    iter, str,
+    str,
     sync::{Arc, Mutex},
 };
 #[cfg(feature = "env")]
@@ -4335,7 +4335,7 @@ impl<'help> Arg<'help> {
     /// [`Arg::exclusive(true)`]: Arg::exclusive()
     #[must_use]
     pub fn conflicts_with_all(mut self, names: &[&str]) -> Self {
-        self.blacklist.extend(names.iter().map(Id::from));
+        self.blacklist.extend(names.iter().copied().map(Id::from));
         self
     }
 
@@ -4943,12 +4943,12 @@ impl<'help> Arg<'help> {
     // Used for positionals when printing
     pub(crate) fn name_no_brackets(&self) -> Cow<str> {
         debug!("Arg::name_no_brackets:{}", self.name);
-        let mut delim = String::new();
-        delim.push(if self.is_set(ArgSettings::RequireDelimiter) {
+        let delim = if self.is_set(ArgSettings::RequireDelimiter) {
             self.val_delim.expect(INTERNAL_ERROR_MSG)
         } else {
             ' '
-        });
+        }
+        .to_string();
         if !self.val_names.is_empty() {
             debug!("Arg::name_no_brackets: val_names={:#?}", self.val_names);
 
@@ -5029,13 +5029,13 @@ impl<'help> Display for Arg<'help> {
             } else {
                 " "
             };
-            write!(f, "{}", sep)?;
+            f.write_str(sep)?;
         }
         if self.is_set(ArgSettings::TakesValue) || self.is_positional() {
-            display_arg_val(self, |s, _| write!(f, "{}", s))?;
+            display_arg_val(self, |s, _| f.write_str(s))?;
         }
         if need_closing_bracket {
-            write!(f, "]")?;
+            f.write_str("]")?;
         }
 
         Ok(())
@@ -5123,7 +5123,8 @@ where
         arg.val_delim.expect(INTERNAL_ERROR_MSG)
     } else {
         ' '
-    };
+    }
+    .to_string();
     if !arg.val_names.is_empty() {
         // If have val_name.
         match (arg.val_names.len(), arg.num_vals) {
@@ -5131,11 +5132,10 @@ where
                 // If single value name with multiple num_of_vals, display all
                 // the values with the single value name.
                 let arg_name = format!("<{}>", arg.val_names.get(0).unwrap());
-                let mut it = iter::repeat(arg_name).take(num_vals).peekable();
-                while let Some(arg_name) = it.next() {
+                for n in 1..=num_vals {
                     write(&arg_name, true)?;
-                    if it.peek().is_some() {
-                        write(&delim.to_string(), false)?;
+                    if n != num_vals {
+                        write(&delim, false)?;
                     }
                 }
             }
@@ -5145,7 +5145,7 @@ where
                 while let Some(val) = it.next() {
                     write(&format!("<{}>", val), true)?;
                     if it.peek().is_some() {
-                        write(&delim.to_string(), false)?;
+                        write(&delim, false)?;
                     }
                 }
                 if (num_val_names == 1 && mult_val) || (arg.is_positional() && mult_occ) {
@@ -5156,11 +5156,10 @@ where
     } else if let Some(num_vals) = arg.num_vals {
         // If number_of_values is specified, display the value multiple times.
         let arg_name = format!("<{}>", arg.name);
-        let mut it = iter::repeat(&arg_name).take(num_vals).peekable();
-        while let Some(arg_name) = it.next() {
-            write(arg_name, true)?;
-            if it.peek().is_some() {
-                write(&delim.to_string(), false)?;
+        for n in 1..=num_vals {
+            write(&arg_name, true)?;
+            if n != num_vals {
+                write(&delim, false)?;
             }
         }
     } else if arg.is_positional() {
@@ -5190,12 +5189,12 @@ mod test {
         let mut f = Arg::new("flg").multiple_occurrences(true);
         f.long = Some("flag");
 
-        assert_eq!(&*format!("{}", f), "--flag");
+        assert_eq!(f.to_string(), "--flag");
 
         let mut f2 = Arg::new("flg");
         f2.short = Some('f');
 
-        assert_eq!(&*format!("{}", f2), "-f");
+        assert_eq!(f2.to_string(), "-f");
     }
 
     #[test]
@@ -5204,7 +5203,7 @@ mod test {
         f.long = Some("flag");
         f.aliases = vec![("als", true)];
 
-        assert_eq!(&*format!("{}", f), "--flag")
+        assert_eq!(f.to_string(), "--flag")
     }
 
     #[test]
@@ -5217,7 +5216,7 @@ mod test {
             ("f3", true),
             ("f4", true),
         ];
-        assert_eq!(&*format!("{}", f), "-f");
+        assert_eq!(f.to_string(), "-f");
     }
 
     #[test]
@@ -5226,7 +5225,7 @@ mod test {
         f.short = Some('a');
         f.short_aliases = vec![('b', true)];
 
-        assert_eq!(&*format!("{}", f), "-a")
+        assert_eq!(f.to_string(), "-a")
     }
 
     #[test]
@@ -5234,7 +5233,7 @@ mod test {
         let mut f = Arg::new("flg");
         f.short = Some('a');
         f.short_aliases = vec![('b', false), ('c', true), ('d', true), ('e', true)];
-        assert_eq!(&*format!("{}", f), "-a");
+        assert_eq!(f.to_string(), "-a");
     }
 
     // Options
@@ -5246,7 +5245,7 @@ mod test {
             .takes_value(true)
             .multiple_occurrences(true);
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5256,14 +5255,14 @@ mod test {
             .takes_value(true)
             .multiple_values(true);
 
-        assert_eq!(&*format!("{}", o), "--option <opt>...");
+        assert_eq!(o.to_string(), "--option <opt>...");
     }
 
     #[test]
     fn option_display2() {
         let o2 = Arg::new("opt").short('o').value_names(&["file", "name"]);
 
-        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+        assert_eq!(o2.to_string(), "-o <file> <name>");
     }
 
     #[test]
@@ -5274,7 +5273,7 @@ mod test {
             .multiple_values(true)
             .value_names(&["file", "name"]);
 
-        assert_eq!(&*format!("{}", o2), "-o <file> <name>");
+        assert_eq!(o2.to_string(), "-o <file> <name>");
     }
 
     #[test]
@@ -5284,7 +5283,7 @@ mod test {
             .long("option")
             .visible_alias("als");
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5295,7 +5294,7 @@ mod test {
             .visible_aliases(&["als2", "als3", "als4"])
             .alias("als_not_visible");
 
-        assert_eq!(&*format!("{}", o), "--option <opt>");
+        assert_eq!(o.to_string(), "--option <opt>");
     }
 
     #[test]
@@ -5305,7 +5304,7 @@ mod test {
             .short('a')
             .visible_short_alias('b');
 
-        assert_eq!(&*format!("{}", o), "-a <opt>");
+        assert_eq!(o.to_string(), "-a <opt>");
     }
 
     #[test]
@@ -5316,7 +5315,7 @@ mod test {
             .visible_short_aliases(&['b', 'c', 'd'])
             .short_alias('e');
 
-        assert_eq!(&*format!("{}", o), "-a <opt>");
+        assert_eq!(o.to_string(), "-a <opt>");
     }
 
     // Positionals
@@ -5328,7 +5327,7 @@ mod test {
             .takes_value(true)
             .multiple_values(true);
 
-        assert_eq!(&*format!("{}", p), "<pos>...");
+        assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
@@ -5338,21 +5337,21 @@ mod test {
             .takes_value(true)
             .multiple_occurrences(true);
 
-        assert_eq!(&*format!("{}", p), "<pos>...");
+        assert_eq!(p.to_string(), "<pos>...");
     }
 
     #[test]
     fn positional_display_required() {
         let p2 = Arg::new("pos").index(1).required(true);
 
-        assert_eq!(&*format!("{}", p2), "<pos>");
+        assert_eq!(p2.to_string(), "<pos>");
     }
 
     #[test]
     fn positional_display_val_names() {
         let p2 = Arg::new("pos").index(1).value_names(&["file1", "file2"]);
 
-        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
+        assert_eq!(p2.to_string(), "<file1> <file2>");
     }
 
     #[test]
@@ -5362,6 +5361,6 @@ mod test {
             .required(true)
             .value_names(&["file1", "file2"]);
 
-        assert_eq!(&*format!("{}", p2), "<file1> <file2>");
+        assert_eq!(p2.to_string(), "<file1> <file2>");
     }
 }

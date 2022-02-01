@@ -63,13 +63,14 @@ impl ArgMatcher {
                 // --global-arg where the value is `other`, however the occurs will be 0.
                 let to_update = if let Some(parent_ma) = vals_map.get(global_arg) {
                     if parent_ma.occurs > 0 && ma.occurs == 0 {
-                        parent_ma.clone()
+                        parent_ma
                     } else {
-                        ma.clone()
+                        ma
                     }
                 } else {
-                    ma.clone()
-                };
+                    ma
+                }
+                .clone();
                 vals_map.insert(global_arg.clone(), to_update);
             }
         }

@@ -2,6 +2,7 @@
 use std::{
     cell::{Cell, RefCell},
     ffi::{OsStr, OsString},
+    fmt::Write as _,
 };
 
 // Third Party
@@ -475,8 +476,8 @@ impl<'help, 'app> Parser<'help, 'app> {
                 }
 
                 matcher.subcommand(SubCommand {
-                    name: sc_name.clone(),
-                    id: sc_name.into(),
+                    id: Id::from(&*sc_name),
+                    name: sc_name,
                     matches: sc_m.into_inner(),
                 });
 
@@ -735,11 +736,11 @@ impl<'help, 'app> Parser<'help, 'app> {
             let mut sc_names = sc.name.clone();
             let mut flag_subcmd = false;
             if let Some(l) = sc.long_flag {
-                sc_names.push_str(&format!(", --{}", l));
+                write!(sc_names, ", --{}", l).unwrap();
                 flag_subcmd = true;
             }
             if let Some(s) = sc.short_flag {
-                sc_names.push_str(&format!(", -{}", s));
+                write!(sc_names, ", -{}", s).unwrap();
                 flag_subcmd = true;
             }
 
@@ -1189,26 +1190,12 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
         if !(trailing_values && self.is_set(AS::DontDelimitTrailingValues)) {
             if let Some(delim) = arg.val_delim {
-                let arg_split = val.split(delim);
-                let vals = if let Some(t) = arg.terminator {
-                    let mut vals = vec![];
-                    for val in arg_split {
-                        if t == val {
-                            break;
-                        }
-                        vals.push(val);
-                    }
-                    vals
-                } else {
-                    arg_split.collect()
-                };
-                self.add_multiple_vals_to_arg(
-                    arg,
-                    vals.into_iter().map(|x| x.to_os_str().into_owned()),
-                    matcher,
-                    ty,
-                    append,
-                );
+                let terminator = arg.terminator.map(OsStr::new);
+                let vals = val
+                    .split(delim)
+                    .map(|x| x.to_os_str().into_owned())
+                    .take_while(|val| Some(val.as_os_str()) != terminator);
+                self.add_multiple_vals_to_arg(arg, vals, matcher, ty, append);
                 // If there was a delimiter used or we must use the delimiter to
                 // separate the values or no more vals is needed, we're not
                 // looking for more values.
@@ -1594,11 +1581,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
             Err(e) => e.into(),
-            _ => ClapError::new(
-                c,
-                ErrorKind::DisplayHelp,
-                self.app.settings.is_set(AS::WaitOnError),
-            ),
+            _ => ClapError::for_app(self.app, c, ErrorKind::DisplayHelp, vec![]),
         }
     }
 
@@ -1608,11 +1591,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let msg = self.app._render_version(use_long);
         let mut c = Colorizer::new(false, self.color_help());
         c.none(msg);
-        ClapError::new(
-            c,
-            ErrorKind::DisplayVersion,
-            self.app.settings.is_set(AS::WaitOnError),
-        )
+        ClapError::for_app(self.app, c, ErrorKind::DisplayVersion, vec![])
     }
 }
 
