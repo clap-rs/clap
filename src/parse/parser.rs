@@ -1569,8 +1569,9 @@ impl<'help, 'app> Parser<'help, 'app> {
     }
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
+        let usage = Usage::new(&self.app, &self.required);
         let mut c = Colorizer::new(true, self.color_help());
-        Help::new(HelpWriter::Buffer(&mut c), self, false).write_help()?;
+        Help::new(HelpWriter::Buffer(&mut c), &self.app, &usage, false).write_help()?;
         Ok(c)
     }
 
@@ -1581,9 +1582,10 @@ impl<'help, 'app> Parser<'help, 'app> {
         );
 
         use_long = use_long && self.use_long_help();
+        let usage = Usage::new(&self.app, &self.required);
         let mut c = Colorizer::new(false, self.color_help());
 
-        match Help::new(HelpWriter::Buffer(&mut c), self, use_long).write_help() {
+        match Help::new(HelpWriter::Buffer(&mut c), &self.app, &usage, use_long).write_help() {
             Err(e) => e.into(),
             _ => ClapError::for_app(self.app, c, ErrorKind::DisplayHelp, vec![]),
         }

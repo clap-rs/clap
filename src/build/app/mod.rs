@@ -678,9 +678,10 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let p = Parser::new(self);
         let mut c = Colorizer::new(false, color);
-        Help::new(HelpWriter::Buffer(&mut c), &p, false).write_help()?;
+        let parser = Parser::new(self);
+        let usage = Usage::new(&parser.app, &parser.required);
+        Help::new(HelpWriter::Buffer(&mut c), &parser.app, &usage, false).write_help()?;
         c.print()
     }
 
@@ -703,9 +704,10 @@ impl<'help> App<'help> {
         self._build();
         let color = self.get_color();
 
-        let p = Parser::new(self);
         let mut c = Colorizer::new(false, color);
-        Help::new(HelpWriter::Buffer(&mut c), &p, true).write_help()?;
+        let parser = Parser::new(self);
+        let usage = Usage::new(&parser.app, &parser.required);
+        Help::new(HelpWriter::Buffer(&mut c), &parser.app, &usage, true).write_help()?;
         c.print()
     }
 
@@ -728,8 +730,9 @@ impl<'help> App<'help> {
     pub fn write_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let p = Parser::new(self);
-        Help::new(HelpWriter::Normal(w), &p, false).write_help()?;
+        let parser = Parser::new(self);
+        let usage = Usage::new(&parser.app, &parser.required);
+        Help::new(HelpWriter::Normal(w), &parser.app, &usage, false).write_help()?;
         w.flush()
     }
 
@@ -752,8 +755,9 @@ impl<'help> App<'help> {
     pub fn write_long_help<W: Write>(&mut self, w: &mut W) -> io::Result<()> {
         self._build();
 
-        let p = Parser::new(self);
-        Help::new(HelpWriter::Normal(w), &p, true).write_help()?;
+        let parser = Parser::new(self);
+        let usage = Usage::new(&parser.app, &parser.required);
+        Help::new(HelpWriter::Normal(w), &parser.app, &usage, true).write_help()?;
         w.flush()
     }
 
