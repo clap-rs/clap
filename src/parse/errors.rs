@@ -642,7 +642,7 @@ impl Error {
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
         let arg = arg.to_string();
 
-        let mut sorted: Vec<String> = good_vals
+        let good_vals: Vec<String> = good_vals
             .iter()
             .map(|&v| {
                 if v.contains(char::is_whitespace) {
@@ -652,7 +652,6 @@ impl Error {
                 }
             })
             .collect();
-        sorted.sort();
 
         start_error(&mut c, "");
         c.warning(format!("{:?}", bad_val));
@@ -660,7 +659,7 @@ impl Error {
         c.warning(&*arg);
         c.none("'\n\t[possible values: ");
 
-        if let Some((last, elements)) = sorted.split_last() {
+        if let Some((last, elements)) = good_vals.split_last() {
             for v in elements {
                 c.good(v);
                 c.none(", ");
@@ -681,7 +680,7 @@ impl Error {
         try_help(app, &mut c);
 
         let mut info = vec![arg, bad_val];
-        info.extend(sorted);
+        info.extend(good_vals);
 
         Self::for_app(app, c, ErrorKind::InvalidValue, info)
     }
