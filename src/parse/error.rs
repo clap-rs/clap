@@ -433,13 +433,18 @@ pub enum ErrorKind {
 /// [`App::error`]: crate::App::error
 #[derive(Debug)]
 pub struct Error {
-    /// Formatted error message, enhancing the cause message with extra information
-    message: Message,
+    inner: Box<ErrorInner>,
     /// The type of error
     pub kind: ErrorKind,
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
     pub info: Vec<String>,
+}
+
+#[derive(Debug)]
+struct ErrorInner {
+    /// Formatted error message, enhancing the cause message with extra information
+    message: Message,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
@@ -463,8 +468,8 @@ impl Error {
     pub fn format(mut self, app: &mut App) -> Self {
         app._build();
         let usage = app.render_usage();
-        self.message.format(app, usage);
-        self.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
+        self.inner.message.format(app, usage);
+        self.inner.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
         self
     }
 
@@ -491,7 +496,7 @@ impl Error {
             // Swallow broken pipe errors
             let _ = self.print();
 
-            if self.wait_on_exit {
+            if self.inner.wait_on_exit {
                 wlnerr!("\nPress [ENTER] / [RETURN] to continue...");
                 let mut s = String::new();
                 let i = io::stdin();
@@ -523,7 +528,7 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.message.formatted().print()
+        self.inner.message.formatted().print()
     }
 
     /// Deprecated, replaced with [`App::error`]
@@ -536,12 +541,14 @@ impl Error {
 
     pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
         Self {
-            message: message.into(),
+            inner: Box::new(ErrorInner {
+                message: message.into(),
+                source: None,
+                wait_on_exit,
+                backtrace: Backtrace::new(),
+            }),
             kind,
             info: vec![],
-            source: None,
-            wait_on_exit,
-            backtrace: Backtrace::new(),
         }
     }
 
@@ -566,7 +573,7 @@ impl Error {
     }
 
     pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
-        self.source = Some(source);
+        self.inner.source = Some(source);
         self
     }
 
@@ -887,7 +894,7 @@ impl Error {
             app.get_color(),
             app.settings.is_set(AppSettings::WaitOnError),
         );
-        match &mut err.message {
+        match &mut err.inner.message {
             Message::Raw(_) => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
             }
@@ -902,7 +909,7 @@ impl Error {
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
         let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
-        match &mut err.message {
+        match &mut err.inner.message {
             Message::Raw(_) => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
             }
@@ -1075,15 +1082,15 @@ impl From<fmt::Error> for Error {
 impl error::Error for Error {
     #[allow(trivial_casts)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        self.source.as_ref().map(|e| e.as_ref() as _)
+        self.inner.source.as_ref().map(|e| e.as_ref() as _)
     }
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.message.formatted())?;
-        if let Some(backtrace) = self.backtrace.as_ref() {
+        write!(f, "{}", self.inner.message.formatted())?;
+        if let Some(backtrace) = self.inner.backtrace.as_ref() {
             writeln!(f)?;
             writeln!(f, "Backtrace:")?;
             writeln!(f, "{}", backtrace)?;
