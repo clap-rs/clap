@@ -1,3 +1,5 @@
+//! Error reporting
+
 // Std
 use std::{
     borrow::Cow,
