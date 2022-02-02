@@ -74,7 +74,7 @@ pub struct Arg<'help> {
     pub(crate) settings: ArgFlags,
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
-    pub(crate) requires: Vec<(Option<&'help str>, Id)>,
+    pub(crate) requires: Vec<(ArgPredicate<'help>, Id)>,
     pub(crate) r_ifs: Vec<(Id, &'help str)>,
     pub(crate) r_ifs_all: Vec<(Id, &'help str)>,
     pub(crate) r_unless: Vec<Id>,
@@ -681,7 +681,7 @@ impl<'help> Arg<'help> {
     /// [override]: Arg::overrides_with()
     #[must_use]
     pub fn requires<T: Key>(mut self, arg_id: T) -> Self {
-        self.requires.push((None, arg_id.into()));
+        self.requires.push((ArgPredicate::IsPresent, arg_id.into()));
         self
     }
 
@@ -4111,7 +4111,8 @@ impl<'help> Arg<'help> {
     /// [override]: Arg::overrides_with()
     #[must_use]
     pub fn requires_if<T: Key>(mut self, val: &'help str, arg_id: T) -> Self {
-        self.requires.push((Some(val), arg_id.into()));
+        self.requires
+            .push((ArgPredicate::Equals(OsStr::new(val)), arg_id.into()));
         self
     }
 
@@ -4163,8 +4164,10 @@ impl<'help> Arg<'help> {
     /// [override]: Arg::overrides_with()
     #[must_use]
     pub fn requires_ifs<T: Key>(mut self, ifs: &[(&'help str, T)]) -> Self {
-        self.requires
-            .extend(ifs.iter().map(|(val, arg)| (Some(*val), Id::from(arg))));
+        self.requires.extend(
+            ifs.iter()
+                .map(|(val, arg)| (ArgPredicate::Equals(OsStr::new(*val)), Id::from(arg))),
+        );
         self
     }
 
@@ -4234,7 +4237,8 @@ impl<'help> Arg<'help> {
     /// [override]: Arg::overrides_with()
     #[must_use]
     pub fn requires_all<T: Key>(mut self, names: &[T]) -> Self {
-        self.requires.extend(names.iter().map(|s| (None, s.into())));
+        self.requires
+            .extend(names.iter().map(|s| (ArgPredicate::IsPresent, s.into())));
         self
     }
 

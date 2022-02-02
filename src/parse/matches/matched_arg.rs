@@ -127,6 +127,16 @@ impl MatchedArg {
         })
     }
 
+    pub(crate) fn contains_val_os(&self, val: &OsStr) -> bool {
+        self.vals_flatten().any(|v| {
+            if self.ignore_case {
+                eq_ignore_case(&v.to_string_lossy(), &val.to_string_lossy())
+            } else {
+                v.as_os_str() == val
+            }
+        })
+    }
+
     pub(crate) fn source(&self) -> ValueType {
         self.ty
     }
