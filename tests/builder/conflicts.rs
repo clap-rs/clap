@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg, ArgGroup, ErrorKind};
+use clap::{arg, error::ErrorKind, App, Arg, ArgGroup};
 
 static CONFLICT_ERR: &str = "error: The argument '--flag' cannot be used with '-F'
 

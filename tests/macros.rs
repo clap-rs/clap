@@ -1,6 +1,6 @@
 // We intentionally don't import `clap_app!` here; not having it in scope protects against the
 // class of errors where the macro refers to itself as `clap_app!` instead of `$crate::clap_app!`
-use clap::ErrorKind;
+use clap::error::ErrorKind;
 
 #[test]
 fn basic() {

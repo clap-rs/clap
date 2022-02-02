@@ -23,14 +23,14 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::{
-    build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings},
-    mkeymap::MKeyMap,
-    output::{fmt::Colorizer, Help, HelpWriter, Usage},
-    parse::{ArgMatcher, ArgMatches, Input, Parser},
-    util::{color::ColorChoice, Id, Key},
-    Error, ErrorKind, Result as ClapResult, INTERNAL_ERROR_MSG,
-};
+use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
+use crate::error::ErrorKind;
+use crate::error::Result as ClapResult;
+use crate::mkeymap::MKeyMap;
+use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
+use crate::util::{color::ColorChoice, Id, Key};
+use crate::{Error, INTERNAL_ERROR_MSG};
 
 /// Build a command-line interface.
 ///

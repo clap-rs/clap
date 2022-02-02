@@ -1,6 +1,6 @@
 #![cfg(not(windows))]
 
-use clap::{arg, App, AppSettings, Arg, ErrorKind};
+use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
 use std::ffi::OsString;
 use std::os::unix::ffi::OsStringExt;
 

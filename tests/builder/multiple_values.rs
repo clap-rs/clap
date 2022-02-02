@@ -1,4 +1,4 @@
-use clap::{App, Arg, ErrorKind};
+use clap::{error::ErrorKind, App, Arg};
 
 #[test]
 fn option_long() {

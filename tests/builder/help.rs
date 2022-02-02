@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, AppSettings, Arg, ArgGroup, ErrorKind, PossibleValue};
+use clap::{arg, error::ErrorKind, App, AppSettings, Arg, ArgGroup, PossibleValue};
 
 static REQUIRE_DELIM_HELP: &str = "test 1.3
 Kevin K.

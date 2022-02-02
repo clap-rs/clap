@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg, ArgGroup, ErrorKind};
+use clap::{arg, error::ErrorKind, App, Arg, ArgGroup};
 
 static REQ_GROUP_USAGE: &str = "error: The following required arguments were not provided:
     <base|--delete>

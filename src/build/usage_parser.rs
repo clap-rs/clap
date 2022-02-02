@@ -1260,7 +1260,7 @@ mod test {
 
     #[test]
     fn issue_665() {
-        use crate::{App, ErrorKind};
+        use crate::{error::ErrorKind, App};
         // Verify fix for "arg_from_usage(): required values not being enforced when followed by another option"
         let res = App::new("tester")
         .arg(Arg::from_usage("-v, --reroll-count=[N] 'Mark the patch series as PATCH vN'"))

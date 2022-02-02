@@ -1,4 +1,4 @@
-use clap::{arg, App, Arg, ErrorKind};
+use clap::{arg, error::ErrorKind, App, Arg};
 
 #[test]
 fn flag_overrides_itself() {
