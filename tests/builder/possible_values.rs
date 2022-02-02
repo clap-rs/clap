@@ -4,7 +4,7 @@ use clap::{App, Arg, ErrorKind, PossibleValue};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
-\t[possible values: \"ludicrous speed\", fast, slow]
+\t[possible values: slow, fast, \"ludicrous speed\"]
 
 \tDid you mean \"slow\"?
 
@@ -16,7 +16,7 @@ For more information try --help
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'
-\t[possible values: \"ludicrous speed\", fast, slow]
+\t[possible values: slow, fast, \"ludicrous speed\"]
 
 USAGE:
     clap-test -O <option>
@@ -26,7 +26,7 @@ For more information try --help
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
-\t[possible values: \"ludicrous speed\", fast, slow]
+\t[possible values: slow, fast, \"ludicrous speed\"]
 
 \tDid you mean \"ludicrous speed\"?
 
@@ -38,7 +38,7 @@ For more information try --help
 
 #[cfg(not(feature = "suggestions"))]
 static PV_ERROR_ESCAPED: &str = "error: \"ludicrous\" isn't a valid value for '-O <option>'
-\t[possible values: \"ludicrous speed\", fast, slow]
+\t[possible values: slow, fast, \"ludicrous speed\"]
 
 USAGE:
     clap-test -O <option>
