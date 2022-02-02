@@ -32,7 +32,7 @@ pub use crate::{
     build::{
         App, AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
     },
-    parse::errors::{Error, ErrorKind, Result},
+    parse::error::{Error, ErrorKind, Result},
     parse::{ArgMatches, Indices, OsValues, Values},
 };
 

@@ -1,4 +1,4 @@
-pub mod errors;
+pub mod error;
 pub mod features;
 
 mod arg_matcher;
