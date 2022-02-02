@@ -49,6 +49,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             if should_err {
                 return Err(Error::empty_value(
                     self.p.app,
+                    &o.possible_vals
+                        .iter()
+                        .filter_map(PossibleValue::get_visible_name)
+                        .collect::<Vec<_>>(),
                     o,
                     Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
                 ));
@@ -133,6 +137,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 debug!("Validator::validate_arg_values: illegal empty val found");
                 return Err(Error::empty_value(
                     self.p.app,
+                    &arg.possible_vals
+                        .iter()
+                        .filter_map(PossibleValue::get_visible_name)
+                        .collect::<Vec<_>>(),
                     arg,
                     Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
                 ));
@@ -407,6 +415,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         if a.is_set(ArgSettings::TakesValue) && !min_vals_zero && ma.all_val_groups_empty() {
             return Err(Error::empty_value(
                 self.p.app,
+                &a.possible_vals
+                    .iter()
+                    .filter_map(PossibleValue::get_visible_name)
+                    .collect::<Vec<_>>(),
                 a,
                 Usage::new(self.p.app, &self.p.required).create_usage_with_title(&[]),
             ));

@@ -605,13 +605,37 @@ impl Error {
         Self::for_app(app, c, ErrorKind::ArgumentConflict, others)
     }
 
-    pub(crate) fn empty_value(app: &App, arg: &Arg, usage: String) -> Self {
+    pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
         c.warning(&*arg);
         c.none("' requires a value but none was supplied");
+        if !good_vals.is_empty() {
+            let good_vals: Vec<String> = good_vals
+                .iter()
+                .map(|&v| {
+                    if v.contains(char::is_whitespace) {
+                        format!("{:?}", v)
+                    } else {
+                        v.to_owned()
+                    }
+                })
+                .collect();
+            c.none("\n\t[possible values: ");
+
+            if let Some((last, elements)) = good_vals.split_last() {
+                for v in elements {
+                    c.good(v);
+                    c.none(", ");
+                }
+
+                c.good(last);
+            }
+
+            c.none("]");
+        }
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
