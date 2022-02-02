@@ -1,14 +1,10 @@
 // Internal
-use crate::{
-    build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings},
-    output::Usage,
-    parse::{
-        error::{Error, ErrorKind, Result as ClapResult},
-        ArgMatcher, MatchedArg, ParseState, Parser,
-    },
-    util::Id,
-    INTERNAL_ERROR_MSG, INVALID_UTF8,
-};
+use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings};
+use crate::error::{Error, ErrorKind, Result as ClapResult};
+use crate::output::Usage;
+use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
+use crate::util::Id;
+use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Validator<'help, 'app, 'parser> {
     p: &'parser mut Parser<'help, 'app>,

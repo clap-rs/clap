@@ -26,19 +26,17 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
-pub use crate::parse::error;
-pub use crate::parse::error::{ErrorKind, Result};
+pub use crate::build::{
+    App, AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
+};
+pub use crate::error::Error;
+pub use crate::parse::{ArgMatches, Indices, OsValues, Values};
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
-pub use crate::{
-    build::{
-        App, AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
-    },
-    parse::error::Error,
-    parse::{ArgMatches, Indices, OsValues, Values},
-};
 
 pub use crate::derive::{ArgEnum, Args, FromArgMatches, IntoApp, Parser, Subcommand};
+
+pub use crate::error::{ErrorKind, Result};
 
 #[cfg(feature = "yaml")]
 #[doc(hidden)]
@@ -68,6 +66,8 @@ mod derive;
 
 #[cfg(feature = "regex")]
 pub use crate::build::arg::RegexRef;
+
+pub mod error;
 
 mod build;
 mod mkeymap;
