@@ -177,7 +177,10 @@ In addition to the raw attributes, the following magic attributes are supported:
 - `subcommand`: Delegates definition of subcommands to the field (must implement `Subcommand`)
   - When `Option<T>`, the subcommand becomes optional
 - `from_global`: Read a `clap::Arg::global` argument (raw attribute), regardless of what subcommand you are in 
-- `parse(<kind> [= <function>])` `clap::Arg::validator`
+- `parse(<kind> [= <function>])`: `clap::Arg::validator` and `clap::ArgMatches::values_of_t`
+  - Default: `try_from_str`
+  - Warning: for `Path` / `OsString`, be sure to use `try_from_os_str`
+  - See [Arg Types](#arg-types) for more details
 - `arg_enum`: Parse the value using the `ArgEnum` trait
 - `skip [= <expr>]`: Ignore this field, filling in with `<expr>`
   - Without `<expr>`: fills the field with `Default::default()`
