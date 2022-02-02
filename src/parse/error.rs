@@ -22,7 +22,7 @@ use crate::{
 /// Short hand for [`Result`] type
 ///
 /// [`Result`]: std::result::Result
-pub type Result<T> = StdResult<T, Error>;
+pub type Result<T, E = Error> = StdResult<T, E>;
 
 /// Command line argument parser kind of error
 #[derive(Debug, Copy, Clone, PartialEq)]
