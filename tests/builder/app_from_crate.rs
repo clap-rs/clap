@@ -1,6 +1,6 @@
 #![cfg(feature = "cargo")]
 
-use clap::{app_from_crate, ErrorKind};
+use clap::{app_from_crate, error::ErrorKind};
 
 static EVERYTHING: &str = "clap {{version}}
 A simple to use, efficient, and full-featured Command Line Argument Parser

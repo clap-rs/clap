@@ -89,7 +89,7 @@ fn flag_using_long() {
 
 #[test]
 fn flag_using_long_with_literals() {
-    use clap::ErrorKind;
+    use clap::error::ErrorKind;
 
     let m = App::new("flag")
         .arg(Arg::new("rainbow").long("rainbow"))

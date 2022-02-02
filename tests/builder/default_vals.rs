@@ -1,5 +1,5 @@
 use crate::utils;
-use clap::{arg, App, Arg, ErrorKind};
+use clap::{arg, error::ErrorKind, App, Arg};
 
 #[test]
 fn opts() {

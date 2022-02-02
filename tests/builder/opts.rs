@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, AppSettings, Arg, ArgMatches, ErrorKind};
+use clap::{arg, error::ErrorKind, App, AppSettings, Arg, ArgMatches};
 
 #[cfg(feature = "suggestions")]
 static DYM: &str =

@@ -1,6 +1,6 @@
 #![cfg(feature = "regex")]
 
-use clap::{App, Arg, ErrorKind};
+use clap::{error::ErrorKind, App, Arg};
 use regex::{Regex, RegexSet};
 
 #[test]

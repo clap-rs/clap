@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, AppSettings, Arg, ErrorKind};
+use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
 
 static ALLOW_EXT_SC: &str = "clap-test v1.4.8
 

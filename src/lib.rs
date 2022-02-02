@@ -26,13 +26,15 @@
 #[cfg(not(feature = "std"))]
 compile_error!("`std` feature is currently required to build `clap`");
 
+pub use crate::parse::error;
+pub use crate::parse::error::{ErrorKind, Result};
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
 pub use crate::{
     build::{
         App, AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
     },
-    parse::errors::{Error, ErrorKind, Result},
+    parse::error::Error,
     parse::{ArgMatches, Indices, OsValues, Values},
 };
 

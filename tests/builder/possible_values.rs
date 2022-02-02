@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{App, Arg, ErrorKind, PossibleValue};
+use clap::{error::ErrorKind, App, Arg, PossibleValue};
 
 #[cfg(feature = "suggestions")]
 static PV_ERROR: &str = "error: \"slo\" isn't a valid value for '-O <option>'

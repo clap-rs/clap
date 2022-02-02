@@ -3,7 +3,7 @@ use crate::{
     build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings},
     output::Usage,
     parse::{
-        errors::{Error, ErrorKind, Result as ClapResult},
+        error::{Error, ErrorKind, Result as ClapResult},
         ArgMatcher, MatchedArg, ParseState, Parser,
     },
     util::Id,

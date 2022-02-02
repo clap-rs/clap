@@ -1,6 +1,6 @@
 #![cfg(feature = "cargo")]
 
-use clap::{crate_authors, crate_description, crate_name, crate_version, App, ErrorKind};
+use clap::{crate_authors, crate_description, crate_name, crate_version, error::ErrorKind, App};
 
 static DESCRIPTION_ONLY: &str = "prog 1
 A simple to use, efficient, and full-featured Command Line Argument Parser

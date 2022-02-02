@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, AppSettings, Arg, ErrorKind};
+use clap::{arg, error::ErrorKind, App, AppSettings, Arg};
 
 static VISIBLE_ALIAS_HELP: &str = "clap-test 2.6
 

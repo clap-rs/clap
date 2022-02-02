@@ -1,6 +1,6 @@
 use crate::utils;
 
-use clap::{arg, App, Arg, Error, ErrorKind};
+use clap::{arg, error::ErrorKind, App, Arg, Error};
 
 fn compare_error(
     err: Error,

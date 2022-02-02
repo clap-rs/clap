@@ -2,7 +2,7 @@ use crate::utils;
 
 use std::str;
 
-use clap::{App, AppSettings, Arg, ErrorKind};
+use clap::{error::ErrorKind, App, AppSettings, Arg};
 
 fn common() -> App<'static> {
     App::new("foo")
@@ -26,7 +26,7 @@ fn no_version_flag_short() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
     assert_eq!(err.info, ["-V"]);
 }
 
@@ -36,7 +36,7 @@ fn no_version_flag_long() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), clap::ErrorKind::UnknownArgument);
+    assert_eq!(err.kind(), clap::error::ErrorKind::UnknownArgument);
     assert_eq!(err.info, ["--version"]);
 }
 
