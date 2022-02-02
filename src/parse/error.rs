@@ -443,6 +443,8 @@ pub struct Error {
 
 #[derive(Debug)]
 struct ErrorInner {
+    /// The type of error
+    kind: ErrorKind,
     /// Formatted error message, enhancing the cause message with extra information
     message: Message,
     source: Option<Box<dyn error::Error + Send + Sync>>,
@@ -475,7 +477,7 @@ impl Error {
 
     /// Type of error for programmatic processing
     pub fn kind(&self) -> ErrorKind {
-        self.kind
+        self.inner.kind
     }
 
     /// Should the message be written to `stdout` or not?
@@ -542,6 +544,7 @@ impl Error {
     pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
         Self {
             inner: Box::new(ErrorInner {
+                kind,
                 message: message.into(),
                 source: None,
                 wait_on_exit,
