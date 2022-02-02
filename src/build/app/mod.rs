@@ -3238,16 +3238,24 @@ impl<'help> App<'help> {
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(&self, arg: &Id, matcher: &ArgMatcher) -> Vec<Id> {
+    pub(crate) fn unroll_requirements_for_arg(
+        &self,
+        arg: &Id,
+        matcher: Option<&ArgMatcher>,
+    ) -> Vec<Id> {
         let requires_if_or_not = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
             match val {
                 ArgPredicate::Equals(v) => {
-                    if matcher
-                        .get(arg)
-                        .map(|ma| ma.contains_val_os(v))
-                        .unwrap_or(false)
-                    {
-                        Some(req_arg.clone())
+                    if let Some(matcher) = matcher {
+                        if matcher
+                            .get(arg)
+                            .map(|ma| ma.contains_val_os(v))
+                            .unwrap_or(false)
+                        {
+                            Some(req_arg.clone())
+                        } else {
+                            None
+                        }
                     } else {
                         None
                     }

@@ -360,12 +360,10 @@ impl<'help, 'app> Usage<'help, 'app> {
         let mut unrolled_reqs = IndexSet::new();
 
         for a in self.required.iter() {
-            if let Some(m) = matcher {
-                for aa in self.app.unroll_requirements_for_arg(a, m) {
-                    // if we don't check for duplicates here this causes duplicate error messages
-                    // see https://github.com/clap-rs/clap/issues/2770
-                    unrolled_reqs.insert(aa);
-                }
+            for aa in self.app.unroll_requirements_for_arg(a, matcher) {
+                // if we don't check for duplicates here this causes duplicate error messages
+                // see https://github.com/clap-rs/clap/issues/2770
+                unrolled_reqs.insert(aa);
             }
             // always include the required arg itself. it will not be enumerated
             // by unroll_requirements_for_arg.
