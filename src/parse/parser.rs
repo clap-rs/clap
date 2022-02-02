@@ -224,6 +224,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         matcher,
                         long_arg,
                         &parse_state,
+                        pos_counter,
                         &mut valid_arg_found,
                         trailing_values,
                     );
@@ -886,6 +887,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         matcher: &mut ArgMatcher,
         long_arg: &RawOsStr,
         parse_state: &ParseState,
+        pos_counter: usize,
         valid_arg_found: &mut bool,
         trailing_values: bool,
     ) -> ParseResult {
@@ -895,6 +897,14 @@ impl<'help, 'app> Parser<'help, 'app> {
         if matches!(parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
             self.app[opt].is_set(ArgSettings::AllowHyphenValues))
         {
+            return ParseResult::MaybeHyphenValue;
+        } else if self.app.args.get(&pos_counter).map_or(false, |arg| {
+            arg.is_set(ArgSettings::AllowHyphenValues) && !arg.is_set(ArgSettings::Last)
+        }) {
+            debug!(
+                "Parser::parse_short_args: positional at {} allows hyphens",
+                pos_counter
+            );
             return ParseResult::MaybeHyphenValue;
         }
 
