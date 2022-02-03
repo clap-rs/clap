@@ -66,7 +66,7 @@ impl Error {
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
-        Self::new(kind, message.to_string(), false)
+        Self::new(kind, message.to_string())
     }
 
     /// Format the existing message with the App's context
@@ -150,14 +150,14 @@ impl Error {
         Error::raw(kind, description)
     }
 
-    fn new(kind: ErrorKind, message: impl Into<Message>, wait_on_exit: bool) -> Self {
+    fn new(kind: ErrorKind, message: impl Into<Message>) -> Self {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
                 context: Vec::new(),
                 message: message.into(),
                 source: None,
-                wait_on_exit,
+                wait_on_exit: false,
                 backtrace: Backtrace::new(),
             }),
             kind,
@@ -167,12 +167,9 @@ impl Error {
 
     #[inline(never)]
     fn for_app(kind: ErrorKind, app: &App, colorizer: Colorizer, info: Vec<String>) -> Self {
-        Self::new(
-            kind,
-            colorizer,
-            app.settings.is_set(AppSettings::WaitOnError),
-        )
-        .set_info(info)
+        Self::new(kind, colorizer)
+            .set_info(info)
+            .set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
     }
 
     pub(crate) fn set_info(mut self, info: Vec<String>) -> Self {
@@ -182,6 +179,11 @@ impl Error {
 
     pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
         self.inner.source = Some(source);
+        self
+    }
+
+    pub(crate) fn set_wait_on_exit(mut self, yes: bool) -> Self {
+        self.inner.wait_on_exit = yes;
         self
     }
 
@@ -562,9 +564,10 @@ impl Error {
 
         c.none(format!(": {}", err));
 
-        Self::new(ErrorKind::ValueValidation, c, wait_on_exit)
+        Self::new(ErrorKind::ValueValidation, c)
             .set_info(vec![arg, val, err.to_string()])
             .set_source(err)
+            .set_wait_on_exit(wait_on_exit)
     }
 
     pub(crate) fn wrong_number_of_values(
@@ -679,7 +682,7 @@ impl Error {
         c.warning(&*arg);
         c.none("' wasn't found\n");
 
-        Self::new(ErrorKind::ArgumentNotFound, c, false).set_info(vec![arg])
+        Self::new(ErrorKind::ArgumentNotFound, c).set_info(vec![arg])
     }
 
     fn formatted(&self) -> Cow<'_, Colorizer> {
