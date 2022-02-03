@@ -9,20 +9,18 @@ use std::{
 use os_str_bytes::RawOsStr;
 
 // Internal
-use crate::{
-    build::AppSettings as AS,
-    build::{App, Arg, ArgSettings},
-    mkeymap::KeyType,
-    output::{fmt::Colorizer, Help, HelpWriter, Usage},
-    parse::error::Error as ClapError,
-    parse::error::ErrorKind,
-    parse::error::Result as ClapResult,
-    parse::features::suggestions,
-    parse::{ArgMatcher, SubCommand},
-    parse::{Validator, ValueType},
-    util::{color::ColorChoice, ChildGraph, Id},
-    INTERNAL_ERROR_MSG, INVALID_UTF8,
-};
+use crate::build::AppSettings as AS;
+use crate::build::{App, Arg, ArgSettings};
+use crate::error::Error as ClapError;
+use crate::error::ErrorKind;
+use crate::error::Result as ClapResult;
+use crate::mkeymap::KeyType;
+use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::parse::features::suggestions;
+use crate::parse::{ArgMatcher, SubCommand};
+use crate::parse::{Validator, ValueType};
+use crate::util::{color::ColorChoice, ChildGraph, Id};
+use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
 pub(crate) struct Parser<'help, 'app> {
     pub(crate) app: &'app mut App<'help>,
