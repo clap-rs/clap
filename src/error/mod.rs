@@ -139,7 +139,7 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.inner.message.formatted().print()
+        self.formatted().print()
     }
 
     /// Deprecated, replaced with [`App::error`]
@@ -670,6 +670,10 @@ impl Error {
         Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
     }
 
+    fn formatted(&self) -> Cow<'_, Colorizer> {
+        self.inner.message.formatted()
+    }
+
     /// Returns the singular or plural form on the verb to be based on the argument's value.
     fn singular_or_plural(n: usize) -> &'static str {
         if n > 1 {
@@ -702,7 +706,7 @@ impl error::Error for Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.inner.message.formatted())?;
+        write!(f, "{}", self.formatted())?;
         if let Some(backtrace) = self.inner.backtrace.as_ref() {
             writeln!(f)?;
             writeln!(f, "Backtrace:")?;
