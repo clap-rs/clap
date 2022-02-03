@@ -109,10 +109,9 @@ fn gen_fig_inner(
 fn gen_options(app: &App, indent: usize) -> String {
     let mut buffer = String::new();
 
-    let options: Vec<_> = app.get_opts().collect();
     let flags = generator::utils::flags(app);
 
-    if !options.is_empty() || !flags.is_empty() {
+    if app.get_opts().next().is_some() || !flags.is_empty() {
         buffer.push_str(&format!("{:indent$}options: [\n", "", indent = indent));
 
         for option in app.get_opts() {
@@ -158,7 +157,7 @@ fn gen_options(app: &App, indent: usize) -> String {
                 ));
             }
 
-            let conflicts = arg_conflicts(app, &option);
+            let conflicts = arg_conflicts(app, option);
 
             if !conflicts.is_empty() {
                 buffer.push_str(&format!(
