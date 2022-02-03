@@ -158,16 +158,16 @@ fn gen_options(app: &App, indent: usize) -> String {
                 ));
             }
 
-            let conficts = arg_conflicts(app, &option);
+            let conflicts = arg_conflicts(app, &option);
 
-            if !conficts.is_empty() {
+            if !conflicts.is_empty() {
                 buffer.push_str(&format!(
                     "{:indent$}exclusiveOn: [\n",
                     "",
                     indent = indent + 4
                 ));
 
-                for conflict in conficts {
+                for conflict in conflicts {
                     buffer.push_str(&format!(
                         "{:indent$}\"{}\",\n",
                         "",
@@ -237,16 +237,16 @@ fn gen_options(app: &App, indent: usize) -> String {
                 ));
             }
 
-            let conficts = arg_conflicts(app, &flag);
+            let conflicts = arg_conflicts(app, &flag);
 
-            if !conficts.is_empty() {
+            if !conflicts.is_empty() {
                 buffer.push_str(&format!(
                     "{:indent$}exclusiveOn: [\n",
                     "",
                     indent = indent + 4
                 ));
 
-                for conflict in conficts {
+                for conflict in conflicts {
                     buffer.push_str(&format!(
                         "{:indent$}\"{}\",\n",
                         "",
