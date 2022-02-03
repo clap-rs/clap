@@ -19,8 +19,11 @@ use crate::{
     App, AppSettings,
 };
 
+mod context;
 mod kind;
 
+pub use context::ContextKind;
+pub use context::ContextValue;
 pub use kind::ErrorKind;
 
 /// Short hand for [`Result`] type
@@ -45,9 +48,8 @@ pub struct Error {
 
 #[derive(Debug)]
 struct ErrorInner {
-    /// The type of error
     kind: ErrorKind,
-    /// Formatted error message, enhancing the cause message with extra information
+    context: Vec<(ContextKind, ContextValue)>,
     message: Message,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
@@ -80,6 +82,11 @@ impl Error {
     /// Type of error for programmatic processing
     pub fn kind(&self) -> ErrorKind {
         self.inner.kind
+    }
+
+    /// Additional information to further qualify the error
+    pub fn context(&self) -> impl Iterator<Item = (ContextKind, &ContextValue)> {
+        self.inner.context.iter().map(|(k, v)| (*k, v))
     }
 
     /// Should the message be written to `stdout` or not?
@@ -147,6 +154,7 @@ impl Error {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
+                context: Vec::new(),
                 message: message.into(),
                 source: None,
                 wait_on_exit,
