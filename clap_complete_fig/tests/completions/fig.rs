@@ -60,8 +60,6 @@ static FIG: &str = r#"const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      options: [
-      ],
       args: {
         name: "subcommand",
         isOptional: true,
@@ -171,8 +169,6 @@ static FIG_SPECIAL_CMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      options: [
-      ],
       args: {
         name: "subcommand",
         isOptional: true,
@@ -448,8 +444,6 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: "help",
       description: "Print this message or the help of the given subcommand(s)",
-      options: [
-      ],
       args: {
         name: "subcommand",
         isOptional: true,
@@ -464,6 +458,100 @@ static FIG_SUB_SUBCMDS: &str = r#"const completion: Fig.Spec = {
     {
       name: ["-V", "--version"],
       description: "Print version information",
+    },
+  ],
+  args: {
+    name: "file",
+    isOptional: true,
+    template: "filepaths",
+  },
+};
+
+export default completion;
+"#;
+
+#[test]
+fn fig_with_conficts() {
+    let mut app = build_app_with_conflicts();
+    common(Fig, &mut app, "my_app", FIG_CONFLICTS);
+}
+
+fn build_app_with_conflicts() -> App<'static> {
+    build_app_with_name("my_app")
+        .arg(
+            Arg::new("config")
+                .long("--config")
+                .takes_value(true)
+                .conflicts_with("config2")
+                .help("some help"),
+        )
+        .arg(
+            Arg::new("config2")
+                .long("--config2")
+                .conflicts_with("config"),
+        )
+}
+
+static FIG_CONFLICTS: &str = r#"const completion: Fig.Spec = {
+  name: "my_app",
+  description: "Tests completions",
+  subcommands: [
+    {
+      name: "test",
+      description: "tests things",
+      options: [
+        {
+          name: "--case",
+          description: "the case to test",
+          args: {
+            name: "case",
+            isOptional: true,
+          },
+        },
+        {
+          name: ["-h", "--help"],
+          description: "Print help information",
+        },
+        {
+          name: ["-V", "--version"],
+          description: "Print version information",
+        },
+      ],
+    },
+    {
+      name: "help",
+      description: "Print this message or the help of the given subcommand(s)",
+      args: {
+        name: "subcommand",
+        isOptional: true,
+      },
+    },
+  ],
+  options: [
+    {
+      name: "--config",
+      description: "some help",
+      exclusiveOn: [
+        "--config2",
+      ],
+      args: {
+        name: "config",
+        isOptional: true,
+      },
+    },
+    {
+      name: ["-h", "--help"],
+      description: "Print help information",
+    },
+    {
+      name: ["-V", "--version"],
+      description: "Print version information",
+    },
+    {
+      name: "--config2",
+      exclusiveOn: [
+        "--config",
+      ],
     },
   ],
   args: {

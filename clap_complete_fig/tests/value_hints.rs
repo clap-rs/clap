@@ -90,16 +90,10 @@ static FIG_VALUE_HINTS: &str = r#"const completion: Fig.Spec = {
         name: "choice",
         isOptional: true,
         suggestions: [
-          {
-            name: "bash",
-          },
-          {
-            name: "fish",
-          },
-          {
-            name: "zsh",
-          },
-        ]
+          "bash",
+          "fish",
+          "zsh",
+        ],
       },
     },
     {

@@ -98,7 +98,8 @@ fn gen_fig_inner(
         _ => {
             buffer.push_str(&format!("{:indent$}args: [\n", "", indent = indent));
             for arg in args {
-                buffer.push_str(&gen_args(arg, indent));
+                buffer.push_str(&format!("{:indent$}", "", indent = indent + 2));
+                buffer.push_str(&gen_args(arg, indent + 2));
             }
             buffer.push_str(&format!("{:indent$}]\n", "", indent = indent));
         }
@@ -108,105 +109,168 @@ fn gen_fig_inner(
 fn gen_options(app: &App, indent: usize) -> String {
     let mut buffer = String::new();
 
-    buffer.push_str(&format!("{:indent$}options: [\n", "", indent = indent));
+    let options: Vec<_> = app.get_opts().collect();
+    let flags = generator::utils::flags(app);
 
-    for option in app.get_opts() {
-        buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
+    if !options.is_empty() || !flags.is_empty() {
+        buffer.push_str(&format!("{:indent$}options: [\n", "", indent = indent));
 
-        let mut names = vec![];
+        for option in app.get_opts() {
+            buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
 
-        if let Some(shorts) = option.get_short_and_visible_aliases() {
-            names.extend(shorts.iter().map(|short| format!("-{}", short)));
+            let mut names = vec![];
+
+            if let Some(shorts) = option.get_short_and_visible_aliases() {
+                names.extend(shorts.iter().map(|short| format!("-{}", short)));
+            }
+
+            if let Some(longs) = option.get_long_and_visible_aliases() {
+                names.extend(longs.iter().map(|long| format!("--{}", long)));
+            }
+
+            if names.len() > 1 {
+                buffer.push_str(&format!("{:indent$}name: [", "", indent = indent + 4));
+
+                buffer.push_str(
+                    &names
+                        .iter()
+                        .map(|name| format!("\"{}\"", name))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
+
+                buffer.push_str("],\n");
+            } else {
+                buffer.push_str(&format!(
+                    "{:indent$}name: \"{}\",\n",
+                    "",
+                    names[0],
+                    indent = indent + 4
+                ));
+            }
+
+            if let Some(data) = option.get_help() {
+                buffer.push_str(&format!(
+                    "{:indent$}description: \"{}\",\n",
+                    "",
+                    escape_string(data),
+                    indent = indent + 4
+                ));
+            }
+
+            let conficts = arg_conflicts(app, &option);
+
+            if !conficts.is_empty() {
+                buffer.push_str(&format!(
+                    "{:indent$}exclusiveOn: [\n",
+                    "",
+                    indent = indent + 4
+                ));
+
+                for conflict in conficts {
+                    buffer.push_str(&format!(
+                        "{:indent$}\"{}\",\n",
+                        "",
+                        conflict,
+                        indent = indent + 6
+                    ));
+                }
+
+                buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
+            }
+
+            if option.is_set(ArgSettings::MultipleOccurrences) {
+                buffer.push_str(&format!(
+                    "{:indent$}isRepeatable: true,\n",
+                    "",
+                    indent = indent + 4
+                ));
+            }
+
+            buffer.push_str(&format!("{:indent$}args: ", "", indent = indent + 4));
+
+            buffer.push_str(&gen_args(option, indent + 4));
+
+            buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
         }
 
-        if let Some(longs) = option.get_long_and_visible_aliases() {
-            names.extend(longs.iter().map(|long| format!("--{}", long)));
+        for flag in generator::utils::flags(app) {
+            buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
+
+            let mut flags = vec![];
+
+            if let Some(shorts) = flag.get_short_and_visible_aliases() {
+                flags.extend(shorts.iter().map(|s| format!("-{}", s)));
+            }
+
+            if let Some(longs) = flag.get_long_and_visible_aliases() {
+                flags.extend(longs.iter().map(|s| format!("--{}", s)));
+            }
+
+            if flags.len() > 1 {
+                buffer.push_str(&format!("{:indent$}name: [", "", indent = indent + 4));
+
+                buffer.push_str(
+                    &flags
+                        .iter()
+                        .map(|name| format!("\"{}\"", name))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
+
+                buffer.push_str("],\n");
+            } else {
+                buffer.push_str(&format!(
+                    "{:indent$}name: \"{}\",\n",
+                    "",
+                    flags[0],
+                    indent = indent + 4
+                ));
+            }
+
+            if let Some(data) = flag.get_help() {
+                buffer.push_str(&format!(
+                    "{:indent$}description: \"{}\",\n",
+                    "",
+                    escape_string(data).as_str(),
+                    indent = indent + 4
+                ));
+            }
+
+            let conficts = arg_conflicts(app, &flag);
+
+            if !conficts.is_empty() {
+                buffer.push_str(&format!(
+                    "{:indent$}exclusiveOn: [\n",
+                    "",
+                    indent = indent + 4
+                ));
+
+                for conflict in conficts {
+                    buffer.push_str(&format!(
+                        "{:indent$}\"{}\",\n",
+                        "",
+                        conflict,
+                        indent = indent + 6
+                    ));
+                }
+
+                buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 4));
+            }
+
+            if flag.is_set(ArgSettings::MultipleOccurrences) {
+                buffer.push_str(&format!(
+                    "{:indent$}isRepeatable: true,\n",
+                    "",
+                    indent = indent + 4
+                ));
+            }
+
+            buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
         }
 
-        if names.len() > 1 {
-            buffer.push_str(&format!("{:indent$}name: [", "", indent = indent + 4));
-
-            buffer.push_str(
-                &names
-                    .iter()
-                    .map(|name| format!("\"{}\"", name))
-                    .collect::<Vec<_>>()
-                    .join(", "),
-            );
-
-            buffer.push_str("],\n");
-        } else {
-            buffer.push_str(&format!(
-                "{:indent$}name: \"{}\",\n",
-                "",
-                names[0],
-                indent = indent + 4
-            ));
-        }
-
-        if let Some(data) = option.get_help() {
-            buffer.push_str(&format!(
-                "{:indent$}description: \"{}\",\n",
-                "",
-                escape_string(data),
-                indent = indent + 4
-            ));
-        }
-
-        buffer.push_str(&format!("{:indent$}args: ", "", indent = indent + 4));
-
-        buffer.push_str(&gen_args(option, indent + 4));
-
-        buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
+        buffer.push_str(&format!("{:indent$}],\n", "", indent = indent));
     }
-
-    for flag in generator::utils::flags(app) {
-        buffer.push_str(&format!("{:indent$}{{\n", "", indent = indent + 2));
-
-        let mut flags = vec![];
-
-        if let Some(shorts) = flag.get_short_and_visible_aliases() {
-            flags.extend(shorts.iter().map(|s| format!("-{}", s)));
-        }
-
-        if let Some(longs) = flag.get_long_and_visible_aliases() {
-            flags.extend(longs.iter().map(|s| format!("--{}", s)));
-        }
-
-        if flags.len() > 1 {
-            buffer.push_str(&format!("{:indent$}name: [", "", indent = indent + 4));
-
-            buffer.push_str(
-                &flags
-                    .iter()
-                    .map(|name| format!("\"{}\"", name))
-                    .collect::<Vec<_>>()
-                    .join(", "),
-            );
-
-            buffer.push_str("],\n");
-        } else {
-            buffer.push_str(&format!(
-                "{:indent$}name: \"{}\",\n",
-                "",
-                flags[0],
-                indent = indent + 4
-            ));
-        }
-
-        if let Some(data) = flag.get_help() {
-            buffer.push_str(&format!(
-                "{:indent$}description: \"{}\",\n",
-                "",
-                escape_string(data).as_str(),
-                indent = indent + 4
-            ));
-        }
-
-        buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 2));
-    }
-
-    buffer.push_str(&format!("{:indent$}],\n", "", indent = indent));
 
     buffer
 }
@@ -249,27 +313,34 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
         ));
 
         for value in data {
-            buffer.push_str(&format!(
-                "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
-                "",
-                "",
-                value.get_name(),
-                indent = indent + 4,
-            ));
-
             if let Some(help) = value.get_help() {
+                buffer.push_str(&format!(
+                    "{:indent$}{{\n{:indent$}  name: \"{}\",\n",
+                    "",
+                    "",
+                    value.get_name(),
+                    indent = indent + 4,
+                ));
+
                 buffer.push_str(&format!(
                     "{:indent$}description: \"{}\",\n",
                     "",
                     escape_string(help),
-                    indent = indent + 4
+                    indent = indent + 6
+                ));
+
+                buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 4));
+            } else {
+                buffer.push_str(&format!(
+                    "{:indent$}\"{}\",\n",
+                    "",
+                    value.get_name(),
+                    indent = indent + 4,
                 ));
             }
-
-            buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent + 4));
         }
 
-        buffer.push_str(&format!("{:indent$}]\n", "", indent = indent + 2));
+        buffer.push_str(&format!("{:indent$}],\n", "", indent = indent + 2));
     } else {
         match arg.get_value_hint() {
             ValueHint::AnyPath | ValueHint::FilePath | ValueHint::ExecutablePath => {
@@ -301,4 +372,20 @@ fn gen_args(arg: &Arg, indent: usize) -> String {
     buffer.push_str(&format!("{:indent$}}},\n", "", indent = indent));
 
     buffer
+}
+
+fn arg_conflicts(app: &App, arg: &Arg) -> Vec<String> {
+    let mut res = vec![];
+
+    for conflict in app.get_arg_conflicts_with(arg) {
+        if let Some(s) = conflict.get_short() {
+            res.push(format!("-{}", s));
+        }
+
+        if let Some(l) = conflict.get_long() {
+            res.push(format!("--{}", l));
+        }
+    }
+
+    res
 }
