@@ -12,7 +12,6 @@ use os_str_bytes::RawOsStr;
 use crate::build::AppSettings as AS;
 use crate::build::{App, Arg, ArgSettings};
 use crate::error::Error as ClapError;
-use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
@@ -502,11 +501,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let message = self.write_help_err()?;
-            return Err(ClapError::new(
-                message,
-                ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
-                self.app.settings.is_set(AS::WaitOnError),
-            ));
+            return Err(ClapError::display_help_error(&self.app, message));
         }
 
         Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)
@@ -1579,7 +1574,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         match Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, use_long).write_help() {
             Err(e) => e.into(),
-            _ => ClapError::for_app(self.app, c, ErrorKind::DisplayHelp, vec![]),
+            _ => ClapError::display_help(self.app, c),
         }
     }
 
@@ -1589,7 +1584,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         let msg = self.app._render_version(use_long);
         let mut c = Colorizer::new(false, self.color_help());
         c.none(msg);
-        ClapError::for_app(self.app, c, ErrorKind::DisplayVersion, vec![])
+        ClapError::display_version(self.app, c)
     }
 }
 
