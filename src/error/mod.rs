@@ -178,7 +178,7 @@ impl Error {
             .set_info(info)
     }
 
-    fn with_app(self, app: &App) -> Self {
+    pub(crate) fn with_app(self, app: &App) -> Self {
         self.set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
             .set_color(app.get_color())
             .set_help_flag(get_help_flag(app))
@@ -488,60 +488,21 @@ impl Error {
     }
 
     pub(crate) fn value_validation(
-        app: &App,
         arg: String,
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err =
-            Self::value_validation_with_color(arg, val, err, app.get_color()).with_app(app);
-        match err.inner.message.as_mut() {
-            Some(Message::Formatted(c)) => try_help(c, get_help_flag(app)),
-            _ => {
-                unreachable!("`value_validation_with_color` only deals in formatted errors")
-            }
-        }
-        err
-    }
-
-    pub(crate) fn value_validation_without_app(
-        arg: String,
-        val: String,
-        err: Box<dyn error::Error + Send + Sync>,
-    ) -> Self {
-        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never);
-        match err.inner.message.as_mut() {
-            Some(Message::Formatted(c)) => {
-                c.none("\n");
-            }
-            _ => {
-                unreachable!("`value_validation_with_color` only deals in formatted errors")
-            }
-        }
-        err
-    }
-
-    fn value_validation_with_color(
-        arg: String,
-        val: String,
-        err: Box<dyn error::Error + Send + Sync>,
-        color: ColorChoice,
-    ) -> Self {
-        let mut c = Colorizer::new(true, color);
-
-        start_error(&mut c);
-        c.none("Invalid value");
-
-        c.none(" for '");
-        c.warning(&*arg);
-        c.none("'");
-
-        c.none(format!(": {}", err));
-
+        let info = vec![arg.to_string(), val.to_string(), err.to_string()];
         Self::new(ErrorKind::ValueValidation)
-            .set_message(c)
-            .set_info(vec![arg, val, err.to_string()])
+            .set_info(info)
             .set_source(err)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::InvalidValue, ContextValue::String(val)),
+            ])
     }
 
     pub(crate) fn wrong_number_of_values(
@@ -904,8 +865,29 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::ValueValidation => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    if let (
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::String(invalid_value)),
+                    ) = (invalid_arg, invalid_value)
+                    {
+                        c.none("Invalid value ");
+                        c.warning(quote(invalid_value));
+                        c.none(" for '");
+                        c.warning(invalid_arg);
+                        if let Some(source) = self.inner.source.as_deref() {
+                            c.none("': ");
+                            c.none(source.to_string());
+                        } else {
+                            c.none("'");
+                        }
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
-                | ErrorKind::ValueValidation
                 | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::DisplayHelp

@@ -144,11 +144,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Err(e) = vtor(&*val.to_string_lossy()) {
                     debug!("error");
                     return Err(Error::value_validation(
-                        self.p.app,
                         arg.to_string(),
                         val.to_string_lossy().into_owned(),
                         e,
-                    ));
+                    )
+                    .with_app(self.p.app));
                 } else {
                     debug!("good");
                 }
@@ -159,11 +159,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Err(e) = vtor(val) {
                     debug!("error");
                     return Err(Error::value_validation(
-                        self.p.app,
                         arg.to_string(),
                         val.to_string_lossy().into(),
                         e,
-                    ));
+                    )
+                    .with_app(self.p.app));
                 } else {
                     debug!("good");
                 }

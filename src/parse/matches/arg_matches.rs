@@ -463,7 +463,7 @@ impl ArgMatches {
                 v, name, e
             );
 
-            Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
+            Error::value_validation(name.to_string(), v.to_string(), message.into())
         })
     }
 
@@ -551,7 +551,7 @@ impl ArgMatches {
             v.parse::<R>().map_err(|e| {
                 let message = format!("The argument '{}' isn't a valid value: {}", v, e);
 
-                Error::value_validation_without_app(name.to_string(), v.to_string(), message.into())
+                Error::value_validation(name.to_string(), v.to_string(), message.into())
             })
         })
         .collect()
