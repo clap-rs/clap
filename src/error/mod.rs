@@ -422,29 +422,29 @@ impl Error {
         curr_occurs: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_occurs);
-        let arg = arg.to_string();
-        let max_occurs = max_occurs.to_string();
-        let curr_occurs = curr_occurs.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' allows at most ");
-        c.warning(&*max_occurs);
-        c.none(" occurrences, but ");
-        c.warning(&*curr_occurs);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(
-            ErrorKind::TooManyOccurrences,
-            app,
-            c,
-            vec![arg, curr_occurs, max_occurs],
-        )
+        let info = vec![
+            arg.to_string(),
+            curr_occurs.to_string(),
+            max_occurs.to_string(),
+        ];
+        Self::new(ErrorKind::TooManyOccurrences)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::MaxValue,
+                    ContextValue::Number(max_occurs as isize),
+                ),
+                (
+                    ContextKind::InvalidValue,
+                    ContextValue::Number(curr_occurs as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
@@ -850,11 +850,32 @@ impl Error {
                 ErrorKind::InvalidUtf8 => {
                     c.none(self.kind().as_str().unwrap());
                 }
+                ErrorKind::TooManyOccurrences => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    let max_value = self.get_context(ContextKind::MaxValue);
+                    if let (
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::Number(invalid_value)),
+                        Some(ContextValue::Number(max_value)),
+                    ) = (invalid_arg, invalid_value, max_value)
+                    {
+                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' allows at most ");
+                        c.warning(max_value.to_string());
+                        c.none(" occurrences, but ");
+                        c.warning(invalid_value.to_string());
+                        c.none(were_provided);
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
-                | ErrorKind::TooManyOccurrences
                 | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::DisplayHelp

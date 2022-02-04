@@ -14,6 +14,8 @@ pub enum ContextKind {
     ValidValue,
     /// Rejected values
     InvalidValue,
+    /// Highest allowed
+    MaxValue,
     /// Potential fix for the user
     SuggestedCommand,
     /// A usage string
@@ -32,4 +34,6 @@ pub enum ContextValue {
     String(String),
     /// Many values
     Strings(Vec<String>),
+    /// A single value
+    Number(isize),
 }
