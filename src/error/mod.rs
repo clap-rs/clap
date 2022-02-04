@@ -408,14 +408,11 @@ impl Error {
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("Invalid UTF-8 was detected in one or more arguments");
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::InvalidUtf8, app, c, vec![])
+        let info = vec![];
+        Self::new(ErrorKind::InvalidUtf8)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([(ContextKind::Usage, ContextValue::Value(usage))])
     }
 
     pub(crate) fn too_many_occurrences(
@@ -850,6 +847,9 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::InvalidUtf8 => {
+                    c.none(self.kind().as_str().unwrap());
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
@@ -857,7 +857,6 @@ impl Error {
                 | ErrorKind::TooManyOccurrences
                 | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
-                | ErrorKind::InvalidUtf8
                 | ErrorKind::DisplayHelp
                 | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
                 | ErrorKind::DisplayVersion
