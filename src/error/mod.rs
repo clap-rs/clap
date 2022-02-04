@@ -77,8 +77,7 @@ impl Error {
         if let Some(message) = self.inner.message.as_mut() {
             message.format(app, usage);
         }
-        self.inner.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
-        self
+        self.with_app(app)
     }
 
     /// Type of error for programmatic processing
@@ -171,8 +170,12 @@ impl Error {
     fn for_app(kind: ErrorKind, app: &App, colorizer: Colorizer, info: Vec<String>) -> Self {
         Self::new(kind)
             .set_message(colorizer)
+            .with_app(app)
             .set_info(info)
-            .set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
+    }
+
+    fn with_app(self, app: &App) -> Self {
+        self.set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
     }
 
     pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
@@ -528,13 +531,8 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err = Self::value_validation_with_color(
-            arg,
-            val,
-            err,
-            app.get_color(),
-            app.settings.is_set(AppSettings::WaitOnError),
-        );
+        let mut err =
+            Self::value_validation_with_color(arg, val, err, app.get_color()).with_app(app);
         match err.inner.message.as_mut() {
             Some(Message::Formatted(c)) => try_help(c, get_help_flag(app)),
             _ => {
@@ -549,7 +547,7 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
+        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never);
         match err.inner.message.as_mut() {
             Some(Message::Formatted(c)) => {
                 c.none("\n");
@@ -566,7 +564,6 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
-        wait_on_exit: bool,
     ) -> Self {
         let mut c = Colorizer::new(true, color);
 
@@ -583,7 +580,6 @@ impl Error {
             .set_message(c)
             .set_info(vec![arg, val, err.to_string()])
             .set_source(err)
-            .set_wait_on_exit(wait_on_exit)
     }
 
     pub(crate) fn wrong_number_of_values(
