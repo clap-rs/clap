@@ -50,7 +50,7 @@ pub struct Error {
 struct ErrorInner {
     kind: ErrorKind,
     context: Vec<(ContextKind, ContextValue)>,
-    message: Message,
+    message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
@@ -66,7 +66,7 @@ impl Error {
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
-        Self::new(kind, message.to_string())
+        Self::new(kind).set_message(message.to_string())
     }
 
     /// Format the existing message with the App's context
@@ -74,7 +74,9 @@ impl Error {
     pub fn format(mut self, app: &mut App) -> Self {
         app._build();
         let usage = app.render_usage();
-        self.inner.message.format(app, usage);
+        if let Some(message) = self.inner.message.as_mut() {
+            message.format(app, usage);
+        }
         self.inner.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
         self
     }
@@ -150,12 +152,12 @@ impl Error {
         Error::raw(kind, description)
     }
 
-    fn new(kind: ErrorKind, message: impl Into<Message>) -> Self {
+    fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
                 context: Vec::new(),
-                message: message.into(),
+                message: None,
                 source: None,
                 wait_on_exit: false,
                 backtrace: Backtrace::new(),
@@ -167,9 +169,15 @@ impl Error {
 
     #[inline(never)]
     fn for_app(kind: ErrorKind, app: &App, colorizer: Colorizer, info: Vec<String>) -> Self {
-        Self::new(kind, colorizer)
+        Self::new(kind)
+            .set_message(colorizer)
             .set_info(info)
             .set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
+    }
+
+    pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
+        self.inner.message = Some(message.into());
+        self
     }
 
     pub(crate) fn set_info(mut self, info: Vec<String>) -> Self {
@@ -527,11 +535,11 @@ impl Error {
             app.get_color(),
             app.settings.is_set(AppSettings::WaitOnError),
         );
-        match &mut err.inner.message {
-            Message::Raw(_) => {
+        match err.inner.message.as_mut() {
+            Some(Message::Formatted(c)) => try_help(c, get_help_flag(app)),
+            _ => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
             }
-            Message::Formatted(c) => try_help(c, get_help_flag(app)),
         }
         err
     }
@@ -542,12 +550,12 @@ impl Error {
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
         let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
-        match &mut err.inner.message {
-            Message::Raw(_) => {
-                unreachable!("`value_validation_with_color` only deals in formatted errors")
-            }
-            Message::Formatted(c) => {
+        match err.inner.message.as_mut() {
+            Some(Message::Formatted(c)) => {
                 c.none("\n");
+            }
+            _ => {
+                unreachable!("`value_validation_with_color` only deals in formatted errors")
             }
         }
         err
@@ -571,7 +579,8 @@ impl Error {
 
         c.none(format!(": {}", err));
 
-        Self::new(ErrorKind::ValueValidation, c)
+        Self::new(ErrorKind::ValueValidation)
+            .set_message(c)
             .set_info(vec![arg, val, err.to_string()])
             .set_source(err)
             .set_wait_on_exit(wait_on_exit)
@@ -694,11 +703,26 @@ impl Error {
         c.warning(&*arg);
         c.none("' wasn't found\n");
 
-        Self::new(ErrorKind::ArgumentNotFound, c).set_info(vec![arg])
+        Self::new(ErrorKind::ArgumentNotFound)
+            .set_message(c)
+            .set_info(vec![arg])
     }
 
     fn formatted(&self) -> Cow<'_, Colorizer> {
-        self.inner.message.formatted()
+        if let Some(message) = self.inner.message.as_ref() {
+            message.formatted()
+        } else {
+            let mut c = Colorizer::new(true, ColorChoice::Never);
+            start_error(&mut c);
+            if let Some(msg) = self.kind().as_str() {
+                c.none(msg.to_owned());
+            } else if let Some(source) = self.inner.source.as_ref() {
+                c.none(source.to_string());
+            } else {
+                c.none("Unknown cause");
+            }
+            Cow::Owned(c)
+        }
     }
 
     /// Returns the singular or plural form on the verb to be based on the argument's value.
