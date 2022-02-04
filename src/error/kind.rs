@@ -399,3 +399,47 @@ pub enum ErrorKind {
     /// [Format error]: std::fmt::Error
     Format,
 }
+
+impl ErrorKind {
+    /// End-user description of the error case, where relevant
+    pub fn as_str(self) -> Option<&'static str> {
+        match self {
+            Self::InvalidValue => Some("One of the values isn't valid for an argument"),
+            Self::UnknownArgument => {
+                Some("Found an argument which wasn't expected or isn't valid in this context")
+            }
+            Self::InvalidSubcommand => Some("A subcommand wasn't recognized"),
+            Self::UnrecognizedSubcommand => Some("A subcommand wasn't recognized"),
+            Self::EmptyValue => Some("An argument requires a value but none was supplied"),
+            Self::NoEquals => Some("Equal is needed when assigning values to one of the arguments"),
+            Self::ValueValidation => Some("Invalid for for one of the arguments"),
+            Self::TooManyValues => Some("An argument received an unexpected value"),
+            Self::TooFewValues => Some("An argument requires more values"),
+            Self::TooManyOccurrences => Some("An argument occurred too many times"),
+            Self::WrongNumberOfValues => Some("An argument received too many or too few values"),
+            Self::ArgumentConflict => {
+                Some("An argument cannot be used with one or more of the other specified arguments")
+            }
+            Self::MissingRequiredArgument => {
+                Some("One or more required arguments were not provided")
+            }
+            Self::MissingSubcommand => Some("A subcommand is required but one was not provided"),
+            Self::UnexpectedMultipleUsage => {
+                Some("An argument was provided more than once but cannot be used multiple times")
+            }
+            Self::InvalidUtf8 => Some("Invalid UTF-8 was detected in one or more arguments"),
+            Self::DisplayHelp => None,
+            Self::DisplayHelpOnMissingArgumentOrSubcommand => None,
+            Self::DisplayVersion => None,
+            Self::ArgumentNotFound => Some("An argument wasn't found"),
+            Self::Io => None,
+            Self::Format => None,
+        }
+    }
+}
+
+impl std::fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.as_str().unwrap_or_default().fmt(f)
+    }
+}
