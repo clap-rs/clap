@@ -324,52 +324,23 @@ impl Error {
         arg: &Arg,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
-        let arg = arg.to_string();
-
-        let good_vals: Vec<String> = good_vals
-            .iter()
-            .map(|&v| {
-                if v.contains(char::is_whitespace) {
-                    format!("{:?}", v)
-                } else {
-                    v.to_owned()
-                }
-            })
-            .collect();
-
-        start_error(&mut c);
-        c.none("");
-        c.warning(format!("{:?}", bad_val));
-        c.none(" isn't a valid value for '");
-        c.warning(&*arg);
-        c.none("'\n\t[possible values: ");
-
-        if let Some((last, elements)) = good_vals.split_last() {
-            for v in elements {
-                c.good(v);
-                c.none(", ");
-            }
-
-            c.good(last);
-        }
-
-        c.none("]");
-
-        if let Some(val) = suffix {
-            c.none("\n\n\tDid you mean ");
-            c.good(format!("{:?}", val));
-            c.none("?");
-        }
-
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        let mut info = vec![arg, bad_val];
-        info.extend(good_vals);
-
-        Self::for_app(ErrorKind::InvalidValue, app, c, info)
+        let mut info = vec![arg.to_string(), bad_val.clone()];
+        info.extend(good_vals.iter().map(|s| (*s).to_owned()));
+        Self::new(ErrorKind::InvalidValue)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::Value(arg.to_string()),
+                ),
+                (ContextKind::InvalidValue, ContextValue::Value(bad_val)),
+                (
+                    ContextKind::ValidValue,
+                    ContextValue::Values(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+                ),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn invalid_subcommand(
@@ -726,48 +697,44 @@ impl Error {
 
             match self.kind() {
                 ErrorKind::ArgumentConflict => {
-                    let invalid = self.get_context(ContextKind::InvalidArg);
-                    let valid = self.get_context(ContextKind::ValidArg);
-                    match (invalid, valid) {
-                        (Some(ContextValue::Value(invalid)), Some(valid)) => {
-                            c.none("The argument '");
-                            c.warning(invalid);
-                            c.none("' cannot be used with");
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let valid_arg = self.get_context(ContextKind::ValidArg);
+                    if let (Some(ContextValue::Value(invalid_arg)), Some(valid_arg)) =
+                        (invalid_arg, valid_arg)
+                    {
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' cannot be used with");
 
-                            match valid {
-                                ContextValue::Values(values) => {
-                                    c.none(":");
-                                    for v in values {
-                                        c.none("\n    ");
-                                        c.warning(&**v);
-                                    }
-                                }
-                                ContextValue::Value(value) => {
-                                    c.none(" '");
-                                    c.warning(value);
-                                    c.none("'");
-                                }
-                                _ => {
-                                    c.none(" one or more of the other specified arguments");
+                        match valid_arg {
+                            ContextValue::Values(values) => {
+                                c.none(":");
+                                for v in values {
+                                    c.none("\n    ");
+                                    c.warning(&**v);
                                 }
                             }
+                            ContextValue::Value(value) => {
+                                c.none(" '");
+                                c.warning(value);
+                                c.none("'");
+                            }
+                            _ => {
+                                c.none(" one or more of the other specified arguments");
+                            }
                         }
-                        (_, _) => {
-                            c.none(self.kind().as_str().unwrap());
-                        }
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
                     }
                 }
                 ErrorKind::EmptyValue => {
-                    let invalid = self.get_context(ContextKind::InvalidArg);
-                    match invalid {
-                        Some(ContextValue::Value(invalid)) => {
-                            c.none("The argument '");
-                            c.warning(invalid);
-                            c.none("' requires a value but none was supplied");
-                        }
-                        _ => {
-                            c.none(self.kind().as_str().unwrap());
-                        }
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::Value(invalid_arg)) = invalid_arg {
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' requires a value but none was supplied");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
                     }
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
@@ -784,20 +751,59 @@ impl Error {
                     }
                 }
                 ErrorKind::NoEquals => {
-                    let invalid = self.get_context(ContextKind::InvalidArg);
-                    match invalid {
-                        Some(ContextValue::Value(invalid)) => {
-                            c.none("Equal sign is needed when assigning values to '");
-                            c.warning(invalid);
-                            c.none("'.");
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::Value(invalid_arg)) = invalid_arg {
+                        c.none("Equal sign is needed when assigning values to '");
+                        c.warning(invalid_arg);
+                        c.none("'.");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
+                ErrorKind::InvalidValue => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    if let (
+                        Some(ContextValue::Value(invalid_arg)),
+                        Some(ContextValue::Value(invalid_value)),
+                    ) = (invalid_arg, invalid_value)
+                    {
+                        c.none(quote(invalid_value));
+                        c.none(" isn't a valid value for '");
+                        c.warning(invalid_arg);
+                        c.none("'");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+
+                    let possible_values = self.get_context(ContextKind::ValidValue);
+                    if let Some(ContextValue::Values(possible_values)) = possible_values {
+                        c.none("\n\t[possible values: ");
+                        if let Some((last, elements)) = possible_values.split_last() {
+                            for v in elements {
+                                c.good(escape(v));
+                                c.none(", ");
+                            }
+                            c.good(escape(last));
                         }
-                        _ => {
-                            c.none(self.kind().as_str().unwrap());
+                        c.none("]");
+                    }
+
+                    if let (
+                        Some(ContextValue::Value(invalid_value)),
+                        Some(ContextValue::Values(valid_values)),
+                    ) = (invalid_value, possible_values)
+                    {
+                        let suffix =
+                            suggestions::did_you_mean(invalid_value, valid_values.iter()).pop();
+                        if let Some(val) = suffix {
+                            c.none("\n\n\tDid you mean ");
+                            c.good(format!("{:?}", val));
+                            c.none("?");
                         }
                     }
                 }
-                ErrorKind::InvalidValue
-                | ErrorKind::UnknownArgument
+                ErrorKind::UnknownArgument
                 | ErrorKind::InvalidSubcommand
                 | ErrorKind::UnrecognizedSubcommand
                 | ErrorKind::ValueValidation
@@ -908,10 +914,15 @@ fn try_help(c: &mut Colorizer, help: Option<&str>) {
     }
 }
 
+fn quote(s: impl AsRef<str>) -> String {
+    let s = s.as_ref();
+    format!("{:?}", s)
+}
+
 fn escape(s: impl AsRef<str>) -> String {
     let s = s.as_ref();
     if s.contains(char::is_whitespace) {
-        format!("{:?}", s)
+        quote(s)
     } else {
         s.to_owned()
     }
