@@ -448,18 +448,15 @@ impl Error {
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("The value '");
-        c.warning(&*val);
-        c.none("' was provided to '");
-        c.warning(&*arg);
-        c.none("' but it wasn't expecting any more values");
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::TooManyValues, app, c, vec![arg, val])
+        let info = vec![arg.to_string(), val.clone()];
+        Self::new(ErrorKind::TooManyValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::InvalidValue, ContextValue::String(val)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn too_few_values(
@@ -872,9 +869,25 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::TooManyValues => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    if let (
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::String(invalid_value)),
+                    ) = (invalid_arg, invalid_value)
+                    {
+                        c.none("The value '");
+                        c.warning(invalid_value);
+                        c.none("' was provided to '");
+                        c.warning(invalid_arg);
+                        c.none("' but it wasn't expecting any more values");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
-                | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
                 | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
