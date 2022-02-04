@@ -16,6 +16,8 @@ pub enum ContextKind {
     InvalidValue,
     /// Highest allowed
     MaxValue,
+    /// Lowest allowed
+    MinValue,
     /// Potential fix for the user
     SuggestedCommand,
     /// A usage string

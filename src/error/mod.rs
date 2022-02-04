@@ -466,29 +466,25 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_vals);
-        let arg = arg.to_string();
-        let min_vals = min_vals.to_string();
-        let curr_vals = curr_vals.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' requires at least ");
-        c.warning(&*min_vals);
-        c.none(" values, but only ");
-        c.warning(&*curr_vals);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(
-            ErrorKind::TooFewValues,
-            app,
-            c,
-            vec![arg, curr_vals, min_vals],
-        )
+        let info = vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()];
+        Self::new(ErrorKind::TooFewValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::MinValue,
+                    ContextValue::Number(min_vals as isize),
+                ),
+                (
+                    ContextKind::InvalidValue,
+                    ContextValue::Number(curr_vals as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn value_validation(
@@ -862,7 +858,7 @@ impl Error {
                         c.warning(invalid_arg);
                         c.none("' allows at most ");
                         c.warning(max_value.to_string());
-                        c.none(" occurrences, but ");
+                        c.none(" occurrences but ");
                         c.warning(invalid_value.to_string());
                         c.none(were_provided);
                     } else {
@@ -886,9 +882,30 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::TooFewValues => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    let min_value = self.get_context(ContextKind::MinValue);
+                    if let (
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::Number(invalid_value)),
+                        Some(ContextValue::Number(min_value)),
+                    ) = (invalid_arg, invalid_value, min_value)
+                    {
+                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' requires at least ");
+                        c.warning(min_value.to_string());
+                        c.none(" values but only ");
+                        c.warning(invalid_value.to_string());
+                        c.none(were_provided);
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
-                | ErrorKind::TooFewValues
                 | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::DisplayHelp
