@@ -3,15 +3,19 @@
 #[non_exhaustive]
 pub enum ContextKind {
     /// The cause of the error
-    InvalidArg,
-    /// The cause of the error
     InvalidSubcommand,
-    /// Existing value arguments
+    /// Existing subcommand
+    ValidSubcommand,
+    /// The cause of the error
+    InvalidArg,
+    /// Existing arguments
     ValidArg,
     /// Accepted values
     ValidValue,
     /// Rejected values
     InvalidValue,
+    /// Potential fix for the user
+    SuggestedCommand,
     /// A usage string
     Usage,
     /// An opaque message to the user

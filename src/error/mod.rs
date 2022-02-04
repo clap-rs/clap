@@ -350,24 +350,23 @@ impl Error {
         name: String,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("The subcommand '");
-        c.warning(&*subcmd);
-        c.none("' wasn't recognized\n\n\tDid you mean ");
-        c.good(did_you_mean);
-        c.none("");
-        c.none(format!(
-            "?\n\nIf you believe you received this message in error, try re-running with '{} ",
-            name
-        ));
-        c.good("--");
-        c.none(format!(" {}'", subcmd));
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::InvalidSubcommand, app, c, vec![subcmd])
+        let info = vec![subcmd.clone()];
+        let suggestion = format!("{} -- {}", name, subcmd);
+        Self::new(ErrorKind::InvalidSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::Value(subcmd)),
+                (
+                    ContextKind::ValidSubcommand,
+                    ContextValue::Value(did_you_mean),
+                ),
+                (
+                    ContextKind::SuggestedCommand,
+                    ContextValue::Value(suggestion),
+                ),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
@@ -801,6 +800,32 @@ impl Error {
                         }
                     }
                 }
+                ErrorKind::InvalidSubcommand => {
+                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                        c.none("The subcommand '");
+                        c.warning(invalid_sub);
+                        c.none("' wasn't recognized");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+
+                    let valid_sub = self.get_context(ContextKind::ValidSubcommand);
+                    if let Some(ContextValue::Value(valid_sub)) = valid_sub {
+                        c.none("\n\n\tDid you mean ");
+                        c.good(valid_sub);
+                        c.none("?");
+                    }
+
+                    let suggestion = self.get_context(ContextKind::SuggestedCommand);
+                    if let Some(ContextValue::Value(suggestion)) = suggestion {
+                        c.none(
+            "\n\nIf you believe you received this message in error, try re-running with '",
+        );
+                        c.good(suggestion);
+                        c.none("'");
+                    }
+                }
                 ErrorKind::UnrecognizedSubcommand => {
                     let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
                     if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
@@ -812,7 +837,6 @@ impl Error {
                     }
                 }
                 ErrorKind::UnknownArgument
-                | ErrorKind::InvalidSubcommand
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
