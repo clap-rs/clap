@@ -512,29 +512,25 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_vals);
-        let arg = arg.to_string();
-        let num_vals = num_vals.to_string();
-        let curr_vals = curr_vals.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' requires ");
-        c.warning(&*num_vals);
-        c.none(" values, but ");
-        c.warning(&*curr_vals);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(
-            ErrorKind::WrongNumberOfValues,
-            app,
-            c,
-            vec![arg, curr_vals, num_vals],
-        )
+        let info = vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()];
+        Self::new(ErrorKind::WrongNumberOfValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::ValidValue,
+                    ContextValue::Number(num_vals as isize),
+                ),
+                (
+                    ContextKind::InvalidValue,
+                    ContextValue::Number(curr_vals as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
@@ -887,8 +883,29 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::WrongNumberOfValues => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    let invalid_value = self.get_context(ContextKind::InvalidValue);
+                    let valid_value = self.get_context(ContextKind::ValidValue);
+                    if let (
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::Number(invalid_value)),
+                        Some(ContextValue::Number(valid_value)),
+                    ) = (invalid_arg, invalid_value, valid_value)
+                    {
+                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        c.none("The argument '");
+                        c.warning(invalid_arg);
+                        c.none("' requires ");
+                        c.warning(valid_value.to_string());
+                        c.none(" values, but ");
+                        c.warning(invalid_value.to_string());
+                        c.none(were_provided);
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
-                | ErrorKind::WrongNumberOfValues
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::DisplayHelp
                 | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
