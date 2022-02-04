@@ -397,16 +397,14 @@ impl Error {
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("'");
-        c.warning(name);
-        c.none("' requires a subcommand, but one was not provided");
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::MissingSubcommand, app, c, vec![])
+        let info = vec![];
+        Self::new(ErrorKind::MissingSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::Value(name)),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
@@ -842,13 +840,22 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::MissingSubcommand => {
+                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                        c.none("'");
+                        c.warning(invalid_sub);
+                        c.none("' requires a subcommand but one was not provided");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
                 | ErrorKind::TooManyOccurrences
                 | ErrorKind::WrongNumberOfValues
-                | ErrorKind::MissingSubcommand
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::InvalidUtf8
                 | ErrorKind::DisplayHelp
