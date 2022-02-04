@@ -6,6 +6,8 @@ pub enum ContextKind {
     InvalidArg,
     /// Existing value arguments
     ValidArg,
+    /// Valid accepted values
+    PossibleValues,
     /// A usage string
     Usage,
     /// An opaque message to the user

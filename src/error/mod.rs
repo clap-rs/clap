@@ -215,6 +215,16 @@ impl Error {
     }
 
     /// Does not verify if `ContextKind` is already present
+    pub(crate) fn insert_context_unchecked(
+        mut self,
+        kind: ContextKind,
+        value: ContextValue,
+    ) -> Self {
+        self.inner.context.push((kind, value));
+        self
+    }
+
+    /// Does not verify if `ContextKind` is already present
     pub(crate) fn extend_context_unchecked<const N: usize>(
         mut self,
         context: [(ContextKind, ContextValue); N],
@@ -273,41 +283,24 @@ impl Error {
     }
 
     pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' requires a value but none was supplied");
+        let info = vec![arg.to_string()];
+        let mut err = Self::new(ErrorKind::EmptyValue)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::Value(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ]);
         if !good_vals.is_empty() {
-            let good_vals: Vec<String> = good_vals
-                .iter()
-                .map(|&v| {
-                    if v.contains(char::is_whitespace) {
-                        format!("{:?}", v)
-                    } else {
-                        v.to_owned()
-                    }
-                })
-                .collect();
-            c.none("\n\t[possible values: ");
-
-            if let Some((last, elements)) = good_vals.split_last() {
-                for v in elements {
-                    c.good(v);
-                    c.none(", ");
-                }
-
-                c.good(last);
-            }
-
-            c.none("]");
+            err = err.insert_context_unchecked(
+                ContextKind::PossibleValues,
+                ContextValue::Values(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+            );
         }
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::EmptyValue, app, c, vec![arg])
+        err
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
@@ -773,9 +766,47 @@ impl Error {
 
                     Cow::Owned(c)
                 }
+                ErrorKind::EmptyValue => {
+                    let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
+
+                    start_error(&mut c);
+
+                    let invalid = self.get_context(ContextKind::InvalidArg);
+                    match invalid {
+                        Some(ContextValue::Value(invalid)) => {
+                            c.none("The argument '");
+                            c.warning(invalid);
+                            c.none("' requires a value but none was supplied");
+                        }
+                        _ => {
+                            c.none(self.kind().as_str().unwrap());
+                        }
+                    }
+
+                    let possible_values = self.get_context(ContextKind::PossibleValues);
+                    if let Some(ContextValue::Values(possible_values)) = possible_values {
+                        c.none("\n\t[possible values: ");
+                        if let Some((last, elements)) = possible_values.split_last() {
+                            for v in elements {
+                                c.good(escape(v));
+                                c.none(", ");
+                            }
+                            c.good(escape(last));
+                        }
+                        c.none("]");
+                    }
+
+                    let usage = self.get_context(ContextKind::Usage);
+                    if let Some(ContextValue::Value(usage)) = usage {
+                        put_usage(&mut c, usage);
+                    }
+
+                    try_help(&mut c, self.inner.help_flag);
+
+                    Cow::Owned(c)
+                }
                 ErrorKind::InvalidValue
                 | ErrorKind::UnknownArgument
-                | ErrorKind::EmptyValue
                 | ErrorKind::InvalidSubcommand
                 | ErrorKind::UnrecognizedSubcommand
                 | ErrorKind::NoEquals
@@ -878,6 +909,15 @@ fn try_help(c: &mut Colorizer, help: Option<&str>) {
         c.none("\n");
     } else {
         c.none("\n");
+    }
+}
+
+fn escape(s: impl AsRef<str>) -> String {
+    let s = s.as_ref();
+    if s.contains(char::is_whitespace) {
+        format!("{:?}", s)
+    } else {
+        s.to_owned()
     }
 }
 
