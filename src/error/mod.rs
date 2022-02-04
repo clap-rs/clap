@@ -720,12 +720,12 @@ impl Error {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
         } else {
+            let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
+
+            start_error(&mut c);
+
             match self.kind() {
                 ErrorKind::ArgumentConflict => {
-                    let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
-
-                    start_error(&mut c);
-
                     let invalid = self.get_context(ContextKind::InvalidArg);
                     let valid = self.get_context(ContextKind::ValidArg);
                     match (invalid, valid) {
@@ -756,21 +756,8 @@ impl Error {
                             c.none(self.kind().as_str().unwrap());
                         }
                     }
-
-                    let usage = self.get_context(ContextKind::Usage);
-                    if let Some(ContextValue::Value(usage)) = usage {
-                        put_usage(&mut c, usage);
-                    }
-
-                    try_help(&mut c, self.inner.help_flag);
-
-                    Cow::Owned(c)
                 }
                 ErrorKind::EmptyValue => {
-                    let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
-
-                    start_error(&mut c);
-
                     let invalid = self.get_context(ContextKind::InvalidArg);
                     match invalid {
                         Some(ContextValue::Value(invalid)) => {
@@ -795,15 +782,6 @@ impl Error {
                         }
                         c.none("]");
                     }
-
-                    let usage = self.get_context(ContextKind::Usage);
-                    if let Some(ContextValue::Value(usage)) = usage {
-                        put_usage(&mut c, usage);
-                    }
-
-                    try_help(&mut c, self.inner.help_flag);
-
-                    Cow::Owned(c)
                 }
                 ErrorKind::InvalidValue
                 | ErrorKind::UnknownArgument
@@ -825,8 +803,6 @@ impl Error {
                 | ErrorKind::ArgumentNotFound
                 | ErrorKind::Io
                 | ErrorKind::Format => {
-                    let mut c = Colorizer::new(true, ColorChoice::Never);
-                    start_error(&mut c);
                     if let Some(msg) = self.kind().as_str() {
                         c.none(msg.to_owned());
                     } else if let Some(source) = self.inner.source.as_ref() {
@@ -834,9 +810,17 @@ impl Error {
                     } else {
                         c.none("Unknown cause");
                     }
-                    Cow::Owned(c)
                 }
             }
+
+            let usage = self.get_context(ContextKind::Usage);
+            if let Some(ContextValue::Value(usage)) = usage {
+                put_usage(&mut c, usage);
+            }
+
+            try_help(&mut c, self.inner.help_flag);
+
+            Cow::Owned(c)
         }
     }
 
