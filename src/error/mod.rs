@@ -371,17 +371,15 @@ impl Error {
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none(" The subcommand '");
-        c.warning(&*subcmd);
-        c.none("' wasn't recognized\n\n");
-        c.warning("USAGE:");
-        c.none(format!("\n    {} <subcommands>", name));
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::UnrecognizedSubcommand, app, c, vec![subcmd])
+        let info = vec![subcmd.clone()];
+        let usage = format!("USAGE:\n    {} <subcommands>", name);
+        Self::new(ErrorKind::UnrecognizedSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::Value(subcmd)),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn missing_required_argument(
@@ -803,9 +801,18 @@ impl Error {
                         }
                     }
                 }
+                ErrorKind::UnrecognizedSubcommand => {
+                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                        c.none("The subcommand '");
+                        c.warning(invalid_sub);
+                        c.none("' wasn't recognized");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::InvalidSubcommand
-                | ErrorKind::UnrecognizedSubcommand
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues

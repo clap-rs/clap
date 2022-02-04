@@ -4,6 +4,8 @@
 pub enum ContextKind {
     /// The cause of the error
     InvalidArg,
+    /// The cause of the error
+    InvalidSubcommand,
     /// Existing value arguments
     ValidArg,
     /// Accepted values

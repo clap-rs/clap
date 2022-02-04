@@ -511,7 +511,7 @@ fn subcommand_not_recognized() {
     assert!(utils::compare_output(
         app,
         "fake help",
-        "error:  The subcommand 'help' wasn't recognized
+        "error: The subcommand 'help' wasn't recognized
 
 USAGE:
     fake <subcommands>
