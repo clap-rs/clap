@@ -296,7 +296,7 @@ impl Error {
             ]);
         if !good_vals.is_empty() {
             err = err.insert_context_unchecked(
-                ContextKind::PossibleValues,
+                ContextKind::ValidValue,
                 ContextValue::Values(good_vals.iter().map(|s| (*s).to_owned()).collect()),
             );
         }
@@ -770,7 +770,7 @@ impl Error {
                         }
                     }
 
-                    let possible_values = self.get_context(ContextKind::PossibleValues);
+                    let possible_values = self.get_context(ContextKind::ValidValue);
                     if let Some(ContextValue::Values(possible_values)) = possible_values {
                         c.none("\n\t[possible values: ");
                         if let Some((last, elements)) = possible_values.split_last() {
