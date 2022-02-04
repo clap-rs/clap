@@ -304,17 +304,17 @@ impl Error {
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("Equal sign is needed when assigning values to '");
-        c.warning(&*arg);
-        c.none("'.");
-
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::NoEquals, app, c, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::NoEquals)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::Value(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn invalid_value(
@@ -783,11 +783,23 @@ impl Error {
                         c.none("]");
                     }
                 }
+                ErrorKind::NoEquals => {
+                    let invalid = self.get_context(ContextKind::InvalidArg);
+                    match invalid {
+                        Some(ContextValue::Value(invalid)) => {
+                            c.none("Equal sign is needed when assigning values to '");
+                            c.warning(invalid);
+                            c.none("'.");
+                        }
+                        _ => {
+                            c.none(self.kind().as_str().unwrap());
+                        }
+                    }
+                }
                 ErrorKind::InvalidValue
                 | ErrorKind::UnknownArgument
                 | ErrorKind::InvalidSubcommand
                 | ErrorKind::UnrecognizedSubcommand
-                | ErrorKind::NoEquals
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
