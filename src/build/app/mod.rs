@@ -1083,6 +1083,10 @@ impl<'help> App<'help> {
 
     /// Overrides the `clap` generated usage string for help and error messages.
     ///
+    /// Some commands may require multiple usage strings. This can be achieved
+    /// by separating usage statements with newlines within the provided usage
+    /// string. The final usage statement *should not* end with a newline.
+    ///
     /// **NOTE:** Using this setting disables `clap`s "context-aware" usage
     /// strings. After this setting is set, this will be *the only* usage string
     /// displayed to the user!
@@ -1093,6 +1097,17 @@ impl<'help> App<'help> {
     /// # use clap::{App, Arg};
     /// App::new("myprog")
     ///     .override_usage("myapp [-clDas] <some_file>")
+    /// # ;
+    /// ```
+    /// or with multiple usage statements
+    /// ```no_run
+    /// # use clap::{App, Arg};
+    /// App::new("myprog")
+    ///     .override_usage(
+    ///         "myapp -X <some_file> <another_file>\n\
+    ///          myapp -Y [-a] [-b] [-c]\n\
+    ///          myapp -Z [-d] [<some_file>]"
+    ///     )
     /// # ;
     /// ```
     /// [`ArgMatches::usage`]: ArgMatches::usage()
@@ -1157,8 +1172,9 @@ impl<'help> App<'help> {
     ///                               [`App::long_about`]).
     ///   * `{about-with-newline}`  - About followed by `\n`.
     ///   * `{about-section}`       - About preceded and followed by '\n'.
-    ///   * `{usage-heading}`       - Automatically generated usage heading.
+    ///   * `{usage-heading}`       - Default usage heading, i.e. "USAGE:".
     ///   * `{usage}`               - Automatically generated or given usage string.
+    ///   * `{usage-indented}`      - Usage string, but with each line indented by four spaces.
     ///   * `{all-args}`            - Help for all arguments (options, flags, positional
     ///                               arguments, and subcommands) including titles.
     ///   * `{options}`             - Help for options.

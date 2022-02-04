@@ -24,8 +24,12 @@ impl<'help, 'app> Usage<'help, 'app> {
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> String {
         debug!("Usage::create_usage_with_title");
         let mut usage = String::with_capacity(75);
-        usage.push_str("USAGE:\n    ");
-        usage.push_str(&*self.create_usage_no_title(used));
+        usage.push_str("USAGE:\n");
+        let indent = "    ";
+        for usage_line in self.create_usage_no_title(used).split_inclusive('\n') {
+            usage.push_str(indent);
+            usage.push_str(usage_line.trim_start());
+        }
         usage
     }
 
@@ -140,7 +144,7 @@ impl<'help, 'app> Usage<'help, 'app> {
             if self.app.is_set(AS::SubcommandsNegateReqs)
                 || self.app.is_set(AS::ArgsNegateSubcommands)
             {
-                usage.push_str("\n    ");
+                usage.push('\n');
                 if !self.app.is_set(AS::ArgsNegateSubcommands) {
                     usage.push_str(&*self.create_help_usage(false));
                 } else {

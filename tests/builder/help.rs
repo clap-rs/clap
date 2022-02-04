@@ -1336,6 +1336,23 @@ OPTIONS:
 #[test]
 fn ripgrep_usage() {
     let app = App::new("ripgrep").version("0.5").override_usage(
+        "rg [OPTIONS] <pattern> [<path> ...]\n\
+         rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]\n\
+         rg [OPTIONS] --files [<path> ...]\n\
+         rg [OPTIONS] --type-list",
+    );
+
+    assert!(utils::compare_output(
+        app,
+        "rg --help",
+        RIPGREP_USAGE,
+        false
+    ));
+}
+
+#[test]
+fn ripgrep_indented_usage() {
+    let app = App::new("ripgrep").version("0.5").override_usage(
         "rg [OPTIONS] <pattern> [<path> ...]
     rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]
     rg [OPTIONS] --files [<path> ...]
@@ -1352,6 +1369,34 @@ fn ripgrep_usage() {
 
 #[test]
 fn ripgrep_usage_using_templates() {
+    let app = App::new("ripgrep")
+        .version("0.5")
+        .override_usage(
+            "rg [OPTIONS] <pattern> [<path> ...]\n\
+             rg [OPTIONS] [-e PATTERN | -f FILE ]... [<path> ...]\n\
+             rg [OPTIONS] --files [<path> ...]\n\
+             rg [OPTIONS] --type-list",
+        )
+        .help_template(
+            "{bin} {version}\n\
+             \n\
+             USAGE:\n\
+             {usage-indented}\n\
+             \n\
+             OPTIONS:\n\
+             {options}",
+        );
+
+    assert!(utils::compare_output(
+        app,
+        "rg --help",
+        RIPGREP_USAGE,
+        false
+    ));
+}
+
+#[test]
+fn ripgrep_usage_using_templates_and_indented_usage() {
     let app = App::new("ripgrep")
         .version("0.5")
         .override_usage(

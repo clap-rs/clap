@@ -35,7 +35,8 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     const DEFAULT_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
-        {usage-heading}\n    {usage}\n\
+        {usage-heading}\n\
+        {usage-indented}\n\
         \n\
         {all-args}{after-help}\
     ";
@@ -43,7 +44,8 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
     const DEFAULT_NO_ARGS_TEMPLATE: &'static str = "\
         {before-help}{bin} {version}\n\
         {author-with-newline}{about-with-newline}\n\
-        {usage-heading}\n    {usage}{after-help}\
+        {usage-heading}\n\
+        {usage-indented}{after-help}\
     ";
 
     /// Create a new `Help` instance.
@@ -953,6 +955,13 @@ impl<'help, 'app, 'writer> Help<'help, 'app, 'writer> {
                     }
                     "usage" => {
                         self.none(self.usage.create_usage_no_title(&[]))?;
+                    }
+                    "usage-indented" => {
+                        let indent = "    ";
+                        for usage_line in self.usage.create_usage_no_title(&[]).split_inclusive('\n') {
+                            self.none(indent)?;
+                            self.none(usage_line.trim_start())?;
+                        }
                     }
                     "all-args" => {
                         self.write_all_args()?;
