@@ -29,7 +29,7 @@ pub enum ContextValue {
     /// [`ContextKind`] is self-sufficient, no additional information needed
     None,
     /// A single value
-    Value(String),
+    String(String),
     /// Many values
-    Values(Vec<String>),
+    Strings(Vec<String>),
 }

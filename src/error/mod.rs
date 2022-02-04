@@ -266,8 +266,8 @@ impl Error {
         let info = others.clone();
         let others = match others.len() {
             0 => ContextValue::None,
-            1 => ContextValue::Value(others.pop().unwrap()),
-            _ => ContextValue::Values(others),
+            1 => ContextValue::String(others.pop().unwrap()),
+            _ => ContextValue::Strings(others),
         };
         Self::new(ErrorKind::ArgumentConflict)
             .with_app(app)
@@ -275,10 +275,10 @@ impl Error {
             .extend_context_unchecked([
                 (
                     ContextKind::InvalidArg,
-                    ContextValue::Value(arg.to_string()),
+                    ContextValue::String(arg.to_string()),
                 ),
                 (ContextKind::ValidArg, others),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -290,14 +290,14 @@ impl Error {
             .extend_context_unchecked([
                 (
                     ContextKind::InvalidArg,
-                    ContextValue::Value(arg.to_string()),
+                    ContextValue::String(arg.to_string()),
                 ),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ]);
         if !good_vals.is_empty() {
             err = err.insert_context_unchecked(
                 ContextKind::ValidValue,
-                ContextValue::Values(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+                ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
             );
         }
         err
@@ -311,9 +311,9 @@ impl Error {
             .extend_context_unchecked([
                 (
                     ContextKind::InvalidArg,
-                    ContextValue::Value(arg.to_string()),
+                    ContextValue::String(arg.to_string()),
                 ),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -332,14 +332,14 @@ impl Error {
             .extend_context_unchecked([
                 (
                     ContextKind::InvalidArg,
-                    ContextValue::Value(arg.to_string()),
+                    ContextValue::String(arg.to_string()),
                 ),
-                (ContextKind::InvalidValue, ContextValue::Value(bad_val)),
+                (ContextKind::InvalidValue, ContextValue::String(bad_val)),
                 (
                     ContextKind::ValidValue,
-                    ContextValue::Values(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+                    ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
                 ),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -356,16 +356,16 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (ContextKind::InvalidSubcommand, ContextValue::Value(subcmd)),
+                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
                     ContextKind::ValidSubcommand,
-                    ContextValue::Value(did_you_mean),
+                    ContextValue::String(did_you_mean),
                 ),
                 (
                     ContextKind::SuggestedCommand,
-                    ContextValue::Value(suggestion),
+                    ContextValue::String(suggestion),
                 ),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -376,8 +376,8 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (ContextKind::InvalidSubcommand, ContextValue::Value(subcmd)),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -391,8 +391,8 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (ContextKind::InvalidArg, ContextValue::Values(required)),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::InvalidArg, ContextValue::Strings(required)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -402,8 +402,8 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (ContextKind::InvalidSubcommand, ContextValue::Value(name)),
-                (ContextKind::Usage, ContextValue::Value(usage)),
+                (ContextKind::InvalidSubcommand, ContextValue::String(name)),
+                (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
 
@@ -412,7 +412,7 @@ impl Error {
         Self::new(ErrorKind::InvalidUtf8)
             .with_app(app)
             .set_info(info)
-            .extend_context_unchecked([(ContextKind::Usage, ContextValue::Value(usage))])
+            .extend_context_unchecked([(ContextKind::Usage, ContextValue::String(usage))])
     }
 
     pub(crate) fn too_many_occurrences(
@@ -685,7 +685,7 @@ impl Error {
                 ErrorKind::ArgumentConflict => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
                     let valid_arg = self.get_context(ContextKind::ValidArg);
-                    if let (Some(ContextValue::Value(invalid_arg)), Some(valid_arg)) =
+                    if let (Some(ContextValue::String(invalid_arg)), Some(valid_arg)) =
                         (invalid_arg, valid_arg)
                     {
                         c.none("The argument '");
@@ -693,14 +693,14 @@ impl Error {
                         c.none("' cannot be used with");
 
                         match valid_arg {
-                            ContextValue::Values(values) => {
+                            ContextValue::Strings(values) => {
                                 c.none(":");
                                 for v in values {
                                     c.none("\n    ");
                                     c.warning(&**v);
                                 }
                             }
-                            ContextValue::Value(value) => {
+                            ContextValue::String(value) => {
                                 c.none(" '");
                                 c.warning(value);
                                 c.none("'");
@@ -715,7 +715,7 @@ impl Error {
                 }
                 ErrorKind::EmptyValue => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::Value(invalid_arg)) = invalid_arg {
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                         c.none("The argument '");
                         c.warning(invalid_arg);
                         c.none("' requires a value but none was supplied");
@@ -724,7 +724,7 @@ impl Error {
                     }
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
-                    if let Some(ContextValue::Values(possible_values)) = possible_values {
+                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
                         c.none("\n\t[possible values: ");
                         if let Some((last, elements)) = possible_values.split_last() {
                             for v in elements {
@@ -738,7 +738,7 @@ impl Error {
                 }
                 ErrorKind::NoEquals => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::Value(invalid_arg)) = invalid_arg {
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
                         c.none("Equal sign is needed when assigning values to '");
                         c.warning(invalid_arg);
                         c.none("'.");
@@ -750,8 +750,8 @@ impl Error {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
                     let invalid_value = self.get_context(ContextKind::InvalidValue);
                     if let (
-                        Some(ContextValue::Value(invalid_arg)),
-                        Some(ContextValue::Value(invalid_value)),
+                        Some(ContextValue::String(invalid_arg)),
+                        Some(ContextValue::String(invalid_value)),
                     ) = (invalid_arg, invalid_value)
                     {
                         c.none(quote(invalid_value));
@@ -763,7 +763,7 @@ impl Error {
                     }
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
-                    if let Some(ContextValue::Values(possible_values)) = possible_values {
+                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
                         c.none("\n\t[possible values: ");
                         if let Some((last, elements)) = possible_values.split_last() {
                             for v in elements {
@@ -776,8 +776,8 @@ impl Error {
                     }
 
                     if let (
-                        Some(ContextValue::Value(invalid_value)),
-                        Some(ContextValue::Values(valid_values)),
+                        Some(ContextValue::String(invalid_value)),
+                        Some(ContextValue::Strings(valid_values)),
                     ) = (invalid_value, possible_values)
                     {
                         let suffix =
@@ -791,7 +791,7 @@ impl Error {
                 }
                 ErrorKind::InvalidSubcommand => {
                     let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                         c.none("The subcommand '");
                         c.warning(invalid_sub);
                         c.none("' wasn't recognized");
@@ -800,14 +800,14 @@ impl Error {
                     }
 
                     let valid_sub = self.get_context(ContextKind::ValidSubcommand);
-                    if let Some(ContextValue::Value(valid_sub)) = valid_sub {
+                    if let Some(ContextValue::String(valid_sub)) = valid_sub {
                         c.none("\n\n\tDid you mean ");
                         c.good(valid_sub);
                         c.none("?");
                     }
 
                     let suggestion = self.get_context(ContextKind::SuggestedCommand);
-                    if let Some(ContextValue::Value(suggestion)) = suggestion {
+                    if let Some(ContextValue::String(suggestion)) = suggestion {
                         c.none(
             "\n\nIf you believe you received this message in error, try re-running with '",
         );
@@ -817,7 +817,7 @@ impl Error {
                 }
                 ErrorKind::UnrecognizedSubcommand => {
                     let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                         c.none("The subcommand '");
                         c.warning(invalid_sub);
                         c.none("' wasn't recognized");
@@ -827,7 +827,7 @@ impl Error {
                 }
                 ErrorKind::MissingRequiredArgument => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::Values(invalid_arg)) = invalid_arg {
+                    if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
                         c.none("The following required arguments were not provided:");
                         for v in invalid_arg {
                             c.none("\n    ");
@@ -839,7 +839,7 @@ impl Error {
                 }
                 ErrorKind::MissingSubcommand => {
                     let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::Value(invalid_sub)) = invalid_sub {
+                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                         c.none("'");
                         c.warning(invalid_sub);
                         c.none("' requires a subcommand but one was not provided");
@@ -874,7 +874,7 @@ impl Error {
             }
 
             let usage = self.get_context(ContextKind::Usage);
-            if let Some(ContextValue::Value(usage)) = usage {
+            if let Some(ContextValue::String(usage)) = usage {
                 put_usage(&mut c, usage);
             }
 
