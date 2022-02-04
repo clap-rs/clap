@@ -708,16 +708,41 @@ impl Error {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted()
         } else {
-            let mut c = Colorizer::new(true, ColorChoice::Never);
-            start_error(&mut c);
-            if let Some(msg) = self.kind().as_str() {
-                c.none(msg.to_owned());
-            } else if let Some(source) = self.inner.source.as_ref() {
-                c.none(source.to_string());
-            } else {
-                c.none("Unknown cause");
+            match self.kind() {
+                ErrorKind::InvalidValue
+                | ErrorKind::UnknownArgument
+                | ErrorKind::EmptyValue
+                | ErrorKind::ArgumentConflict
+                | ErrorKind::InvalidSubcommand
+                | ErrorKind::UnrecognizedSubcommand
+                | ErrorKind::NoEquals
+                | ErrorKind::ValueValidation
+                | ErrorKind::TooManyValues
+                | ErrorKind::TooFewValues
+                | ErrorKind::TooManyOccurrences
+                | ErrorKind::WrongNumberOfValues
+                | ErrorKind::MissingRequiredArgument
+                | ErrorKind::MissingSubcommand
+                | ErrorKind::UnexpectedMultipleUsage
+                | ErrorKind::InvalidUtf8
+                | ErrorKind::DisplayHelp
+                | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+                | ErrorKind::DisplayVersion
+                | ErrorKind::ArgumentNotFound
+                | ErrorKind::Io
+                | ErrorKind::Format => {
+                    let mut c = Colorizer::new(true, ColorChoice::Never);
+                    start_error(&mut c);
+                    if let Some(msg) = self.kind().as_str() {
+                        c.none(msg.to_owned());
+                    } else if let Some(source) = self.inner.source.as_ref() {
+                        c.none(source.to_string());
+                    } else {
+                        c.none("Unknown cause");
+                    }
+                    Cow::Owned(c)
+                }
             }
-            Cow::Owned(c)
         }
     }
 
