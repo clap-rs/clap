@@ -2,6 +2,12 @@
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum ContextKind {
+    /// The cause of the error
+    InvalidArg,
+    /// Existing value arguments
+    ValidArg,
+    /// A usage string
+    Usage,
     /// An opaque message to the user
     Custom,
 }
@@ -14,4 +20,6 @@ pub enum ContextValue {
     None,
     /// A single value
     Value(String),
+    /// Many values
+    Values(Vec<String>),
 }

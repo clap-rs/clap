@@ -52,6 +52,8 @@ struct ErrorInner {
     context: Vec<(ContextKind, ContextValue)>,
     message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
+    help_flag: Option<&'static str>,
+    color_when: ColorChoice,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
 }
@@ -158,6 +160,8 @@ impl Error {
                 context: Vec::new(),
                 message: None,
                 source: None,
+                help_flag: None,
+                color_when: ColorChoice::Never,
                 wait_on_exit: false,
                 backtrace: Backtrace::new(),
             }),
@@ -176,6 +180,8 @@ impl Error {
 
     fn with_app(self, app: &App) -> Self {
         self.set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
+            .set_color(app.get_color())
+            .set_help_flag(get_help_flag(app))
     }
 
     pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
@@ -193,9 +199,35 @@ impl Error {
         self
     }
 
+    pub(crate) fn set_color(mut self, color_when: ColorChoice) -> Self {
+        self.inner.color_when = color_when;
+        self
+    }
+
+    pub(crate) fn set_help_flag(mut self, help_flag: Option<&'static str>) -> Self {
+        self.inner.help_flag = help_flag;
+        self
+    }
+
     pub(crate) fn set_wait_on_exit(mut self, yes: bool) -> Self {
         self.inner.wait_on_exit = yes;
         self
+    }
+
+    /// Does not verify if `ContextKind` is already present
+    pub(crate) fn extend_context_unchecked<const N: usize>(
+        mut self,
+        context: [(ContextKind, ContextValue); N],
+    ) -> Self {
+        self.inner.context.extend(context);
+        self
+    }
+
+    fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
+        self.inner
+            .context
+            .iter()
+            .find_map(|(k, v)| (*k == kind).then(|| v))
     }
 
     pub(crate) fn display_help(app: &App, colorizer: Colorizer) -> Self {
@@ -218,39 +250,26 @@ impl Error {
     pub(crate) fn argument_conflict(
         app: &App,
         arg: &Arg,
-        others: Vec<String>,
+        mut others: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(arg);
-        c.none("' cannot be used with");
-
-        match others.len() {
-            0 => {
-                c.none(" one or more of the other specified arguments");
-            }
-            1 => {
-                c.none(" '");
-                c.warning(&*others[0]);
-                c.none("'");
-            }
-            _ => {
-                c.none(":");
-                for v in &others {
-                    c.none("\n    ");
-                    c.warning(&**v);
-                }
-            }
-        }
-
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::ArgumentConflict, app, c, others)
+        let info = others.clone();
+        let others = match others.len() {
+            0 => ContextValue::None,
+            1 => ContextValue::Value(others.pop().unwrap()),
+            _ => ContextValue::Values(others),
+        };
+        Self::new(ErrorKind::ArgumentConflict)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::Value(arg.to_string()),
+                ),
+                (ContextKind::ValidArg, others),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
@@ -709,10 +728,54 @@ impl Error {
             message.formatted()
         } else {
             match self.kind() {
+                ErrorKind::ArgumentConflict => {
+                    let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
+
+                    start_error(&mut c);
+
+                    let invalid = self.get_context(ContextKind::InvalidArg);
+                    let valid = self.get_context(ContextKind::ValidArg);
+                    match (invalid, valid) {
+                        (Some(ContextValue::Value(invalid)), Some(valid)) => {
+                            c.none("The argument '");
+                            c.warning(invalid);
+                            c.none("' cannot be used with");
+
+                            match valid {
+                                ContextValue::Values(values) => {
+                                    c.none(":");
+                                    for v in values {
+                                        c.none("\n    ");
+                                        c.warning(&**v);
+                                    }
+                                }
+                                ContextValue::Value(value) => {
+                                    c.none(" '");
+                                    c.warning(value);
+                                    c.none("'");
+                                }
+                                _ => {
+                                    c.none(" one or more of the other specified arguments");
+                                }
+                            }
+                        }
+                        (_, _) => {
+                            c.none(self.kind().as_str().unwrap());
+                        }
+                    }
+
+                    let usage = self.get_context(ContextKind::Usage);
+                    if let Some(ContextValue::Value(usage)) = usage {
+                        put_usage(&mut c, usage);
+                    }
+
+                    try_help(&mut c, self.inner.help_flag);
+
+                    Cow::Owned(c)
+                }
                 ErrorKind::InvalidValue
                 | ErrorKind::UnknownArgument
                 | ErrorKind::EmptyValue
-                | ErrorKind::ArgumentConflict
                 | ErrorKind::InvalidSubcommand
                 | ErrorKind::UnrecognizedSubcommand
                 | ErrorKind::NoEquals
