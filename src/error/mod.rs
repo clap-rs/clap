@@ -386,20 +386,14 @@ impl Error {
         required: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("The following required arguments were not provided:");
-
-        for v in &required {
-            c.none("\n    ");
-            c.good(&**v);
-        }
-
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::MissingRequiredArgument, app, c, required)
+        let info = required.clone();
+        Self::new(ErrorKind::MissingRequiredArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::Values(required)),
+                (ContextKind::Usage, ContextValue::Value(usage)),
+            ])
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
@@ -836,13 +830,24 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::MissingRequiredArgument => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::Values(invalid_arg)) = invalid_arg {
+                        c.none("The following required arguments were not provided:");
+                        for v in invalid_arg {
+                            c.none("\n    ");
+                            c.good(&**v);
+                        }
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::ValueValidation
                 | ErrorKind::TooManyValues
                 | ErrorKind::TooFewValues
                 | ErrorKind::TooManyOccurrences
                 | ErrorKind::WrongNumberOfValues
-                | ErrorKind::MissingRequiredArgument
                 | ErrorKind::MissingSubcommand
                 | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::InvalidUtf8
