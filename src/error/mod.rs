@@ -237,7 +237,7 @@ impl Error {
         }
 
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::ArgumentConflict, app, c, others)
     }
@@ -275,7 +275,7 @@ impl Error {
             c.none("]");
         }
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::EmptyValue, app, c, vec![arg])
     }
@@ -289,7 +289,7 @@ impl Error {
         c.none("'.");
 
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::NoEquals, app, c, vec![arg])
     }
@@ -341,7 +341,7 @@ impl Error {
         }
 
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         let mut info = vec![arg, bad_val];
         info.extend(good_vals);
@@ -371,7 +371,7 @@ impl Error {
         c.good("--");
         c.none(format!(" {}'", subcmd));
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::InvalidSubcommand, app, c, vec![subcmd])
     }
@@ -385,7 +385,7 @@ impl Error {
         c.none("' wasn't recognized\n\n");
         c.warning("USAGE:");
         c.none(format!("\n    {} <subcommands>", name));
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::UnrecognizedSubcommand, app, c, vec![subcmd])
     }
@@ -406,7 +406,7 @@ impl Error {
         }
 
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::MissingRequiredArgument, app, c, required)
     }
@@ -419,7 +419,7 @@ impl Error {
         c.warning(name);
         c.none("' requires a subcommand, but one was not provided");
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::MissingSubcommand, app, c, vec![])
     }
@@ -430,7 +430,7 @@ impl Error {
         start_error(&mut c);
         c.none("Invalid UTF-8 was detected in one or more arguments");
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::InvalidUtf8, app, c, vec![])
     }
@@ -457,7 +457,7 @@ impl Error {
         c.warning(&*curr_occurs);
         c.none(were_provided);
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(
             ErrorKind::TooManyOccurrences,
@@ -477,7 +477,7 @@ impl Error {
         c.warning(&*arg);
         c.none("' but it wasn't expecting any more values");
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::TooManyValues, app, c, vec![arg, val])
     }
@@ -504,7 +504,7 @@ impl Error {
         c.warning(&*curr_vals);
         c.none(were_provided);
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(
             ErrorKind::TooFewValues,
@@ -531,7 +531,7 @@ impl Error {
             Message::Raw(_) => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
             }
-            Message::Formatted(c) => try_help(app, c),
+            Message::Formatted(c) => try_help(c, get_help_flag(app)),
         }
         err
     }
@@ -599,7 +599,7 @@ impl Error {
         c.warning(&*curr_vals);
         c.none(were_provided);
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(
             ErrorKind::WrongNumberOfValues,
@@ -618,7 +618,7 @@ impl Error {
         c.warning(&*arg);
         c.none("' was provided more than once, but cannot be used multiple times");
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::UnexpectedMultipleUsage, app, c, vec![arg])
     }
@@ -663,7 +663,7 @@ impl Error {
         }
 
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::UnknownArgument, app, c, vec![arg])
     }
@@ -681,7 +681,7 @@ impl Error {
             arg
         ));
         put_usage(&mut c, usage);
-        try_help(app, &mut c);
+        try_help(&mut c, get_help_flag(app));
 
         Self::for_app(ErrorKind::UnknownArgument, app, c, vec![arg])
     }
@@ -753,14 +753,20 @@ fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
     c.none(usage);
 }
 
-fn try_help(app: &App, c: &mut Colorizer) {
+fn get_help_flag(app: &App) -> Option<&'static str> {
     if !app.settings.is_set(AppSettings::DisableHelpFlag) {
-        c.none("\n\nFor more information try ");
-        c.good("--help");
-        c.none("\n");
+        Some("--help")
     } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
+        Some("help")
+    } else {
+        None
+    }
+}
+
+fn try_help(c: &mut Colorizer, help: Option<&str>) {
+    if let Some(help) = help {
         c.none("\n\nFor more information try ");
-        c.good("help");
+        c.good(help);
         c.none("\n");
     } else {
         c.none("\n");
@@ -784,7 +790,7 @@ impl Message {
                 start_error(&mut c);
                 c.none(message);
                 put_usage(&mut c, usage);
-                try_help(app, &mut c);
+                try_help(&mut c, get_help_flag(app));
                 *self = Self::Formatted(c);
             }
             Message::Formatted(_) => {}
