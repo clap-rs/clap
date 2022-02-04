@@ -213,7 +213,8 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(arg);
         c.none("' cannot be used with");
 
@@ -245,7 +246,8 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' requires a value but none was supplied");
         if !good_vals.is_empty() {
@@ -281,7 +283,8 @@ impl Error {
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "Equal sign is needed when assigning values to '");
+        start_error(&mut c);
+        c.none("Equal sign is needed when assigning values to '");
         c.warning(&*arg);
         c.none("'.");
 
@@ -313,7 +316,8 @@ impl Error {
             })
             .collect();
 
-        start_error(&mut c, "");
+        start_error(&mut c);
+        c.none("");
         c.warning(format!("{:?}", bad_val));
         c.none(" isn't a valid value for '");
         c.warning(&*arg);
@@ -354,7 +358,8 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "The subcommand '");
+        start_error(&mut c);
+        c.none("The subcommand '");
         c.warning(&*subcmd);
         c.none("' wasn't recognized\n\n\tDid you mean ");
         c.good(did_you_mean);
@@ -374,7 +379,8 @@ impl Error {
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, " The subcommand '");
+        start_error(&mut c);
+        c.none(" The subcommand '");
         c.warning(&*subcmd);
         c.none("' wasn't recognized\n\n");
         c.warning("USAGE:");
@@ -391,10 +397,8 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(
-            &mut c,
-            "The following required arguments were not provided:",
-        );
+        start_error(&mut c);
+        c.none("The following required arguments were not provided:");
 
         for v in &required {
             c.none("\n    ");
@@ -410,7 +414,8 @@ impl Error {
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "'");
+        start_error(&mut c);
+        c.none("'");
         c.warning(name);
         c.none("' requires a subcommand, but one was not provided");
         put_usage(&mut c, usage);
@@ -422,10 +427,8 @@ impl Error {
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(
-            &mut c,
-            "Invalid UTF-8 was detected in one or more arguments",
-        );
+        start_error(&mut c);
+        c.none("Invalid UTF-8 was detected in one or more arguments");
         put_usage(&mut c, usage);
         try_help(app, &mut c);
 
@@ -445,7 +448,8 @@ impl Error {
         let max_occurs = max_occurs.to_string();
         let curr_occurs = curr_occurs.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' allows at most ");
         c.warning(&*max_occurs);
@@ -466,7 +470,8 @@ impl Error {
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "The value '");
+        start_error(&mut c);
+        c.none("The value '");
         c.warning(&*val);
         c.none("' was provided to '");
         c.warning(&*arg);
@@ -490,7 +495,8 @@ impl Error {
         let min_vals = min_vals.to_string();
         let curr_vals = curr_vals.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' requires at least ");
         c.warning(&*min_vals);
@@ -556,7 +562,8 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, color);
 
-        start_error(&mut c, "Invalid value");
+        start_error(&mut c);
+        c.none("Invalid value");
 
         c.none(" for '");
         c.warning(&*arg);
@@ -583,7 +590,8 @@ impl Error {
         let num_vals = num_vals.to_string();
         let curr_vals = curr_vals.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' requires ");
         c.warning(&*num_vals);
@@ -605,7 +613,8 @@ impl Error {
         let mut c = Colorizer::new(true, app.get_color());
         let arg = arg.to_string();
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' was provided more than once, but cannot be used multiple times");
         put_usage(&mut c, usage);
@@ -622,7 +631,8 @@ impl Error {
     ) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "Found argument '");
+        start_error(&mut c);
+        c.none("Found argument '");
         c.warning(&*arg);
         c.none("' which wasn't expected, or isn't valid in this context");
 
@@ -661,7 +671,8 @@ impl Error {
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
         let mut c = Colorizer::new(true, app.get_color());
 
-        start_error(&mut c, "Found argument '");
+        start_error(&mut c);
+        c.none("Found argument '");
         c.warning(&*arg);
         c.none("' which wasn't expected, or isn't valid in this context");
 
@@ -678,7 +689,8 @@ impl Error {
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
         let mut c = Colorizer::new(true, ColorChoice::Never);
 
-        start_error(&mut c, "The argument '");
+        start_error(&mut c);
+        c.none("The argument '");
         c.warning(&*arg);
         c.none("' wasn't found\n");
 
@@ -731,10 +743,9 @@ impl Display for Error {
     }
 }
 
-fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
+fn start_error(c: &mut Colorizer) {
     c.error("error:");
     c.none(" ");
-    c.none(msg);
 }
 
 fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
@@ -770,7 +781,8 @@ impl Message {
 
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
-                start_error(&mut c, message);
+                start_error(&mut c);
+                c.none(message);
                 put_usage(&mut c, usage);
                 try_help(app, &mut c);
                 *self = Self::Formatted(c);
@@ -783,7 +795,8 @@ impl Message {
         match self {
             Message::Raw(s) => {
                 let mut c = Colorizer::new(true, ColorChoice::Never);
-                start_error(&mut c, s);
+                start_error(&mut c);
+                c.none(s);
                 Cow::Owned(c)
             }
             Message::Formatted(c) => Cow::Borrowed(c),
