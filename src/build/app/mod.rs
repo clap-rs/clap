@@ -27,7 +27,7 @@ use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::{fmt::Colorizer, fmt::StyleSpec, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
@@ -677,8 +677,9 @@ impl<'help> App<'help> {
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
+        let style = self.get_style_spec();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(false, color, style);
         let parser = Parser::new(self);
         let usage = Usage::new(parser.app, &parser.required);
         Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, false).write_help()?;
@@ -703,8 +704,8 @@ impl<'help> App<'help> {
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
-
-        let mut c = Colorizer::new(false, color);
+        let style = self.get_style_spec();
+        let mut c = Colorizer::new(false, color, style);
         let parser = Parser::new(self);
         let usage = Usage::new(parser.app, &parser.required);
         Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, true).write_help()?;
@@ -2242,6 +2243,10 @@ impl<'help> App<'help> {
         } else {
             ColorChoice::Never
         }
+    }
+
+    pub(crate) fn get_style_spec(&self) -> StyleSpec {
+        StyleSpec::default()
     }
 
     /// Iterate through the set of subcommands, getting a reference to each.

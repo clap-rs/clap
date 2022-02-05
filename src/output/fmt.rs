@@ -15,6 +15,15 @@ pub(crate) struct StyleSpec {
 }
 
 impl StyleSpec {
+    pub(crate) fn empty() -> StyleSpec {
+        StyleSpec {
+            good_style: termcolor::ColorSpec::new(),
+            warning_style: termcolor::ColorSpec::new(),
+            error_style: termcolor::ColorSpec::new(),
+            hint_style: termcolor::ColorSpec::new(),
+            default_style: termcolor::ColorSpec::new(),
+        }
+    }
     pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
         match style {
             Style::Good => &self.good_style,
@@ -68,13 +77,13 @@ impl Colorizer {
     }
 
     #[inline(never)]
-    pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
+    pub(crate) fn new(use_stderr: bool, color_when: ColorChoice, style_spec: StyleSpec) -> Self {
         // Construct the Colorizer
         Colorizer {
             use_stderr,
             color_when,
             pieces: vec![],
-            style_spec: StyleSpec::default(),
+            style_spec,
         }
     }
 
