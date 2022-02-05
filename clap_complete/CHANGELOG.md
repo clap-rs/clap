@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Powershell: Allow completion of partial commands
+
 ## [3.0.5] - 2022-01-24
 
 ### Fixes
