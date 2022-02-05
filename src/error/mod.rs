@@ -13,7 +13,7 @@ use std::{
 // Internal
 use crate::{
     build::Arg,
-    output::fmt::Colorizer,
+    output::fmt::{Colorizer, StyleSpec},
     parse::features::suggestions,
     util::{color::ColorChoice, safe_exit, SUCCESS_CODE, USAGE_CODE},
     App, AppSettings,
@@ -188,7 +188,7 @@ impl Error {
         others: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -220,7 +220,7 @@ impl Error {
     }
 
     pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -257,7 +257,7 @@ impl Error {
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "Equal sign is needed when assigning values to '");
         c.warning(&*arg);
@@ -276,7 +276,7 @@ impl Error {
         arg: &Arg,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
         let arg = arg.to_string();
 
@@ -330,7 +330,7 @@ impl Error {
         name: String,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "The subcommand '");
         c.warning(&*subcmd);
@@ -350,7 +350,7 @@ impl Error {
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, " The subcommand '");
         c.warning(&*subcmd);
@@ -367,7 +367,7 @@ impl Error {
         required: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(
             &mut c,
@@ -386,7 +386,7 @@ impl Error {
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "'");
         c.warning(name);
@@ -398,7 +398,7 @@ impl Error {
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(
             &mut c,
@@ -417,7 +417,7 @@ impl Error {
         curr_occurs: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let were_provided = Error::singular_or_plural(curr_occurs);
         let arg = arg.to_string();
         let max_occurs = max_occurs.to_string();
@@ -442,7 +442,7 @@ impl Error {
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "The value '");
         c.warning(&*val);
@@ -462,7 +462,7 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let were_provided = Error::singular_or_plural(curr_vals);
         let arg = arg.to_string();
         let min_vals = min_vals.to_string();
@@ -497,6 +497,7 @@ impl Error {
             val,
             err,
             app.get_color(),
+            app.get_style_spec(),
             app.settings.is_set(AppSettings::WaitOnError),
         );
         match &mut err.inner.message {
@@ -513,7 +514,14 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
+        let mut err = Self::value_validation_with_color(
+            arg,
+            val,
+            err,
+            ColorChoice::Never,
+            StyleSpec::empty(),
+            false,
+        );
         match &mut err.inner.message {
             Message::Raw(_) => {
                 unreachable!("`value_validation_with_color` only deals in formatted errors")
@@ -530,9 +538,10 @@ impl Error {
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
         color: ColorChoice,
+        style_spec: StyleSpec,
         wait_on_exit: bool,
     ) -> Self {
-        let mut c = Colorizer::new(true, color);
+        let mut c = Colorizer::new(true, color, style_spec);
 
         start_error(&mut c, "Invalid value");
 
@@ -554,7 +563,7 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let were_provided = Error::singular_or_plural(curr_vals);
         let arg = arg.to_string();
         let num_vals = num_vals.to_string();
@@ -579,7 +588,7 @@ impl Error {
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
         let arg = arg.to_string();
 
         start_error(&mut c, "The argument '");
@@ -597,7 +606,7 @@ impl Error {
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "Found argument '");
         c.warning(&*arg);
@@ -636,7 +645,7 @@ impl Error {
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
+        let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
         start_error(&mut c, "Found argument '");
         c.warning(&*arg);
@@ -653,7 +662,7 @@ impl Error {
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Never);
+        let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::empty());
 
         start_error(&mut c, "The argument '");
         c.warning(&*arg);
@@ -739,7 +748,7 @@ impl Message {
     fn format(&mut self, app: &App, usage: String) {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, app.get_color());
+                let mut c = Colorizer::new(true, app.get_color(), app.get_style_spec());
 
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
@@ -755,7 +764,7 @@ impl Message {
     fn formatted(&self) -> Cow<Colorizer> {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, ColorChoice::Never);
+                let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::empty());
                 start_error(&mut c, s);
                 Cow::Owned(c)
             }

@@ -5,6 +5,7 @@ mod settings;
 mod tests;
 
 pub use self::settings::{AppFlags, AppSettings};
+use termcolor::Color;
 
 // Std
 use std::{
@@ -27,7 +28,8 @@ use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::fmt::Style;
+use crate::output::{fmt::Colorizer, fmt::StyleSpec, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{color::ColorChoice, Id, Key};
 use crate::{Error, INTERNAL_ERROR_MSG};
@@ -97,6 +99,7 @@ pub struct App<'help> {
     pub(crate) current_help_heading: Option<&'help str>,
     pub(crate) subcommand_value_name: Option<&'help str>,
     pub(crate) subcommand_heading: Option<&'help str>,
+    pub(crate) output_style: StyleSpec,
 }
 
 impl<'help> App<'help> {
@@ -677,8 +680,9 @@ impl<'help> App<'help> {
     pub fn print_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
+        let style = self.get_style_spec();
 
-        let mut c = Colorizer::new(false, color);
+        let mut c = Colorizer::new(false, color, style);
         let parser = Parser::new(self);
         let usage = Usage::new(parser.app, &parser.required);
         Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, false).write_help()?;
@@ -703,8 +707,8 @@ impl<'help> App<'help> {
     pub fn print_long_help(&mut self) -> io::Result<()> {
         self._build();
         let color = self.get_color();
-
-        let mut c = Colorizer::new(false, color);
+        let style = self.get_style_spec();
+        let mut c = Colorizer::new(false, color, style);
         let parser = Parser::new(self);
         let usage = Usage::new(parser.app, &parser.required);
         Help::new(HelpWriter::Buffer(&mut c), parser.app, &usage, true).write_help()?;
@@ -1318,6 +1322,193 @@ impl<'help> App<'help> {
             ColorChoice::Always => self.global_setting(AppSettings::ColorAlways),
             ColorChoice::Never => self.global_setting(AppSettings::ColorNever),
         }
+    }
+
+    /// Sets the `ColorSpec` for the associated style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// **NOTE:** Default behavior is to use green for Good, yellow for Warning, b
+    /// old red for Error, and dimmed for hint_style.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style(Style::Good, color)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn style(mut self, style: Style, spec: termcolor::ColorSpec) -> Self {
+        self.output_style.set_style(style, spec);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as bold
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .bold(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn bold(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_bold(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as italic
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .italic(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn italic(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_italic(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as underlined
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .underline(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn underline(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_underline(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as dimmed
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .dimmed(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn dimmed(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_dimmed(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as dimmed
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .intense(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn intense(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_intense(value);
+        self
+    }
+
+    /// Sets the color for the foreground of a style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn foreground(mut self, style: Style, color: Option<Color>) -> Self {
+        self.output_style.style(style).set_fg(color);
+        self
+    }
+
+    /// Sets the color for the background of a style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn background(mut self, style: Style, color: Option<Color>) -> Self {
+        self.output_style.style(style).set_bg(color);
+        self
     }
 
     /// Set the default section heading for future args.
@@ -2242,6 +2433,10 @@ impl<'help> App<'help> {
         } else {
             ColorChoice::Never
         }
+    }
+
+    pub(crate) fn get_style_spec(&self) -> StyleSpec {
+        self.output_style.clone()
     }
 
     /// Iterate through the set of subcommands, getting a reference to each.

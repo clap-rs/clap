@@ -15,7 +15,7 @@ use crate::error::Error as ClapError;
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
-use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
+use crate::output::{fmt::Colorizer, fmt::StyleSpec, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
 use crate::parse::{Validator, ValueType};
@@ -74,6 +74,11 @@ impl<'help, 'app> Parser<'help, 'app> {
         }
 
         self.app.get_color()
+    }
+
+    // Returns the style spec used to define how output is colored
+    pub(crate) fn style_spec(&self) -> StyleSpec {
+        self.app.get_style_spec()
     }
 }
 
@@ -1562,7 +1567,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
     pub(crate) fn write_help_err(&self) -> ClapResult<Colorizer> {
         let usage = Usage::new(self.app, &self.required);
-        let mut c = Colorizer::new(true, self.color_help());
+        let mut c = Colorizer::new(true, self.color_help(), self.style_spec());
         Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, false).write_help()?;
         Ok(c)
     }
@@ -1575,7 +1580,7 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         use_long = use_long && self.use_long_help();
         let usage = Usage::new(self.app, &self.required);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(false, self.color_help(), self.style_spec());
 
         match Help::new(HelpWriter::Buffer(&mut c), self.app, &usage, use_long).write_help() {
             Err(e) => e.into(),
@@ -1587,7 +1592,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::version_err");
 
         let msg = self.app._render_version(use_long);
-        let mut c = Colorizer::new(false, self.color_help());
+        let mut c = Colorizer::new(false, self.color_help(), self.style_spec());
         c.none(msg);
         ClapError::for_app(self.app, c, ErrorKind::DisplayVersion, vec![])
     }
