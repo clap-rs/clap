@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.0.6] - 2022-02-05
+
 ### Fixes
 
 - Powershell: Allow completion of partial commands
@@ -35,7 +37,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.5...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.6...HEAD
+[3.0.6]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.5...clap_complete-v3.0.6
 [3.0.5]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.4...clap_complete-v3.0.5
 [3.0.4]: https://github.com/clap-rs/clap/compare/clap_complete-v3.0.3...clap_complete-v3.0.4
 [3.0.3]: https://github.com/clap-rs/clap/compare/v3.0.2...clap_complete-v3.0.3
