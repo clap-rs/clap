@@ -183,6 +183,8 @@ impl Display for Colorizer {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+
+/// Style categories for output
 pub enum Style {
     Good,
     Warning,

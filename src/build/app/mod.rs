@@ -23,7 +23,8 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::{build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings}, output::fmt::Style};
+use crate::output::fmt::Style;
+use crate::{build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings}};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
