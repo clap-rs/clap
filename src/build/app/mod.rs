@@ -23,7 +23,7 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
+use crate::{build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings}, output::fmt::Style};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
@@ -97,6 +97,7 @@ pub struct App<'help> {
     pub(crate) current_help_heading: Option<&'help str>,
     pub(crate) subcommand_value_name: Option<&'help str>,
     pub(crate) subcommand_heading: Option<&'help str>,
+    pub(crate) output_style: StyleSpec,
 }
 
 impl<'help> App<'help> {
@@ -1321,6 +1322,33 @@ impl<'help> App<'help> {
         }
     }
 
+    /// Sets the `ColorSpec` for the associated style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// **NOTE:** Default behavior is to use green for Good, yellow for Warning, b
+    /// old red for Error, and dimmed for hint_style. 
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::App;
+    /// let mut color = termcolor::ColorSpec::new();
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style(Style::Error, color)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn style(mut self, style: Style, spec: termcolor::ColorSpec) -> Self {
+        self.output_style.set_style_for(style, spec);
+        self
+    }
+
     /// Set the default section heading for future args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
@@ -2246,7 +2274,7 @@ impl<'help> App<'help> {
     }
 
     pub(crate) fn get_style_spec(&self) -> StyleSpec {
-        StyleSpec::default()
+        self.output_style.clone()
     }
 
     /// Iterate through the set of subcommands, getting a reference to each.

@@ -5,7 +5,7 @@ use std::{
     io::{self, Write},
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct StyleSpec {
     pub good_style: termcolor::ColorSpec,
     pub warning_style: termcolor::ColorSpec,
@@ -32,6 +32,16 @@ impl StyleSpec {
             Style::Hint => &self.hint_style,
             Style::Default => &self.default_style,
         }
+    }
+    pub(crate) fn set_style_for(&mut self, style: Style, spec: termcolor::ColorSpec) -> &mut Self {
+        match style {
+            Style::Good => self.good_style = spec,
+            Style::Warning => self.warning_style = spec,
+            Style::Error => self.error_style = spec,
+            Style::Hint => self.hint_style = spec,
+            Style::Default => self.default_style = spec,
+        }
+        self
     }
 }
 
