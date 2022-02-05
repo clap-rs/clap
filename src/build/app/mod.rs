@@ -5,6 +5,7 @@ mod settings;
 mod tests;
 
 pub use self::settings::{AppFlags, AppSettings};
+use termcolor::Color;
 
 // Std
 use std::{
@@ -23,11 +24,11 @@ use os_str_bytes::RawOsStr;
 use yaml_rust::Yaml;
 
 // Internal
-use crate::output::fmt::Style;
-use crate::{build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings}};
+use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
+use crate::output::fmt::Style;
 use crate::output::{fmt::Colorizer, fmt::StyleSpec, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{color::ColorChoice, Id, Key};
@@ -1328,7 +1329,7 @@ impl<'help> App<'help> {
     /// **NOTE:** This style is propagated to all child subcommands
     ///
     /// **NOTE:** Default behavior is to use green for Good, yellow for Warning, b
-    /// old red for Error, and dimmed for hint_style. 
+    /// old red for Error, and dimmed for hint_style.
     ///
     /// # Examples
     ///
@@ -1461,6 +1462,52 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn intense(mut self, style: Style, value: bool) -> Self {
         self.output_style.style(style).set_intense(value);
+        self
+    }
+
+    /// Sets the color for the foreground of a style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn foreground(mut self, style: Style, color: Option<Color>) -> Self {
+        self.output_style.style(style).set_fg(color);
+        self
+    }
+
+    /// Sets the color for the background of a style
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn background(mut self, style: Style, color: Option<Color>) -> Self {
+        self.output_style.style(style).set_bg(color);
         self
     }
 
