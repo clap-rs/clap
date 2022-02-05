@@ -1354,7 +1354,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn style(mut self, style: Style, spec: ColorSpec) -> Self {
-        self.output_style.set_style(style, spec);
+        self.output_style[style] = spec;
         self
     }
 
@@ -1377,7 +1377,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn bold(mut self, style: Style, value: bool) -> Self {
-        self.output_style.style(style).set_bold(value);
+        self.output_style[style].set_bold(value);
         self
     }
 
@@ -1400,7 +1400,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn italic(mut self, style: Style, value: bool) -> Self {
-        self.output_style.style(style).set_italic(value);
+        self.output_style[style].set_italic(value);
         self
     }
 
@@ -1423,7 +1423,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn underline(mut self, style: Style, value: bool) -> Self {
-        self.output_style.style(style).set_underline(value);
+        self.output_style[style].set_underline(value);
         self
     }
 
@@ -1446,7 +1446,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn dimmed(mut self, style: Style, value: bool) -> Self {
-        self.output_style.style(style).set_dimmed(value);
+        self.output_style[style].set_dimmed(value);
         self
     }
 
@@ -1469,7 +1469,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn intense(mut self, style: Style, value: bool) -> Self {
-        self.output_style.style(style).set_intense(value);
+        self.output_style[style].set_intense(value);
         self
     }
 
@@ -1492,7 +1492,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn foreground(mut self, style: Style, color: Option<Color>) -> Self {
-        self.output_style.style(style).set_fg(color);
+        self.output_style[style].set_fg(color);
         self
     }
 
@@ -1515,7 +1515,7 @@ impl<'help> App<'help> {
     #[inline]
     #[must_use]
     pub fn background(mut self, style: Style, color: Option<Color>) -> Self {
-        self.output_style.style(style).set_bg(color);
+        self.output_style[style].set_bg(color);
         self
     }
 
