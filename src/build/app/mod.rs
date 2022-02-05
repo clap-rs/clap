@@ -2917,7 +2917,7 @@ impl<'help> App<'help> {
 
     #[allow(clippy::blocks_in_if_conditions)]
     pub(crate) fn _check_help_and_version(&mut self) {
-        debug!("App::_check_help_and_version");
+        debug!("App::_check_help_and_version: {}", self.name);
 
         if self.is_set(AppSettings::DisableHelpFlag)
             || self.args.args().any(|x| {
@@ -2947,11 +2947,13 @@ impl<'help> App<'help> {
                 .find(|x| x.id == Id::help_hash())
                 .expect(INTERNAL_ERROR_MSG);
 
-            if !(help.short.is_some()
-                || other_arg_has_short
+            if help.short.is_some() {
+            } else if !(other_arg_has_short
                 || self.subcommands.iter().any(|sc| sc.short_flag == Some('h')))
             {
                 help.short = Some('h');
+            } else {
+                debug!("App::_check_help_and_version: Removing `-h` from help");
             }
         }
 
