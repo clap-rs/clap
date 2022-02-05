@@ -519,7 +519,7 @@ impl Error {
             val,
             err,
             ColorChoice::Never,
-            StyleSpec::empty(),
+            StyleSpec::new(),
             false,
         );
         match &mut err.inner.message {
@@ -662,7 +662,7 @@ impl Error {
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::empty());
+        let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::new());
 
         start_error(&mut c, "The argument '");
         c.warning(&*arg);
@@ -764,7 +764,7 @@ impl Message {
     fn formatted(&self) -> Cow<Colorizer> {
         match self {
             Message::Raw(s) => {
-                let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::empty());
+                let mut c = Colorizer::new(true, ColorChoice::Never, StyleSpec::new());
                 start_error(&mut c, s);
                 Cow::Owned(c)
             }

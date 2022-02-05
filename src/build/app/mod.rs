@@ -5,7 +5,13 @@ mod settings;
 mod tests;
 
 pub use self::settings::{AppFlags, AppSettings};
+
+#[cfg(feature = "color")]
 use termcolor::Color;
+#[cfg(feature = "color")]
+use termcolor::ColorSpec;
+#[cfg(feature = "color")]
+use crate::output::fmt::Style;
 
 // Std
 use std::{
@@ -28,7 +34,6 @@ use crate::build::{arg::ArgProvider, Arg, ArgGroup, ArgPredicate, ArgSettings};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
-use crate::output::fmt::Style;
 use crate::output::{fmt::Colorizer, fmt::StyleSpec, Help, HelpWriter, Usage};
 use crate::parse::{ArgMatcher, ArgMatches, Input, Parser};
 use crate::util::{color::ColorChoice, Id, Key};
@@ -1335,9 +1340,12 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     ///
-    /// # use clap::{App, Style};
+    /// # use clap::{App, Style, Color, ColorSpec};
     ///
-    /// // Do stuff to color
+    /// let mut color = ColorSpec::new();
+    /// 
+    /// color.set_fg(Some(Color::Green)).set_bold(true);
+    /// 
     /// App::new("myprog")
     ///     .style(Style::Good, color)
     ///     .get_matches();
@@ -1345,7 +1353,7 @@ impl<'help> App<'help> {
     #[cfg(feature = "color")]
     #[inline]
     #[must_use]
-    pub fn style(mut self, style: Style, spec: termcolor::ColorSpec) -> Self {
+    pub fn style(mut self, style: Style, spec: ColorSpec) -> Self {
         self.output_style.set_style(style, spec);
         self
     }
@@ -1473,11 +1481,11 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     ///
-    /// # use clap::{App, Style};
+    /// # use clap::{App, Style, Color};
     ///
     /// // Do stuff to color
     /// App::new("myprog")
-    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .foreground(Style::Good, Some(Color::Green))
     ///     .get_matches();
     /// ```
     #[cfg(feature = "color")]
@@ -1496,11 +1504,11 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     ///
-    /// # use clap::{App, Style};
+    /// # use clap::{App, Style, Color};
     ///
     /// // Do stuff to color
     /// App::new("myprog")
-    ///     .style_color(Style::Good, Some(Color::Green))
+    ///     .background(Style::Good, Some(Color::Green))
     ///     .get_matches();
     /// ```
     #[cfg(feature = "color")]

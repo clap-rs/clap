@@ -1,5 +1,8 @@
 use crate::util::color::ColorChoice;
 
+#[cfg(feature = "color")]
+use termcolor::{Color, ColorSpec};
+
 use std::{
     fmt::{self, Display, Formatter},
     io::{self, Write},
@@ -7,24 +10,41 @@ use std::{
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct StyleSpec {
-    pub good_style: termcolor::ColorSpec,
-    pub warning_style: termcolor::ColorSpec,
-    pub error_style: termcolor::ColorSpec,
-    pub hint_style: termcolor::ColorSpec,
-    pub default_style: termcolor::ColorSpec,
+    #[cfg(feature = "color")]
+    pub good_style: ColorSpec,
+
+    #[cfg(feature = "color")]
+    pub warning_style: ColorSpec,
+
+    #[cfg(feature = "color")]
+    pub error_style: ColorSpec,
+
+    #[cfg(feature = "color")]
+    pub hint_style: ColorSpec,
+
+    #[cfg(feature = "color")]
+    pub default_style: ColorSpec,
 }
 
 impl StyleSpec {
-    pub(crate) fn empty() -> StyleSpec {
+    #[cfg(not(feature = "color"))]
+    pub(crate) fn new() -> StyleSpec {
+        StyleSpec {}
+    }
+
+    #[cfg(feature = "color")]
+    pub(crate) fn new() -> StyleSpec {
         StyleSpec {
-            good_style: termcolor::ColorSpec::new(),
-            warning_style: termcolor::ColorSpec::new(),
-            error_style: termcolor::ColorSpec::new(),
-            hint_style: termcolor::ColorSpec::new(),
-            default_style: termcolor::ColorSpec::new(),
+            good_style: ColorSpec::new(),
+            warning_style: ColorSpec::new(),
+            error_style: ColorSpec::new(),
+            hint_style: ColorSpec::new(),
+            default_style: ColorSpec::new(),
         }
     }
-    pub(crate) fn get_style(&self, style: Style) -> &termcolor::ColorSpec {
+
+    #[cfg(feature = "color")]
+    pub(crate) fn get_style(&self, style: Style) -> &ColorSpec {
         match style {
             Style::Good => &self.good_style,
             Style::Warning => &self.warning_style,
@@ -33,7 +53,9 @@ impl StyleSpec {
             Style::Default => &self.default_style,
         }
     }
-    pub(crate) fn set_style(&mut self, style: Style, spec: termcolor::ColorSpec) -> &mut Self {
+
+    #[cfg(feature = "color")]
+    pub(crate) fn set_style(&mut self, style: Style, spec: ColorSpec) -> &mut Self {
         match style {
             Style::Good => self.good_style = spec,
             Style::Warning => self.warning_style = spec,
@@ -43,7 +65,9 @@ impl StyleSpec {
         }
         self
     }
-    pub(crate) fn style(&mut self, style: Style) -> &mut termcolor::ColorSpec {
+
+    #[cfg(feature = "color")]
+    pub(crate) fn style(&mut self, style: Style) -> &mut ColorSpec {
         match style {
             Style::Good => &mut self.good_style,
             Style::Warning => &mut self.warning_style,
@@ -55,8 +79,13 @@ impl StyleSpec {
 }
 
 impl Default for StyleSpec {
+    #[cfg(not(feature = "color"))]
     fn default() -> StyleSpec {
-        use termcolor::{Color, ColorSpec};
+        StyleSpec {}
+    }
+
+    #[cfg(feature = "color")]
+    fn default() -> StyleSpec {
         // Declare the styles
         let mut good_style = ColorSpec::new();
         let mut warning_style = ColorSpec::new();
@@ -86,12 +115,16 @@ pub(crate) struct Colorizer {
     #[allow(unused)]
     color_when: ColorChoice,
     pieces: Vec<(String, Style)>,
+
+    // If color is not enabled, then style_spec is never used
+    #[allow(dead_code)]
     style_spec: StyleSpec,
 }
 
 impl Colorizer {
     /// Get the `ColorSpec` used for a particular style
-    pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
+    #[cfg(feature = "color")]
+    pub(crate) fn spec_for(&self, style: Style) -> &ColorSpec {
         self.style_spec.get_style(style)
     }
 
