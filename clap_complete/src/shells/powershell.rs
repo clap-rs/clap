@@ -37,7 +37,8 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
             $element = $commandElements[$i]
             if ($element -isnot [StringConstantExpressionAst] -or
                 $element.StringConstantType -ne [StringConstantType]::BareWord -or
-                $element.Value.StartsWith('-')) {{
+                $element.Value.StartsWith('-') -or
+                $element.Value -eq $wordToComplete) {{
                 break
         }}
         $element.Value
