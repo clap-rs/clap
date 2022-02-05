@@ -7,11 +7,11 @@ mod tests;
 pub use self::settings::{AppFlags, AppSettings};
 
 #[cfg(feature = "color")]
+use crate::output::fmt::Style;
+#[cfg(feature = "color")]
 use termcolor::Color;
 #[cfg(feature = "color")]
 use termcolor::ColorSpec;
-#[cfg(feature = "color")]
-use crate::output::fmt::Style;
 
 // Std
 use std::{
@@ -1343,9 +1343,9 @@ impl<'help> App<'help> {
     /// # use clap::{App, Style, Color, ColorSpec};
     ///
     /// let mut color = ColorSpec::new();
-    /// 
+    ///
     /// color.set_fg(Some(Color::Green)).set_bold(true);
-    /// 
+    ///
     /// App::new("myprog")
     ///     .style(Style::Good, color)
     ///     .get_matches();
