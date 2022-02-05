@@ -22,6 +22,15 @@ There are a few goals of `clap` that I'd like to maintain throughout contributio
 
 ## General Overview
 
+### Where to Start
+
+- [Discussions](https://github.com/clap-rs/clap/discussions) can be useful for getting help and brainstorming
+- [Issues](https://github.com/clap-rs/clap/issues) work well discussing a need and how to solve it
+  - Focus: requirements gathering and design discussions
+  - Sometimes a branch or Draft PR might be used to demonstrate an idea
+- [PRs](https://github.com/clap-rs/clap/pulls) work well for when the solution has already been discussed as an Issue or there is little to no discussion (obvious bug or documentation fixes)
+  - Focus: implementation discussions
+
 ### Testing Code
 
 To test with all features both enabled and disabled, you can run this command:
@@ -70,6 +79,16 @@ $ cargo test --test <test_name> --features debug
 1. `git rebase` into concise commits and remove `--fixup`s or `wip` commits (`git rebase -i HEAD~NUM` where `NUM` is number of commits back to start the rebase)
 2. Push your changes back to your fork (`git push origin $your-branch`)
 3. Create a pull request against `master`! (You can also create the pull request first, and we'll merge when ready. This a good way to discuss proposed changes.)
+
+PR expectations:
+- PRs remain small and focused
+ - If needed, we can put changes behind feature flags as they evolve
+- Commits are atomic (i.e. do a single thing)
+- Commits are in [Conventional Commit](conventionalcommits.org/) style
+
+We recognize that these are ideals and we don't want lack of comfort with git
+to get in the way of contributing.  If you didn't do these, bring it up with
+the maintainers and we can help work around this.
 
 ## Conditions for fulfilling a bounty:
 

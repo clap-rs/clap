@@ -8,7 +8,7 @@ body:
       options:
         - label: I have searched the [discussions](https://github.com/clap-rs/clap/discussions)
           required: true
-        - label: I have searched the existing issues
+        - label: I have searched the [open](https://github.com/clap-rs/clap/issues) and [rejected](https://github.com/clap-rs/clap/issues?q=is%3Aissue+label%3AS-wont-fix+is%3Aclosed) issues
           required: true
   - type: input
     attributes:
