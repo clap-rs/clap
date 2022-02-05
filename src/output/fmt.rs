@@ -23,7 +23,7 @@ impl StyleSpec {
     #[cfg(feature = "color")]
     pub(crate) fn new() -> StyleSpec {
         StyleSpec {
-            values: [(); NUM_STYLES].map(|_| ColorSpec::new()),
+            values: Default::default(),
         }
     }
 }
