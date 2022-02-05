@@ -6,20 +6,75 @@ use std::{
 };
 
 #[derive(Clone, Debug)]
+pub(crate) struct StyleSpec {
+    pub good_style: termcolor::ColorSpec,
+    pub warning_style: termcolor::ColorSpec,
+    pub error_style: termcolor::ColorSpec,
+    pub hint_style: termcolor::ColorSpec,
+    pub default_style: termcolor::ColorSpec,
+}
+
+impl StyleSpec {
+    pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
+        match style {
+            Style::Good => &self.good_style,
+            Style::Warning => &self.warning_style,
+            Style::Error => &self.error_style,
+            Style::Hint => &self.hint_style,
+            Style::Default => &self.default_style,
+        }
+    }
+}
+
+impl Default for StyleSpec {
+    fn default() -> StyleSpec {
+        use termcolor::{Color, ColorSpec};
+        // Declare the styles
+        let mut good_style = ColorSpec::new();
+        let mut warning_style = ColorSpec::new();
+        let mut error_style = ColorSpec::new();
+        let mut hint_style = ColorSpec::new();
+        let default_style = ColorSpec::new();
+
+        // Set the defaults
+        good_style.set_fg(Some(Color::Green));
+        warning_style.set_fg(Some(Color::Yellow));
+        error_style.set_fg(Some(Color::Red)).set_bold(true);
+        hint_style.set_dimmed(true);
+
+        StyleSpec {
+            good_style,
+            warning_style,
+            error_style,
+            hint_style,
+            default_style,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub(crate) struct Colorizer {
     use_stderr: bool,
     #[allow(unused)]
     color_when: ColorChoice,
     pieces: Vec<(String, Style)>,
+    style_spec: StyleSpec,
 }
 
 impl Colorizer {
+    /// Get the `ColorSpec` used for a particular style
+    pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
+        self.style_spec.spec_for(style)
+    }
+
     #[inline(never)]
     pub(crate) fn new(use_stderr: bool, color_when: ColorChoice) -> Self {
+        // Construct the Colorizer
         Colorizer {
             use_stderr,
             color_when,
             pieces: vec![],
+            style_spec: StyleSpec::default(),
         }
     }
 
@@ -52,9 +107,11 @@ impl Colorizer {
 
 /// Printing methods.
 impl Colorizer {
+    /// Returns the color spec associated with a particular style
+
     #[cfg(feature = "color")]
     pub(crate) fn print(&self) -> io::Result<()> {
-        use termcolor::{BufferWriter, ColorChoice as DepColorChoice, ColorSpec, WriteColor};
+        use termcolor::{BufferWriter, ColorChoice as DepColorChoice, WriteColor};
 
         let color_when = match self.color_when {
             ColorChoice::Always => DepColorChoice::Always,
@@ -71,25 +128,7 @@ impl Colorizer {
         let mut buffer = writer.buffer();
 
         for piece in &self.pieces {
-            let mut color = ColorSpec::new();
-            match piece.1 {
-                Style::Good => {
-                    color.set_fg(Some(termcolor::Color::Green));
-                }
-                Style::Warning => {
-                    color.set_fg(Some(termcolor::Color::Yellow));
-                }
-                Style::Error => {
-                    color.set_fg(Some(termcolor::Color::Red));
-                    color.set_bold(true);
-                }
-                Style::Hint => {
-                    color.set_dimmed(true);
-                }
-                Style::Default => {}
-            }
-
-            buffer.set_color(&color)?;
+            buffer.set_color(self.spec_for(piece.1))?;
             buffer.write_all(piece.0.as_bytes())?;
             buffer.reset()?;
         }
