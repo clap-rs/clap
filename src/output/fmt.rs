@@ -24,7 +24,7 @@ impl StyleSpec {
             default_style: termcolor::ColorSpec::new(),
         }
     }
-    pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
+    pub(crate) fn get_style(&self, style: Style) -> &termcolor::ColorSpec {
         match style {
             Style::Good => &self.good_style,
             Style::Warning => &self.warning_style,
@@ -33,7 +33,7 @@ impl StyleSpec {
             Style::Default => &self.default_style,
         }
     }
-    pub(crate) fn set_style_for(&mut self, style: Style, spec: termcolor::ColorSpec) -> &mut Self {
+    pub(crate) fn set_style(&mut self, style: Style, spec: termcolor::ColorSpec) -> &mut Self {
         match style {
             Style::Good => self.good_style = spec,
             Style::Warning => self.warning_style = spec,
@@ -42,6 +42,15 @@ impl StyleSpec {
             Style::Default => self.default_style = spec,
         }
         self
+    }
+    pub(crate) fn style(&mut self, style: Style) -> &mut termcolor::ColorSpec {
+        match style {
+            Style::Good => &mut self.good_style,
+            Style::Warning => &mut self.warning_style,
+            Style::Error => &mut self.error_style,
+            Style::Hint => &mut self.hint_style,
+            Style::Default => &mut self.default_style,
+        }
     }
 }
 
@@ -83,7 +92,7 @@ pub(crate) struct Colorizer {
 impl Colorizer {
     /// Get the `ColorSpec` used for a particular style
     pub(crate) fn spec_for(&self, style: Style) -> &termcolor::ColorSpec {
-        self.style_spec.spec_for(style)
+        self.style_spec.get_style(style)
     }
 
     #[inline(never)]

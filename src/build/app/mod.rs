@@ -1334,19 +1334,133 @@ impl<'help> App<'help> {
     ///
     /// ```no_run
     ///
-    /// # use clap::App;
-    /// let mut color = termcolor::ColorSpec::new();
+    /// # use clap::{App, Style};
     ///
     /// // Do stuff to color
     /// App::new("myprog")
-    ///     .style(Style::Error, color)
+    ///     .style(Style::Good, color)
     ///     .get_matches();
     /// ```
     #[cfg(feature = "color")]
     #[inline]
     #[must_use]
     pub fn style(mut self, style: Style, spec: termcolor::ColorSpec) -> Self {
-        self.output_style.set_style_for(style, spec);
+        self.output_style.set_style(style, spec);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as bold
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .bold(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn bold(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_bold(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as italic
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .italic(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn italic(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_italic(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as underlined
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .underline(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn underline(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_underline(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as dimmed
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .dimmed(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn dimmed(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_dimmed(value);
+        self
+    }
+
+    /// Sets whether the associated `Style` should be displayed as dimmed
+    ///
+    /// **NOTE:** This style is propagated to all child subcommands
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    ///
+    /// # use clap::{App, Style};
+    ///
+    /// // Do stuff to color
+    /// App::new("myprog")
+    ///     .intense(Style::Good, true)
+    ///     .get_matches();
+    /// ```
+    #[cfg(feature = "color")]
+    #[inline]
+    #[must_use]
+    pub fn intense(mut self, style: Style, value: bool) -> Self {
+        self.output_style.style(style).set_intense(value);
         self
     }
 
