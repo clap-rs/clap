@@ -215,6 +215,7 @@ impl Error {
     }
 
     /// Does not verify if `ContextKind` is already present
+    #[inline(never)]
     pub(crate) fn insert_context_unchecked(
         mut self,
         kind: ContextKind,
@@ -225,6 +226,7 @@ impl Error {
     }
 
     /// Does not verify if `ContextKind` is already present
+    #[inline(never)]
     pub(crate) fn extend_context_unchecked<const N: usize>(
         mut self,
         context: [(ContextKind, ContextValue); N],
@@ -233,6 +235,7 @@ impl Error {
         self
     }
 
+    #[inline(never)]
     fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
         self.inner
             .context
