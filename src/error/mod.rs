@@ -534,17 +534,17 @@ impl Error {
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' was provided more than once, but cannot be used multiple times");
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::UnexpectedMultipleUsage, app, c, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::UnexpectedMultipleUsage)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn unknown_argument(
@@ -905,8 +905,17 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::UnexpectedMultipleUsage => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                        c.none("The argument '");
+                        c.warning(invalid_arg.to_string());
+                        c.none("' was provided more than once, but cannot be used multiple times");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
-                | ErrorKind::UnexpectedMultipleUsage
                 | ErrorKind::DisplayHelp
                 | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
                 | ErrorKind::DisplayVersion
