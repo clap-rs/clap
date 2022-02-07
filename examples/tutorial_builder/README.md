@@ -472,7 +472,7 @@ PORT = 22
 
 $ 04_02_validate foobar
 ? failed
-error: Invalid value for '<PORT>': invalid digit found in string
+error: Invalid value "foobar" for '<PORT>': invalid digit found in string
 
 For more information try --help
 

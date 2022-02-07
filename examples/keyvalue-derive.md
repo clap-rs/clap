@@ -18,13 +18,13 @@ Args { defines: [("Foo", 10), ("Alice", 30)] }
 
 $ keyvalue-derive -D Foo
 ? failed
-error: Invalid value for '-D <DEFINES>': invalid KEY=value: no `=` found in `Foo`
+error: Invalid value "Foo" for '-D <DEFINES>': invalid KEY=value: no `=` found in `Foo`
 
 For more information try --help
 
 $ keyvalue-derive -D Foo=Bar
 ? failed
-error: Invalid value for '-D <DEFINES>': invalid digit found in string
+error: Invalid value "Foo=Bar" for '-D <DEFINES>': invalid digit found in string
 
 For more information try --help
 

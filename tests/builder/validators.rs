@@ -41,7 +41,7 @@ fn test_validator_msg_newline() {
 
     assert!(
         err.to_string()
-            .contains("Invalid value for '<test>': invalid digit found in string"),
+            .contains("Invalid value \"f\" for '<test>': invalid digit found in string"),
         "{}",
         err
     );

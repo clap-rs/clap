@@ -19,8 +19,11 @@ use crate::{
     App, AppSettings,
 };
 
+mod context;
 mod kind;
 
+pub use context::ContextKind;
+pub use context::ContextValue;
 pub use kind::ErrorKind;
 
 /// Short hand for [`Result`] type
@@ -45,11 +48,12 @@ pub struct Error {
 
 #[derive(Debug)]
 struct ErrorInner {
-    /// The type of error
     kind: ErrorKind,
-    /// Formatted error message, enhancing the cause message with extra information
-    message: Message,
+    context: Vec<(ContextKind, ContextValue)>,
+    message: Option<Message>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
+    help_flag: Option<&'static str>,
+    color_when: ColorChoice,
     wait_on_exit: bool,
     backtrace: Option<Backtrace>,
 }
@@ -64,7 +68,7 @@ impl Error {
     ///
     /// [`App::error`]: crate::App::error
     pub fn raw(kind: ErrorKind, message: impl std::fmt::Display) -> Self {
-        Self::new(message.to_string(), kind, false)
+        Self::new(kind).set_message(message.to_string())
     }
 
     /// Format the existing message with the App's context
@@ -72,14 +76,20 @@ impl Error {
     pub fn format(mut self, app: &mut App) -> Self {
         app._build();
         let usage = app.render_usage();
-        self.inner.message.format(app, usage);
-        self.inner.wait_on_exit = app.settings.is_set(AppSettings::WaitOnError);
-        self
+        if let Some(message) = self.inner.message.as_mut() {
+            message.format(app, usage);
+        }
+        self.with_app(app)
     }
 
     /// Type of error for programmatic processing
     pub fn kind(&self) -> ErrorKind {
         self.inner.kind
+    }
+
+    /// Additional information to further qualify the error
+    pub fn context(&self) -> impl Iterator<Item = (ContextKind, &ContextValue)> {
+        self.inner.context.iter().map(|(k, v)| (*k, v))
     }
 
     /// Should the message be written to `stdout` or not?
@@ -132,7 +142,7 @@ impl Error {
     /// };
     /// ```
     pub fn print(&self) -> io::Result<()> {
-        self.inner.message.formatted().print()
+        self.formatted().print()
     }
 
     /// Deprecated, replaced with [`App::error`]
@@ -143,13 +153,16 @@ impl Error {
         Error::raw(kind, description)
     }
 
-    pub(crate) fn new(message: impl Into<Message>, kind: ErrorKind, wait_on_exit: bool) -> Self {
+    fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {
                 kind,
-                message: message.into(),
+                context: Vec::new(),
+                message: None,
                 source: None,
-                wait_on_exit,
+                help_flag: None,
+                color_when: ColorChoice::Never,
+                wait_on_exit: false,
                 backtrace: Backtrace::new(),
             }),
             kind,
@@ -158,18 +171,22 @@ impl Error {
     }
 
     #[inline(never)]
-    pub(crate) fn for_app(
-        app: &App,
-        colorizer: Colorizer,
-        kind: ErrorKind,
-        info: Vec<String>,
-    ) -> Self {
-        Self::new(
-            colorizer,
-            kind,
-            app.settings.is_set(AppSettings::WaitOnError),
-        )
-        .set_info(info)
+    fn for_app(kind: ErrorKind, app: &App, colorizer: Colorizer, info: Vec<String>) -> Self {
+        Self::new(kind)
+            .set_message(colorizer)
+            .with_app(app)
+            .set_info(info)
+    }
+
+    pub(crate) fn with_app(self, app: &App) -> Self {
+        self.set_wait_on_exit(app.settings.is_set(AppSettings::WaitOnError))
+            .set_color(app.get_color())
+            .set_help_flag(get_help_flag(app))
+    }
+
+    pub(crate) fn set_message(mut self, message: impl Into<Message>) -> Self {
+        self.inner.message = Some(message.into());
+        self
     }
 
     pub(crate) fn set_info(mut self, info: Vec<String>) -> Self {
@@ -182,91 +199,122 @@ impl Error {
         self
     }
 
+    pub(crate) fn set_color(mut self, color_when: ColorChoice) -> Self {
+        self.inner.color_when = color_when;
+        self
+    }
+
+    pub(crate) fn set_help_flag(mut self, help_flag: Option<&'static str>) -> Self {
+        self.inner.help_flag = help_flag;
+        self
+    }
+
+    pub(crate) fn set_wait_on_exit(mut self, yes: bool) -> Self {
+        self.inner.wait_on_exit = yes;
+        self
+    }
+
+    /// Does not verify if `ContextKind` is already present
+    #[inline(never)]
+    pub(crate) fn insert_context_unchecked(
+        mut self,
+        kind: ContextKind,
+        value: ContextValue,
+    ) -> Self {
+        self.inner.context.push((kind, value));
+        self
+    }
+
+    /// Does not verify if `ContextKind` is already present
+    #[inline(never)]
+    pub(crate) fn extend_context_unchecked<const N: usize>(
+        mut self,
+        context: [(ContextKind, ContextValue); N],
+    ) -> Self {
+        self.inner.context.extend(context);
+        self
+    }
+
+    #[inline(never)]
+    fn get_context(&self, kind: ContextKind) -> Option<&ContextValue> {
+        self.inner
+            .context
+            .iter()
+            .find_map(|(k, v)| (*k == kind).then(|| v))
+    }
+
+    pub(crate) fn display_help(app: &App, colorizer: Colorizer) -> Self {
+        Self::for_app(ErrorKind::DisplayHelp, app, colorizer, vec![])
+    }
+
+    pub(crate) fn display_help_error(app: &App, colorizer: Colorizer) -> Self {
+        Self::for_app(
+            ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
+            app,
+            colorizer,
+            vec![],
+        )
+    }
+
+    pub(crate) fn display_version(app: &App, colorizer: Colorizer) -> Self {
+        Self::for_app(ErrorKind::DisplayVersion, app, colorizer, vec![])
+    }
+
     pub(crate) fn argument_conflict(
         app: &App,
         arg: &Arg,
-        others: Vec<String>,
+        mut others: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(arg);
-        c.none("' cannot be used with");
-
-        match others.len() {
-            0 => {
-                c.none(" one or more of the other specified arguments");
-            }
-            1 => {
-                c.none(" '");
-                c.warning(&*others[0]);
-                c.none("'");
-            }
-            _ => {
-                c.none(":");
-                for v in &others {
-                    c.none("\n    ");
-                    c.warning(&**v);
-                }
-            }
-        }
-
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::ArgumentConflict, others)
+        let info = others.clone();
+        let others = match others.len() {
+            0 => ContextValue::None,
+            1 => ContextValue::String(others.pop().unwrap()),
+            _ => ContextValue::Strings(others),
+        };
+        Self::new(ErrorKind::ArgumentConflict)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::PriorArg, others),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn empty_value(app: &App, good_vals: &[&str], arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' requires a value but none was supplied");
+        let info = vec![arg.to_string()];
+        let mut err = Self::new(ErrorKind::EmptyValue)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ]);
         if !good_vals.is_empty() {
-            let good_vals: Vec<String> = good_vals
-                .iter()
-                .map(|&v| {
-                    if v.contains(char::is_whitespace) {
-                        format!("{:?}", v)
-                    } else {
-                        v.to_owned()
-                    }
-                })
-                .collect();
-            c.none("\n\t[possible values: ");
-
-            if let Some((last, elements)) = good_vals.split_last() {
-                for v in elements {
-                    c.good(v);
-                    c.none(", ");
-                }
-
-                c.good(last);
-            }
-
-            c.none("]");
+            err = err.insert_context_unchecked(
+                ContextKind::ValidValue,
+                ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+            );
         }
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::EmptyValue, vec![arg])
+        err
     }
 
     pub(crate) fn no_equals(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "Equal sign is needed when assigning values to '");
-        c.warning(&*arg);
-        c.none("'.");
-
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::NoEquals, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::NoEquals)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn invalid_value(
@@ -276,51 +324,32 @@ impl Error {
         arg: &Arg,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let suffix = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
-        let arg = arg.to_string();
+        let mut info = vec![arg.to_string(), bad_val.clone()];
+        info.extend(good_vals.iter().map(|s| (*s).to_owned()));
 
-        let good_vals: Vec<String> = good_vals
-            .iter()
-            .map(|&v| {
-                if v.contains(char::is_whitespace) {
-                    format!("{:?}", v)
-                } else {
-                    v.to_owned()
-                }
-            })
-            .collect();
-
-        start_error(&mut c, "");
-        c.warning(format!("{:?}", bad_val));
-        c.none(" isn't a valid value for '");
-        c.warning(&*arg);
-        c.none("'\n\t[possible values: ");
-
-        if let Some((last, elements)) = good_vals.split_last() {
-            for v in elements {
-                c.good(v);
-                c.none(", ");
-            }
-
-            c.good(last);
+        let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
+        let mut err = Self::new(ErrorKind::InvalidValue)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::InvalidValue, ContextValue::String(bad_val)),
+                (
+                    ContextKind::ValidValue,
+                    ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ]);
+        if let Some(suggestion) = suggestion {
+            err = err.insert_context_unchecked(
+                ContextKind::SuggestedValue,
+                ContextValue::String(suggestion),
+            );
         }
-
-        c.none("]");
-
-        if let Some(val) = suffix {
-            c.none("\n\n\tDid you mean ");
-            c.good(format!("{:?}", val));
-            c.none("?");
-        }
-
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        let mut info = vec![arg, bad_val];
-        info.extend(good_vals);
-
-        Self::for_app(app, c, ErrorKind::InvalidValue, info)
+        err
     }
 
     pub(crate) fn invalid_subcommand(
@@ -330,36 +359,35 @@ impl Error {
         name: String,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "The subcommand '");
-        c.warning(&*subcmd);
-        c.none("' wasn't recognized\n\n\tDid you mean ");
-        c.good(did_you_mean);
-        c.none("");
-        c.none(format!(
-            "?\n\nIf you believe you received this message in error, try re-running with '{} ",
-            name
-        ));
-        c.good("--");
-        c.none(format!(" {}'", subcmd));
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::InvalidSubcommand, vec![subcmd])
+        let info = vec![subcmd.clone()];
+        let suggestion = format!("{} -- {}", name, subcmd);
+        Self::new(ErrorKind::InvalidSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
+                (
+                    ContextKind::SuggestedSubcommand,
+                    ContextValue::String(did_you_mean),
+                ),
+                (
+                    ContextKind::SuggestedCommand,
+                    ContextValue::String(suggestion),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn unrecognized_subcommand(app: &App, subcmd: String, name: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, " The subcommand '");
-        c.warning(&*subcmd);
-        c.none("' wasn't recognized\n\n");
-        c.warning("USAGE:");
-        c.none(format!("\n    {} <subcommands>", name));
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::UnrecognizedSubcommand, vec![subcmd])
+        let info = vec![subcmd.clone()];
+        let usage = format!("USAGE:\n    {} <subcommands>", name);
+        Self::new(ErrorKind::UnrecognizedSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn missing_required_argument(
@@ -367,47 +395,33 @@ impl Error {
         required: Vec<String>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(
-            &mut c,
-            "The following required arguments were not provided:",
-        );
-
-        for v in &required {
-            c.none("\n    ");
-            c.good(&**v);
-        }
-
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::MissingRequiredArgument, required)
+        let info = required.clone();
+        Self::new(ErrorKind::MissingRequiredArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::Strings(required)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn missing_subcommand(app: &App, name: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "'");
-        c.warning(name);
-        c.none("' requires a subcommand, but one was not provided");
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::MissingSubcommand, vec![])
+        let info = vec![];
+        Self::new(ErrorKind::MissingSubcommand)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidSubcommand, ContextValue::String(name)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn invalid_utf8(app: &App, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(
-            &mut c,
-            "Invalid UTF-8 was detected in one or more arguments",
-        );
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::InvalidUtf8, vec![])
+        let info = vec![];
+        Self::new(ErrorKind::InvalidUtf8)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([(ContextKind::Usage, ContextValue::String(usage))])
     }
 
     pub(crate) fn too_many_occurrences(
@@ -417,42 +431,41 @@ impl Error {
         curr_occurs: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_occurs);
-        let arg = arg.to_string();
-        let max_occurs = max_occurs.to_string();
-        let curr_occurs = curr_occurs.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' allows at most ");
-        c.warning(&*max_occurs);
-        c.none(" occurrences, but ");
-        c.warning(&*curr_occurs);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(
-            app,
-            c,
-            ErrorKind::TooManyOccurrences,
-            vec![arg, curr_occurs, max_occurs],
-        )
+        let info = vec![
+            arg.to_string(),
+            curr_occurs.to_string(),
+            max_occurs.to_string(),
+        ];
+        Self::new(ErrorKind::TooManyOccurrences)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::MaxOccurrences,
+                    ContextValue::Number(max_occurs as isize),
+                ),
+                (
+                    ContextKind::ActualNumValues,
+                    ContextValue::Number(curr_occurs as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn too_many_values(app: &App, val: String, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "The value '");
-        c.warning(&*val);
-        c.none("' was provided to '");
-        c.warning(&*arg);
-        c.none("' but it wasn't expecting any more values");
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::TooManyValues, vec![arg, val])
+        let info = vec![arg.to_string(), val.clone()];
+        Self::new(ErrorKind::TooManyValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::InvalidValue, ContextValue::String(val)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn too_few_values(
@@ -462,89 +475,40 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_vals);
-        let arg = arg.to_string();
-        let min_vals = min_vals.to_string();
-        let curr_vals = curr_vals.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' requires at least ");
-        c.warning(&*min_vals);
-        c.none(" values, but only ");
-        c.warning(&*curr_vals);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(
-            app,
-            c,
-            ErrorKind::TooFewValues,
-            vec![arg, curr_vals, min_vals],
-        )
+        let info = vec![arg.to_string(), curr_vals.to_string(), min_vals.to_string()];
+        Self::new(ErrorKind::TooFewValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::MinValues,
+                    ContextValue::Number(min_vals as isize),
+                ),
+                (
+                    ContextKind::ActualNumValues,
+                    ContextValue::Number(curr_vals as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn value_validation(
-        app: &App,
         arg: String,
         val: String,
         err: Box<dyn error::Error + Send + Sync>,
     ) -> Self {
-        let mut err = Self::value_validation_with_color(
-            arg,
-            val,
-            err,
-            app.get_color(),
-            app.settings.is_set(AppSettings::WaitOnError),
-        );
-        match &mut err.inner.message {
-            Message::Raw(_) => {
-                unreachable!("`value_validation_with_color` only deals in formatted errors")
-            }
-            Message::Formatted(c) => try_help(app, c),
-        }
-        err
-    }
-
-    pub(crate) fn value_validation_without_app(
-        arg: String,
-        val: String,
-        err: Box<dyn error::Error + Send + Sync>,
-    ) -> Self {
-        let mut err = Self::value_validation_with_color(arg, val, err, ColorChoice::Never, false);
-        match &mut err.inner.message {
-            Message::Raw(_) => {
-                unreachable!("`value_validation_with_color` only deals in formatted errors")
-            }
-            Message::Formatted(c) => {
-                c.none("\n");
-            }
-        }
-        err
-    }
-
-    fn value_validation_with_color(
-        arg: String,
-        val: String,
-        err: Box<dyn error::Error + Send + Sync>,
-        color: ColorChoice,
-        wait_on_exit: bool,
-    ) -> Self {
-        let mut c = Colorizer::new(true, color);
-
-        start_error(&mut c, "Invalid value");
-
-        c.none(" for '");
-        c.warning(&*arg);
-        c.none("'");
-
-        c.none(format!(": {}", err));
-
-        Self::new(c, ErrorKind::ValueValidation, wait_on_exit)
-            .set_info(vec![arg, val, err.to_string()])
+        let info = vec![arg.to_string(), val.to_string(), err.to_string()];
+        Self::new(ErrorKind::ValueValidation)
+            .set_info(info)
             .set_source(err)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::InvalidValue, ContextValue::String(val)),
+            ])
     }
 
     pub(crate) fn wrong_number_of_values(
@@ -554,41 +518,39 @@ impl Error {
         curr_vals: usize,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let were_provided = Error::singular_or_plural(curr_vals);
-        let arg = arg.to_string();
-        let num_vals = num_vals.to_string();
-        let curr_vals = curr_vals.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' requires ");
-        c.warning(&*num_vals);
-        c.none(" values, but ");
-        c.warning(&*curr_vals);
-        c.none(were_provided);
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(
-            app,
-            c,
-            ErrorKind::WrongNumberOfValues,
-            vec![arg, curr_vals, num_vals],
-        )
+        let info = vec![arg.to_string(), curr_vals.to_string(), num_vals.to_string()];
+        Self::new(ErrorKind::WrongNumberOfValues)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (
+                    ContextKind::ExpectedNumValues,
+                    ContextValue::Number(num_vals as isize),
+                ),
+                (
+                    ContextKind::ActualNumValues,
+                    ContextValue::Number(curr_vals as isize),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn unexpected_multiple_usage(app: &App, arg: &Arg, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-        let arg = arg.to_string();
-
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' was provided more than once, but cannot be used multiple times");
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::UnexpectedMultipleUsage, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::UnexpectedMultipleUsage)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn unknown_argument(
@@ -597,69 +559,436 @@ impl Error {
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "Found argument '");
-        c.warning(&*arg);
-        c.none("' which wasn't expected, or isn't valid in this context");
-
-        if let Some((flag, subcmd)) = did_you_mean {
-            let flag = format!("--{}", flag);
-            c.none("\n\n\tDid you mean ");
-
-            if let Some(subcmd) = subcmd {
-                c.none("to put '");
-                c.good(flag);
-                c.none("' after the subcommand '");
-                c.good(subcmd);
-                c.none("'?");
-            } else {
-                c.none("'");
-                c.good(flag);
-                c.none("'?");
+        let info = vec![arg.to_string()];
+        let mut err = Self::new(ErrorKind::UnknownArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ]);
+        if let Some((flag, sub)) = did_you_mean {
+            err = err.insert_context_unchecked(
+                ContextKind::SuggestedArg,
+                ContextValue::String(format!("--{}", flag)),
+            );
+            if let Some(sub) = sub {
+                err = err.insert_context_unchecked(
+                    ContextKind::SuggestedSubcommand,
+                    ContextValue::String(sub),
+                );
             }
         }
-
-        // If the user wants to supply things like `--a-flag` or `-b` as a value,
-        // suggest `--` for disambiguation.
-        if arg.starts_with('-') {
-            c.none(format!(
-                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
-                arg, arg
-            ));
-        }
-
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::UnknownArgument, vec![arg])
+        err
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c, "Found argument '");
-        c.warning(&*arg);
-        c.none("' which wasn't expected, or isn't valid in this context");
-
-        c.none(format!(
-            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
-            arg
-        ));
-        put_usage(&mut c, usage);
-        try_help(app, &mut c);
-
-        Self::for_app(app, c, ErrorKind::UnknownArgument, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::UnknownArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (ContextKind::TrailingArg, ContextValue::Bool(true)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Never);
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::ArgumentNotFound)
+            .set_info(info)
+            .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))])
+    }
 
-        start_error(&mut c, "The argument '");
-        c.warning(&*arg);
-        c.none("' wasn't found\n");
+    fn formatted(&self) -> Cow<'_, Colorizer> {
+        if let Some(message) = self.inner.message.as_ref() {
+            message.formatted()
+        } else {
+            let mut c = Colorizer::new(self.use_stderr(), self.inner.color_when);
 
-        Self::new(c, ErrorKind::ArgumentNotFound, false).set_info(vec![arg])
+            start_error(&mut c);
+
+            if !self.write_dynamic_context(&mut c) {
+                if let Some(msg) = self.kind().as_str() {
+                    c.none(msg.to_owned());
+                } else if let Some(source) = self.inner.source.as_ref() {
+                    c.none(source.to_string());
+                } else {
+                    c.none("Unknown cause");
+                }
+            }
+
+            let usage = self.get_context(ContextKind::Usage);
+            if let Some(ContextValue::String(usage)) = usage {
+                put_usage(&mut c, usage);
+            }
+
+            try_help(&mut c, self.inner.help_flag);
+
+            Cow::Owned(c)
+        }
+    }
+
+    #[must_use]
+    fn write_dynamic_context(&self, c: &mut Colorizer) -> bool {
+        match self.kind() {
+            ErrorKind::ArgumentConflict => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let prior_arg = self.get_context(ContextKind::PriorArg);
+                if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
+                    (invalid_arg, prior_arg)
+                {
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' cannot be used with");
+
+                    match prior_arg {
+                        ContextValue::Strings(values) => {
+                            c.none(":");
+                            for v in values {
+                                c.none("\n    ");
+                                c.warning(&**v);
+                            }
+                        }
+                        ContextValue::String(value) => {
+                            c.none(" '");
+                            c.warning(value);
+                            c.none("'");
+                        }
+                        _ => {
+                            c.none(" one or more of the other specified arguments");
+                        }
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::EmptyValue => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires a value but none was supplied");
+
+                    let possible_values = self.get_context(ContextKind::ValidValue);
+                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
+                        c.none("\n\t[possible values: ");
+                        if let Some((last, elements)) = possible_values.split_last() {
+                            for v in elements {
+                                c.good(escape(v));
+                                c.none(", ");
+                            }
+                            c.good(escape(last));
+                        }
+                        c.none("]");
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::NoEquals => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("Equal sign is needed when assigning values to '");
+                    c.warning(invalid_arg);
+                    c.none("'.");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::InvalidValue => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none(quote(invalid_value));
+                    c.none(" isn't a valid value for '");
+                    c.warning(invalid_arg);
+                    c.none("'");
+
+                    let possible_values = self.get_context(ContextKind::ValidValue);
+                    if let Some(ContextValue::Strings(possible_values)) = possible_values {
+                        c.none("\n\t[possible values: ");
+                        if let Some((last, elements)) = possible_values.split_last() {
+                            for v in elements {
+                                c.good(escape(v));
+                                c.none(", ");
+                            }
+                            c.good(escape(last));
+                        }
+                        c.none("]");
+                    }
+
+                    let suggestion = self.get_context(ContextKind::SuggestedValue);
+                    if let Some(ContextValue::String(suggestion)) = suggestion {
+                        c.none("\n\n\tDid you mean ");
+                        c.good(quote(suggestion));
+                        c.none("?");
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::InvalidSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("The subcommand '");
+                    c.warning(invalid_sub);
+                    c.none("' wasn't recognized");
+
+                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
+                    if let Some(ContextValue::String(valid_sub)) = valid_sub {
+                        c.none("\n\n\tDid you mean ");
+                        c.good(valid_sub);
+                        c.none("?");
+                    }
+
+                    let suggestion = self.get_context(ContextKind::SuggestedCommand);
+                    if let Some(ContextValue::String(suggestion)) = suggestion {
+                        c.none(
+            "\n\nIf you believe you received this message in error, try re-running with '",
+        );
+                        c.good(suggestion);
+                        c.none("'");
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::UnrecognizedSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("The subcommand '");
+                    c.warning(invalid_sub);
+                    c.none("' wasn't recognized");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::MissingRequiredArgument => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
+                    c.none("The following required arguments were not provided:");
+                    for v in invalid_arg {
+                        c.none("\n    ");
+                        c.good(&**v);
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::MissingSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("'");
+                    c.warning(invalid_sub);
+                    c.none("' requires a subcommand but one was not provided");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::InvalidUtf8 => false,
+            ErrorKind::TooManyOccurrences => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_occurs = self.get_context(ContextKind::ActualNumOccurrences);
+                let max_occurs = self.get_context(ContextKind::MaxOccurrences);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_occurs)),
+                    Some(ContextValue::Number(max_occurs)),
+                ) = (invalid_arg, actual_num_occurs, max_occurs)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_occurs as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' allows at most ");
+                    c.warning(max_occurs.to_string());
+                    c.none(" occurrences but ");
+                    c.warning(actual_num_occurs.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::TooManyValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none("The value '");
+                    c.warning(invalid_value);
+                    c.none("' was provided to '");
+                    c.warning(invalid_arg);
+                    c.none("' but it wasn't expecting any more values");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::TooFewValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                let min_values = self.get_context(ContextKind::MinValues);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_values)),
+                    Some(ContextValue::Number(min_values)),
+                ) = (invalid_arg, actual_num_values, min_values)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires at least ");
+                    c.warning(min_values.to_string());
+                    c.none(" values but only ");
+                    c.warning(actual_num_values.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::ValueValidation => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none("Invalid value ");
+                    c.warning(quote(invalid_value));
+                    c.none(" for '");
+                    c.warning(invalid_arg);
+                    if let Some(source) = self.inner.source.as_deref() {
+                        c.none("': ");
+                        c.none(source.to_string());
+                    } else {
+                        c.none("'");
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::WrongNumberOfValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                let num_values = self.get_context(ContextKind::ExpectedNumValues);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_values)),
+                    Some(ContextValue::Number(num_values)),
+                ) = (invalid_arg, actual_num_values, num_values)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires ");
+                    c.warning(num_values.to_string());
+                    c.none(" values, but ");
+                    c.warning(actual_num_values.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::UnexpectedMultipleUsage => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' was provided more than once, but cannot be used multiple times");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::UnknownArgument => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("Found argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' which wasn't expected, or isn't valid in this context");
+
+                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
+                    let valid_arg = self.get_context(ContextKind::SuggestedArg);
+                    match (valid_sub, valid_arg) {
+                        (
+                            Some(ContextValue::String(valid_sub)),
+                            Some(ContextValue::String(valid_arg)),
+                        ) => {
+                            c.none("\n\n\tDid you mean ");
+                            c.none("to put '");
+                            c.good(valid_arg);
+                            c.none("' after the subcommand '");
+                            c.good(valid_sub);
+                            c.none("'?");
+                        }
+                        (None, Some(ContextValue::String(valid_arg))) => {
+                            c.none("\n\n\tDid you mean '");
+                            c.good(valid_arg);
+                            c.none("'?");
+                        }
+                        (_, _) => {}
+                    }
+
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                        if invalid_arg.starts_with('-') {
+                            c.none(format!(
+                                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                                invalid_arg, invalid_arg
+                            ));
+                        }
+
+                        let trailing_arg = self.get_context(ContextKind::TrailingArg);
+                        if trailing_arg == Some(&ContextValue::Bool(true)) {
+                            c.none(format!(
+                            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+                            invalid_arg
+                        ));
+                        }
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::ArgumentNotFound => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' wasn't found");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::DisplayHelp
+            | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+            | ErrorKind::DisplayVersion
+            | ErrorKind::Io
+            | ErrorKind::Format => false,
+        }
     }
 
     /// Returns the singular or plural form on the verb to be based on the argument's value.
@@ -694,7 +1023,7 @@ impl error::Error for Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         // Assuming `self.message` already has a trailing newline, from `try_help` or similar
-        write!(f, "{}", self.inner.message.formatted())?;
+        write!(f, "{}", self.formatted())?;
         if let Some(backtrace) = self.inner.backtrace.as_ref() {
             writeln!(f)?;
             writeln!(f, "Backtrace:")?;
@@ -704,10 +1033,9 @@ impl Display for Error {
     }
 }
 
-fn start_error(c: &mut Colorizer, msg: impl Into<String>) {
+fn start_error(c: &mut Colorizer) {
     c.error("error:");
     c.none(" ");
-    c.none(msg);
 }
 
 fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
@@ -715,17 +1043,37 @@ fn put_usage(c: &mut Colorizer, usage: impl Into<String>) {
     c.none(usage);
 }
 
-fn try_help(app: &App, c: &mut Colorizer) {
+fn get_help_flag(app: &App) -> Option<&'static str> {
     if !app.settings.is_set(AppSettings::DisableHelpFlag) {
-        c.none("\n\nFor more information try ");
-        c.good("--help");
-        c.none("\n");
+        Some("--help")
     } else if app.has_subcommands() && !app.settings.is_set(AppSettings::DisableHelpSubcommand) {
+        Some("help")
+    } else {
+        None
+    }
+}
+
+fn try_help(c: &mut Colorizer, help: Option<&str>) {
+    if let Some(help) = help {
         c.none("\n\nFor more information try ");
-        c.good("help");
+        c.good(help);
         c.none("\n");
     } else {
         c.none("\n");
+    }
+}
+
+fn quote(s: impl AsRef<str>) -> String {
+    let s = s.as_ref();
+    format!("{:?}", s)
+}
+
+fn escape(s: impl AsRef<str>) -> String {
+    let s = s.as_ref();
+    if s.contains(char::is_whitespace) {
+        quote(s)
+    } else {
+        s.to_owned()
     }
 }
 
@@ -743,9 +1091,10 @@ impl Message {
 
                 let mut message = String::new();
                 std::mem::swap(s, &mut message);
-                start_error(&mut c, message);
+                start_error(&mut c);
+                c.none(message);
                 put_usage(&mut c, usage);
-                try_help(app, &mut c);
+                try_help(&mut c, get_help_flag(app));
                 *self = Self::Formatted(c);
             }
             Message::Formatted(_) => {}
@@ -756,7 +1105,8 @@ impl Message {
         match self {
             Message::Raw(s) => {
                 let mut c = Colorizer::new(true, ColorChoice::Never);
-                start_error(&mut c, s);
+                start_error(&mut c);
+                c.none(s);
                 Cow::Owned(c)
             }
             Message::Formatted(c) => Cow::Borrowed(c),

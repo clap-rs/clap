@@ -1,6 +1,6 @@
 // Internal
 use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings};
-use crate::error::{Error, ErrorKind, Result as ClapResult};
+use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
 use crate::util::Id;
@@ -60,11 +60,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             && self.p.is_set(AS::ArgRequiredElseHelp)
         {
             let message = self.p.write_help_err()?;
-            return Err(Error::new(
-                message,
-                ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
-                self.p.is_set(AS::WaitOnError),
-            ));
+            return Err(Error::display_help_error(self.p.app, message));
         }
         self.validate_conflicts(matcher)?;
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
@@ -148,11 +144,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Err(e) = vtor(&*val.to_string_lossy()) {
                     debug!("error");
                     return Err(Error::value_validation(
-                        self.p.app,
                         arg.to_string(),
                         val.to_string_lossy().into_owned(),
                         e,
-                    ));
+                    )
+                    .with_app(self.p.app));
                 } else {
                     debug!("good");
                 }
@@ -163,11 +159,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if let Err(e) = vtor(val) {
                     debug!("error");
                     return Err(Error::value_validation(
-                        self.p.app,
                         arg.to_string(),
                         val.to_string_lossy().into(),
                         e,
-                    ));
+                    )
+                    .with_app(self.p.app));
                 } else {
                     debug!("good");
                 }
