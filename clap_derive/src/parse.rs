@@ -54,6 +54,7 @@ pub enum ClapAttr {
     NameExpr(Ident, Expr),
     DefaultValueT(Ident, Option<Expr>),
     DefaultValueOsT(Ident, Option<Expr>),
+    NextHelpHeading(Ident, Expr),
     HelpHeading(Ident, Expr),
 
     // ident(arbitrary_expr,*)
@@ -114,6 +115,14 @@ impl Parse for ClapAttr {
                         Ok(Skip(name, Some(expr)))
                     }
 
+                    "next_help_heading" => {
+                        let expr = ExprLit {
+                            attrs: vec![],
+                            lit: Lit::Str(lit),
+                        };
+                        let expr = Expr::Lit(expr);
+                        Ok(NextHelpHeading(name, expr))
+                    }
                     "help_heading" => {
                         let expr = ExprLit {
                             attrs: vec![],
@@ -131,6 +140,7 @@ impl Parse for ClapAttr {
                         "skip" => Ok(Skip(name, Some(expr))),
                         "default_value_t" => Ok(DefaultValueT(name, Some(expr))),
                         "default_value_os_t" => Ok(DefaultValueOsT(name, Some(expr))),
+                        "next_help_heading" => Ok(NextHelpHeading(name, expr)),
                         "help_heading" => Ok(HelpHeading(name, expr)),
                         _ => Ok(NameExpr(name, expr)),
                     },

@@ -46,6 +46,7 @@ pub struct Attrs {
     author: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    next_help_heading: Option<Method>,
     help_heading: Option<Method>,
     is_enum: bool,
     has_custom_parser: bool,
@@ -379,6 +380,7 @@ impl Attrs {
             author: None,
             version: None,
             verbatim_doc_comment: None,
+            next_help_heading: None,
             help_heading: None,
             is_enum: false,
             has_custom_parser: false,
@@ -535,6 +537,9 @@ impl Attrs {
                 HelpHeading(ident, expr) => {
                     self.help_heading = Some(Method::new(ident, quote!(#expr)));
                 }
+                NextHelpHeading(ident, expr) => {
+                    self.next_help_heading = Some(Method::new(ident, quote!(#expr)));
+                }
 
                 About(ident, about) => {
                     if let Some(method) =
@@ -623,8 +628,9 @@ impl Attrs {
 
     /// generate methods from attributes on top of struct or enum
     pub fn initial_top_level_methods(&self) -> TokenStream {
+        let next_help_heading = self.next_help_heading.as_ref().into_iter();
         let help_heading = self.help_heading.as_ref().into_iter();
-        quote!( #(#help_heading)* )
+        quote!( #(#next_help_heading)*  #(#help_heading)* )
     }
 
     pub fn final_top_level_methods(&self) -> TokenStream {
@@ -655,9 +661,10 @@ impl Attrs {
         }
     }
 
-    pub fn help_heading(&self) -> TokenStream {
+    pub fn next_help_heading(&self) -> TokenStream {
+        let next_help_heading = self.next_help_heading.as_ref().into_iter();
         let help_heading = self.help_heading.as_ref().into_iter();
-        quote!( #(#help_heading)* )
+        quote!( #(#next_help_heading)*  #(#help_heading)* )
     }
 
     pub fn cased_name(&self) -> TokenStream {

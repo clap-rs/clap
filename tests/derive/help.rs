@@ -30,7 +30,7 @@ fn arg_help_heading_applied() {
 #[test]
 fn app_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
-    #[clap(help_heading = "DEFAULT")]
+    #[clap(next_help_heading = "DEFAULT")]
     struct CliOptions {
         #[clap(long)]
         #[clap(help_heading = Some("HEADING A"))]
@@ -79,14 +79,14 @@ fn app_help_heading_flattened() {
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(help_heading = "HEADING A")]
+    #[clap(next_help_heading = "HEADING A")]
     struct OptionsA {
         #[clap(long)]
         should_be_in_section_a: u32,
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(help_heading = "HEADING B")]
+    #[clap(next_help_heading = "HEADING B")]
     struct OptionsB {
         #[clap(long)]
         should_be_in_section_b: u32,
@@ -99,7 +99,7 @@ fn app_help_heading_flattened() {
         #[clap(subcommand)]
         SubC(SubC),
         SubAOne,
-        #[clap(help_heading = "SUB A")]
+        #[clap(next_help_heading = "SUB A")]
         SubATwo {
             should_be_in_sub_a: u32,
         },
@@ -107,13 +107,13 @@ fn app_help_heading_flattened() {
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubB {
-        #[clap(help_heading = "SUB B")]
+        #[clap(next_help_heading = "SUB B")]
         SubBOne { should_be_in_sub_b: u32 },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubC {
-        #[clap(help_heading = "SUB C")]
+        #[clap(next_help_heading = "SUB C")]
         SubCOne { should_be_in_sub_c: u32 },
     }
 
@@ -168,7 +168,7 @@ fn flatten_field_with_help_heading() {
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
         #[clap(flatten)]
-        #[clap(help_heading = "HEADING A")]
+        #[clap(next_help_heading = "HEADING A")]
         options_a: OptionsA,
     }
 

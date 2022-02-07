@@ -1785,7 +1785,7 @@ fn custom_headers_headers() {
                 .require_delimiter(true)
                 .value_delimiter(':'),
         )
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
@@ -1842,14 +1842,14 @@ fn multiple_custom_help_headers() {
                 .require_delimiter(true)
                 .value_delimiter(':'),
         )
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
                 .long("no-proxy")
                 .help("Do not use system proxy settings"),
         )
-        .help_heading(Some("SPECIAL"))
+        .next_help_heading(Some("SPECIAL"))
         .arg(
             arg!(-b --"birthday-song" <song> "Change which song is played for birthdays")
                 .help_heading(Some("OVERRIDE SPECIAL")),
@@ -1862,7 +1862,7 @@ fn multiple_custom_help_headers() {
         .arg(arg!(
             -v --"birthday-song-volume" <volume> "Change the volume of the birthday song"
         ))
-        .help_heading(None)
+        .next_help_heading(None)
         .arg(
             Arg::new("server-addr")
                 .short('a')
@@ -1912,7 +1912,7 @@ fn custom_help_headers_hide_args() {
         .author("Will M.")
         .about("does stuff")
         .version("1.4")
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(
             Arg::new("no-proxy")
                 .short('n')
@@ -1920,7 +1920,7 @@ fn custom_help_headers_hide_args() {
                 .help("Do not use system proxy settings")
                 .hide_short_help(true),
         )
-        .help_heading(Some("SPECIAL"))
+        .next_help_heading(Some("SPECIAL"))
         .arg(
             arg!(-b --song <song> "Change which song is played for birthdays")
                 .help_heading(Some("OVERRIDE SPECIAL")),
@@ -1928,7 +1928,7 @@ fn custom_help_headers_hide_args() {
         .arg(arg!(
             -v --"song-volume" <volume> "Change the volume of the birthday song"
         ))
-        .help_heading(None)
+        .next_help_heading(None)
         .arg(
             Arg::new("server-addr")
                 .short('a')
@@ -2392,7 +2392,7 @@ fn custom_heading_pos() {
     let app = App::new("test")
         .version("1.4")
         .arg(Arg::new("gear").help("Which gear"))
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(
@@ -2418,7 +2418,7 @@ fn only_custom_heading_opts_no_args() {
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hide(true))
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(arg!(-s --speed <SPEED> "How fast").required(false));
 
     assert!(utils::compare_output(
@@ -2444,7 +2444,7 @@ fn only_custom_heading_pos_no_args() {
         .version("1.4")
         .setting(AppSettings::DisableVersionFlag)
         .mut_arg("help", |a| a.hide(true))
-        .help_heading(Some("NETWORKING"))
+        .next_help_heading(Some("NETWORKING"))
         .arg(Arg::new("speed").help("How fast"));
 
     assert!(utils::compare_output(

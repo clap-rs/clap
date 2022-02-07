@@ -1333,7 +1333,28 @@ impl<'help> App<'help> {
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
     #[must_use]
-    pub fn help_heading<O>(mut self, heading: O) -> Self
+    // TODO: Deprecate
+    pub fn help_heading<O>(self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.next_help_heading(heading)
+    }
+
+    /// Set the default section heading for future args.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
+    ///
+    /// This is useful if the default `OPTIONS` or `ARGS` headings are
+    /// not specific enough for one's use case.
+    ///
+    /// For subcommands, see [`App::subcommand_help_heading`]
+    ///
+    /// [`App::arg`]: App::arg()
+    /// [`Arg::help_heading`]: crate::Arg::help_heading()
+    #[inline]
+    #[must_use]
+    pub fn next_help_heading<O>(mut self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
     {
@@ -2165,7 +2186,16 @@ impl<'help> App<'help> {
     ///
     /// [`App::help_heading`]: App::help_heading()
     #[inline]
+    // TODO: Deprecate
     pub fn get_help_heading(&self) -> Option<&'help str> {
+        self.get_next_help_heading()
+    }
+
+    /// Get the custom section heading specified via [`App::help_heading`].
+    ///
+    /// [`App::help_heading`]: App::help_heading()
+    #[inline]
+    pub fn get_next_help_heading(&self) -> Option<&'help str> {
         self.current_help_heading
     }
 
