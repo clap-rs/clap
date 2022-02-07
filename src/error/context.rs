@@ -20,6 +20,8 @@ pub enum ContextKind {
     MinValue,
     /// Potential fix for the user
     SuggestedCommand,
+    /// Trailing argument
+    TrailingArg,
     /// A usage string
     Usage,
     /// An opaque message to the user
@@ -32,6 +34,8 @@ pub enum ContextKind {
 pub enum ContextValue {
     /// [`ContextKind`] is self-sufficient, no additional information needed
     None,
+    /// A single value
+    Bool(bool),
     /// A single value
     String(String),
     /// Many values

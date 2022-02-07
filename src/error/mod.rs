@@ -556,61 +556,45 @@ impl Error {
         did_you_mean: Option<(String, Option<String>)>,
         usage: String,
     ) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("Found argument '");
-        c.warning(&*arg);
-        c.none("' which wasn't expected, or isn't valid in this context");
-
-        if let Some((flag, subcmd)) = did_you_mean {
-            let flag = format!("--{}", flag);
-            c.none("\n\n\tDid you mean ");
-
-            if let Some(subcmd) = subcmd {
-                c.none("to put '");
-                c.good(flag);
-                c.none("' after the subcommand '");
-                c.good(subcmd);
-                c.none("'?");
-            } else {
-                c.none("'");
-                c.good(flag);
-                c.none("'?");
+        let info = vec![arg.to_string()];
+        let mut err = Self::new(ErrorKind::UnknownArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ]);
+        if let Some((flag, sub)) = did_you_mean {
+            err = err.insert_context_unchecked(
+                ContextKind::ValidArg,
+                ContextValue::String(format!("--{}", flag)),
+            );
+            if let Some(sub) = sub {
+                err = err.insert_context_unchecked(
+                    ContextKind::ValidSubcommand,
+                    ContextValue::String(sub),
+                );
             }
         }
-
-        // If the user wants to supply things like `--a-flag` or `-b` as a value,
-        // suggest `--` for disambiguation.
-        if arg.starts_with('-') {
-            c.none(format!(
-                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
-                arg, arg
-            ));
-        }
-
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::UnknownArgument, app, c, vec![arg])
+        err
     }
 
     pub(crate) fn unnecessary_double_dash(app: &App, arg: String, usage: String) -> Self {
-        let mut c = Colorizer::new(true, app.get_color());
-
-        start_error(&mut c);
-        c.none("Found argument '");
-        c.warning(&*arg);
-        c.none("' which wasn't expected, or isn't valid in this context");
-
-        c.none(format!(
-            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
-            arg
-        ));
-        put_usage(&mut c, usage);
-        try_help(&mut c, get_help_flag(app));
-
-        Self::for_app(ErrorKind::UnknownArgument, app, c, vec![arg])
+        let info = vec![arg.to_string()];
+        Self::new(ErrorKind::UnknownArgument)
+            .with_app(app)
+            .set_info(info)
+            .extend_context_unchecked([
+                (
+                    ContextKind::InvalidArg,
+                    ContextValue::String(arg.to_string()),
+                ),
+                (ContextKind::TrailingArg, ContextValue::Bool(true)),
+                (ContextKind::Usage, ContextValue::String(usage)),
+            ])
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
@@ -915,6 +899,56 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::UnknownArgument => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                        c.none("Found argument '");
+                        c.warning(invalid_arg.to_string());
+                        c.none("' which wasn't expected, or isn't valid in this context");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+
+                    let valid_sub = self.get_context(ContextKind::ValidSubcommand);
+                    let valid_arg = self.get_context(ContextKind::ValidArg);
+                    match (valid_sub, valid_arg) {
+                        (
+                            Some(ContextValue::String(valid_sub)),
+                            Some(ContextValue::String(valid_arg)),
+                        ) => {
+                            c.none("\n\n\tDid you mean ");
+                            c.none("to put '");
+                            c.good(valid_arg);
+                            c.none("' after the subcommand '");
+                            c.good(valid_sub);
+                            c.none("'?");
+                        }
+                        (None, Some(ContextValue::String(valid_arg))) => {
+                            c.none("\n\n\tDid you mean '");
+                            c.good(valid_arg);
+                            c.none("'?");
+                        }
+                        (_, _) => {}
+                    }
+
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                        if invalid_arg.starts_with('-') {
+                            c.none(format!(
+                                "\n\n\tIf you tried to supply `{}` as a value rather than a flag, use `-- {}`",
+                                invalid_arg, invalid_arg
+                            ));
+                        }
+
+                        let trailing_arg = self.get_context(ContextKind::TrailingArg);
+                        if trailing_arg == Some(&ContextValue::Bool(true)) {
+                            c.none(format!(
+                            "\n\n\tIf you tried to supply `{}` as a subcommand, remove the '--' before it.",
+                            invalid_arg
+                        ));
+                        }
+                    }
+                }
                 ErrorKind::ArgumentNotFound => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
                     if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
@@ -925,8 +959,7 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
-                ErrorKind::UnknownArgument
-                | ErrorKind::DisplayHelp
+                ErrorKind::DisplayHelp
                 | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
                 | ErrorKind::DisplayVersion
                 | ErrorKind::Io
