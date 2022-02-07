@@ -4,22 +4,32 @@
 pub enum ContextKind {
     /// The cause of the error
     InvalidSubcommand,
-    /// Existing subcommand
-    ValidSubcommand,
     /// The cause of the error
     InvalidArg,
     /// Existing arguments
-    ValidArg,
+    PriorArg,
     /// Accepted values
     ValidValue,
     /// Rejected values
     InvalidValue,
-    /// Highest allowed
-    MaxValue,
-    /// Lowest allowed
-    MinValue,
+    /// Number of values present
+    ActualNumValues,
+    /// Number of allowed values
+    ExpectedNumValues,
+    /// Minimum number of allowed values
+    MinValues,
+    /// Number of occurrences present
+    ActualNumOccurrences,
+    /// Maximum number of allowed occurrences
+    MaxOccurrences,
     /// Potential fix for the user
     SuggestedCommand,
+    /// Potential fix for the user
+    SuggestedSubcommand,
+    /// Potential fix for the user
+    SuggestedArg,
+    /// Potential fix for the user
+    SuggestedValue,
     /// Trailing argument
     TrailingArg,
     /// A usage string

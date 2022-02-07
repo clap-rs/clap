@@ -280,7 +280,7 @@ impl Error {
                     ContextKind::InvalidArg,
                     ContextValue::String(arg.to_string()),
                 ),
-                (ContextKind::ValidArg, others),
+                (ContextKind::PriorArg, others),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
@@ -326,7 +326,9 @@ impl Error {
     ) -> Self {
         let mut info = vec![arg.to_string(), bad_val.clone()];
         info.extend(good_vals.iter().map(|s| (*s).to_owned()));
-        Self::new(ErrorKind::InvalidValue)
+
+        let suggestion = suggestions::did_you_mean(&bad_val, good_vals.iter()).pop();
+        let mut err = Self::new(ErrorKind::InvalidValue)
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
@@ -340,7 +342,14 @@ impl Error {
                     ContextValue::Strings(good_vals.iter().map(|s| (*s).to_owned()).collect()),
                 ),
                 (ContextKind::Usage, ContextValue::String(usage)),
-            ])
+            ]);
+        if let Some(suggestion) = suggestion {
+            err = err.insert_context_unchecked(
+                ContextKind::SuggestedValue,
+                ContextValue::String(suggestion),
+            );
+        }
+        err
     }
 
     pub(crate) fn invalid_subcommand(
@@ -358,7 +367,7 @@ impl Error {
             .extend_context_unchecked([
                 (ContextKind::InvalidSubcommand, ContextValue::String(subcmd)),
                 (
-                    ContextKind::ValidSubcommand,
+                    ContextKind::SuggestedSubcommand,
                     ContextValue::String(did_you_mean),
                 ),
                 (
@@ -436,11 +445,11 @@ impl Error {
                     ContextValue::String(arg.to_string()),
                 ),
                 (
-                    ContextKind::MaxValue,
+                    ContextKind::MaxOccurrences,
                     ContextValue::Number(max_occurs as isize),
                 ),
                 (
-                    ContextKind::InvalidValue,
+                    ContextKind::ActualNumValues,
                     ContextValue::Number(curr_occurs as isize),
                 ),
                 (ContextKind::Usage, ContextValue::String(usage)),
@@ -476,11 +485,11 @@ impl Error {
                     ContextValue::String(arg.to_string()),
                 ),
                 (
-                    ContextKind::MinValue,
+                    ContextKind::MinValues,
                     ContextValue::Number(min_vals as isize),
                 ),
                 (
-                    ContextKind::InvalidValue,
+                    ContextKind::ActualNumValues,
                     ContextValue::Number(curr_vals as isize),
                 ),
                 (ContextKind::Usage, ContextValue::String(usage)),
@@ -519,11 +528,11 @@ impl Error {
                     ContextValue::String(arg.to_string()),
                 ),
                 (
-                    ContextKind::ValidValue,
+                    ContextKind::ExpectedNumValues,
                     ContextValue::Number(num_vals as isize),
                 ),
                 (
-                    ContextKind::InvalidValue,
+                    ContextKind::ActualNumValues,
                     ContextValue::Number(curr_vals as isize),
                 ),
                 (ContextKind::Usage, ContextValue::String(usage)),
@@ -560,12 +569,12 @@ impl Error {
             ]);
         if let Some((flag, sub)) = did_you_mean {
             err = err.insert_context_unchecked(
-                ContextKind::ValidArg,
+                ContextKind::SuggestedArg,
                 ContextValue::String(format!("--{}", flag)),
             );
             if let Some(sub) = sub {
                 err = err.insert_context_unchecked(
-                    ContextKind::ValidSubcommand,
+                    ContextKind::SuggestedSubcommand,
                     ContextValue::String(sub),
                 );
             }
@@ -603,15 +612,15 @@ impl Error {
             match self.kind() {
                 ErrorKind::ArgumentConflict => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let valid_arg = self.get_context(ContextKind::ValidArg);
-                    if let (Some(ContextValue::String(invalid_arg)), Some(valid_arg)) =
-                        (invalid_arg, valid_arg)
+                    let prior_arg = self.get_context(ContextKind::PriorArg);
+                    if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
+                        (invalid_arg, prior_arg)
                     {
                         c.none("The argument '");
                         c.warning(invalid_arg);
                         c.none("' cannot be used with");
 
-                        match valid_arg {
+                        match prior_arg {
                             ContextValue::Strings(values) => {
                                 c.none(":");
                                 for v in values {
@@ -694,18 +703,11 @@ impl Error {
                         c.none("]");
                     }
 
-                    if let (
-                        Some(ContextValue::String(invalid_value)),
-                        Some(ContextValue::Strings(valid_values)),
-                    ) = (invalid_value, possible_values)
-                    {
-                        let suffix =
-                            suggestions::did_you_mean(invalid_value, valid_values.iter()).pop();
-                        if let Some(val) = suffix {
-                            c.none("\n\n\tDid you mean ");
-                            c.good(format!("{:?}", val));
-                            c.none("?");
-                        }
+                    let suggestion = self.get_context(ContextKind::SuggestedValue);
+                    if let Some(ContextValue::String(suggestion)) = suggestion {
+                        c.none("\n\n\tDid you mean ");
+                        c.good(quote(suggestion));
+                        c.none("?");
                     }
                 }
                 ErrorKind::InvalidSubcommand => {
@@ -718,7 +720,7 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
 
-                    let valid_sub = self.get_context(ContextKind::ValidSubcommand);
+                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
                     if let Some(ContextValue::String(valid_sub)) = valid_sub {
                         c.none("\n\n\tDid you mean ");
                         c.good(valid_sub);
@@ -771,21 +773,21 @@ impl Error {
                 }
                 ErrorKind::TooManyOccurrences => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    let max_value = self.get_context(ContextKind::MaxValue);
+                    let actual_num_occurs = self.get_context(ContextKind::ActualNumOccurrences);
+                    let max_occurs = self.get_context(ContextKind::MaxOccurrences);
                     if let (
                         Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(invalid_value)),
-                        Some(ContextValue::Number(max_value)),
-                    ) = (invalid_arg, invalid_value, max_value)
+                        Some(ContextValue::Number(actual_num_occurs)),
+                        Some(ContextValue::Number(max_occurs)),
+                    ) = (invalid_arg, actual_num_occurs, max_occurs)
                     {
-                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        let were_provided = Error::singular_or_plural(*actual_num_occurs as usize);
                         c.none("The argument '");
                         c.warning(invalid_arg);
                         c.none("' allows at most ");
-                        c.warning(max_value.to_string());
+                        c.warning(max_occurs.to_string());
                         c.none(" occurrences but ");
-                        c.warning(invalid_value.to_string());
+                        c.warning(actual_num_occurs.to_string());
                         c.none(were_provided);
                     } else {
                         c.none(self.kind().as_str().unwrap());
@@ -810,21 +812,21 @@ impl Error {
                 }
                 ErrorKind::TooFewValues => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    let min_value = self.get_context(ContextKind::MinValue);
+                    let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                    let min_values = self.get_context(ContextKind::MinValues);
                     if let (
                         Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(invalid_value)),
-                        Some(ContextValue::Number(min_value)),
-                    ) = (invalid_arg, invalid_value, min_value)
+                        Some(ContextValue::Number(actual_num_values)),
+                        Some(ContextValue::Number(min_values)),
+                    ) = (invalid_arg, actual_num_values, min_values)
                     {
-                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        let were_provided = Error::singular_or_plural(*actual_num_values as usize);
                         c.none("The argument '");
                         c.warning(invalid_arg);
                         c.none("' requires at least ");
-                        c.warning(min_value.to_string());
+                        c.warning(min_values.to_string());
                         c.none(" values but only ");
-                        c.warning(invalid_value.to_string());
+                        c.warning(actual_num_values.to_string());
                         c.none(were_provided);
                     } else {
                         c.none(self.kind().as_str().unwrap());
@@ -854,21 +856,21 @@ impl Error {
                 }
                 ErrorKind::WrongNumberOfValues => {
                     let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    let valid_value = self.get_context(ContextKind::ValidValue);
+                    let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                    let num_values = self.get_context(ContextKind::ExpectedNumValues);
                     if let (
                         Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(invalid_value)),
-                        Some(ContextValue::Number(valid_value)),
-                    ) = (invalid_arg, invalid_value, valid_value)
+                        Some(ContextValue::Number(actual_num_values)),
+                        Some(ContextValue::Number(num_values)),
+                    ) = (invalid_arg, actual_num_values, num_values)
                     {
-                        let were_provided = Error::singular_or_plural(*invalid_value as usize);
+                        let were_provided = Error::singular_or_plural(*actual_num_values as usize);
                         c.none("The argument '");
                         c.warning(invalid_arg);
                         c.none("' requires ");
-                        c.warning(valid_value.to_string());
+                        c.warning(num_values.to_string());
                         c.none(" values, but ");
-                        c.warning(invalid_value.to_string());
+                        c.warning(actual_num_values.to_string());
                         c.none(were_provided);
                     } else {
                         c.none(self.kind().as_str().unwrap());
@@ -894,8 +896,8 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
 
-                    let valid_sub = self.get_context(ContextKind::ValidSubcommand);
-                    let valid_arg = self.get_context(ContextKind::ValidArg);
+                    let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
+                    let valid_arg = self.get_context(ContextKind::SuggestedArg);
                     match (valid_sub, valid_arg) {
                         (
                             Some(ContextValue::String(valid_sub)),
