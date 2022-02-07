@@ -609,47 +609,68 @@ impl Error {
 
             start_error(&mut c);
 
-            match self.kind() {
-                ErrorKind::ArgumentConflict => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let prior_arg = self.get_context(ContextKind::PriorArg);
-                    if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
-                        (invalid_arg, prior_arg)
-                    {
-                        c.none("The argument '");
-                        c.warning(invalid_arg);
-                        c.none("' cannot be used with");
+            if !self.write_dynamic_context(&mut c) {
+                if let Some(msg) = self.kind().as_str() {
+                    c.none(msg.to_owned());
+                } else if let Some(source) = self.inner.source.as_ref() {
+                    c.none(source.to_string());
+                } else {
+                    c.none("Unknown cause");
+                }
+            }
 
-                        match prior_arg {
-                            ContextValue::Strings(values) => {
-                                c.none(":");
-                                for v in values {
-                                    c.none("\n    ");
-                                    c.warning(&**v);
-                                }
-                            }
-                            ContextValue::String(value) => {
-                                c.none(" '");
-                                c.warning(value);
-                                c.none("'");
-                            }
-                            _ => {
-                                c.none(" one or more of the other specified arguments");
+            let usage = self.get_context(ContextKind::Usage);
+            if let Some(ContextValue::String(usage)) = usage {
+                put_usage(&mut c, usage);
+            }
+
+            try_help(&mut c, self.inner.help_flag);
+
+            Cow::Owned(c)
+        }
+    }
+
+    #[must_use]
+    fn write_dynamic_context(&self, c: &mut Colorizer) -> bool {
+        match self.kind() {
+            ErrorKind::ArgumentConflict => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let prior_arg = self.get_context(ContextKind::PriorArg);
+                if let (Some(ContextValue::String(invalid_arg)), Some(prior_arg)) =
+                    (invalid_arg, prior_arg)
+                {
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' cannot be used with");
+
+                    match prior_arg {
+                        ContextValue::Strings(values) => {
+                            c.none(":");
+                            for v in values {
+                                c.none("\n    ");
+                                c.warning(&**v);
                             }
                         }
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
+                        ContextValue::String(value) => {
+                            c.none(" '");
+                            c.warning(value);
+                            c.none("'");
+                        }
+                        _ => {
+                            c.none(" one or more of the other specified arguments");
+                        }
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::EmptyValue => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        c.none("The argument '");
-                        c.warning(invalid_arg);
-                        c.none("' requires a value but none was supplied");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::EmptyValue => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires a value but none was supplied");
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
                     if let Some(ContextValue::Strings(possible_values)) = possible_values {
@@ -663,32 +684,34 @@ impl Error {
                         }
                         c.none("]");
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::NoEquals => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        c.none("Equal sign is needed when assigning values to '");
-                        c.warning(invalid_arg);
-                        c.none("'.");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::NoEquals => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("Equal sign is needed when assigning values to '");
+                    c.warning(invalid_arg);
+                    c.none("'.");
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::InvalidValue => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::String(invalid_value)),
-                    ) = (invalid_arg, invalid_value)
-                    {
-                        c.none(quote(invalid_value));
-                        c.none(" isn't a valid value for '");
-                        c.warning(invalid_arg);
-                        c.none("'");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::InvalidValue => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none(quote(invalid_value));
+                    c.none(" isn't a valid value for '");
+                    c.warning(invalid_arg);
+                    c.none("'");
 
                     let possible_values = self.get_context(ContextKind::ValidValue);
                     if let Some(ContextValue::Strings(possible_values)) = possible_values {
@@ -709,16 +732,17 @@ impl Error {
                         c.good(quote(suggestion));
                         c.none("?");
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::InvalidSubcommand => {
-                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                        c.none("The subcommand '");
-                        c.warning(invalid_sub);
-                        c.none("' wasn't recognized");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::InvalidSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("The subcommand '");
+                    c.warning(invalid_sub);
+                    c.none("' wasn't recognized");
 
                     let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
                     if let Some(ContextValue::String(valid_sub)) = valid_sub {
@@ -735,166 +759,174 @@ impl Error {
                         c.good(suggestion);
                         c.none("'");
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::UnrecognizedSubcommand => {
-                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
-                        c.none("The subcommand '");
-                        c.warning(invalid_sub);
-                        c.none("' wasn't recognized");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
+            }
+            ErrorKind::UnrecognizedSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("The subcommand '");
+                    c.warning(invalid_sub);
+                    c.none("' wasn't recognized");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::MissingRequiredArgument => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
+                    c.none("The following required arguments were not provided:");
+                    for v in invalid_arg {
+                        c.none("\n    ");
+                        c.good(&**v);
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::MissingRequiredArgument => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::Strings(invalid_arg)) = invalid_arg {
-                        c.none("The following required arguments were not provided:");
-                        for v in invalid_arg {
-                            c.none("\n    ");
-                            c.good(&**v);
-                        }
+            }
+            ErrorKind::MissingSubcommand => {
+                let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
+                if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
+                    c.none("'");
+                    c.warning(invalid_sub);
+                    c.none("' requires a subcommand but one was not provided");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::InvalidUtf8 => false,
+            ErrorKind::TooManyOccurrences => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_occurs = self.get_context(ContextKind::ActualNumOccurrences);
+                let max_occurs = self.get_context(ContextKind::MaxOccurrences);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_occurs)),
+                    Some(ContextValue::Number(max_occurs)),
+                ) = (invalid_arg, actual_num_occurs, max_occurs)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_occurs as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' allows at most ");
+                    c.warning(max_occurs.to_string());
+                    c.none(" occurrences but ");
+                    c.warning(actual_num_occurs.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::TooManyValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none("The value '");
+                    c.warning(invalid_value);
+                    c.none("' was provided to '");
+                    c.warning(invalid_arg);
+                    c.none("' but it wasn't expecting any more values");
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::TooFewValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                let min_values = self.get_context(ContextKind::MinValues);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_values)),
+                    Some(ContextValue::Number(min_values)),
+                ) = (invalid_arg, actual_num_values, min_values)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires at least ");
+                    c.warning(min_values.to_string());
+                    c.none(" values but only ");
+                    c.warning(actual_num_values.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
+                }
+            }
+            ErrorKind::ValueValidation => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let invalid_value = self.get_context(ContextKind::InvalidValue);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::String(invalid_value)),
+                ) = (invalid_arg, invalid_value)
+                {
+                    c.none("Invalid value ");
+                    c.warning(quote(invalid_value));
+                    c.none(" for '");
+                    c.warning(invalid_arg);
+                    if let Some(source) = self.inner.source.as_deref() {
+                        c.none("': ");
+                        c.none(source.to_string());
                     } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::MissingSubcommand => {
-                    let invalid_sub = self.get_context(ContextKind::InvalidSubcommand);
-                    if let Some(ContextValue::String(invalid_sub)) = invalid_sub {
                         c.none("'");
-                        c.warning(invalid_sub);
-                        c.none("' requires a subcommand but one was not provided");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
                     }
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::InvalidUtf8 => {
-                    c.none(self.kind().as_str().unwrap());
+            }
+            ErrorKind::WrongNumberOfValues => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                let actual_num_values = self.get_context(ContextKind::ActualNumValues);
+                let num_values = self.get_context(ContextKind::ExpectedNumValues);
+                if let (
+                    Some(ContextValue::String(invalid_arg)),
+                    Some(ContextValue::Number(actual_num_values)),
+                    Some(ContextValue::Number(num_values)),
+                ) = (invalid_arg, actual_num_values, num_values)
+                {
+                    let were_provided = Error::singular_or_plural(*actual_num_values as usize);
+                    c.none("The argument '");
+                    c.warning(invalid_arg);
+                    c.none("' requires ");
+                    c.warning(num_values.to_string());
+                    c.none(" values, but ");
+                    c.warning(actual_num_values.to_string());
+                    c.none(were_provided);
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::TooManyOccurrences => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let actual_num_occurs = self.get_context(ContextKind::ActualNumOccurrences);
-                    let max_occurs = self.get_context(ContextKind::MaxOccurrences);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(actual_num_occurs)),
-                        Some(ContextValue::Number(max_occurs)),
-                    ) = (invalid_arg, actual_num_occurs, max_occurs)
-                    {
-                        let were_provided = Error::singular_or_plural(*actual_num_occurs as usize);
-                        c.none("The argument '");
-                        c.warning(invalid_arg);
-                        c.none("' allows at most ");
-                        c.warning(max_occurs.to_string());
-                        c.none(" occurrences but ");
-                        c.warning(actual_num_occurs.to_string());
-                        c.none(were_provided);
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::UnexpectedMultipleUsage => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' was provided more than once, but cannot be used multiple times");
+                    true
+                } else {
+                    false
                 }
-                ErrorKind::TooManyValues => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::String(invalid_value)),
-                    ) = (invalid_arg, invalid_value)
-                    {
-                        c.none("The value '");
-                        c.warning(invalid_value);
-                        c.none("' was provided to '");
-                        c.warning(invalid_arg);
-                        c.none("' but it wasn't expecting any more values");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::TooFewValues => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                    let min_values = self.get_context(ContextKind::MinValues);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(actual_num_values)),
-                        Some(ContextValue::Number(min_values)),
-                    ) = (invalid_arg, actual_num_values, min_values)
-                    {
-                        let were_provided = Error::singular_or_plural(*actual_num_values as usize);
-                        c.none("The argument '");
-                        c.warning(invalid_arg);
-                        c.none("' requires at least ");
-                        c.warning(min_values.to_string());
-                        c.none(" values but only ");
-                        c.warning(actual_num_values.to_string());
-                        c.none(were_provided);
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::ValueValidation => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let invalid_value = self.get_context(ContextKind::InvalidValue);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::String(invalid_value)),
-                    ) = (invalid_arg, invalid_value)
-                    {
-                        c.none("Invalid value ");
-                        c.warning(quote(invalid_value));
-                        c.none(" for '");
-                        c.warning(invalid_arg);
-                        if let Some(source) = self.inner.source.as_deref() {
-                            c.none("': ");
-                            c.none(source.to_string());
-                        } else {
-                            c.none("'");
-                        }
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::WrongNumberOfValues => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    let actual_num_values = self.get_context(ContextKind::ActualNumValues);
-                    let num_values = self.get_context(ContextKind::ExpectedNumValues);
-                    if let (
-                        Some(ContextValue::String(invalid_arg)),
-                        Some(ContextValue::Number(actual_num_values)),
-                        Some(ContextValue::Number(num_values)),
-                    ) = (invalid_arg, actual_num_values, num_values)
-                    {
-                        let were_provided = Error::singular_or_plural(*actual_num_values as usize);
-                        c.none("The argument '");
-                        c.warning(invalid_arg);
-                        c.none("' requires ");
-                        c.warning(num_values.to_string());
-                        c.none(" values, but ");
-                        c.warning(actual_num_values.to_string());
-                        c.none(were_provided);
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::UnexpectedMultipleUsage => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        c.none("The argument '");
-                        c.warning(invalid_arg.to_string());
-                        c.none("' was provided more than once, but cannot be used multiple times");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::UnknownArgument => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        c.none("Found argument '");
-                        c.warning(invalid_arg.to_string());
-                        c.none("' which wasn't expected, or isn't valid in this context");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
+            }
+            ErrorKind::UnknownArgument => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("Found argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' which wasn't expected, or isn't valid in this context");
 
                     let valid_sub = self.get_context(ContextKind::SuggestedSubcommand);
                     let valid_arg = self.get_context(ContextKind::SuggestedArg);
@@ -935,40 +967,27 @@ impl Error {
                         ));
                         }
                     }
-                }
-                ErrorKind::ArgumentNotFound => {
-                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
-                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
-                        c.none("The argument '");
-                        c.warning(invalid_arg.to_string());
-                        c.none("' wasn't found");
-                    } else {
-                        c.none(self.kind().as_str().unwrap());
-                    }
-                }
-                ErrorKind::DisplayHelp
-                | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
-                | ErrorKind::DisplayVersion
-                | ErrorKind::Io
-                | ErrorKind::Format => {
-                    if let Some(msg) = self.kind().as_str() {
-                        c.none(msg.to_owned());
-                    } else if let Some(source) = self.inner.source.as_ref() {
-                        c.none(source.to_string());
-                    } else {
-                        c.none("Unknown cause");
-                    }
+                    true
+                } else {
+                    false
                 }
             }
-
-            let usage = self.get_context(ContextKind::Usage);
-            if let Some(ContextValue::String(usage)) = usage {
-                put_usage(&mut c, usage);
+            ErrorKind::ArgumentNotFound => {
+                let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                    c.none("The argument '");
+                    c.warning(invalid_arg.to_string());
+                    c.none("' wasn't found");
+                    true
+                } else {
+                    false
+                }
             }
-
-            try_help(&mut c, self.inner.help_flag);
-
-            Cow::Owned(c)
+            ErrorKind::DisplayHelp
+            | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+            | ErrorKind::DisplayVersion
+            | ErrorKind::Io
+            | ErrorKind::Format => false,
         }
     }
 
