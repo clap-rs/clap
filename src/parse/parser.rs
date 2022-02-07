@@ -501,7 +501,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         } else if self.is_set(AS::SubcommandRequiredElseHelp) {
             debug!("Parser::get_matches_with: SubcommandRequiredElseHelp=true");
             let message = self.write_help_err()?;
-            return Err(ClapError::display_help_error(&self.app, message));
+            return Err(ClapError::display_help_error(self.app, message));
         }
 
         Validator::new(self).validate(parse_state, subcmd_name.is_some(), matcher, trailing_values)

@@ -60,7 +60,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             && self.p.is_set(AS::ArgRequiredElseHelp)
         {
             let message = self.p.write_help_err()?;
-            return Err(Error::display_help_error(&self.p.app, message));
+            return Err(Error::display_help_error(self.p.app, message));
         }
         self.validate_conflicts(matcher)?;
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {

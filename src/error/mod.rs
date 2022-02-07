@@ -312,10 +312,7 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ])
     }
@@ -500,10 +497,7 @@ impl Error {
             .set_info(info)
             .set_source(err)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::InvalidValue, ContextValue::String(val)),
             ])
     }
@@ -561,10 +555,7 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ]);
         if let Some((flag, sub)) = did_you_mean {
@@ -588,10 +579,7 @@ impl Error {
             .with_app(app)
             .set_info(info)
             .extend_context_unchecked([
-                (
-                    ContextKind::InvalidArg,
-                    ContextValue::String(arg.to_string()),
-                ),
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
                 (ContextKind::TrailingArg, ContextValue::Bool(true)),
                 (ContextKind::Usage, ContextValue::String(usage)),
             ])
@@ -601,10 +589,7 @@ impl Error {
         let info = vec![arg.to_string()];
         Self::new(ErrorKind::ArgumentNotFound)
             .set_info(info)
-            .extend_context_unchecked([(
-                ContextKind::InvalidArg,
-                ContextValue::String(arg.to_string()),
-            )])
+            .extend_context_unchecked([(ContextKind::InvalidArg, ContextValue::String(arg))])
     }
 
     fn formatted(&self) -> Cow<'_, Colorizer> {
