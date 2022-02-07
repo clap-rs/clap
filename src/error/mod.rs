@@ -611,16 +611,13 @@ impl Error {
     }
 
     pub(crate) fn argument_not_found_auto(arg: String) -> Self {
-        let mut c = Colorizer::new(true, ColorChoice::Never);
-
-        start_error(&mut c);
-        c.none("The argument '");
-        c.warning(&*arg);
-        c.none("' wasn't found\n");
-
+        let info = vec![arg.to_string()];
         Self::new(ErrorKind::ArgumentNotFound)
-            .set_message(c)
-            .set_info(vec![arg])
+            .set_info(info)
+            .extend_context_unchecked([(
+                ContextKind::InvalidArg,
+                ContextValue::String(arg.to_string()),
+            )])
     }
 
     fn formatted(&self) -> Cow<'_, Colorizer> {
@@ -915,11 +912,20 @@ impl Error {
                         c.none(self.kind().as_str().unwrap());
                     }
                 }
+                ErrorKind::ArgumentNotFound => {
+                    let invalid_arg = self.get_context(ContextKind::InvalidArg);
+                    if let Some(ContextValue::String(invalid_arg)) = invalid_arg {
+                        c.none("The argument '");
+                        c.warning(invalid_arg.to_string());
+                        c.none("' wasn't found");
+                    } else {
+                        c.none(self.kind().as_str().unwrap());
+                    }
+                }
                 ErrorKind::UnknownArgument
                 | ErrorKind::DisplayHelp
                 | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
                 | ErrorKind::DisplayVersion
-                | ErrorKind::ArgumentNotFound
                 | ErrorKind::Io
                 | ErrorKind::Format => {
                     if let Some(msg) = self.kind().as_str() {
