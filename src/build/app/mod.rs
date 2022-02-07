@@ -3030,7 +3030,7 @@ impl<'help> App<'help> {
                 .filter(|a| a.provider != ArgProvider::Generated)
                 .enumerate()
             {
-                a.disp_ord.get_or_insert(i);
+                a.disp_ord.set_explicit(i);
             }
             for (i, sc) in &mut self.subcommands.iter_mut().enumerate() {
                 sc.disp_ord.get_or_insert(i);
