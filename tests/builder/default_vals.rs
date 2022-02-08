@@ -631,6 +631,36 @@ fn required_args_with_default_values() {
         .try_get_matches();
 }
 
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument `arg`'s default_value=value doesn't match possible values"]
+fn default_values_are_possible_values() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(
+            Arg::new("arg")
+                .possible_values(["one", "two"])
+                .default_value("value"),
+        )
+        .try_get_matches();
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument `arg`'s default_value=value failed validation: invalid digit found in string"]
+fn default_values_are_valid() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(
+            Arg::new("arg")
+                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .default_value("value"),
+        )
+        .try_get_matches();
+}
+
 #[test]
 fn with_value_delimiter() {
     let app = App::new("multiple_values").arg(

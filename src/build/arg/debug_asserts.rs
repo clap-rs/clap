@@ -44,6 +44,20 @@ pub(crate) fn assert_arg(arg: &Arg) {
     }
 
     assert_arg_flags(arg);
+
+    assert_defaults(arg, "default_value", arg.default_vals.iter().copied());
+    assert_defaults(
+        arg,
+        "default_missing_value",
+        arg.default_missing_vals.iter().copied(),
+    );
+    assert_defaults(
+        arg,
+        "default_value_if",
+        arg.default_vals_ifs
+            .iter()
+            .filter_map(|(_, _, default)| *default),
+    );
 }
 
 fn assert_arg_flags(arg: &Arg) {
@@ -77,4 +91,46 @@ fn assert_arg_flags(arg: &Arg) {
     checker!(MultipleValues requires TakesValue);
     checker!(IgnoreCase requires TakesValue);
     checker!(AllowInvalidUtf8 requires TakesValue);
+}
+
+fn assert_defaults<'d>(
+    arg: &Arg,
+    field: &'static str,
+    defaults: impl IntoIterator<Item = &'d std::ffi::OsStr>,
+) {
+    for default_os in defaults {
+        if let Some(default_s) = default_os.to_str() {
+            if !arg.possible_vals.is_empty() {
+                assert!(
+                    arg.possible_vals.iter().any(|possible_val| {
+                        possible_val.matches(default_s, arg.is_set(ArgSettings::IgnoreCase))
+                    }),
+                    "Argument `{}`'s {}={} doesn't match possible values",
+                    arg.name,
+                    field,
+                    default_s
+                );
+            }
+
+            if let Some(validator) = arg.validator.as_ref() {
+                let mut validator = validator.lock().unwrap();
+                if let Err(err) = validator(default_s) {
+                    panic!(
+                        "Argument `{}`'s {}={} failed validation: {}",
+                        arg.name, field, default_s, err
+                    );
+                }
+            }
+        }
+
+        if let Some(validator) = arg.validator_os.as_ref() {
+            let mut validator = validator.lock().unwrap();
+            if let Err(err) = validator(default_os) {
+                panic!(
+                    "Argument `{}`'s {}={:?} failed validation: {}",
+                    arg.name, field, default_os, err
+                );
+            }
+        }
+    }
 }
