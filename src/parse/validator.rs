@@ -33,7 +33,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
 
             let o = &self.p.app[&a];
             reqs_validated = true;
@@ -65,7 +64,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         self.validate_conflicts(matcher)?;
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
         }
         self.validate_matched_args(matcher)?;
 
@@ -464,6 +462,9 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
+
+        self.validate_required_unless(matcher)?;
+
         Ok(())
     }
 
