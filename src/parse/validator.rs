@@ -54,7 +54,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             }
         }
 
-        if matcher.is_empty()
+        let num_user_values = matcher
+            .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+            .count();
+        if num_user_values == 0
             && matcher.subcommand_name().is_none()
             && self.p.is_set(AS::ArgRequiredElseHelp)
         {
