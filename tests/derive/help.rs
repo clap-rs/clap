@@ -342,3 +342,59 @@ OPTIONS:
     let help = String::from_utf8(buffer).unwrap();
     assert_eq!(help, HELP);
 }
+
+#[test]
+fn derive_order_no_next_order() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-a                 first flag
+        --flag-b                 second flag
+    -h, --help                   Print help information
+        --option-a <OPTION_A>    first option
+        --option-b <OPTION_B>    second option
+    -V, --version                Print version information
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(name = "test", version = "1.2")]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    #[clap(next_display_order = None)]
+    struct Args {
+        #[clap(flatten)]
+        a: A,
+        #[clap(flatten)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    struct A {
+        /// first flag
+        #[clap(long)]
+        flag_a: bool,
+        /// first option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    struct B {
+        /// second flag
+        #[clap(long)]
+        flag_b: bool,
+        /// second option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
+}
