@@ -101,6 +101,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if !ok {
                     let used: Vec<Id> = matcher
                         .arg_names()
+                        .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                         .filter(|&n| {
                             self.p.app.find(n).map_or(true, |a| {
                                 !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
@@ -176,10 +177,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         self.validate_exclusive(matcher)?;
 
         let mut conflicts = Conflicts::new();
-        for arg_id in matcher.arg_names().filter(|arg_id| {
-            matcher.check_explicit(arg_id, ArgPredicate::IsPresent)
-                && self.p.app.find(arg_id).is_some()
-        }) {
+        for arg_id in matcher
+            .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+            .filter(|arg_id| self.p.app.find(arg_id).is_some())
+        {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
             let conflicts = conflicts.gather_conflicts(self.p.app, matcher, arg_id);
             self.build_conflict_err(arg_id, &conflicts, matcher)?;
@@ -190,6 +192,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
+        // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
         let args_count = matcher.arg_names().count();
         matcher
             .arg_names()
@@ -251,6 +254,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> String {
         let used_filtered: Vec<Id> = matcher
             .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|key| !conflicting_keys.contains(key))
             .cloned()
             .collect();
@@ -267,7 +271,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn gather_requires(&mut self, matcher: &ArgMatcher) {
         debug!("Validator::gather_requires");
-        for name in matcher.arg_names() {
+        for name in matcher
+            .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+        {
             debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.p.app.find(name) {
                 let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
@@ -534,12 +541,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         let used: Vec<Id> = matcher
             .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
                 self.p.app.find(n).map_or(true, |a| {
-                    !a.is_set(ArgSettings::Hidden)
-                        && a.default_vals.is_empty()
-                        && !self.p.required.contains(&a.id)
+                    !a.is_set(ArgSettings::Hidden) && !self.p.required.contains(&a.id)
                 })
             })
             .cloned()
