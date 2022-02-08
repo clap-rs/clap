@@ -17,7 +17,7 @@ use crate::mkeymap::KeyType;
 use crate::output::{fmt::Colorizer, Help, HelpWriter, Usage};
 use crate::parse::features::suggestions;
 use crate::parse::{ArgMatcher, SubCommand};
-use crate::parse::{Validator, ValueType};
+use crate::parse::{Validator, ValueSource};
 use crate::util::{color::ColorChoice, ChildGraph, Id};
 use crate::{INTERNAL_ERROR_MSG, INVALID_UTF8};
 
@@ -376,7 +376,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         &self.app[id],
                         &arg_os,
                         matcher,
-                        ValueType::CommandLine,
+                        ValueSource::CommandLine,
                         true,
                         trailing_values,
                     );
@@ -417,7 +417,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     p,
                     &arg_os,
                     matcher,
-                    ValueType::CommandLine,
+                    ValueSource::CommandLine,
                     append,
                     trailing_values,
                 );
@@ -457,7 +457,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                     sc_m.add_val_to(
                         &Id::empty_hash(),
                         v.to_os_string(),
-                        ValueType::CommandLine,
+                        ValueSource::CommandLine,
                         false,
                     );
                     sc_m.get_mut(&Id::empty_hash())
@@ -1116,7 +1116,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         opt,
                         opt.default_missing_vals.iter().map(OsString::from),
                         matcher,
-                        ValueType::CommandLine,
+                        ValueSource::CommandLine,
                         false,
                     );
                 };
@@ -1144,7 +1144,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 opt,
                 v,
                 matcher,
-                ValueType::CommandLine,
+                ValueSource::CommandLine,
                 false,
                 trailing_values,
             );
@@ -1165,7 +1165,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         arg: &Arg<'help>,
         val: &RawOsStr,
         matcher: &mut ArgMatcher,
-        ty: ValueType,
+        ty: ValueSource,
         append: bool,
         trailing_values: bool,
     ) -> ParseResult {
@@ -1214,7 +1214,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         arg: &Arg<'help>,
         vals: impl Iterator<Item = OsString>,
         matcher: &mut ArgMatcher,
-        ty: ValueType,
+        ty: ValueSource,
         append: bool,
     ) {
         // If not appending, create a new val group and then append vals in.
@@ -1234,7 +1234,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         arg: &Arg<'help>,
         val: OsString,
         matcher: &mut ArgMatcher,
-        ty: ValueType,
+        ty: ValueSource,
         append: bool,
     ) {
         debug!("Parser::add_single_val_to_arg: adding val...{:?}", val);
@@ -1263,7 +1263,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         debug!("Parser::parse_flag");
 
         self.inc_occurrence_of_arg(matcher, flag);
-        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueType::CommandLine);
+        matcher.add_index_to(&flag.id, self.cur_idx.get(), ValueSource::CommandLine);
 
         ParseResult::ValuesDone
     }
@@ -1297,12 +1297,12 @@ impl<'help, 'app> Parser<'help, 'app> {
 
         for o in self.app.get_opts() {
             debug!("Parser::add_defaults:iter:{}:", o.name);
-            self.add_value(o, matcher, ValueType::DefaultValue, trailing_values);
+            self.add_value(o, matcher, ValueSource::DefaultValue, trailing_values);
         }
 
         for p in self.app.get_positionals() {
             debug!("Parser::add_defaults:iter:{}:", p.name);
-            self.add_value(p, matcher, ValueType::DefaultValue, trailing_values);
+            self.add_value(p, matcher, ValueSource::DefaultValue, trailing_values);
         }
     }
 
@@ -1310,7 +1310,7 @@ impl<'help, 'app> Parser<'help, 'app> {
         &self,
         arg: &Arg<'help>,
         matcher: &mut ArgMatcher,
-        ty: ValueType,
+        ty: ValueSource,
         trailing_values: bool,
     ) {
         if !arg.default_vals_ifs.is_empty() {
@@ -1457,7 +1457,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                         a,
                         &val,
                         matcher,
-                        ValueType::EnvVariable,
+                        ValueSource::EnvVariable,
                         false,
                         trailing_values,
                     );
@@ -1480,7 +1480,7 @@ impl<'help, 'app> Parser<'help, 'app> {
                 let predicate = str_to_bool(val.to_str_lossy());
                 debug!("Parser::add_env: Found boolean literal `{}`", predicate);
                 if predicate {
-                    matcher.add_index_to(&a.id, self.cur_idx.get(), ValueType::EnvVariable);
+                    matcher.add_index_to(&a.id, self.cur_idx.get(), ValueSource::EnvVariable);
                 }
             }
 
