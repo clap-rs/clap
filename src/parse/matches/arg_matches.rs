@@ -656,7 +656,7 @@ impl ArgMatches {
 
         let value = self.get_arg(&id);
 
-        value.map(MatchedArg::source)
+        value.and_then(MatchedArg::source)
     }
 
     /// The number of times an argument was used at runtime.

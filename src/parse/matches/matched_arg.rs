@@ -13,7 +13,7 @@ use crate::INTERNAL_ERROR_MSG;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MatchedArg {
     occurs: u64,
-    ty: ValueSource,
+    ty: Option<ValueSource>,
     indices: Vec<usize>,
     vals: Vec<Vec<OsString>>,
     ignore_case: bool,
@@ -24,7 +24,7 @@ impl MatchedArg {
     pub(crate) fn new() -> Self {
         MatchedArg {
             occurs: 0,
-            ty: ValueSource::Unknown,
+            ty: None,
             indices: Vec::new(),
             vals: Vec::new(),
             ignore_case: false,
@@ -119,7 +119,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == ValueSource::DefaultValue {
+        if self.ty == Some(ValueSource::DefaultValue) {
             return false;
         }
 
@@ -136,12 +136,16 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn source(&self) -> ValueSource {
+    pub(crate) fn source(&self) -> Option<ValueSource> {
         self.ty
     }
 
     pub(crate) fn update_ty(&mut self, ty: ValueSource) {
-        self.ty = self.ty.max(ty);
+        if let Some(existing) = self.ty {
+            self.ty = Some(existing.max(ty));
+        } else {
+            self.ty = Some(ty)
+        }
     }
 
     pub(crate) fn set_ignore_case(&mut self, yes: bool) {
