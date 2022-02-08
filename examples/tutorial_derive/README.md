@@ -586,6 +586,7 @@ Doing work using input input.txt and config config.toml
 ## Contributing
 
 New example code:
+- Please update the corresponding section in the [builder tutorial](../tutorial_builder/README.md)
 - Building: They must be added to [Cargo.toml](../../Cargo.toml) with the appropriate `required-features`.
 - Testing: Ensure there is a markdown file with [trycmd](https://docs.rs/trycmd) syntax (generally they'll go in here).
 
