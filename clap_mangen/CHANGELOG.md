@@ -7,5 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Expanded the documentation
+
 <!-- next-url -->
 [Unreleased]: https://github.com/clap-rs/clap/compare/0b045f5d0de9f6c97607be3276f529a14510e94e...HEAD
