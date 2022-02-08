@@ -30,7 +30,7 @@ fn arg_help_heading_applied() {
 #[test]
 fn app_help_heading_applied() {
     #[derive(Debug, Clone, Parser)]
-    #[clap(help_heading = "DEFAULT")]
+    #[clap(next_help_heading = "DEFAULT")]
     struct CliOptions {
         #[clap(long)]
         #[clap(help_heading = Some("HEADING A"))]
@@ -79,14 +79,14 @@ fn app_help_heading_flattened() {
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(help_heading = "HEADING A")]
+    #[clap(next_help_heading = "HEADING A")]
     struct OptionsA {
         #[clap(long)]
         should_be_in_section_a: u32,
     }
 
     #[derive(Debug, Clone, Args)]
-    #[clap(help_heading = "HEADING B")]
+    #[clap(next_help_heading = "HEADING B")]
     struct OptionsB {
         #[clap(long)]
         should_be_in_section_b: u32,
@@ -99,7 +99,7 @@ fn app_help_heading_flattened() {
         #[clap(subcommand)]
         SubC(SubC),
         SubAOne,
-        #[clap(help_heading = "SUB A")]
+        #[clap(next_help_heading = "SUB A")]
         SubATwo {
             should_be_in_sub_a: u32,
         },
@@ -107,13 +107,13 @@ fn app_help_heading_flattened() {
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubB {
-        #[clap(help_heading = "SUB B")]
+        #[clap(next_help_heading = "SUB B")]
         SubBOne { should_be_in_sub_b: u32 },
     }
 
     #[derive(Debug, Clone, Subcommand)]
     enum SubC {
-        #[clap(help_heading = "SUB C")]
+        #[clap(next_help_heading = "SUB C")]
         SubCOne { should_be_in_sub_c: u32 },
     }
 
@@ -168,7 +168,7 @@ fn flatten_field_with_help_heading() {
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
         #[clap(flatten)]
-        #[clap(help_heading = "HEADING A")]
+        #[clap(next_help_heading = "HEADING A")]
         options_a: OptionsA,
     }
 
@@ -227,4 +227,174 @@ USAGE:
 For more information try --help
 "#;
     assert_eq!(result.unwrap_err().to_string(), expected);
+}
+
+#[test]
+fn derive_order_next_order() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-b                 first flag
+        --option-b <OPTION_B>    first option
+    -h, --help                   Print help information
+    -V, --version                Print version information
+        --flag-a                 second flag
+        --option-a <OPTION_A>    second option
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(name = "test", version = "1.2")]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    struct Args {
+        #[clap(flatten)]
+        a: A,
+        #[clap(flatten)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    #[clap(next_display_order = 10000)]
+    struct A {
+        /// second flag
+        #[clap(long)]
+        flag_a: bool,
+        /// second option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    #[clap(next_display_order = 10)]
+    struct B {
+        /// first flag
+        #[clap(long)]
+        flag_b: bool,
+        /// first option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
+}
+
+#[test]
+fn derive_order_next_order_flatten() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-b                 first flag
+        --option-b <OPTION_B>    first option
+    -h, --help                   Print help information
+    -V, --version                Print version information
+        --flag-a                 second flag
+        --option-a <OPTION_A>    second option
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    #[clap(name = "test", version = "1.2")]
+    struct Args {
+        #[clap(flatten)]
+        #[clap(next_display_order = 10000)]
+        a: A,
+        #[clap(flatten)]
+        #[clap(next_display_order = 10)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    struct A {
+        /// second flag
+        #[clap(long)]
+        flag_a: bool,
+        /// second option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    struct B {
+        /// first flag
+        #[clap(long)]
+        flag_b: bool,
+        /// first option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
+}
+
+#[test]
+fn derive_order_no_next_order() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-a                 first flag
+        --flag-b                 second flag
+    -h, --help                   Print help information
+        --option-a <OPTION_A>    first option
+        --option-b <OPTION_B>    second option
+    -V, --version                Print version information
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(name = "test", version = "1.2")]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    #[clap(next_display_order = None)]
+    struct Args {
+        #[clap(flatten)]
+        a: A,
+        #[clap(flatten)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    struct A {
+        /// first flag
+        #[clap(long)]
+        flag_a: bool,
+        /// first option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    struct B {
+        /// second flag
+        #[clap(long)]
+        flag_b: bool,
+        /// second option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
 }

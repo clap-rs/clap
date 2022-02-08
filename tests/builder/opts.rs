@@ -561,7 +561,7 @@ fn long_eq_val_starts_with_eq() {
 #[test]
 fn issue_2022_get_flags_misuse() {
     let app = App::new("test")
-        .help_heading(Some("test"))
+        .next_help_heading(Some("test"))
         .arg(Arg::new("a").long("a").default_value("32"));
     let matches = app.try_get_matches_from(&[""]).unwrap();
     assert!(matches.value_of("a").is_some())
@@ -571,14 +571,14 @@ fn issue_2022_get_flags_misuse() {
 fn issue_2279() {
     let before_help_heading = App::new("app")
         .arg(Arg::new("foo").short('f').default_value("bar"))
-        .help_heading(Some("This causes default_value to be ignored"))
+        .next_help_heading(Some("This causes default_value to be ignored"))
         .try_get_matches_from(&[""])
         .unwrap();
 
     assert_eq!(before_help_heading.value_of("foo"), Some("bar"));
 
     let after_help_heading = App::new("app")
-        .help_heading(Some("This causes default_value to be ignored"))
+        .next_help_heading(Some("This causes default_value to be ignored"))
         .arg(Arg::new("foo").short('f').default_value("bar"))
         .try_get_matches_from(&[""])
         .unwrap();

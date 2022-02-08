@@ -40,9 +40,11 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 pub struct Error {
     inner: Box<ErrorInner>,
     /// The type of error
+    // TODO: Deprecate
     pub kind: ErrorKind,
     /// Additional information depending on the error kind, like values and argument names.
     /// Useful when you want to render an error of your own.
+    // TODO: Deprecate
     pub info: Vec<String>,
 }
 

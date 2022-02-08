@@ -62,7 +62,7 @@ use crate::{Error, INTERNAL_ERROR_MSG};
 /// // Your program logic starts here...
 /// ```
 /// [`App::get_matches`]: App::get_matches()
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct App<'help> {
     pub(crate) id: Id,
     pub(crate) name: String,
@@ -95,6 +95,7 @@ pub struct App<'help> {
     pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
     pub(crate) groups: Vec<ArgGroup<'help>>,
     pub(crate) current_help_heading: Option<&'help str>,
+    pub(crate) current_disp_ord: Option<usize>,
     pub(crate) subcommand_value_name: Option<&'help str>,
     pub(crate) subcommand_heading: Option<&'help str>,
 }
@@ -169,6 +170,14 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let mut arg = a.into();
+        if let Some(current_disp_ord) = self.current_disp_ord.as_mut() {
+            if !arg.is_positional() && arg.provider != ArgProvider::Generated {
+                let current = *current_disp_ord;
+                arg.disp_ord.set_implicit(current);
+                *current_disp_ord = current + 1;
+            }
+        }
+
         arg.help_heading.get_or_insert(self.current_help_heading);
         self.args.push(arg);
         self
@@ -1333,11 +1342,42 @@ impl<'help> App<'help> {
     /// [`Arg::help_heading`]: crate::Arg::help_heading()
     #[inline]
     #[must_use]
-    pub fn help_heading<O>(mut self, heading: O) -> Self
+    // TODO: Deprecate
+    pub fn help_heading<O>(self, heading: O) -> Self
+    where
+        O: Into<Option<&'help str>>,
+    {
+        self.next_help_heading(heading)
+    }
+
+    /// Set the default section heading for future args.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::help_heading`] called.
+    ///
+    /// This is useful if the default `OPTIONS` or `ARGS` headings are
+    /// not specific enough for one's use case.
+    ///
+    /// For subcommands, see [`App::subcommand_help_heading`]
+    ///
+    /// [`App::arg`]: App::arg()
+    /// [`Arg::help_heading`]: crate::Arg::help_heading()
+    #[inline]
+    #[must_use]
+    pub fn next_help_heading<O>(mut self, heading: O) -> Self
     where
         O: Into<Option<&'help str>>,
     {
         self.current_help_heading = heading.into();
+        self
+    }
+
+    /// Change the starting value for assigning future display orders for ags.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
+    #[inline]
+    #[must_use]
+    pub fn next_display_order(mut self, disp_ord: impl Into<Option<usize>>) -> Self {
+        self.current_disp_ord = disp_ord.into();
         self
     }
 
@@ -2165,7 +2205,16 @@ impl<'help> App<'help> {
     ///
     /// [`App::help_heading`]: App::help_heading()
     #[inline]
+    // TODO: Deprecate
     pub fn get_help_heading(&self) -> Option<&'help str> {
+        self.get_next_help_heading()
+    }
+
+    /// Get the custom section heading specified via [`App::help_heading`].
+    ///
+    /// [`App::help_heading`]: App::help_heading()
+    #[inline]
+    pub fn get_next_help_heading(&self) -> Option<&'help str> {
         self.current_help_heading
     }
 
@@ -2993,14 +3042,13 @@ impl<'help> App<'help> {
         debug!("App::_derive_display_order:{}", self.name);
 
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            for (i, a) in self
+            for a in self
                 .args
                 .args_mut()
                 .filter(|a| !a.is_positional())
                 .filter(|a| a.provider != ArgProvider::Generated)
-                .enumerate()
             {
-                a.disp_ord.get_or_insert(i);
+                a.disp_ord.make_explicit();
             }
             for (i, sc) in &mut self.subcommands.iter_mut().enumerate() {
                 sc.disp_ord.get_or_insert(i);
@@ -3306,6 +3354,47 @@ impl<'help> App<'help> {
 
     pub(crate) fn get_display_order(&self) -> usize {
         self.disp_ord.unwrap_or(999)
+    }
+}
+
+impl<'help> Default for App<'help> {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            name: Default::default(),
+            long_flag: Default::default(),
+            short_flag: Default::default(),
+            bin_name: Default::default(),
+            author: Default::default(),
+            version: Default::default(),
+            long_version: Default::default(),
+            about: Default::default(),
+            long_about: Default::default(),
+            before_help: Default::default(),
+            before_long_help: Default::default(),
+            after_help: Default::default(),
+            after_long_help: Default::default(),
+            aliases: Default::default(),
+            short_flag_aliases: Default::default(),
+            long_flag_aliases: Default::default(),
+            usage_str: Default::default(),
+            usage: Default::default(),
+            help_str: Default::default(),
+            disp_ord: Default::default(),
+            term_w: Default::default(),
+            max_w: Default::default(),
+            template: Default::default(),
+            settings: Default::default(),
+            g_settings: Default::default(),
+            args: Default::default(),
+            subcommands: Default::default(),
+            replacers: Default::default(),
+            groups: Default::default(),
+            current_help_heading: Default::default(),
+            current_disp_ord: Some(0),
+            subcommand_value_name: Default::default(),
+            subcommand_heading: Default::default(),
+        }
     }
 }
 

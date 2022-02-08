@@ -83,7 +83,7 @@ pub struct Arg<'help> {
     pub(crate) long: Option<&'help str>,
     pub(crate) aliases: Vec<(&'help str, bool)>, // (name, visible)
     pub(crate) short_aliases: Vec<(char, bool)>, // (name, visible)
-    pub(crate) disp_ord: Option<usize>,
+    pub(crate) disp_ord: DisplayOrder,
     pub(crate) possible_vals: Vec<PossibleValue<'help>>,
     pub(crate) val_names: Vec<&'help str>,
     pub(crate) num_vals: Option<usize>,
@@ -2892,7 +2892,7 @@ impl<'help> Arg<'help> {
     #[inline]
     #[must_use]
     pub fn display_order(mut self, ord: usize) -> Self {
-        self.disp_ord = Some(ord);
+        self.disp_ord.set_explicit(ord);
         self
     }
 
@@ -4982,7 +4982,7 @@ impl<'help> Arg<'help> {
     }
 
     pub(crate) fn get_display_order(&self) -> usize {
-        self.disp_ord.unwrap_or(999)
+        self.disp_ord.get_explicit()
     }
 }
 
@@ -5184,6 +5184,43 @@ where
         }
     }
     Ok(())
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum DisplayOrder {
+    None,
+    Implicit(usize),
+    Explicit(usize),
+}
+
+impl DisplayOrder {
+    pub(crate) fn set_explicit(&mut self, explicit: usize) {
+        *self = Self::Explicit(explicit)
+    }
+
+    pub(crate) fn set_implicit(&mut self, implicit: usize) {
+        *self = (*self).max(Self::Implicit(implicit))
+    }
+
+    pub(crate) fn make_explicit(&mut self) {
+        match *self {
+            Self::None | Self::Explicit(_) => {}
+            Self::Implicit(disp) => self.set_explicit(disp),
+        }
+    }
+
+    pub(crate) fn get_explicit(self) -> usize {
+        match self {
+            Self::None | Self::Implicit(_) => 999,
+            Self::Explicit(disp) => disp,
+        }
+    }
+}
+
+impl Default for DisplayOrder {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 // Flags
