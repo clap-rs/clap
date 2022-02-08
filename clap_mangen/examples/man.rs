@@ -1,5 +1,5 @@
 use clap::{arg, App};
-use clap_man::Man;
+use clap_mangen::Man;
 use std::io;
 
 // Run this example as `cargo run --example man | man -l -`.

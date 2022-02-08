@@ -5,7 +5,7 @@ members = [
 	"clap_complete_fig",
 	"clap_generate",
 	"clap_generate_fig",
-	"clap_man",
+	"clap_mangen",
 ]
 
 [package]
