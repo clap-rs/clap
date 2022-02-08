@@ -1,5 +1,5 @@
 name: Bug report
-description: An issue with clap, clap_derive or clap_generate
+description: An issue with clap, clap_complete, clap_derive, or clap_mangen
 labels: 'C-bug'
 body:
   - type: checkboxes
