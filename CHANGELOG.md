@@ -190,9 +190,10 @@ fn verify_app() {
 ```
 
 **From structopt 0.3.25**
+<a name="migrate-structopt"></a>
 
 1. Add CLI tests, `-h` and `--help` output at a minimum (recommendation: [trycmd](https://docs.rs/trycmd/) for snapshot testing)
-2. Update your dependency, adding the `derive` feature flag
+2. Replace your dependency from `structopt = "..."` to `clap = { version = "3.0", features = "derive" }`
     1. *If you use `no-default-features`:* add the `std` feature
 3. Resolve compiler errors, including
     1. Update your `use` statements from `structopt` and `structopt::clap` to `clap`

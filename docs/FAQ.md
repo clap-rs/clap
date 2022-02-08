@@ -33,7 +33,9 @@ The benefits of integrating `structopt` and `clap` are:
   derives in mind and easier to change `clap` in response to `structopt` bugs.
 - Clearer endorsement of `structopt`
 
-For more details on what has changed and how to migrate, see the [CHANGELOG](../CHANGELOG.md)
+See also
+- [`clap` v3 CHANGELOG](../CHANGELOG.md#300---2021-12-31)
+- [`structopt` migration guide](../CHANGELOG.md#migrate-structopt)
 
 #### What are some reasons to use `clap`? (The Pitch)
 
