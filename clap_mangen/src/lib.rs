@@ -12,7 +12,7 @@ use render::subcommand_heading;
 use roff::{roman, Roff};
 use std::io::Write;
 
-/// A manual page as constructed from a clap::App.
+/// A manpage writer
 pub struct Man<'a> {
     app: clap::App<'a>,
     title: String,
@@ -22,6 +22,7 @@ pub struct Man<'a> {
     manual: String,
 }
 
+/// Build a [`Man`]
 impl<'a> Man<'a> {
     /// Create a new manual page.
     pub fn new(mut app: clap::App<'a>) -> Self {
@@ -45,37 +46,58 @@ impl<'a> Man<'a> {
         }
     }
 
-    /// Override the default title
+    /// Override the default man page title, written in all caps
     pub fn title(mut self, title: impl Into<String>) -> Self {
         self.title = title.into();
         self
     }
 
-    /// Override the default section
+    /// Override the default section this man page is placed in
+    ///
+    /// Common values:
+    ///
+    // - `"1"`: User Commands
+    // - `"2"`: System Calls
+    // - `"3"`: C Library Functions
+    // - `"4"`: Devices and Special Files
+    // - `"5"`: File Formats and Conventions
+    // - `"6"`: Games et. al.
+    // - `"7"`: Miscellanea
+    // - `"8"`: System Administration tools and Daemons
     pub fn section(mut self, section: impl Into<String>) -> Self {
         self.section = section.into();
         self
     }
 
-    /// Override the default date
+    /// Override the default date for the last non-trivial change to this man page
+    ///
+    /// Dates should be written in the form `YYYY-MM-DD`.
     pub fn date(mut self, date: impl Into<String>) -> Self {
         self.date = date.into();
         self
     }
 
-    /// Override the default source
+    /// Override the default source your command
+    ///
+    /// For those few man-pages pages in Sections 1 and 8, probably you just want to write GNU.
     pub fn source(mut self, source: impl Into<String>) -> Self {
         self.source = source.into();
         self
     }
 
-    /// Override the default manual
+    /// Override the default manual this page is a member of
     pub fn manual(mut self, manual: impl Into<String>) -> Self {
         self.manual = manual.into();
         self
     }
+}
 
-    /// Render a manual page into writer.
+/// Generate ROFF output
+impl<'a> Man<'a> {
+    /// Render a full manual page into the writer.
+    ///
+    /// If customization is needed, you can call the individual sections you want and mix them into
+    /// your own ROFF content.
     pub fn render(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
         self._render_title(&mut roff);
