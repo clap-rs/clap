@@ -155,3 +155,33 @@ fn default_missing_value_flag_value() {
         false
     );
 }
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument `arg`'s default_missing_value=value doesn't match possible values"]
+fn default_missing_values_are_possible_values() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(
+            Arg::new("arg")
+                .possible_values(["one", "two"])
+                .default_missing_value("value"),
+        )
+        .try_get_matches();
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument `arg`'s default_missing_value=value failed validation: invalid digit found in string"]
+fn default_missing_values_are_valid() {
+    use clap::{App, Arg};
+
+    let _ = App::new("test")
+        .arg(
+            Arg::new("arg")
+                .validator(|val| val.parse::<u32>().map_err(|e| e.to_string()))
+                .default_missing_value("value"),
+        )
+        .try_get_matches();
+}
