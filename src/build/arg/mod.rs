@@ -627,8 +627,6 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -3810,8 +3808,6 @@ impl<'help> Arg<'help> {
     /// This argument is [required] only if the specified `arg` is present at runtime and its value
     /// equals `val`.
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -4058,8 +4054,6 @@ impl<'help> Arg<'help> {
     /// if this arg (`self`) is present and its value equals to `val`.
     /// If it does, `another_arg` will be marked as required.
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -4120,8 +4114,6 @@ impl<'help> Arg<'help> {
     ///
     /// The requirement will only become valid if this arg's value equals `val`.
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -4177,8 +4169,6 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
     /// by default.
-    ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
     ///
     /// # Examples
     ///
@@ -4255,8 +4245,6 @@ impl<'help> Arg<'help> {
     ///
     /// **NOTE** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
-    ///
     /// # Examples
     ///
     /// ```rust
@@ -4305,8 +4293,6 @@ impl<'help> Arg<'help> {
     /// need to also do B.conflicts_with(A))
     ///
     /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
-    ///
-    /// **NOTE:** An argument is considered present when there is a [`Arg::default_value`]
     ///
     /// # Examples
     ///
