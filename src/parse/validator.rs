@@ -265,10 +265,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Usage::new(self.p.app, &self.p.required).create_usage_with_title(&required)
     }
 
-    fn gather_requirements(&mut self, matcher: &ArgMatcher) {
-        debug!("Validator::gather_requirements");
+    fn gather_requires(&mut self, matcher: &ArgMatcher) {
+        debug!("Validator::gather_requires");
         for name in matcher.arg_names() {
-            debug!("Validator::gather_requirements:iter:{:?}", name);
+            debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.p.app.find(name) {
                 let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
                     let required = matcher.check_explicit(&arg.id, *val);
@@ -279,7 +279,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                     self.p.required.insert(req);
                 }
             } else if let Some(g) = self.p.app.find_group(name) {
-                debug!("Validator::gather_requirements:iter:{:?}:group", name);
+                debug!("Validator::gather_requires:iter:{:?}:group", name);
                 for r in &g.requires {
                     self.p.required.insert(r.clone());
                 }
@@ -422,7 +422,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             "Validator::validate_required: required={:?}",
             self.p.required
         );
-        self.gather_requirements(matcher);
+        self.gather_requires(matcher);
 
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
