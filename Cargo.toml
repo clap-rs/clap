@@ -171,6 +171,10 @@ name = "keyvalue-derive"
 required-features = ["derive"]
 
 [[example]]
+name = "validator-derive"
+required-features = ["derive"]
+
+[[example]]
 name = "busybox"
 path = "examples/multicall-busybox.rs"
 required-features = ["unstable-multicall"]
