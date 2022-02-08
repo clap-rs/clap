@@ -3292,24 +3292,17 @@ impl<'help> App<'help> {
         matcher: Option<&ArgMatcher>,
     ) -> Vec<Id> {
         let requires_if_or_not = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
-            match val {
-                ArgPredicate::Equals(v) => {
+            let required = match val {
+                ArgPredicate::Equals(_) => {
                     if let Some(matcher) = matcher {
-                        if matcher
-                            .get(arg)
-                            .map(|ma| ma.contains_val_os(v))
-                            .unwrap_or(false)
-                        {
-                            Some(req_arg.clone())
-                        } else {
-                            None
-                        }
+                        matcher.check_explicit(arg, *val)
                     } else {
-                        None
+                        false
                     }
                 }
-                ArgPredicate::IsPresent => Some(req_arg.clone()),
-            }
+                ArgPredicate::IsPresent => true,
+            };
+            required.then(|| req_arg.clone())
         };
 
         let mut processed = vec![];
