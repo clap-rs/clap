@@ -260,6 +260,21 @@ fn arg_required_else_help_over_reqs() {
 }
 
 #[test]
+fn arg_required_else_help_with_default() {
+    let result = App::new("arg_required")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .arg(arg!(--input <PATH>).required(false).default_value("-"))
+        .try_get_matches_from(vec![""]);
+
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    assert_eq!(
+        err.kind(),
+        ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
+    );
+}
+
+#[test]
 fn arg_required_else_help_error_message() {
     let app = App::new("test")
         .setting(AppSettings::ArgRequiredElseHelp)

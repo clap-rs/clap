@@ -101,10 +101,6 @@ impl ArgMatcher {
         self.0.args.contains_key(arg)
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
-        self.0.args.is_empty()
-    }
-
     pub(crate) fn arg_names(&self) -> indexmap::map::Keys<Id, MatchedArg> {
         self.0.args.keys()
     }
