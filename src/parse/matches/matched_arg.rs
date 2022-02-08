@@ -6,13 +6,14 @@ use std::{
 };
 
 use crate::build::ArgPredicate;
+use crate::parse::ValueSource;
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MatchedArg {
     occurs: u64,
-    ty: ValueType,
+    ty: Option<ValueSource>,
     indices: Vec<usize>,
     vals: Vec<Vec<OsString>>,
     ignore_case: bool,
@@ -23,7 +24,7 @@ impl MatchedArg {
     pub(crate) fn new() -> Self {
         MatchedArg {
             occurs: 0,
-            ty: ValueType::Unknown,
+            ty: None,
             indices: Vec::new(),
             vals: Vec::new(),
             ignore_case: false,
@@ -118,7 +119,7 @@ impl MatchedArg {
     }
 
     pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
-        if self.ty == ValueType::DefaultValue {
+        if self.ty == Some(ValueSource::DefaultValue) {
             return false;
         }
 
@@ -135,8 +136,16 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn update_ty(&mut self, ty: ValueType) {
-        self.ty = self.ty.max(ty);
+    pub(crate) fn source(&self) -> Option<ValueSource> {
+        self.ty
+    }
+
+    pub(crate) fn update_ty(&mut self, ty: ValueSource) {
+        if let Some(existing) = self.ty {
+            self.ty = Some(existing.max(ty));
+        } else {
+            self.ty = Some(ty)
+        }
     }
 
     pub(crate) fn set_ignore_case(&mut self, yes: bool) {
@@ -156,15 +165,6 @@ impl Default for MatchedArg {
     fn default() -> Self {
         Self::new()
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) enum ValueType {
-    Unknown,
-    DefaultValue,
-    #[cfg(feature = "env")]
-    EnvVariable,
-    CommandLine,
 }
 
 #[cfg(test)]

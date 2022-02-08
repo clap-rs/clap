@@ -30,7 +30,7 @@ pub use crate::build::{
     App, AppFlags, AppSettings, Arg, ArgFlags, ArgGroup, ArgSettings, PossibleValue, ValueHint,
 };
 pub use crate::error::Error;
-pub use crate::parse::{ArgMatches, Indices, OsValues, Values};
+pub use crate::parse::{ArgMatches, Indices, OsValues, ValueSource, Values};
 #[cfg(feature = "color")]
 pub use crate::util::color::ColorChoice;
 

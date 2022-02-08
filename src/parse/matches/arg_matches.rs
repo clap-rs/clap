@@ -12,11 +12,10 @@ use std::{
 use indexmap::IndexMap;
 
 // Internal
-use crate::{
-    parse::MatchedArg,
-    util::{Id, Key},
-    {Error, INVALID_UTF8},
-};
+use crate::parse::MatchedArg;
+use crate::parse::ValueSource;
+use crate::util::{Id, Key};
+use crate::{Error, INVALID_UTF8};
 
 /// Container for parse results.
 ///
@@ -625,6 +624,39 @@ impl ArgMatches {
         self.get_arg(&id);
 
         self.args.contains_key(&id)
+    }
+
+    /// Check if an argument was present at runtime.
+    ///
+    /// *NOTE:* This will always return `true` if [`default_value`] has been set.
+    /// [`occurrences_of`] can be used to check if a value is present at runtime.
+    ///
+    /// # Panics
+    ///
+    /// If `id` is is not a valid argument or group name.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap::{App, Arg};
+    /// let m = App::new("myprog")
+    ///     .arg(Arg::new("debug")
+    ///         .short('d'))
+    ///     .get_matches_from(vec![
+    ///         "myprog", "-d"
+    ///     ]);
+    ///
+    /// assert!(m.is_present("debug"));
+    /// ```
+    ///
+    /// [`default_value`]: crate::Arg::default_value()
+    /// [`occurrences_of`]: ArgMatches::occurrences_of()
+    pub fn value_source<T: Key>(&self, id: T) -> Option<ValueSource> {
+        let id = Id::from(id);
+
+        let value = self.get_arg(&id);
+
+        value.and_then(MatchedArg::source)
     }
 
     /// The number of times an argument was used at runtime.

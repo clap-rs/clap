@@ -4,7 +4,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 // Internal
 use crate::{
     build::{App, Arg, ArgPredicate, ArgSettings},
-    parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
+    parse::{ArgMatches, MatchedArg, SubCommand, ValueSource},
     util::Id,
 };
 
@@ -129,7 +129,7 @@ impl ArgMatcher {
         let id = &arg.id;
         debug!("ArgMatcher::inc_occurrence_of_arg: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueType::CommandLine);
+        ma.update_ty(ValueSource::CommandLine);
         ma.set_ignore_case(arg.is_set(ArgSettings::IgnoreCase));
         ma.invalid_utf8_allowed(arg.is_set(ArgSettings::AllowInvalidUtf8));
         ma.inc_occurrences();
@@ -138,11 +138,11 @@ impl ArgMatcher {
     pub(crate) fn inc_occurrence_of_group(&mut self, id: &Id) {
         debug!("ArgMatcher::inc_occurrence_of_group: id={:?}", id);
         let ma = self.entry(id).or_insert(MatchedArg::new());
-        ma.update_ty(ValueType::CommandLine);
+        ma.update_ty(ValueSource::CommandLine);
         ma.inc_occurrences();
     }
 
-    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType, append: bool) {
+    pub(crate) fn add_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource, append: bool) {
         if append {
             self.append_val_to(arg, val, ty);
         } else {
@@ -150,7 +150,7 @@ impl ArgMatcher {
         }
     }
 
-    fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
+    fn push_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
         // We will manually inc occurrences later(for flexibility under
         // specific circumstances, like only add one occurrence for flag
         // when we met: `--flag=one,two`).
@@ -159,7 +159,7 @@ impl ArgMatcher {
         ma.push_val(val);
     }
 
-    fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueType) {
+    fn append_val_to(&mut self, arg: &Id, val: OsString, ty: ValueSource) {
         let ma = self.entry(arg).or_default();
         ma.update_ty(ty);
         ma.append_val(val);
@@ -170,7 +170,7 @@ impl ArgMatcher {
         ma.new_val_group();
     }
 
-    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueType) {
+    pub(crate) fn add_index_to(&mut self, arg: &Id, idx: usize, ty: ValueSource) {
         let ma = self.entry(arg).or_default();
         ma.update_ty(ty);
         ma.push_index(idx);
