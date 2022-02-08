@@ -5,6 +5,7 @@ use std::{
     slice::Iter,
 };
 
+use crate::build::ArgPredicate;
 use crate::util::eq_ignore_case;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -116,29 +117,22 @@ impl MatchedArg {
         }
     }
 
-    pub(crate) fn contains_val(&self, val: &str) -> bool {
-        self.vals_flatten().any(|v| {
-            if self.ignore_case {
-                // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
-                v.to_str().map_or(false, |v| eq_ignore_case(v, val))
-            } else {
-                OsString::as_os_str(v) == OsStr::new(val)
-            }
-        })
-    }
+    pub(crate) fn check_explicit(&self, predicate: ArgPredicate) -> bool {
+        if self.ty == ValueType::DefaultValue {
+            return false;
+        }
 
-    pub(crate) fn contains_val_os(&self, val: &OsStr) -> bool {
-        self.vals_flatten().any(|v| {
-            if self.ignore_case {
-                eq_ignore_case(&v.to_string_lossy(), &val.to_string_lossy())
-            } else {
-                v.as_os_str() == val
-            }
-        })
-    }
-
-    pub(crate) fn source(&self) -> ValueType {
-        self.ty
+        match predicate {
+            ArgPredicate::Equals(val) => self.vals_flatten().any(|v| {
+                if self.ignore_case {
+                    // If `v` isn't utf8, it can't match `val`, so `OsStr::to_str` should be fine
+                    eq_ignore_case(&v.to_string_lossy(), &val.to_string_lossy())
+                } else {
+                    OsString::as_os_str(v) == OsStr::new(val)
+                }
+            }),
+            ArgPredicate::IsPresent => true,
+        }
     }
 
     pub(crate) fn update_ty(&mut self, ty: ValueType) {

@@ -3,7 +3,7 @@ use indexmap::IndexSet;
 // Internal
 use crate::{
     build::AppSettings as AS,
-    build::{App, Arg, ArgSettings},
+    build::{App, Arg, ArgPredicate, ArgSettings},
     parse::ArgMatcher,
     util::{ChildGraph, Id},
     INTERNAL_ERROR_MSG,
@@ -360,7 +360,21 @@ impl<'help, 'app> Usage<'help, 'app> {
         let mut unrolled_reqs = IndexSet::new();
 
         for a in self.required.iter() {
-            for aa in self.app.unroll_requirements_for_arg(a, matcher) {
+            let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+                let required = match val {
+                    ArgPredicate::Equals(_) => {
+                        if let Some(matcher) = matcher {
+                            matcher.check_explicit(a, *val)
+                        } else {
+                            false
+                        }
+                    }
+                    ArgPredicate::IsPresent => true,
+                };
+                required.then(|| req_arg.clone())
+            };
+
+            for aa in self.app.unroll_arg_requires(is_relevant, a) {
                 // if we don't check for duplicates here this causes duplicate error messages
                 // see https://github.com/clap-rs/clap/issues/2770
                 unrolled_reqs.insert(aa);

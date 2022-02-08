@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsString, mem, ops::Deref};
 
 // Internal
 use crate::{
-    build::{App, Arg, ArgSettings},
+    build::{App, Arg, ArgPredicate, ArgSettings},
     parse::{ArgMatches, MatchedArg, SubCommand, ValueType},
     util::Id,
 };
@@ -101,13 +101,6 @@ impl ArgMatcher {
         self.0.args.contains_key(arg)
     }
 
-    pub(crate) fn contains_explicit(&self, arg: &Id) -> bool {
-        self.0
-            .args
-            .get(arg)
-            .map_or(false, |a| a.source() != ValueType::DefaultValue)
-    }
-
     pub(crate) fn is_empty(&self) -> bool {
         self.0.args.is_empty()
     }
@@ -130,6 +123,10 @@ impl ArgMatcher {
 
     pub(crate) fn iter(&self) -> indexmap::map::Iter<Id, MatchedArg> {
         self.0.args.iter()
+    }
+
+    pub(crate) fn check_explicit<'a>(&self, arg: &Id, predicate: ArgPredicate<'a>) -> bool {
+        self.get(arg).map_or(false, |a| a.check_explicit(predicate))
     }
 
     pub(crate) fn inc_occurrence_of_arg(&mut self, arg: &Arg) {

@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings};
+use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgPredicate, ArgSettings};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -33,7 +33,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         if let ParseState::Opt(a) = parse_state {
             debug!("Validator::validate: needs_val_of={:?}", a);
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
 
             let o = &self.p.app[&a];
             reqs_validated = true;
@@ -65,7 +64,6 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         self.validate_conflicts(matcher)?;
         if !(self.p.is_set(AS::SubcommandsNegateReqs) && is_subcmd || reqs_validated) {
             self.validate_required(matcher)?;
-            self.validate_required_unless(matcher)?;
         }
         self.validate_matched_args(matcher)?;
 
@@ -103,6 +101,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
                 if !ok {
                     let used: Vec<Id> = matcher
                         .arg_names()
+                        .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
                         .filter(|&n| {
                             self.p.app.find(n).map_or(true, |a| {
                                 !(a.is_set(ArgSettings::Hidden) || self.p.required.contains(&a.id))
@@ -180,7 +179,8 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         let mut conflicts = Conflicts::new();
         for arg_id in matcher
             .arg_names()
-            .filter(|arg_id| matcher.contains_explicit(arg_id) && self.p.app.find(arg_id).is_some())
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+            .filter(|arg_id| self.p.app.find(arg_id).is_some())
         {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
             let conflicts = conflicts.gather_conflicts(self.p.app, matcher, arg_id);
@@ -192,6 +192,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
     fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
+        // Not bothering to filter for `check_explicit` since defaults shouldn't play into this
         let args_count = matcher.arg_names().count();
         matcher
             .arg_names()
@@ -253,6 +254,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     fn build_conflict_err_usage(&self, matcher: &ArgMatcher, conflicting_keys: &[Id]) -> String {
         let used_filtered: Vec<Id> = matcher
             .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|key| !conflicting_keys.contains(key))
             .cloned()
             .collect();
@@ -267,20 +269,24 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         Usage::new(self.p.app, &self.p.required).create_usage_with_title(&required)
     }
 
-    fn gather_requirements(&mut self, matcher: &ArgMatcher) {
-        debug!("Validator::gather_requirements");
-        for name in matcher.arg_names() {
-            debug!("Validator::gather_requirements:iter:{:?}", name);
+    fn gather_requires(&mut self, matcher: &ArgMatcher) {
+        debug!("Validator::gather_requires");
+        for name in matcher
+            .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
+        {
+            debug!("Validator::gather_requires:iter:{:?}", name);
             if let Some(arg) = self.p.app.find(name) {
-                for req in self
-                    .p
-                    .app
-                    .unroll_requirements_for_arg(&arg.id, Some(matcher))
-                {
+                let is_relevant = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
+                    let required = matcher.check_explicit(&arg.id, *val);
+                    required.then(|| req_arg.clone())
+                };
+
+                for req in self.p.app.unroll_arg_requires(is_relevant, &arg.id) {
                     self.p.required.insert(req);
                 }
             } else if let Some(g) = self.p.app.find_group(name) {
-                debug!("Validator::gather_requirements:iter:{:?}:group", name);
+                debug!("Validator::gather_requires:iter:{:?}:group", name);
                 for r in &g.requires {
                     self.p.required.insert(r.clone());
                 }
@@ -423,7 +429,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
             "Validator::validate_required: required={:?}",
             self.p.required
         );
-        self.gather_requirements(matcher);
+        self.gather_requires(matcher);
 
         for arg_or_group in self.p.required.iter().filter(|r| !matcher.contains(r)) {
             debug!("Validator::validate_required:iter:aog={:?}", arg_or_group);
@@ -449,21 +455,23 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         // Validate the conditionally required args
         for a in self.p.app.args.args() {
             for (other, val) in &a.r_ifs {
-                if let Some(ma) = matcher.get(other) {
-                    if ma.contains_val(val) && !matcher.contains(&a.id) {
-                        return self.missing_required_error(matcher, vec![a.id.clone()]);
-                    }
+                if matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
+                    && !matcher.contains(&a.id)
+                {
+                    return self.missing_required_error(matcher, vec![a.id.clone()]);
                 }
             }
 
-            let match_all = a
-                .r_ifs_all
-                .iter()
-                .all(|(other, val)| matcher.get(other).map_or(false, |ma| ma.contains_val(val)));
+            let match_all = a.r_ifs_all.iter().all(|(other, val)| {
+                matcher.check_explicit(other, ArgPredicate::Equals(std::ffi::OsStr::new(*val)))
+            });
             if match_all && !a.r_ifs_all.is_empty() && !matcher.contains(&a.id) {
                 return self.missing_required_error(matcher, vec![a.id.clone()]);
             }
         }
+
+        self.validate_required_unless(matcher)?;
+
         Ok(())
     }
 
@@ -508,7 +516,7 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
     // Failing a required unless means, the arg's "unless" wasn't present, and neither were they
     fn fails_arg_required_unless(&self, a: &Arg<'help>, matcher: &ArgMatcher) -> bool {
         debug!("Validator::fails_arg_required_unless: a={:?}", a.name);
-        let exists = |id| matcher.contains(id);
+        let exists = |id| matcher.check_explicit(id, ArgPredicate::IsPresent);
 
         (a.r_unless_all.is_empty() || !a.r_unless_all.iter().all(exists))
             && !a.r_unless.iter().any(exists)
@@ -533,12 +541,11 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
 
         let used: Vec<Id> = matcher
             .arg_names()
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
             .filter(|n| {
                 // Filter out the args we don't want to specify.
                 self.p.app.find(n).map_or(true, |a| {
-                    !a.is_set(ArgSettings::Hidden)
-                        && a.default_vals.is_empty()
-                        && !self.p.required.contains(&a.id)
+                    !a.is_set(ArgSettings::Hidden) && !self.p.required.contains(&a.id)
                 })
             })
             .cloned()
@@ -568,7 +575,7 @@ impl Conflicts {
         let mut conflicts = Vec::new();
         for other_arg_id in matcher
             .arg_names()
-            .filter(|arg_id| matcher.contains_explicit(arg_id))
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
         {
             if arg_id == other_arg_id {
                 continue;
