@@ -18,3 +18,36 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 ## About
 
+Generate [ROFF](https://en.wikipedia.org/wiki/Roff_(software)) from a `clap::App`.
+
+### Example
+
+We're going to assume you want to generate your man page as part of your
+development rather than your shipped program having a flag to generate it.
+
+In your `Cargo.toml`:
+```toml
+[build-dependencies]
+clap_mangen = "0.1"
+```
+
+In your `build.rs`:
+```rust,no_run
+fn main() -> std::io::Result<()> {
+    let out_dir = std::path::PathBuf::from(std::env::var_os("OUT_DIR").ok_or_else(|| std::io::ErrorKind::NotFound)?);
+
+    let app = clap::App::new("mybin")
+        .arg(clap::arg!(-n --name <NAME>))
+        .arg(clap::arg!(-c --count <NUM>));
+
+    let man = clap_mangen::Man::new(app);
+    let mut buffer: Vec<u8> = Default::default();
+    man.render(&mut buffer)?;
+
+    std::fs::write(out_dir.join("mybin.1"), buffer)?;
+
+    Ok(())
+}
+```
+
+Tip: Consider a [cargo xtask](https://github.com/matklad/cargo-xtask) instead of a `build.rs` to reduce build costs.
