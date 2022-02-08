@@ -3286,25 +3286,10 @@ impl<'help> App<'help> {
         args
     }
 
-    pub(crate) fn unroll_requirements_for_arg(
-        &self,
-        arg: &Id,
-        matcher: Option<&ArgMatcher>,
-    ) -> Vec<Id> {
-        let requires_if_or_not = |(val, req_arg): &(ArgPredicate<'_>, Id)| -> Option<Id> {
-            let required = match val {
-                ArgPredicate::Equals(_) => {
-                    if let Some(matcher) = matcher {
-                        matcher.check_explicit(arg, *val)
-                    } else {
-                        false
-                    }
-                }
-                ArgPredicate::IsPresent => true,
-            };
-            required.then(|| req_arg.clone())
-        };
-
+    pub(crate) fn unroll_arg_requires<F>(&self, func: F, arg: &Id) -> Vec<Id>
+    where
+        F: Fn(&(ArgPredicate<'_>, Id)) -> Option<Id>,
+    {
         let mut processed = vec![];
         let mut r_vec = vec![arg];
         let mut args = vec![];
@@ -3317,7 +3302,7 @@ impl<'help> App<'help> {
             processed.push(a);
 
             if let Some(arg) = self.find(a) {
-                for r in arg.requires.iter().filter_map(requires_if_or_not) {
+                for r in arg.requires.iter().filter_map(&func) {
                     if let Some(req) = self.find(&r) {
                         if !req.requires.is_empty() {
                             r_vec.push(&req.id)
