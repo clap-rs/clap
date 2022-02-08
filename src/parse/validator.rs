@@ -1,5 +1,5 @@
 // Internal
-use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgSettings};
+use crate::build::{arg::PossibleValue, App, AppSettings as AS, Arg, ArgPredicate, ArgSettings};
 use crate::error::{Error, Result as ClapResult};
 use crate::output::Usage;
 use crate::parse::{ArgMatcher, MatchedArg, ParseState, Parser};
@@ -176,10 +176,10 @@ impl<'help, 'app, 'parser> Validator<'help, 'app, 'parser> {
         self.validate_exclusive(matcher)?;
 
         let mut conflicts = Conflicts::new();
-        for arg_id in matcher
-            .arg_names()
-            .filter(|arg_id| matcher.contains_explicit(arg_id) && self.p.app.find(arg_id).is_some())
-        {
+        for arg_id in matcher.arg_names().filter(|arg_id| {
+            matcher.check_explicit(arg_id, ArgPredicate::IsPresent)
+                && self.p.app.find(arg_id).is_some()
+        }) {
             debug!("Validator::validate_conflicts::iter: id={:?}", arg_id);
             let conflicts = conflicts.gather_conflicts(self.p.app, matcher, arg_id);
             self.build_conflict_err(arg_id, &conflicts, matcher)?;
@@ -569,7 +569,7 @@ impl Conflicts {
         let mut conflicts = Vec::new();
         for other_arg_id in matcher
             .arg_names()
-            .filter(|arg_id| matcher.contains_explicit(arg_id))
+            .filter(|arg_id| matcher.check_explicit(arg_id, ArgPredicate::IsPresent))
         {
             if arg_id == other_arg_id {
                 continue;
