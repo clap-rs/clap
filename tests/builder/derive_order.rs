@@ -134,6 +134,45 @@ fn derive_order() {
 }
 
 #[test]
+fn derive_order_next_order() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag_b                 first flag
+        --option_b <option_b>    first option
+    -h, --help                   Print help information
+    -V, --version                Print version information
+        --flag_a                 second flag
+        --option_a <option_a>    second option
+";
+
+    let app = App::new("test")
+        .setting(AppSettings::DeriveDisplayOrder)
+        .version("1.2")
+        .next_display_order(10000)
+        .arg(Arg::new("flag_a").long("flag_a").help("second flag"))
+        .arg(
+            Arg::new("option_a")
+                .long("option_a")
+                .takes_value(true)
+                .help("second option"),
+        )
+        .next_display_order(10)
+        .arg(Arg::new("flag_b").long("flag_b").help("first flag"))
+        .arg(
+            Arg::new("option_b")
+                .long("option_b")
+                .takes_value(true)
+                .help("first option"),
+        );
+
+    assert!(utils::compare_output(app, "test --help", HELP, false));
+}
+
+#[test]
 fn derive_order_subcommand_propagate() {
     let app = App::new("test")
         .global_setting(AppSettings::DeriveDisplayOrder)

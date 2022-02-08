@@ -5189,20 +5189,29 @@ where
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum DisplayOrder {
     None,
+    Implicit(usize),
     Explicit(usize),
 }
 
 impl DisplayOrder {
     pub(crate) fn set_explicit(&mut self, explicit: usize) {
+        *self = Self::Explicit(explicit)
+    }
+
+    pub(crate) fn set_implicit(&mut self, implicit: usize) {
+        *self = (*self).max(Self::Implicit(implicit))
+    }
+
+    pub(crate) fn make_explicit(&mut self) {
         match *self {
-            Self::None => *self = Self::Explicit(explicit),
-            Self::Explicit(_) => {}
+            Self::None | Self::Explicit(_) => {}
+            Self::Implicit(disp) => self.set_explicit(disp),
         }
     }
 
     pub(crate) fn get_explicit(self) -> usize {
         match self {
-            Self::None => 999,
+            Self::None | Self::Implicit(_) => 999,
             Self::Explicit(disp) => disp,
         }
     }

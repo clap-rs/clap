@@ -95,6 +95,7 @@ pub struct App<'help> {
     pub(crate) replacers: HashMap<&'help str, &'help [&'help str]>,
     pub(crate) groups: Vec<ArgGroup<'help>>,
     pub(crate) current_help_heading: Option<&'help str>,
+    pub(crate) current_disp_ord: usize,
     pub(crate) subcommand_value_name: Option<&'help str>,
     pub(crate) subcommand_heading: Option<&'help str>,
 }
@@ -169,6 +170,12 @@ impl<'help> App<'help> {
     #[must_use]
     pub fn arg<A: Into<Arg<'help>>>(mut self, a: A) -> Self {
         let mut arg = a.into();
+        if !arg.is_positional() && arg.provider != ArgProvider::Generated {
+            let current = self.current_disp_ord;
+            arg.disp_ord.set_implicit(current);
+            self.current_disp_ord = current + 1;
+        }
+
         arg.help_heading.get_or_insert(self.current_help_heading);
         self.args.push(arg);
         self
@@ -1359,6 +1366,16 @@ impl<'help> App<'help> {
         O: Into<Option<&'help str>>,
     {
         self.current_help_heading = heading.into();
+        self
+    }
+
+    /// Change the starting value for assigning future display orders for ags.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
+    #[inline]
+    #[must_use]
+    pub fn next_display_order(mut self, disp_ord: usize) -> Self {
+        self.current_disp_ord = disp_ord;
         self
     }
 
@@ -3023,14 +3040,13 @@ impl<'help> App<'help> {
         debug!("App::_derive_display_order:{}", self.name);
 
         if self.settings.is_set(AppSettings::DeriveDisplayOrder) {
-            for (i, a) in self
+            for a in self
                 .args
                 .args_mut()
                 .filter(|a| !a.is_positional())
                 .filter(|a| a.provider != ArgProvider::Generated)
-                .enumerate()
             {
-                a.disp_ord.set_explicit(i);
+                a.disp_ord.make_explicit();
             }
             for (i, sc) in &mut self.subcommands.iter_mut().enumerate() {
                 sc.disp_ord.get_or_insert(i);

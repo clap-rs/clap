@@ -228,3 +228,117 @@ For more information try --help
 "#;
     assert_eq!(result.unwrap_err().to_string(), expected);
 }
+
+#[test]
+fn derive_order_next_order() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-b                 first flag
+        --option-b <OPTION_B>    first option
+    -h, --help                   Print help information
+    -V, --version                Print version information
+        --flag-a                 second flag
+        --option-a <OPTION_A>    second option
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(name = "test", version = "1.2")]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    struct Args {
+        #[clap(flatten)]
+        a: A,
+        #[clap(flatten)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    #[clap(next_display_order = 10000)]
+    struct A {
+        /// second flag
+        #[clap(long)]
+        flag_a: bool,
+        /// second option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    #[clap(next_display_order = 10)]
+    struct B {
+        /// first flag
+        #[clap(long)]
+        flag_b: bool,
+        /// first option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
+}
+
+#[test]
+fn derive_order_next_order_flatten() {
+    static HELP: &str = "test 1.2
+
+USAGE:
+    test [OPTIONS]
+
+OPTIONS:
+        --flag-b                 first flag
+        --option-b <OPTION_B>    first option
+    -h, --help                   Print help information
+    -V, --version                Print version information
+        --flag-a                 second flag
+        --option-a <OPTION_A>    second option
+";
+
+    #[derive(Parser, Debug)]
+    #[clap(setting = AppSettings::DeriveDisplayOrder)]
+    #[clap(name = "test", version = "1.2")]
+    struct Args {
+        #[clap(flatten)]
+        #[clap(next_display_order = 10000)]
+        a: A,
+        #[clap(flatten)]
+        #[clap(next_display_order = 10)]
+        b: B,
+    }
+
+    #[derive(Args, Debug)]
+    struct A {
+        /// second flag
+        #[clap(long)]
+        flag_a: bool,
+        /// second option
+        #[clap(long)]
+        option_a: Option<String>,
+    }
+
+    #[derive(Args, Debug)]
+    struct B {
+        /// first flag
+        #[clap(long)]
+        flag_b: bool,
+        /// first option
+        #[clap(long)]
+        option_b: Option<String>,
+    }
+
+    use clap::IntoApp;
+    let mut app = Args::into_app();
+
+    let mut buffer: Vec<u8> = Default::default();
+    app.write_help(&mut buffer).unwrap();
+    let help = String::from_utf8(buffer).unwrap();
+    assert_eq!(help, HELP);
+}

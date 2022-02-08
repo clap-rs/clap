@@ -46,6 +46,7 @@ pub struct Attrs {
     author: Option<Method>,
     version: Option<Method>,
     verbatim_doc_comment: Option<Ident>,
+    next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
     help_heading: Option<Method>,
     is_enum: bool,
@@ -380,6 +381,7 @@ impl Attrs {
             author: None,
             version: None,
             verbatim_doc_comment: None,
+            next_display_order: None,
             next_help_heading: None,
             help_heading: None,
             is_enum: false,
@@ -534,6 +536,10 @@ impl Attrs {
                     self.methods.push(Method::new(raw_ident, val));
                 }
 
+                NextDisplayOrder(ident, expr) => {
+                    self.next_display_order = Some(Method::new(ident, quote!(#expr)));
+                }
+
                 HelpHeading(ident, expr) => {
                     self.help_heading = Some(Method::new(ident, quote!(#expr)));
                 }
@@ -628,9 +634,14 @@ impl Attrs {
 
     /// generate methods from attributes on top of struct or enum
     pub fn initial_top_level_methods(&self) -> TokenStream {
+        let next_display_order = self.next_display_order.as_ref().into_iter();
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
         let help_heading = self.help_heading.as_ref().into_iter();
-        quote!( #(#next_help_heading)*  #(#help_heading)* )
+        quote!(
+            #(#next_display_order)*
+            #(#next_help_heading)*
+            #(#help_heading)*
+        )
     }
 
     pub fn final_top_level_methods(&self) -> TokenStream {
@@ -659,6 +670,11 @@ impl Attrs {
                 quote!( #(#doc_comment)* #(#help_heading)* #(#methods)* )
             }
         }
+    }
+
+    pub fn next_display_order(&self) -> TokenStream {
+        let next_display_order = self.next_display_order.as_ref().into_iter();
+        quote!( #(#next_display_order)* )
     }
 
     pub fn next_help_heading(&self) -> TokenStream {

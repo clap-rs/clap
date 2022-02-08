@@ -188,17 +188,18 @@ fn gen_augment(
                         let ty = &unnamed[0];
                         let old_heading_var = format_ident!("__clap_old_heading");
                         let next_help_heading = attrs.next_help_heading();
+                        let next_display_order = attrs.next_display_order();
                         let subcommand = if override_required {
                             quote! {
                                 let #old_heading_var = #app_var.get_next_help_heading();
-                                let #app_var = #app_var #next_help_heading;
+                                let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                                 let #app_var = #app_var.next_help_heading(#old_heading_var);
                             }
                         } else {
                             quote! {
                                 let #old_heading_var = #app_var.get_next_help_heading();
-                                let #app_var = #app_var #next_help_heading;
+                                let #app_var = #app_var #next_help_heading #next_display_order;
                                 let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                                 let #app_var = #app_var.next_help_heading(#old_heading_var);
                             }

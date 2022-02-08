@@ -130,6 +130,7 @@ In addition to the raw attributes, the following magic attributes are supported:
 - `long_about = <expr>`: `clap::App::long_about`
   - When not present: [Doc comment](#doc-comments) if there is a blank line, else nothing
 - `verbatim_doc_comment`: Minimizes pre-processing when converting doc comments to `about` / `long_about`
+- `next_display_order`: `clap::App::next_display_order`
 - `next_help_heading`: `clap::App::next_help_heading`
   - When `flatten`ing `Args`, this is scoped to just the args in this struct and any struct `flatten`ed into it
 - `rename_all = <expr>`: Override default field / variant name case conversion for `App::name` / `Arg::name`
